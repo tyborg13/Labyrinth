@@ -56,17 +56,45 @@ static func formation(grid: Array, entry: Vector2i, objective_value: Dictionary)
 		occupied[tile] = true
 	var variant: Dictionary = Library.variant("umbral_snare", str(objective_value["special_variant"]))
 	var start_count: int = int(variant.get("start_hunters", 0))
-	# reachable_tiles is already a stable breadth-first walk: nearest tiles
-	# come first without repeating a path search inside a sorting comparator.
-	var candidates: Array[Vector2i]
-	if start_count > 0: candidates = Paths.reachable_tiles(grid, entry, grid.size() * grid[0].size())
-	for tile: Vector2i in candidates:
-		if positions.size() == exits.size() + start_count: break
-		if occupied.has(tile) or Paths.manhattan(tile, entry) < MIN_START_HUNTER_DISTANCE: continue
-		positions.append(tile)
-		occupied[tile] = true
+	positions.append_array(_starting_hunter_positions(grid, entry, entry, start_count, occupied))
 	if positions.size() != exits.size() + start_count: return {}
 	return {"exits": exits, "positions": positions}
+
+# Stable breadth-first order from the physical entry, shared with round arrivals.
+static func _entry_candidates(grid: Array, entry: Vector2i) -> Array[Vector2i]:
+	var candidates: Array[Vector2i]
+	candidates.append(entry)
+	candidates.append_array(Paths.reachable_tiles(grid, entry, grid.size() * grid[0].size()))
+	return candidates
+
+static func _starting_hunter_positions(grid: Array, entry: Vector2i, player: Vector2i, count: int, occupied: Dictionary) -> Array[Vector2i]:
+	var positions: Array[Vector2i]
+	if count <= 0: return positions
+	for tile: Vector2i in _entry_candidates(grid, entry):
+		if occupied.has(tile) or Paths.manhattan(tile, player) < MIN_START_HUNTER_DISTANCE: continue
+		positions.append(tile)
+		if positions.size() == count: break
+	return positions
+
+# True Bearing is applied by RunEngine after generation. Re-evaluate the ice
+# roster only after that final start is known, keeping ordinary authored starts
+# byte-identical and preserving the physical entrance for later arrivals.
+static func finalize_starting_hunters(layout: Dictionary) -> void:
+	if not is_room(layout) or layout["player_start"] == layout["snare_entry"]: return
+	var hunters: Array[Dictionary]
+	var occupied: Dictionary = {layout["player_start"]: true}
+	for exit: Dictionary in layout["objective"]["exits"]: occupied[exit["target_tile"]] = true
+	for enemy: Dictionary in layout["enemies"]:
+		if bool(enemy.get("snare_hunter", false)):
+			hunters.append(enemy)
+		else:
+			occupied[enemy["pos"]] = true
+	if hunters.is_empty(): return
+	for collection: String in ["npcs", "terrain", "traps", "loot"]:
+		for entry: Dictionary in layout.get(collection, []): occupied[entry["pos"]] = true
+	var positions: Array[Vector2i] = _starting_hunter_positions(layout["grid"], layout["snare_entry"], layout["player_start"], hunters.size(), occupied)
+	assert(positions.size() == hunters.size(), "No legal final-start Snare hunter formation")
+	for index: int in range(hunters.size()): hunters[index]["pos"] = positions[index]
 
 static func roster(room: Dictionary, door_count: int) -> Array:
 	var rules: Dictionary = Library.definition("umbral_snare")
@@ -77,6 +105,7 @@ static func roster(room: Dictionary, door_count: int) -> Array:
 	return result
 
 static func configure(layout: Dictionary, tier: int) -> void:
+	layout["snare_entry"] = layout["player_start"]
 	var rules: Dictionary = Library.definition("umbral_snare")
 	var exits: Array = layout["objective"]["exits"]
 	var enemies: Array = layout["enemies"]
@@ -188,9 +217,7 @@ static func start_round(engine: RefCounted, state: Dictionary) -> void:
 	var entry: Vector2i = state.get("snare_entry", Vector2i(-1, -1))
 	if entry.x < 0: return
 	var blocked: Dictionary = engine._enemy_blocking_tiles(state)
-	var candidates: Array[Vector2i]
-	candidates.append(entry)
-	candidates.append_array(Paths.reachable_tiles(state["grid"], entry, state["grid"].size() * state["grid"][0].size()))
+	var candidates: Array[Vector2i] = _entry_candidates(state["grid"], entry)
 	for tile: Vector2i in candidates:
 		if blocked.has(tile) or not Paths.is_passable(state["grid"], tile): continue
 		var rng := RandomNumberGenerator.new()

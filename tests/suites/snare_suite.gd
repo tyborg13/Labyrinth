@@ -22,6 +22,7 @@ class BlockedGenerator extends "res://scripts/room_generator.gd":
 			for x: int in range(1, grid[y].size() - 1): grid[y][x] = "pillar"
 
 static func run(expect: Callable) -> void:
+	preload("res://tests/suites/snare_regression_suite.gd").run(expect)
 	_matrix(expect)
 	_fallback(expect)
 	_boundaries(expect)

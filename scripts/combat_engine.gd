@@ -935,6 +935,7 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 		"rng_state": rng.state,
 		"log": []
 	}
+	if SnareRules.active(state): state["snare_entry"] = room_layout.get("snare_entry", room_layout.get("player_start", Vector2i.ZERO))
 	if DepthRules.depth(room_layout) > 0:
 		state[DepthRules.STATE_KEY] = DepthRules.depth(room_layout)
 		state["section_index"] = int(room_layout.get("section_index", (maxi(1, int(room_layout.get("depth", 1))) - 1) / DEPTHS_PER_SEQUENCE))
@@ -961,7 +962,6 @@ func advance_combat_creation(cursor: Dictionary) -> bool:
 		_assign_enemy_intent(state, index, rng)
 		cursor["enemy_index"] = index + 1
 		return false
-	if SnareRules.active(state): state["snare_entry"] = state["player"]["pos"]
 	state["rng_state"] = rng.state
 	state = _initialize_initiative_queue(state)
 	ManeuverRules.record_activation_start(state)
@@ -1388,8 +1388,14 @@ func action_with_automatic_origin(state: Dictionary, action: Dictionary, target:
 func player_action_target_reason(state: Dictionary, action: Dictionary, tile: Vector2i) -> String:
 	return VeilRules.target_reason(self, state, action, tile)
 
+func _player_action_destination_is_passable(state: Dictionary, action: Dictionary, tile: Vector2i) -> bool:
+	var kind: String = str(action.get("type", ""))
+	if kind == "illusion" and IllusionCardRules.places_adjacent_to_enemy(action): return true
+	return kind not in ["move", "blink", "illusion", "swap", "illusion_swap"] or _tile_is_passable(state, tile)
+
 func _player_action_target_is_accepted(state: Dictionary, action: Dictionary, tile: Vector2i, accept_target: Callable) -> bool:
 	return (
+		_player_action_destination_is_passable(state, action, tile) and
 		VeilRules.target_reason(self, state, action, tile).is_empty()
 		and _surface_condition_met_or_empty(state, action.get("requires_surface", {}) as Dictionary, tile)
 		and SurfaceRelicRules.can_prepare(state, action, tile)
@@ -1538,6 +1544,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		or valid_targets_for_player_action(next_state, action).has(target_tile)
 	)
 	if not VeilRules.target_reason(self, next_state, action, target_tile).is_empty(): return next_state
+	if action_needs_target and not _player_action_destination_is_passable(next_state, action, target_tile): return next_state
 	if not target_is_valid or not SurfaceRelicRules.can_prepare(next_state, action, target_tile) or (action.has("_origin_tile") and not is_tile_visible_to_player(next_state, action["_origin_tile"])):
 		return next_state
 	if CardStayRules.is_stay(next_state, action, target_tile):
@@ -4980,6 +4987,7 @@ func _damage_terrain_indices(state: Dictionary, terrain_indices: Array[int], dam
 	return next_state
 
 func _create_illusion(state: Dictionary, pos: Vector2i, health: int, traits: Dictionary = {}) -> Dictionary:
+	if not _tile_is_passable(state, pos): return state
 	var next_state: Dictionary = state
 	for existing_illusion: Dictionary in _live_illusions(next_state):
 		if existing_illusion.get("pos", INVALID_TILE) == pos:
@@ -6914,7 +6922,7 @@ func _force_line_anchors(state: Dictionary, kind: String, id: int, direction: Ve
 	return anchors
 
 func _force_blocker_at(state: Dictionary, tile: Vector2i, mover_kind: String, mover_id: int) -> Dictionary:
-	if not PathUtils.is_passable(state.get("grid", []), tile) or SnareRules.sealed_tiles(state).has(tile):
+	if not _tile_is_passable(state, tile):
 		return {"kind": "wall", "id": -1, "key": "wall", "tile": tile}
 	var terrain_index: int = _terrain_index_at_tile(state, tile)
 	if terrain_index >= 0:
@@ -7946,19 +7954,28 @@ func _occupied_terrain_tiles(state: Dictionary) -> Dictionary:
 		occupied[terrain.get("pos", Vector2i.ZERO)] = true
 	return occupied
 
+# Actor placement, movement, swaps and AI share this state-aware rule. The
+# ordinary grid stays intact for renderer, LOS and geometric surface queries.
+func _impassable_tiles(state: Dictionary) -> Dictionary:
+	return SnareRules.sealed_tiles(state)
+
+func _tile_is_passable(state: Dictionary, tile: Vector2i) -> bool:
+	return PathUtils.is_passable(state.get("grid", []), tile) and (not SnareRules.active(state) or not _impassable_tiles(state).has(tile))
+
 func _occupied_actor_tiles(state: Dictionary, exclude_enemy_id: int = -1, exclude_illusion_id: int = -1) -> Dictionary:
 	var occupied: Dictionary = _occupied_enemy_tiles(state, exclude_enemy_id)
 	for tile_var: Variant in _occupied_illusion_tiles(state, exclude_illusion_id).keys():
 		occupied[tile_var] = true
 	for tile_var: Variant in _occupied_terrain_tiles(state).keys():
 		occupied[tile_var] = true
+	occupied.merge(_impassable_tiles(state))
 	return occupied
 
 func _player_blocking_tiles(state: Dictionary) -> Dictionary:
 	var occupied: Dictionary = _occupied_enemy_tiles(state)
 	for tile_var: Variant in _occupied_terrain_tiles(state).keys():
 		occupied[tile_var] = true
-	occupied.merge(SnareRules.sealed_tiles(state))
+	occupied.merge(_impassable_tiles(state))
 	return occupied
 
 func _known_actor_tiles_for_player(state: Dictionary) -> Dictionary:
@@ -7967,7 +7984,7 @@ func _known_actor_tiles_for_player(state: Dictionary) -> Dictionary:
 		for tile: Vector2i in _occupied_illusion_tiles(state): occupied[tile] = true
 	for tile_var: Variant in _occupied_terrain_tiles(state).keys():
 		occupied[tile_var] = true
-	occupied.merge(SnareRules.sealed_tiles(state))
+	occupied.merge(_impassable_tiles(state))
 	return occupied
 
 func _dispel_illusion_at_player(state: Dictionary) -> Dictionary:
@@ -7983,7 +8000,7 @@ func _enemy_blocking_tiles(state: Dictionary, exclude_enemy_id: int = -1) -> Dic
 	var occupied: Dictionary = _occupied_actor_tiles(state, exclude_enemy_id)
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	occupied[player_pos] = true
-	occupied.merge(SnareRules.sealed_tiles(state))
+	occupied.merge(_impassable_tiles(state))
 	return occupied
 
 func _enemy_blocking_tiles_without_terrain(state: Dictionary, exclude_enemy_id: int = -1) -> Dictionary:
@@ -7992,7 +8009,7 @@ func _enemy_blocking_tiles_without_terrain(state: Dictionary, exclude_enemy_id: 
 		occupied[tile_var] = true
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	occupied[player_pos] = true
-	occupied.merge(SnareRules.sealed_tiles(state))
+	occupied.merge(_impassable_tiles(state))
 	return occupied
 
 func _live_enemies(state: Dictionary) -> Array[Dictionary]:
@@ -8120,7 +8137,7 @@ func _enemy_can_occupy_anchor(state: Dictionary, enemy: Dictionary, anchor: Vect
 			return false
 		if occupied.has(tile):
 			return false
-		if not PathUtils.is_passable(state.get("grid", []), tile):
+		if not _tile_is_passable(state, tile):
 			return false
 	return true
 
@@ -10114,7 +10131,7 @@ func _enemy_future_trap_penalty(enemy: Dictionary, anchor: Vector2i, planning_co
 
 func _enemy_anchor_is_in_grid(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> bool:
 	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
-		if not PathUtils.is_passable(state.get("grid", []), tile):
+		if not _tile_is_passable(state, tile):
 			return false
 	return true
 

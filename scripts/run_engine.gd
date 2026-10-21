@@ -3,6 +3,7 @@ class_name RunEngine
 
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const EventRules = preload("res://scripts/event_rules.gd")
+const SnareRules = preload("res://scripts/snare_room_rules.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const OmenRules = preload("res://scripts/omen_rules.gd")
 const GraftwrightRules = preload("res://scripts/graftwright_rules.gd")
@@ -2506,6 +2507,7 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 		var chosen_start: Vector2i = run_state.get("pre_battle_start", Vector2i(-1, -1))
 		if _layout_accepts_pre_battle_start(layout, chosen_start):
 			layout["player_start"] = chosen_start
+	SnareRules.finalize_starting_hunters(layout)
 	return layout
 
 func _record_encounter_pick(run_state: Dictionary, layout: Dictionary) -> void:

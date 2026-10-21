@@ -345,6 +345,14 @@ silently dissolves using the existing dissolve presentation, without death
 rewards, death effects, kill credit or sound. Killing the binder first saves
 `kept_open` on its door permanently. The jailer door has no timer.
 
+Actor passability is centralized in `CombatEngine._tile_is_passable`, backed by
+one objective-blocker lookup. Actor placement, player destination targeting and
+commit (including stale previews), current/future AI anchors and forced movement
+use it; navigation blocker maps carry the same sealed tiles. This covers Mirror
+Image followed by Changing Winds as well as an illusion that already occupies a
+threshold when it seals. Geometric surface queries, LOS and the renderer retain
+the ordinary grid; no accepted Snare visual is changed by this enforcement.
+
 Each active sealing door has a content-sized HUD-skin chip, `Seals · N`, with
 Wind's title font size, plate, fill, border and padding, minus its icon and arrow.
 Its centre aligns with the destination medallion; its bottom is 6 px above the
@@ -384,6 +392,16 @@ tiles from the hero and receives no later arrivals. Hunters use normal enemy
 AI and scaling. The special starting reward roster contains only the Gaoler
 and Sealbinders; hunters do not enlarge it.
 
+The generated layout records the authored physical threshold as `snare_entry`
+before True Bearing selects another player start. Combat creation copies that
+field into its existing saved `snare_entry` key. Round arrivals always use the
+physical entrance, including when it is now free. After True Bearing's final
+start is known, ice's three hunters are placed again in the same deterministic
+breadth-first entry order, excluding occupied tiles and tiles less than two
+Manhattan edges from the final player. Preview and combat entry use the same
+final layout. Ordinary authored starts retain their original placements; timers,
+arrival totals, rewards and analytics fields retain their existing format.
+
 Any open exit threshold still wins and commits its branch through the ordinary
 pending-escape flow. The Snare goal always succeeds on escape. The existing
 4-card special offer retains its Rare floor and 1.5× starting-roster Embers;
@@ -412,6 +430,19 @@ default and changed zoom, door/opening draw submissions, singular/plural tooltip
 text, and all four combat proof fixtures. The legend gate checks row count,
 centering and exact 40–12 px gap behavior on either side of the fit boundary,
 without a fixed enabled-concept count.
+
+`tests/suites/snare_regression_suite.gd` adds feedback-2 stock-card and stock-AI
+reproductions after the real turn-two seal: Mirror Image → Changing Winds at
+(7,4), a live illusion on a sealed destination, and Cudgel Press from (7,3)
+toward the hero at (7,5). These also run in `illusion_terrain_test.gd` and
+`enemy_pathfinding_test.gd`. Production True Bearing cases cover seed 83,
+lightning (2,0), and seed 0, ice (3,-2), both selecting (1,3). The authored
+entrance remains (1,4), and the ice roster remains at least two tiles away.
+Explicit formation adversaries reject four edges, accept five, and force the
+room generator to retry a first four-edge candidate. `--feedback-2-only` on
+`snare_test.gd` runs these regressions without the placement matrix. The change
+restores existing movement/card assumptions; no card coefficient, balance value,
+text, palette, asset or animation is redesigned.
 
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --stream -- godot --headless --path . --script tests/snare_test.gd
@@ -485,6 +516,36 @@ two legal Shadow Step copies use normal preparation, action and finish paths on
 seed 83. The free-movement assertion remains. The named two-copy test hand is a
 debug fixture, never a production deck change. All three design placeholders are
 resolved by the director's feedback; no pending design values remain.
+
+### Observed feedback-2 proof (2026-10-21)
+
+The unchanged implementation failed the new reproductions with
+`Snare suite: 11 failures`. After the fixes, the focused programs below pass.
+The previously surviving `MIN_EXIT_PATH_TILES` 5 → 4 mutant now exits 1 with
+`Snare suite: 3 failures`: four-edge rejection, short-layout reroll and retained
+five-edge minimum. The constant was restored to 5 before the passing runs.
+
+```text
+Snare suite: 0 failures
+Snare UI/fixture suite: 0 failures
+SPX special encounter suite: 0 failures
+SPX fullest legend: seed=0 section=2 entries=11 rows=2
+SPX special legend suite: 0 failures
+Warband suite: 0 failures
+Warband UI semantics: 0 failures
+ILLUSION TERRAIN TEST RESULT: PASS
+ENEMY PATHFINDING TEST RESULT: PASS
+Ran 25 tests in 2.615s
+OK
+```
+
+Logs are `/private/tmp/labyrinth_codex/spx-05-r2-{snare,snare-ui,special,legend,warband,warband-ui,illusion,ai,identity}.log`;
+red and mutation evidence are `spx-05-r2-red.log` and
+`spx-05-r2-minimum-mutant.log`. The Warband UI program emits shutdown leak
+warnings (four resources still in use) after its zero-failure result. Full suites
+and windowed runs were not requested or run. The director accepted feedback-1's
+native captures; visual code and both director catalogs are unchanged this round,
+including the director-owned Stormcaller sentence.
 
 ### Observed feedback-1 proof (2026-10-21)
 

@@ -170,7 +170,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	if snare:
 		var formation: Dictionary = {}
 		for attempt: int in range(SnareRooms.MAX_PLACEMENT_ATTEMPTS):
-			formation = SnareRooms.formation(grid, player_start, objective)
+			formation = _snare_formation(grid, player_start, objective)
 			if not formation.is_empty(): break
 			grid = _base_grid(rng)
 			_apply_available_doors(grid, room)
@@ -178,7 +178,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		if formation.is_empty():
 			for y: int in range(1, ROOM_HEIGHT - 1):
 				for x: int in range(1, ROOM_WIDTH - 1): grid[y][x] = TILE_STONE
-			formation = SnareRooms.formation(grid, player_start, objective)
+			formation = _snare_formation(grid, player_start, objective)
 		assert(not formation.is_empty(), "No legal Snare formation")
 		enemy_positions = formation["positions"]
 		objective["exits"] = formation["exits"]
@@ -260,6 +260,9 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	_apply_umbra_depth(layout, room)
 	if snare: SnareRooms.configure(layout, clampi(encounter_depth, 1, 3))
 	return layout
+
+func _snare_formation(grid: Array, entry: Vector2i, objective: Dictionary) -> Dictionary:
+	return SnareRooms.formation(grid, entry, objective)
 
 func _apply_umbra_depth(layout: Dictionary, room: Dictionary) -> void:
 	if DepthRules.depth(room) == 0: return

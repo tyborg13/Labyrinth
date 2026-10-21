@@ -44,6 +44,7 @@ const FIXTURES: Dictionary = {
 }
 
 static func run(expect: Callable) -> void:
+	preload("res://tests/suites/snare_regression_suite.gd").run_illusion(expect)
 	# Warm catalogs before fixtures exist so injected cards never leak.
 	GrimoireLibrary.entry_map()
 	_install_fixtures()
