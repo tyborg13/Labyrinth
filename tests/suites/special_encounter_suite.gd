@@ -9,8 +9,11 @@ const GameData = preload("res://scripts/game_data.gd")
 const Icons = preload("res://scripts/room_icon_library.gd")
 const Omens = preload("res://scripts/omen_rules.gd")
 const MapPanelScript = preload("res://scripts/section_map_panel.gd")
+const Elements = preload("res://scripts/element_data.gd")
 const SEED_COUNT: int = 64
 const REWARD_SEED_COUNT: int = 64
+const RARITY_FLOOR_TEST_SEED: int = 7
+const DOOR_TEST_TILE: Vector2i = Vector2i(1, 1)
 
 static func run(expect: Callable) -> void:
 	_test_golden(expect)
@@ -25,6 +28,7 @@ static func run(expect: Callable) -> void:
 	_test_rewards_and_resume(expect)
 	_test_reward_floor(expect)
 	_test_names(expect)
+	_test_door_names(expect)
 	print("SPX revision 6 maps: checked 64 seeds x 6 sections, exhaustive routes")
 
 static func _test_golden(expect: Callable) -> void:
@@ -199,25 +203,57 @@ static func _test_reward_floor(expect: Callable) -> void:
 	var fixture: Dictionary = special_entry(engine)
 	var state: Dictionary = fixture["state"]
 	var coord: Vector2i = fixture["destination"]
-	Graph.room(state, coord)["special_goal_met"] = true
-	for seed_value: int in range(REWARD_SEED_COUNT):
-		state["seed"] = seed_value
-		var choices: Array[String] = engine._generate_card_rewards(state, coord)
-		expect.call(choices.size() == 4 and _unique(choices).size() == 4, "Special offers four distinct cards")
-		var rare: bool = false
-		for id: String in choices: rare = rare or GameData.card_rarity(id) in ["rare", "epic", "legendary"]
-		expect.call(rare, "Every special offer includes Rare or better")
-		expect.call(not engine._equipment_drop_for_room(state, Graph.room(state, coord)).is_empty(), "Equipment is forced even when the ordinary drop roll misses")
+	var room: Dictionary = Graph.room(state, coord)
+	var elements: Array[String]
+	elements.assign(Elements.ORDER)
+	elements.append(Elements.NONE)
+	for element: String in elements:
+		room["element"] = element
+		var general_off_element: bool = false
+		for seed_value: int in range(REWARD_SEED_COUNT):
+			state["seed"] = seed_value
+			room["special_goal_met"] = false
+			var standard: Array[String] = engine._generate_card_rewards(state, coord)
+			room["special_goal_met"] = true
+			var choices: Array[String] = engine._generate_card_rewards(state, coord)
+			expect.call(choices.size() == 4 and _unique(choices).size() == 4, "Special offers four distinct cards: " + element)
+			expect.call(choices.slice(0, 3) == standard, "Special preserves ordinary first three slots: " + element)
+			if Elements.is_elemental(element):
+				for slot: int in [0, 1, 3]:
+					expect.call(GameData.card_element(choices[slot]) == element, "Three special slots use the room element: " + element)
+			general_off_element = general_off_element or GameData.card_element(choices[2]) != element
+			var rare: bool = false
+			for id: String in choices: rare = rare or GameData.card_rarity(id) in ["rare", "epic", "legendary"]
+			expect.call(rare, "Every special offer includes Rare or better: " + element)
+			expect.call(not engine._equipment_drop_for_room(state, room).is_empty(), "Equipment is forced even when the ordinary drop roll misses")
+		expect.call(general_off_element, "General special slot is not restricted to the room element: " + element)
+		_test_forced_floor(engine, state, element, expect)
+	print("SPX special reward filters: checked 64 seeds x 6 room elements; forced Rare floor in each filter")
+
+static func _test_forced_floor(engine: RunEngineScript, state: Dictionary, element: String, expect: Callable) -> void:
+	var filter: String = element if Elements.is_elemental(element) else ""
+	var pool: Array = GameData.reward_card_pool_by_rarity(filter, true)["common"]
 	var common: Array[String]
+	common.assign(pool.slice(0, 3))
+	# Slot 2 remains the ordinary general offer. The added elemental/general
+	# slot is last, so the rarity floor may change only slot 3.
 	for id: String in GameData.reward_card_pool_by_rarity("", true)["common"]:
-		common.append(id)
-		if common.size() == 4: break
+		if not common.has(id):
+			common.insert(2, id)
+			break
 	var rng := RandomNumberGenerator.new()
-	rng.seed = 7
-	var forced: Array[String] = engine._special_rarity_floor(rng, common.duplicate(), [], state)
-	expect.call(forced.slice(0, 3) == common.slice(0, 3) and GameData.card_rarity(forced[3]) != "common", "An all-common roll rerolls only the last slot at Rare or better")
+	rng.seed = RARITY_FLOOR_TEST_SEED
+	var forced: Array[String] = engine._special_rarity_floor(rng, common.duplicate(), [], state, filter)
+	expect.call(forced.slice(0, 3) == common.slice(0, 3) and GameData.card_rarity(forced[3]) in ["rare", "epic", "legendary"], "An all-common roll rerolls only the last element slot, or last neutral slot, at Rare or better: " + element)
+	if Elements.is_elemental(element):
+		expect.call(GameData.card_element(forced[3]) == element, "Forced Rare offer retains the room's element filter: " + element)
 	var deferred: Array[String] = engine._offer_with_deferred_id(forced, common[3], true)
 	expect.call(deferred.has(common[3]) and GameData.card_rarity(deferred[3]) != "common", "A deferred common card preserves the special rarity floor")
+	var excluded: Array[String]
+	excluded.assign(GameData.reward_card_pool_by_rarity(filter, true)["rare"])
+	rng.seed = RARITY_FLOOR_TEST_SEED
+	var unblocked: Array[String] = engine._special_rarity_floor(rng, common.duplicate(), excluded, state, filter)
+	expect.call(not excluded.has(unblocked[3]) and GameData.card_rarity(unblocked[3]) in ["epic", "legendary"], "Rarity floor respects excluded cards in the same element filter: " + element)
 
 static func _test_names(expect: Callable) -> void:
 	var room: Dictionary = {"type": "special", "special_type": "warband", "special_variant": "air", "revealed": true}
@@ -228,9 +264,31 @@ static func _test_names(expect: Callable) -> void:
 		expect.call(Icons.icon_id_for_room(room) == "special_" + type and not Icons.icon_path("special_" + type).is_empty(), "Every special owns its exact approved emblem")
 		var imported: Texture2D = load(Icons.icon_path("special_" + type)) as Texture2D
 		expect.call(imported != null and imported.get_size() == Vector2(1024, 1024), "Approved emblem imports load through Godot’s real resource loader")
+		var staged: Texture2D = load("res://spec/peer_benchmark/staged/spx/emblems/" + type + ".png") as Texture2D
+		expect.call(staged != null and staged.get_size() == Vector2(1024, 1024), "Director-staged emblem sidecars load through Godot’s real resource loader")
 	var panel := MapPanelScript.new()
 	room["special_type"] = "warband"
 	room["coord"] = Vector2i.ZERO
 	panel.run_state = {"rooms": {"0,0": room}, "current_room": Vector2i.ZERO}
 	expect.call(panel.room_description(Vector2i.ZERO) == "Warband · The Stormcaller\nKill the captain and the rest flee.\nCurrent room", "Tooltip orders title, type line, and ordinary state")
 	panel.free()
+
+static func _test_door_names(expect: Callable) -> void:
+	var engine := RunEngineScript.new()
+	var fixture: Dictionary = special_entry(engine)
+	var state: Dictionary = fixture["state"]
+	var coord: Vector2i = fixture["destination"]
+	var room: Dictionary = Graph.room(state, coord)
+	var scene: Control = load("res://scripts/run_scene.gd").new()
+	scene.set("_run_state", state)
+	scene.set("_hovered_board_tile", DOOR_TEST_TILE)
+	scene.set("_exit_destinations_by_tile", {DOOR_TEST_TILE: coord})
+	for type: String in Specials.catalog()["types"]:
+		room["special_type"] = type
+		expect.call(scene.call("_room_hover_hint") == "%s %d" % [Specials.display_name(room), room["depth"]], "Physical door uses the library's special name: " + type)
+	room["type"] = "combat"
+	room["element"] = Elements.FIRE
+	expect.call(scene.call("_room_hover_hint") == "Fire Combat %d" % room["depth"], "Ordinary door label retains its element, type and depth")
+	scene.set("_hovered_board_tile", Vector2i(-1, -1))
+	expect.call(scene.call("_room_hover_hint").is_empty(), "Leaving a physical door clears its label")
+	scene.free()

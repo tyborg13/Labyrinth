@@ -90,12 +90,13 @@ existing generic fight generation remains supported. The run captures the
 starting enemy roster’s Ember sum in `special_starting_reward_embers` before
 combat, so deaths, fleeing enemies, summons, saves and reloads cannot change it.
 
-Successful specials offer four distinct cards. If all four are below Rare, only
-the final slot is rerolled, keeping that slot’s element filter and the usual
-rarity and card offer weights among Rare/Epic/Legendary. A deferred card retains
-this floor. `TODO_DESIGN_SPECIAL_FOURTH_CHOICE_ELEMENT_FILTER` reserves the
-owner’s fourth-slot element filter; its current empty value retains the existing
-general-pool fallback after the ordinary two elemental and one general offers.
+Successful specials offer four distinct cards: three from the room’s element
+and one general offer in elemental rooms, or four general offers in neutral
+rooms. The ordinary first three offers stay in place; the fourth uses the room’s
+element filter (or the general pool for neutral rooms). If all four are below
+Rare, only the last elemental slot, or the last slot in a neutral room, is
+rerolled. It keeps that slot’s element filter and the usual rarity and card offer
+weights among Rare/Epic/Legendary. A deferred card retains this floor.
 
 The Ember reward replaces per-kill earnings with 1.5 times the starting roster’s
 `reward_embers` sum, using the ordinary half-up rounding and combat omen scaling.
@@ -126,11 +127,10 @@ retain their nine-concept legend and all existing probe assertions.
 
 `special_type` and `special_variant` remain in the persisted room metadata read
 by combat start/end context builders. spx-01 owns their analytics context fields;
-this unit does not modify `analytics_store.gd`. The remaining physical-door hover
-type label in `run_scene.gd::_room_hover_hint` is outside this unit’s owned files;
-the design owner must wire that call site to the library to avoid its legacy
-raw-type capitalization of “Special”. Starting-roster and goal-result
-metadata are additive and use the ordinary save format.
+this unit does not modify `analytics_store.gd`. The physical-door hover label in
+`run_scene.gd::_room_hover_hint` reads the same library name for special rooms,
+with its existing depth suffix. Starting-roster and goal-result metadata are
+additive and use the ordinary save format.
 
 ### Special proof
 
@@ -138,7 +138,10 @@ metadata are additive and use the ordinary save format.
   exhaustive routes; nine pre-change golden graphs across revisions 3–5;
   future-enabled placement seam at another 64 × 6 sections; rewards, explicit
   roster overrides, omen scaling, equipment pity, replay protection, names,
-  pre-battle/direct entry and production save/load repair.
+  pre-battle/direct entry and production save/load repair. `--feedback-only`
+  focuses on rewards/resume, 64 reward seeds across all five elements plus
+  neutral, forced same-filter Rare floors, staged/installed emblem loading, and
+  library names above physical doors.
 - `tests/special_encounter_legend_test.gd`: fullest legal enabled section (seed 0,
   section II, ten concepts), approved order/gaps, Scout clearance, and the
   two-row fallback at a debug-only 1000px legend width.
@@ -147,14 +150,21 @@ metadata are additive and use the ordinary save format.
   four distinct concepts. The UI identity lint remains unchanged.
 - `tests/special_encounter_probe.gd`: eight real-renderer captures (future,
   available, pointer hover, native focus, visited, bypassed, fullest legend,
-  section VI fog landmark), 1920×1080 at 100% UI scale. Windowed execution and
-  image inspection belong to the design owner, because the implementation
-  sandbox has no macOS window-server access.
+  section VI fog landmark), 1920×1080 at 100% UI scale in the project’s fixed-size
+  capture viewport, independent of Retina desktop/window geometry. Pointer
+  motion enters that viewport’s real GUI hit testing; the probe checks the
+  hovered Warband button and the visible tooltip’s complete three-line text.
+  `--logic-only` exercises all states, hover and focus headlessly, without
+  claiming renderer captures; its debug-only 1280×720 root window verifies that
+  capture geometry remains 1920×1080. Windowed execution and image inspection
+  belong to the design owner, because the implementation sandbox has no macOS
+  window-server access.
 
 Generate the proof contract headlessly, then run the windowed proof on the
 owner’s machine (each command starts in this task worktree):
 
 ```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-02 && python3 tools/godot_task_runner.py --task-id spx-02 --stream -- godot --headless --path . --script tests/special_encounter_probe.gd -- --logic-only
 cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-02 && python3 tools/godot_task_runner.py --task-id spx-02 --stream -- godot --headless --path . --script tests/special_encounter_probe.gd -- --proof-contract-only
 cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-02 && python3 tools/visual_probe_runner.py --task-id spx-02 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract /private/tmp/labyrinth-inspection-manifests/spx-02-visual-contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/spx-02-visual-result.json tests/special_encounter_probe.gd
 ```

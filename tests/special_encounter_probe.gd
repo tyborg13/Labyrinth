@@ -5,8 +5,14 @@ const MapPanelScript = preload("res://scripts/section_map_panel.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const Settings = preload("res://scripts/settings_store.gd")
+const CaptureViewport = preload("res://tests/gust_shrike_capture_viewport.gd")
 const OUTPUT: String = "user://spx-02-map-proof"
+# Headless-only fixture reproduces a constrained desktop window without
+# changing the director's capture viewport or its 100% UI scale.
+const CONSTRAINED_WINDOW_TEST_SIZE: Vector2i = Vector2i(1280, 720)
 var panel: Control
+var _viewport: SubViewport
+var _logic_only: bool = false
 var failed: bool = false
 
 func _initialize() -> void:
@@ -16,6 +22,7 @@ func _initialize() -> void:
 	if OS.get_cmdline_user_args().has("--proof-contract-only"):
 		quit()
 		return
+	_logic_only = OS.get_cmdline_user_args().has("--logic-only")
 	_run.call_deferred()
 
 func _run() -> void:
@@ -23,15 +30,20 @@ func _run() -> void:
 	var settings: Dictionary = Settings.default_settings()
 	settings["ui_scale"] = 1.0
 	Settings.save_settings(settings)
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-	DisplayServer.window_set_size(Fixture.PROOF_SIZE)
+	if not _logic_only:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		DisplayServer.window_set_size(Fixture.PROOF_SIZE)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	root.content_scale_size = Fixture.PROOF_SIZE
 	root.size = Fixture.PROOF_SIZE
+	if _logic_only: root.size = CONSTRAINED_WINDOW_TEST_SIZE
+	_viewport = CaptureViewport.create(root)
+	_viewport.notify_mouse_entered()
+	print("SPX capture geometry: viewport=%s root=%s UI scale=%s" % [_viewport.size, root.size, settings["ui_scale"]])
 	panel = MapPanelScript.new()
 	panel.position = Fixture.PANEL_POSITION
 	panel.size = Fixture.PANEL_SIZE
-	root.add_child(panel)
+	_viewport.add_child(panel)
 	var original: Dictionary = Fixture.new_state()
 	var target: Vector2i = Fixture.special_coord(original)
 	panel.set_run_state(original)
@@ -41,14 +53,19 @@ func _run() -> void:
 	panel.set_run_state(available)
 	await _capture("02_available.png")
 	_check(panel.node_buttons[target].actionable and panel.node_buttons[target].route_state == "reachable", "Available special retains normal input and availability treatment")
-	Input.warp_mouse(panel.node_buttons[target].get_global_rect().get_center())
-	var motion := InputEventMouseMotion.new()
-	motion.position = panel.node_buttons[target].get_global_rect().get_center()
-	motion.global_position = motion.position
-	Input.parse_input_event(motion)
+	_move_pointer(panel.node_buttons[target].get_global_rect().get_center())
 	await _capture("03_hover.png")
-	_check(panel._preview_text.begins_with(Specials.display_name(Graph.room(available, target)) + "\n" + Specials.tooltip_line(Graph.room(available, target)) + "\n"), "Pointer hover exposes approved title and rules line")
-	Input.warp_mouse(Vector2.ZERO)
+	_check(_viewport.gui_get_hovered_control() == panel.node_buttons[target] and panel.node_buttons[target].is_hovered(), "Pointer motion reaches the actual Warband button")
+	var room: Dictionary = Graph.room(available, target)
+	var expected: String = Specials.display_name(room) + "\n" + Specials.tooltip_line(room) + "\nNot yet visited"
+	_check(panel._preview_text == expected and is_instance_valid(panel._preview) and panel._preview.is_visible_in_tree(), "Pointer hover exposes approved title, rules line and state line")
+	if is_instance_valid(panel._preview):
+		var labels: Node = panel._preview.get_child(0)
+		_check(labels.get_child(0).text == Specials.display_name(room).to_upper() and labels.get_child(1).text == Specials.tooltip_line(room) + "\nNot yet visited", "Visible tooltip labels contain the approved title, rules and state")
+		_check(Rect2(Vector2.ZERO, Vector2(Fixture.PROOF_SIZE)).encloses(panel._preview.get_global_rect()), "Hovered tooltip fits inside the capture viewport")
+	print("SPX pointer hover: " + panel._preview_text.replace("\n", " | "))
+	_move_pointer(Vector2.ZERO)
+	await process_frame
 	panel.node_buttons[target].grab_focus()
 	await _capture("04_focus.png")
 	_check(panel.node_buttons[target].has_focus() and panel._preview_text == panel.room_description(target), "Native focus exposes the same tooltip")
@@ -77,19 +94,29 @@ func _run() -> void:
 	panel.set_run_state(fog)
 	await _capture("08_section_vi_fog.png")
 	_check(panel._fog.visible and panel.node_buttons.has(landmark) and Graph.room(fog, landmark)["revealed"], "Section VI fog preserves the special landmark")
-	print("SPX map captures: " + ProjectSettings.globalize_path(OUTPUT))
-	print("SPX special visual probe: " + ("FAIL" if failed else "PASS"))
+	if not _logic_only: print("SPX map captures: " + ProjectSettings.globalize_path(OUTPUT))
+	print("SPX special %s probe: %s" % ["headless input" if _logic_only else "visual", "FAIL" if failed else "PASS"])
 	quit(1 if failed else 0)
+
+func _move_pointer(point: Vector2) -> void:
+	# Forward viewport-local pointer input through Godot's GUI hit testing,
+	# independent of the desktop window's Retina scale or constrained size.
+	var motion := InputEventMouseMotion.new()
+	motion.position = point
+	motion.global_position = point
+	_viewport.push_input(motion, true)
 
 func _capture(filename: String) -> void:
 	await process_frame
 	await process_frame
 	await process_frame
-	RenderingServer.force_draw()
-	await process_frame
-	var captured: Image = root.get_texture().get_image()
+	_check(_viewport.size == Fixture.PROOF_SIZE, "Capture viewport remains fixed at 1920x1080: " + filename)
+	if _logic_only: return
+	await RenderingServer.frame_post_draw
+	var captured: Image = _viewport.get_texture().get_image()
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
-	_check(captured.get_size() == Fixture.PROOF_SIZE and captured.save_png(OUTPUT.path_join(filename)) == OK, "Capture writes at 1920x1080: " + filename)
+	_check(captured.get_size() == Fixture.PROOF_SIZE, "Capture measures 1920x1080: " + filename)
+	_check(captured.save_png(OUTPUT.path_join(filename)) == OK, "Capture writes: " + filename)
 
 func _check(ok: bool, message: String) -> void:
 	if not ok:

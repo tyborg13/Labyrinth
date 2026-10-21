@@ -2722,21 +2722,24 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 
 	choices.append_array(_draw_reward_cards_for_element(rng, "", 1, blocked_general, run_state))
 	var special_reward: bool = str(room.get("type", "")) == "special" and bool(room.get("special_goal_met", false))
 	var count: int = int(Specials.catalog()["rewards"]["card_choices"]) if special_reward else 3
+	# Keep the ordinary first three offers. The fourth is the last elemental
+	# slot in elemental rooms, or another general slot in neutral rooms.
+	var special_filter: String = room_element if ElementData.is_elemental(room_element) else ""
 	if choices.size() < count:
 		var blocked: Array[String] = choices.duplicate()
 		if special_reward: blocked.append_array(excluded)
-		var filter: String = Specials.TODO_DESIGN_SPECIAL_FOURTH_CHOICE_ELEMENT_FILTER if special_reward else ""
+		var filter: String = special_filter if special_reward else ""
 		choices.append_array(_draw_reward_cards_for_element(rng, filter, count - choices.size(), blocked, run_state))
-	if special_reward: choices = _special_rarity_floor(rng, choices, excluded, run_state)
+	if special_reward: choices = _special_rarity_floor(rng, choices, excluded, run_state, special_filter)
 	return choices
 
-func _special_rarity_floor(rng: RandomNumberGenerator, choices: Array[String], excluded: Array[String], run_state: Dictionary) -> Array[String]:
+func _special_rarity_floor(rng: RandomNumberGenerator, choices: Array[String], excluded: Array[String], run_state: Dictionary, element_filter: String = "") -> Array[String]:
 	var floor_rarity: String = str(Specials.catalog()["rewards"]["guaranteed_min_rarity_one_choice"])
 	var floor_index: int = GameData.CARD_RARITY_TIERS.find(floor_rarity)
 	for id: String in choices:
 		if GameData.CARD_RARITY_TIERS.find(GameData.card_rarity(id)) >= floor_index: return choices
 	if choices.is_empty(): return choices
-	var pool: Dictionary = GameData.reward_card_pool_by_rarity(Specials.TODO_DESIGN_SPECIAL_FOURTH_CHOICE_ELEMENT_FILTER, true).duplicate(true)
+	var pool: Dictionary = GameData.reward_card_pool_by_rarity(element_filter, true).duplicate(true)
 	for rarity: String in GameData.CARD_RARITY_TIERS:
 		if GameData.CARD_RARITY_TIERS.find(rarity) < floor_index:
 			pool[rarity] = []

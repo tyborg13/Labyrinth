@@ -752,7 +752,7 @@ func _room_label(node: Dictionary) -> String:
 	return _type_label(str(node.get("type", "")))
 
 func _type_label(type: String) -> String:
-	if type.begins_with("special_"): return str(Specials.definition(type.trim_prefix("special_")).get("name", "TODO_DESIGN_SPECIAL_NAME"))
+	if type.begins_with("special_"): return str(Specials.definition(type.trim_prefix("special_")).get("name", "ERROR_MISSING_SPECIAL_NAME"))
 	return {"combat": "Standard combat", "guardian": "Guardian combat", "event": "Event", "scavenger": "Scavenger", "graftwright": "Graftwright", "treasure": "Relic", "campfire": "Ember Hearth", "boss": "Boss", "start": "Threshold", "unknown": "Unknown"}.get(type, "Room")
 
 func _roman(index: int) -> String:

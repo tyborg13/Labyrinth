@@ -9,9 +9,6 @@ const Omens = preload("res://scripts/omen_rules.gd")
 const PLACEMENT_SEARCH_LIMIT: int = 12000
 # Reuse RoomGenerator.generate_room’s existing room RNG salt for pickup repair.
 const EQUIPMENT_LOOT_SEED_SALT: int = 101
-# The brief specifies four offers but only the existing first three filters.
-# Retain the ordinary general fallback until the owner supplies the fourth.
-const TODO_DESIGN_SPECIAL_FOURTH_CHOICE_ELEMENT_FILTER: String = ""
 static var _data: Dictionary = {}
 
 static func catalog() -> Dictionary:
@@ -36,13 +33,13 @@ static func _enabled_types(data: Dictionary) -> Array[String]:
 
 static func display_name(room: Dictionary) -> String:
 	var type: String = str(room.get("special_type", ""))
-	var name: String = str(definition(type).get("name", "TODO_DESIGN_SPECIAL_NAME"))
+	var name: String = str(definition(type).get("name", "ERROR_MISSING_SPECIAL_NAME"))
 	if type == "warband":
-		return name + " · " + str(variant(type, str(room.get("special_variant", ""))).get("title", "TODO_DESIGN_CAPTAIN_TITLE"))
+		return name + " · " + str(variant(type, str(room.get("special_variant", ""))).get("title", "ERROR_MISSING_CAPTAIN_TITLE"))
 	return name
 
 static func tooltip_line(room: Dictionary) -> String:
-	return str(definition(str(room.get("special_type", ""))).get("tooltip_line", "TODO_DESIGN_SPECIAL_TOOLTIP"))
+	return str(definition(str(room.get("special_type", ""))).get("tooltip_line", "ERROR_MISSING_SPECIAL_TOOLTIP"))
 
 static func goal_met(room: Dictionary, combat: Dictionary) -> bool:
 	if str(room.get("type", "")) != "special": return false

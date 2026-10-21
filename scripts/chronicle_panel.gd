@@ -509,7 +509,7 @@ func _build_path(record: Dictionary, parent: VBoxContainer) -> void:
 			icon.texture = Icons.icon_texture(icon_id)
 			icon.tooltip_title = Rules.Score.dragon_name(boss_id) if dragon else str({"combat": "Standard combat", "guardian": "Guardian combat", "event": "Event", "scavenger": "Scavenger", "graftwright": "Graftwright", "treasure": "Relic", "relic": "Relic", "campfire": "Ember Hearth", "hearth": "Ember Hearth"}.get(kind, kind))
 			if kind.begins_with("special_"):
-				icon.tooltip_title = str(Specials.definition(kind.trim_prefix("special_")).get("name", "TODO_DESIGN_SPECIAL_NAME"))
+				icon.tooltip_title = str(Specials.definition(kind.trim_prefix("special_")).get("name", "ERROR_MISSING_SPECIAL_NAME"))
 			if not guardian.is_empty():
 				icon.tooltip_title = "%s · Guardian combat" % str(guardian["name"])
 			_configure_icon(icon, 34 if icon.terminal_defeat or not dragon else 44)
