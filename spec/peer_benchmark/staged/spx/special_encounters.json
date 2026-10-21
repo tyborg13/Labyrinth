@@ -61,6 +61,18 @@
     "never_closest": true,
     "scale": 1.0
    },
+   "followers": {
+    "guard_radius": 2,
+    "screen_distance": [
+     2,
+     3
+    ],
+    "skirmisher_entry_distance": [
+     3,
+     5
+    ],
+    "min_gap": 3
+   },
    "break_line": "The warband breaks!",
    "variants": {
     "earth": {
