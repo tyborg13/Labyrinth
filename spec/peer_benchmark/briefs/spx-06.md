@@ -4,7 +4,8 @@
 - **Owner, enc-specials (approved 2026-10-21):** the Snare is "the shadow tried to trap you in a room and you have to
   escape". The approved proposal gives each section its own way of closing in, so dodging and waiting lose value.
 - **Proposal:** https://claude.ai/artifact/D6P63LRV4ccFizPGmMqzRX (Umbral Snare, the "The room closes in" column).
-- **Base:** integration HEAD with spx-05 merged (sealing doors, Sealbinders, the Umbral Gaoler, hunters, escape bonus).
+- **Base:** integration HEAD with spx-05, map-03 and spx-07 merged (sealing doors, Sealbinders, the Umbral Gaoler, hunters,
+  escape bonus; revision-7 maps; locked wind, real-frame hover caches).
 - **Protected director data:** `spec/peer_benchmark/staged/spx-06/pressures.json` holds the six pressure objects (id,
   text, numbers). Replace `types.umbral_snare.variants[<biome>].pressure` with them in `data/special_encounters.json`
   and in the staged copy `spec/peer_benchmark/staged/spx/special_encounters.json` (the two stay byte-identical; a test
@@ -60,7 +61,8 @@
    - It stays on even after the door seals.
 10. **lightning, `live_tethers`:** "Crossing a live tether hurts and Shocks you."
     - During the player's turn, every tile of an Arc Thrall tether beam that is telegraphed for the coming enemy round
-      (`tether.gd`'s planned beam, the dashed telegraph you see today) is live.
+      (`tether.gd`'s planned beam, the same beam its telegraph shows) is live. The telegraph's look is being redesigned
+      separately by the director (`../Labyrinth.worktrees/wbv-01`); don't change how it's drawn.
     - Each time the hero enters a live tile, by moving or by being moved, they take that beam's shown damage and Shock,
       exactly as if the beam had hit them.
     - The hero's movement preview shows that damage the way it shows Fire entry damage.
