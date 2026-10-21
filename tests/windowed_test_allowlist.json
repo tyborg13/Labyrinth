@@ -271,6 +271,7 @@
   "tests/skill_material_polish_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/skill_tree_visual_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/skill_ui_test.gd": "Production skill analytics drain across rendered frames (documented real-renderer test).",
+  "tests/special_encounter_probe.gd": "Director-run real-renderer spx-02 map states, tooltip/focus, fullest legend and Section VI fog at 1920x1080, 100% UI scale.",
   "tests/start_room_map_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/static_facing_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/steam_deck_720p_stress_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",

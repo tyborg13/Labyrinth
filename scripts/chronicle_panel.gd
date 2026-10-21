@@ -7,6 +7,7 @@ const Store = preload("res://scripts/progression_store.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Frame = preload("res://scripts/ui_gilded_frame.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
+const Specials = preload("res://scripts/special_encounter_library.gd")
 const Tooltip = preload("res://scripts/ui_tooltip_panel.gd")
 const TooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 const Icons = preload("res://scripts/room_icon_library.gd")
@@ -507,6 +508,8 @@ func _build_path(record: Dictionary, parent: VBoxContainer) -> void:
 				icon_id = "guardian_" + str(guardian["id"])
 			icon.texture = Icons.icon_texture(icon_id)
 			icon.tooltip_title = Rules.Score.dragon_name(boss_id) if dragon else str({"combat": "Standard combat", "guardian": "Guardian combat", "event": "Event", "scavenger": "Scavenger", "graftwright": "Graftwright", "treasure": "Relic", "relic": "Relic", "campfire": "Ember Hearth", "hearth": "Ember Hearth"}.get(kind, kind))
+			if kind.begins_with("special_"):
+				icon.tooltip_title = str(Specials.definition(kind.trim_prefix("special_")).get("name", "ERROR_MISSING_SPECIAL_NAME"))
 			if not guardian.is_empty():
 				icon.tooltip_title = "%s · Guardian combat" % str(guardian["name"])
 			_configure_icon(icon, 34 if icon.terminal_defeat or not dragon else 44)

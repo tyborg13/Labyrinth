@@ -144,7 +144,7 @@ static func _walk_routes(state: Dictionary, coord: Vector2i, index: int, fights:
 		outcomes[guardians] = true
 		return
 	visits += int(type != "start")
-	fights += int(type in ["combat", "guardian"] or (type == "mystery" and node["mystery_type"] == "combat"))
+	fights += int(type in ["combat", "special", "guardian"] or (type == "mystery" and node["mystery_type"] == "combat"))
 	guardians += int(type == "guardian")
 	services += int(type in ["event", "scavenger", "graftwright"] or (type == "mystery" and node["mystery_type"] != "combat"))
 	for link: Dictionary in node["connections"]: _walk_routes(state, link["coord"], index, fights, guardians, services, visits, outcomes, expect)

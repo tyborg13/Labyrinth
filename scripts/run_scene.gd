@@ -27036,6 +27036,8 @@ func _room_hover_hint() -> String:
 		return ""
 	var destination: Vector2i = _exit_destinations_by_tile[_hovered_board_tile]
 	var room: Dictionary = _run_engine.room_metadata(_run_state, destination)
+	if str(room.get("type", "")) == "special":
+		return "%s %d" % [preload("res://scripts/special_encounter_library.gd").display_name(room), int(room.get("depth", 1))]
 	var room_element: String = str(room.get("element", ElementData.NONE))
 	var prefix: String = "%s " % ElementData.name(room_element) if ElementData.is_elemental(room_element) else ""
 	return "%s%s %d" % [prefix, str(room.get("type", "combat")).capitalize(), int(room.get("depth", 1))]

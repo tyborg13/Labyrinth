@@ -23,6 +23,11 @@ const ROOM_TYPE_ICON_PATHS := {
 
 	"start": "res://assets/art/icons/map/lantern.png",
 	"combat": "res://assets/art/icons/map/fight.png",
+	"special_warband": "res://assets/art/icons/map/warband.png",
+	"special_umbral_snare": "res://assets/art/icons/map/umbral_snare.png",
+	"special_ember_hoarder": "res://assets/art/icons/map/ember_hoarder.png",
+	"special_last_light": "res://assets/art/icons/map/last_light.png",
+
 	"campfire": "res://assets/art/icons/map/campfire.png",
 	"treasure": "res://assets/art/icons/map/relic.png",
 	"scavenger": "res://assets/art/icons/map/scavenger.png",
@@ -44,6 +49,8 @@ static func icon_id_for_room(room: Dictionary) -> String:
 		room_type = str(room.get("mystery_type", ICON_UNKNOWN))
 	if room_type in ["blacksmith", "arcanist"]:
 		room_type = ICON_SCAVENGER
+	if room_type == "special":
+		return "special_" + str(room.get("special_type", ""))
 	if room_type == "guardian":
 		return "guardian_" + str(room.get("guardian_id", "ashen_reaver"))
 	if room_type == ICON_BOSS:

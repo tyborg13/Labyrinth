@@ -7,7 +7,10 @@ not depend on section art, boss order or discovery state.
 
 ## Route contract
 
-New runs use layout revision **4**. Sections have 10, 11, 11, 11, 11 and
+New runs use layout revision **6**. Saved revisions 3–5 keep their exact graphs
+and original generation paths. Revision 6 extends revision 5’s five-lane,
+six-walk solver with the post-solver substitution below. The revision-4 base
+route contract is retained here for older layouts. Sections have 10, 11, 11, 11, 11 and
 12 room visits respectively, including the boss (66 visits overall). The
 threshold is step 0, visually centered at lane 1.5; rooms occupy steps 1 through
 S−1 and lanes 0–3. The boss is step S. Boss order, encounter tuning and service
@@ -36,7 +39,7 @@ outgoing doors overlap a destination's incoming threshold are rejected, retainin
 the existing UP/RIGHT/DOWN direction mapping and all physical exit options.
 
 Every complete route has F−1 through F+1 non-boss fights, where F is
-5, 5, 6, 6, 6 and 6 respectively. Fights count combat, Guardian and hidden
+5, 5, 6, 6, 6 and 6 respectively. Fights count combat, special, Guardian and hidden
 mystery-combat. Each route has at most one Guardian and at least one non-fight
 service besides the fixed treasure/Hearth rows (event, Scavenger, Graftwright,
 or non-combat mystery). Each section has at least two Guardians and one
@@ -51,6 +54,136 @@ remainder to later bands: 9 steps use 3/3/3, 10 use 3/3/4, and 11 use 3/4/4.
 If a band's nodes exceed its `8 * depth` ring capacity, move its last step to
 the next band until it fits. Bosses retain the fourth local depth. Step/lane
 fields independently control presentation.
+
+## Revision 6 special encounters (spx-02)
+
+`data/special_encounters.json` and the four map emblems are installed byte for
+byte from `spec/peer_benchmark/staged/spx/`; `assets/art/icons/map/provenance.json`
+retains the approved hashes. `SpecialEncounterLibrary` owns `definition(type)`,
+`variant(type, biome)`, `enabled_types()`, `display_name(room)` and
+`tooltip_line(room)`. Definitions and variants are private copies. Only Warband
+is enabled; the other three concepts are registered but cannot spawn.
+
+After the revision-5 type solver, revision 6 draws the weighted request of two
+(weight 3) or three (weight 2), caps it by enabled types and feasible legal slots,
+and converts rolled standard combats. With the current catalog every section
+has exactly one Warband. The section RNG selects types and cells; a bounded
+12,000-node search and canonical bounded repair preserve seed determinism. If
+no special fits, the generator uses its existing deterministic legal topology
+and repeats placement. Revisions 3–5 never execute this pass or consume its RNG.
+
+Specials occupy steps 3 through S−2. They never replace mysteries (including
+hidden combat), never share an edge with a Guardian, and satisfy their type’s
+minimum outgoing-edge count (two for Umbral Snare). Types are distinct within
+each section. Every complete route, including recombinations of the generating
+walks, has at most two specials; if two or more are placed, at least two routes
+contain one. At least one route has none. Special counts replace combat in fight
+budgets. The underlying graph, Guardian rules, service rules and mystery fields
+are preserved. All specials are landmarks, including through section VI fog.
+
+A saved special has `type: "special"`, `special_type`, and `special_variant`
+(the section dragon’s earth/fire/air/ice/lightning/shadow biome). The original
+rolled combat element remains intact. Room entry, pre-battle, recovery, cleared
+room handling and equipment pity treat special rooms as combat. RoomGenerator
+receives all three fields; until spx-03 supplies its special combat rules, the
+existing generic fight generation remains supported. The run captures the
+starting enemy roster’s Ember sum in `special_starting_reward_embers` before
+combat, so deaths, fleeing enemies, summons, saves and reloads cannot change it.
+
+Successful specials offer four distinct cards: three from the room’s element
+and one general offer in elemental rooms, or four general offers in neutral
+rooms. The ordinary first three offers stay in place; the fourth uses the room’s
+element filter (or the general pool for neutral rooms). If all four are below
+Rare, only the last elemental slot, or the last slot in a neutral room, is
+rerolled. It keeps that slot’s element filter and the usual rarity and card offer
+weights among Rare/Epic/Legendary. An off-element deferred card replaces the
+general slot; other deferrals use the first compatible slot. The Rare floor is
+checked again after insertion, preserving all three elemental offers and
+reserving the final slot for any required reroll without erasing the deferral.
+
+The Ember reward replaces per-kill earnings with 1.5 times the starting roster’s
+`reward_embers` sum, using the ordinary half-up rounding and combat omen scaling.
+The existing regular-enemy depth rules have no Ember modifier. The usual combat
+relic Ember bonus still applies. Warband’s equipment bonus forces the ordinary
+room drop if necessary and resets equipment pity as a normal drop does. It uses
+the existing pickup placement factory when RoomGenerator does not yet provide
+special loot. Special rewards never offer relics and cannot be granted twice.
+`objective.goal_met`, when present, is authoritative; a Warband victory otherwise
+meets its unfailable goal. Future failable types must provide that saved result.
+A failed goal receives standard cards and per-kill Embers; disabled bonus kinds
+are intentionally deferred until their types are enabled.
+
+Map titles read `Warband · <captain title>` from the biome variant, or the other
+type’s name. Tooltips show title, the protected `tooltip_line`, then the existing
+state line, identically for hover and focus. Medallion sizes, contours, animation,
+availability, current, visited and bypassed states use the standard combat
+presentation. Chronicle paths persist `special_<type>` in their existing string
+schema and obtain the corresponding name and emblem from the catalog/registry.
+
+Revision 6’s legend includes only concepts present in the displayed section,
+ordered Standard combat, Warband, Umbral Snare, Ember Hoarder, Last Light,
+Guardian combat, Event, Scavenger, Graftwright, Relic, Ember Hearth, Boss,
+Unknown room. Native label widths determine an even gap from 40 down to 12px
+beside Scout. Only if 12px cannot fit does it split into two centred rows; the
+frame follows the existing 48px emblem height per row. Saved older layouts
+retain their nine-concept legend and all existing probe assertions.
+
+`special_type` and `special_variant` remain in the persisted room metadata read
+by combat start/end context builders. spx-01 owns their analytics context fields;
+this unit does not modify `analytics_store.gd`. The physical-door hover label in
+`run_scene.gd::_room_hover_hint` reads the same library name for special rooms,
+with its existing depth suffix. Starting-roster and goal-result metadata are
+additive and use the ordinary save format.
+
+### Special proof
+
+- `tests/special_encounter_test.gd`: revision 6 at 64 seeds × 6 sections with
+  exhaustive routes; nine pre-change golden graphs across revisions 3–5;
+  future-enabled placement seam at another 64 × 6 sections; rewards, explicit
+  roster overrides, omen scaling, equipment pity, replay protection, names,
+  pre-battle/direct entry and production save/load repair. `--feedback-only`
+  focuses on rewards/resume, 64 reward seeds across all five elements plus
+  neutral, forced same-filter Rare floors, staged/installed emblem loading, and
+  library names above physical doors. It also runs the assertion-free forced
+  fallback regression in `tests/helpers/special_placement_regressions.gd`, paired
+  one-exit/two-exit Snare fixtures across 64 seeds, positive equipment-pity resets
+  through both entry paths, and `finish_combat` deferral integration including a
+  general-only Rare offer. The full special suite counts outgoing edges and
+  Guardian adjacency independently of production eligibility helpers.
+- `tests/special_encounter_legend_test.gd`: fullest legal enabled section (seed 0,
+  section II, ten concepts), independent literals for the approved thirteen-type
+  order and labels, gaps, Scout clearance, and the two-row fallback at a
+  debug-only 1000px legend width.
+- `tests/test_special_encounter_assets.py`: protected JSON/provenance bytes and
+  every approved emblem hash, plus a Windows typed-array source guard for new
+  special scripts and the rarity helper; `tests/test_icon_identity_policy.py`
+  includes all four distinct concepts. The UI identity lint remains unchanged.
+- `tests/special_encounter_probe.gd`: eight real-renderer captures (future,
+  available, pointer hover, native focus, visited, bypassed, fullest legend,
+  section VI fog landmark), 1920×1080 at 100% UI scale in the project’s fixed-size
+  capture viewport, independent of Retina desktop/window geometry. Pointer
+  motion enters that viewport’s real GUI hit testing; the probe checks the
+  hovered Warband button and the visible tooltip’s complete three-line text.
+  `--logic-only` exercises all states, hover and focus headlessly, without
+  claiming renderer captures; its debug-only 1280×720 root window verifies that
+  capture geometry remains 1920×1080. Windowed execution and image inspection
+  belong to the design owner, because the implementation sandbox has no macOS
+  window-server access.
+
+Generate the proof contract headlessly, then run the windowed proof on the
+owner’s machine (each command starts in this task worktree):
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-02 && python3 tools/godot_task_runner.py --task-id spx-02 --stream -- godot --headless --path . --script tests/special_encounter_probe.gd -- --logic-only
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-02 && python3 tools/godot_task_runner.py --task-id spx-02 --stream -- godot --headless --path . --script tests/special_encounter_probe.gd -- --proof-contract-only
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-02 && python3 tools/visual_probe_runner.py --task-id spx-02 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract /private/tmp/labyrinth-inspection-manifests/spx-02-visual-contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/spx-02-visual-result.json tests/special_encounter_probe.gd
+```
+
+Captures are emitted under the runner’s isolated `user://spx-02-map-proof/`;
+the probe prints its absolute directory and the result manifest records the
+validated image paths. No capture is claimed from headless proof-contract
+creation. The design owner owns the playable inspection fixture, image judge,
+commit, peer review and publication.
 
 ## Discovery and decisions
 
@@ -262,11 +395,11 @@ shared small modal surfaces.
 ## Saves, recovery and analytics
 
 `section_map_version: 1`, `map_sections` and the stored `rooms` graph distinguish
-new runs. New generation records `section_map_layout_revision: 4` for the
+new runs. New generation records `section_map_layout_revision: 6` for the
 four-lane layout. That marker does not trigger regeneration: previously
 saved section maps keep their exact stored connections. Legacy runs lacking the
 section-map marker retain their original circular map and generation/repair rules. No in-progress run is converted to a different
-route. New-run recovery maps lost Embers to an existing combat, Guardian or boss
+route. New-run recovery maps lost Embers to an existing combat, special, Guardian or boss
 node near the old depth, keeping every generated service and connection intact.
 The selected recovery coordinate is saved and the matching encounter owns the
 Ember pile without changing its roster: a Guardian or boss node still fights its

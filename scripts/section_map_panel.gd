@@ -1,6 +1,7 @@
 extends Control
 class_name SectionMapPanel
 
+const Specials = preload("res://scripts/special_encounter_library.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
@@ -47,6 +48,11 @@ var _legacy: Control
 var _layout: VBoxContainer
 var _field: Control
 var _boss_legend_icon: Control
+var _legend: Control
+var _legend_types: Array[String]
+const LEGEND_ORDER: Array = ["combat", "special_warband", "special_umbral_snare", "special_ember_hoarder", "special_last_light", "guardian", "event", "scavenger", "graftwright", "treasure", "campfire", "boss", "unknown"]
+const LEGEND_MAX_GAP: float = 40.0
+const LEGEND_MIN_GAP: float = 12.0
 var scout_targeting: bool = false
 var _scout_hint: Label
 var _preview: PanelContainer
@@ -130,7 +136,8 @@ func _build() -> void:
 	var legend_row := HBoxContainer.new()
 	legend_row.add_theme_constant_override("separation", 24)
 	footer.add_child(legend_row)
-	var legend := _build_legend()
+	_legend = _build_legend()
+	var legend: Control = _legend
 	legend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	legend.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	legend_row.add_child(legend)
@@ -162,35 +169,99 @@ func _build() -> void:
 func transition_backdrop() -> TextureRect:
 	return _background
 
-func _build_legend() -> HBoxContainer:
-	var legend := HBoxContainer.new()
+func _build_legend() -> Control:
+	var legend := Control.new()
 	legend.name = "MapLegend"
-	legend.add_theme_constant_override("separation", 18)
-	for type: String in ["combat", "guardian", "event", "scavenger", "graftwright", "treasure", "campfire", "boss", "unknown"]:
-		var item := HBoxContainer.new()
-		item.add_theme_constant_override("separation", 8)
-		item.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		legend.add_child(item)
-		var icon := Control.new()
-		icon.name = "Legend_" + type
-		icon.custom_minimum_size = Vector2(48, 48)
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		icon.set_meta("room_icon_id", type)
-		icon.draw.connect(func() -> void:
-			var center: Vector2 = icon.size * 0.5
-			if str(icon.get_meta("room_icon_id")) == "unknown":
-				for segment: int in range(8):
-					var angle: float = TAU * float(segment) / 8.0
-					icon.draw_arc(center, 18, angle, angle + 0.47, 8, Color("aaa2af"), 1.8, true)
-			else:
-				MapSkin.draw_medallion(icon, center, 24, MapSkin.icon_texture(str(icon.get_meta("room_icon_id"))))
-		)
-		if type == "boss": _boss_legend_icon = icon
-		item.add_child(icon)
-		var label: Label = _label(_type_label(type), Typography.ROLE_CAPTION)
-		label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		item.add_child(label)
+	legend.custom_minimum_size.y = 48
+	legend.resized.connect(_layout_legend)
 	return legend
+
+func _refresh_legend() -> void:
+	var present: Dictionary = {}
+	if int(run_state.get("section_map_layout_revision", 0)) >= 6:
+		for node: Dictionary in (run_state.get("rooms", {}) as Dictionary).values():
+			if int(node.get("section_index", -1)) != viewed_section: continue
+			var type: String = str(node.get("type", ""))
+			if type == "special": type = "special_" + str(node.get("special_type", ""))
+			if type == "mystery": type = "unknown"
+			present[type] = true
+	else:
+		for type: String in LEGEND_ORDER:
+			if not type.begins_with("special_"): present[type] = true
+	var types: Array[String]
+	for type: String in LEGEND_ORDER:
+		if present.has(type): types.append(type)
+	if types != _legend_types:
+		for child: Node in _legend.get_children():
+			_legend.remove_child(child)
+			child.queue_free()
+		_legend_types = types
+		for type: String in types: _add_legend_item(type)
+	if is_instance_valid(_boss_legend_icon):
+		_boss_legend_icon.set_meta("room_icon_id", "boss_" + str(Graph.section(run_state, viewed_section).get("boss_id", "tharokh")))
+		_boss_legend_icon.queue_redraw()
+	_layout_legend.call_deferred()
+
+func _add_legend_item(type: String) -> void:
+	var item := HBoxContainer.new()
+	item.add_theme_constant_override("separation", 8)
+	_legend.add_child(item)
+	var icon := Control.new()
+	icon.name = "Legend_" + type
+	icon.custom_minimum_size = Vector2(48, 48)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.set_meta("room_icon_id", type)
+	icon.draw.connect(func() -> void:
+		var center: Vector2 = icon.size * 0.5
+		if str(icon.get_meta("room_icon_id")) == "unknown":
+			for segment: int in range(8):
+				var angle: float = TAU * float(segment) / 8.0
+				icon.draw_arc(center, 18, angle, angle + 0.47, 8, Color("aaa2af"), 1.8, true)
+		else:
+			MapSkin.draw_medallion(icon, center, 24, MapSkin.icon_texture(str(icon.get_meta("room_icon_id"))))
+	)
+	if type == "boss": _boss_legend_icon = icon
+	item.add_child(icon)
+	var label: Label = _label(_type_label(type), Typography.ROLE_CAPTION)
+	label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	item.add_child(label)
+
+# Keep a single row until the exact measured native labels cannot fit with
+# 12px gaps. Splitting balances the two centred rows without shrinking text.
+func _layout_legend() -> void:
+	if not is_instance_valid(_legend) or _legend.get_child_count() == 0: return
+	var widths: Array[float]
+	var total: float = 0.0
+	for item: Control in _legend.get_children():
+		widths.append(item.get_combined_minimum_size().x)
+		total += widths.back()
+	var split: int = widths.size()
+	if total + LEGEND_MIN_GAP * (widths.size() - 1) > _legend.size.x:
+		var best: float = INF
+		for candidate: int in range(1, widths.size()):
+			var left: float = LEGEND_MIN_GAP * (candidate - 1)
+			var right: float = LEGEND_MIN_GAP * (widths.size() - candidate - 1)
+			for index: int in range(widths.size()):
+				if index < candidate: left += widths[index]
+				else: right += widths[index]
+			if maxf(left, right) < best:
+				best = maxf(left, right)
+				split = candidate
+	var rows: int = 1 if split == widths.size() else 2
+	_legend.custom_minimum_size.y = 48.0 * rows
+	for row: int in range(rows):
+		var first: int = 0 if row == 0 else split
+		var end: int = split if row == 0 else widths.size()
+		var sum: float = 0.0
+		for index: int in range(first, end): sum += widths[index]
+		var gaps: int = end - first - 1
+		var gap: float = clampf((_legend.size.x - sum) / maxi(1, gaps), LEGEND_MIN_GAP, LEGEND_MAX_GAP)
+		var x: float = (_legend.size.x - sum - gap * gaps) * 0.5
+		for index: int in range(first, end):
+			var item: Control = _legend.get_child(index)
+			item.position = Vector2(x, row * 48.0)
+			item.size = Vector2(widths[index], 48)
+			x += widths[index] + gap
 
 func _panel() -> PanelContainer:
 	var panel := PanelContainer.new()
@@ -227,7 +298,7 @@ func set_run_state(source: Dictionary) -> void:
 	_cancel_activation()
 	var previous_current: Vector2i = run_state.get("current_room", Graph.INVALID)
 	_signature = next_signature
-	run_state = {"rooms": source.get("rooms", {}), "map_sections": source.get("map_sections", []), "current_room": source.get("current_room", Vector2i.ZERO), "mode": source.get("mode", "room"), "section_map_version": source.get("section_map_version", 0), "seed": source.get("seed", 0), "reach_exit": str(objective.get("type", "")) == "reach_exit"}
+	run_state = {"rooms": source.get("rooms", {}), "map_sections": source.get("map_sections", []), "current_room": source.get("current_room", Vector2i.ZERO), "mode": source.get("mode", "room"), "section_map_version": source.get("section_map_version", 0), "seed": source.get("seed", 0), "section_map_layout_revision": source.get("section_map_layout_revision", Graph.section(source, 0).get("lane_count", 0)), "reach_exit": str(objective.get("type", "")) == "reach_exit"}
 	if previous_current != run_state.get("current_room", Graph.INVALID):
 		viewed_section = Graph.active_section(run_state)
 		reset_interaction()
@@ -247,8 +318,7 @@ func _refresh() -> void:
 	viewed_section = clampi(viewed_section, 0, Graph.active_section(run_state))
 	var info: Dictionary = Graph.section(run_state, viewed_section)
 	_title.text = str(info.get("title", "Map"))
-	_boss_legend_icon.set_meta("room_icon_id", "boss_" + str(info.get("boss_id", "tharokh")))
-	_boss_legend_icon.queue_redraw()
+	_refresh_legend()
 	var visited: int = 0
 	for node: Dictionary in (run_state.get("rooms", {}) as Dictionary).values():
 		if int(node.get("section_index", -1)) == viewed_section and bool(node.get("visited", false)) and str(node.get("type", "")) != "start":
@@ -280,7 +350,7 @@ func _refresh() -> void:
 		_show_preview(selected_coord)
 
 func available_destinations() -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	var current: Dictionary = Graph.room(run_state, run_state.get("current_room", Vector2i.ZERO))
 	for link: Dictionary in current.get("connections", []):
 		var coord: Vector2i = link.get("coord", Graph.INVALID)
@@ -528,6 +598,8 @@ func room_description(coord: Vector2i) -> String:
 	if str(node.get("type","")) == "guardian" and bool(node.get("revealed",false)):
 		var guardian: Dictionary = preload("res://scripts/guardian_library.gd").for_guardian(str(node.get("guardian_id","")))
 		return "%s · Guardian combat\n%s" % [guardian.get("name","Guardian"),detail]
+	if str(node.get("type", "")) == "special" and bool(node.get("revealed", false)):
+		return Specials.display_name(node) + "\n" + Specials.tooltip_line(node) + "\n" + detail
 	return _room_label(node) + "\n" + detail
 
 func _show_preview(coord: Vector2i) -> void:
@@ -672,6 +744,7 @@ func _room_label(node: Dictionary) -> String:
 		return "Unknown room · " + _type_label(Graph.display_type(node)) if bool(node.get("scouted", false)) else "Unknown room"
 	if not bool(node.get("revealed", false)):
 		return "Unknown"
+	if str(node.get("type", "")) == "special": return Specials.display_name(node)
 	if str(node.get("type", "")) == "guardian":
 		return str(preload("res://scripts/guardian_library.gd").for_guardian(str(node.get("guardian_id", ""))).get("name","Guardian"))
 	if str(node.get("type", "")) == "boss":
@@ -679,6 +752,7 @@ func _room_label(node: Dictionary) -> String:
 	return _type_label(str(node.get("type", "")))
 
 func _type_label(type: String) -> String:
+	if type.begins_with("special_"): return str(Specials.definition(type.trim_prefix("special_")).get("name", "ERROR_MISSING_SPECIAL_NAME"))
 	return {"combat": "Standard combat", "guardian": "Guardian combat", "event": "Event", "scavenger": "Scavenger", "graftwright": "Graftwright", "treasure": "Relic", "campfire": "Ember Hearth", "boss": "Boss", "start": "Threshold", "unknown": "Unknown"}.get(type, "Room")
 
 func _roman(index: int) -> String:
