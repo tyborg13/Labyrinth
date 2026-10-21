@@ -12,6 +12,7 @@ const FIXTURE_SEED: int = 83
 const SECTION: int = 1
 const MID_RUN_STEPS: int = 4
 const WALK_FRAMES: int = 37 # 0.62 s at 60 fps
+const SCROLL_FRAMES: int = 96 # 1.6 s at 60 fps
 const OUTPUT: String = "user://map-03-proof"
 var panel: Control
 var _viewport: SubViewport
@@ -98,6 +99,13 @@ func _run() -> void:
 	panel.set_run_state(fog)
 	await _capture("06_section_vi_fog.png")
 	_check(panel._fog.visible, "Section VI keeps its fog on a scrolling map")
+	# A stepped scroll from the threshold to the boss, for the review clip.
+	panel.set_run_state(state)
+	await process_frame
+	for frame: int in range(SCROLL_FRAMES):
+		var t: float = float(frame) / float(SCROLL_FRAMES - 1)
+		panel.scroll_to(panel.scroll_limit() * (0.5 - 0.5 * cos(PI * t)))
+		await _capture("scroll/frame_%03d.png" % frame, false)
 	if not _logic_only: print("MAP-03 captures: " + ProjectSettings.globalize_path(OUTPUT))
 	print("MAP-03 probe: %s" % ("FAIL" if failed else "PASS"))
 	quit(1 if failed else 0)

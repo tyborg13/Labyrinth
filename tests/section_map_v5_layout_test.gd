@@ -21,7 +21,8 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 func _run() -> void:
-	var first_state: Dictionary = {"seed": 1, "current_room": Vector2i.ZERO, "mode": "room"}
+	# map-02 proves revision 5's fixed-width layout; saved runs keep it (revision 7 scrolls).
+	var first_state: Dictionary = {"seed": 1, "current_room": Vector2i.ZERO, "mode": "room", "section_map_layout_revision": 5}
 	Graph.initialize(first_state)
 	first_state["current_room"] = Graph.section(first_state, 2)["entry"]
 	var panel := MapPanel.new()
@@ -40,7 +41,7 @@ func _run() -> void:
 	print("Map 02 pre-ready history selection: PASS")
 	print("Map 02 layout field: ", panel._field.size, " at 1920x1080, 100% UI scale")
 	for seed_value: int in range(1, SEED_COUNT + 1):
-		var state: Dictionary = first_state if seed_value == 1 else {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room"}
+		var state: Dictionary = first_state if seed_value == 1 else {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room", "section_map_layout_revision": 5}
 		if seed_value != 1: Graph.initialize(state)
 		for node: Dictionary in state["rooms"].values():
 			node["revealed"] = true

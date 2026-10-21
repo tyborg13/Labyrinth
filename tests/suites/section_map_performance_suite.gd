@@ -94,10 +94,27 @@ static func _test_memo_and_cutoff(expect: Callable) -> void:
 	expect.call(not Graph._solve_types_v5(layout, [], 10, 5, search) and int(search.get("memo_hits", 0)) == 1, "Repeated failed state uses the memo")
 	expect.call(Graph._type_signature_v5([["event", "mystery"]]) == Graph._type_signature_v5([["mystery", "event"]]), "Memo keys ignore candidate preference order")
 
+# Revision 7 sections are webs, not walks: rebuild the layout from the rooms' links.
+static func _web_layout(state: Dictionary, index: int, count: int) -> Dictionary:
+	var rows: Dictionary = {}
+	var children: Dictionary = {}
+	for node: Dictionary in state["rooms"].values():
+		if int(node["section_index"]) != index or int(node["map_step"]) <= 0 or int(node["map_step"]) >= count: continue
+		var cell := Vector2i(int(node["map_step"]), int(node["map_lane"]))
+		if not rows.has(cell.x): rows[cell.x] = []
+		rows[cell.x].append(cell.y)
+		var targets: Array = []
+		for link: Dictionary in node["connections"]:
+			var target: Dictionary = Graph.room(state, link["coord"])
+			if int(target["section_index"]) == index and int(target["map_step"]) < count: targets.append(Vector2i(int(target["map_step"]), int(target["map_lane"])))
+		if not targets.is_empty(): children[cell] = targets
+	for step: int in rows: (rows[step] as Array).sort()
+	return Graph._layout_from_children_v7(rows, children, count)
+
 static func _test_rules(state: Dictionary, index: int, expect: Callable) -> void:
 	var info: Dictionary = Graph.section(state, index)
 	var count: int = Graph.ROOM_COUNTS[index]
-	var layout: Dictionary = Graph._layout_from_walks(info["walks"], count)
+	var layout: Dictionary = Graph._layout_from_walks(info["walks"], count) if not (info["walks"] as Array).is_empty() else _web_layout(state, index, count)
 	for node: Dictionary in state["rooms"].values():
 		if int(node["section_index"]) != index or int(node["map_step"]) in [0, count]: continue
 		layout["nodes"][Vector2i(node["map_step"], node["map_lane"])] = node.duplicate(true)

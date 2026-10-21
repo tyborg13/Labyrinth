@@ -7,8 +7,8 @@ not depend on section art, boss order or discovery state.
 
 ## Route contract
 
-New runs use layout revision **6**. Saved revisions 3–5 keep their exact graphs
-and original generation paths. Revision 6 extends revision 5’s five-lane,
+New runs use layout revision **7** (map-03, below). Saved revisions 3–6 keep their
+exact graphs and original generation paths. Revision 6 extends revision 5’s five-lane,
 six-walk solver with the post-solver substitution below. The revision-4 base
 route contract is retained here for older layouts. Sections have 10, 11, 11, 11, 11 and
 12 room visits respectively, including the boss (66 visits overall). The
@@ -54,6 +54,42 @@ remainder to later bands: 9 steps use 3/3/3, 10 use 3/3/4, and 11 use 3/4/4.
 If a band's nodes exceed its `8 * depth` ring capacity, move its last step to
 the next band until it fits. Bosses retain the fourth local depth. Step/lane
 fields independently control presentation.
+
+## Revision 7 web and scrolling map (map-03)
+
+Owner, 2026-10-21: the walk maps read as "a few straight lines with a couple of branches"; the approved mockup
+(inbox `map-branching-v2`) keeps a dense web of choices and scrolls sideways. Reference model and measurements:
+`spec/peer_benchmark/staged/map-03/`.
+
+**Generator.** Seven lanes (0–6); the threshold sits at lane 3 and fans out up, straight and down to three opening
+combats (top lane 0 or 1, lane 3, bottom lane 5 or 6). Each later row is built top to bottom: a room takes one, two or
+three exits (weights 32/58/10) to adjacent lanes in the next column, as a contiguous range that never crosses the room
+above it, and shares that room's last exit 45% of the time (a merge). Rooms leading into the Relic row (step
+ceil(S/2)) and the Ember Hearth row (S−1) have one door and merge 75% of the time. Rows hold 2–6 rooms (at most 4 in the
+two gathering rows); no lane set repeats three rows running; a row that fails is re-rolled up to 24 times, a section up
+to 400 times, and room types then use the revision-5 solver (64 nodes per attempt, then a new web). Sections also fit
+their depth-ring capacity. Measured over 200 seeds × 6 sections: 40% of rooms fork, every route meets at least 3 real
+choices (median 5), choices are never more than 2 rooms apart, and at most 3 where single doors gather into the Relic
+and Hearth rows; about 42 rooms per section; generation takes about 0.2 s per run (0.4 s worst).
+
+**Doors face their lane.** A room's door leads up, right or down as its destination's lane is above, level or below;
+the boss and the next threshold are always straight ahead. A room entered from below never has a door down, and one
+entered from above never has a door up, so no exit reuses an entry wall; a room entered from both sides continues
+straight. (The revision 5/6 mapping, by exit count, forced every fork's children to a single exit.)
+
+**Fights.** With this many forks a route may run two fights under the section target (F−2 through F+1); every other
+type rule is unchanged.
+
+**Presentation.** Revision 7 sections are wider than the field and scroll sideways: 240 px columns, odd lanes staggered
+right and even lanes left by 22 px, rooms at their usual sizes, and neighbours in a column spread sideways so they never
+touch at their largest size (an actionable Guardian beside an enlarged choice). Rooms hit-test as circles. The map opens
+with the player's room 38% from the left and recentres when the room changes; the wheel, a drag, a trackpad pan and the
+right stick scroll it, and focus keeps the focused room 150 px inside the edges. The painting drifts at 0.3× the scroll.
+Dark fades mark the edges with more map, and a slim gold-on-ink track sits at the bottom. Trails keep the sideways
+S-curves but are inked dots: solid gold where walked, glowing larger dots for the current choices, brighter dots for the
+planned route under the pointer, plain dots ahead and small faded dots for rooms no longer reachable; every room sits on
+a soft ground shadow. The room you stand in shows the lantern; choosing a room walks the lantern along the trail for
+0.62 s before travel (reduced motion skips the walk). Section VI fog keeps its openings for rooms on screen first.
 
 ## Revision 6 special encounters (spx-02)
 
@@ -423,6 +459,11 @@ save format; see [events.md](events.md).
 
 ## Owning checks
 
+- `tests/section_map_v7_test.gd`: revision 7 over 40 seeds × 6 sections: lanes, row widths, non-crossing trails,
+  route choices and gaps, lane-facing doors with no exit through an entry wall, scrolling positions with no touching
+  rooms, and byte-identical regeneration of saved revisions 5 and 6.
+- `tests/map_03_probe.gd`: native revision-7 captures (section start, mid-run, hover, the lantern's walk frames,
+  scrolled end, section VI fog, a stepped scroll); `--logic-only` checks scroll offsets and the real-time walk.
 - `tests/section_map_v2_test.gd`: 64 seeds × 6 sections, walk union, planar edges,
   placement constraints, exhaustive route budgets, depth capacity, mystery entry,
   Scout, section VI knowledge and revision-3 save/play compatibility.

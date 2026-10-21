@@ -27,7 +27,7 @@ static func run(expect: Callable) -> void:
 		Graph.initialize(state)
 		var again: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room"}
 		Graph.initialize(again)
-		expect.call(state == again and state["section_map_layout_revision"] == 6, "Revision 6 is deterministic")
+		expect.call(state == again and state["section_map_layout_revision"] == Graph.LAYOUT_REVISION, "The current map revision is deterministic")
 		for index: int in range(6): _test_section(state, index, expect)
 	_test_future_placement(expect)
 	_test_rewards_and_resume(expect)
@@ -79,7 +79,9 @@ static func _test_section(state: Dictionary, index: int, expect: Callable) -> vo
 		hit_routes += int(int(route["specials"]) > 0)
 		guardian_routes += int(int(route["guardians"]) > 0)
 		var budget: int = Graph.FIGHT_COUNTS[index] - 1
-		expect.call(int(route["fights"]) >= budget - 1 and int(route["fights"]) <= budget + 1, "Special substitution preserves route fight budgets")
+		# Revision 7 webs let a route run two fights under the target (map-03).
+		var slack: int = Graph.V7_FIGHT_SLACK if bool(info.get("scroll", false)) else 1
+		expect.call(int(route["fights"]) >= budget - slack and int(route["fights"]) <= budget + 1, "Special substitution preserves route fight budgets")
 		expect.call(int(route["guardians"]) <= 1 and int(route["services"]) >= 1, "Guardian and non-fight service route rules are preserved")
 	expect.call(empty_route and hit_routes > 0, "A section has both special and special-free routes")
 	expect.call(guardian_routes > 0 and guardian_routes < routes.size(), "Guardian and Guardian-free routes are preserved")
@@ -153,8 +155,12 @@ static func _unique(values: Array) -> Dictionary:
 	for value: Variant in values: result[value] = true
 	return result
 
-static func special_entry(engine: RunEngineScript, seed_value: int = 83) -> Dictionary:
+static func special_entry(engine: RunEngineScript, seed_value: int = 83, revision: int = 0) -> Dictionary:
 	var state: Dictionary = engine.create_new_run(seed_value, Progression.default_data())
+	if revision > 0:
+		# Seeded fixtures authored on an older map keep it, as saved runs do.
+		state["section_map_layout_revision"] = revision
+		Graph.initialize(state)
 	for node: Dictionary in state["rooms"].values():
 		if node["type"] != "special" or int(node["section_index"]) != 0: continue
 		for parent: Dictionary in state["rooms"].values():
@@ -216,7 +222,7 @@ static func _test_rewards_and_resume(expect: Callable) -> void:
 
 static func _test_deferred_special_rewards(expect: Callable) -> void:
 	var engine := RunEngineScript.new()
-	var fixture: Dictionary = special_entry(engine, DEFERRED_TEST_SEED)
+	var fixture: Dictionary = special_entry(engine, DEFERRED_TEST_SEED, 6)
 	var state: Dictionary = engine.move_to_room(fixture["state"], fixture["destination"])
 	var room: Dictionary = Graph.room(state, state["current_room"])
 	expect.call(room["element"] == Elements.LIGHTNING, "Seed 1 reproduces an off-element deferral in its first Warband")
