@@ -20,12 +20,16 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 
 ## In flight (2026-10-19; humanoid rig v2 + roster wave 1)
 - 2026-10-20 19:00:
-  - rr-29: round 2 committed feffbfb06. Windowed rest/native/sheets/idle PASS. Production stalled once (frames stopped,
-    900 s timeout; most likely a hidden window). Production + review are rerunning, now progressing. Then: judge the
-    visuals and identity sheets, Codex re-review of the round-2 delta, merge, inbox clip.
+  - rr-29 MERGED 007f685c0 (+ sidecars 7e3122289, import path fix). All windowed stages PASS on feffbfb06 (production
+    rerun after a hidden-window stall), director visual judgment passed, Codex SIGNOFF feffbfb06, both full suites
+    green. Inbox item mimic-rig-v2 posted (awaiting owner). Low, not blocking: a faint 1 px chest seam during actions,
+    visible only at 3x.
   - rr-30: round 2 committed 407ca1d9a (rear re-processed from the toned raw a9bf0b7e5: chroma 0.1988, certified and
     judged by the director; skinned declared scale; sway and strain mutation tests; own density probe at 1920x1080).
-    Windowed density→review are queued under the lock after rr-29. Then: re-review, merge, inbox clip.
+    All windowed stages PASS (director native acceptance committed 4ded5def9), but the director's visual review found
+    joint tearing in motion: dark seam slashes on both upper arms and the far elbow, and cover fragments poking past
+    the outline at the shoulder, wrist, knees and hem. Feedback 3 (last round this session) is running. Then: windowed
+    rerun, re-review, merge, inbox clip.
 - 2026-10-20 15:40:
   - mq-11 merged (56de97dfb). Codex SIGNOFF a3fc15b69, native acceptance director_06, integration green at 300f8277b.
   - rr-29 (Mimic re-rig) and rr-30 (Mortar re-rig) launched from 7adad7e92.
