@@ -2,6 +2,10 @@ extends SceneTree
 const Sweep = preload("res://tools/encounter_sweep.gd")
 const Bot = preload("res://tools/encounter_bot.gd")
 const Game = preload("res://scripts/game_data.gd")
+const Run = preload("res://scripts/run_engine.gd")
+const Persistence = preload("res://scripts/progression_store.gd")
+const SAVE_DIRECTORY: String = "user://encounter_measurement_saves"
+const SAVE_TRAVEL_DIRECTION: Vector2i = Vector2i.RIGHT
 var failures: int = 0
 var checks: int = 0
 # Debug-only arena; independent of all authored encounters and deck presets.
@@ -12,6 +16,44 @@ func check(condition: bool, message: String) -> void:
 	if not condition:
 		failures += 1
 		print("FAIL: " + message)
+
+func test_run_save_roundtrips() -> void:
+	var previous_failures: int = failures
+	check(DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(SAVE_DIRECTORY)) == OK, "isolated run-save directory is available")
+	for seed_value: int in Sweep.GOLDEN_SEEDS:
+		var path: String = SAVE_DIRECTORY.path_join("seed_%d.save" % seed_value)
+		Persistence.set_run_storage_path(path)
+		Persistence.clear_saved_run()
+		check(not Persistence.has_saved_run(), "run save begins without an old or backup checkpoint: %d" % seed_value)
+		var engine := Run.new()
+		var run: Dictionary = engine.create_new_run(seed_value, Persistence.default_data())
+		var room: Dictionary = {}
+		for candidate: Dictionary in run["rooms"].values():
+			if candidate["type"] == "combat":
+				room = candidate
+				break
+		check(not room.is_empty(), "real run has a combat room: %d" % seed_value)
+		if room.is_empty(): continue
+		run["current_room"] = room["coord"]
+		var layout: Dictionary = engine._combat_layout_for_room(room, SAVE_TRAVEL_DIRECTION, run)
+		engine._record_encounter_pick(run, layout)
+		run["current_room_layout"] = layout
+		run["mode"] = "combat"
+		var combat := Bot.CombatEngine.new()
+		var initial: Dictionary = combat.create_combat(seed_value, layout, run)
+		run = engine.set_combat_state(run, combat.advance_to_next_player_turn_with_steps(combat.finish_player_activation(initial))["state"])
+		var expected: Dictionary = run.duplicate(true)
+		check(Persistence.save_run_state(run), "ProgressionStore run save succeeds: %d" % seed_value)
+		check(Persistence.has_saved_run() and FileAccess.file_exists(path), "run checkpoint persists to isolated storage: %d" % seed_value)
+		var loaded: Dictionary = Persistence.load_saved_run()
+		check(not loaded.is_empty(), "ProgressionStore loads a nonempty run: %d" % seed_value)
+		check(loaded == expected, "ProgressionStore restores complete run state: %d" % seed_value)
+		check(run == expected, "saving does not mutate the source run: %d" % seed_value)
+		print("ENCOUNTER RUN SAVE PATH: " + ProjectSettings.globalize_path(path))
+		Persistence.clear_saved_run()
+		check(not Persistence.has_saved_run(), "isolated run checkpoint cleans up: %d" % seed_value)
+	Persistence.set_run_storage_path(Persistence.DEFAULT_RUN_STORAGE_PATH)
+	print("ENCOUNTER RUN SAVE: %s (3 seeds; ProgressionStore; complete state equality)" % ["PASS" if failures == previous_failures else "FAIL"])
 
 func policy_fixture(room: Dictionary, hand: Array) -> Dictionary:
 	var policy := Bot.Policy.new()
@@ -91,6 +133,7 @@ func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	var expected: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/encounter_measurement_golden.json"))
 	check(Sweep.golden() == expected, "pre-change golden maps, rooms, combat transitions and save roundtrips match")
+	test_run_save_roundtrips()
 	print("ENCOUNTER GOLDEN: %s (3 seeds; maps, rooms, combat, saves)" % ["PASS" if failures == 0 else "FAIL"])
 	var seen: Dictionary = {}
 	var objectives: Dictionary = {}

@@ -1,0 +1,558 @@
+{
+  "task_id": "spx-01",
+  "feedback_round": 2,
+  "reviewed_head": "5a9d5e2789358ce8db29bfd7b9efedf232970910",
+  "status": "requested_regression_coverage_passed",
+  "changes_uncommitted": true,
+  "focused_tests_only": true,
+  "requirements": [
+    {
+      "number": 1,
+      "status": "passed",
+      "coverage": {
+        "callers": [
+          "UI event loggers (no renderer)",
+          "headless console event loggers (no REPL)"
+        ],
+        "room_types": [
+          "combat",
+          "guardian",
+          "boss"
+        ],
+        "boundaries": [
+          "combat_started",
+          "combat_ended",
+          "reward_offered",
+          "reward_choice"
+        ],
+        "additional_boundary": "UI boss reward_claimed staging/outbox serialized through AnalyticsStore",
+        "serialized_events_checked": 25,
+        "dimensions": [
+          "room_type",
+          "guardian_id",
+          "encounter_id",
+          "biome",
+          "section_index",
+          "special_type",
+          "special_variant"
+        ]
+      },
+      "oracle": "Expected values come directly from generated room, layout and section data. The frozen legacy oracle never calls EncounterAnalyticsContext; only the five new keys are excluded from legacy comparisons, retaining legacy room_type and guardian_id checks.",
+      "note": "Reward logger inputs are staged for each real room identity, with empty combat state at reward choice/claim. This is boundary unit coverage, not rendered UI or interactive play."
+    },
+    {
+      "number": 2,
+      "status": "passed",
+      "coverage": "Real RunEngine runs with generated combat checkpoints saved and loaded via ProgressionStore for every golden seed; verify save success, live file, nonempty load, complete Dictionary equality, unchanged input, and cleanup. Existing golden fixture/digests remain unchanged.",
+      "corrupt_writer": "A nonempty corrupted dictionary passes the writer read-back validation. The complete state comparison fails independently on seeds 1, 19 and 421.",
+      "observed_mutation_assertions": [
+        "FAIL: ProgressionStore restores complete run state: 1",
+        "FAIL: ProgressionStore restores complete run state: 19",
+        "FAIL: ProgressionStore restores complete run state: 421"
+      ]
+    },
+    {
+      "number": 3,
+      "status": "passed",
+      "change": "Removed unused Rooms preload and BIOMES declaration from encounter_sweep.gd. Generator behavior and golden reference are unchanged."
+    }
+  ],
+  "commands": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && PYTHONPYCACHEPREFIX=/private/tmp/spx-01-pycache python3 tests/encounter_regression_mutations.py --log-dir /private/tmp/spx-01-feedback-2/mutations-final",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/encounter_analytics_test.gd",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/combat_analytics_context_equivalence_test.gd",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/encounter_measurement_test.gd",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && PYTHONPYCACHEPREFIX=/private/tmp/spx-01-pycache python3 -m unittest discover -s tests -p test_encounter_measurement.py -v"
+  ],
+  "mutation_proof": {
+    "task_id": "spx-01",
+    "killed": [
+      "blank_room_type",
+      "blank_guardian_id",
+      "remove_headless_merge",
+      "remove_ui_merge",
+      "corrupt_save_writer"
+    ],
+    "expected_mutations": 5,
+    "results": [
+      {
+        "phase": "before",
+        "program": "tests/encounter_analytics_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/encounter_analytics_test.gd"
+        ],
+        "returncode": 0,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/before/encounter_analytics_test.log",
+        "result_lines": [
+          "ENCOUNTER CALLER METADATA: PASS (UI/headless; combat, Guardian, boss; start/end/rewards)",
+          "ENCOUNTER ANALYTICS: PASS (0 failures)"
+        ]
+      },
+      {
+        "phase": "before",
+        "program": "tests/combat_analytics_context_equivalence_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/combat_analytics_context_equivalence_test.gd"
+        ],
+        "returncode": 0,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/before/combat_analytics_context_equivalence_test.log",
+        "result_lines": [
+          "TEST RESULT: PASS \u2014 44 analytics-context/boundary comparisons (0 failures)"
+        ]
+      },
+      {
+        "phase": "before",
+        "program": "tests/encounter_measurement_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/encounter_measurement_test.gd"
+        ],
+        "returncode": 0,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/before/encounter_measurement_test.log",
+        "result_lines": [
+          "ENCOUNTER RUN SAVE: PASS (3 seeds; ProgressionStore; complete state equality)",
+          "ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)",
+          "ENCOUNTER SMALL SWEEP: PASS (36 rooms)",
+          "ENCOUNTER BOT DODGE/DEFENSE: PASS",
+          "ENCOUNTER BOT DETERMINISM: PASS (3 objectives, repeated seeded rooms)",
+          "ENCOUNTER MEASUREMENT: PASS (162 checks; 0 failures)"
+        ]
+      },
+      {
+        "phase": "blank_room_type",
+        "program": "tests/encounter_analytics_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/encounter_analytics_test.gd"
+        ],
+        "returncode": 1,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/blank_room_type/encounter_analytics_test.log",
+        "result_lines": [
+          "ENCOUNTER CALLER METADATA: FAIL (UI/headless; combat, Guardian, boss; start/end/rewards)",
+          "ENCOUNTER ANALYTICS: FAIL (25 failures)"
+        ],
+        "expected_assertion": "FAIL: UI combat combat_started metadata.room_type expected combat, got "
+      },
+      {
+        "phase": "blank_room_type",
+        "program": "tests/combat_analytics_context_equivalence_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/combat_analytics_context_equivalence_test.gd"
+        ],
+        "returncode": 1,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/blank_room_type/combat_analytics_context_equivalence_test.log",
+        "result_lines": [
+          "TEST RESULT: FAIL \u2014 44 analytics-context/boundary comparisons (19 failures)"
+        ],
+        "expected_assertion": "ERROR: Guardian context preserves independent legacy room fields"
+      },
+      {
+        "phase": "blank_guardian_id",
+        "program": "tests/encounter_analytics_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/encounter_analytics_test.gd"
+        ],
+        "returncode": 1,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/blank_guardian_id/encounter_analytics_test.log",
+        "result_lines": [
+          "ENCOUNTER CALLER METADATA: FAIL (UI/headless; combat, Guardian, boss; start/end/rewards)",
+          "ENCOUNTER ANALYTICS: FAIL (8 failures)"
+        ],
+        "expected_assertion": "FAIL: UI guardian combat_started metadata.guardian_id expected storm_cantor, got "
+      },
+      {
+        "phase": "blank_guardian_id",
+        "program": "tests/combat_analytics_context_equivalence_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/combat_analytics_context_equivalence_test.gd"
+        ],
+        "returncode": 1,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/blank_guardian_id/combat_analytics_context_equivalence_test.log",
+        "result_lines": [
+          "TEST RESULT: FAIL \u2014 44 analytics-context/boundary comparisons (1 failures)"
+        ],
+        "expected_assertion": "ERROR: Guardian context preserves independent legacy room fields"
+      },
+      {
+        "phase": "remove_headless_merge",
+        "program": "tests/encounter_analytics_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/encounter_analytics_test.gd"
+        ],
+        "returncode": 1,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/remove_headless_merge/encounter_analytics_test.log",
+        "result_lines": [
+          "ENCOUNTER CALLER METADATA: FAIL (UI/headless; combat, Guardian, boss; start/end/rewards)",
+          "ENCOUNTER ANALYTICS: FAIL (44 failures)"
+        ],
+        "expected_assertion": "FAIL: headless combat combat_started metadata.room_type expected combat, got "
+      },
+      {
+        "phase": "remove_ui_merge",
+        "program": "tests/encounter_analytics_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/encounter_analytics_test.gd"
+        ],
+        "returncode": 1,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/remove_ui_merge/encounter_analytics_test.log",
+        "result_lines": [
+          "ENCOUNTER CALLER METADATA: FAIL (UI/headless; combat, Guardian, boss; start/end/rewards)",
+          "ENCOUNTER ANALYTICS: FAIL (36 failures)"
+        ],
+        "expected_assertion": "FAIL: UI combat combat_started metadata.encounter_id expected t1_element, got "
+      },
+      {
+        "phase": "corrupt_save_writer",
+        "program": "tests/encounter_measurement_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/encounter_measurement_test.gd"
+        ],
+        "returncode": 1,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/corrupt_save_writer/encounter_measurement_test.log",
+        "result_lines": [
+          "ENCOUNTER RUN SAVE: FAIL (3 seeds; ProgressionStore; complete state equality)",
+          "ENCOUNTER GOLDEN: FAIL (3 seeds; maps, rooms, combat, saves)",
+          "ENCOUNTER SMALL SWEEP: FAIL (36 rooms)",
+          "ENCOUNTER BOT DODGE/DEFENSE: FAIL",
+          "ENCOUNTER BOT DETERMINISM: FAIL (3 objectives, repeated seeded rooms)",
+          "ENCOUNTER MEASUREMENT: FAIL (162 checks; 3 failures)"
+        ],
+        "expected_assertion": "FAIL: ProgressionStore restores complete run state: 1"
+      },
+      {
+        "phase": "restored",
+        "program": "tests/encounter_analytics_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/encounter_analytics_test.gd"
+        ],
+        "returncode": 0,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/restored/encounter_analytics_test.log",
+        "result_lines": [
+          "ENCOUNTER CALLER METADATA: PASS (UI/headless; combat, Guardian, boss; start/end/rewards)",
+          "ENCOUNTER ANALYTICS: PASS (0 failures)"
+        ]
+      },
+      {
+        "phase": "restored",
+        "program": "tests/combat_analytics_context_equivalence_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/combat_analytics_context_equivalence_test.gd"
+        ],
+        "returncode": 0,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/restored/combat_analytics_context_equivalence_test.log",
+        "result_lines": [
+          "TEST RESULT: PASS \u2014 44 analytics-context/boundary comparisons (0 failures)"
+        ]
+      },
+      {
+        "phase": "restored",
+        "program": "tests/encounter_measurement_test.gd",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "spx-01",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/encounter_measurement_test.gd"
+        ],
+        "returncode": 0,
+        "log": "/private/tmp/spx-01-feedback-2/mutations-final/restored/encounter_measurement_test.log",
+        "result_lines": [
+          "ENCOUNTER RUN SAVE: PASS (3 seeds; ProgressionStore; complete state equality)",
+          "ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)",
+          "ENCOUNTER SMALL SWEEP: PASS (36 rooms)",
+          "ENCOUNTER BOT DODGE/DEFENSE: PASS",
+          "ENCOUNTER BOT DETERMINISM: PASS (3 objectives, repeated seeded rooms)",
+          "ENCOUNTER MEASUREMENT: PASS (162 checks; 0 failures)"
+        ]
+      }
+    ],
+    "restored_sha256": {
+      "scripts/encounter_analytics_context.gd": "ce674c2ea85e984b7bbc173002323762391161e70e6dbeedd66a87aefc0167c1",
+      "scripts/progression_store.gd": "935c5c7e9c7565c8a40bc1a9772ffad1965c5bb136f7a2c775a6a8e33b889f81",
+      "scripts/run_scene.gd": "9d6bd4ec9ea122399c1af437ce41231147ae48baa22c1beef587e5835788e50c",
+      "tools/headless_playtest.gd": "c80e89e36321c0e8f7e1ed3af50507298fe20b4cebe01f05efc45a9a21e36934"
+    }
+  },
+  "mutation_driver_result": "ENCOUNTER REGRESSION MUTATIONS: PASS (5/5 killed; restored controls pass)",
+  "mutation_driver_log": "/private/tmp/spx-01-feedback-2/mutations-final-driver.log",
+  "focused_checks_after_restoration": [
+    {
+      "phase": "restored",
+      "program": "tests/encounter_analytics_test.gd",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "spx-01",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/encounter_analytics_test.gd"
+      ],
+      "returncode": 0,
+      "log": "/private/tmp/spx-01-feedback-2/mutations-final/restored/encounter_analytics_test.log",
+      "result_lines": [
+        "ENCOUNTER CALLER METADATA: PASS (UI/headless; combat, Guardian, boss; start/end/rewards)",
+        "ENCOUNTER ANALYTICS: PASS (0 failures)"
+      ]
+    },
+    {
+      "phase": "restored",
+      "program": "tests/combat_analytics_context_equivalence_test.gd",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "spx-01",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/combat_analytics_context_equivalence_test.gd"
+      ],
+      "returncode": 0,
+      "log": "/private/tmp/spx-01-feedback-2/mutations-final/restored/combat_analytics_context_equivalence_test.log",
+      "result_lines": [
+        "TEST RESULT: PASS \u2014 44 analytics-context/boundary comparisons (0 failures)"
+      ]
+    },
+    {
+      "phase": "restored",
+      "program": "tests/encounter_measurement_test.gd",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "spx-01",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/encounter_measurement_test.gd"
+      ],
+      "returncode": 0,
+      "log": "/private/tmp/spx-01-feedback-2/mutations-final/restored/encounter_measurement_test.log",
+      "result_lines": [
+        "ENCOUNTER RUN SAVE: PASS (3 seeds; ProgressionStore; complete state equality)",
+        "ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)",
+        "ENCOUNTER SMALL SWEEP: PASS (36 rooms)",
+        "ENCOUNTER BOT DODGE/DEFENSE: PASS",
+        "ENCOUNTER BOT DETERMINISM: PASS (3 objectives, repeated seeded rooms)",
+        "ENCOUNTER MEASUREMENT: PASS (162 checks; 0 failures)"
+      ]
+    }
+  ],
+  "python_checks": {
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 7 tests in 0.400s",
+      "OK"
+    ],
+    "log": "/private/tmp/spx-01-feedback-2/python-focused.log"
+  },
+  "preserved_existing_measurements": {
+    "files_checked_against_reviewed_head": 45,
+    "all_byte_identical": true,
+    "golden_fixture_sha256": "07053b37d471fbe3a439a497333c2832528c32a0d935e7252d2300683f67a4e9",
+    "full_sweep_and_baseline_regenerated": false
+  },
+  "chosen_defaults": {
+    "caller_fixture_seed": 421,
+    "caller_run_id": "encounter_caller_fixture",
+    "caller_milestone_id": "encounter_caller_boss_claim",
+    "caller_reason": "caller_fixture",
+    "reward_card_id": "quick_stab",
+    "caller_and_save_travel_direction": "Vector2i.RIGHT",
+    "legacy_guardian_seed": 421,
+    "save_seeds": [
+      1,
+      19,
+      421
+    ],
+    "save_directory": "user://encounter_measurement_saves",
+    "save_filename": "seed_<seed>.save",
+    "save_cleanup": true,
+    "mutation_log_directory": "/private/tmp/spx-01-feedback-2/mutations-final",
+    "godot_timeout": "inherited task runner default (300 seconds)"
+  },
+  "windowed_proof": {
+    "status": "not_applicable",
+    "commands": [],
+    "reason": "Test coverage and unused declarations only; no visual changes or capture/inspection fixture requested."
+  },
+  "todo_design": [],
+  "open_issues": [
+    {
+      "status": "pre_existing_unchanged",
+      "issue": "Policy v2 remains below its qualification target: tier-1 Defeat All 64% wins, median HP lost 15, versus 70% and 8. This feedback changes regression coverage only."
+    }
+  ],
+  "development_correction": {
+    "issue": "The extra UI-merge mutation exposed unsafe direct dictionary indexing in the earlier analytics test. Missing keys now cause explicit presence/value assertion failures instead of aborting initialization.",
+    "initial_trial_log": "/private/tmp/spx-01-feedback-2/mutations/remove_ui_merge/encounter_analytics_test.log",
+    "initial_driver_exit_code": 1,
+    "corrected_final_proof": "All five mutants now exit 1 on the expected assertions; all restored controls exit 0."
+  },
+  "files_changed": [
+    "spec/peer_benchmark/encounter_redesign/measurements/feedback_2_proof.json",
+    "tests/combat_analytics_context_equivalence_test.gd",
+    "tests/encounter_analytics_test.gd",
+    "tests/encounter_measurement_test.gd",
+    "tests/encounter_regression_mutations.py",
+    "tools/encounter_sweep.gd"
+  ],
+  "code_sha256": {
+    "tests/combat_analytics_context_equivalence_test.gd": "cd56c760d4bcf9c19ac9a6a642d0795d6d314e48709cbbe2ef63d637d831cea0",
+    "tests/encounter_analytics_test.gd": "b54d38c27c48bd72ee07414d3dadd0cc0073d3510d6de319ff91813c9a47283c",
+    "tests/encounter_measurement_test.gd": "96e12d7cdbf207c543df6255caa0da0618e22f2207199ee15b02a958b3a1a7d7",
+    "tests/encounter_regression_mutations.py": "09033f18414c9e2e41da90481bd1e8225f43240c7b714a5fb8f8bd8b1258d8e1",
+    "tools/encounter_sweep.gd": "9eef2dd709a37180491f71f0bb89eceb2e3810d53b3c95b9b81f647ba064d7e4"
+  }
+}

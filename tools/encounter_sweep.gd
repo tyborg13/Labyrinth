@@ -2,13 +2,11 @@ extends SceneTree
 ## Offline measurements only. Never changes the generation inputs or runtime rules.
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
-const Rooms = preload("res://scripts/room_generator.gd")
 const Run = preload("res://scripts/run_engine.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Game = preload("res://scripts/game_data.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Store = preload("res://scripts/analytics_store.gd")
-const BIOMES: PackedStringArray = ["fire", "earth", "ice", "air", "lightning", "shadow"]
 const DEFAULT_FIRST_SEED: int = 1
 const DEFAULT_SEEDS: int = 2000
 const FREE_TILES_PER_TURN: int = 2
