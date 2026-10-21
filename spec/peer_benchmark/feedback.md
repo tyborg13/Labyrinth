@@ -251,4 +251,7 @@
   gang becomes 2 Ash Hounds + a Cinder Ooze (no Ticks); captains are NOT scaled (board pixel density) but marked by the
   Command banner and a titled nameplate. Build order: enc-01 measurement, enc-02 framework + Warband pilot, then Snare
   and Last Light, then Hoarder.
+- Director decision, 2026-10-21 (spx-01): the measurement bot's policy v2 (tier-1 Defeat All 64% wins, median 15 HP
+  lost, against the owner's logged 28/32 wins and 1.5 HP) is accepted as a relative benchmark only, for comparing a
+  special encounter with a standard fight under the same bot. Absolute encounter bands come from owner playtests.
 
