@@ -96,7 +96,10 @@ rooms. The ordinary first three offers stay in place; the fourth uses the room�
 element filter (or the general pool for neutral rooms). If all four are below
 Rare, only the last elemental slot, or the last slot in a neutral room, is
 rerolled. It keeps that slot’s element filter and the usual rarity and card offer
-weights among Rare/Epic/Legendary. A deferred card retains this floor.
+weights among Rare/Epic/Legendary. An off-element deferred card replaces the
+general slot; other deferrals use the first compatible slot. The Rare floor is
+checked again after insertion, preserving all three elemental offers and
+reserving the final slot for any required reroll without erasing the deferral.
 
 The Ember reward replaces per-kill earnings with 1.5 times the starting roster’s
 `reward_embers` sum, using the ordinary half-up rounding and combat omen scaling.
@@ -141,13 +144,20 @@ additive and use the ordinary save format.
   pre-battle/direct entry and production save/load repair. `--feedback-only`
   focuses on rewards/resume, 64 reward seeds across all five elements plus
   neutral, forced same-filter Rare floors, staged/installed emblem loading, and
-  library names above physical doors.
+  library names above physical doors. It also runs the assertion-free forced
+  fallback regression in `tests/helpers/special_placement_regressions.gd`, paired
+  one-exit/two-exit Snare fixtures across 64 seeds, positive equipment-pity resets
+  through both entry paths, and `finish_combat` deferral integration including a
+  general-only Rare offer. The full special suite counts outgoing edges and
+  Guardian adjacency independently of production eligibility helpers.
 - `tests/special_encounter_legend_test.gd`: fullest legal enabled section (seed 0,
-  section II, ten concepts), approved order/gaps, Scout clearance, and the
-  two-row fallback at a debug-only 1000px legend width.
+  section II, ten concepts), independent literals for the approved thirteen-type
+  order and labels, gaps, Scout clearance, and the two-row fallback at a
+  debug-only 1000px legend width.
 - `tests/test_special_encounter_assets.py`: protected JSON/provenance bytes and
-  every approved emblem hash; `tests/test_icon_identity_policy.py` includes all
-  four distinct concepts. The UI identity lint remains unchanged.
+  every approved emblem hash, plus a Windows typed-array source guard for new
+  special scripts and the rarity helper; `tests/test_icon_identity_policy.py`
+  includes all four distinct concepts. The UI identity lint remains unchanged.
 - `tests/special_encounter_probe.gd`: eight real-renderer captures (future,
   available, pointer hover, native focus, visited, bypassed, fullest legend,
   section VI fog landmark), 1920×1080 at 100% UI scale in the project’s fixed-size

@@ -10,12 +10,17 @@ const Icons = preload("res://scripts/room_icon_library.gd")
 const Omens = preload("res://scripts/omen_rules.gd")
 const MapPanelScript = preload("res://scripts/section_map_panel.gd")
 const Elements = preload("res://scripts/element_data.gd")
+const PlacementRegressions = preload("res://tests/helpers/special_placement_regressions.gd")
 const SEED_COUNT: int = 64
 const REWARD_SEED_COUNT: int = 64
 const RARITY_FLOOR_TEST_SEED: int = 7
 const DOOR_TEST_TILE: Vector2i = Vector2i(1, 1)
+const PITY_TEST_MISSES: int = 1
+const DEFERRED_TEST_SEED: int = 1
+const DEFERRED_TEST_CARD: String = "guiding_flare"
 
 static func run(expect: Callable) -> void:
+	PlacementRegressions.run(expect)
 	_test_golden(expect)
 	for seed_value: int in range(SEED_COUNT):
 		var state: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room"}
@@ -26,6 +31,7 @@ static func run(expect: Callable) -> void:
 		for index: int in range(6): _test_section(state, index, expect)
 	_test_future_placement(expect)
 	_test_rewards_and_resume(expect)
+	_test_deferred_special_rewards(expect)
 	_test_reward_floor(expect)
 	_test_names(expect)
 	_test_door_names(expect)
@@ -114,7 +120,12 @@ static func _test_future_placement(expect: Callable) -> void:
 				selected[cell] = type
 				seen_types[type] = true
 				expect.call(str(before["nodes"][cell]["type"]) == "combat", "Only rolled standard combat converts")
-				expect.call(Specials._eligible(before, cell, type, count, data["placement"]), "Every future placement meets step, Guardian and outgoing-edge requirements")
+				expect.call(cell.x >= int(data["placement"]["first_step"]) and cell.x <= count - int(data["placement"]["last_step_from_boss"]), "Future placement independently meets step bounds")
+				var exits: int = 0
+				for _child: Vector2i in before["children"].get(cell, []): exits += 1
+				expect.call(exits >= int(data["placement"]["min_outgoing_edges"].get(type, 0)), "Future placement independently meets outgoing-edge requirement: " + type)
+				for neighbor: Vector2i in before["children"].get(cell, []) + before["parents"].get(cell, []):
+					expect.call(before["nodes"][neighbor]["type"] != "guardian", "Future placement independently avoids Guardian adjacency")
 			seen_counts[selected.size()] = true
 			expect.call(selected.size() <= 3 and selected.values().size() == _unique(selected.values()).size(), "Future counts are capped and types remain distinct")
 			# Independent exhaustive enumeration, not the production DP validator.
@@ -158,8 +169,10 @@ static func special_entry(engine: RunEngineScript, seed_value: int = 83) -> Dict
 static func _test_rewards_and_resume(expect: Callable) -> void:
 	var engine := RunEngineScript.new()
 	var fixture: Dictionary = special_entry(engine)
+	fixture["state"]["equipment_drop_misses"] = PITY_TEST_MISSES
 	var state: Dictionary = engine.move_to_pre_battle(fixture["state"], fixture["destination"])
 	expect.call(state["mode"] == "pre_battle", "Special entry uses normal pre-battle flow")
+	expect.call(int(state["equipment_drop_misses"]) == PITY_TEST_MISSES, "Pre-battle begins with a positive equipment miss count")
 	var entered_room: Dictionary = engine.room_metadata(state, state["current_room"])
 	expect.call(entered_room.has("special_type") and entered_room.has("special_variant"), "Combat analytics can read both persisted room context fields")
 	var prepared: Dictionary = engine.prepare_pre_battle_combat(state)
@@ -191,12 +204,50 @@ static func _test_rewards_and_resume(expect: Callable) -> void:
 	expect.call(failed["pending_reward"]["cards"].size() == 3 and failed["pending_reward"]["ember_amount"] == 777, "Failed goal receives ordinary cards and per-kill Embers")
 	var direct: Dictionary = engine.move_to_room(fixture["state"], fixture["destination"])
 	expect.call(direct["mode"] == "combat" and Graph.room(direct, direct["current_room"]).has("special_starting_reward_embers"), "Direct entry captures the same starting roster metadata")
+	expect.call(int(fixture["state"]["equipment_drop_misses"]) == PITY_TEST_MISSES and int(direct["equipment_drop_misses"]) == 0, "Direct entry resets positive equipment pity after its guaranteed drop")
+	expect.call(engine._layout_has_equipment_drop(direct["combat_state"]), "Direct entry's combat snapshot contains the guaranteed equipment drop")
 	var total: int = Specials.starting_embers({"enemies": [{"type": "warden", "reward_embers": 7}, {"type": "warden", "reward_embers": 2}]})
 	expect.call(total == 9, "Explicit starting enemy rewards take precedence over catalog defaults")
 	for omen_id: String in GameData.omens():
 		var omen_state: Dictionary = Omens.add({}, omen_id)
 		if Omens.ember_drop(omen_state, 30) == 30: continue
 		expect.call(Specials.reward_embers({"special_starting_reward_embers": 20}, omen_state) == Omens.ember_drop(omen_state, 30), "Special Ember multiplier retains ordinary omen scaling")
+	print("SPX equipment pity regression: positive misses reset through pre-battle and direct entry")
+
+static func _test_deferred_special_rewards(expect: Callable) -> void:
+	var engine := RunEngineScript.new()
+	var fixture: Dictionary = special_entry(engine, DEFERRED_TEST_SEED)
+	var state: Dictionary = engine.move_to_room(fixture["state"], fixture["destination"])
+	var room: Dictionary = Graph.room(state, state["current_room"])
+	expect.call(room["element"] == Elements.LIGHTNING, "Seed 1 reproduces an off-element deferral in its first Warband")
+	var combat: Dictionary = state["combat_state"].duplicate(true)
+	combat["objective"] = {"type": "kill_all"}
+	for enemy: Dictionary in combat["enemies"]: enemy["hp"] = 0
+	state[RunEngineScript.SKILL_STATE_KEY]["pending_card"] = DEFERRED_TEST_CARD
+	var result: Dictionary = engine.finish_combat(state, combat)
+	var cards: Array = result["pending_reward"]["cards"]
+	expect.call(cards.size() == 4 and cards[2] == DEFERRED_TEST_CARD, "finish_combat puts an off-element deferral in the general slot")
+	for slot: int in [0, 1, 3]:
+		expect.call(GameData.card_element(cards[slot]) == Elements.LIGHTNING, "finish_combat preserves all three Lightning slots after deferral")
+	expect.call(result[RunEngineScript.SKILL_STATE_KEY]["pending_card"].is_empty(), "Special reward consumes its pending deferral")
+	# Find a deterministic offer where the general slot held the only Rare+.
+	# Replacing it with a Common must reroll the last elemental slot, while
+	# keeping the deferred card. This exercises finish_combat, not just helpers.
+	room["special_goal_met"] = true
+	var floor_witness: bool = false
+	for reward_seed: int in range(REWARD_SEED_COUNT):
+		state["seed"] = reward_seed
+		var ordinary: Array[String] = engine._generate_card_rewards(state, state["current_room"])
+		if GameData.card_rarity(ordinary[2]) == "common": continue
+		if GameData.card_rarity(ordinary[0]) != "common" or GameData.card_rarity(ordinary[1]) != "common" or GameData.card_rarity(ordinary[3]) != "common": continue
+		floor_witness = true
+		result = engine.finish_combat(state, combat)
+		cards = result["pending_reward"]["cards"]
+		expect.call(cards[2] == DEFERRED_TEST_CARD, "Rare-floor repair retains the off-element deferred card in its general slot")
+		expect.call(GameData.card_rarity(cards[3]) in ["rare", "epic", "legendary"] and GameData.card_element(cards[3]) == Elements.LIGHTNING, "finish_combat reapplies the Rare floor in the last Lightning slot after deferral")
+		break
+	expect.call(floor_witness, "Deferred integration includes a general-only Rare witness")
+	print("SPX deferred reward regression: seed 1 keeps three Lightning slots; general-only Rare floor repaired")
 
 static func _test_reward_floor(expect: Callable) -> void:
 	var engine := RunEngineScript.new()
@@ -209,6 +260,8 @@ static func _test_reward_floor(expect: Callable) -> void:
 	elements.append(Elements.NONE)
 	for element: String in elements:
 		room["element"] = element
+		var filter: String = element if Elements.is_elemental(element) else ""
+		var deferred_id: String = GameData.reward_card_pool_by_rarity(filter, true)["common"][0]
 		var general_off_element: bool = false
 		for seed_value: int in range(REWARD_SEED_COUNT):
 			state["seed"] = seed_value
@@ -225,6 +278,14 @@ static func _test_reward_floor(expect: Callable) -> void:
 			var rare: bool = false
 			for id: String in choices: rare = rare or GameData.card_rarity(id) in ["rare", "epic", "legendary"]
 			expect.call(rare, "Every special offer includes Rare or better: " + element)
+			var deferred: Array[String] = engine._generate_card_rewards(state, coord, 991, [], deferred_id)
+			expect.call(deferred.has(deferred_id) and _unique(deferred).size() == 4, "Special generation retains its Common deferral without duplicates: " + element)
+			var deferred_rare: bool = false
+			for id: String in deferred: deferred_rare = deferred_rare or GameData.card_rarity(id) in ["rare", "epic", "legendary"]
+			expect.call(deferred_rare, "Special generation retains the Rare floor after a Common deferral: " + element)
+			if Elements.is_elemental(element):
+				for slot: int in [0, 1, 3]:
+					expect.call(GameData.card_element(deferred[slot]) == element, "Same-element deferral retains each elemental slot: " + element)
 			expect.call(not engine._equipment_drop_for_room(state, room).is_empty(), "Equipment is forced even when the ordinary drop roll misses")
 		expect.call(general_off_element, "General special slot is not restricted to the room element: " + element)
 		_test_forced_floor(engine, state, element, expect)
@@ -247,8 +308,6 @@ static func _test_forced_floor(engine: RunEngineScript, state: Dictionary, eleme
 	expect.call(forced.slice(0, 3) == common.slice(0, 3) and GameData.card_rarity(forced[3]) in ["rare", "epic", "legendary"], "An all-common roll rerolls only the last element slot, or last neutral slot, at Rare or better: " + element)
 	if Elements.is_elemental(element):
 		expect.call(GameData.card_element(forced[3]) == element, "Forced Rare offer retains the room's element filter: " + element)
-	var deferred: Array[String] = engine._offer_with_deferred_id(forced, common[3], true)
-	expect.call(deferred.has(common[3]) and GameData.card_rarity(deferred[3]) != "common", "A deferred common card preserves the special rarity floor")
 	var excluded: Array[String]
 	excluded.assign(GameData.reward_card_pool_by_rarity(filter, true)["rare"])
 	rng.seed = RARITY_FLOOR_TEST_SEED

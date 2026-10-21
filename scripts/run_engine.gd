@@ -1347,12 +1347,12 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 			next_state["guardian_reward"] = {"guardian_id":room.get("guardian_id", ""),"relic_id":trophy,"room":current_room,"claimed":false}
 			next_state["mode"] = "treasure"
 			return next_state
-	var reward_cards: Array[String] = _generate_card_rewards(next_state, current_room)
 	var reward_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 	var pending_card: String = str(reward_skill_state.get("pending_card", ""))
+	var reward_cards: Array[String] = _generate_card_rewards(next_state, current_room, 991, [], pending_card)
 	if not pending_card.is_empty():
-		if not GameData.card_def(pending_card).is_empty():
-			reward_cards = _offer_with_deferred_id(reward_cards, pending_card, bool(room.get("special_goal_met", false)))
+		if not bool(room.get("special_goal_met", false)) and not GameData.card_def(pending_card).is_empty():
+			reward_cards = _offer_with_deferred_id(reward_cards, pending_card)
 		reward_skill_state["pending_card"] = ""
 		next_state[SKILL_STATE_KEY] = reward_skill_state
 	next_state["pending_reward"] = {
@@ -2706,7 +2706,7 @@ func _merchant_kind_for_room_type(room_type: String) -> String:
 		return MERCHANT_SCAVENGER
 	return ""
 
-func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 991, excluded_cards: Array = []) -> Array[String]:
+func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 991, excluded_cards: Array = [], deferred_card: String = "") -> Array[String]:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _coord_hash(int(run_state.get("seed", 0)), coord, salt)
 	var choices: Array[String] = []
@@ -2730,7 +2730,16 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 
 		if special_reward: blocked.append_array(excluded)
 		var filter: String = special_filter if special_reward else ""
 		choices.append_array(_draw_reward_cards_for_element(rng, filter, count - choices.size(), blocked, run_state))
-	if special_reward: choices = _special_rarity_floor(rng, choices, excluded, run_state, special_filter)
+	if special_reward:
+		choices = _special_rarity_floor(rng, choices, excluded, run_state, special_filter)
+		if not deferred_card.is_empty() and not GameData.card_def(deferred_card).is_empty() and not choices.has(deferred_card):
+			# Off-element cards belong in the sole general slot. Other deferrals
+			# use the first compatible slot, reserving the last slot for the floor.
+			var deferred_slot: int = 2 if not special_filter.is_empty() and GameData.card_element(deferred_card) != special_filter else 0
+			choices[deferred_slot] = deferred_card
+		# Deferral can replace the only Rare offer. Recheck after insertion;
+		# the last slot stays available without erasing the deferred card.
+		choices = _special_rarity_floor(rng, choices, excluded, run_state, special_filter)
 	return choices
 
 func _special_rarity_floor(rng: RandomNumberGenerator, choices: Array[String], excluded: Array[String], run_state: Dictionary, element_filter: String = "") -> Array[String]:
@@ -2747,24 +2756,18 @@ func _special_rarity_floor(rng: RandomNumberGenerator, choices: Array[String], e
 			pool[rarity] = (pool.get(rarity, []) as Array).filter(func(id: String) -> bool: return not excluded.has(id) and not choices.has(id))
 	var rarity: String = _draw_card_reward_rarity(rng, pool, run_state)
 	if rarity.is_empty(): return choices
-	var weighted: Array[String] = []
+	var weighted: Array[String]
 	for id: String in pool[rarity]:
 		for _weight: int in range(GameData.reward_offer_weight(id)): weighted.append(id)
 	if not weighted.is_empty(): choices[choices.size() - 1] = weighted[rng.randi_range(0, weighted.size() - 1)]
 	return choices
 
-func _offer_with_deferred_id(choices_value: Array, deferred_id: String, preserve_rarity_floor: bool = false) -> Array[String]:
+func _offer_with_deferred_id(choices_value: Array, deferred_id: String) -> Array[String]:
 	var choices: Array[String] = _string_array_typed(choices_value)
 	if deferred_id.is_empty() or choices.has(deferred_id):
 		return choices
 	if choices.size() >= 3:
-		var replacement: int = choices.size() - 1
-		if preserve_rarity_floor:
-			for index: int in range(choices.size()):
-				if GameData.card_rarity(choices[index]) == "common":
-					replacement = index
-					break
-		choices[replacement] = deferred_id
+		choices[choices.size() - 1] = deferred_id
 	else:
 		choices.append(deferred_id)
 	return choices

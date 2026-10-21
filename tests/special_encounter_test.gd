@@ -7,7 +7,9 @@ func _initialize() -> void:
 	if OS.get_cmdline_user_args().has("--assets-only"):
 		Suite._test_names(expect)
 	elif OS.get_cmdline_user_args().has("--feedback-only"):
+		Suite.PlacementRegressions.run(expect)
 		Suite._test_rewards_and_resume(expect)
+		Suite._test_deferred_special_rewards(expect)
 		Suite._test_reward_floor(expect)
 		Suite._test_names(expect)
 		Suite._test_door_names(expect)

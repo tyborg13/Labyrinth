@@ -95,7 +95,10 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 				layout = _fallback_layout(count, FIGHT_COUNTS[index] - 1)
 		if revision >= 6 and not Specials.place(layout, rng, count, Bosses.element_for_boss(boss_id)):
 			layout = _fallback_layout(count, FIGHT_COUNTS[index] - 1)
-			assert(Specials.place(layout, rng, count, Bosses.element_for_boss(boss_id)), "Revision 6 fallback must place enabled special encounters")
+			# Placement mutates the layout, so release builds must execute it
+			# independently of the debug-only assertion.
+			var fallback_placed: bool = Specials.place(layout, rng, count, Bosses.element_for_boss(boss_id))
+			assert(fallback_placed, "Revision 6 fallback must place enabled special encounters")
 		var entry: Vector2i = Vector2i.ZERO if index == 0 else Vector2i(-index * 4, 0)
 		var boss := Vector2i((index + 1) * 4, 0)
 		var info: Dictionary = {"index": index, "boss_id": boss_id, "title": Bosses.room_name_for_boss(boss_id), "entry": entry, "boss": boss, "room_count": count, "fight_count": FIGHT_COUNTS[index], "scouts": 2, "entered": false, "lane_count": 5 if revision >= 5 else 4, "walks": layout["walks"]}

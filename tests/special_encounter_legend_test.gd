@@ -5,6 +5,10 @@ const MapPanelScript = preload("res://scripts/section_map_panel.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const FALLBACK_TEST_WIDTH: float = 1000.0
+# Independent director contract, including disabled types. Production constants
+# are the subject of this check, never its expected-value oracle.
+const EXPECTED_ORDER: Array = ["combat", "special_warband", "special_umbral_snare", "special_ember_hoarder", "special_last_light", "guardian", "event", "scavenger", "graftwright", "treasure", "campfire", "boss", "unknown"]
+const EXPECTED_LABELS: Array = ["Standard combat", "Warband", "Umbral Snare", "Ember Hoarder", "Last Light", "Guardian combat", "Event", "Scavenger", "Graftwright", "Relic", "Ember Hearth", "Boss", "Unknown room"]
 var failures: Array[String]
 
 func _initialize() -> void:
@@ -28,10 +32,14 @@ func _run() -> void:
 	var types: Dictionary = Fixture.section_types(state, Graph.active_section(state))
 	_check(types.size() == 10, "Fullest legal production section contains all ten enabled legend concepts")
 	_check(panel._legend_types.size() == types.size(), "Legend lists only the displayed section's types")
+	_check(MapPanelScript.LEGEND_ORDER == EXPECTED_ORDER, "All thirteen legend concepts match the independent approved order")
 	var ordered: Array[String]
-	for type: String in MapPanelScript.LEGEND_ORDER:
+	for type: String in EXPECTED_ORDER:
 		if types.has(type): ordered.append(type)
 	_check(panel._legend_types == ordered, "Legend follows the director's exact order")
+	for index: int in range(panel._legend_types.size()):
+		var expected_index: int = EXPECTED_ORDER.find(panel._legend_types[index])
+		_check(expected_index >= 0 and panel._legend.get_child(index).get_child(1).text == EXPECTED_LABELS[expected_index], "Legend labels match the independent approved wording")
 	_check(panel._legend.custom_minimum_size.y == 48, "Fullest production legend stays in one row at 1920x1080")
 	_check(panel._legend.get_global_rect().end.x <= panel._scout.get_global_rect().position.x, "Legend fits beside Scout")
 	_check_bounds(panel)
