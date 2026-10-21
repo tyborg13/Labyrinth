@@ -25,6 +25,9 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	preload("res://tests/helpers/spx07_cache_ownership_cases.gd").run(_expect)
+	preload("res://tests/helpers/spx07_path_draw_cases.gd").run(_expect)
+	preload("res://tests/helpers/spx07_catalog_cache_cases.gd").run(_expect)
 	var probe: Script = load("res://tests/warband_probe.gd")
 	_expect(probe != null and probe.can_instantiate(), "Native Warband probe parses headless")
 	var host := preload("res://scripts/run_scene.gd").new()

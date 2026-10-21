@@ -9,6 +9,7 @@ const SMALL_SWEEP_MAX_SEED: int = 100
 const SAVE_TRAVEL_DIRECTION: Vector2i = Vector2i.RIGHT
 var failures: int = 0
 var checks: int = 0
+var stripped_wind_announcements: int = 0
 # Debug-only arena; independent of all authored encounters and deck presets.
 const POLICY_FIXTURE: Dictionary = {"seed": 4501, "size": 7, "player": Vector2i(2, 3), "enemy": Vector2i(3, 3), "enemy_hp": 30, "damage": 10, "enemy_time": 1, "enemy_id": 1, "low_hp": 5, "lethal_hp": 1, "approach_start": Vector2i(1, 3), "leader_id": 2, "leader_pos": Vector2i(5, 3), "exit_pos": Vector2i(2, 5), "determinism_enemy_hp": 8}
 
@@ -179,10 +180,25 @@ func test_small_sweep(revision: int) -> void:
 	check(objectives.size() == (2 if revision == Sweep.CURRENT_REVISION else 3), "small sweep includes the revision's supported objectives")
 	print("ENCOUNTER SMALL SWEEP: %s (revision %d; %d rooms; seeds 1..%d)" % ["PASS" if failures == previous_failures else "FAIL", revision, generated, seed_value - 1])
 
+func _legacy_wind_metadata(combats: Array) -> Array:
+	# spx-07 adds saved announcement metadata. Resolve the complete new rules
+	# first, then exclude only that field from the pre-change hash oracle. All
+	# positions, directions that actually blew, damage, RNG, maps and saves still
+	# compare exactly. The focused wind suite checks the new metadata itself.
+	var compatible: Array = combats.duplicate(true)
+	for state: Dictionary in compatible:
+		for enemy: Dictionary in state.get("enemies", []):
+			for action: Dictionary in enemy.get("intent", {}).get("actions", []):
+				if action.has("_wind_direction"):
+					stripped_wind_announcements += 1
+					action.erase("_wind_direction")
+	return compatible
+
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	var expected: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/encounter_measurement_golden.json"))
-	check(Sweep.golden() == expected, "pre-change golden maps, rooms, combat transitions and save roundtrips match")
+	check(Sweep.golden(_legacy_wind_metadata) == expected, "pre-change golden maps, rooms, combat transitions and save roundtrips match")
+	check(stripped_wind_announcements > 0, "Legacy golden exercises the separately tested additive wind-lock metadata")
 	test_run_save_roundtrips()
 	print("ENCOUNTER GOLDEN: %s (3 seeds; maps, rooms, combat, saves)" % ["PASS" if failures == 0 else "FAIL"])
 	test_small_sweep(Sweep.LEGACY_REVISION)

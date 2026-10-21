@@ -126,10 +126,11 @@ Standard `combat` rooms with `section_map_layout_revision >= 6` always use
 placement RNG and serialized layouts. Guardian and dragon objectives and stats
 are unchanged. Existing Survive and Reach Exit saves remain supported.
 
-The spx-02 entry contract is `{type: special, special_type: warband,
-special_variant: <biome>}`. `SpecialEncounterLibrary` reads the immutable
-`data/special_encounters.json`, falling back to the staged director file until
-spx-02 installs it. Neither file is rewritten. `order` fields are not read.
+The entry contract is `{type: special, special_type: warband,
+special_variant: <biome>}`. `SpecialEncounterLibrary` reads
+`data/special_encounters.json`; the staged director copy remains byte-identical.
+The spx-07 follower placement object is copied verbatim from
+`peer_benchmark/staged/spx-07/followers.json`. Other supplied values are unchanged.
 
 `WarbandRoomRules` uses the specific variant captain and the first 3/4/5 ordered
 escorts at the existing local depth tier. It bypasses generic leader selection,
@@ -137,25 +138,31 @@ spawn-group expansion and extra-unit adjustments. Ordinary depth/sequence HP
 scaling applies, then the captain receives ×1.25 HP rounded up and 2/3/4
 Stoneskin, replacing the generic leader bonuses. Pixel density is unchanged.
 Per [director feedback 1](peer_benchmark/feedback/spx-03_feedback_1.md), placement
-uses Manhattan range 5–7 from the entry for the captain. Every escort starts at
-least 3 from the entry, and every enemy respects the ordinary spawn halo
-(`RoomGenerator.ENEMY_SPAWN_SAFE_RADIUS`, currently 2). A strictly closer
-follower keeps the captain from being closest; escort[0] satisfies Manhattan
-equality `d(entry, screen) + d(screen, captain) == d(entry, captain)` and is at
-least 3 from entry. Reachability is checked separately: a shortest grid detour
-does not qualify as a screen. Every other escort starts within range 3 of the
-captain. Every generated room is validated. The approved range supersedes the
-protected file's original 4–6, with named constants in `WarbandRoomRules`;
-neither supplied data copy is rewritten.
+uses Manhattan range 5–7 from the entry for the captain. The protected
+`captain.start_distance` value is unchanged; the existing named override remains.
+Every enemy respects the ordinary entry halo (currently 2); every follower is
+at least 3 from the entry. The ordered escorts now occupy these roles:
 
-The seeded search retains 20 rerolls. Its deterministic fallback tries the
-strict formation first, then relaxes only the other escorts' range from the
-captain before clearing interior template blockers if no safe formation fits.
-The captain range, minimum escort entry distance, ordinary entry halo and screen
-path never relax. An additive `warband_escort_radius_relaxed` layout field marks
-the capacity exception; validation rejects it when a strict formation fits.
-Dynamo anchors are searched farthest first across all legal reachable
-candidates, including full escort capacity under the applicable constraints.
+- Guard: within the data's `guard_radius` (2) of the captain.
+- Screen: `screen_distance` (2–3) from the captain, on both the Manhattan segment
+  and a shortest walkable entry-to-captain path.
+- Remaining skirmishers: `skirmisher_entry_distance` (3–5) from entry, alternating
+  left then right of the oriented entry-to-captain line, with `min_gap` (3) from
+  the captain and every other follower. In the grid's y-down convention, left
+  has a negative cross product. No followers are adjacent.
+
+A separate flood fill guarantees a walkable route from entry to within 2 of the
+captain, avoiding all occupied tiles and every tile next to a screen/skirmisher.
+Guard adjacency is permitted on that approach. Every complete formation is
+validated. The seeded search retains 20 template rerolls. Its deterministic
+fallback preserves all spacing and approach constraints; if no formation fits,
+the existing generator clears interior blockers and searches again. It never
+relaxes follower spacing. Dynamo still takes the farthest legal complete anchor.
+
+Within each side, the seeded roll chooses among valid candidates with no further
+ranking. Tiles on the entry-to-captain line (cross product zero) belong to neither
+side and never take a skirmisher. Deterministic fallback retains the established
+candidate scan order, preserving every role/range/gap/approach constraint.
 
 `WarbandCombatRules` computes Command at use time from the living captain and
 current follower position. Every positive-damage action receives +1 within
@@ -619,3 +626,105 @@ order-copy edit, from “everything” to “everyone else” in its wind senten
 unrelated edit was preserved. This unit's catalog write was only the Snare
 `enabled` flag, and the remaining Snare object matches the supplied data exactly.
 Both catalog copies remain byte-identical.
+
+## Warband hover and wind implementation (spx-07)
+
+Pointer sweeps use the real `CombatBoardView._gui_input` path and synchronously
+drain only that input's deferred presentation. `tests/spx07_hover_benchmark.gd`
+records all board-tile inputs, same-tile motion, card selection and card dragging,
+existing phase timings, and complete board/preview snapshots. Inputs are frozen
+from the base so intentional spawn/wind changes do not contaminate optimization
+equivalence. A freshly assigned analytics combat id is excluded from comparison;
+legacy intent hydration is tested separately. This is headless CPU-handler
+measurement, not a native frame-time or renderer measurement.
+
+Focus changes now reuse rest badge/Command/threat plans and only apply opacity.
+Owned, bounded preview memoization verifies full input equality after hashing;
+callers receive independent plan copies. Range coverage reuses its grid, terrain,
+trap, action and footprint geometry. Presentation mechanics retain their preview
+engines across hover submissions. Empty wind forecasts are retained as well.
+Motion within the current tile no longer refreshes the drag's selected-card
+forecast. No animation timing, visual markers, input routes or assets change.
+
+The ordinary route search uses a stable minimum heap with the original route
+comparator and FIFO ties. Its reference scan remains available for equivalence
+proof. Presentation adapters copy the outer containers they change and retain
+unchanged nested evidence. Tether's threat and real-resolver damage evidence are
+memoized together, preserving card-damage precedence.
+
+PASS's loss-only cursor can omit unrevealed future intent rolls and animation
+snapshots for a closed, deterministic starting-loadout subset. Eligibility is
+owned by `combat_preview_known_losses.gd`; unknown loadouts, mechanics and engine
+subclasses retain the full simulation. It still resolves every announced action
+and end-turn effect. This compact result is only a loss/uncertainty forecast;
+normal gameplay, animation and full-state previews keep their complete state and
+RNG continuation. The benchmark compares its summaries against the full selector
+outside the timed input samples. CPU budget failures remain assertions.
+
+Call the Wind stores `_wind_direction` in its selected action. Gale Herald and
+Stormcaller previews and resolution read that same field; player moves, card
+plays and pointer motion cannot re-aim it. A new own-turn intent selection can
+choose the next direction. Active held wind retains its saved direction and
+normal persistence/death rules. The owned load boundary fills missing legacy
+announcements once from the resumed board, preserving any existing locks.
+These are additive saved intent fields; analytics schemas and append-only event
+writers remain unchanged. No card values or heuristic coefficients change.
+
+Focused wind proof is `tests/warband_wind_lock_test.gd`. The existing Warband
+suite checks 6 variants × 3 tiers × 200 seeds, four entry directions, role order,
+Command range, screen geometry, alternating sides, gaps and an independent
+approach flood fill. Ordinary order controls use frozen pre-spread layouts from
+base `3fad2e65b1685996f7eed3fd407513cd54012129` in
+`tests/fixtures/spx07_order_control_layouts.bin`, preserving their original golden
+hash assertions rather than coupling them to the new placement search.
+
+The headless proof and current remaining budget failures are recorded in
+`output/spx07/HANDOFF.md`. Native first-turn proof uses the existing Warband probe
+with `--first-turn-only`, `tests/proof_contracts/spx07_warband.json`, 1920×1080 and
+100% UI scale. See `output/spx07/design_owner_proof.sh` for exact renderer,
+frame-time and verified inspection-fixture commands. Native captures must be
+run by the design owner on a machine with window-server access.
+
+Director feedback 1 adds `tests/spx07_frame_benchmark.gd`: the director's exact
+viewport-input path, 1.5-second settling period, four seconds idle and six seconds
+of motion per fixture. It awaits real process frames, including deferred work and
+queued CanvasItem draws. It retains raw `Performance.TIME_PROCESS` readings,
+actual iteration intervals, frame-indexed board render sections, script phases
+and redraw counts. Headless sampling disables low-processor mode and its fallback
+sleep, with no frame cap. Godot holds the process monitor across multiple frames;
+raw monitor percentiles and actual frame percentiles are reported separately.
+This proves script work, not native GPU/frame delivery. The director reruns the
+unchanged native probe. Director feedback 2 accepts the measured targeting floor:
+card/drag limits are 6 ms median / 40 ms worst; further targeting optimization is
+tracked as perf-02. Synchronous hover retains its 12 ms worst-case limit.
+
+The measured draw hot spots were repeated path geometry/clip construction and
+death-burst presence checks that scaled whole enemy intent catalogs per tile.
+`board_path_draw_cache.gd` retains the original ordered polygon/line commands and
+the original per-tile clipping operations; gradients, distress, colours and depth
+order are preserved. Known intent paths are prepared once per committed board
+revision, synchronously. The original builder remains the command-equivalence
+oracle. The Warband UI test exercises cold/warm caches at two proof layouts.
+Lob/Burrow mark views retain their pure preview engines; wind evidence is shared
+between retained layers. `GameData.enemy_def` memoizes pure fixed-point scaling
+against the exact raw definition while still returning private copies. In-place
+catalog edits invalidate the memo. Planner anchor snapshots reuse their already
+owned enemy array instead of deep-copying it twice.
+
+All public cache results own their nested dictionaries, arrays and packed data.
+Badge focus variants only share evidence internally; every published focus or
+unfocused snapshot is a deep copy. Path-cache result snapshots also own mesh
+resources, since ordinary container deep copies keep Resource references. The
+production renderer prepares and draws private cached paths without publishing
+those entries or meshes. It retains submitted mesh RIDs until the canvas's next
+draw and releases that storage on canvas exit. Public clip queries validate the
+commands in caller-owned entries as well as their ids. Every hash-indexed unit
+cache verifies exact owned inputs; wind has no view-local hash-only shortcut.
+One owned wind forecast serves each synchronous overlay tile loop.
+
+`tests/helpers/spx07_cache_ownership_cases.gd`, registered through the Warband UI
+suite, mutates each nested container independently and checks both retained
+results and later hits. It covers memo, plan, threat/coverage/geometry, catalog,
+orders, badge focus, Tether, wind, paths, clips and mesh resources. Its locked-wind
+collision fixture preserves the reviewer's unequal states hashing to 2943709617:
+hero `(2,3)` with nonce 104756 and `(8,8)` with nonce 8893, including undo.

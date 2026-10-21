@@ -243,8 +243,6 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	if warband:
 		layout["special_type"] = "warband"
 		layout["special_variant"] = room["special_variant"]
-		for index: int in range(2, enemy_positions.size()):
-			if PathUtils.manhattan(enemy_positions[0], enemy_positions[index]) > WarbandRooms.ESCORT_RADIUS: layout["warband_escort_radius_relaxed"] = true
 		assert(WarbandRooms.validate(layout, ENEMY_SPAWN_SAFE_RADIUS), "Illegal Warband placement")
 	if table_encounter:
 		layout["encounter_id"] = encounter["id"]

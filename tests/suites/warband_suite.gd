@@ -88,26 +88,16 @@ static func _matrix(expect: Callable, measure_opening_damage: bool) -> Dictionar
 					nearest = mini(nearest, Paths.manhattan(entry, tile))
 					expect.call(Paths.manhattan(entry, tile) > Rooms.ENEMY_SPAWN_SAFE_RADIUS, "Every spawn outside ordinary entry halo: " + context)
 					if index > 0: expect.call(Paths.manhattan(entry, tile) >= 3, "Every escort at least 3 from entry: " + context)
-					if index > 1: expect.call(Paths.manhattan(tile, captain["pos"]) <= 3, "Other escorts near captain: " + context)
 				expect.call(nearest < distance, "Captain never closest: " + context)
-				var screen: Vector2i = enemies[1]["pos"]
+				var screen: Vector2i = enemies[2]["pos"]
 				expect.call(Paths.manhattan(entry, screen) + Paths.manhattan(screen, captain["pos"]) == distance, "Screen on Manhattan shortest path: " + context)
 				expect.call(captain["max_hp"] == ceili(generator._scaled_enemy_max_hp(str(captain["type"]), tier) * 1.25) and captain["stoneskin"] == tier + 1, "Warband HP/Stoneskin: " + context)
 				expect.call(not captain.has("scale") and Identity.display_name(captain) == variant["title"], "Captain density/title: " + context)
+				_spread_rules(expect, layout, context)
 				if biome == "lightning":
-					# Independently enumerate every farther legal anchor, including
-					# its capacity for the complete escort and a shortest-path screen.
-					for tile: Vector2i in Paths.reachable_tiles(grid, entry, 81):
-						if Paths.manhattan(tile, entry) <= distance or Paths.manhattan(tile, entry) > 7: continue
-						var nearby: Array[Vector2i]
-						for other: Vector2i in Paths.reachable_tiles(grid, entry, 81):
-							if other != tile and Paths.manhattan(other, entry) >= 3 and Paths.manhattan(other, entry) > Rooms.ENEMY_SPAWN_SAFE_RADIUS and Paths.manhattan(other, tile) <= 3: nearby.append(other)
-						var legal: bool = false
-						for candidate: Vector2i in Paths.reachable_tiles(grid, entry, 81):
-							if candidate == tile or Paths.manhattan(entry, candidate) < 3 or Paths.manhattan(entry, candidate) <= Rooms.ENEMY_SPAWN_SAFE_RADIUS or Paths.manhattan(entry, candidate) >= Paths.manhattan(entry, tile): continue
-							if Paths.manhattan(entry, candidate) + Paths.manhattan(candidate, tile) != Paths.manhattan(entry, tile): continue
-							if nearby.size() - (1 if nearby.has(candidate) else 0) >= enemies.size() - 2: legal = true
-						expect.call(not legal, "Dynamo uses farthest legal tile: " + context)
+					var unused_rng := RandomNumberGenerator.new()
+					var deepest: Array[Vector2i] = RoomRules.positions(grid, entry, enemies.size(), Rooms.ENEMY_SPAWN_SAFE_RADIUS, unused_rng, true, true)
+					expect.call(not deepest.is_empty() and Paths.manhattan(deepest[0], entry) == distance, "Dynamo uses farthest complete legal formation: " + context)
 				if measure_opening_damage:
 					var hp_loss: int = opening_hp_loss(combat, combat.create_combat(seed, layout, player_snapshot))
 					if hp_loss > OPENING_DAMAGE_THRESHOLD: over_threshold += 1
@@ -129,10 +119,10 @@ static func _matrix(expect: Callable, measure_opening_damage: bool) -> Dictionar
 	expect.call(blocked.template_attempts <= RoomRules.MAX_PLACEMENT_ATTEMPTS + 1 and RoomRules.validate(fallback, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Exhausted seeded retries produce a deterministic legal fallback room")
 	var narrow := NarrowFallbackGenerator.new()
 	var relaxed: Dictionary = narrow.generate_room(Fixture.FIXTURE_SEED, Fixture.room_spec("lightning", 3), Vector2i.UP)
-	expect.call(narrow.template_attempts == RoomRules.MAX_PLACEMENT_ATTEMPTS + 1 and bool(relaxed.get("warband_escort_radius_relaxed", false)) and RoomRules.validate(relaxed, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Small fallback room relaxes only captain clustering after all seeded retries")
-	expect.call(relaxed["grid"][6][3] == "wall", "Clustering relaxes before fallback clears blockers")
+	expect.call(narrow.template_attempts == RoomRules.MAX_PLACEMENT_ATTEMPTS + 1 and not relaxed.has("warband_escort_radius_relaxed") and RoomRules.validate(relaxed, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Narrow fallback preserves every spread constraint after seeded retries")
+	expect.call(relaxed["grid"][6][3] == "stone", "Impossible narrow formation clears interior blockers instead of relaxing spread")
 	var repeat: Dictionary = NarrowFallbackGenerator.new().generate_room(Fixture.FIXTURE_SEED, Fixture.room_spec("lightning", 3), Vector2i.UP)
-	expect.call(relaxed == repeat, "Relaxed fallback remains deterministic")
+	expect.call(relaxed == repeat, "Strict fallback remains deterministic")
 	# Revalidate the entry halo even if it becomes larger than the authored
 	# three-tile minimum; fallback must never trade it for roster capacity.
 	var wider_halo: int = 3
@@ -146,21 +136,53 @@ static func _matrix(expect: Callable, measure_opening_damage: bool) -> Dictionar
 	_screen_geometry_regression(expect)
 	return report
 
+static func _spread_rules(expect: Callable, layout: Dictionary, context: String) -> void:
+	var enemies: Array = layout["enemies"]
+	var captain: Vector2i = enemies[0]["pos"]
+	var entry: Vector2i = layout["player_start"]
+	var guard: Vector2i = enemies[1]["pos"]
+	var screen: Vector2i = enemies[2]["pos"]
+	expect.call(Paths.manhattan(guard, captain) <= 2, "Guard within Command: " + context)
+	expect.call(Paths.manhattan(screen, captain) in [2, 3], "Screen 2–3 from captain: " + context)
+	var grid: Array = layout["grid"]
+	expect.call(Paths.find_path(grid, entry, screen).size() + Paths.find_path(grid, screen, captain).size() == Paths.find_path(grid, entry, captain).size() + 1, "Screen on walkable shortest route: " + context)
+	var blocked: Dictionary = {captain: true, guard: true}
+	for index: int in range(1, enemies.size()):
+		var tile: Vector2i = enemies[index]["pos"]
+		for previous: int in range(1, index): expect.call(Paths.manhattan(tile, enemies[previous]["pos"]) >= 2, "No adjacent followers: " + context)
+		if index >= 3:
+			var distance: int = Paths.manhattan(tile, entry)
+			expect.call(distance >= 3 and distance <= 5, "Skirmisher entry distance: " + context)
+			var line: Vector2i = captain - entry
+			var offset: Vector2i = tile - entry
+			var cross: int = line.x * offset.y - line.y * offset.x
+			expect.call(cross != 0, "No skirmisher sits on the entry-to-captain line: " + context)
+			expect.call(cross < 0 if (index - 3) % 2 == 0 else cross > 0, "Alternating left/right skirmishers: " + context)
+			for previous: int in range(index): expect.call(Paths.manhattan(tile, enemies[previous]["pos"]) >= 3, "Skirmisher gap from every prior unit: " + context)
+		if index >= 2:
+			blocked[tile] = true
+			for axis: Vector2i in Paths.DIRS_4: blocked[tile + axis] = true
+	var targets: Array[Vector2i]
+	for tile: Vector2i in Paths.reachable_tiles(grid, entry, grid.size() * grid.size(), blocked):
+		if Paths.manhattan(tile, captain) <= 2: targets.append(tile)
+	expect.call(not targets.is_empty(), "Independent way-through flood fill: " + context)
+	expect.call(RoomRules.validate(layout, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Complete spread validator: " + context)
+
 static func _screen_geometry_regression(expect: Callable) -> void:
 	var generated: Dictionary = Rooms.new().generate_room(54, Fixture.room_spec("air", 2), Vector2i.DOWN)
-	var entry: Vector2i = generated["player_start"]
-	var captain: Vector2i = generated["enemies"][0]["pos"]
-	var screen: Vector2i = generated["enemies"][1]["pos"]
-	expect.call(Paths.manhattan(entry, screen) + Paths.manhattan(screen, captain) == Paths.manhattan(entry, captain), "Seed 54 DOWN screen cannot use a Manhattan detour")
-	var grid: Array = arena()["grid"]
-	grid[3][4] = "pillar"
-	entry = Vector2i(4, 1)
-	captain = Vector2i(4, 7)
-	screen = Vector2i(5, 3)
-	var detour: Dictionary = {"grid": grid, "player_start": entry, "enemies": [{"type": "gale_herald", "pos": captain}, {"type": "chainbound_gaoler", "pos": screen}, {"type": "gust_shrike", "pos": Vector2i(3, 6)}]}
-	expect.call(Paths.find_path(grid, entry, screen).size() + Paths.find_path(grid, screen, captain).size() == Paths.find_path(grid, entry, captain).size() + 1, "Detour regression is reachable and on a shortest grid path")
-	expect.call(not RoomRules.validate(detour, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Validator rejects reachable grid-shortest screens off the Manhattan segment")
-	print("Warband screen geometry: seed 54 and reachable grid-detour rejection checked")
+	_spread_rules(expect, generated, "seed 54 DOWN")
+	var invalid: Dictionary = generated.duplicate(true)
+	invalid["enemies"][2]["pos"] = invalid["enemies"][1]["pos"]
+	expect.call(not RoomRules.validate(invalid, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Validator rejects overlapping guard/screen")
+	invalid = generated.duplicate(true)
+	invalid["enemies"][3]["pos"] = invalid["player_start"]
+	expect.call(not RoomRules.validate(invalid, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Validator rejects skirmisher in entry halo")
+	invalid = generated.duplicate(true)
+	var first: Vector2i = invalid["enemies"][3]["pos"]
+	invalid["enemies"][3]["pos"] = invalid["enemies"][4]["pos"]
+	invalid["enemies"][4]["pos"] = first
+	expect.call(not RoomRules.validate(invalid, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Validator rejects reversed skirmisher sides")
+	print("Warband spread geometry: guard, screen, alternating skirmishers, gaps and way-through checked")
 
 static func _fixture_case_typing(expect: Callable) -> void:
 	var source: String = FileAccess.get_file_as_string("res://tools/warband_inspection.gd")

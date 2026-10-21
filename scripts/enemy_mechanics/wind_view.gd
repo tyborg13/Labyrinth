@@ -35,16 +35,50 @@ static func screen_direction(axis: Vector2i) -> Vector2:
 	# Isometric tile centers: x-y horizontally, half of x+y vertically.
 	return Vector2(axis.x - axis.y, float(axis.x + axis.y) * 0.5).normalized()
 
+static var _forecast_memo := preload("res://scripts/combat_preview_memo.gd").new()
+
 static func forecast(view: Control) -> Dictionary:
+	return _forecast_entry(view).duplicate(true)
+
+static func has_forecast(view: Control) -> bool:
+	return not (_forecast_entry(view).get("wind", {}) as Dictionary).is_empty()
+
+static func tile_layers(view: Control) -> Array[Dictionary]:
+	var layers: Array[Dictionary]
+	for layer: Dictionary in _forecast_entry(view).get("layers", []):
+		layers.append({"wind": (layer["wind"] as Dictionary).duplicate(true), "dashed": bool(layer["dashed"])})
+	return layers
+
+# Only private drawing/query helpers read this entry. Public data APIs copy
+# their outputs, including nested resolver states, paths and collision markers.
+static func _forecast_entry(view: Control) -> Dictionary:
 	var state: Dictionary = view.combat_state
-	if (state.get("wind", {}) as Dictionary).is_empty():
-		var has_call: bool = false
-		for enemy: Dictionary in state.get("enemies", []):
-			for action: Dictionary in enemy.get("intent", {}).get("actions", []):
-				if str(action.get("type", "")) == "call_wind": has_call = true
-		if not has_call: return {"wind": {}, "dashed": false, "layers": []}
-	var key: int = state.hash()
-	if view.get_meta("en02_wind_key", -1) == key: return view.get_meta("en02_wind_forecast", {})
+	# This predicate reads the live inputs on every query. Empty forecasts need
+	# neither catalog scaling nor a stored snapshot, and still return owned data.
+	if not _has_wind_source(state): return {"wind": {}, "dashed": false, "layers": []}
+	var definitions: Array
+	# Scaling is pure, so exact raw definitions identify the same dependency
+	# without copying/scaling a full public definition for every depth layer.
+	for enemy: Dictionary in state.get("enemies", []): definitions.append(_engine.GameData.enemies().get(str(enemy.get("type", "")), {}))
+	var inputs: Array = [state, definitions, _engine._relic_effects(state)]
+	# Always compare complete owned inputs. Equal hashes are never evidence that
+	# hero displacement, definitions or relic effects are unchanged.
+	if view.get_meta("en02_wind_inputs", []) == inputs:
+		return view.get_meta("en02_wind_forecast", {})
+	var result: Dictionary = _forecast_memo.resolve(inputs, func() -> Dictionary: return _forecast_for_state(state))
+	view.set_meta("en02_wind_inputs", inputs.duplicate(true))
+	view.set_meta("en02_wind_forecast", result)
+	return result
+
+static func _has_wind_source(state: Dictionary) -> bool:
+	if not (state.get("wind", {}) as Dictionary).is_empty(): return true
+	for enemy: Dictionary in state.get("enemies", []):
+		for action: Dictionary in enemy.get("intent", {}).get("actions", []):
+			if str(action.get("type", "")) == "call_wind": return true
+	return false
+
+static func _forecast_for_state(state: Dictionary) -> Dictionary:
+	if not _has_wind_source(state): return {"wind": {}, "dashed": false, "layers": []}
 	var layers: Array[Dictionary]
 	var value: Dictionary = Wind.active(_engine, state)
 	if not value.is_empty():
@@ -61,12 +95,10 @@ static func forecast(view: Control) -> Dictionary:
 		layers.append(call)
 	var result: Dictionary = layers[0].duplicate(false) if not layers.is_empty() else {"wind": {}, "dashed": false}
 	result["layers"] = layers
-	view.set_meta("en02_wind_key", key)
-	view.set_meta("en02_wind_forecast", result)
 	return result
 
 static func draw_tile(view: Control, tile: Vector2i) -> void:
-	for data: Dictionary in forecast(view).get("layers", []):
+	for data: Dictionary in _forecast_entry(view).get("layers", []):
 		draw_layer_tile(view, tile, data)
 
 static func draw_layer_tile(view: Control, tile: Vector2i, data: Dictionary) -> void:
@@ -89,7 +121,7 @@ static func draw_layer_tile(view: Control, tile: Vector2i, data: Dictionary) -> 
 
 static func draw_paths(view: Control) -> void:
 	var drawn: Array = (view.presentation.get("displacement_paths", []) as Array).duplicate(false)
-	for layer: Dictionary in forecast(view).get("layers", []):
+	for layer: Dictionary in _forecast_entry(view).get("layers", []):
 		for path: Array in layer.get("displacement_paths", []):
 			if drawn.has(path): continue
 			drawn.append(path)
@@ -105,12 +137,12 @@ static func collision_markers(view: Control) -> Array[Dictionary]:
 	var markers: Array[Dictionary]
 	var seen: Dictionary = {}
 	for marker: Dictionary in view.presentation.get("collision_markers", []): seen[collision_identity(marker)] = true
-	for layer: Dictionary in forecast(view).get("layers", []):
+	for layer: Dictionary in _forecast_entry(view).get("layers", []):
 		for marker: Dictionary in layer.get("collision_markers", []):
 			var key: String = collision_identity(marker)
 			if seen.has(key): continue
 			seen[key] = true
-			markers.append(marker)
+			markers.append(marker.duplicate(true))
 	return markers
 
 static func draw_collisions(view: Control) -> void:

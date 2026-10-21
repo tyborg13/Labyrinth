@@ -1,6 +1,7 @@
 extends RefCounted
 ## Read-only end-now presentation. No resolver or scheduling state is retained.
 
+const Data = preload("res://scripts/game_data.gd")
 const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
 const Compass = preload("res://scripts/enemy_intent_compass.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
@@ -40,14 +41,43 @@ static var _halo_cache: Dictionary = {}
 
 var _cache_key: int = 0
 var _cache: Dictionary = {}
+var _cache_inputs: Array = []
+var _focus_key: String = ""
+var _focused_cache: Dictionary = {}
+var _orders_memo := preload("res://scripts/combat_preview_memo.gd").new()
 
 func presentation_for_state(engine: RefCounted, committed: Dictionary, preview: Dictionary, focus_key: String = "", known_source: Callable = Callable()) -> Dictionary:
-	var key: int = hash([committed, preview, focus_key])
-	if key == _cache_key and not _cache.is_empty():
-		return _cache
-	_cache_key = key
-	_cache = build(engine, committed, preview, focus_key, known_source.call() if known_source.is_valid() else preview)
-	return _cache
+	var started: int = Time.get_ticks_usec() if engine._runtime_performance_instrumentation_enabled else 0
+	# Focus changes only opacity. Never resolve the board again to isolate a badge.
+	var definitions: Array
+	for enemy: Dictionary in committed.get("enemies", []): definitions.append(Data.enemy_def(str(enemy.get("type", ""))))
+	var inputs: Array = [committed, preview, definitions, engine._relic_effects(preview), engine.get_script()]
+	var key: int = hash(inputs)
+	if key != _cache_key or _cache.is_empty() or _cache_inputs != inputs:
+		_cache_key = key
+		_cache_inputs = inputs.duplicate(true)
+		_cache = build(engine, committed, preview, "", known_source.call() if known_source.is_valid() else preview, _orders_for(engine, preview), _orders_for(engine, committed))
+		_focused_cache = {}
+		engine._record_runtime_performance_phase("rest_badges_build", started)
+	if focus_key.is_empty(): return _cache.duplicate(true)
+	if focus_key == _focus_key and not _focused_cache.is_empty(): return _focused_cache.duplicate(true)
+	_focus_key = focus_key
+	# Internal variants may share plans; every published result owns its full
+	# nested data so a caller cannot mutate another focus or a future cache hit.
+	_focused_cache = _cache.duplicate(false)
+	for field: String in ["badges", "threats"]:
+		var values: Array[Dictionary]
+		for original: Dictionary in _cache[field]:
+			var value: Dictionary = original.duplicate(false)
+			value["alpha"] = float(original["alpha"]) * (ISOLATED_ALPHA if str(original["key"]) != focus_key else 1.0)
+			values.append(value)
+		_focused_cache[field] = values
+	return _focused_cache.duplicate(true)
+
+func _orders_for(engine: RefCounted, state: Dictionary) -> Dictionary:
+	var definitions: Array
+	for enemy: Dictionary in state.get("enemies", []): definitions.append(Data.enemy_def(str(enemy.get("type", ""))))
+	return _orders_memo.resolve([state, definitions, engine._relic_effects(state), engine.get_script()], func() -> Dictionary: return enemy_orders(engine, state))
 
 static func enemy_orders(engine: RefCounted, state: Dictionary) -> Dictionary:
 	var scheduled: Dictionary = engine.finish_player_activation(state) if engine.is_player_turn(state) else state
@@ -83,8 +113,10 @@ static func movement_preview(engine: RefCounted, committed: Dictionary, known: D
 	result["enemies"] = enemies
 	return result
 
-static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary, focus_key: String = "", known_preview: Dictionary = {}) -> Dictionary:
-	var orders: Dictionary = enemy_orders(engine, preview)
+static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary, focus_key: String = "", known_preview: Dictionary = {}, preview_orders: Variant = null, original_orders: Variant = null) -> Dictionary:
+	var orders: Dictionary = enemy_orders(engine, preview) if preview_orders == null else preview_orders
+	var state_changed: bool = committed != preview
+	var committed_orders: Dictionary = orders if not state_changed else enemy_orders(engine, committed) if original_orders == null else original_orders
 	var preview_enemies: Dictionary = {}
 	for enemy: Dictionary in preview.get("enemies", []):
 		preview_enemies[int(enemy.get("id", -1))] = enemy
@@ -126,7 +158,7 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 			cancelled = cancelled or int(projected.get("shock", 0)) > 0 or int(projected.get("freeze", 0)) > 0
 			cancelled = cancelled or (threat.get("projected_attack", []) as Array).is_empty()
 			# Stagger past the hero suppresses the announced attack in this preview.
-			cancelled = cancelled or (committed != preview and not acting and enemy_orders(engine, committed).has(actor_key))
+			cancelled = cancelled or (state_changed and not acting and committed_orders.has(actor_key))
 		var badge: Dictionary = descriptor(primary, intent, repeated_action)
 		badge.merge({"key": actor_key, "order": "·".join(orders.get(actor_key, PackedStringArray())),
 			"acting": acting, "cancelled": cancelled,
