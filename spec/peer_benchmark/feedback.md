@@ -255,3 +255,23 @@
   lost, against the owner's logged 28/32 wins and 1.5 HP) is accepted as a relative benchmark only, for comparing a
   special encounter with a standard fight under the same bot. Absolute encounter bands come from owner playtests.
 
+- Director decisions, 2026-10-21 (spx-05 feedback 1, Umbral Snare): a sealed door's texture is modulated by the Umbra
+  token at 60% brightness (option D of `output/spx-05-2026-10-21/seal_tint_options.png`) and shows no destination
+  medallion. The Seals chip uses the Wind chip's HUD plate, centred 6 px above the door's medallion. The Sealbinder's
+  Seal intent reads "Seals its door in N turns. Kill it to keep the door open. When you escape, each open door pays 6
+  Embers." The map legend follows spx-02's rule (one row while gaps shrink 40 → 12 px, else a centred second row),
+  gated as a rule rather than a fixed count. A card-assisted escape on turn 1 is allowed; the 5-tile minimum only stops
+  free movement.
+- Director decisions, 2026-10-21 (spx-06 design, Snare pressures): every pressure that changes the board resolves at
+  the end of the player's turn (after the escape check), so its marked preview is exactly what happens; seals keep the
+  end of the enemy round. Rubble picks the first tile ≥ 2 steps along the hero's cheapest way out; fire burns distance
+  rings from the entry fixed at fight start; the headwind is a persistent room-sourced wind toward the entry wall
+  (Sealbinders anchored, chip "Headwind"); ice covers each sealing door's approach tile at fight start; a telegraphed
+  Arc Thrall beam is live during the player's turn (entering it costs its damage and Shock). Shadow reinterprets "the
+  Umbra closes one ring of the room" as the hero's Umbra vision shrinking by 1 every two turns (minimum 1), with doors,
+  thresholds, chips and Sealbinders always visible: it reuses the existing darkness, where closing tiles would need
+  new art. Tell the owner when the Snare is shown built.
+- Integration fix, 2026-10-21: the revision-6 bot baseline was re-measured (d617cf371) after spx-04's orders and the
+  director's resume-validation fix changed the bot file's hash; the density manifest dropped the 20 Mortar textures
+  rr-30 retired to `excluded_paths` (8df5ff702). Lesson: a focused check that runs per entry can skip a whole-registry
+  rule; a unit that edits a shared registry must run its full check.

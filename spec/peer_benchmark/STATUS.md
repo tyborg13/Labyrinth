@@ -19,6 +19,17 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
 ## In flight (2026-10-19; humanoid rig v2 + roster wave 1)
+- 2026-10-21 07:45 (encounter specials + Mortar):
+  - MERGED on integration: spx-01 round 3 (ee46bc2fc), spx-04 Warband orders (167958603), the Slag Mortar v2 rig as
+    one squashed commit (7b7553afb; rr-30 + rr-31, Codex SIGNOFF e9aadfc32, director visual acceptance with minor
+    joint specks on the revisit list), the re-measured revision-6 bot baseline (d617cf371) and the density-manifest fix
+    (8df5ff702). Godot suite PASS at d617cf371; the only Python failure (density manifest) is fixed and its tests pass.
+  - Inbox: mortar-rig-v2 posted (open). warband-built, enc-clarity, enc-dragons, enc-guardians open.
+  - Running: spx-05 round 1 (`feedback/spx-05_feedback_1.md`: seal tint, chip plate and placement, sealed medallion,
+    Seal rules text, legend rule, turn-1 escape allowed, two extra probe frames).
+  - Next: judge spx-05 r1 natively, Codex review, merge; then launch spx-06 (`briefs/spx-06.md`, Snare pressures);
+    then brief Last Light and the Ember Hoarder.
+  - Removed worktrees: rr-30, rr-31, mq-11 (branches kept).
 - 2026-10-20 19:00:
   - rr-29 MERGED 007f685c0 (+ sidecars 7e3122289, import path fix). All windowed stages PASS on feffbfb06 (production
     rerun after a hidden-window stall), director visual judgment passed, Codex SIGNOFF feffbfb06, both full suites
