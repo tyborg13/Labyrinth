@@ -33,12 +33,12 @@ build with Codex as its own workstream. Nothing here is built yet.
   Guardian helpers re-summoned on every Guardian activation (`guardian_combat_rules.gd:489-505`); Cantor and Roc at
   initiative 20; no HP-threshold phases anywhere.
 - Planned units after approval:
-  1. enc-01: measurement. A seed sweep plus a boss bot harness, and a fix for analytics context fields dropped by the
-     `AnalyticsStore` whitelist.
-  2. enc-02: special-encounter framework (Defeat All standard fights, map placement, emblems, legend, tooltips,
+  Track id `spx` (`enc-01` was an earlier unit: the section encounter tables).
+  1. spx-01: measurement. The analytics context fix, a composition sweep and a combat bot with today's baseline
+     (brief `../briefs/spx-01.md`). The boss bot harness waits for the dragon and Guardian verdicts.
+  2. spx-02: special-encounter framework (Defeat All standard fights, map placement, emblems, legend, tooltips,
      rewards) with the Warband as the pilot.
-  3. enc-03 / enc-04: Umbral Snare and Last Light, in parallel.
-  4. enc-05: Ember Hoarder, after its creature art passes the visual identity gate.
-  5. enc-06: clarity layer.
-  6. enc-07: dragon framework, with Tharokh as the pilot.
-  7. enc-08: Guardian framework, with Rimejaw as the pilot.
+  3. spx-03 / spx-04: Umbral Snare and Last Light, in parallel.
+  4. spx-05: Ember Hoarder (a reused Ember Tick, per the approval).
+  5. Later, after their own verdicts: the clarity layer, the dragon framework (Tharokh pilot) and the Guardian framework
+     (Rimejaw pilot).
