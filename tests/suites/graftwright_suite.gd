@@ -11,6 +11,10 @@ const Store = preload("res://scripts/progression_store.gd")
 static func fixture(seed_value: int = 91526) -> Dictionary:
 	var engine := RunEngineScript.new()
 	var state: Dictionary = engine.create_new_run(seed_value, Store.default_data())
+	# Authored on revision-6 maps, where the next room after this Graftwright is an
+	# ordinary fight; saved runs keep their revision.
+	state["section_map_layout_revision"] = 6
+	Graph.initialize(state)
 	state["equipment_inventory"] = ["undertaker_plate", "boiled_leather", "iron_cleaver"]
 	state["collected_equipment"] = Data.starter_equipment_ids() + state["equipment_inventory"]
 	var rooms: Dictionary = state["rooms"] as Dictionary
