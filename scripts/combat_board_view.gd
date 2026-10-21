@@ -110,6 +110,10 @@ const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const HealthGhostTracker = preload("res://scripts/health_ghost_tracker.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const LEADER_MARKER_GOLD := Color("e4b65f")
+const SnareRules = preload("res://scripts/snare_room_rules.gd")
+const SnareSealChip = preload("res://scripts/snare_seal_chip.gd")
+const SNARE_SEALED_DOOR_MODULATE := Color(UiPaletteTokens.UMBRA.r * 0.6, UiPaletteTokens.UMBRA.g * 0.6, UiPaletteTokens.UMBRA.b * 0.6, 1.0)
+const SNARE_CHIP_MEDALLION_GAP: float = 6.0
 const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
 const WarbandView = preload("res://scripts/warband_view.gd")
 const EnemyIdentity = preload("res://scripts/enemy_identity.gd")
@@ -138,6 +142,7 @@ signal sound_presentation(state: Dictionary, shown: Dictionary)
 
 func present_sound_snapshot(state: Dictionary, shown: Dictionary) -> void:
 	var sound: Dictionary = WarbandView.sound_snapshot(state, shown)
+	sound = SnareRules.sound_snapshot(sound["state"], sound["shown"])
 	sound_presentation.emit(sound["state"], sound["shown"])
 
 signal tile_clicked(tile: Vector2i)
@@ -2109,7 +2114,7 @@ func _sync_enemy_shadow_dissolve_effects() -> void:
 			"configure",
 			source_texture,
 			source_rect,
-			float(unit.get("death_progress", 0.0)) if bool(unit.get("warband_fled", false)) else preload("res://scripts/maquette_cutout_runtime/death.gd").dissolve_phase(str(unit.get("type", "")), float(unit.get("death_progress", 0.0))),
+			float(unit.get("death_progress", 0.0)) if bool(unit.get("warband_fled", false)) or bool(unit.get("snare_dissolved", false)) else preload("res://scripts/maquette_cutout_runtime/death.gd").dissolve_phase(str(unit.get("type", "")), float(unit.get("death_progress", 0.0))),
 			_enemy_shadow_dissolve_seed_for_unit(unit),
 			bool(presentation.get("reduced_motion", false))
 		)
@@ -2236,6 +2241,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 	# retained layers so every layer uses the same origin and scale.
 	if (layout_changed or visual_framing_changed) and not combat_state.is_empty():
 		_ensure_board_layout_cache()
+	_refresh_snare_chips()
 	var fields: Array = changed_fields
 	if fields.is_empty():
 		fields = [
@@ -3561,6 +3567,11 @@ func _queue_combat_state_change_redraws(
 	previous_unit_render_tiles: Dictionary,
 	previous_unit_obstruction_entries: Dictionary
 ) -> void:
+	if changed_keys.has("objective"):
+		_queue_render_layer_redraw(_foreground_render_layer)
+		_queue_render_layer_redraw(_overlay_render_layer)
+		for exit: Dictionary in next_source.get("objective", {}).get("exits", []):
+			_queue_scene_render_layer_for_tile(exit.get("door_tile", Vector2i(-1, -1)))
 	var units_changed: bool = false
 	for key: String in ["player", "illusions", "enemies", "npcs"]:
 		if changed_keys.has(key):
@@ -3791,6 +3802,7 @@ func _update_umbra_return_transition(previous_state: Dictionary, previous_presen
 func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 	return {
 		"room_coord": source_state.get("room_coord", Vector2i.ZERO),
+		"objective": source_state.get("objective", {}),
 		"turn": source_state.get("turn", 0),
 		"player": source_state.get("player", {}),
 		"player_turn_restrictions": source_state.get("player_turn_restrictions", {}),
@@ -4219,6 +4231,8 @@ func _get_tooltip(at_position: Vector2) -> String:
 			var rect: Rect2 = region.get("rect", Rect2())
 			if rect.has_point(at_position):
 				return str(region.get("tooltip", ""))
+	var seal_tooltip: String = _snare_sealbinder_tooltip_at_position(at_position)
+	if not seal_tooltip.is_empty(): return seal_tooltip
 	return _surface_tooltip_for_tile(tile_at_global_position(at_position + global_position))
 
 func _loot_tooltip_at_position(at_position: Vector2) -> String:
@@ -4243,6 +4257,8 @@ func enemy_intent_tooltip(actor_key: String) -> String:
 	var seen: Dictionary = {}
 	for unit: Dictionary in _visible_units():
 		if _enemy_hud_actor_key(unit) != actor_key: continue
+		if str(unit.get("intent", {}).get("id", "")) == "snare_seal":
+			return SnareRules.seal_tooltip(combat_state["objective"], unit)
 		for row: Array in _intent_rows_for_unit(unit,unit.get("intent",{})):
 			for token: Dictionary in row:
 				# The expanded row already states ordinary movement, damage and reach.
@@ -6791,6 +6807,7 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	var rest: Dictionary = presentation.get("threats_at_rest", {}) as Dictionary
 	ThreatTiles.draw_tile(self, tile, polygon, _rest_threat_tile_alphas, rest.get("hero_tile", Vector2i(-1, -1)), bool(presentation.get("reduced_motion", false)))
 	var draw_aoe_footprint: bool = _focus_tiles_lookup_cache.has(tile) and _player_aoe_preview_active()
+	if _snare_sealing_threshold(tile): draw_colored_polygon(polygon, Color(UiPaletteTokens.UMBRA, 0.30))
 	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)):
 		_draw_objective_leader_beacon(tile)
 	if _objective_exit_tiles_lookup_cache.has(tile):
@@ -6992,7 +7009,7 @@ func _draw_exit_tile_pulse(tile: Vector2i) -> void:
 
 func _draw_objective_exit_target(tile: Vector2i) -> void:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
-	draw_colored_polygon(polygon, Color(0.15, 0.70, 0.72, 0.30))
+	if not _snare_sealing_threshold(tile): draw_colored_polygon(polygon, Color(0.15, 0.70, 0.72, 0.30))
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
 	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * 1.05)
 	_draw_tile_ring(tile, Color(0.52, 0.95, 0.91, lerpf(0.66, 0.96, pulse)), lerpf(2.5, 4.0, pulse), 0.90)
@@ -7338,6 +7355,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))
 			var opening_texture: Texture2D = _door_opening_texture_for_tile(grid, tile)
 			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
+			if _snare_door_sealed(tile): tint = SNARE_SEALED_DOOR_MODULATE
 			_draw_rect_ground_shadow(tile, draw_rect, 0.62, 0.24, 0.18)
 			if opening_texture != null:
 				_draw_world_texture(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), tint)
@@ -7345,7 +7363,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 				_draw_world_texture(door_texture, draw_rect, tint)
 				var icon_id: String = str(exit_icon_ids.get(tile, ""))
 				var icon_texture: Texture2D = _door_icon_texture(icon_id)
-				if icon_texture != null or icon_id == RoomIcons.ICON_UNKNOWN:
+				if _door_destination_medallion_visible(tile) and (icon_texture != null or icon_id == RoomIcons.ICON_UNKNOWN):
 					_draw_door_icon(icon_texture, icon_id, door_texture, draw_rect, tint)
 	_draw_prop_moss_overlay(tile_id, grid, tile, obstruction_entries)
 	if tile_id == "pillar":
@@ -17189,3 +17207,61 @@ func _draw_surface_chain_effect(effect: Dictionary, progress: float) -> void:
 			var hop: Callable = preload("res://scripts/chain_attack_fx.gd").draw_hop
 			var args: Array = [_tile_center(from_tile), to, _tile_width(), progress, bool(presentation.get("reduced_motion", false))]
 			if not PixelFxLayer.route(self, "lightning", hop, args): hop.callv([self] + args)
+
+
+func _snare_sealing_threshold(tile: Vector2i) -> bool:
+	if not SnareRules.active(combat_state): return false
+	for exit: Dictionary in combat_state["objective"]["exits"]:
+		if exit["target_tile"] == tile: return str(exit["role"]) == "sealing"
+	return false
+
+func _snare_door_sealed(tile: Vector2i) -> bool:
+	if not SnareRules.active(combat_state): return false
+	for exit: Dictionary in combat_state["objective"]["exits"]:
+		if exit["door_tile"] == tile: return bool(exit.get("sealed", false))
+	return false
+
+# The Wind chip's HUD skin/label, attached to the board's canvas and theme.
+# Use the medallion's actual painted bounds, including its outer ring.
+func _refresh_snare_chips() -> void:
+	if not is_inside_tree(): return
+	var holder: Control = get_node_or_null("SnareSealChips")
+	if holder == null:
+		if not SnareRules.active(combat_state): return
+		holder = Control.new()
+		holder.name = "SnareSealChips"
+		holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(holder)
+	for child: Control in holder.get_children(): child.hide()
+	if not SnareRules.active(combat_state): return
+	_ensure_board_layout_cache()
+	var board_scale: float = _navigation_zoom / _default_navigation_zoom_for_viewport()
+	for exit: Dictionary in combat_state["objective"]["exits"]:
+		if str(exit["role"]) != "sealing" or bool(exit.get("sealed", false)) or bool(exit.get("kept_open", false)): continue
+		var key: String = "Door%d" % int(exit["sealbinder_id"])
+		var chip: PanelContainer = holder.get_node_or_null(key)
+		if chip == null:
+			chip = SnareSealChip.new()
+			chip.name = key
+			holder.add_child(chip)
+		(chip.get_node("Title") as Label).text = "Seals · %d" % maxi(0, int(exit["seal_after_player_turns"]) - int(combat_state["objective"]["player_turns_completed"]))
+		chip.reset_size()
+		chip.scale = Vector2.ONE * board_scale
+		var door_rect: Rect2 = _door_rect_for_tile(exit["door_tile"], combat_state["grid"])
+		var texture: Texture2D = _door_texture_for_tile(combat_state["grid"], exit["door_tile"])
+		if texture != null: door_rect = _prop_draw_rect(texture, door_rect)
+		var medallion: Rect2 = _door_icon_visual_rect(texture, door_rect)
+		chip.position = Vector2(medallion.get_center().x - chip.size.x * board_scale * 0.5, medallion.position.y - (chip.size.y + SNARE_CHIP_MEDALLION_GAP) * board_scale)
+		chip.show()
+
+func _door_destination_medallion_visible(tile: Vector2i) -> bool:
+	return not _snare_door_sealed(tile)
+
+func _snare_sealbinder_tooltip_at_position(point: Vector2) -> String:
+	if not SnareRules.active(combat_state): return ""
+	var tile: Vector2i = tile_at_global_position(get_global_transform_with_canvas() * point)
+	for unit: Dictionary in _visible_units():
+		if str(unit.get("intent", {}).get("id", "")) != "snare_seal": continue
+		if unit["pos"] == tile or _enemy_hud_actor_clear_rect(unit, _unit_center(unit)).has_point(point):
+			return SnareRules.seal_tooltip(combat_state["objective"], unit)
+	return ""

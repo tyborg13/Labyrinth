@@ -2,6 +2,7 @@ extends RefCounted
 class_name RoomGenerator
 
 const Specials = preload("res://scripts/special_encounter_library.gd")
+const SnareRooms = preload("res://scripts/snare_room_rules.gd")
 const WarbandRooms = preload("res://scripts/warband_room_rules.gd")
 
 const DepthRules = preload("res://scripts/depth_rules.gd")
@@ -124,6 +125,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var boss_id: String = str(room.get("boss_id", ""))
 	var objective: Dictionary = CombatObjectiveRules.build_for_room(run_seed, room, travel_dir)
 	var encounter: Dictionary = {}
+	var snare: bool = SnareRooms.is_room(room)
 	var warband: bool = Specials.is_warband(room)
 	var table_encounter: bool = _uses_encounter_tables(room)
 	var enemy_types: Array = []
@@ -133,11 +135,13 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		# path, including placement. An empty combat is never a valid fallback.
 		table_encounter = not (encounter.get("units", []) as Array).is_empty()
 		if table_encounter: enemy_types = encounter["units"]
-	if warband:
+	if snare:
+		enemy_types = SnareRooms.roster(room, objective["exits"].size())
+	elif warband:
 		enemy_types = WarbandRooms.roster(room, clampi(encounter_depth, 1, 3))
 	elif not table_encounter and npc_specs.is_empty():
 		enemy_types = _encounter_enemy_types(room_type, encounter_depth, rng, room_element, boss_id)
-	if not warband:
+	if not warband and not snare:
 		enemy_types = _objective_adjusted_enemy_types(enemy_types, objective, encounter_depth, rng)
 		enemy_types = _apply_spawn_groups(enemy_types, int(room.get("max_units", -1)))
 	if str(objective.get("type", "")) == CombatObjectiveRules.SURVIVE:
@@ -162,6 +166,22 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 				for x: int in range(1, ROOM_WIDTH - 1): grid[y][x] = TILE_STONE
 			enemy_positions = WarbandRooms.fallback_positions(grid, player_start, enemy_types.size(), ENEMY_SPAWN_SAFE_RADIUS, enemy_types[0] == "storm_capacitor")
 		assert(enemy_positions.size() == enemy_types.size(), "No legal Warband formation")
+		moss = _generate_moss_overlays(grid, run_seed, coord, room_type)
+	if snare:
+		var formation: Dictionary = {}
+		for attempt: int in range(SnareRooms.MAX_PLACEMENT_ATTEMPTS):
+			formation = _snare_formation(grid, player_start, objective)
+			if not formation.is_empty(): break
+			grid = _base_grid(rng)
+			_apply_available_doors(grid, room)
+			_apply_template(grid, rng)
+		if formation.is_empty():
+			for y: int in range(1, ROOM_HEIGHT - 1):
+				for x: int in range(1, ROOM_WIDTH - 1): grid[y][x] = TILE_STONE
+			formation = _snare_formation(grid, player_start, objective)
+		assert(not formation.is_empty(), "No legal Snare formation")
+		enemy_positions = formation["positions"]
+		objective["exits"] = formation["exits"]
 		moss = _generate_moss_overlays(grid, run_seed, coord, room_type)
 	if table_encounter: assert(enemy_positions.size() == enemy_types.size(), "Section encounter placement lost units")
 	var enemies: Array[Dictionary] = []
@@ -197,6 +217,9 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var loot: Array[Dictionary] = _generate_loot(grid, room, rng, occupied)
 	for loot_entry: Dictionary in loot:
 		occupied[loot_entry.get("pos", Vector2i(-1, -1))] = true
+	if snare:
+		for exit: Dictionary in objective["exits"]:
+			for tile: Vector2i in PathUtils.find_path(grid, player_start, exit["target_tile"]): occupied[tile] = true
 	var terrain: Array[Dictionary] = _generate_terrain(grid, room_type, player_start, rng, occupied, objective)
 
 	var layout: Dictionary = {
@@ -233,9 +256,13 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 			for tile: Vector2i in [Vector2i(3,5), Vector2i(5,4)]:
 				layout["traps"].append(_trap_for_tile(preload("res://scripts/guardian_library.gd").oriented_tile(layout,tile),"air",encounter_depth,_depth_sequence_index(depth)))
 		preload("res://scripts/guardian_library.gd").stage_loot(layout)
-	_add_omen_enemies(layout, room, run_seed)
+	if not snare: _add_omen_enemies(layout, room, run_seed)
 	_apply_umbra_depth(layout, room)
+	if snare: SnareRooms.configure(layout, clampi(encounter_depth, 1, 3))
 	return layout
+
+func _snare_formation(grid: Array, entry: Vector2i, objective: Dictionary) -> Dictionary:
+	return SnareRooms.formation(grid, entry, objective)
 
 func _apply_umbra_depth(layout: Dictionary, room: Dictionary) -> void:
 	if DepthRules.depth(room) == 0: return

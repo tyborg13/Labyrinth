@@ -96,7 +96,12 @@ static func _test_rules(state: Dictionary, index: int, expect: Callable) -> void
 	var layout: Dictionary = Graph._layout_from_walks(info["walks"], count)
 	for node: Dictionary in state["rooms"].values():
 		if int(node["section_index"]) != index or int(node["map_step"]) in [0, count]: continue
-		layout["nodes"][Vector2i(node["map_step"], node["map_lane"])] = node.duplicate(true)
+		var solver_node: Dictionary = node.duplicate(true)
+		# Specials substitute ordinary combat only after this solver runs.
+		# Check the solver's original domains here; the special suite checks
+		# distinct special identities and all post-substitution route limits.
+		if str(solver_node["type"]) == "special": solver_node["type"] = "combat"
+		layout["nodes"][Vector2i(node["map_step"], node["map_lane"])] = solver_node
 	for cell: Vector2i in layout["order"]:
 		Graph._prefix_bounds(layout, cell)
 		expect.call(Graph._prefix_type_legal(layout, cell, count, Graph.FIGHT_COUNTS[index] - 1), "Slow-seed regression preserves all prefix, fork and eligibility rules")

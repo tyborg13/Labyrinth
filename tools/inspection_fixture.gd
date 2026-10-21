@@ -18,7 +18,7 @@ const DEFAULT_SEED: int = 7262026
 const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
 const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "pale_spark", "sidestep_slash"]
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
-const VALID_SCENARIOS: Array = ["warband", "dragon", "guardian","start", "pre_battle", "combat", "reach_exit", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "graftwright", "boss", "victory", "defeat"]
+const VALID_SCENARIOS: Array = ["snare", "warband", "dragon", "guardian","start", "pre_battle", "combat", "reach_exit", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "graftwright", "boss", "victory", "defeat"]
 const INSPECTION_TERRAIN_KINDS: Array = ["wooden_box", "wooden_crate", "powder_keg"]
 const VALID_UMBRA_STAGES: Array = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]
 const MAX_ROUTE_DEPTH: int = RunEngine.MAX_DEPTH - 1
@@ -295,7 +295,7 @@ func _parse_args() -> Dictionary:
 			"--summary":
 				index += 1
 				parsed["summary"] = _required_arg(args, index, arg)
-			"--warband-biome", "--warband-tier", "--warband-case":
+			"--snare-biome", "--snare-tier", "--snare-case", "--warband-biome", "--warband-tier", "--warband-case":
 				index += 1
 				parsed[arg.trim_prefix("--").replace("-", "_")] = _required_arg(args, index, arg)
 			"--biome":
@@ -347,6 +347,8 @@ func _print_help() -> void:
 	print("Dragon options: --scenario dragon --dragon-id vyraketh --dragon-depth 4")
 	print("  --dragon-case encounter|pre_battle|reward --dragon-build balanced|skirmisher")
 	print("  Uses a seeded natural arena, plausible acquired loadout, normal stats and shuffled deck.")
+	print("Snare options: --scenario snare --snare-biome fire --snare-tier 2 --seed 83")
+	print("  --snare-case encounter|first_turn|first_seal|kept_open|escape")
 	print("Warband options: --scenario warband --warband-biome air --warband-tier 2 --seed 83")
 	print("  --warband-case encounter|pre_battle|keep_distance|break")
 	print("Guardian options: --scenario guardian --guardian-id rimejaw --guardian-case map_choice")
@@ -387,7 +389,7 @@ func _build_progression() -> Dictionary:
 		progression = ProgressionStore.prepare_for_new_run(progression)
 		progression = ProgressionStore.record_first_umbra_reach(progression, int(progression.get("run_counter", 1)))
 		progression = ProgressionStore.prepare_for_new_run(progression)
-	elif str(_options.get("scenario", "")) in ["guardian", "dragon", "warband"]:
+	elif str(_options.get("scenario", "")) in ["guardian", "dragon", "warband", "snare"]:
 		progression = preload("res://scripts/contextual_combat_tutorial.gd").dismiss_tutorial(progression)
 	elif str(_options.get("scenario", "")) == "guided_tutorial":
 		# Mirror RunScene._start_run so the saved profile and embedded run snapshot
@@ -411,6 +413,13 @@ func _build_progression() -> Dictionary:
 
 func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 	match scenario:
+		"snare":
+			var fixture = preload("res://tools/snare_inspection.gd")
+			var error: String = fixture.validate(_options)
+			if not error.is_empty():
+				_fail(error)
+				return {}
+			return _apply_combat_overrides(fixture.build(_run_engine, _combat_engine, _apply_loadout(_run_engine.create_new_run(int(_options["seed"]), progression)), _options))
 		"warband":
 			var fixture = preload("res://tools/warband_inspection.gd")
 			var error: String = fixture.validate(_options)

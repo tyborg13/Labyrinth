@@ -9,6 +9,7 @@ const Base = preload("res://tests/suites/board_surface_suite.gd")
 const Store = preload("res://scripts/progression_store.gd")
 
 static func run(check: Callable) -> void:
+	preload("res://tests/suites/snare_regression_suite.gd").run_vault(check)
 	var engine := Combat.new()
 	_test_ember(engine, check)
 	_test_overflow(engine, check)

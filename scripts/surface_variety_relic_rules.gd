@@ -222,7 +222,7 @@ static func navigation(engine: RefCounted, state: Dictionary, unit: Dictionary, 
 	# an Illusion endpoint can earn a Light refund.
 	var trade_search: bool = bool(state.get("_movement_trade_search", false))
 	var max_refunds: int = refund_available(state, effects)
-	var passable: Array[Vector2i] = engine._all_passable_tiles(state)
+	var passable: Array[Vector2i] = engine._all_actor_passable_tiles(state)
 	var indices: Dictionary = {}
 	var lights: Dictionary = {}
 	var relays: Dictionary = light_relays(state) if linked else {}

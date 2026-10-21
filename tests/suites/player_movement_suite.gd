@@ -4,6 +4,8 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 
 static func run(expect: Callable) -> void:
+	# Other suites reuse _state without running these Snare regressions.
+	load("res://tests/suites/snare_regression_suite.gd").run_vault(expect)
 	_test_default_pool_and_split_spending(expect)
 	_test_card_play_interleaving(expect)
 	_test_turn_resource_exhaustion(expect)
