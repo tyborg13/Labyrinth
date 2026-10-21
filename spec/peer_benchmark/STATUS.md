@@ -19,6 +19,13 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
 ## In flight (2026-10-19; humanoid rig v2 + roster wave 1)
+- 2026-10-21 10:15 — OPEN OWNER ASK (dropped, now re-tracked): map branching. Playtest 9 note 1 ("more interesting
+  branching, take inspiration from Slay the Spire") got map-02 (revision 5, merged dd4e67d43 2026-10-17, on master since
+  the 2026-10-19 checkpoint). map-02 was accepted on variety *between* maps (fallback rate, distinct topologies) and was
+  never shown to the owner as an inbox item. Owner 2026-10-21: still "too much like a few straight lines with a couple
+  of branches here and there"; not like Slay the Spire or Inscryption. Next: measure choice density on revision 6
+  maps (forks per route, longest no-choice run, out-degree, lane changes), design revision 7 with a mockup on the real
+  map art, post it to the inbox, then brief map-03 (generator + layout; disjoint from the spx combat files).
 - 2026-10-21 07:45 (encounter specials + Mortar):
   - MERGED on integration: spx-01 round 3 (ee46bc2fc), spx-04 Warband orders (167958603), the Slag Mortar v2 rig as
     one squashed commit (7b7553afb; rr-30 + rr-31, Codex SIGNOFF e9aadfc32, director visual acceptance with minor
