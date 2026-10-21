@@ -296,3 +296,13 @@
   codex and make sure that it looks really good and hits our standard?" Director: map-03 is implemented by Claude in its
   own task worktree (generator revision 7, horizontal scrolling, inked S-curve trails, walked/reachable/bypassed trail
   states, the lantern's walk), judged natively against the mockup; Codex does the code review only.
+- warband-built: NEEDS CHANGES (2026-10-21 14:57), playtest build fd9adb42c (before the orders). "This is a bit of a mess
+  atm tbh. We're getting massive frame drops, the introduced UI effects are crude shapes, not polished to the level we
+  want imo, the direction of the wind keeps changing every time I move with no discernable reason. I do like the idea
+  here, but it needs some work before it's playable enough for me to know if its even fun." Also: the warband should
+  not start grouped on one side; spread it "so that 1. the player has the ability to take them out 1 by 1 or slip past
+  some to get to the leader 2. they don't spend the first couple of turns just bumbling over each other". Director
+  plan (Warband rework): profile and fix the frame drops first; the wind direction locks when announced and only
+  re-aims on the Stormcaller's own turn; the director redesigns the Warband markers (command zone, captain mark, +1)
+  with a mockup in the inbox before building; followers spawn spread in small groups at varied distances with gaps to
+  the captain. Then a new playable build.
