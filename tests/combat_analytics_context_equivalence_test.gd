@@ -68,6 +68,9 @@ class OriginalRunScene:
 			context["visible_enemy_count"] = _combat_engine.visible_enemy_ids(combat_state).size()
 			context["objective_type"] = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
 			context["objective_name"] = CombatObjectiveRules.title_for_objective(objective)
+		# spx-01 adds encounter dimensions; the original context remains the
+		# reference for every pre-existing field and boundary below.
+		context.merge(preload("res://scripts/encounter_analytics_context.gd").fields(run_state, combat_state, room_meta), true)
 		return context
 
 	func _analytics_log_card_draws(before_state: Dictionary, after_state: Dictionary, before_tracker: Dictionary, after_tracker: Dictionary, reason: String) -> void:

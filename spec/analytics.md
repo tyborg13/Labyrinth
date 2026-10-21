@@ -53,6 +53,29 @@ available:
 - `defiance_remaining`
 - `combat_unit_scale`, currently `1` for natural whole-number combat units
 
+## Encounter context (spx-01)
+
+All records add the top-level context dimensions `room_type`, `guardian_id`,
+`encounter_id`, `biome`, `section_index`, `special_type` and `special_variant`.
+String dimensions default to `""`; an unavailable section index is `-1` (real
+section indices are zero-based). `special_type` and `special_variant` are empty
+until authored special encounters exist. Schema version remains 1; existing
+fields, payloads, event boundaries and append-only JSONL history are unchanged.
+
+The UI and headless console share `EncounterAnalyticsContext.fields`. It reads
+combat metadata when available and the current room's persisted metadata when
+combat state has been cleared. Encounter id and biome already recorded by the
+production room-entry path therefore remain available at `combat_started`,
+`combat_ended`, `reward_offered`, `reward_choice` and `reward_claimed`. Section
+biome falls back to the actual section boss's element, including Guardians;
+room element remains its existing independent field. These fields are context,
+not additions to combat state or saves.
+
+Offline encounter measurement uses the production section-map, room-generation
+and CombatEngine APIs without emitting gameplay analytics or writing run/profile
+saves. See [the baseline](peer_benchmark/encounter_redesign/baseline.md) for the
+sampling contract, bounded greedy policy, deck presets and raw result paths.
+
 ## Current Event Types
 
 - `run_started`

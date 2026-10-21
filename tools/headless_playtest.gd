@@ -1847,6 +1847,8 @@ func _analytics_context(combat_state: Dictionary = _combat_state, card_id: Strin
 	}
 	if not combat_state.is_empty():
 		context["surface_rules_version"] = BoardSurfaceRules.RULES_VERSION
+	var room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
+	context.merge(preload("res://scripts/encounter_analytics_context.gd").fields(_run_state, combat_state, room), true)
 	return context
 
 func _log_run_started() -> void:

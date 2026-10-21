@@ -1,0 +1,16 @@
+Running task-local command:
+  task: spx-01
+  run: spx-01-1792556998240170000-40150
+  HOME: /private/tmp/labyrinth-godot-home/spx-01-1792556998240170000-40150
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/spx-01-1792556998240170000-40150/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 --script tools/encounter_bot.gd -- --seed 22 --tier 1 --objective kill_leader --runs 1 --output /private/tmp/spx-01-final-replay/bot-t1-kill_leader.json --coord '-1,1'
+  timeout: 7200s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ENCOUNTER BOT RUN: {"biome":"lightning","coord":{"x":-1,"y":1},"decisions":3,"encounter_id":"t1_biome_element","first_enemy_death_turn":2,"hp_lost":0,"intent_previews":3,"kills":1,"net_hp_lost":0,"objective":"kill_leader","outcome":"victory","search_capped":false,"section_index":0,"seed":22,"tier":1,"travel_dir":{"x":1,"y":0},"turn_cap_reached":false,"turns":2,"won":true}
+ENCOUNTER BOT: PASS (1 runs, tier 1, kill_leader)
+
+ENCOUNTER COORDINATE REPLAY: PASS (fresh process reproduces a recorded Leader victory with one actual kill)

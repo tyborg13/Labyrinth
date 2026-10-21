@@ -1,0 +1,90 @@
+Running task-local command:
+  task: spx-01
+  run: spx-01-1792553448241728000-5452
+  HOME: /private/tmp/labyrinth-godot-home/spx-01-1792553448241728000-5452
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/spx-01-1792553448241728000-5452/godot.log --headless --path . --script tests/encounter_analytics_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+FAIL: combat_started retains room_type
+FAIL: combat_started retains guardian_id
+FAIL: combat_started retains encounter_id
+FAIL: combat_started retains biome
+FAIL: combat_started retains section_index
+FAIL: combat_started retains special_type
+FAIL: combat_started retains special_variant
+FAIL: combat_started retains room_type
+FAIL: combat_started retains guardian_id
+FAIL: combat_started retains encounter_id
+FAIL: combat_started retains biome
+FAIL: combat_started retains section_index
+FAIL: combat_started retains special_type
+FAIL: combat_started retains special_variant
+FAIL: combat_ended retains room_type
+FAIL: combat_ended retains guardian_id
+FAIL: combat_ended retains encounter_id
+FAIL: combat_ended retains biome
+FAIL: combat_ended retains section_index
+FAIL: combat_ended retains special_type
+FAIL: combat_ended retains special_variant
+FAIL: combat_ended retains room_type
+FAIL: combat_ended retains guardian_id
+FAIL: combat_ended retains encounter_id
+FAIL: combat_ended retains biome
+FAIL: combat_ended retains section_index
+FAIL: combat_ended retains special_type
+FAIL: combat_ended retains special_variant
+FAIL: reward_offered retains room_type
+FAIL: reward_offered retains guardian_id
+FAIL: reward_offered retains encounter_id
+FAIL: reward_offered retains biome
+FAIL: reward_offered retains section_index
+FAIL: reward_offered retains special_type
+FAIL: reward_offered retains special_variant
+FAIL: reward_offered retains room_type
+FAIL: reward_offered retains guardian_id
+FAIL: reward_offered retains encounter_id
+FAIL: reward_offered retains biome
+FAIL: reward_offered retains section_index
+FAIL: reward_offered retains special_type
+FAIL: reward_offered retains special_variant
+FAIL: reward_choice retains room_type
+FAIL: reward_choice retains guardian_id
+FAIL: reward_choice retains encounter_id
+FAIL: reward_choice retains biome
+FAIL: reward_choice retains section_index
+FAIL: reward_choice retains special_type
+FAIL: reward_choice retains special_variant
+FAIL: reward_choice retains room_type
+FAIL: reward_choice retains guardian_id
+FAIL: reward_choice retains encounter_id
+FAIL: reward_choice retains biome
+FAIL: reward_choice retains section_index
+FAIL: reward_choice retains special_type
+FAIL: reward_choice retains special_variant
+FAIL: reward_claimed retains room_type
+FAIL: reward_claimed retains guardian_id
+FAIL: reward_claimed retains encounter_id
+FAIL: reward_claimed retains biome
+FAIL: reward_claimed retains section_index
+FAIL: reward_claimed retains special_type
+FAIL: reward_claimed retains special_variant
+FAIL: reward_claimed retains room_type
+FAIL: reward_claimed retains guardian_id
+FAIL: reward_claimed retains encounter_id
+FAIL: reward_claimed retains biome
+FAIL: reward_claimed retains section_index
+FAIL: reward_claimed retains special_type
+FAIL: reward_claimed retains special_variant
+FAIL: unknown section is distinct from section zero
+FAIL: legacy empty default: room_type
+FAIL: legacy empty default: guardian_id
+FAIL: legacy empty default: encounter_id
+FAIL: legacy empty default: biome
+FAIL: legacy empty default: special_type
+FAIL: legacy empty default: special_variant
+ENCOUNTER ANALYTICS: FAIL (77 failures)

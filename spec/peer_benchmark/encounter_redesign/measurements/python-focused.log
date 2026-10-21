@@ -1,0 +1,9 @@
+test_committed_baseline_is_complete_and_recomputes (test_encounter_measurement.EncounterReportTests) ... ok
+test_committed_sweep_is_complete_and_recomputes (test_encounter_measurement.EncounterReportTests) ... ok
+test_escape_rate_includes_losses (test_encounter_measurement.EncounterReportTests) ... ok
+test_quantiles_and_even_median (test_encounter_measurement.EncounterReportTests) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.440s
+
+OK

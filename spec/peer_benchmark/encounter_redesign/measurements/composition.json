@@ -1,0 +1,2933 @@
+{
+  "schema_version": 1,
+  "source_head": "857c0139bd355b73a92c15249c8a62a607937a26",
+  "generator": "production SectionMapGraph + RunEngine._combat_layout_for_room",
+  "seeds_per_tier_biome": 2000,
+  "first_seed": 1,
+  "last_seed": 2015,
+  "rooms": 36000,
+  "groups": [
+    {
+      "tier": 1,
+      "biome": "air",
+      "objective": "kill_all",
+      "n": 1004,
+      "roles": {
+        "artillery": 213,
+        "controller": 318,
+        "frontliner": 1141,
+        "protector": 78,
+        "skirmisher": 1438,
+        "support": 76
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 1004,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "base_hp": {
+        "n": 1004,
+        "median": 36.0,
+        "p10": 34,
+        "p90": 42
+      },
+      "spawn_hp": {
+        "n": 1004,
+        "median": 39.0,
+        "p10": 33,
+        "p90": 44
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "air",
+      "objective": "kill_leader",
+      "n": 472,
+      "roles": {
+        "artillery": 92,
+        "controller": 144,
+        "frontliner": 555,
+        "protector": 35,
+        "skirmisher": 682,
+        "support": 30
+      },
+      "leader_types": {
+        "bile_bloomer": 25,
+        "chainbound_gaoler": 35,
+        "cinder_ooze": 2,
+        "crawler": 280,
+        "frostglass_lancer": 9,
+        "gale_herald": 76,
+        "harrier": 10,
+        "warden": 35
+      },
+      "leader_closest_share": 0.4364406779661017,
+      "unit_count": {
+        "n": 472,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "base_hp": {
+        "n": 472,
+        "median": 38.0,
+        "p10": 34,
+        "p90": 41
+      },
+      "spawn_hp": {
+        "n": 472,
+        "median": 46.0,
+        "p10": 39,
+        "p90": 52
+      },
+      "leader_distance": {
+        "n": 472,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 6
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "air",
+      "objective": "reach_exit",
+      "n": 524,
+      "roles": {
+        "artillery": 122,
+        "controller": 643,
+        "frontliner": 644,
+        "protector": 51,
+        "skirmisher": 710,
+        "support": 47
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 524,
+        "median": 4.0,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 524,
+        "median": 50.0,
+        "p10": 48,
+        "p90": 56
+      },
+      "spawn_hp": {
+        "n": 524,
+        "median": 53.0,
+        "p10": 44,
+        "p90": 60
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 524,
+        "median": 6.0,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 524,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "earth",
+      "objective": "kill_all",
+      "n": 1012,
+      "roles": {
+        "artillery": 196,
+        "controller": 202,
+        "frontliner": 1189,
+        "protector": 76,
+        "skirmisher": 1404,
+        "support": 81
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 1012,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "base_hp": {
+        "n": 1012,
+        "median": 36.0,
+        "p10": 34,
+        "p90": 38
+      },
+      "spawn_hp": {
+        "n": 1012,
+        "median": 38.0,
+        "p10": 32,
+        "p90": 44
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "earth",
+      "objective": "kill_leader",
+      "n": 495,
+      "roles": {
+        "artillery": 116,
+        "controller": 95,
+        "frontliner": 581,
+        "protector": 33,
+        "skirmisher": 679,
+        "support": 39
+      },
+      "leader_types": {
+        "bile_bloomer": 30,
+        "briar_weaver": 42,
+        "burrow_grub": 11,
+        "chainbound_gaoler": 35,
+        "cinder_ooze": 7,
+        "crawler": 329,
+        "frostglass_lancer": 7,
+        "harrier": 1,
+        "warden": 33
+      },
+      "leader_closest_share": 0.42828282828282827,
+      "unit_count": {
+        "n": 495,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      },
+      "base_hp": {
+        "n": 495,
+        "median": 36,
+        "p10": 34,
+        "p90": 38
+      },
+      "spawn_hp": {
+        "n": 495,
+        "median": 45,
+        "p10": 38,
+        "p90": 51
+      },
+      "leader_distance": {
+        "n": 495,
+        "median": 4,
+        "p10": 3,
+        "p90": 6
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "earth",
+      "objective": "reach_exit",
+      "n": 493,
+      "roles": {
+        "artillery": 110,
+        "controller": 543,
+        "frontliner": 598,
+        "protector": 47,
+        "skirmisher": 703,
+        "support": 29
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 493,
+        "median": 4,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 493,
+        "median": 50,
+        "p10": 48,
+        "p90": 52
+      },
+      "spawn_hp": {
+        "n": 493,
+        "median": 52,
+        "p10": 44,
+        "p90": 59
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 493,
+        "median": 6,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 493,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "fire",
+      "objective": "kill_all",
+      "n": 957,
+      "roles": {
+        "artillery": 329,
+        "controller": 73,
+        "frontliner": 1669,
+        "protector": 62,
+        "skirmisher": 1105,
+        "support": 76
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 957,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      },
+      "base_hp": {
+        "n": 957,
+        "median": 36,
+        "p10": 34,
+        "p90": 46
+      },
+      "spawn_hp": {
+        "n": 957,
+        "median": 39,
+        "p10": 33,
+        "p90": 48
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "fire",
+      "objective": "kill_leader",
+      "n": 468,
+      "roles": {
+        "artillery": 163,
+        "controller": 27,
+        "frontliner": 848,
+        "protector": 32,
+        "skirmisher": 527,
+        "support": 33
+      },
+      "leader_types": {
+        "bile_bloomer": 29,
+        "chainbound_gaoler": 22,
+        "cinder_ooze": 8,
+        "crawler": 309,
+        "frostglass_lancer": 16,
+        "harrier": 8,
+        "slag_mortar": 44,
+        "warden": 32
+      },
+      "leader_closest_share": 0.43162393162393164,
+      "unit_count": {
+        "n": 468,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "base_hp": {
+        "n": 468,
+        "median": 36.0,
+        "p10": 34,
+        "p90": 42
+      },
+      "spawn_hp": {
+        "n": 468,
+        "median": 46.0,
+        "p10": 39,
+        "p90": 57
+      },
+      "leader_distance": {
+        "n": 468,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "fire",
+      "objective": "reach_exit",
+      "n": 575,
+      "roles": {
+        "artillery": 202,
+        "controller": 575,
+        "frontliner": 1054,
+        "protector": 54,
+        "skirmisher": 670,
+        "support": 35
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 575,
+        "median": 4,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 575,
+        "median": 50,
+        "p10": 48,
+        "p90": 56
+      },
+      "spawn_hp": {
+        "n": 575,
+        "median": 53,
+        "p10": 45,
+        "p90": 64
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 575,
+        "median": 6,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 575,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "ice",
+      "objective": "kill_all",
+      "n": 987,
+      "roles": {
+        "artillery": 390,
+        "controller": 354,
+        "frontliner": 1079,
+        "protector": 188,
+        "skirmisher": 1135,
+        "support": 59
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 987,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      },
+      "base_hp": {
+        "n": 987,
+        "median": 36,
+        "p10": 34,
+        "p90": 43
+      },
+      "spawn_hp": {
+        "n": 987,
+        "median": 39,
+        "p10": 32,
+        "p90": 48
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "ice",
+      "objective": "kill_leader",
+      "n": 494,
+      "roles": {
+        "artillery": 198,
+        "controller": 133,
+        "frontliner": 574,
+        "protector": 91,
+        "skirmisher": 561,
+        "support": 34
+      },
+      "leader_types": {
+        "bile_bloomer": 35,
+        "chainbound_gaoler": 26,
+        "cinder_ooze": 15,
+        "crawler": 329,
+        "frostglass_lancer": 5,
+        "glacial_mirror": 57,
+        "harrier": 1,
+        "hoarfrost_seer": 6,
+        "warden": 20
+      },
+      "leader_closest_share": 0.43724696356275305,
+      "unit_count": {
+        "n": 494,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "base_hp": {
+        "n": 494,
+        "median": 36.0,
+        "p10": 34,
+        "p90": 43
+      },
+      "spawn_hp": {
+        "n": 494,
+        "median": 46.0,
+        "p10": 38,
+        "p90": 57
+      },
+      "leader_distance": {
+        "n": 494,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 6
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "ice",
+      "objective": "reach_exit",
+      "n": 519,
+      "roles": {
+        "artillery": 213,
+        "controller": 654,
+        "frontliner": 588,
+        "protector": 100,
+        "skirmisher": 622,
+        "support": 30
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 519,
+        "median": 4,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 519,
+        "median": 50,
+        "p10": 48,
+        "p90": 57
+      },
+      "spawn_hp": {
+        "n": 519,
+        "median": 53,
+        "p10": 45,
+        "p90": 61
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 519,
+        "median": 6,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 519,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "lightning",
+      "objective": "kill_all",
+      "n": 1000,
+      "roles": {
+        "artillery": 354,
+        "controller": 151,
+        "frontliner": 973,
+        "protector": 72,
+        "skirmisher": 1848,
+        "support": 68
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 1000,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "base_hp": {
+        "n": 1000,
+        "median": 38.0,
+        "p10": 34,
+        "p90": 52
+      },
+      "spawn_hp": {
+        "n": 1000,
+        "median": 42.0,
+        "p10": 33,
+        "p90": 52
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "lightning",
+      "objective": "kill_leader",
+      "n": 513,
+      "roles": {
+        "artillery": 165,
+        "controller": 68,
+        "frontliner": 514,
+        "protector": 27,
+        "skirmisher": 984,
+        "support": 37
+      },
+      "leader_types": {
+        "arc_thrall": 10,
+        "bile_bloomer": 23,
+        "chainbound_gaoler": 30,
+        "cinder_ooze": 14,
+        "crawler": 325,
+        "frostglass_lancer": 6,
+        "harrier": 5,
+        "storm_capacitor": 81,
+        "warden": 19
+      },
+      "leader_closest_share": 0.4074074074074074,
+      "unit_count": {
+        "n": 513,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      },
+      "base_hp": {
+        "n": 513,
+        "median": 38,
+        "p10": 35,
+        "p90": 50
+      },
+      "spawn_hp": {
+        "n": 513,
+        "median": 50,
+        "p10": 39,
+        "p90": 62
+      },
+      "leader_distance": {
+        "n": 513,
+        "median": 4,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "lightning",
+      "objective": "reach_exit",
+      "n": 487,
+      "roles": {
+        "artillery": 197,
+        "controller": 521,
+        "frontliner": 494,
+        "protector": 42,
+        "skirmisher": 868,
+        "support": 34
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 487,
+        "median": 4,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 487,
+        "median": 52,
+        "p10": 48,
+        "p90": 64
+      },
+      "spawn_hp": {
+        "n": 487,
+        "median": 56,
+        "p10": 45,
+        "p90": 67
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 487,
+        "median": 6,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 487,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "shadow",
+      "objective": "kill_all",
+      "n": 986,
+      "roles": {
+        "artillery": 195,
+        "controller": 66,
+        "frontliner": 1285,
+        "protector": 81,
+        "skirmisher": 1575,
+        "support": 77
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 986,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "base_hp": {
+        "n": 986,
+        "median": 36.0,
+        "p10": 34,
+        "p90": 40
+      },
+      "spawn_hp": {
+        "n": 986,
+        "median": 46.0,
+        "p10": 43,
+        "p90": 52
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "shadow",
+      "objective": "kill_leader",
+      "n": 532,
+      "roles": {
+        "artillery": 110,
+        "controller": 37,
+        "frontliner": 685,
+        "protector": 30,
+        "skirmisher": 858,
+        "support": 41
+      },
+      "leader_types": {
+        "bile_bloomer": 36,
+        "chainbound_gaoler": 37,
+        "cinder_ooze": 11,
+        "crawler": 340,
+        "frostglass_lancer": 12,
+        "gloam_stalker": 11,
+        "harrier": 1,
+        "hollow_mimic": 54,
+        "warden": 30
+      },
+      "leader_closest_share": 0.4417293233082707,
+      "unit_count": {
+        "n": 532,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "base_hp": {
+        "n": 532,
+        "median": 36.0,
+        "p10": 34,
+        "p90": 40
+      },
+      "spawn_hp": {
+        "n": 532,
+        "median": 55.0,
+        "p10": 52,
+        "p90": 61
+      },
+      "leader_distance": {
+        "n": 532,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 6
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "shadow",
+      "objective": "reach_exit",
+      "n": 482,
+      "roles": {
+        "artillery": 127,
+        "controller": 482,
+        "frontliner": 643,
+        "protector": 33,
+        "skirmisher": 771,
+        "support": 33
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 482,
+        "median": 4.0,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 482,
+        "median": 50.0,
+        "p10": 48,
+        "p90": 54
+      },
+      "spawn_hp": {
+        "n": 482,
+        "median": 63.5,
+        "p10": 60,
+        "p90": 69
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 482,
+        "median": 6.0,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 482,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "air",
+      "objective": "kill_all",
+      "n": 1061,
+      "roles": {
+        "artillery": 596,
+        "controller": 421,
+        "frontliner": 1510,
+        "protector": 327,
+        "skirmisher": 1585,
+        "support": 240
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 1061,
+        "median": 4,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 1061,
+        "median": 50,
+        "p10": 46,
+        "p90": 60
+      },
+      "spawn_hp": {
+        "n": 1061,
+        "median": 63,
+        "p10": 51,
+        "p90": 73
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "air",
+      "objective": "kill_leader",
+      "n": 445,
+      "roles": {
+        "artillery": 271,
+        "controller": 188,
+        "frontliner": 619,
+        "protector": 128,
+        "skirmisher": 637,
+        "support": 115
+      },
+      "leader_types": {
+        "bile_bloomer": 41,
+        "chainbound_gaoler": 31,
+        "crawler": 165,
+        "gale_herald": 80,
+        "warden": 128
+      },
+      "leader_closest_share": 0.31685393258426964,
+      "unit_count": {
+        "n": 445,
+        "median": 4,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 445,
+        "median": 50,
+        "p10": 46,
+        "p90": 57
+      },
+      "spawn_hp": {
+        "n": 445,
+        "median": 71,
+        "p10": 57,
+        "p90": 84
+      },
+      "leader_distance": {
+        "n": 445,
+        "median": 5,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "air",
+      "objective": "reach_exit",
+      "n": 494,
+      "roles": {
+        "artillery": 391,
+        "controller": 663,
+        "frontliner": 868,
+        "protector": 277,
+        "skirmisher": 877,
+        "support": 105
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 494,
+        "median": 6.0,
+        "p10": 6,
+        "p90": 7
+      },
+      "base_hp": {
+        "n": 494,
+        "median": 80.0,
+        "p10": 74,
+        "p90": 88
+      },
+      "spawn_hp": {
+        "n": 494,
+        "median": 95.0,
+        "p10": 78,
+        "p90": 111
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 494,
+        "median": 6.0,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 494,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "earth",
+      "objective": "kill_all",
+      "n": 988,
+      "roles": {
+        "artillery": 561,
+        "controller": 239,
+        "frontliner": 1433,
+        "protector": 287,
+        "skirmisher": 1471,
+        "support": 231
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 988,
+        "median": 4.0,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 988,
+        "median": 50.0,
+        "p10": 48,
+        "p90": 56
+      },
+      "spawn_hp": {
+        "n": 988,
+        "median": 60.0,
+        "p10": 50,
+        "p90": 71
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "earth",
+      "objective": "kill_leader",
+      "n": 495,
+      "roles": {
+        "artillery": 288,
+        "controller": 114,
+        "frontliner": 702,
+        "protector": 138,
+        "skirmisher": 768,
+        "support": 111
+      },
+      "leader_types": {
+        "bile_bloomer": 43,
+        "briar_weaver": 42,
+        "chainbound_gaoler": 39,
+        "crawler": 233,
+        "warden": 138
+      },
+      "leader_closest_share": 0.3474747474747475,
+      "unit_count": {
+        "n": 495,
+        "median": 4,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 495,
+        "median": 50,
+        "p10": 48,
+        "p90": 56
+      },
+      "spawn_hp": {
+        "n": 495,
+        "median": 70,
+        "p10": 57,
+        "p90": 82
+      },
+      "leader_distance": {
+        "n": 495,
+        "median": 5,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "earth",
+      "objective": "reach_exit",
+      "n": 517,
+      "roles": {
+        "artillery": 425,
+        "controller": 606,
+        "frontliner": 905,
+        "protector": 326,
+        "skirmisher": 861,
+        "support": 121
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 517,
+        "median": 6,
+        "p10": 6,
+        "p90": 7
+      },
+      "base_hp": {
+        "n": 517,
+        "median": 78,
+        "p10": 72,
+        "p90": 86
+      },
+      "spawn_hp": {
+        "n": 517,
+        "median": 94,
+        "p10": 78,
+        "p90": 109
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 517,
+        "median": 6,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 517,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "fire",
+      "objective": "kill_all",
+      "n": 1013,
+      "roles": {
+        "artillery": 734,
+        "controller": 108,
+        "frontliner": 2189,
+        "protector": 302,
+        "skirmisher": 1165,
+        "support": 264
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 1013,
+        "median": 5,
+        "p10": 4,
+        "p90": 6
+      },
+      "base_hp": {
+        "n": 1013,
+        "median": 50,
+        "p10": 46,
+        "p90": 60
+      },
+      "spawn_hp": {
+        "n": 1013,
+        "median": 61,
+        "p10": 50,
+        "p90": 73
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "fire",
+      "objective": "kill_leader",
+      "n": 485,
+      "roles": {
+        "artillery": 342,
+        "controller": 39,
+        "frontliner": 1052,
+        "protector": 153,
+        "skirmisher": 568,
+        "support": 116
+      },
+      "leader_types": {
+        "bile_bloomer": 43,
+        "chainbound_gaoler": 31,
+        "crawler": 217,
+        "slag_mortar": 70,
+        "warden": 124
+      },
+      "leader_closest_share": 0.3402061855670103,
+      "unit_count": {
+        "n": 485,
+        "median": 5,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 485,
+        "median": 50,
+        "p10": 46,
+        "p90": 60
+      },
+      "spawn_hp": {
+        "n": 485,
+        "median": 70,
+        "p10": 57,
+        "p90": 85
+      },
+      "leader_distance": {
+        "n": 485,
+        "median": 4,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "fire",
+      "objective": "reach_exit",
+      "n": 502,
+      "roles": {
+        "artillery": 478,
+        "controller": 513,
+        "frontliner": 1231,
+        "protector": 297,
+        "skirmisher": 745,
+        "support": 111
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 502,
+        "median": 7.0,
+        "p10": 6,
+        "p90": 8
+      },
+      "base_hp": {
+        "n": 502,
+        "median": 80.0,
+        "p10": 72,
+        "p90": 92
+      },
+      "spawn_hp": {
+        "n": 502,
+        "median": 97.0,
+        "p10": 80,
+        "p90": 113
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 502,
+        "median": 6.0,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 502,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "ice",
+      "objective": "kill_all",
+      "n": 1009,
+      "roles": {
+        "artillery": 813,
+        "controller": 356,
+        "frontliner": 1368,
+        "protector": 507,
+        "skirmisher": 1179,
+        "support": 235
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 1009,
+        "median": 4,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 1009,
+        "median": 50,
+        "p10": 47,
+        "p90": 63
+      },
+      "spawn_hp": {
+        "n": 1009,
+        "median": 62,
+        "p10": 51,
+        "p90": 76
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "ice",
+      "objective": "kill_leader",
+      "n": 488,
+      "roles": {
+        "artillery": 397,
+        "controller": 204,
+        "frontliner": 638,
+        "protector": 228,
+        "skirmisher": 586,
+        "support": 102
+      },
+      "leader_types": {
+        "bile_bloomer": 58,
+        "chainbound_gaoler": 40,
+        "crawler": 203,
+        "glacial_mirror": 76,
+        "warden": 111
+      },
+      "leader_closest_share": 0.35860655737704916,
+      "unit_count": {
+        "n": 488,
+        "median": 4.0,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 488,
+        "median": 50.0,
+        "p10": 48,
+        "p90": 61
+      },
+      "spawn_hp": {
+        "n": 488,
+        "median": 71.0,
+        "p10": 59,
+        "p90": 88
+      },
+      "leader_distance": {
+        "n": 488,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "ice",
+      "objective": "reach_exit",
+      "n": 503,
+      "roles": {
+        "artillery": 522,
+        "controller": 679,
+        "frontliner": 811,
+        "protector": 368,
+        "skirmisher": 718,
+        "support": 119
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 503,
+        "median": 6,
+        "p10": 6,
+        "p90": 7
+      },
+      "base_hp": {
+        "n": 503,
+        "median": 80,
+        "p10": 72,
+        "p90": 89
+      },
+      "spawn_hp": {
+        "n": 503,
+        "median": 95,
+        "p10": 80,
+        "p90": 111
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 503,
+        "median": 6,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 503,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "lightning",
+      "objective": "kill_all",
+      "n": 987,
+      "roles": {
+        "artillery": 752,
+        "controller": 181,
+        "frontliner": 1157,
+        "protector": 304,
+        "skirmisher": 1976,
+        "support": 245
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 987,
+        "median": 5,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 987,
+        "median": 56,
+        "p10": 47,
+        "p90": 66
+      },
+      "spawn_hp": {
+        "n": 987,
+        "median": 64,
+        "p10": 53,
+        "p90": 83
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "lightning",
+      "objective": "kill_leader",
+      "n": 505,
+      "roles": {
+        "artillery": 370,
+        "controller": 91,
+        "frontliner": 597,
+        "protector": 167,
+        "skirmisher": 1018,
+        "support": 108
+      },
+      "leader_types": {
+        "bile_bloomer": 47,
+        "chainbound_gaoler": 32,
+        "crawler": 214,
+        "storm_capacitor": 83,
+        "warden": 129
+      },
+      "leader_closest_share": 0.29504950495049503,
+      "unit_count": {
+        "n": 505,
+        "median": 5,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 505,
+        "median": 56,
+        "p10": 48,
+        "p90": 64
+      },
+      "spawn_hp": {
+        "n": 505,
+        "median": 73,
+        "p10": 61,
+        "p90": 96
+      },
+      "leader_distance": {
+        "n": 505,
+        "median": 5,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "lightning",
+      "objective": "reach_exit",
+      "n": 508,
+      "roles": {
+        "artillery": 494,
+        "controller": 564,
+        "frontliner": 727,
+        "protector": 311,
+        "skirmisher": 1197,
+        "support": 114
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 508,
+        "median": 7.0,
+        "p10": 6,
+        "p90": 7
+      },
+      "base_hp": {
+        "n": 508,
+        "median": 82.0,
+        "p10": 73,
+        "p90": 94
+      },
+      "spawn_hp": {
+        "n": 508,
+        "median": 99.0,
+        "p10": 82,
+        "p90": 120
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 508,
+        "median": 6.0,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 508,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "shadow",
+      "objective": "kill_all",
+      "n": 974,
+      "roles": {
+        "artillery": 522,
+        "controller": 104,
+        "frontliner": 1569,
+        "protector": 312,
+        "skirmisher": 1704,
+        "support": 219
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 974,
+        "median": 4.0,
+        "p10": 4,
+        "p90": 6
+      },
+      "base_hp": {
+        "n": 974,
+        "median": 50.0,
+        "p10": 47,
+        "p90": 57
+      },
+      "spawn_hp": {
+        "n": 974,
+        "median": 71.0,
+        "p10": 67,
+        "p90": 82
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "shadow",
+      "objective": "kill_leader",
+      "n": 525,
+      "roles": {
+        "artillery": 281,
+        "controller": 58,
+        "frontliner": 828,
+        "protector": 169,
+        "skirmisher": 894,
+        "support": 124
+      },
+      "leader_types": {
+        "bile_bloomer": 38,
+        "chainbound_gaoler": 41,
+        "crawler": 235,
+        "hollow_mimic": 42,
+        "warden": 169
+      },
+      "leader_closest_share": 0.3619047619047619,
+      "unit_count": {
+        "n": 525,
+        "median": 4,
+        "p10": 4,
+        "p90": 5
+      },
+      "base_hp": {
+        "n": 525,
+        "median": 50,
+        "p10": 47,
+        "p90": 57
+      },
+      "spawn_hp": {
+        "n": 525,
+        "median": 81,
+        "p10": 77,
+        "p90": 95
+      },
+      "leader_distance": {
+        "n": 525,
+        "median": 5,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "shadow",
+      "objective": "reach_exit",
+      "n": 501,
+      "roles": {
+        "artillery": 455,
+        "controller": 507,
+        "frontliner": 907,
+        "protector": 269,
+        "skirmisher": 982,
+        "support": 119
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 501,
+        "median": 6,
+        "p10": 6,
+        "p90": 8
+      },
+      "base_hp": {
+        "n": 501,
+        "median": 78,
+        "p10": 72,
+        "p90": 85
+      },
+      "spawn_hp": {
+        "n": 501,
+        "median": 111,
+        "p10": 102,
+        "p90": 122
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 501,
+        "median": 6,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 501,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "air",
+      "objective": "kill_all",
+      "n": 990,
+      "roles": {
+        "artillery": 910,
+        "controller": 585,
+        "frontliner": 1257,
+        "protector": 1069,
+        "skirmisher": 1246,
+        "support": 156
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 990,
+        "median": 5.0,
+        "p10": 5,
+        "p90": 6
+      },
+      "base_hp": {
+        "n": 990,
+        "median": 66.0,
+        "p10": 58,
+        "p90": 74
+      },
+      "spawn_hp": {
+        "n": 990,
+        "median": 93.0,
+        "p10": 77,
+        "p90": 107
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "air",
+      "objective": "kill_leader",
+      "n": 511,
+      "roles": {
+        "artillery": 464,
+        "controller": 301,
+        "frontliner": 645,
+        "protector": 551,
+        "skirmisher": 666,
+        "support": 63
+      },
+      "leader_types": {
+        "warden": 511
+      },
+      "leader_closest_share": 0.30332681017612523,
+      "unit_count": {
+        "n": 511,
+        "median": 5,
+        "p10": 5,
+        "p90": 6
+      },
+      "base_hp": {
+        "n": 511,
+        "median": 66,
+        "p10": 58,
+        "p90": 74
+      },
+      "spawn_hp": {
+        "n": 511,
+        "median": 105,
+        "p10": 88,
+        "p90": 121
+      },
+      "leader_distance": {
+        "n": 511,
+        "median": 5,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "air",
+      "objective": "reach_exit",
+      "n": 499,
+      "roles": {
+        "artillery": 583,
+        "controller": 728,
+        "frontliner": 768,
+        "protector": 678,
+        "skirmisher": 795,
+        "support": 75
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 499,
+        "median": 7,
+        "p10": 7,
+        "p90": 8
+      },
+      "base_hp": {
+        "n": 499,
+        "median": 94,
+        "p10": 84,
+        "p90": 102
+      },
+      "spawn_hp": {
+        "n": 499,
+        "median": 130,
+        "p10": 108,
+        "p90": 151
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 499,
+        "median": 6,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 499,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "earth",
+      "objective": "kill_all",
+      "n": 1012,
+      "roles": {
+        "artillery": 928,
+        "controller": 393,
+        "frontliner": 1183,
+        "protector": 1096,
+        "skirmisher": 1302,
+        "support": 160
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 1012,
+        "median": 5.0,
+        "p10": 4,
+        "p90": 6
+      },
+      "base_hp": {
+        "n": 1012,
+        "median": 66.0,
+        "p10": 56,
+        "p90": 74
+      },
+      "spawn_hp": {
+        "n": 1012,
+        "median": 89.0,
+        "p10": 73,
+        "p90": 107
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "earth",
+      "objective": "kill_leader",
+      "n": 465,
+      "roles": {
+        "artillery": 433,
+        "controller": 159,
+        "frontliner": 567,
+        "protector": 493,
+        "skirmisher": 597,
+        "support": 88
+      },
+      "leader_types": {
+        "warden": 465
+      },
+      "leader_closest_share": 0.2860215053763441,
+      "unit_count": {
+        "n": 465,
+        "median": 5,
+        "p10": 4,
+        "p90": 6
+      },
+      "base_hp": {
+        "n": 465,
+        "median": 66,
+        "p10": 54,
+        "p90": 72
+      },
+      "spawn_hp": {
+        "n": 465,
+        "median": 103,
+        "p10": 85,
+        "p90": 121
+      },
+      "leader_distance": {
+        "n": 465,
+        "median": 5,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "earth",
+      "objective": "reach_exit",
+      "n": 523,
+      "roles": {
+        "artillery": 653,
+        "controller": 656,
+        "frontliner": 806,
+        "protector": 720,
+        "skirmisher": 770,
+        "support": 72
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 523,
+        "median": 7,
+        "p10": 6,
+        "p90": 8
+      },
+      "base_hp": {
+        "n": 523,
+        "median": 92,
+        "p10": 82,
+        "p90": 102
+      },
+      "spawn_hp": {
+        "n": 523,
+        "median": 126,
+        "p10": 106,
+        "p90": 148
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 523,
+        "median": 6,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 523,
+        "median": 3,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "fire",
+      "objective": "kill_all",
+      "n": 1020,
+      "roles": {
+        "artillery": 1162,
+        "controller": 144,
+        "frontliner": 2388,
+        "protector": 1095,
+        "skirmisher": 872,
+        "support": 177
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 1020,
+        "median": 6.0,
+        "p10": 5,
+        "p90": 7
+      },
+      "base_hp": {
+        "n": 1020,
+        "median": 66.0,
+        "p10": 54,
+        "p90": 76
+      },
+      "spawn_hp": {
+        "n": 1020,
+        "median": 92.0,
+        "p10": 77,
+        "p90": 109
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "fire",
+      "objective": "kill_leader",
+      "n": 492,
+      "roles": {
+        "artillery": 576,
+        "controller": 74,
+        "frontliner": 1148,
+        "protector": 523,
+        "skirmisher": 425,
+        "support": 72
+      },
+      "leader_types": {
+        "lightning_wisp": 3,
+        "slag_mortar": 104,
+        "warden": 385
+      },
+      "leader_closest_share": 0.266260162601626,
+      "unit_count": {
+        "n": 492,
+        "median": 6.0,
+        "p10": 5,
+        "p90": 7
+      },
+      "base_hp": {
+        "n": 492,
+        "median": 66.0,
+        "p10": 54,
+        "p90": 78
+      },
+      "spawn_hp": {
+        "n": 492,
+        "median": 106.0,
+        "p10": 88,
+        "p90": 122
+      },
+      "leader_distance": {
+        "n": 492,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "fire",
+      "objective": "reach_exit",
+      "n": 488,
+      "roles": {
+        "artillery": 700,
+        "controller": 501,
+        "frontliner": 1277,
+        "protector": 681,
+        "skirmisher": 526,
+        "support": 76
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 488,
+        "median": 8.0,
+        "p10": 7,
+        "p90": 9
+      },
+      "base_hp": {
+        "n": 488,
+        "median": 94.0,
+        "p10": 84,
+        "p90": 104
+      },
+      "spawn_hp": {
+        "n": 488,
+        "median": 130.0,
+        "p10": 107,
+        "p90": 151
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 488,
+        "median": 6.0,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 488,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "ice",
+      "objective": "kill_all",
+      "n": 994,
+      "roles": {
+        "artillery": 1249,
+        "controller": 611,
+        "frontliner": 1142,
+        "protector": 1300,
+        "skirmisher": 797,
+        "support": 158
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 994,
+        "median": 5.0,
+        "p10": 5,
+        "p90": 6
+      },
+      "base_hp": {
+        "n": 994,
+        "median": 67.0,
+        "p10": 57,
+        "p90": 79
+      },
+      "spawn_hp": {
+        "n": 994,
+        "median": 93.0,
+        "p10": 76,
+        "p90": 111
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "ice",
+      "objective": "kill_leader",
+      "n": 504,
+      "roles": {
+        "artillery": 623,
+        "controller": 314,
+        "frontliner": 584,
+        "protector": 633,
+        "skirmisher": 411,
+        "support": 73
+      },
+      "leader_types": {
+        "glacial_mirror": 85,
+        "warden": 419
+      },
+      "leader_closest_share": 0.2777777777777778,
+      "unit_count": {
+        "n": 504,
+        "median": 5.0,
+        "p10": 5,
+        "p90": 6
+      },
+      "base_hp": {
+        "n": 504,
+        "median": 67.0,
+        "p10": 57,
+        "p90": 74
+      },
+      "spawn_hp": {
+        "n": 504,
+        "median": 107.0,
+        "p10": 87,
+        "p90": 124
+      },
+      "leader_distance": {
+        "n": 504,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "ice",
+      "objective": "reach_exit",
+      "n": 502,
+      "roles": {
+        "artillery": 746,
+        "controller": 751,
+        "frontliner": 721,
+        "protector": 792,
+        "skirmisher": 525,
+        "support": 81
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 502,
+        "median": 7.0,
+        "p10": 7,
+        "p90": 8
+      },
+      "base_hp": {
+        "n": 502,
+        "median": 94.0,
+        "p10": 84,
+        "p90": 105
+      },
+      "spawn_hp": {
+        "n": 502,
+        "median": 130.0,
+        "p10": 107,
+        "p90": 154
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 502,
+        "median": 6.0,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 502,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "lightning",
+      "objective": "kill_all",
+      "n": 981,
+      "roles": {
+        "artillery": 1153,
+        "controller": 297,
+        "frontliner": 878,
+        "protector": 1053,
+        "skirmisher": 2004,
+        "support": 141
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 981,
+        "median": 6,
+        "p10": 5,
+        "p90": 6
+      },
+      "base_hp": {
+        "n": 981,
+        "median": 70,
+        "p10": 62,
+        "p90": 84
+      },
+      "spawn_hp": {
+        "n": 981,
+        "median": 98,
+        "p10": 79,
+        "p90": 118
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "lightning",
+      "objective": "kill_leader",
+      "n": 497,
+      "roles": {
+        "artillery": 588,
+        "controller": 139,
+        "frontliner": 442,
+        "protector": 531,
+        "skirmisher": 1036,
+        "support": 65
+      },
+      "leader_types": {
+        "storm_capacitor": 119,
+        "warden": 378
+      },
+      "leader_closest_share": 0.30181086519114686,
+      "unit_count": {
+        "n": 497,
+        "median": 6,
+        "p10": 5,
+        "p90": 6
+      },
+      "base_hp": {
+        "n": 497,
+        "median": 69,
+        "p10": 62,
+        "p90": 84
+      },
+      "spawn_hp": {
+        "n": 497,
+        "median": 110,
+        "p10": 88,
+        "p90": 131
+      },
+      "leader_distance": {
+        "n": 497,
+        "median": 5,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "lightning",
+      "objective": "reach_exit",
+      "n": 522,
+      "roles": {
+        "artillery": 786,
+        "controller": 612,
+        "frontliner": 635,
+        "protector": 683,
+        "skirmisher": 1173,
+        "support": 82
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 522,
+        "median": 8.0,
+        "p10": 7,
+        "p90": 8
+      },
+      "base_hp": {
+        "n": 522,
+        "median": 98.0,
+        "p10": 90,
+        "p90": 110
+      },
+      "spawn_hp": {
+        "n": 522,
+        "median": 134.5,
+        "p10": 113,
+        "p90": 160
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 522,
+        "median": 6.0,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 522,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "shadow",
+      "objective": "kill_all",
+      "n": 995,
+      "roles": {
+        "artillery": 947,
+        "controller": 183,
+        "frontliner": 1453,
+        "protector": 1054,
+        "skirmisher": 1550,
+        "support": 158
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 995,
+        "median": 5,
+        "p10": 5,
+        "p90": 7
+      },
+      "base_hp": {
+        "n": 995,
+        "median": 66,
+        "p10": 54,
+        "p90": 74
+      },
+      "spawn_hp": {
+        "n": 995,
+        "median": 110,
+        "p10": 91,
+        "p90": 123
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "shadow",
+      "objective": "kill_leader",
+      "n": 519,
+      "roles": {
+        "artillery": 473,
+        "controller": 70,
+        "frontliner": 733,
+        "protector": 559,
+        "skirmisher": 859,
+        "support": 83
+      },
+      "leader_types": {
+        "lightning_wisp": 4,
+        "warden": 515
+      },
+      "leader_closest_share": 0.2928709055876686,
+      "unit_count": {
+        "n": 519,
+        "median": 5,
+        "p10": 5,
+        "p90": 6
+      },
+      "base_hp": {
+        "n": 519,
+        "median": 66,
+        "p10": 53,
+        "p90": 74
+      },
+      "spawn_hp": {
+        "n": 519,
+        "median": 125,
+        "p10": 105,
+        "p90": 138
+      },
+      "leader_distance": {
+        "n": 519,
+        "median": 5,
+        "p10": 3,
+        "p90": 7
+      },
+      "exit_path_length": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_free_turns": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "shadow",
+      "objective": "reach_exit",
+      "n": 486,
+      "roles": {
+        "artillery": 601,
+        "controller": 497,
+        "frontliner": 854,
+        "protector": 640,
+        "skirmisher": 947,
+        "support": 68
+      },
+      "leader_types": {},
+      "leader_closest_share": null,
+      "unit_count": {
+        "n": 486,
+        "median": 7.0,
+        "p10": 7,
+        "p90": 9
+      },
+      "base_hp": {
+        "n": 486,
+        "median": 92.0,
+        "p10": 81,
+        "p90": 100
+      },
+      "spawn_hp": {
+        "n": 486,
+        "median": 153.0,
+        "p10": 135,
+        "p90": 166
+      },
+      "leader_distance": {
+        "n": 0,
+        "median": null,
+        "p10": null,
+        "p90": null
+      },
+      "exit_path_length": {
+        "n": 486,
+        "median": 6.0,
+        "p10": 6,
+        "p90": 8
+      },
+      "exit_free_turns": {
+        "n": 486,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      }
+    }
+  ],
+  "raw_file": "composition.jsonl.gz",
+  "raw_sha256": "5a007980f6e2c5ac0c8c192b943e51d476aa4d17cc2c9b768d3fdf3e3b59dba9",
+  "elapsed_seconds": 850.294
+}

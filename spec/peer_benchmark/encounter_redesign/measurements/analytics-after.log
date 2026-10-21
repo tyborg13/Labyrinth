@@ -1,0 +1,13 @@
+Running task-local command:
+  task: spx-01
+  run: spx-01-1792554263296399000-14936
+  HOME: /private/tmp/labyrinth-godot-home/spx-01-1792554263296399000-14936
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/spx-01-1792554263296399000-14936/godot.log --headless --path . --script tests/encounter_analytics_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ENCOUNTER ANALYTICS: PASS (0 failures)

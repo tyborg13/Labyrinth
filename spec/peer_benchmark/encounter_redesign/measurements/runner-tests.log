@@ -1,0 +1,35 @@
+test_absolute_runtime_in_root_fails_bootstrap_path_guard (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_budget_names_active_and_unstarted_children (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_cancels_at_requested_deadline_with_bounded_cleanup (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_changing_any_supplemental_fixture_mode_fails_guard (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_children_overlap_but_never_exceed_limit_and_keep_namespaces_separate (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_children_resolve_distinct_user_storage_and_explicit_engine_logs (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_doubling_budget_fails_controlled_deadline_guard (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_fixture_runtime_uses_resource_path_only_in_repository_project (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_fixture_stages_keep_one_slot_and_preserve_build_verify_arguments (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_full_harness_waits_for_coroutine_tests_before_reporting (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_hung_child_times_out_and_process_is_gone (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_manifest_preserves_all_existing_children_and_order (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_map_performance_regression_has_an_exclusive_program_slot (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_nonzero_child_fails_scheduler_and_names_child (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_onset_arguments_are_preserved (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_parent_pipe_eof_cancels_active_package_stage (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_parent_pipe_eof_cancels_children (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_real_fixture_stages_initialize_namespaces_and_run_complete_contracts (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_real_parent_failure_and_timeout_fail_whole_run_and_name_child (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_real_parent_prints_whole_logs_in_manifest_order (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_removing_any_extracted_program_fails_manifest_guard (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_removing_any_supplemental_or_merged_program_fails_manifest_guard (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_reused_report_path_gets_fresh_placement_transport (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_reusing_fixture_report_path_keeps_staging_fresh (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_slots_above_worker_limit_are_rejected (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_supplemental_modes_and_paths_are_guarded (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_worker_limit_follows_requested_logical_cpu_formula (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_zero_exit_script_failure_still_fails (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 20.412s
+
+OK
+RUNNER MUTATION REJECTED: absolute runtime preload in repository project
+RUNNER MUTATION REJECTED: all 127 supplemental mode changes (including Bile Bloomer to script)

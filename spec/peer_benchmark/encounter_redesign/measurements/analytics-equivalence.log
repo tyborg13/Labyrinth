@@ -1,0 +1,13 @@
+Running task-local command:
+  task: spx-01
+  run: spx-01-1792553882569558000-12570
+  HOME: /private/tmp/labyrinth-godot-home/spx-01-1792553882569558000-12570
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/spx-01-1792553882569558000-12570/godot.log --headless --path . --script tests/combat_analytics_context_equivalence_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+TEST RESULT: PASS — 42 analytics-context/boundary comparisons (0 failures)

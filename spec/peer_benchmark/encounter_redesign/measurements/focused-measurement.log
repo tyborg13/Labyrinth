@@ -1,0 +1,16 @@
+Running task-local command:
+  task: spx-01
+  run: spx-01-1792556273409138000-33622
+  HOME: /private/tmp/labyrinth-godot-home/spx-01-1792556273409138000-33622
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/spx-01-1792556273409138000-33622/godot.log --headless --path . --script tests/encounter_measurement_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)
+ENCOUNTER SMALL SWEEP: PASS (36 rooms)
+ENCOUNTER BOT DETERMINISM: PASS (3 objectives, repeated seeded rooms)
+ENCOUNTER MEASUREMENT: PASS (123 checks; 0 failures)

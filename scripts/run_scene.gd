@@ -32321,6 +32321,7 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		context["visible_enemy_count"] = _combat_engine.visible_enemy_ids(combat_state).size()
 		context["objective_type"] = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
 		context["objective_name"] = CombatObjectiveRules.title_for_objective(objective)
+	context.merge(preload("res://scripts/encounter_analytics_context.gd").fields(run_state, combat_state, room_meta), true)
 	return context
 
 func _moltshard_gain_idempotency_key(award_id: String) -> String:
