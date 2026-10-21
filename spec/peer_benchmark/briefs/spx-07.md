@@ -48,7 +48,8 @@
      passes next to the screen or a skirmisher. Reroll the layout if not, as today.
    - Put these numbers in the Warband data (`captain.start_distance` stays):
      `followers: {guard_radius: 2, screen_distance: [2, 3], skirmisher_entry_distance: [3, 5], min_gap: 3}`.
-     Import the director's staged copy.
+     The director's object is `spec/peer_benchmark/staged/spx-07/followers.json`; add it to `data/special_encounters.json`
+     and the staged copy `spec/peer_benchmark/staged/spx/special_encounters.json`, which stay byte-identical.
 
 ## Keep
 The captain's stats, Command, keep-distance, the six orders and their telegraphs, the break, rewards, saves, revision-5

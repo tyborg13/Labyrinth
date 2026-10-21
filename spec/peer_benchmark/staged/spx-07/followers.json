@@ -1,0 +1,15 @@
+{
+ "_doc": "spx-07 director data: add as types.warband.followers in data/special_encounters.json and its staged copy (which must stay byte-identical to the catalog).",
+ "followers": {
+  "guard_radius": 2,
+  "screen_distance": [
+   2,
+   3
+  ],
+  "skirmisher_entry_distance": [
+   3,
+   5
+  ],
+  "min_gap": 3
+ }
+}

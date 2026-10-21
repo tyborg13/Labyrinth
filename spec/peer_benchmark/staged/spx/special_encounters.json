@@ -61,18 +61,6 @@
     "never_closest": true,
     "scale": 1.0
    },
-   "followers": {
-    "guard_radius": 2,
-    "screen_distance": [
-     2,
-     3
-    ],
-    "skirmisher_entry_distance": [
-     3,
-     5
-    ],
-    "min_gap": 3
-   },
    "break_line": "The warband breaks!",
    "variants": {
     "earth": {
@@ -202,8 +190,7 @@
      "hunters": "burrow_grub",
      "pressure": {
       "id": "rubble_lane",
-      "text": "Each round, Rubble rises on one tile of your shortest way out.",
-      "min_steps_from_hero": 2
+      "text": "Each round, Rubble rises across one tile of the shortest lane."
      }
     },
     "fire": {
@@ -217,8 +204,7 @@
      "hunters": "gust_shrike",
      "pressure": {
       "id": "headwind",
-      "text": "A headwind slides everyone 1 tile toward the entry at the end of your turn.",
-      "tiles": 1
+      "text": "A headwind slides everything 1 tile toward the entry after each enemy turn."
      }
     },
     "ice": {
@@ -226,7 +212,7 @@
      "start_hunters": 3,
      "pressure": {
       "id": "frost_thresholds",
-      "text": "The tile in front of each sealing door is Ice."
+      "text": "The tile in front of each sealing door turns to Ice."
      }
     },
     "lightning": {
@@ -243,9 +229,7 @@
      ],
      "pressure": {
       "id": "umbra_rings",
-      "text": "The Umbra closes in: every two rounds, your sight shrinks by 1.",
-      "every_player_turns": 2,
-      "min_radius": 1
+      "text": "The Umbra closes one ring of the room every two rounds."
      }
     }
    }
