@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "basis": "Fresh task-runner Godot source-bone and painted Sprite2D transforms; independently evaluated director contact sine and quantization",
+  "sample_sha256": "e2538ec0308e3b3f48f109bb0e769ce565858a5d7a2afdb91585dfd16ea8b104",
+  "views": {
+    "front": {
+      "presented_move_frames": 51,
+      "maximum_continuous_angle_error_deg": 7.63464074182707e-07,
+      "maximum_painted_angle_error_deg": 3.016785683485068e-07,
+      "measured_additive_sway_min_deg": -3.9993169124052077,
+      "measured_additive_sway_max_deg": 3.999316238368136
+    },
+    "rear": {
+      "presented_move_frames": 51,
+      "maximum_continuous_angle_error_deg": 7.63464074182707e-07,
+      "maximum_painted_angle_error_deg": 3.016785683485068e-07,
+      "measured_additive_sway_min_deg": -3.999316238368136,
+      "measured_additive_sway_max_deg": 3.9993169124052077
+    }
+  },
+  "test": "test_fresh_godot_flap_sway_in_both_views",
+  "historical_mutation": "Feedback 2 disabling Godot sway failed the test; source restored exactly; feedback 3 positive sampling repeated",
+  "native_pixels": false
+}

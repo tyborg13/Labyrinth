@@ -4,6 +4,25 @@ extends RefCounted
 ## offsets. The hero's projected basis preserves width, including oblique bones.
 const Tracks = preload("motion.gd")
 const EPSILON: float = 0.000001
+const FLAP_SWAY_RAMP_FRACTION: float = 0.12 # Director feedback 1, rr30.
+
+static func flap_sway(definition: Dictionary, phase: float) -> float:
+	var gait: Dictionary = definition.get("gait", {})
+	if not gait.has("flap_sway"): return 0.0
+	var sway: Dictionary = gait["flap_sway"]
+	var delayed: float = maxf(0.0, phase - float(sway["lag_s"]) / float(definition["seconds"]))
+	var n: int = int(gait["steps_per_tile"]) - 1
+	var contact: float = float(gait["stance_fraction"]) / float(n)
+	var start: float = 0.0
+	var cycle: float = 0.0
+	for step: int in range(1, n + 2):
+		var end: float = float(step) / float(n) - contact if step <= n else 1.0
+		if delayed <= end:
+			cycle = (delayed - start) / (end - start)
+			break
+		start = end
+	var ramp: float = minf(1.0, minf(maxf(0.0, phase / FLAP_SWAY_RAMP_FRACTION), maxf(0.0, (1.0 - phase) / FLAP_SWAY_RAMP_FRACTION)))
+	return float(sway["deg"]) * sin(TAU * cycle) * ramp * ramp * (3.0 - 2.0 * ramp)
 
 static func value_at(keys: Array, phase: float) -> float:
 	for index: int in range(1, keys.size()):

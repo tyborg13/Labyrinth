@@ -1,0 +1,2029 @@
+{
+  "version": 2,
+  "rig": "humanoid_v2",
+  "facing": "rear",
+  "canvas_size": [
+    255,
+    255
+  ],
+  "joints": {
+    "root": {
+      "position": [
+        124.75,
+        229.96
+      ],
+      "parent": null
+    },
+    "pelvis": {
+      "position": [
+        118.0,
+        154.5
+      ],
+      "parent": "root"
+    },
+    "torso": {
+      "position": [
+        118.0,
+        120.5
+      ],
+      "parent": "pelvis"
+    },
+    "head": {
+      "position": [
+        137.6775,
+        87.16
+      ],
+      "parent": "torso"
+    },
+    "mortar": {
+      "position": [
+        107.025,
+        113.5
+      ],
+      "parent": "torso"
+    },
+    "upper_near": {
+      "position": [
+        81.6075,
+        102.5
+      ],
+      "parent": "torso"
+    },
+    "fore_near": {
+      "position": [
+        59.08,
+        137.5
+      ],
+      "parent": "upper_near"
+    },
+    "hand_near": {
+      "position": [
+        56.19,
+        170.5
+      ],
+      "parent": "fore_near"
+    },
+    "thigh_near": {
+      "position": [
+        94.895,
+        157.5
+      ],
+      "parent": "pelvis"
+    },
+    "shin_near": {
+      "position": [
+        89.1175,
+        181.5
+      ],
+      "parent": "thigh_near"
+    },
+    "foot_near": {
+      "position": [
+        83.34,
+        208.5
+      ],
+      "parent": "shin_near"
+    },
+    "upper_far": {
+      "position": [
+        160.17,
+        112.7
+      ],
+      "parent": "torso"
+    },
+    "fore_far": {
+      "position": [
+        179.8125,
+        146.5
+      ],
+      "parent": "upper_far"
+    },
+    "hand_far": {
+      "position": [
+        193.675,
+        187.5
+      ],
+      "parent": "fore_far"
+    },
+    "thigh_far": {
+      "position": [
+        143.9975,
+        163.5
+      ],
+      "parent": "pelvis"
+    },
+    "shin_far": {
+      "position": [
+        151.505,
+        190.5
+      ],
+      "parent": "thigh_far"
+    },
+    "foot_far": {
+      "position": [
+        151.505,
+        228.5
+      ],
+      "parent": "shin_far"
+    },
+    "belt": {
+      "position": [
+        118.0,
+        154.5
+      ],
+      "parent": "pelvis"
+    },
+    "flap": {
+      "position": [
+        114,
+        155
+      ],
+      "parent": "belt"
+    }
+  },
+  "parts": [
+    {
+      "name": "head",
+      "file": "pieces/rear/head.png",
+      "offset": [
+        127,
+        37
+      ],
+      "bbox": [
+        127,
+        37,
+        168,
+        96
+      ],
+      "presentation_anchor": [
+        130,
+        40
+      ],
+      "continuation_source_bbox": [
+        130,
+        40,
+        165,
+        93
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "head",
+      "z_index": 28,
+      "logical_part": "head",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_head",
+      "file": "pieces/rear/hidden_head.png",
+      "offset": [
+        124,
+        39
+      ],
+      "bbox": [
+        124,
+        39,
+        166,
+        101
+      ],
+      "presentation_anchor": [
+        130,
+        40
+      ],
+      "continuation_source_bbox": [
+        127,
+        42,
+        163,
+        98
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "head",
+      "z_index": -20,
+      "logical_part": "head",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "torso",
+      "file": "pieces/rear/torso.png",
+      "offset": [
+        85,
+        84
+      ],
+      "bbox": [
+        85,
+        84,
+        164,
+        148
+      ],
+      "presentation_anchor": [
+        88,
+        87
+      ],
+      "continuation_source_bbox": [
+        88,
+        87,
+        161,
+        145
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "torso",
+      "z_index": 24,
+      "logical_part": "torso",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_torso",
+      "file": "pieces/rear/hidden_torso.png",
+      "offset": [
+        82,
+        77
+      ],
+      "bbox": [
+        82,
+        77,
+        184,
+        161
+      ],
+      "presentation_anchor": [
+        88,
+        87
+      ],
+      "continuation_source_bbox": [
+        85,
+        80,
+        181,
+        158
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "torso",
+      "z_index": -10,
+      "logical_part": "torso",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "mortar",
+      "file": "pieces/rear/mortar.png",
+      "offset": [
+        36,
+        22
+      ],
+      "bbox": [
+        36,
+        22,
+        134,
+        113
+      ],
+      "presentation_anchor": [
+        36,
+        22
+      ],
+      "continuation_source_bbox": [
+        36,
+        22,
+        134,
+        113
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "mortar",
+      "z_index": 32,
+      "logical_part": "mortar",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_mortar",
+      "file": "pieces/rear/hidden_mortar.png",
+      "offset": [
+        54,
+        40
+      ],
+      "bbox": [
+        54,
+        40,
+        140,
+        124
+      ],
+      "presentation_anchor": [
+        36,
+        22
+      ],
+      "continuation_source_bbox": [
+        57,
+        43,
+        137,
+        121
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "mortar",
+      "z_index": -19,
+      "logical_part": "mortar",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "pelvis",
+      "file": "pieces/rear/pelvis.png",
+      "offset": [
+        80,
+        124
+      ],
+      "bbox": [
+        80,
+        124,
+        158,
+        178
+      ],
+      "presentation_anchor": [
+        83,
+        127
+      ],
+      "continuation_source_bbox": [
+        83,
+        127,
+        155,
+        175
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "pelvis",
+      "z_index": 20,
+      "logical_part": "pelvis",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_pelvis",
+      "file": "pieces/rear/hidden_pelvis.png",
+      "offset": [
+        78,
+        111
+      ],
+      "bbox": [
+        78,
+        111,
+        164,
+        184
+      ],
+      "presentation_anchor": [
+        83,
+        127
+      ],
+      "continuation_source_bbox": [
+        81,
+        114,
+        161,
+        181
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "pelvis",
+      "z_index": -1,
+      "logical_part": "pelvis",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0,
+      "continuation_min_luma": 20.419999999999998
+    },
+    {
+      "name": "belt",
+      "file": "pieces/rear/belt.png",
+      "offset": [
+        80,
+        137
+      ],
+      "bbox": [
+        80,
+        137,
+        157,
+        164
+      ],
+      "presentation_anchor": [
+        83,
+        140
+      ],
+      "continuation_source_bbox": [
+        83,
+        140,
+        154,
+        161
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "belt",
+      "z_index": 13,
+      "logical_part": "belt",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_belt",
+      "file": "pieces/rear/hidden_belt.png",
+      "offset": [
+        83,
+        133
+      ],
+      "bbox": [
+        83,
+        133,
+        160,
+        168
+      ],
+      "presentation_anchor": [
+        83,
+        140
+      ],
+      "continuation_source_bbox": [
+        86,
+        136,
+        157,
+        165
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "belt",
+      "z_index": -2,
+      "logical_part": "belt",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "flap",
+      "file": "pieces/rear/flap.png",
+      "offset": [
+        91,
+        155
+      ],
+      "bbox": [
+        91,
+        155,
+        141,
+        203
+      ],
+      "presentation_anchor": [
+        94,
+        158
+      ],
+      "continuation_source_bbox": [
+        94,
+        158,
+        138,
+        200
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "flap",
+      "z_index": 12,
+      "logical_part": "flap",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_flap",
+      "file": "pieces/rear/hidden_flap.png",
+      "offset": [
+        87,
+        151
+      ],
+      "bbox": [
+        87,
+        151,
+        145,
+        165
+      ],
+      "presentation_anchor": [
+        94,
+        158
+      ],
+      "continuation_source_bbox": [
+        90,
+        154,
+        142,
+        162
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "flap",
+      "z_index": -3,
+      "logical_part": "flap",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "bracer_near",
+      "file": "pieces/rear/bracer_near.png",
+      "offset": [
+        32,
+        124
+      ],
+      "bbox": [
+        32,
+        124,
+        80,
+        166
+      ],
+      "presentation_anchor": [
+        35,
+        127
+      ],
+      "continuation_source_bbox": [
+        35,
+        127,
+        77,
+        163
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "fore_near",
+      "z_index": 15,
+      "logical_part": "bracer_near",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_bracer_near",
+      "file": "pieces/rear/hidden_bracer_near.png",
+      "offset": [
+        32,
+        131
+      ],
+      "bbox": [
+        32,
+        131,
+        81,
+        170
+      ],
+      "presentation_anchor": [
+        35,
+        127
+      ],
+      "continuation_source_bbox": [
+        35,
+        134,
+        78,
+        167
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "fore_near",
+      "z_index": -17,
+      "logical_part": "bracer_near",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "bracer_far",
+      "file": "pieces/rear/bracer_far.png",
+      "offset": [
+        169,
+        144
+      ],
+      "bbox": [
+        169,
+        144,
+        215,
+        188
+      ],
+      "presentation_anchor": [
+        172,
+        147
+      ],
+      "continuation_source_bbox": [
+        172,
+        147,
+        212,
+        185
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "fore_far",
+      "z_index": 27,
+      "logical_part": "bracer_far",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_bracer_far",
+      "file": "pieces/rear/hidden_bracer_far.png",
+      "offset": [
+        167,
+        140
+      ],
+      "bbox": [
+        167,
+        140,
+        218,
+        192
+      ],
+      "presentation_anchor": [
+        172,
+        147
+      ],
+      "continuation_source_bbox": [
+        170,
+        143,
+        215,
+        189
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "fore_far",
+      "z_index": -13,
+      "logical_part": "bracer_far",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "upper_near",
+      "file": "pieces/rear/upper_near.png",
+      "offset": [
+        44,
+        109
+      ],
+      "bbox": [
+        44,
+        109,
+        90,
+        139
+      ],
+      "presentation_anchor": [
+        44,
+        109
+      ],
+      "continuation_source_bbox": [
+        44,
+        109,
+        90,
+        139
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "upper_near",
+      "z_index": 22,
+      "logical_part": "upper_near",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_upper_near",
+      "file": "pieces/rear/hidden_upper_near.png",
+      "offset": [
+        55,
+        103
+      ],
+      "bbox": [
+        55,
+        103,
+        96,
+        150
+      ],
+      "presentation_anchor": [
+        44,
+        109
+      ],
+      "continuation_source_bbox": [
+        58,
+        106,
+        93,
+        147
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "upper_near",
+      "z_index": -15,
+      "logical_part": "upper_near",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "fore_near",
+      "file": "pieces/rear/fore_near.png",
+      "offset": [
+        70,
+        131
+      ],
+      "bbox": [
+        70,
+        131,
+        81,
+        142
+      ],
+      "presentation_anchor": [
+        73,
+        134
+      ],
+      "continuation_source_bbox": [
+        73,
+        134,
+        78,
+        139
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "fore_near",
+      "z_index": 14,
+      "logical_part": "fore_near",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_fore_near",
+      "file": "pieces/rear/hidden_fore_near.png",
+      "offset": [
+        34,
+        127
+      ],
+      "bbox": [
+        34,
+        127,
+        80,
+        164
+      ],
+      "presentation_anchor": [
+        73,
+        134
+      ],
+      "continuation_source_bbox": [
+        37,
+        130,
+        77,
+        161
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "fore_near",
+      "z_index": -16,
+      "logical_part": "fore_near",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hand_near",
+      "file": "pieces/rear/hand_near.png",
+      "offset": [
+        31,
+        147
+      ],
+      "bbox": [
+        31,
+        147,
+        76,
+        184
+      ],
+      "presentation_anchor": [
+        34,
+        150
+      ],
+      "continuation_source_bbox": [
+        34,
+        150,
+        73,
+        181
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "hand_near",
+      "z_index": 4,
+      "logical_part": "hand_near",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_hand_near",
+      "file": "pieces/rear/hidden_hand_near.png",
+      "offset": [
+        32,
+        143
+      ],
+      "bbox": [
+        32,
+        143,
+        74,
+        166
+      ],
+      "presentation_anchor": [
+        34,
+        150
+      ],
+      "continuation_source_bbox": [
+        35,
+        146,
+        71,
+        163
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "hand_near",
+      "z_index": -18,
+      "logical_part": "hand_near",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "thigh_near",
+      "file": "pieces/rear/thigh_near.png",
+      "offset": [
+        69,
+        150
+      ],
+      "bbox": [
+        69,
+        150,
+        105,
+        194
+      ],
+      "presentation_anchor": [
+        72,
+        153
+      ],
+      "continuation_source_bbox": [
+        72,
+        153,
+        102,
+        191
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "thigh_near",
+      "z_index": 6,
+      "logical_part": "thigh_near",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_thigh_near",
+      "file": "pieces/rear/hidden_thigh_near.png",
+      "offset": [
+        69,
+        151
+      ],
+      "bbox": [
+        69,
+        151,
+        135,
+        204
+      ],
+      "presentation_anchor": [
+        72,
+        153
+      ],
+      "continuation_source_bbox": [
+        72,
+        154,
+        132,
+        201
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "thigh_near",
+      "z_index": -7,
+      "logical_part": "thigh_near",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "shin_near",
+      "file": "pieces/rear/shin_near.png",
+      "offset": [
+        64,
+        187
+      ],
+      "bbox": [
+        64,
+        187,
+        103,
+        214
+      ],
+      "presentation_anchor": [
+        64,
+        187
+      ],
+      "continuation_source_bbox": [
+        64,
+        187,
+        103,
+        214
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "shin_near",
+      "z_index": 2,
+      "logical_part": "shin_near",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_shin_near",
+      "file": "pieces/rear/hidden_shin_near.png",
+      "offset": [
+        62,
+        178
+      ],
+      "bbox": [
+        62,
+        178,
+        105,
+        217
+      ],
+      "presentation_anchor": [
+        64,
+        187
+      ],
+      "continuation_source_bbox": [
+        65,
+        181,
+        102,
+        214
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "shin_near",
+      "z_index": -8,
+      "logical_part": "shin_near",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "foot_near",
+      "file": "pieces/rear/foot_near.png",
+      "offset": [
+        62,
+        199
+      ],
+      "bbox": [
+        62,
+        199,
+        106,
+        217
+      ],
+      "presentation_anchor": [
+        65,
+        202
+      ],
+      "continuation_source_bbox": [
+        65,
+        202,
+        103,
+        214
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "foot_near",
+      "z_index": 0,
+      "logical_part": "foot_near",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_foot_near",
+      "file": "pieces/rear/hidden_foot_near.png",
+      "offset": [
+        61,
+        195
+      ],
+      "bbox": [
+        61,
+        195,
+        104,
+        217
+      ],
+      "presentation_anchor": [
+        65,
+        202
+      ],
+      "continuation_source_bbox": [
+        64,
+        198,
+        101,
+        214
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "foot_near",
+      "z_index": -9,
+      "logical_part": "foot_near",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "upper_far",
+      "file": "pieces/rear/upper_far.png",
+      "offset": [
+        122,
+        92
+      ],
+      "bbox": [
+        122,
+        92,
+        201,
+        146
+      ],
+      "presentation_anchor": [
+        123,
+        93
+      ],
+      "continuation_source_bbox": [
+        123,
+        93,
+        200,
+        145
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "upper_far",
+      "z_index": 30,
+      "logical_part": "upper_far",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_upper_far",
+      "file": "pieces/rear/hidden_upper_far.png",
+      "offset": [
+        109,
+        80
+      ],
+      "bbox": [
+        109,
+        80,
+        210,
+        165
+      ],
+      "presentation_anchor": [
+        123,
+        93
+      ],
+      "continuation_source_bbox": [
+        119,
+        90,
+        200,
+        155
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "upper_far",
+      "z_index": -11,
+      "logical_part": "upper_far",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "fore_far",
+      "file": "pieces/rear/fore_far.png",
+      "offset": [
+        164,
+        134
+      ],
+      "bbox": [
+        164,
+        134,
+        220,
+        190
+      ],
+      "presentation_anchor": [
+        167,
+        137
+      ],
+      "continuation_source_bbox": [
+        167,
+        137,
+        217,
+        187
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "fore_far",
+      "z_index": 26,
+      "logical_part": "fore_far",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_fore_far",
+      "file": "pieces/rear/hidden_fore_far.png",
+      "offset": [
+        164,
+        132
+      ],
+      "bbox": [
+        164,
+        132,
+        221,
+        196
+      ],
+      "presentation_anchor": [
+        167,
+        137
+      ],
+      "continuation_source_bbox": [
+        167,
+        135,
+        218,
+        193
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "fore_far",
+      "z_index": -12,
+      "logical_part": "fore_far",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hand_far",
+      "file": "pieces/rear/hand_far.png",
+      "offset": [
+        174,
+        180
+      ],
+      "bbox": [
+        174,
+        180,
+        225,
+        215
+      ],
+      "presentation_anchor": [
+        177,
+        183
+      ],
+      "continuation_source_bbox": [
+        177,
+        183,
+        222,
+        212
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "hand_far",
+      "z_index": 18,
+      "logical_part": "hand_far",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_hand_far",
+      "file": "pieces/rear/hidden_hand_far.png",
+      "offset": [
+        179,
+        175
+      ],
+      "bbox": [
+        179,
+        175,
+        220,
+        190
+      ],
+      "presentation_anchor": [
+        177,
+        183
+      ],
+      "continuation_source_bbox": [
+        182,
+        178,
+        217,
+        187
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "hand_far",
+      "z_index": -14,
+      "logical_part": "hand_far",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "thigh_far",
+      "file": "pieces/rear/thigh_far.png",
+      "offset": [
+        132,
+        146
+      ],
+      "bbox": [
+        132,
+        146,
+        173,
+        198
+      ],
+      "presentation_anchor": [
+        135,
+        149
+      ],
+      "continuation_source_bbox": [
+        135,
+        149,
+        170,
+        195
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "thigh_far",
+      "z_index": 16,
+      "logical_part": "thigh_far",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_thigh_far",
+      "file": "pieces/rear/hidden_thigh_far.png",
+      "offset": [
+        108,
+        144
+      ],
+      "bbox": [
+        108,
+        144,
+        175,
+        211
+      ],
+      "presentation_anchor": [
+        135,
+        149
+      ],
+      "continuation_source_bbox": [
+        111,
+        147,
+        172,
+        208
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "thigh_far",
+      "z_index": -4,
+      "logical_part": "thigh_far",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "shin_far",
+      "file": "pieces/rear/shin_far.png",
+      "offset": [
+        133,
+        187
+      ],
+      "bbox": [
+        133,
+        187,
+        175,
+        237
+      ],
+      "presentation_anchor": [
+        136,
+        190
+      ],
+      "continuation_source_bbox": [
+        136,
+        190,
+        172,
+        234
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "shin_far",
+      "z_index": 10,
+      "logical_part": "shin_far",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_shin_far",
+      "file": "pieces/rear/hidden_shin_far.png",
+      "offset": [
+        130,
+        183
+      ],
+      "bbox": [
+        130,
+        183,
+        181,
+        245
+      ],
+      "presentation_anchor": [
+        136,
+        190
+      ],
+      "continuation_source_bbox": [
+        133,
+        186,
+        178,
+        242
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "shin_far",
+      "z_index": -5,
+      "logical_part": "shin_far",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "foot_far",
+      "file": "pieces/rear/foot_far.png",
+      "offset": [
+        134,
+        213
+      ],
+      "bbox": [
+        134,
+        213,
+        196,
+        249
+      ],
+      "presentation_anchor": [
+        137,
+        216
+      ],
+      "continuation_source_bbox": [
+        137,
+        216,
+        193,
+        246
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "foot_far",
+      "z_index": 8,
+      "logical_part": "foot_far",
+      "hidden_material": false,
+      "declared_uniform_scale": 1.0
+    },
+    {
+      "name": "hidden_foot_far",
+      "file": "pieces/rear/hidden_foot_far.png",
+      "offset": [
+        136,
+        210
+      ],
+      "bbox": [
+        136,
+        210,
+        174,
+        237
+      ],
+      "presentation_anchor": [
+        137,
+        216
+      ],
+      "continuation_source_bbox": [
+        139,
+        213,
+        171,
+        234
+      ],
+      "continuation_quad_padding_px": 3,
+      "bone": "foot_far",
+      "z_index": -6,
+      "logical_part": "foot_far",
+      "hidden_material": true,
+      "declared_uniform_scale": 1.0
+    }
+  ],
+  "joint_meshes": [],
+  "idle_groups": {
+    "upper_body": [
+      "torso",
+      "head",
+      "upper_near",
+      "fore_near",
+      "hand_near",
+      "bracer_near",
+      "upper_far",
+      "fore_far",
+      "hand_far",
+      "bracer_far"
+    ],
+    "weapon_arm": [
+      "mortar"
+    ],
+    "lower_body": [
+      "pelvis",
+      "belt",
+      "flap",
+      "thigh_near",
+      "shin_near",
+      "foot_near",
+      "thigh_far",
+      "shin_far",
+      "foot_far"
+    ]
+  },
+  "held_items": {
+    "mortar": {
+      "hand": "mortar",
+      "floor_end": [
+        107.025,
+        113.5
+      ]
+    }
+  },
+  "ik_chains": [],
+  "planted_bones": [
+    "foot_near",
+    "foot_far"
+  ],
+  "source_labels": {
+    "head": [
+      "head"
+    ],
+    "torso": [
+      "torso"
+    ],
+    "mortar": [
+      "mortar"
+    ],
+    "pelvis": [
+      "pelvis"
+    ],
+    "belt": [
+      "belt"
+    ],
+    "flap": [
+      "flap"
+    ],
+    "bracer_near": [
+      "bracer_near"
+    ],
+    "bracer_far": [
+      "bracer_far"
+    ],
+    "upper_near": [
+      "upper_near"
+    ],
+    "fore_near": [
+      "fore_near"
+    ],
+    "hand_near": [
+      "hand_near"
+    ],
+    "thigh_near": [
+      "thigh_near"
+    ],
+    "shin_near": [
+      "shin_near"
+    ],
+    "foot_near": [
+      "foot_near"
+    ],
+    "upper_far": [
+      "upper_far"
+    ],
+    "fore_far": [
+      "fore_far"
+    ],
+    "hand_far": [
+      "hand_far"
+    ],
+    "thigh_far": [
+      "thigh_far"
+    ],
+    "shin_far": [
+      "shin_far"
+    ],
+    "foot_far": [
+      "foot_far"
+    ]
+  },
+  "features": [
+    {
+      "name": "molten_slag",
+      "piece": "mortar",
+      "mask": "features/rear_molten_slag.png",
+      "bone": "mortar"
+    }
+  ],
+  "proof_layers": {
+    "head": {
+      "mask": "checks/rear/head.png",
+      "mask_offset": [
+        127,
+        37
+      ],
+      "z_index": 28,
+      "source": "pieces/rear/head.png",
+      "rigid": true,
+      "source_sha256": "fb38a68ef2bab3f7fa2698130e2ddcf4b97c82fb0b7ee3682b0b4677351bcfa6"
+    },
+    "hidden_head": {
+      "mask": "checks/rear/hidden_head.png",
+      "mask_offset": [
+        124,
+        39
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_head.png",
+      "rigid": true,
+      "source_sha256": "1043e0d10867849a93d1d8e7b289727d00a97234be16f33bbdc3ec73f0a07fc4"
+    },
+    "torso": {
+      "mask": "checks/rear/torso.png",
+      "mask_offset": [
+        85,
+        84
+      ],
+      "z_index": 24,
+      "source": "pieces/rear/torso.png",
+      "rigid": true,
+      "source_sha256": "8081ccbeea5bd42f03e6e9f68d74751a16ae88868979af655c4fcfe41567bccd"
+    },
+    "hidden_torso": {
+      "mask": "checks/rear/hidden_torso.png",
+      "mask_offset": [
+        82,
+        77
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_torso.png",
+      "rigid": true,
+      "source_sha256": "0091d91c5e027d6bbe9db12b9f6a7ac2e9b9bc3b88ec11a06e207a4c1b570a5b"
+    },
+    "mortar": {
+      "mask": "checks/rear/mortar.png",
+      "mask_offset": [
+        36,
+        22
+      ],
+      "z_index": 32,
+      "source": "pieces/rear/mortar.png",
+      "rigid": true,
+      "source_sha256": "cea0b351ebace98d8779bb5261bb3fb308eaeb9bf4581ae5d32ec32e8a2128b6"
+    },
+    "hidden_mortar": {
+      "mask": "checks/rear/hidden_mortar.png",
+      "mask_offset": [
+        54,
+        40
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_mortar.png",
+      "rigid": true,
+      "source_sha256": "67fceff10cb72f62946267ad118177c885a595750a619878d05f9960d0b33867"
+    },
+    "pelvis": {
+      "mask": "checks/rear/pelvis.png",
+      "mask_offset": [
+        80,
+        124
+      ],
+      "z_index": 20,
+      "source": "pieces/rear/pelvis.png",
+      "rigid": true,
+      "source_sha256": "c335a12dd58bd3ac4aa0fa6651ea5ed5aa73843cfb86b155cb3bf1bd339e0fe4"
+    },
+    "hidden_pelvis": {
+      "mask": "checks/rear/hidden_pelvis.png",
+      "mask_offset": [
+        78,
+        111
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_pelvis.png",
+      "rigid": true,
+      "source_sha256": "8f219aced907a4bfb4be647f3a7a9ef8a9f018f466efb3a314937f7fd92090b3"
+    },
+    "belt": {
+      "mask": "checks/rear/belt.png",
+      "mask_offset": [
+        80,
+        137
+      ],
+      "z_index": 13,
+      "source": "pieces/rear/belt.png",
+      "rigid": true,
+      "source_sha256": "0c5bb0e1664caf5f3b7fff3b63dcd9380140e71206deff00aa0ca7768bab3bc8"
+    },
+    "hidden_belt": {
+      "mask": "checks/rear/hidden_belt.png",
+      "mask_offset": [
+        83,
+        133
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_belt.png",
+      "rigid": true,
+      "source_sha256": "1766f7374178ef571dc89a65270a6ab3c59002fe2148de680244d58e868c05e5"
+    },
+    "flap": {
+      "mask": "checks/rear/flap.png",
+      "mask_offset": [
+        91,
+        155
+      ],
+      "z_index": 12,
+      "source": "pieces/rear/flap.png",
+      "rigid": true,
+      "source_sha256": "9473cddaccc5006ec40534279e4e7217e57fada21774299426ad5fb2003e0d00"
+    },
+    "hidden_flap": {
+      "mask": "checks/rear/hidden_flap.png",
+      "mask_offset": [
+        87,
+        151
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_flap.png",
+      "rigid": true,
+      "source_sha256": "3ce63f99dad033c314ff302701e71de59a3fe1bc75b504697a20fd8b6f228ce3"
+    },
+    "bracer_near": {
+      "mask": "checks/rear/bracer_near.png",
+      "mask_offset": [
+        32,
+        124
+      ],
+      "z_index": 15,
+      "source": "pieces/rear/bracer_near.png",
+      "rigid": true,
+      "source_sha256": "bf06c12738797d736faacc71a5c23679b8a595d690e7811f3997cdfbbb7a5d83"
+    },
+    "hidden_bracer_near": {
+      "mask": "checks/rear/hidden_bracer_near.png",
+      "mask_offset": [
+        32,
+        131
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_bracer_near.png",
+      "rigid": true,
+      "source_sha256": "17a45694b9d95aac1105fac97e95162fcded959958a1371ac42f6d05f5fd1b04"
+    },
+    "bracer_far": {
+      "mask": "checks/rear/bracer_far.png",
+      "mask_offset": [
+        169,
+        144
+      ],
+      "z_index": 27,
+      "source": "pieces/rear/bracer_far.png",
+      "rigid": true,
+      "source_sha256": "f960e131689dde4184d210d5a30eebe9282af06de4ff19053ad64542f4bd7f60"
+    },
+    "hidden_bracer_far": {
+      "mask": "checks/rear/hidden_bracer_far.png",
+      "mask_offset": [
+        167,
+        140
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_bracer_far.png",
+      "rigid": true,
+      "source_sha256": "f3ad2e9fc0ef4eabc363087f23cd226a183c80a085c16136e0de9ca7a948d809"
+    },
+    "upper_near": {
+      "mask": "checks/rear/upper_near.png",
+      "mask_offset": [
+        44,
+        109
+      ],
+      "z_index": 22,
+      "source": "pieces/rear/upper_near.png",
+      "rigid": true,
+      "source_sha256": "02c91fe5e6fa03985a7094ee3fe3a71e0f142e6e029970b7f32673e56e617453"
+    },
+    "hidden_upper_near": {
+      "mask": "checks/rear/hidden_upper_near.png",
+      "mask_offset": [
+        55,
+        103
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_upper_near.png",
+      "rigid": true,
+      "source_sha256": "433ff1239fdb40a3f818b35f77f45b2d8bd74c9123121a05f39f91fc181f3984"
+    },
+    "fore_near": {
+      "mask": "checks/rear/fore_near.png",
+      "mask_offset": [
+        70,
+        131
+      ],
+      "z_index": 14,
+      "source": "pieces/rear/fore_near.png",
+      "rigid": true,
+      "source_sha256": "8653d71c1b47b3047746d7cc8ff6af833ae164573827ea0a6a8638538cce83c5"
+    },
+    "hidden_fore_near": {
+      "mask": "checks/rear/hidden_fore_near.png",
+      "mask_offset": [
+        34,
+        127
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_fore_near.png",
+      "rigid": true,
+      "source_sha256": "1c6b4adc57f131b989c8c1b359085bf60ad438b685ed4c5eedda86cea903d2e9"
+    },
+    "hand_near": {
+      "mask": "checks/rear/hand_near.png",
+      "mask_offset": [
+        31,
+        147
+      ],
+      "z_index": 4,
+      "source": "pieces/rear/hand_near.png",
+      "rigid": true,
+      "source_sha256": "4c30745a9744c4910eff8615c3e838bfa461ba750f6f846a0df4932a40673b0f"
+    },
+    "hidden_hand_near": {
+      "mask": "checks/rear/hidden_hand_near.png",
+      "mask_offset": [
+        32,
+        143
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_hand_near.png",
+      "rigid": true,
+      "source_sha256": "6371a9b1ee84bf0d6c133910c4a0c5b4b7771380d835a9327d7fe88feb04d1bd"
+    },
+    "thigh_near": {
+      "mask": "checks/rear/thigh_near.png",
+      "mask_offset": [
+        69,
+        150
+      ],
+      "z_index": 6,
+      "source": "pieces/rear/thigh_near.png",
+      "rigid": true,
+      "source_sha256": "ed20640b4f43edd9aff352708618cd832429453af8a8cbbfa67bc6523e940c56"
+    },
+    "hidden_thigh_near": {
+      "mask": "checks/rear/hidden_thigh_near.png",
+      "mask_offset": [
+        69,
+        151
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_thigh_near.png",
+      "rigid": true,
+      "source_sha256": "dee964107c4257635fd824f93cb90522371fa0c3258699345b247095e7b8175d"
+    },
+    "shin_near": {
+      "mask": "checks/rear/shin_near.png",
+      "mask_offset": [
+        64,
+        187
+      ],
+      "z_index": 2,
+      "source": "pieces/rear/shin_near.png",
+      "rigid": true,
+      "source_sha256": "513a4bcbbf652dfece5bde0d8e67779c5e5cdcbd16b7426d9b0d36b5d2d884d7"
+    },
+    "hidden_shin_near": {
+      "mask": "checks/rear/hidden_shin_near.png",
+      "mask_offset": [
+        62,
+        178
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_shin_near.png",
+      "rigid": true,
+      "source_sha256": "2da64fc5d74280d3c030fe8d168212d2878a2f67c74634a27f8040634d1d4a9d"
+    },
+    "foot_near": {
+      "mask": "checks/rear/foot_near.png",
+      "mask_offset": [
+        62,
+        199
+      ],
+      "z_index": 0,
+      "source": "pieces/rear/foot_near.png",
+      "rigid": true,
+      "source_sha256": "90415e94a30f8bd24791bb107d0ffb0b26ff09ae21924b86c852fcd1d7d2fcf4"
+    },
+    "hidden_foot_near": {
+      "mask": "checks/rear/hidden_foot_near.png",
+      "mask_offset": [
+        61,
+        195
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_foot_near.png",
+      "rigid": true,
+      "source_sha256": "84a82566edd3a1838c43ba67c88ba38709f6b85e12aee822898a9cabd26f3958"
+    },
+    "upper_far": {
+      "mask": "checks/rear/upper_far.png",
+      "mask_offset": [
+        122,
+        92
+      ],
+      "z_index": 30,
+      "source": "pieces/rear/upper_far.png",
+      "rigid": true,
+      "source_sha256": "cc5d4ef7f46793da3456bf5edb33095de5465c3753f5278057fb42bdcea94d55"
+    },
+    "hidden_upper_far": {
+      "mask": "checks/rear/hidden_upper_far.png",
+      "mask_offset": [
+        109,
+        80
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_upper_far.png",
+      "rigid": true,
+      "source_sha256": "c886c48fa1004fc4a5553a38f20f8ccb1a090f56923f1e717b86122b4ef437e3"
+    },
+    "fore_far": {
+      "mask": "checks/rear/fore_far.png",
+      "mask_offset": [
+        164,
+        134
+      ],
+      "z_index": 26,
+      "source": "pieces/rear/fore_far.png",
+      "rigid": true,
+      "source_sha256": "c2c050272c68b5390aa5f9c3da8ac574b674518f5914755ebc87fddedd4dd891"
+    },
+    "hidden_fore_far": {
+      "mask": "checks/rear/hidden_fore_far.png",
+      "mask_offset": [
+        164,
+        132
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_fore_far.png",
+      "rigid": true,
+      "source_sha256": "6b2354e5b4e9b42b86ff1ae051fa6eec247205853d9998db83458ce0fd13a566"
+    },
+    "hand_far": {
+      "mask": "checks/rear/hand_far.png",
+      "mask_offset": [
+        174,
+        180
+      ],
+      "z_index": 18,
+      "source": "pieces/rear/hand_far.png",
+      "rigid": true,
+      "source_sha256": "4a752cb6dd24cfc510d2c5b3b39bed09c3acedd287aa06e766ed08e65dedbfc9"
+    },
+    "hidden_hand_far": {
+      "mask": "checks/rear/hidden_hand_far.png",
+      "mask_offset": [
+        179,
+        175
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_hand_far.png",
+      "rigid": true,
+      "source_sha256": "531bf83e51d321090679176b391feb58fc0cc27c90109e92e07414d5e9ab9f55"
+    },
+    "thigh_far": {
+      "mask": "checks/rear/thigh_far.png",
+      "mask_offset": [
+        132,
+        146
+      ],
+      "z_index": 16,
+      "source": "pieces/rear/thigh_far.png",
+      "rigid": true,
+      "source_sha256": "2b3d1dd0d2d827cdd5aa9e3f80af493f3cce587316d06770ef0604ebc1f3c565"
+    },
+    "hidden_thigh_far": {
+      "mask": "checks/rear/hidden_thigh_far.png",
+      "mask_offset": [
+        108,
+        144
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_thigh_far.png",
+      "rigid": true,
+      "source_sha256": "a68535e2801ebbe98f683c1cb276d07949ad7877a9c68255cce824682654986a"
+    },
+    "shin_far": {
+      "mask": "checks/rear/shin_far.png",
+      "mask_offset": [
+        133,
+        187
+      ],
+      "z_index": 10,
+      "source": "pieces/rear/shin_far.png",
+      "rigid": true,
+      "source_sha256": "bc2e1bc70e88c88c6d8df24579eaf27a6633b37f3905f6e4570b14938993ed84"
+    },
+    "hidden_shin_far": {
+      "mask": "checks/rear/hidden_shin_far.png",
+      "mask_offset": [
+        130,
+        183
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_shin_far.png",
+      "rigid": true,
+      "source_sha256": "f2cb24c640e3f661cab2821eb0875423a36cf0b9201d3ae920120257f591bc4c"
+    },
+    "foot_far": {
+      "mask": "checks/rear/foot_far.png",
+      "mask_offset": [
+        134,
+        213
+      ],
+      "z_index": 8,
+      "source": "pieces/rear/foot_far.png",
+      "rigid": true,
+      "source_sha256": "f9283a30666086c3262c1a735202015efbd1638eecfc5470e39f37da5d090e05"
+    },
+    "hidden_foot_far": {
+      "mask": "checks/rear/hidden_foot_far.png",
+      "mask_offset": [
+        136,
+        210
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_foot_far.png",
+      "rigid": true,
+      "source_sha256": "590d2994b23464b00fc27fed57a4a824a1f497c73fb0ef6df6c53de95d6c6939"
+    }
+  },
+  "proof_rest_holes": [],
+  "rest_source": "source/rear/processed.png",
+  "motion_data": "res://experiments/cutouts/slag_mortar/rr30/compiled_motion.json",
+  "proof_joint_seams": [
+    {
+      "name": "JointSeam_head",
+      "owner": "head",
+      "bone": "head",
+      "file": "seams/rear_head.png"
+    },
+    {
+      "name": "JointSeam_torso",
+      "owner": "torso",
+      "bone": "torso",
+      "file": "seams/rear_torso.png"
+    },
+    {
+      "name": "JointSeam_mortar",
+      "owner": "mortar",
+      "bone": "mortar",
+      "file": "seams/rear_mortar.png"
+    },
+    {
+      "name": "JointSeam_pelvis",
+      "owner": "pelvis",
+      "bone": "pelvis",
+      "file": "seams/rear_pelvis.png"
+    },
+    {
+      "name": "JointSeam_belt",
+      "owner": "belt",
+      "bone": "belt",
+      "file": "seams/rear_belt.png"
+    },
+    {
+      "name": "JointSeam_flap",
+      "owner": "flap",
+      "bone": "flap",
+      "file": "seams/rear_flap.png"
+    },
+    {
+      "name": "JointSeam_bracer_near",
+      "owner": "bracer_near",
+      "bone": "fore_near",
+      "file": "seams/rear_bracer_near.png"
+    },
+    {
+      "name": "JointSeam_bracer_far",
+      "owner": "bracer_far",
+      "bone": "fore_far",
+      "file": "seams/rear_bracer_far.png"
+    },
+    {
+      "name": "JointSeam_upper_near",
+      "owner": "upper_near",
+      "bone": "upper_near",
+      "file": "seams/rear_upper_near.png"
+    },
+    {
+      "name": "JointSeam_fore_near",
+      "owner": "fore_near",
+      "bone": "fore_near",
+      "file": "seams/rear_fore_near.png"
+    },
+    {
+      "name": "JointSeam_hand_near",
+      "owner": "hand_near",
+      "bone": "hand_near",
+      "file": "seams/rear_hand_near.png"
+    },
+    {
+      "name": "JointSeam_thigh_near",
+      "owner": "thigh_near",
+      "bone": "thigh_near",
+      "file": "seams/rear_thigh_near.png"
+    },
+    {
+      "name": "JointSeam_shin_near",
+      "owner": "shin_near",
+      "bone": "shin_near",
+      "file": "seams/rear_shin_near.png"
+    },
+    {
+      "name": "JointSeam_foot_near",
+      "owner": "foot_near",
+      "bone": "foot_near",
+      "file": "seams/rear_foot_near.png"
+    },
+    {
+      "name": "JointSeam_upper_far",
+      "owner": "upper_far",
+      "bone": "upper_far",
+      "file": "seams/rear_upper_far.png"
+    },
+    {
+      "name": "JointSeam_fore_far",
+      "owner": "fore_far",
+      "bone": "fore_far",
+      "file": "seams/rear_fore_far.png"
+    },
+    {
+      "name": "JointSeam_hand_far",
+      "owner": "hand_far",
+      "bone": "hand_far",
+      "file": "seams/rear_hand_far.png"
+    },
+    {
+      "name": "JointSeam_thigh_far",
+      "owner": "thigh_far",
+      "bone": "thigh_far",
+      "file": "seams/rear_thigh_far.png"
+    },
+    {
+      "name": "JointSeam_shin_far",
+      "owner": "shin_far",
+      "bone": "shin_far",
+      "file": "seams/rear_shin_far.png"
+    },
+    {
+      "name": "JointSeam_foot_far",
+      "owner": "foot_far",
+      "bone": "foot_far",
+      "file": "seams/rear_foot_far.png"
+    }
+  ],
+  "gait_continuations": {},
+  "gait_leg_scale_max": 1.22
+}

@@ -415,6 +415,9 @@
    "brace": {
     "seconds": 0.9,
     "contact": 0.4,
+    "intents": [
+     "brace:block"
+    ],
     "note": "plants its feet and hunches behind its iron forearms: sinks 3 px, pitches forward 4 degrees with the chin tucked, and pulls both fists 4 px in toward the belly so the bracers close in front of the body; holds; releases",
     "keys": {
      "pelvis.lift_px": [

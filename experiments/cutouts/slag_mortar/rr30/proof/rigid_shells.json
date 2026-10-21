@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "checks": 34480,
+  "physical_pieces": 80,
+  "maximum_rigid_basis_error": 5.670985490091596e-07,
+  "scope": "Every presented rigid sprite transform, both views, every clip, hidden material included",
+  "sample_sha256": "e2538ec0308e3b3f48f109bb0e769ce565858a5d7a2afdb91585dfd16ea8b104"
+}

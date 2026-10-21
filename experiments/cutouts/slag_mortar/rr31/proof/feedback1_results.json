@@ -1,0 +1,78 @@
+{
+  "status": "STOP_overlap",
+  "requirements": {
+    "1": {
+      "status": "measured",
+      "frames": 3016,
+      "rigs": [
+        "hoarfrost_seer",
+        "arc_thrall",
+        "glacial_mirror",
+        "hollow_mimic"
+      ],
+      "hero": "Protagonist uses its own rig/motion, cape and equipment schema; no humanoid_v2 ownership/joint zones."
+    },
+    "2": {
+      "status": "STOP_overlap",
+      "torn_rejected": 3,
+      "torn_total": 6,
+      "overlap_frames": [
+        "front/brace20",
+        "rear/brace20",
+        "rear/death78"
+      ],
+      "thresholds_installed": false
+    },
+    "3": {
+      "status": "not_run_at_director_stop",
+      "budget_todos": "Prior 47 findings withdrawn; no calibrated budget violations asserted."
+    },
+    "4": {
+      "status": "traced_not_repaired",
+      "observations": 11,
+      "inverse_raster_disagreements": 11,
+      "reason": "All flagged visible source texels remain present; the inverse and fixed-grid raster select adjacent texels. Missing construction paint not established; no source edit or exemption made."
+    },
+    "5": {
+      "status": "preserved",
+      "player_facing_changes": false,
+      "full_suites_run": false
+    }
+  },
+  "calibration_sha256": "00aea0e973119ee9db10ffe75e72e297892f98941edbf5e9d7dbf0d0575e8c9a",
+  "seam_observations_sha256": "b61673d217d15465c629200495bd3e573474c12c350bee0b5313eea438e6bd16",
+  "tests": {
+    "calibration": "Ran 8 tests in 0.599s\nOK",
+    "image_gates": "Ran 14 tests in 2.388s\nOK",
+    "mortar": "Ran 10 tests in 11.532s\nOK"
+  },
+  "samplers": {
+    "hoarfrost_seer": "RR10 BONE SAMPLES: PASS (1258 poses; headless transforms only)",
+    "arc_thrall": "RR10 BONE SAMPLES: PASS (1050 poses; headless transforms only)",
+    "glacial_mirror": "RR10 BONE SAMPLES: PASS (968 poses; headless transforms only)",
+    "hollow_mimic": "RR29 BONE SAMPLES: PASS (1008 poses; headless transforms only)",
+    "slag_mortar": "RR10 BONE SAMPLES: PASS (1214 poses; headless transforms only)"
+  },
+  "current_native_frames": "Not run; no window-server access. Calibrated new-motion sweep stopped at overlap.",
+  "defaults": "feedback1_defaults.json",
+  "design_todos_current": [],
+  "open_issues": [
+    "No threshold set separates all six native negatives.",
+    "Eleven seam observations retained, with exact source/raster attribution."
+  ],
+  "preservation": {
+    "result": "RR31 FEEDBACK1 PRESERVATION: PASS (production, construction, motion, identity and density unchanged from HEAD)",
+    "paths": [
+      "assets/units/slag_mortar_cutout",
+      "spec/peer_benchmark/staged/rr-31/motion_tracks.json",
+      "experiments/cutouts/slag_mortar/rr30/layouts",
+      "experiments/cutouts/slag_mortar/rr30/pieces",
+      "experiments/cutouts/slag_mortar/rr30/source",
+      "experiments/cutouts/slag_mortar/rr30/director_motion.json",
+      "experiments/cutouts/slag_mortar/rr30/compiled_motion.json",
+      "spec/art_identity/registry.json",
+      "spec/assets/board_pixel_density/registry.json",
+      "spec/assets/board_pixel_density/outputs.json"
+    ]
+  }
+}

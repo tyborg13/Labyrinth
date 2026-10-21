@@ -1,0 +1,26 @@
+[
+  {
+    "ok": true,
+    "clip": "lob",
+    "frame": 0,
+    "maximum_visible_cover_distance_px": 0.0,
+    "cover_errors": [],
+    "dark_errors": []
+  },
+  {
+    "ok": true,
+    "clip": "lob",
+    "frame": 16,
+    "maximum_visible_cover_distance_px": 2.9624318582366294,
+    "cover_errors": [],
+    "dark_errors": []
+  },
+  {
+    "ok": true,
+    "clip": "lob",
+    "frame": 32,
+    "maximum_visible_cover_distance_px": 2.9940602956420515,
+    "cover_errors": [],
+    "dark_errors": []
+  }
+]

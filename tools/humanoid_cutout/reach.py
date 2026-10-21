@@ -23,11 +23,11 @@ def proven_linear(tracks, start, end):
     """
     for track in tracks:
         channel, keys = track['channel'], track['keys']
-        if channel not in (*POSITION_CHANNELS, 'lean_deg'):
+        if channel not in (*POSITION_CHANNELS, 'lean_deg', 'swing_deg'):
             continue
         if evaluate(keys, start) == evaluate(keys, end):
             continue
-        if channel == 'lean_deg':
+        if channel in ('lean_deg', 'swing_deg'):
             return False
         middle = (start + end) / 2.
         interpolation = next(b['interpolation'] for a, b in zip(keys, keys[1:])
@@ -106,6 +106,8 @@ def world_bounds(layout, data, view, clip, forward, step, start, end):
         origin[0] = _add(origin[0], _multiply(_point(inward_sign), channels.get('inward_px', zero)))
         origin[1] = _add(origin[1], _negative(channels.get('lift_px', zero)))
         local_angle = _multiply(channels.get('lean_deg', zero), _point(math.pi / 180.))
+        if 'swing_deg' in channels:
+            local_angle = _multiply(_add(channels.get('lean_deg', zero), channels['swing_deg']), _point(math.pi / 180.))
         if parent:
             parent_position, parent_angle = visit(parent)
             cosine, sine = _trig_bounds(parent_angle, math.cos), _trig_bounds(parent_angle, math.sin)

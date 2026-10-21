@@ -1,0 +1,48 @@
+{
+  "accepted_head": "e9aadfc32f31a93821a0c9f22463a45720af178f",
+  "calibration": {
+    "before_bytes": 27622307,
+    "before_sha256": "291471a6a4684c1b68624b22e6bac6ce18f01c620572125a19b8126b28bfb9c3",
+    "operational_bytes": 596864,
+    "operational_sha256": "67c39cbf2da8e08adf6f239ed07fb45e3b637fab16cf45f8f27ff08db4b230b0",
+    "gzip_bytes": 391329,
+    "gzip_sha256": "28465beeb1a429e6e51333b05cd1b070dd9084a58366f0849bb4c336cb5831e9",
+    "combined_bytes": 988193,
+    "reduction_percent": 96.42248201788503,
+    "operational_fields_unchanged": true,
+    "evidence_lossless": true,
+    "unique_cut_texels": 11911,
+    "evidence_rows": {
+      "front": 5519,
+      "rear": 4762
+    },
+    "evidence_texel_occurrences": {
+      "front": 252239,
+      "rear": 183641
+    },
+    "regeneration_byte_identical": true
+  },
+  "runtime": {
+    "files": 217,
+    "before_inventory_sha256": "6bb754f66588a9911ed2977a7cf10b479d8b2c58e69ffd054a9ce17a6375c48e",
+    "after_inventory_sha256": "6bb754f66588a9911ed2977a7cf10b479d8b2c58e69ffd054a9ce17a6375c48e",
+    "accepted_head_inventory_sha256": "6bb754f66588a9911ed2977a7cf10b479d8b2c58e69ffd054a9ce17a6375c48e",
+    "changed": [],
+    "added": [],
+    "removed": [],
+    "all_match_accepted_head": true
+  },
+  "motion": {
+    "imports_byte_identical": true,
+    "compiles_byte_identical": true,
+    "director_sha256": "f8351c6a1a6bbb5eda7796c3ec030064de2df869e21c303b353aea9bfaaac6a2",
+    "compiled_sha256": "66f1e8d6b0fe380f93ddfa84c66d2dada777f1165943df77740a96e0ca88cc8a"
+  },
+  "native_bindings_unchanged": true,
+  "chosen_defaults": {
+    "evidence_gzip_level": 9,
+    "evidence_gzip_mtime": 0
+  },
+  "TODO_DESIGN": {},
+  "windowed_runs": 0
+}

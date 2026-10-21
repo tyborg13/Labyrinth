@@ -1,0 +1,13 @@
+logs/
+contact_sheets/
+seam_cpu/
+native/
+native_rest/
+production_native/
+idle_native/
+gait_move_native/
+*.mp4
+*_full.json
+other_figures.json
+before/stretch_full.json
+after/stretch_full.json

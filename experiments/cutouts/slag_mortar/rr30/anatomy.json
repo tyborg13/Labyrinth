@@ -1,0 +1,506 @@
+{
+  "schema_version": 1,
+  "required_parents": {
+    "root": null,
+    "pelvis": "root",
+    "torso": "pelvis",
+    "head": "torso",
+    "mortar": "torso",
+    "belt": "pelvis",
+    "flap": "belt",
+    "upper_near": "torso",
+    "fore_near": "upper_near",
+    "hand_near": "fore_near",
+    "thigh_near": "pelvis",
+    "shin_near": "thigh_near",
+    "foot_near": "shin_near",
+    "upper_far": "torso",
+    "fore_far": "upper_far",
+    "hand_far": "fore_far",
+    "thigh_far": "pelvis",
+    "shin_far": "thigh_far",
+    "foot_far": "shin_far"
+  },
+  "forbidden_joints": [],
+  "meshes": {},
+  "idle_groups": {
+    "upper_body": {
+      "bones": [
+        "torso",
+        "head",
+        "upper_near",
+        "fore_near",
+        "hand_near",
+        "upper_far",
+        "fore_far",
+        "hand_far"
+      ],
+      "stationary": false
+    },
+    "weapon_arm": {
+      "bones": [
+        "mortar"
+      ],
+      "stationary": false
+    },
+    "lower_body": {
+      "bones": [
+        "root",
+        "pelvis",
+        "belt",
+        "flap",
+        "thigh_near",
+        "shin_near",
+        "foot_near",
+        "thigh_far",
+        "shin_far",
+        "foot_far"
+      ],
+      "stationary": true
+    }
+  },
+  "knee_policy": {
+    "near_straight_deg": 6
+  },
+  "legs": {
+    "near": {
+      "front": {
+        "bend_side": 1
+      },
+      "rear": {
+        "bend_side": -1
+      }
+    },
+    "far": {
+      "front": {
+        "bend_side": 1
+      },
+      "rear": {
+        "bend_side": -1
+      }
+    }
+  },
+  "planted_bones": [
+    "foot_near",
+    "foot_far"
+  ],
+  "planted_tolerance_px": 0.5,
+  "held_depth_roles": {},
+  "ownership": {
+    "names": [
+      "head",
+      "torso",
+      "mortar",
+      "pelvis",
+      "belt",
+      "flap",
+      "bracer_near",
+      "bracer_far",
+      "upper_near",
+      "fore_near",
+      "hand_near",
+      "thigh_near",
+      "shin_near",
+      "foot_near",
+      "upper_far",
+      "fore_far",
+      "hand_far",
+      "thigh_far",
+      "shin_far",
+      "foot_far"
+    ],
+    "segments": {},
+    "joint_pairs": [
+      [
+        "head",
+        "torso"
+      ],
+      [
+        "mortar",
+        "torso"
+      ],
+      [
+        "torso",
+        "pelvis"
+      ],
+      [
+        "belt",
+        "pelvis"
+      ],
+      [
+        "flap",
+        "belt"
+      ],
+      [
+        "torso",
+        "upper_near"
+      ],
+      [
+        "upper_near",
+        "fore_near"
+      ],
+      [
+        "fore_near",
+        "hand_near"
+      ],
+      [
+        "fore_near",
+        "bracer_near"
+      ],
+      [
+        "bracer_near",
+        "hand_near"
+      ],
+      [
+        "pelvis",
+        "thigh_near"
+      ],
+      [
+        "thigh_near",
+        "shin_near"
+      ],
+      [
+        "shin_near",
+        "foot_near"
+      ],
+      [
+        "torso",
+        "upper_far"
+      ],
+      [
+        "upper_far",
+        "fore_far"
+      ],
+      [
+        "fore_far",
+        "hand_far"
+      ],
+      [
+        "fore_far",
+        "bracer_far"
+      ],
+      [
+        "bracer_far",
+        "hand_far"
+      ],
+      [
+        "pelvis",
+        "thigh_far"
+      ],
+      [
+        "thigh_far",
+        "shin_far"
+      ],
+      [
+        "shin_far",
+        "foot_far"
+      ]
+    ],
+    "free_space_owners": [
+      "mortar"
+    ]
+  },
+  "seam_policy": "air_between_rigid_pieces",
+  "seam_protected_pieces": [
+    "torso"
+  ],
+  "seam_joins": [
+    [
+      "head",
+      "torso"
+    ],
+    [
+      "mortar",
+      "torso"
+    ],
+    [
+      "torso",
+      "pelvis"
+    ],
+    [
+      "belt",
+      "pelvis"
+    ],
+    [
+      "flap",
+      "belt"
+    ],
+    [
+      "torso",
+      "upper_near"
+    ],
+    [
+      "upper_near",
+      "fore_near"
+    ],
+    [
+      "fore_near",
+      "hand_near"
+    ],
+    [
+      "fore_near",
+      "bracer_near"
+    ],
+    [
+      "bracer_near",
+      "hand_near"
+    ],
+    [
+      "pelvis",
+      "thigh_near"
+    ],
+    [
+      "thigh_near",
+      "shin_near"
+    ],
+    [
+      "shin_near",
+      "foot_near"
+    ],
+    [
+      "torso",
+      "upper_far"
+    ],
+    [
+      "upper_far",
+      "fore_far"
+    ],
+    [
+      "fore_far",
+      "hand_far"
+    ],
+    [
+      "fore_far",
+      "bracer_far"
+    ],
+    [
+      "bracer_far",
+      "hand_far"
+    ],
+    [
+      "pelvis",
+      "thigh_far"
+    ],
+    [
+      "thigh_far",
+      "shin_far"
+    ],
+    [
+      "shin_far",
+      "foot_far"
+    ]
+  ],
+  "covered_surfaces": {},
+  "joint_continuations": {
+    "depth_px": 3,
+    "bounded_pieces": []
+  },
+  "tucks": {
+    "base_px": 3,
+    "pieces": {
+      "head": {
+        "depth_px": 3,
+        "covers": [
+          "torso"
+        ],
+        "mode": "radial"
+      },
+      "torso": {
+        "depth_px": 3,
+        "covers": [
+          "head",
+          "mortar",
+          "pelvis",
+          "upper_far",
+          "upper_near"
+        ],
+        "mode": "radial"
+      },
+      "mortar": {
+        "depth_px": 3,
+        "covers": [
+          "torso",
+          "head",
+          "upper_near",
+          "upper_far"
+        ],
+        "mode": "radial"
+      },
+      "pelvis": {
+        "depth_px": 3,
+        "covers": [
+          "belt",
+          "thigh_far",
+          "thigh_near",
+          "torso"
+        ],
+        "mode": "radial"
+      },
+      "belt": {
+        "depth_px": 3,
+        "covers": [
+          "flap",
+          "pelvis"
+        ],
+        "mode": "radial"
+      },
+      "flap": {
+        "depth_px": 3,
+        "covers": [
+          "belt"
+        ],
+        "mode": "radial"
+      },
+      "bracer_near": {
+        "depth_px": 3,
+        "covers": [
+          "fore_near",
+          "hand_near"
+        ],
+        "mode": "radial"
+      },
+      "bracer_far": {
+        "depth_px": 3,
+        "covers": [
+          "fore_far",
+          "hand_far"
+        ],
+        "mode": "radial"
+      },
+      "upper_near": {
+        "depth_px": 3,
+        "covers": [
+          "fore_near",
+          "torso"
+        ],
+        "mode": "radial"
+      },
+      "fore_near": {
+        "depth_px": 3,
+        "covers": [
+          "bracer_near",
+          "hand_near",
+          "upper_near"
+        ],
+        "mode": "radial"
+      },
+      "hand_near": {
+        "depth_px": 3,
+        "covers": [
+          "bracer_near",
+          "fore_near"
+        ],
+        "mode": "radial"
+      },
+      "thigh_near": {
+        "depth_px": 3,
+        "covers": [
+          "pelvis",
+          "shin_near"
+        ],
+        "mode": "radial"
+      },
+      "shin_near": {
+        "depth_px": 3,
+        "covers": [
+          "foot_near",
+          "thigh_near"
+        ],
+        "mode": "radial"
+      },
+      "foot_near": {
+        "depth_px": 3,
+        "covers": [
+          "shin_near"
+        ],
+        "mode": "radial"
+      },
+      "upper_far": {
+        "depth_px": 3,
+        "covers": [
+          "fore_far",
+          "torso"
+        ],
+        "mode": "radial"
+      },
+      "fore_far": {
+        "depth_px": 3,
+        "covers": [
+          "bracer_far",
+          "hand_far",
+          "upper_far"
+        ],
+        "mode": "radial"
+      },
+      "hand_far": {
+        "depth_px": 3,
+        "covers": [
+          "bracer_far",
+          "fore_far"
+        ],
+        "mode": "radial"
+      },
+      "thigh_far": {
+        "depth_px": 3,
+        "covers": [
+          "pelvis",
+          "shin_far"
+        ],
+        "mode": "radial"
+      },
+      "shin_far": {
+        "depth_px": 3,
+        "covers": [
+          "foot_far",
+          "thigh_far"
+        ],
+        "mode": "radial"
+      },
+      "foot_far": {
+        "depth_px": 3,
+        "covers": [
+          "shin_far"
+        ],
+        "mode": "radial"
+      }
+    }
+  },
+  "integration": {
+    "production_root": "assets/units/slag_mortar_cutout",
+    "rig_directory": "humanoid_v2",
+    "production_files": [
+      "rig.gd",
+      "renderer.gd",
+      "actions.gd",
+      "front.json",
+      "rear.json"
+    ],
+    "binding_files": [
+      "rig.gd",
+      "renderer.gd",
+      "actions.gd"
+    ],
+    "binding_folders": [
+      "tools/humanoid_cutout",
+      "scripts/maquette_cutout_runtime",
+      "tests/rr10",
+      "tests/rr11",
+      "tests/rr30",
+      "tests/gait01",
+      "tests/rr31"
+    ],
+    "scale": {
+      "file": "data/enemies.json",
+      "key": "slag_mortar",
+      "field": "art_scale",
+      "default": 1.0
+    },
+    "identity_registry": "spec/art_identity/registry.json",
+    "identity_id": "slag_mortar",
+    "density_id": "slag_mortar_cutout",
+    "owner_approval": "rr-30 supplied mq11 paintings; native proof pending director.",
+    "identity_kind": "creature",
+    "identity_entry_kind": "legacy",
+    "identity_boss": false
+  }
+}

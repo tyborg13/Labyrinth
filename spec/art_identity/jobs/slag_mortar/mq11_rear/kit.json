@@ -1,0 +1,62 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "slag_mortar",
+  "job_id": "mq-slag_mortar-rear-mq11",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "d7a004d814f96a7d36fc64cd9271843ffd3c6306f99f326197c271fe214865a1",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/slag_mortar/mq11_front/kit.json",
+    "pixel_sha256": "05a8675fe90143bbfa77620943affb773387e3dbcd791bab1cc18e83b2a2b2d0"
+  },
+  "method": "mq-11 maquette paint-over (belt and loincloth only), composited below y 560 into the approved mq9 painting",
+  "peers": [
+    "frostglass_lancer_front",
+    "slag_mortar_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "da0f4785dbfd8cc8a248e10d79b5a1fdf1659ba9fea57edcf26abda59f6d2e35",
+  "prompt_source": "spec/art_identity/maquettes/slag_mortar/rr30_mq11_rear_prompt.md",
+  "refs": [
+    {
+      "file": "refs/01_maquette_rear_parts_mq11b.png",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_slag_mortar_rear_mq11b/01_maquette_rear_parts_mq11b.png",
+      "pixel_sha256": "689364e449b05f63639a04a5fdc065ad955aad72db9f7ea0cae344b38a373aae",
+      "role": "maquette_parts",
+      "canon_id": "mq11_rear_01_maquette_rear_parts_mq11b"
+    },
+    {
+      "file": "refs/02_maquette_rear_clay_mq11b.png",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_slag_mortar_rear_mq11b/02_maquette_rear_clay_mq11b.png",
+      "pixel_sha256": "0cf194192b23292b07b22b26ff5dde71febacf941661c3cd8a8f7eb96740fe46",
+      "role": "maquette_clay",
+      "canon_id": "mq11_rear_02_maquette_rear_clay_mq11b"
+    },
+    {
+      "file": "refs/03_current_painting_rear.png",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_slag_mortar_rear_mq11b/03_current_painting_rear.png",
+      "pixel_sha256": "efeb1c690132ff294b4011f65b098a4456dc5400e8939189c5e35dfff77e5f61",
+      "role": "identity",
+      "canon_id": "mq11_rear_03_current_painting_rear"
+    },
+    {
+      "file": "refs/04_approved_front_mq11.png",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_slag_mortar_rear_mq11b/04_approved_front_mq11.png",
+      "pixel_sha256": "d37b4d6d08634b0c8928e87986287a52672f477f25a38906b2464830ca6aea52",
+      "role": "identity",
+      "canon_id": "mq11_rear_04_approved_front_mq11"
+    },
+    {
+      "file": "refs/05_original_mortar_rear.png",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_slag_mortar_rear_mq11b/05_original_mortar_rear.png",
+      "pixel_sha256": "095461beca51d2ce5658cceb489a40b4e620bca86c96128bbbba28d9701546ae",
+      "role": "identity",
+      "canon_id": "mq11_rear_05_original_mortar_rear"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 221,
+  "view": "creature_rear",
+  "provided_prompt_source": "spec/peer_benchmark/staged/paintovers/slag_mortar_rear_mq11b.md"
+}

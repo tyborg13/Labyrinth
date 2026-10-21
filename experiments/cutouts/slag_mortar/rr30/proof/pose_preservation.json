@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "basis": "Protected director and compiled motion bytes, compared with integration HEAD; this round intentionally changes derived joint registration and source construction",
+  "unchanged_bytes": {
+    "experiments/cutouts/slag_mortar/rr30/director_motion.json": true,
+    "experiments/cutouts/slag_mortar/rr30/compiled_motion.json": true,
+    "assets/units/slag_mortar_cutout/humanoid_v2/director_motion.json": true,
+    "assets/units/slag_mortar_cutout/humanoid_v2/compiled_motion.json": true
+  },
+  "sample_count": 1214,
+  "sample_sha256": "e2538ec0308e3b3f48f109bb0e769ce565858a5d7a2afdb91585dfd16ea8b104",
+  "construction_changes": [
+    "Front near-elbow registration measured from painted contact endpoint centroid",
+    "Rear near-foot painted sole ownership",
+    "Static joint cover domains and approved adjacent material donors",
+    "Transparent rigid-quad storage bounds"
+  ],
+  "historical_pose_compatibility_proof": "proof/logs/feedback1-pose-preservation.json"
+}

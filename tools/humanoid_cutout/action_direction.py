@@ -35,6 +35,8 @@ def pose_values(data, view, clip, phase):
     for track in data['view_tracks'][view][clip]:
         values.setdefault(track['bone'], {})[track['channel']] = evaluate(track['keys'], phase)
         modes[track['bone']] = track['forward_mode']
+    from .gait import add_flap_sway
+    add_flap_sway(data, view, clip, phase, values)
     return values, modes
 
 

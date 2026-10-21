@@ -1,0 +1,151 @@
+{
+  "painting_sha256": "aad8bb6d337a44439c3126f052470fd66fae062d752908563870d2df844cb087",
+  "delivery": {
+    "joints_px.json": "385a72b9c12a1f1b099f354db426af4164724c862ca6428e1a99597cba4b269b",
+    "front_parts.png": "e7a25f033dc5c9410b96e0b0127dcda7e648294cf0544593e0561eea0a53098f",
+    "front_solo_head.png": "03ed6b81c196d645d63013ff95a1b051a32956ae7d9a0b7c6882032fb7c39f29",
+    "front_solo_torso.png": "66f35b9e729396235503ef8ddbfd9efcd0f306a0d90fac8cd14a9389094919c7",
+    "front_solo_mortar.png": "6e125bde0c5e353b1df4e17bc8c2c225e772eba2781e6d81b2e2389bf8ecdede",
+    "front_solo_pelvis.png": "ad87e71e69706667bc8602027366fb3847a6ca189a8b9076a78f906497457e21",
+    "front_solo_apron.png": "a56c28bd3bc77943e9db8034a0715f9dc326f22deca8d7d62a67fab6951a26b8",
+    "front_solo_upper_near.png": "7065f85bbf810401e72e679065fdbbca09ece76196dc0844834630607a6fbca7",
+    "front_solo_fore_near.png": "97db1c6d266d5547bb02895ba6e9ce907dd44b127c4a2f7dd65d2c1c43de2da8",
+    "front_solo_hand_near.png": "ee527ee6d57f8c51156d44405b0e55d63b2547b18634891a80940697ede0c00b",
+    "front_solo_thigh_near.png": "877fd371911dbc08f18e81bb44e1787114864e23f6aa93139a7876135733e50d",
+    "front_solo_shin_near.png": "6bfd36d48d0eb1d3927e7b3266a9bc2f3680d18acfa14cfaf1f79cab3c476fff",
+    "front_solo_foot_near.png": "de1c231adea7de12893744948a026fadda13c314afb0b26facc326fca27ef956",
+    "front_solo_upper_far.png": "46a5065026c78b8a41f903531a09e9fd77433c1e5914ee4a111c6ce4fe8119a5",
+    "front_solo_fore_far.png": "dff19363edf371c80de7621d9029463bd66c7d065058d314ad619bb87b43e4db",
+    "front_solo_hand_far.png": "50d08b4cc78be60c7ed1502eb493537bedcc892944c750782b62796ce216b58f",
+    "front_solo_thigh_far.png": "f4568cc76a958a10a04253adebe0bbc35b160dceca330f8d66cce73c3d4fa4fb",
+    "front_solo_shin_far.png": "9ea55e5a27d8fe00bc78213e8b857628a36defcd6b169c719d8119d384e2eb79",
+    "front_solo_foot_far.png": "3110a78bf4d5c6361fe1bceeb842ab7fd40a0d95f1326318dc65a015d13173bc"
+  },
+  "policy": "rr07 genuine categorical seeds / nearest ownership; rr05 non-outline same-surface edge texels",
+  "nearest_assignment": {
+    "head": {
+      "painted_pixels": 1230,
+      "reassigned_pixels": 88,
+      "reassigned_share": 0.07154471544715447,
+      "above_15_percent": false
+    },
+    "torso": {
+      "painted_pixels": 1550,
+      "reassigned_pixels": 189,
+      "reassigned_share": 0.12193548387096774,
+      "above_15_percent": false
+    },
+    "pelvis": {
+      "painted_pixels": 1509,
+      "reassigned_pixels": 176,
+      "reassigned_share": 0.1166335321404904,
+      "above_15_percent": false
+    },
+    "upper_near": {
+      "painted_pixels": 988,
+      "reassigned_pixels": 165,
+      "reassigned_share": 0.16700404858299595,
+      "above_15_percent": true
+    },
+    "fore_near": {
+      "painted_pixels": 1529,
+      "reassigned_pixels": 204,
+      "reassigned_share": 0.13342053629823414,
+      "above_15_percent": false
+    },
+    "hand_near": {
+      "painted_pixels": 1016,
+      "reassigned_pixels": 262,
+      "reassigned_share": 0.2578740157480315,
+      "above_15_percent": true
+    },
+    "upper_far": {
+      "painted_pixels": 995,
+      "reassigned_pixels": 125,
+      "reassigned_share": 0.12562814070351758,
+      "above_15_percent": false
+    },
+    "fore_far": {
+      "painted_pixels": 1071,
+      "reassigned_pixels": 240,
+      "reassigned_share": 0.22408963585434175,
+      "above_15_percent": true
+    },
+    "hand_far": {
+      "painted_pixels": 658,
+      "reassigned_pixels": 214,
+      "reassigned_share": 0.3252279635258359,
+      "above_15_percent": true
+    },
+    "thigh_near": {
+      "painted_pixels": 661,
+      "reassigned_pixels": 195,
+      "reassigned_share": 0.2950075642965204,
+      "above_15_percent": true
+    },
+    "shin_near": {
+      "painted_pixels": 788,
+      "reassigned_pixels": 195,
+      "reassigned_share": 0.24746192893401014,
+      "above_15_percent": true
+    },
+    "foot_near": {
+      "painted_pixels": 671,
+      "reassigned_pixels": 135,
+      "reassigned_share": 0.20119225037257824,
+      "above_15_percent": true
+    },
+    "thigh_far": {
+      "painted_pixels": 520,
+      "reassigned_pixels": 48,
+      "reassigned_share": 0.09230769230769231,
+      "above_15_percent": false
+    },
+    "shin_far": {
+      "painted_pixels": 487,
+      "reassigned_pixels": 27,
+      "reassigned_share": 0.055441478439425054,
+      "above_15_percent": false
+    },
+    "foot_far": {
+      "painted_pixels": 320,
+      "reassigned_pixels": 73,
+      "reassigned_share": 0.228125,
+      "above_15_percent": true
+    },
+    "mortar": {
+      "painted_pixels": 6501,
+      "reassigned_pixels": 251,
+      "reassigned_share": 0.03860944470081526,
+      "above_15_percent": false
+    },
+    "apron": {
+      "painted_pixels": 1643,
+      "reassigned_pixels": 203,
+      "reassigned_share": 0.12355447352404139,
+      "above_15_percent": false
+    }
+  },
+  "connected_neighbour_transfers": [
+    {
+      "from": "pelvis",
+      "to": "torso",
+      "pixels": 3
+    },
+    {
+      "from": "upper_near",
+      "to": "mortar",
+      "pixels": 2
+    },
+    {
+      "from": "fore_far",
+      "to": "upper_far",
+      "pixels": 1
+    },
+    {
+      "from": "shin_near",
+      "to": "hand_near",
+      "pixels": 2
+    }
+  ]
+}

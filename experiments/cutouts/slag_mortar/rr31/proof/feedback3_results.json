@@ -1,0 +1,56 @@
+{
+  "rr31": {
+    "command": "LABYRINTH_TASK_ID=rr-31 python3 -m unittest discover -s tests -p 'test_rr31*.py' -v",
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 35 tests in 26.670s",
+      "OK"
+    ],
+    "log": "proof/logs/feedback3_rr31.log"
+  },
+  "mortar": {
+    "command": "LABYRINTH_TASK_ID=rr-31 python3 -m unittest discover -s tests -p 'test_rr30_mortar.py' -v",
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 10 tests in 11.189s",
+      "OK"
+    ],
+    "log": "proof/logs/feedback3_mortar.log"
+  },
+  "joints": {
+    "command": "LABYRINTH_TASK_ID=rr-31 python3 -m unittest discover -s tests -p 'test_rr30_joint_surfaces.py' -v",
+    "exit_code": 0,
+    "result_lines": [
+      "RR30 FRONT CPU COVERAGE AND JOINT GATES: PASS (431 frames; 0 errors)",
+      "RR30 REAR CPU COVERAGE AND JOINT GATES: PASS (431 frames; 0 errors)",
+      "Ran 4 tests in 410.664s",
+      "OK"
+    ],
+    "log": "proof/logs/feedback3_joints.log"
+  },
+  "native": {
+    "command": "python3 experiments/cutouts/slag_mortar/rr30_gates.py --native experiments/cutouts/slag_mortar/rr30/proof/native",
+    "exit_code": 0,
+    "result_lines": [
+      "RR30 NATIVE GATES: PASS (0 errors; both views)",
+      "RR30 FRONT WALK: PASS (maximum fit 0.091893 px; total drop 3.500000 px)",
+      "RR30 REAR WALK: PASS (maximum fit 0.098218 px; total drop 3.500000 px)"
+    ],
+    "log": "proof/logs/feedback3_native.log"
+  },
+  "total_focused_tests": 49,
+  "native_frame_count": 862,
+  "native_ok": true,
+  "native_errors": [],
+  "cpu_frames": 862,
+  "cpu_maximum_cover_distance_px": {
+    "front": 2.999497061328248,
+    "rear": 2.9981903453869387
+  },
+  "runtime_files_checked": 217,
+  "runtime_byte_identical_after_tests": true,
+  "full_suite_run": false,
+  "windowed_runs": 0,
+  "TODO_DESIGN": {},
+  "open_issues": []
+}

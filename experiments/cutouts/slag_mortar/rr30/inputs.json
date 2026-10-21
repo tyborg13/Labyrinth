@@ -1,0 +1,8 @@
+{
+  "front_job": "spec/art_identity/jobs/slag_mortar/mq11_front",
+  "rear_job": "spec/art_identity/jobs/slag_mortar/mq11_rear",
+  "front_delivery": "tests/mq11_proof/director_08/slag_mortar/capture",
+  "rear_delivery": "tests/mq11_proof/director_08/slag_mortar/capture",
+  "fused_occlusion": true,
+  "design_placeholders": {}
+}

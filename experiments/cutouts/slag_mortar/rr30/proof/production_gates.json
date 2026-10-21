@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "errors": [],
+  "native_pixels": false,
+  "frame_count": 3032,
+  "views": [
+    "front",
+    "rear"
+  ]
+}
