@@ -1,0 +1,57 @@
+{
+  "scale": [
+    0.2490234375,
+    0.2490234375
+  ],
+  "offset": [
+    -23,
+    5
+  ],
+  "trace": {
+    "policy": "mq15 certified source-scale silhouette registration; independent views",
+    "fit_sha256": "4e1ddbbccd8f4604eb476ca6a001a31a3afe8d3cb3965b8696d88bc61a5c03d3",
+    "iou": 0.7823093498712356,
+    "raw_reducer": {
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "raw_crop": [
+        252,
+        72,
+        952,
+        932
+      ],
+      "reduced_size": [
+        175,
+        215
+      ],
+      "trim": [
+        0,
+        0,
+        175,
+        215
+      ],
+      "before_fit": [
+        175,
+        215
+      ],
+      "after_fit": [
+        175,
+        215
+      ],
+      "final_trim": [
+        0,
+        0,
+        175,
+        215
+      ],
+      "placement": [
+        41,
+        31
+      ],
+      "render_size": 1024,
+      "render_to_raw_scale": 1.0
+    }
+  }
+}

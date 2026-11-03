@@ -23,6 +23,16 @@ static func effect(enemy_type: String, state_value: Dictionary, variant: String 
 	if enemy_type == "lightning_wisp":
 		result["intent_id"] = "spark_dart"
 		result["action_type"] = "melee"
+	# Use the actor's real authored selector instead of inheriting Crawler's.
+	if variant.is_empty() and preload("res://scripts/maquette_cutout_runtime/presentation.gd").handles(enemy_type):
+		var definitions: Array = preload("res://scripts/game_data.gd").enemy_def(enemy_type).get("intents", [])
+		for intent: Dictionary in definitions:
+			for action: Dictionary in intent.get("actions", []):
+				var kind: String = str(action.get("type", ""))
+				var candidate: Dictionary = {"kind": kind, "intent_id": intent["id"]}
+				if kind in ["melee", "aoe"] and Points.settings(enemy_type, candidate)["kind"] != "arc" and not result.has("intent_id"):
+					result["intent_id"] = intent["id"]
+					result["kind"] = kind
 	if variant == "area":
 		result["intent_id"] = "worldspine_claw"
 		var ray: Vector2i = Dragon.direction(result, source, to)
@@ -44,18 +54,11 @@ static func presentation(enemy_type: String, state_value: Dictionary, effect_val
 	if Guardian.handles(enemy_type):
 		field = "guardian_motion"
 		motion = Guardian.action_motion(effect_value, source, progress, Points.contact(effect_value))
-	elif enemy_type == "chainbound_gaoler":
-		field = "gaoler_motion"; motion["action"] = Points.MODELS[enemy_type].action_clip(effect_value)
 	elif enemy_type == "crawler":
 		motion["variant"] = Points.MODELS[enemy_type].attack_clip(effect_value)
 	elif enemy_type == "harrier":
 		motion = preload("res://scripts/harrier_cutout/action.gd").motion_for_effect(effect_value,progress)
 		motion["contact"] = Points.contact(effect_value)
-	elif enemy_type == "frostglass_lancer":
-		field = "frostglass_motion"
-		if str(effect_value.get("intent_id", "")) != "spear_advance":
-			motion = preload("res://scripts/frostglass_lancer_cutout/action.gd").motion_for_effect(effect_value,"thrust",progress,Points.contact(effect_value))
-		else: motion = {}
 	elif enemy_type == "acolyte": motion = {}
 	elif enemy_type == "iskaldra":
 		motion = preload("res://scripts/iskaldra_cutout/action.gd").motion_for_effect(effect_value,source,progress,state_value["player"]["pos"])
@@ -65,7 +68,7 @@ static func presentation(enemy_type: String, state_value: Dictionary, effect_val
 	elif enemy_type == "lightning_wisp": motion["action"] = "dart"
 	if str(effect_value["kind"]) in ["push","pull"] and not Guardian.handles(enemy_type): motion = {}
 	result[field] = {"enemy_1":motion}
-	if enemy_type == "lightning_wisp":
+	if preload("res://scripts/maquette_cutout_runtime/presentation.gd").handles(enemy_type):
 		result[field] = {}
 		preload("res://scripts/maquette_cutout_runtime/action.gd").decorate(state_value, result)
 	# Zekarion still routes its socket-based ranged effects through this flag.
@@ -78,7 +81,7 @@ static func presentation(enemy_type: String, state_value: Dictionary, effect_val
 static func check_pose(renderer: Node, enemy_type: String, effect_value: Dictionary, state_value: Dictionary, progress: float) -> bool:
 	var motion: Dictionary = presentation(enemy_type,state_value,effect_value,progress)[motion_field(enemy_type)]["enemy_1"]
 	if motion.is_empty(): return renderer.clip == "idle"
-	if enemy_type == "lightning_wisp": return renderer.clip == motion["clip"] and is_equal_approx(renderer.phase, float(motion["phase"]))
+	if preload("res://scripts/maquette_cutout_runtime/presentation.gd").handles(enemy_type): return renderer.clip == motion["clip"] and is_equal_approx(renderer.phase, float(motion["phase"]))
 	if str(Points.REGISTRY.get(enemy_type,{}).get("kind","arc")) == "arc":
 		return renderer.clip == "attack" and is_equal_approx(renderer.phase,progress)
 	var action: Dictionary = Points.action_pose(enemy_type,effect_value,state_value["enemies"][0],progress,Points.contact(effect_value))
@@ -86,7 +89,4 @@ static func check_pose(renderer: Node, enemy_type: String, effect_value: Diction
 	return clip == action["clip"] and is_equal_approx(renderer.phase,action["phase"])
 
 static func motion_field(enemy_type: String) -> String:
-	if Guardian.handles(enemy_type): return "guardian_motion"
-	if enemy_type == "chainbound_gaoler": return "gaoler_motion"
-	if enemy_type == "frostglass_lancer": return "frostglass_motion"
-	return enemy_type + "_motion"
+	return preload("res://scripts/cutout_context.gd").family_key(enemy_type)

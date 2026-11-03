@@ -1,0 +1,62 @@
+Final bos-02 verification (all work remains uncommitted)
+
+Focused checks
+DRAGON PRESSURE MECHANICS TEST: PASS (320 checks)
+  /private/tmp/bos-02-focused-sentences-final.log
+BATTLEFIELD RULES TEST RESULT: PASS (597 checks, 0 failures)
+  /private/tmp/bos-02-battlefield-rules-final.log
+Dragon committed patterns passed.
+DRAGON SPIRE ROUTES TEST: PASS (4 checks)
+BOSS HEALTH PREVIEW TEST: PASS (0 failures)
+TURN CLOCK HUD TEST RESULT: PASS
+TURN CLOCK WAIT TEST RESULT: PASS
+ENCOUNTER CALLER METADATA: PASS (UI/headless; combat, Guardian, boss; start/end/rewards)
+ENCOUNTER ANALYTICS: PASS (0 failures)
+BOS02 PROBE CONTRACT: PASS (13 states; 1920x1080; UI scale 100%)
+UI identity lint: Ran 25 tests; OK
+Focused heuristic tests: Ran 40 tests in 0.112s; OK
+BOS02 HEURISTIC SCORE INVARIANCE: PASS (309 cards; all scores, breakdowns and coefficients unchanged)
+BOS02 MEASUREMENT OBSERVER: PASS (3 checks)
+BOS02 POLICY OBSERVER ISOLATION: PASS (6 production dragon choices)
+BOS02 MATCHED MEASUREMENT: PASS (600 fights; identical decks/defaults/seeds/room coordinates/policy version)
+All six after cohorts: ENCOUNTER BOT: PASS (50 runs, revision 7, tier 3, boss / )
+Parse-only headless checks: dragon_boss_probe.gd, dragon_presentation_feedback_probe.gd,
+  dragon_pressure_warning_probe.gd, dragon_pressure_ice_pursuit_probe.gd: exit 0.
+No windowed commands ran; no captures exist.
+
+Final complete Python suite: exit 1
+ISOLATION AUDIT: 233 modules
+Ran 2233 tests in 1947.729s
+FAILED (failures=9, errors=8, skipped=66)
+PYTHON SUITE WALL: 1947.729s; results: /private/tmp/bos-02-python-final
+All four shards completed normally. Exact failures: python-suite-results.json.
+Full result/skip details: python-suite-summary.json.gz.
+
+Final full Godot attempt: exit 124
+MAIN BODY RUNTIME: 723.039 seconds
+MAIN BODY ASSERTIONS: 495679
+error: command timed out after 900 seconds.
+143 programs exit 0; 3 exit 1; 3 SFX programs hit 180-second limits;
+98 programs were cancelled/not started when the parent was interrupted.
+All eight dragon programs exit 0; no dragon sentence-provenance errors remain.
+Cancellation rows are not executed passes. Raw rows: godot-program-results.json.
+Earlier complete run: FULL SUITE RUNTIME: 829.519 seconds (budget 900 seconds)
+TEST RESULT: FAIL (12 failure(s)). Six sentence-oracle failures were subsequently
+fixed with the brief's verbatim fixture; focused tests and the final main body pass.
+Remaining completed-run failures are in unchanged board-surface, golden, wind-hash,
+summon tooltip, status-plate and registration checks. No assertions there changed.
+
+Final registration audit: exit 1
+TEST REGISTRATION AUDIT: FAIL (894 scripts; full suite=530, orphaned=2, quarantined=29, windowed probe=333)
+Only unchanged tests/suites/pt15_01_owner_feet_suite.gd and
+  tests/suites/pt15_01_sole_cache_suite.gd are unregistered. bos-02 is registered.
+
+Bootstrap and scope
+BOS02 GLOBAL CLASS CACHE: PASS (96 existing class declarations; 0 stale)
+Imported cache: 10628 matching resources, 0 stale copies; no editor scan.
+SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures) — earlier standalone partition 0.
+BOS02 STANDARD GOLDEN SCOPE: PASS (baseline CombatEngine and final source produce identical standard-room hashes)
+BASELINE GOLDEN ORACLE: FAIL (combat/save_roundtrip for seeds 1, 19, 421)
+BOS02 SOURCE HASHES: PASS (final gameplay files match the recorded implementation)
+BOS02 FINAL SCOPE: PASS (base stats/non-dragon data/policy bytes/branch/HEAD unchanged)
+git diff --check: exit 0

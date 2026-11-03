@@ -1,0 +1,11 @@
+proof/logs/
+proof/native*/
+proof/contact_sheets/
+proof/idle_native/
+proof/production_native/
+proof/*.mp4
+proof/production_case/
+proof/cpu_frames/
+proof/feedback3_contact_sheets/
+proof/calibration-*/
+proof/rr38-pruning-*/

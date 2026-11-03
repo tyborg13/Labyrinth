@@ -320,8 +320,9 @@ static func _test_event_costs(expect: Callable) -> void:
 				state["held_embers"] = required - 1
 				expect.call(Events.choice_block_reason(state, id, str(choice["id"])) == "Requires %d Embers." % required, "Live event eligibility blocks one Ember below the scaled payment")
 				state["held_embers"] = required
-	var nested: Array[String] = Events.effect_lines(state, [{"type": "random", "outcomes": [{"weight": 100, "effects": effects}]}])
-	expect.call(nested[0].contains("Pay 55 Embers."), "Nested random-event cost previews scale once")
+	var rejected: Array[String]
+	Events._validate_effects([{"type": "random", "outcomes": [{"weight": 100, "effects": effects}]}], "depth_retired_random", rejected)
+	expect.call(rejected.size() == 1 and rejected[0] == "Unknown effect: depth_retired_random", "Retired random events are rejected instead of previewed")
 
 static func _test_progression_and_saves(expect: Callable) -> void:
 	var engine := Run.new()

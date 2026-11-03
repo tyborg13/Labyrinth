@@ -1,0 +1,564 @@
+{
+  "unit": "rr-41 feedback 1",
+  "branch": "codex/rr-41",
+  "base_head": "1504d184769ce0d5beee543f2176f1f40b72f2a3",
+  "review": "/private/tmp/labyrinth_codex/review/rr-41-c950d7d4b.md",
+  "uncommitted": true,
+  "native_pixels": false,
+  "requirements": {
+    "feedback_1": "The gate certifies the independent union of root-carried rest and torso-carried posed leg footprints, excluding complete posed legs, plus the prior transported source domain. Every visible texel there requires exact protected director RGBA or an original painted piece. No moved-frame shortcut. Clip-labelled alpha prevents an earlier folded painted triangle from certifying a later procedural one.",
+    "feedback_1_native": "Lancer-only native masks and certified painting use the same exact native RGBA/nearest-UV choice, with the existing packed UNORM16 and registered weight families. Packed choices take priority when they explain the entire isolated layer. Required source-empty masks and unmatched RGBA retain independent geometric masks, so missing paint cannot certify its own disappearance. No frame exceptions or error budget. All 96 death poses and frozen round-0 boundary cases pass the 231-case software native-geometry matrix; fresh renderer acceptance remains pending.",
+    "feedback_1_paint": "Extended ownership only at 396 measured UVs outside both original director footprints. Every resolved texel copies its supplied registered director RGBA; 14 supplied transparent texels clear the old fill. The original 2498 far / 0 near partition, rr-39 priority and rest PNG bytes remain unchanged. Gait and clip recipes are retired on the extensions, including true air.",
+    "feedback_2": "Both source and production compare hidden_cape_far and hidden_cape_near independently against domains(), including required transparent zeros everywhere else within the original leg authority. Actual ownership counts are reported separately from expected counts. The far-to-near swap fails both per-piece checks in each scope."
+  },
+  "original_partition": {
+    "ok": true,
+    "errors": [],
+    "native_pixels": false,
+    "footprint_pixels": 4027,
+    "opaque_pixels": 2498,
+    "transparent_pixels": 1529,
+    "rr39_overlap_pixels": 0,
+    "domain_pixels": {
+      "cape_near": 0,
+      "cape_far": 2498
+    },
+    "expected_domain_pixels": {
+      "cape_near": 0,
+      "cape_far": 2498
+    },
+    "actual_domain_pixels": {
+      "source": {
+        "cape_near": 0,
+        "cape_far": 2498
+      },
+      "production": {
+        "cape_near": 0,
+        "cape_far": 2498
+      }
+    },
+    "exposure_extension_texels": {
+      "cape_near": 31,
+      "cape_far": 365
+    },
+    "native_edge_restorations": [
+      {
+        "part": "hidden_cape_near",
+        "uv": [
+          137,
+          149
+        ],
+        "previous": [
+          14,
+          26,
+          32,
+          255
+        ],
+        "source": [
+          14,
+          26,
+          33,
+          255
+        ]
+      },
+      {
+        "part": "hidden_cape_near",
+        "uv": [
+          138,
+          149
+        ],
+        "previous": [
+          14,
+          26,
+          32,
+          255
+        ],
+        "source": [
+          14,
+          26,
+          33,
+          255
+        ]
+      },
+      {
+        "part": "hidden_cape_near",
+        "uv": [
+          139,
+          149
+        ],
+        "previous": [
+          14,
+          26,
+          32,
+          255
+        ],
+        "source": [
+          14,
+          26,
+          33,
+          255
+        ]
+      },
+      {
+        "part": "hidden_cape_near",
+        "uv": [
+          112,
+          165
+        ],
+        "previous": [
+          18,
+          44,
+          54,
+          255
+        ],
+        "source": [
+          19,
+          44,
+          54,
+          255
+        ]
+      },
+      {
+        "part": "hidden_cape_near",
+        "uv": [
+          112,
+          166
+        ],
+        "previous": [
+          18,
+          44,
+          54,
+          255
+        ],
+        "source": [
+          18,
+          43,
+          54,
+          255
+        ]
+      }
+    ],
+    "per_part_outside_changed_texels": {
+      "source": {
+        "head": 0,
+        "hidden_head": 0,
+        "torso": 0,
+        "hidden_torso": 0,
+        "pelvis": 0,
+        "hidden_pelvis": 0,
+        "tabard": 0,
+        "hidden_tabard": 0,
+        "spear": 0,
+        "hidden_spear": 0,
+        "cape_near": 0,
+        "hidden_cape_near": 31,
+        "arm_near": 0,
+        "hidden_arm_near": 0,
+        "hand_near": 0,
+        "hidden_hand_near": 0,
+        "leg_near": 0,
+        "hidden_leg_near": 0,
+        "foot_near": 0,
+        "hidden_foot_near": 0,
+        "cape_far": 0,
+        "hidden_cape_far": 365,
+        "arm_far": 0,
+        "hidden_arm_far": 0,
+        "hand_far": 0,
+        "hidden_hand_far": 0,
+        "leg_far": 0,
+        "hidden_leg_far": 0,
+        "foot_far": 0,
+        "hidden_foot_far": 0,
+        "covered_torso": 0,
+        "covered_cape_far": 0,
+        "covered_foot_far": 0
+      },
+      "production": {
+        "head": 0,
+        "hidden_head": 0,
+        "torso": 0,
+        "hidden_torso": 0,
+        "pelvis": 0,
+        "hidden_pelvis": 0,
+        "tabard": 0,
+        "hidden_tabard": 0,
+        "spear": 0,
+        "hidden_spear": 0,
+        "cape_near": 0,
+        "hidden_cape_near": 36,
+        "arm_near": 0,
+        "hidden_arm_near": 0,
+        "hand_near": 0,
+        "hidden_hand_near": 0,
+        "leg_near": 0,
+        "hidden_leg_near": 0,
+        "foot_near": 0,
+        "hidden_foot_near": 0,
+        "cape_far": 0,
+        "hidden_cape_far": 365,
+        "arm_far": 0,
+        "hidden_arm_far": 0,
+        "hand_far": 0,
+        "hidden_hand_far": 0,
+        "leg_far": 0,
+        "hidden_leg_far": 0,
+        "foot_far": 0,
+        "hidden_foot_far": 0,
+        "covered_torso": 0,
+        "covered_cape_far": 0,
+        "covered_foot_far": 0
+      }
+    }
+  },
+  "repair_summary": {
+    "hidden_cape_far": {
+      "total": 365,
+      "paint": 351,
+      "air": 14
+    },
+    "hidden_cape_near": {
+      "total": 31,
+      "paint": 31,
+      "air": 0
+    }
+  },
+  "each_resolved_texel": {
+    "path": "experiments/cutouts/frostglass_lancer/rr41_exposure_repairs.json",
+    "sha256": "9784cb3298a9872887c59f4538ec9a32728fd19d77a7e153564a3f67e87611fa",
+    "records": 396,
+    "fields": "part, uv, raw_before, production_before, director, per-frame CPU/retained-native evidence",
+    "unique_across_both_cloaks": true,
+    "overlap_original_leg_footprint": 0,
+    "overlap_rr39_footprint": 0
+  },
+  "repair_certificate_binding": "Copied byte-for-byte into source and production proof cases; the gate checks its digest against the authoritative task-local UV selector. Selector and source changes invalidate fresh native evidence. The inventory refuses mismatched retained-native source hashes.",
+  "rest_bytes": {
+    "front": {
+      "sha256": "b24aa2be07667f97d4c357e209315b4109e2eb43209199a7d8c121323ac1d41c",
+      "original_bytes_unchanged": true
+    },
+    "rear": {
+      "sha256": "c5184440fdb21041c881d402a476d44f7d67055cee26367033107d071e6403f7",
+      "original_bytes_unchanged": true
+    }
+  },
+  "tests": [
+    {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback1/focused-final.log",
+      "sha256": "e50cf500db452bdfe6ef7b540a4e93d507695514134326c5f31d2edab9dd9120",
+      "result_lines": [
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=396px production=401px)",
+        "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+        "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+        "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+        "RR41 OWNERSHIP SWAP: PASS (source and production independently reject far-to-near UV [112,142])",
+        "Ran 7 tests in 334.110s",
+        "OK"
+      ]
+    },
+    {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback1/final-cpu-and-native-mutation.log",
+      "sha256": "6cc50ee082910a2f2e487b78e36cacd5eee50d87acbce85b6fe234bf7c836b44",
+      "result_lines": [
+        "RR41 FRONT PAINT PROVENANCE: PASS (512 frames; every clip; 0 procedural leg texels)",
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=396px production=401px)",
+        "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+        "Ran 8 tests in 310.368s",
+        "OK"
+      ]
+    },
+    {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback1/regressions.log",
+      "sha256": "89390efe388f6b8f5c6146ae39ddde895af59162af6cb18c91496b96f199de1e",
+      "result_lines": [
+        "RR41 FRONT PAINT PROVENANCE: PASS (512 frames; every clip; 0 procedural leg texels)",
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=396px production=401px)",
+        "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+        "Ran 39 tests in 448.051s",
+        "OK"
+      ]
+    },
+    {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback1/native-rest-controls.log",
+      "sha256": "c88422f9ecd797251e07980e12e1bd7ed8df2645c6ae76046152096b38e24a71",
+      "result_lines": [
+        "Ran 1 test in 11.961s",
+        "OK"
+      ]
+    },
+    {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback1/recipe-mutations.log",
+      "sha256": "9945264727aee422a768c989a346a14c8f275488eddc13fd04206dea0b2b22b5",
+      "result_lines": [
+        "Ran 2 tests in 11.341s",
+        "OK"
+      ]
+    },
+    {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback1/front_frames.log",
+      "sha256": "ea6af6ad07b662302a4b64b162e1aaead5b35f5e6f998acd56f25601ded6a355",
+      "result_lines": [
+        "RR37 FRONT PRODUCTION FRAMES: PASS (512 frames; 0 failures; software raster, native runtime poses)"
+      ]
+    },
+    {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback1/numeric_gates.log",
+      "sha256": "fef5aab3e802b2aac9ab61ab882889f14ffefb3598a62f95b2eecf72df3e185c",
+      "result_lines": [
+        "RR41 FEEDBACK1 SOURCE NUMERIC GATES: PASS (0 errors; native=False)",
+        "RR41 FEEDBACK1 PRODUCTION NUMERIC GATES: PASS (0 errors; native=False)"
+      ]
+    },
+    {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback1/rebuild-final-1.log",
+      "sha256": "3f8b1f429f0886e3280b7f5f0a5263aca35c63a67e2cb1c303e3354565a66afd",
+      "result_lines": [
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=396px production=401px)",
+        "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=396px production=401px)",
+        "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+        "RR41 PRODUCTION REST SEAL: PASS (front=0px rear=0px; native-equivalent CPU; windowed proof pending)",
+        "RR37 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)",
+        "CHECK-OK",
+        "RR41 SCOPE: PASS (2140 unrelated density records unchanged; other figures, rear and generic code byte-identical)"
+      ]
+    },
+    {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback1/rebuild-final-2.log",
+      "sha256": "56b4c0d42caf74f8fa2019207033748782156aca3cee850172c57c6793b1ea64",
+      "result_lines": [
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=396px production=401px)",
+        "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=396px production=401px)",
+        "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+        "RR41 PRODUCTION REST SEAL: PASS (front=0px rear=0px; native-equivalent CPU; windowed proof pending)",
+        "RR37 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)",
+        "CHECK-OK",
+        "RR41 SCOPE: PASS (2140 unrelated density records unchanged; other figures, rear and generic code byte-identical)"
+      ]
+    }
+  ],
+  "mutation_list": [
+    "Reviewer boundary: lunge 42 UVs [141,149] and [141,150], legal cloak recolour; rejected in independent posed region.",
+    "Same boundary in native packed geometry; legal colour cannot choose its own paint certificate.",
+    "Ownership swap UV [112,142] far to near: source and production independently reject both pieces; actual counts become far=2497, near=1.",
+    "Clear sole visible native painted backing where all eight registered/packed UV choices are opaque; missing-paint gate fails.",
+    "Restore gait and clip recipes on extended opaque paint and supplied air, both cloaks; recipes removed.",
+    "Original old banded-fill restoration: four lunge/pin frames rejected.",
+    "Original missing-paint, original-footprint recipe restoration, interior outline and historical native rejection controls remain passing."
+  ],
+  "rebuild": {
+    "ok": true,
+    "files": 1829,
+    "changed_files": [],
+    "native_pixels": false
+  },
+  "rebuild_method": "Two complete rr41_proof.sh rebuild runs; 1829 case/production PNG and JSON files excluding proof byte-identical. Both rest images retained. Lancer-only density sources and shadow/rest records refreshed; all-unit density CHECK-OK.",
+  "scope": {
+    "ok": true,
+    "unrelated_density_records_unchanged": 2140,
+    "unrelated_identity_records_unchanged": 145,
+    "other_unit_assets_unchanged": true,
+    "rear_assets_unchanged": true,
+    "generic_rig_code_unchanged": true,
+    "protected_director_files_unchanged": true
+  },
+  "registration_result": "TEST REGISTRATION AUDIT: PASS (846 scripts; full suite=492, quarantined=29, windowed probe=325)",
+  "static_checks": [
+    "git diff --check: exit 0",
+    "sh -n experiments/cutouts/frostglass_lancer/rr37_proof.sh experiments/cutouts/frostglass_lancer/rr41_proof.sh: exit 0"
+  ],
+  "proof_for_design_owner": {
+    "commands": [
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-41 && LABYRINTH_TASK_ID=rr-41 RR37_RESULT_PREFIX=rr41-feedback1 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh native",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-41 && LABYRINTH_TASK_ID=rr-41 RR37_RESULT_PREFIX=rr41-feedback1 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh sheets",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-41 && LABYRINTH_TASK_ID=rr-41 RR37_RESULT_PREFIX=rr41-feedback1 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh review",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-41 && python3 tools/visual_probe_runner.py --task-id rr-41 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract experiments/cutouts/frostglass_lancer/rr41_gameplay_contract.json --result-manifest experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback1-gameplay-result.json tests/frostglass_lancer_cutout_gameplay_probe.gd -- --output res://experiments/cutouts/frostglass_lancer/rr37/proof/rr41_feedback1_gameplay"
+    ],
+    "configuration": "1920x1080, UI scale 100%; judge front Glass Lunge and Frost Pin at 3x against the unchanged director_preview_x3.png",
+    "expected_outputs": [
+      "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback1-native-result.json",
+      "experiments/cutouts/frostglass_lancer/rr37/proof/native/frames.json",
+      "experiments/cutouts/frostglass_lancer/rr37/proof/contact_sheets/front_lunge_3x.png",
+      "experiments/cutouts/frostglass_lancer/rr37/proof/contact_sheets/front_pin_3x.png",
+      "experiments/cutouts/frostglass_lancer/rr37/proof/frostglass_lancer_review.mp4",
+      "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback1-gameplay-result.json",
+      "experiments/cutouts/frostglass_lancer/rr37/proof/rr41_feedback1_gameplay"
+    ],
+    "inspection_fixture": "Design-owner responsibility; no inspection_fixture command requested by this brief.",
+    "native_status": "Not run by worker. Prior round-0 51-error report remains historical evidence, not current acceptance."
+  },
+  "todo_design": [],
+  "chosen_defaults": {
+    "RR37_RESULT_PREFIX": "Optional proof-only prefix; default remains task ID. Feedback commands select rr41-feedback1 to use a fresh native result manifest.",
+    "test_fixtures": "BOUNDARY and OWNERSHIP_UV come directly from review reproduction; NATIVE_TIE_FRAMES are frozen round-0 native failures plus review boundary. No player-facing defaults."
+  },
+  "open_issues": [
+    "Fresh windowed native, sheets and review must be run by the director; native exit 0 is not claimed from software geometry.",
+    "Full suites and reference-set reruns are director-owned at merge per feedback scope. No full-suite result is claimed for this feedback round."
+  ],
+  "workflow": "No commits, branch changes, peer review, signoff requests, queue edits, publication or windowed runs.",
+  "changed_files": [
+    {
+      "path": "assets/units/frostglass_lancer_cutout/humanoid_v2/front/hidden_cape_far.png",
+      "sha256": "c758a83286b652d5e2362d92681fd35226d4a3f6a4dc750a5406f7d1d73537ee"
+    },
+    {
+      "path": "assets/units/frostglass_lancer_cutout/humanoid_v2/front/hidden_cape_near.png",
+      "sha256": "6d86660449c7161537181189525dc4a75ee50a25bb9a48ff6542b2f92fd078f3"
+    },
+    {
+      "path": "assets/units/frostglass_lancer_cutout/integration.json",
+      "sha256": "5622ae4e794b4158c241d5a07bb73d065ef42e86416f1110d266e20248e64911"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/checks/front/hidden_cape_far.png",
+      "sha256": "eaa8b108106407a2924365f6135b9ff54ac3a0df79e143843c7d54fa4cd7ac46"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/checks/front/hidden_cape_near.png",
+      "sha256": "451beffb1b51775fc5610a27b22bf65b0cd42bc63ccc57bf461896c63fe2e186"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/layouts/front.json",
+      "sha256": "2391f823f8ad1db4aea9a1b87c886a7f1f261757f25ab9477f8ed317988adc53"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/material_contract.json",
+      "sha256": "82939f0749790b2e72a50fc4bc412702f248991475e22a3b0e6cc1dfc3315a00"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_cape_far.png",
+      "sha256": "ed0ebee06260568527b153a376f657654686ee9c68ec322d4fa0ae15d468594f"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_cape_near.png",
+      "sha256": "a7881354c3f0f85cc32af7ab776344b726517615ce3ee61094430f29b945ec6a"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/proof/cpu_poses.json",
+      "sha256": "82ae71f33edfbfe7e7d8d5af646c0f07f044a09ec822bdce6bb30eae66a8d02a"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/proof/production_binding.json",
+      "sha256": "586722e2053d882d282fb144e66f9f18de982454b58d7602989dc59162bd85b0"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/proof/rest_equivalence.json",
+      "sha256": "4de4e5e43a7e7917ebed36137d4ed54e9afb77f5f7096ba737078c6588ba5a80"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/proof/rr41_feedback1_front_frames.json",
+      "sha256": "ff32c25434a2ed62b7e0df608d2587bf8be3dc94e4debf07e6f1ff39109f0f7a"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/proof/rr41_feedback1_rebuild.json",
+      "sha256": "60e818be68bf81db5685ab24990b9c555bedb841b37b8e49d8464e3c50a326e3"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/proof/rr41_partition.json",
+      "sha256": "4960f71b5541e6221cef251853df15b4390491d649c1db1e10bfaa484f5e6226"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/proof/samples.json",
+      "sha256": "fed8e24496b2e36c38eeccef62f576b66c0f3d519f35c11a5e2d0c39b215f3e0"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/rr41_exposure_repairs.json",
+      "sha256": "9784cb3298a9872887c59f4538ec9a32728fd19d77a7e153564a3f67e87611fa"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/uncovered/director_front_density_edges.png",
+      "sha256": "a744911040b605873b5cf611e948fed69694c8a9da402808bf166e8659ee8b68"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/uncovered/director_front_footprint.png",
+      "sha256": "8423f50a76139c751723e021e0060c3823f45cc739b79fbf15df6cd9e8171baf"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/uncovered/donor_front_hidden_cape_far.png",
+      "sha256": "783f0c37db91f9cbbbc990d85dbf489d558d619f887f4b5386a2c7f7f9b8329e"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_hidden_cape_far.png",
+      "sha256": "aae65c697ac49b6cb641f13c13a5d07ba1b012d910bd672411214f8ec9be1aad"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_hidden_cape_near.png",
+      "sha256": "e65ab0c9194431e15665d4155378da4c4a1bb56fcb7cf687eeb1e5585b2e4115"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_hidden_cape_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37_build.py",
+      "sha256": "8cd1eb50b0c2ac88479ad435dd8379745ece21aafa080e8c6eaabb3f471d6155"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37_frames.py",
+      "sha256": "6aa1b6137d4caf1b18a4caff27ea0a951cacb1b427c1f4b70b32c9aa4958a655"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37_proof.sh",
+      "sha256": "4524301e69b90bf4e998213d2a9ef6a64762ca1eb06c185379d861a5940c93dd"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37_proof_case.py",
+      "sha256": "c8f048c130b19a6a5653238d9c28fdd7e5ec9fd647f8711cd9c293f2384a6770"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37_uncovered.py",
+      "sha256": "d55b223bd73bbd3296a0b1a1870a897c79662df331f84357ba4a30b466485735"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr39_density.py",
+      "sha256": "858c95258c27696f9c8398f6506941eeb1c5d7ba977db75e45f92271071f11bd"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_density.py",
+      "sha256": "4eaa6822b308418b5952f68034442562b09fc2074c7c70f55464789370c2f281"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_exposure_repairs.json",
+      "sha256": "9784cb3298a9872887c59f4538ec9a32728fd19d77a7e153564a3f67e87611fa"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_exposures.py",
+      "sha256": "09c83a7811fc08e52c9e820d9ae1450324a46651f5e7929823568a20b7e9ff43"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_uncovered.py",
+      "sha256": "671535f77601c5ab75615ebb6316205f2998514e3d0f373f9af2e553e96ceaef"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_underlay.py",
+      "sha256": "803d2d5ae328650f09e00c4feca39da3f1933cc3afceee5a269801208a656834"
+    },
+    {
+      "path": "spec/assets/board_pixel_density/outputs.json",
+      "sha256": "ee58d35ce4114350e5b05a6933f1086dc0a3be7204795e1545f9ac23c374c02c"
+    },
+    {
+      "path": "spec/assets/board_pixel_density/registry.json",
+      "sha256": "fae05609080e4317784cc345c18b9610051cff143aacf7bc434b208b19485253"
+    },
+    {
+      "path": "spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/front/hidden_cape_far.png",
+      "sha256": "ed0ebee06260568527b153a376f657654686ee9c68ec322d4fa0ae15d468594f"
+    },
+    {
+      "path": "spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/front/hidden_cape_near.png",
+      "sha256": "a7881354c3f0f85cc32af7ab776344b726517615ce3ee61094430f29b945ec6a"
+    },
+    {
+      "path": "tests/test_rr39_lancer.py",
+      "sha256": "008402c387d2fae4b1a88cd151b37cb71beea9d99c5f5d8681ab15df276a1cbe"
+    },
+    {
+      "path": "tests/test_rr41_feedback1.py",
+      "sha256": "c6677c59e79346f82aaa98484b1cb378a85b6e9fbe0f093629c8e89b5866b759"
+    }
+  ]
+}

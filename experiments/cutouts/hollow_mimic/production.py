@@ -17,8 +17,12 @@ def feedback_cues(row):
 
 def errors(report):
     data = read_json(CASE/'compiled_motion.json')
+    # Current production no longer calls Mirror; historical reports keep its gates.
+    if report.get('retired_clips') == ['mirror']:
+        data['clips'].pop('mirror')
     result = production_errors(CASE, report, data)
     for clip in ('bolt', 'mirror', 'block'):
+        if clip not in data['clips']: continue
         rows = [r for r in report['frames'] if r['stage'] == clip]
         contact = data['clips'][clip]['contact']
         before = [r for r in rows if r['snapshot']['phase'] < contact - EPSILON]

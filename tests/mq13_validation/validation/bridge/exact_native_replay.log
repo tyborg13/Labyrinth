@@ -1,0 +1,9 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-d2a7504145c146a39923612d70316697
+BLENDER_BRIDGE_STARTED: mq03-d2a7504145c146a39923612d70316697
+00:00.253  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/mq13/cold/maquette.blend"
+00:00.496  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/mq13/replay/maquette.blend"
+00:00.731  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/mq13/independent_cold/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=18
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=1.2; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-d2a7504145c146a39923612d70316697.log

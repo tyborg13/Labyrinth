@@ -1,0 +1,8 @@
+00:00.595  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/native/maquette.blend"
+00:04.043  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/rear_solo_20/rear_parts.png'
+00:07.139  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/rear_solo_20/rear_silhouette.png'
+00:09.981  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/rear_solo_20/rear_silhouette.png'
+00:12.485  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/rear_solo_20/rear_silhouette.png'
+00:15.068  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/rear_solo_20/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+MQ18_BOUNDED_CAPTURE: PASS; rear; lantern,pauldron_near,pauldron_far

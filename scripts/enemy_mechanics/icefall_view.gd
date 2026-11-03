@@ -1,5 +1,7 @@
 extends RefCounted
 
+const TileGlow = preload("res://scripts/tile_glow.gd")
+
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Biomes = preload("res://scripts/biome_library.gd")
 const Fx = preload("res://scripts/elemental_spell_fx.gd")
@@ -22,8 +24,7 @@ static func marks(view: Control) -> Dictionary:
 
 static func draw_tile(view: Control, tile: Vector2i) -> void:
 	if not marks(view).has(tile): return
-	view.draw_colored_polygon(view._tile_polygon(tile), Color(TINT, 0.20))
-	view._draw_tile_ring(tile, Color(TINT, 0.95), 3.2, 0.80)
+	TileGlow.draw_wash(view, view._tile_polygon(tile), TINT, 0.20)
 
 static func draw_badges(view: Control) -> void:
 	var icon: Texture2D = Icons.icon_texture("icefall")
@@ -40,13 +41,15 @@ static func draw_badges(view: Control) -> void:
 		var rect := Rect2(center - Vector2.ONE * size * 0.5, Vector2.ONE * size)
 		if icon != null: view.draw_texture_rect(icon, rect, false)
 		var tooltip: String = Icons.tooltip("icefall") + "\n5 damage.%s" % ["\nYou are standing on it." if tile == view.combat_state.get("player", {}).get("pos") else ""]
-		view._register_tooltip(rect, tooltip)
+		if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(rect, tooltip, tile)
+		else: view._register_tooltip(rect, tooltip)
 		if font == null: continue
 		var font_size: int = int(round(clampf(size * 0.50, 14.0, 20.0)))
 		var text_width: float = font.get_string_size("5", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 		var baseline := Vector2(center.x + radius * 0.60, center.y + radius * 0.95)
 		view._draw_outlined_string(font, baseline, "5", text_width + 4, font_size, TINT.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2)
-		view._register_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(text_width + 4, font_size + 4)), tooltip)
+		if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(text_width + 4, font_size + 4)), tooltip, tile)
+		else: view._register_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(text_width + 4, font_size + 4)), tooltip)
 
 static func draw_pillar(view: Control, terrain: Dictionary, obstructions: Array) -> bool:
 	if str(terrain.get("kind", "")) != "ice_pillar": return false
@@ -58,7 +61,8 @@ static func draw_pillar(view: Control, terrain: Dictionary, obstructions: Array)
 	var tint: Color = view._foreground_blocker_tint("terrain", tile, rect, obstructions)
 	view._draw_rect_ground_shadow(tile, rect, 0.70, 0.24, 0.16)
 	view._draw_pillar_body(texture, rect, tint)
-	view._register_tooltip(rect, pillar_tooltip(terrain))
+	if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(rect, pillar_tooltip(terrain), tile)
+	else: view._register_tooltip(rect, pillar_tooltip(terrain))
 	return true
 
 static func draw_effect(view: Control, effect: Dictionary, progress: float) -> bool:
@@ -105,4 +109,4 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void
 		if not texts.is_empty(): await scene._animate_floating_text_presentation(state, scene._death_hold_presentation(before, state, {"floating_texts": texts}), puff_seconds)
 	if landing: await scene._animate_turn_order_alongside_defeats(before, state)
 	scene._render_board_state(state, {})
-	preload("res://scripts/enemy_mechanics/wind_view.gd").refresh_chip(scene, state)
+	scene._refresh_battlefield_rule_hud(state)

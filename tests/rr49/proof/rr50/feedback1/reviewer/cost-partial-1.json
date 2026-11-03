@@ -1,0 +1,245 @@
+{
+	"clips": [
+		{
+			"clip": "idle",
+			"held_after_cycle": true,
+			"stable_max_us": 152,
+			"stable_median_us": 143,
+			"view": "front",
+			"whole_max_us": 420,
+			"whole_median_us": 409
+		},
+		{
+			"clip": "move",
+			"held_after_cycle": false,
+			"stable_max_us": 3038,
+			"stable_median_us": 1896,
+			"view": "front",
+			"whole_max_us": 3443,
+			"whole_median_us": 2417
+		},
+		{
+			"clip": "reel",
+			"held_after_cycle": false,
+			"stable_max_us": 2948,
+			"stable_median_us": 1748,
+			"view": "front",
+			"whole_max_us": 3262,
+			"whole_median_us": 2053
+		},
+		{
+			"clip": "pin",
+			"held_after_cycle": false,
+			"stable_max_us": 2922,
+			"stable_median_us": 868,
+			"view": "front",
+			"whole_max_us": 3221,
+			"whole_median_us": 1150
+		},
+		{
+			"clip": "press",
+			"held_after_cycle": false,
+			"stable_max_us": 2942,
+			"stable_median_us": 1914,
+			"view": "front",
+			"whole_max_us": 3247,
+			"whole_median_us": 2223
+		},
+		{
+			"clip": "guard",
+			"held_after_cycle": false,
+			"stable_max_us": 2916,
+			"stable_median_us": 103,
+			"view": "front",
+			"whole_max_us": 3234,
+			"whole_median_us": 420
+		},
+		{
+			"clip": "hit",
+			"held_after_cycle": false,
+			"stable_max_us": 2929,
+			"stable_median_us": 1362,
+			"view": "front",
+			"whole_max_us": 3252,
+			"whole_median_us": 1666
+		},
+		{
+			"clip": "death",
+			"held_after_cycle": false,
+			"stable_max_us": 3070,
+			"stable_median_us": 1955,
+			"view": "front",
+			"whole_max_us": 4517,
+			"whole_median_us": 2391
+		},
+		{
+			"clip": "rest",
+			"held_after_cycle": true,
+			"stable_max_us": 161,
+			"stable_median_us": 141,
+			"view": "front",
+			"whole_max_us": 348,
+			"whole_median_us": 304
+		},
+		{
+			"clip": "idle",
+			"held_after_cycle": true,
+			"stable_max_us": 147,
+			"stable_median_us": 138,
+			"view": "rear",
+			"whole_max_us": 435,
+			"whole_median_us": 406
+		},
+		{
+			"clip": "move",
+			"held_after_cycle": false,
+			"stable_max_us": 2820,
+			"stable_median_us": 1579,
+			"view": "rear",
+			"whole_max_us": 3332,
+			"whole_median_us": 2111
+		},
+		{
+			"clip": "reel",
+			"held_after_cycle": false,
+			"stable_max_us": 2838,
+			"stable_median_us": 1362,
+			"view": "rear",
+			"whole_max_us": 3189,
+			"whole_median_us": 1674
+		},
+		{
+			"clip": "pin",
+			"held_after_cycle": false,
+			"stable_max_us": 2682,
+			"stable_median_us": 1075,
+			"view": "rear",
+			"whole_max_us": 3004,
+			"whole_median_us": 1362
+		},
+		{
+			"clip": "press",
+			"held_after_cycle": false,
+			"stable_max_us": 2805,
+			"stable_median_us": 1560,
+			"view": "rear",
+			"whole_max_us": 3121,
+			"whole_median_us": 1886
+		},
+		{
+			"clip": "guard",
+			"held_after_cycle": false,
+			"stable_max_us": 2884,
+			"stable_median_us": 99,
+			"view": "rear",
+			"whole_max_us": 3230,
+			"whole_median_us": 427
+		},
+		{
+			"clip": "hit",
+			"held_after_cycle": false,
+			"stable_max_us": 2779,
+			"stable_median_us": 616,
+			"view": "rear",
+			"whole_max_us": 3120,
+			"whole_median_us": 930
+		},
+		{
+			"clip": "death",
+			"held_after_cycle": false,
+			"stable_max_us": 2837,
+			"stable_median_us": 1502,
+			"view": "rear",
+			"whole_max_us": 3311,
+			"whole_median_us": 1954
+		},
+		{
+			"clip": "rest",
+			"held_after_cycle": true,
+			"stable_max_us": 146,
+			"stable_median_us": 136,
+			"view": "rear",
+			"whole_max_us": 347,
+			"whole_median_us": 304
+		}
+	],
+	"disabled_cache_mutation": false,
+	"errors": [],
+	"headroom_factor": 2.0,
+	"held_budget_us": 500,
+	"interleaved": [
+		{
+			"caches": [
+				{
+					"clip": "move",
+					"repeat_hits": 1071,
+					"repeat_misses": 0
+				},
+				{
+					"clip": "reel",
+					"repeat_hits": 1071,
+					"repeat_misses": 0
+				},
+				{
+					"clip": "death",
+					"repeat_hits": 1071,
+					"repeat_misses": 0
+				}
+			],
+			"first_max_us": 3127,
+			"repeat_max_us": 112,
+			"repeat_median_us": 102,
+			"rigs": 3,
+			"view": "front"
+		},
+		{
+			"caches": [
+				{
+					"clip": "move",
+					"repeat_hits": 1020,
+					"repeat_misses": 0
+				},
+				{
+					"clip": "reel",
+					"repeat_hits": 1020,
+					"repeat_misses": 0
+				},
+				{
+					"clip": "death",
+					"repeat_hits": 1020,
+					"repeat_misses": 0
+				}
+			],
+			"first_max_us": 2842,
+			"repeat_max_us": 124,
+			"repeat_median_us": 100,
+			"rigs": 3,
+			"view": "rear"
+		}
+	],
+	"legacy_mutation": false,
+	"motion_max_budget_us": 3000,
+	"motion_median_budget_us": 2000,
+	"ok": true,
+	"paired": [
+		{
+			"fallback_median_us": 4824,
+			"fast_median_us": 2925,
+			"minimum_speedup": 1.6,
+			"ok": true,
+			"samples": 1071,
+			"speedup": 1.64923076923077,
+			"view": "front"
+		},
+		{
+			"fallback_median_us": 4374,
+			"fast_median_us": 2713,
+			"minimum_speedup": 1.6,
+			"ok": true,
+			"samples": 1071,
+			"speedup": 1.61223737559897,
+			"view": "rear"
+		}
+	],
+	"samples_per_clip": 51
+}

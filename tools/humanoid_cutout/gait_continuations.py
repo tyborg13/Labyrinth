@@ -6,7 +6,7 @@ density-treated donor; clips without a recipe retain the original texture.
 import numpy as np
 from PIL import Image
 
-from maquette_motion.material_palette import interior_donors, rules, luma
+from maquette_motion.material_palette import interior_donors, rules, luma, outline_class
 
 
 def active_recipe(layout, name, *, gait=False, clip=None):
@@ -46,7 +46,35 @@ def nearest_donors(case, layout, part, targets):
     donor = next(p for p in layout['parts']
                  if p['logical_part'] == part['logical_part'] and not p.get('hidden_material'))
     with Image.open(case / donor['file']) as image:
-        paint = interior_donors(np.asarray(image.convert('RGBA')), rules(case, layout['facing']))
+        original = np.asarray(image.convert('RGBA'))
+        paint = interior_donors(original, rules(case, layout['facing']))
+    rule = part.get('continuation_donor_rule', 'nearest')
+    if rule not in ('nearest', 'same_row'):
+        raise ValueError('Invalid continuation donor rule')
+    margin = part.get('continuation_interior_margin_px', 0)
+    if type(margin) is not int or margin < 0:
+        raise ValueError('Invalid continuation donor interior margin')
+    if margin:
+        from maquette_motion.silhouette import dilate
+        # Pad the crop: texture boundaries are also rest-outline boundaries.
+        air = np.pad(original[...,3]==0, margin, constant_values=True)
+        paint[dilate(air, margin)[margin:-margin,margin:-margin]] = 0
+        boundary=(original[...,3]>0) & dilate(np.pad(original[...,3]==0,1,constant_values=True),1)[1:-1,1:-1]
+        outline=boundary | outline_class(original,rules(case,layout['facing']))
+        # Row extensions use the declared distance inside the rest outline.
+        # Legacy nearest fills retain their additional ink-band clearance.
+        if rule == 'nearest':paint[dilate(outline,margin)] = 0
+    declared=donor.get('continuation_donor_uvs')
+    if declared is not None:
+        legal=np.zeros(paint.shape[:2],bool)
+        for point in declared:
+            if (not isinstance(point,list) or len(point)!=2 or any(type(n) is not int for n in point)):
+                raise ValueError('Invalid declared continuation donor coordinate')
+            u,v=point
+            if not (0<=u<paint.shape[1] and 0<=v<paint.shape[0]) or not original[v,u,3]:
+                raise ValueError('Declared continuation donor outside its approved piece')
+            legal[v,u]=True
+        paint[~legal]=0
     minimum = part.get('continuation_min_luma')
     if minimum is not None:
         if type(minimum) not in (int, float) or not np.isfinite(minimum) or minimum < 0:
@@ -59,7 +87,10 @@ def nearest_donors(case, layout, part, targets):
     result = []
     for x, y in sorted(targets, key=lambda p: (p[1], p[0])):
         target = np.array([x, y]) + part['offset']
-        index = np.argmin(np.sum((points - target) ** 2, axis=1))
+        candidates = np.flatnonzero(points[:, 1] == target[1]) if rule == 'same_row' else np.arange(len(points))
+        if not len(candidates):
+            raise ValueError('No approved same-row continuation donors')
+        index = candidates[np.argmin(np.sum((points[candidates] - target) ** 2, axis=1))]
         result.append([int(x), int(y), int(u[index]), int(v[index])])
     return {'donor': donor['name'], 'texels': result}
 

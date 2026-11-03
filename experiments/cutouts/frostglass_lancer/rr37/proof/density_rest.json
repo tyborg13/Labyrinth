@@ -1,0 +1,10 @@
+{
+  "front": {
+    "sha256": "b24aa2be07667f97d4c357e209315b4109e2eb43209199a7d8c121323ac1d41c",
+    "native_pixels": false
+  },
+  "rear": {
+    "sha256": "cf794463ba7f58892cfa5d6f1787d108f488a8b047da6b90638341aa36d3536d",
+    "native_pixels": false
+  }
+}

@@ -14,7 +14,7 @@ from spec.art_identity.maquettes.blender.contract import digest
 from spec.art_identity.maquettes.blender.curate_delivery import sha, write
 from spec.art_identity.maquettes.blender.delivery_validation import seal_delivery, validate_delivery
 from .candidate import ROOT, FIGURES, compile_candidate, folder
-from .preservation import HERE, PROJECT, check, status, source_dependencies
+from .preservation import HERE, PROJECT, SUCCESSOR_PATH, check, status, source_dependencies
 from .proof import inspect, sheet
 
 WORKFLOW_DEFAULTS = {'timeout_s': 900, 'run_id': 'owner_01'}
@@ -35,7 +35,7 @@ def inputs():
     paths = source_dependencies(PROJECT, seeds)
     paths.update(ROOT / n / 'measurements.json' for n in FIGURES)
     paths.update(ROOT / n / 'owner_review/design.json' for n in FIGURES)
-    paths.update((HERE / 'baseline.json', ROOT / 'frostglass_lancer/spec_r3.json'))
+    paths.update((HERE / 'baseline.json', SUCCESSOR_PATH, ROOT / 'frostglass_lancer/spec_r3.json'))
     return {str(p.relative_to(PROJECT)): sha(p) for p in sorted(paths)}
 
 

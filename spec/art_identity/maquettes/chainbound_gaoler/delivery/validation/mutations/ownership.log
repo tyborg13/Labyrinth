@@ -1,0 +1,14 @@
+test_ownership_requires_each_nonempty_native_solo (tests.test_mq15_maquette.DeliveryTests) ... FAIL
+
+======================================================================
+FAIL: test_ownership_requires_each_nonempty_native_solo (tests.test_mq15_maquette.DeliveryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 149, in test_ownership_requires_each_nonempty_native_solo
+    validate_delivery(self.spec, self.folder, require_binding=False)
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.159s
+
+FAILED (failures=1)

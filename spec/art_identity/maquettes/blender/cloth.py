@@ -148,9 +148,12 @@ def cloth(piece, spec, body, cache, context_key):
             # adjacent finger or arm even when the solver contact was clear.
             from .drape_collision import finish
             finish(*solver)
+        elif piece.get('back_attachment'):
+            from .static_drape import resolve as resolve_back
+            resolve_back(obj, body, piece)
         else:
             stabilise_collision(obj, body, piece)
-        if piece.get('drape', {}).get('smooth_normals'):
+        if piece.get('smooth_normals') or piece.get('drape', {}).get('smooth_normals'):
             for polygon in obj.data.polygons:
                 polygon.use_smooth = True
         if piece.get('drape'):
@@ -159,6 +162,14 @@ def cloth(piece, spec, body, cache, context_key):
             simulation_report['maximum_contact_displacement_allowed'] = CONTACT_STABILITY_DEFAULTS['clearance_multiplier'] * (piece.get('solver_margin', piece['collision_margin']) + COLLIDER_DEFAULTS['surface_allowance'] + piece['thick'] / 2)
         baked = obj.data
         payload = snapshot(baked)
+        if spec.get('shoulder_garment_motion', {}).get(piece['id']) == 'root':
+            group_index = obj.vertex_groups[piece['pin_group']].index
+            payload['shoulder_attachment_roots'] = [list(obj.matrix_world @ v.co) for v in obj.data.vertices
+                if any(g.group == group_index and g.weight == 1 for g in v.groups)]
+            if not payload['shoulder_attachment_roots']:
+                raise ValueError('Native cloth attachment lost all pin positions: ' + piece['id'])
+            from .cloth_cache import topology_hash
+            payload['topology_hash'] = topology_hash(payload)
         payload['simulation_report'] = simulation_report
         for report_name in ('sewn_rest_report', 'rounded_hood_report', 'back_sheet_report', 'attachment_report'):
             if report_name in obj:
@@ -185,6 +196,10 @@ def cloth(piece, spec, body, cache, context_key):
     for report_name in ('sewn_rest_report', 'rounded_hood_report', 'back_sheet_report', 'attachment_report'):
         if report_name in payload:
             obj[report_name] = json.dumps(payload[report_name])
+    if spec.get('shoulder_garment_motion', {}).get(piece['id']) == 'root':
+        if not payload.get('shoulder_attachment_roots'):
+            raise ValueError('Native attachment cache lacks source pin positions: ' + piece['id'])
+        obj['shoulder_attachment_roots'] = json.dumps(payload['shoulder_attachment_roots'])
     if 'simulation_report' in payload:
         obj['simulation_report'] = json.dumps(payload['simulation_report'])
     obj['collision_report'] = json.dumps(collision_report(obj, body, piece['collision_margin']))

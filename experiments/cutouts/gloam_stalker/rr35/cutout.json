@@ -1,0 +1,101 @@
+{
+  "character_id": "gloam_stalker",
+  "rig": "humanoid_v2",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {},
+  "direction_clips": [
+    "move",
+    "ambush",
+    "slash",
+    "hit",
+    "death"
+  ],
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the protagonist's cut-out bob, hunched: upper body down 2 px and back as one rigid piece; the near claw arm follows a beat later (the Thrall's pre-computed sword-lag curve on upper_near, moving the whole arm rigidly); drapes, legs and feet still (director, rr-33 feedback 1)",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.85,
+      "intents": [],
+      "note": "a low prowl on the protagonist's model: both legs step, six steps per tile, near foot leading; a low, wide-set prowl: 4 px lift and 0.4 lane narrowing, because the r3 crouch foreshortens the rear thigh and a higher or narrower swing folds the rear near knee past its minimum reach (rr-35 round 0) and a deeper settle than the hero; a 4 degree hunch; the claws sway 3 px opposite the stepping leg; the drapes trail 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 3,
+        "lane_narrowing": 0.4,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.5,
+          "down": 3.0,
+          "passing": 0.8,
+          "up": 0.3
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "hand_near",
+            "px": 3
+          },
+          "far": {
+            "bone": "hand_far",
+            "px": 3
+          }
+        },
+        "max_fit_px": 6
+      },
+      "release_at": {}
+    },
+    "fade": {
+      "seconds": 0.8,
+      "contact": 0.5,
+      "intents": [
+        "fade:veil_blink"
+      ],
+      "note": "coils into its drapes: crouches low, draws both claws in close across its body and bows the hood as the existing Blink/Veil effect takes it (contact); unfolds again",
+      "release_at": {}
+    },
+    "ambush": {
+      "seconds": 0.7,
+      "contact": 0.4,
+      "intents": [
+        "ambush:melee"
+      ],
+      "note": "springs out of hiding: rises tall with both claws high, then drives them down together at the target in one overhead strike (contact); stays low over the kill; recovers",
+      "release_at": {}
+    },
+    "slash": {
+      "seconds": 0.8,
+      "contact": 0.48,
+      "intents": [
+        "slash:melee"
+      ],
+      "note": "a one-blade cleave with the LEADING blade (hand_far, the side toward the facing): rears back and lifts it high and out on the wind-up while the hood pulls back, then scythes it down and forward at the target past rest (contact) as the body lunges (6 px) and dips into the cut, the torso leaning no more than the spec's 4 degrees; the near blade swings back as a counterweight; follows through low and recovers. In the front the leading shoulder sits behind the torso; in the rear it is the camera-side arm, so the rear wind-up lifts 14 px instead of 18 (view_keys.rear) to stay within the shoulder's joint budget. The front view asks 26 px forward at contact (view_keys.front): its leading arm is fully extended there, which caps the tip at about 17 px from rest (rr-35 round 1), so the cleave reads through the wind-up-to-contact sweep.",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, claws trail 1 px; drapes flick 2 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.4,
+      "terminal": true,
+      "intents": [],
+      "note": "folds into its drapes: the pelvis drops, the torso pitches forward 24 degrees, the hood bows, both claws sink to the floor ahead and the drapes settle over them; terminal pose held, then the existing fade",
+      "release_at": {}
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "name": "Slag Mortar",
+  "ai_profile": {
+    "role": "artillery",
+    "preferred_range": 4,
+    "retreat_distance": 2
+  },
+  "element": "fire",
+  "max_hp": 18,
+  "base_initiative": 14,
+  "reward_embers": 13,
+  "accent": "#e8722c",
+  "art_path": "res://assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png",
+  "intents": [
+    {
+      "id": "lob_slag",
+      "name": "Lob Slag",
+      "time": 6,
+      "weight": 3,
+      "next_intent": "slag_lands",
+      "actions": [
+        {
+          "type": "lob_mark",
+          "shape": "plus",
+          "min_range": 3,
+          "max_range": 6,
+          "ignore_line_of_sight": true
+        }
+      ]
+    },
+    {
+      "id": "slag_lands",
+      "name": "Lob Slag",
+      "time": 4,
+      "weight": 0,
+      "actions": [
+        {
+          "type": "lob_land",
+          "center_damage": 5,
+          "arm_damage": 3,
+          "surface": "fire",
+          "element": "fire"
+        }
+      ]
+    },
+    {
+      "id": "brace",
+      "name": "Brace",
+      "time": 5,
+      "weight": 1,
+      "actions": [
+        {
+          "type": "block",
+          "amount": 6
+        },
+        {
+          "type": "move_away",
+          "range": 2
+        }
+      ]
+    },
+    {
+      "id": "scatter_shot",
+      "name": "Scatter Shot",
+      "time": 5,
+      "weight": 2,
+      "requires_hero_within": 2,
+      "actions": [
+        {
+          "type": "ranged",
+          "damage": 3,
+          "range": 2,
+          "push": 1,
+          "element": "fire"
+        }
+      ]
+    }
+  ],
+  "art_scale": 1.04,
+  "art_rear_path": "res://assets/units/slag_mortar_cutout/humanoid_v2/rear/rest.png"
+}

@@ -1,0 +1,139 @@
+{
+  "starting_head": "75e4b3896cf1cf46a035b4f34778bc57aae06d21",
+  "branch": "codex/rr-42",
+  "uncommitted": true,
+  "findings": {
+    "clean_checkout": "explicit case root; tracked-only child test passed",
+    "historical_assertion": "recorded historical SHA and exact recompilation; current production compared separately",
+    "move_duration": "Action.frames_for; Action.FPS; routing clock passed",
+    "unused_helper": "policy() removed; release calculations unchanged"
+  },
+  "chosen_defaults": {
+    "clean_copy_child_timeout_seconds": 60
+  },
+  "todo_design": [],
+  "full_suites_run": false,
+  "windowed_runs": false,
+  "gate_implementation_changes": [],
+  "native_manifest_rewritten": false,
+  "native_source_hash_recapture_required": true,
+  "preflight": {
+    "worker_retry_exit_code": 1,
+    "owner_preflight_supplied": true,
+    "cause": "Sandbox denied parent-repository worktree index.lock creation during git write-tree; no Git ref smoke operation reached."
+  },
+  "initial_focused_error": {
+    "test": "test_current_production_matches_current_staged_motion",
+    "cause": "Production package omits authoring anatomy.json; compile using tracked authoring layouts instead.",
+    "resolved": true
+  },
+  "adapter_cleanup": {
+    "starting_head": "75e4b3896cf1cf46a035b4f34778bc57aae06d21",
+    "inputs": {
+      "production:assets/units/chainbound_gaoler_cutout/renderer.gd": {
+        "before_sha256": "06dede0e54d0c4aba3d659bd11f4992fa7897e3f91390c10cd4af62f72e675c7",
+        "after_sha256": "e4942e454b7d3cd6c1980abbbf892cbcfaf9a7ba8f1ad38378812956c1c83ba6",
+        "reason": "Feedback 3 finding 3: derive move frames and frame seconds through the existing Action adapter; authored data unchanged."
+      },
+      "production:assets/units/chainbound_gaoler_cutout/held_drop.gd": {
+        "before_sha256": "f53e97b3c0313fb5bfc7320607f516b1ef2f81d830dafb3412f50047679e3a59",
+        "after_sha256": "c51a0ec282bac1700a8bb4bd68a501efde02af8d869430693d51e1bcce888af9",
+        "reason": "Feedback 3 finding 4: remove the unused policy lookup helper; release transform and angle calculations unchanged."
+      }
+    },
+    "art_changes": [],
+    "motion_changes": [],
+    "gate_changes": [],
+    "native_manifest_rewritten": false
+  },
+  "preservation": [
+    {
+      "file": "spec/peer_benchmark/staged/rr-38/motion_tracks.json",
+      "sha256": "d193048ceb6643707a874a66baf0f4a94a118581477fc792f6ffcccb63cf3dcd"
+    },
+    {
+      "file": "experiments/cutouts/chainbound_gaoler/rr38/director_motion.json",
+      "sha256": "2d2aef18cd5f6bb213285253955073d398b9c6eb183b851b9fcfc8de3578ba98"
+    },
+    {
+      "file": "experiments/cutouts/chainbound_gaoler/rr38/compiled_motion.json",
+      "sha256": "a8fa22afd592e5b05c6459ac8a3c546655cc79e5eaea6ca99488226528a3c912"
+    },
+    {
+      "file": "experiments/cutouts/chainbound_gaoler/rr38/proof/build.json",
+      "sha256": "b6e3ab2ea3b07668ec2cfc5ab7687658b42aebb69fcfa03dfcbf3984ff1a4db2"
+    },
+    {
+      "file": "assets/units/chainbound_gaoler_cutout/humanoid_v2/compiled_motion.json",
+      "sha256": "fd2d7e313e7a6ff93cea7d87d80aa140a8ccc3cebae8eaac1edd366eaf9be938"
+    },
+    {
+      "file": "experiments/cutouts/chainbound_gaoler/rr42/proof/feedback2_native/manifest.json",
+      "sha256": "3d0b1241dad17952f9f91e5996fa58b5b9bdeec853fc1048a893d8123123f2cf"
+    }
+  ],
+  "logs": {
+    "focused": {
+      "file": "proof/logs/feedback3/focused.log",
+      "sha256": "0b616f3a5141bac64ce36aa0ccabeb1b68f44038178062e08ead285763b63c94",
+      "result_lines": [
+        "Ran 1 test in 0.066s",
+        "OK",
+        "RR42 TRACKED-ONLY MOTION TEST: PASS (5116 tracked files; ignored production_case absent)",
+        "Ran 45 tests in 67.904s",
+        "OK"
+      ]
+    },
+    "clean_copy": {
+      "file": "proof/logs/feedback3/clean_copy.log",
+      "sha256": "2cb99e82c417c607a86637a745f8a9e950aad483b12bb25ec6ba6735b4f7c2f8",
+      "result_lines": [
+        "Ran 1 test in 0.080s",
+        "OK",
+        "RR42 TRACKED-ONLY MOTION TEST: PASS (5116 tracked files; ignored production_case absent)",
+        "Ran 1 test in 2.188s",
+        "OK"
+      ]
+    },
+    "routing": {
+      "file": "proof/logs/feedback3/routing.log",
+      "sha256": "8e222940805a75b8381a77dfd6caff867f4c3f275aa3dda0e719a073fb93bcc7",
+      "result_lines": [
+        "RR38 RUNTIME: PASS (239 checks; headless registration, views, portraits and clocks)"
+      ]
+    },
+    "registration": {
+      "file": "proof/logs/feedback3/registration.log",
+      "sha256": "472ce837ab453dbcd4456a560e4d18854356b14492457052a53cd31f304b5cfb",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (841 scripts; full suite=487, quarantined=29, windowed probe=325)"
+      ]
+    },
+    "focused_initial": {
+      "file": "proof/logs/feedback3/focused_initial.log",
+      "sha256": "1a138f31dc7188ed37abca122837eeac05f1e8cc98d21127e26f139440cc134e",
+      "result_lines": [
+        "Ran 1 test in 0.079s",
+        "OK",
+        "RR42 TRACKED-ONLY MOTION TEST: PASS (5116 tracked files; ignored production_case absent)",
+        "ERROR: test_current_production_matches_current_staged_motion (tests.test_rr42_gaoler.GaolerPaintTests)",
+        "Ran 45 tests in 73.508s",
+        "FAILED (errors=1)"
+      ]
+    }
+  },
+  "files_changed": [
+    "assets/units/chainbound_gaoler_cutout/held_drop.gd",
+    "assets/units/chainbound_gaoler_cutout/renderer.gd",
+    "experiments/cutouts/chainbound_gaoler/rr42/proof/feedback3_adapter_cleanup.json",
+    "experiments/cutouts/chainbound_gaoler/rr42/proof/feedback3_receipts.json",
+    "experiments/cutouts/chainbound_gaoler/rr42_FEEDBACK3.md",
+    "experiments/cutouts/chainbound_gaoler/rr42_angle_budget.py",
+    "experiments/cutouts/chainbound_gaoler/rr42_candidate.py",
+    "experiments/cutouts/chainbound_gaoler/rr42_channel_search.py",
+    "tests/test_rr38_feedback2.py",
+    "tests/test_rr42_feedback2.py",
+    "tests/test_rr42_feedback3.py",
+    "tests/test_rr42_gaoler.py"
+  ]
+}

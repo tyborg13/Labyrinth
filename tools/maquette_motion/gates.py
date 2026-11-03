@@ -10,6 +10,7 @@ from cutout_pipeline.cases import digest, read_json, write_json
 from maquette_motion.contract import expected as director_contract, phases as sample_phases, evaluate, approved_source
 from cutout_pipeline.cases import CutoutError
 from humanoid_cutout.native_frames import load_frame, frame_digest, frame_exists
+from maquette_motion.proof_dependencies import python_import_closure, layout_resource_bindings
 
 PROJECT = Path(__file__).resolve().parents[2]
 SOURCE = PROJECT / 'spec/peer_benchmark/staged/rr-04/motion_tracks.json'
@@ -96,21 +97,73 @@ def production_errors(manifest, compiled):
     if manifest.get('completions',{}).get('hit',{}).get('clip')!='idle':failures.append('hit: missing return to idle')
     return failures
 
-RUNTIME_PATHS = ['tests/maquette_cutout/capture_storage.gd', 'tools/humanoid_cutout/native_frames.py', 'scripts/maquette_cutout_runtime/motion.gd', 'scripts/maquette_cutout_runtime/rig.gd',
-    'scripts/maquette_cutout_runtime/pixel_presentation.gd', 'tools/maquette_motion/features.py', 'tools/maquette_motion/pixels.py', 'tools/maquette_motion/raster.py',
-    'tools/maquette_motion/material_palette.py', 'tools/maquette_motion/hidden_material.py', 'tools/maquette_motion/material_provenance.py', 'tools/maquette_motion/support_seeds.py', 'tools/maquette_motion/hidden_support.py', 'tools/maquette_motion/socket_edit.py',
-    'tools/maquette_motion/joint_seams.py', 'tools/maquette_motion/seam_pose.py', 'tools/maquette_motion/seam_builder.py', 'tools/maquette_motion/silhouette.py', 'tools/maquette_motion/continuity.py', 'tools/maquette_motion/bleed.py', 'tools/maquette_motion/seam_support.py', 'tools/maquette_motion/contract.py', 'tools/maquette_motion/continuity_limits.py', 'tools/maquette_motion/feature_builder.py',
-    'tests/maquette_cutout/seam_capture.gd', 'tests/maquette_cutout/reference_masks.gd', 'tests/maquette_cutout/pixel_capture.gd', 'tests/maquette_cutout/pixel_samples.gd', 'tests/maquette_cutout/proof_inputs.gd', 'tools/maquette_cutout_polish.py',
-    'scripts/maquette_cutout_runtime/renderer.gd', 'scripts/maquette_cutout_runtime/action.gd',
-    'scripts/maquette_cutout_runtime/presentation.gd', 'scripts/maquette_cutout_runtime/portrait.gd',
-    'tests/maquette_cutout/native_capture.gd', 'tools/maquette_motion/compiler.py', 'scripts/run_scene.gd', 'scripts/combat_board_view.gd', 'scripts/cutout_context.gd', 'scripts/actor_presentation.gd', 'data/enemies.json']
+# Isolated pixel/native probes: preload + extends closure (including the rig's
+# base and its presentation helpers), plus renderer.gd. capture_storage's two
+# production-only methods are not called by these probes; see the closure test.
+RUNTIME_PATHS = [
+    'assets/units/hoarfrost_seer_cutout/precision.gd',
+    'scripts/asset_loader.gd',
+    'scripts/cel_look.gd',
+    'scripts/enemy_cutout_facing.gd',
+    'scripts/maquette_cutout_runtime/humanoid_anatomy.gd',
+    'scripts/maquette_cutout_runtime/humanoid_continuations.gd',
+    'scripts/maquette_cutout_runtime/humanoid_elbows.gd',
+    'scripts/maquette_cutout_runtime/humanoid_held_follow.gd',
+    'scripts/maquette_cutout_runtime/humanoid_joint_caps.gd',
+    'scripts/maquette_cutout_runtime/humanoid_gait.gd',
+    'scripts/maquette_cutout_runtime/humanoid_motion.gd',
+    'scripts/maquette_cutout_runtime/humanoid_presentation.gd',
+    'scripts/maquette_cutout_runtime/motion.gd',
+    'scripts/maquette_cutout_runtime/pixel_presentation.gd',
+    'scripts/maquette_cutout_runtime/renderer.gd',
+    'scripts/maquette_cutout_runtime/rig.gd',
+    'scripts/maquette_cutout_runtime/stable_paint.gd',
+    'scripts/maquette_cutout_runtime/stable_skin.gd',
+    'scripts/parallel_runtime.gd',
+    'scripts/protagonist_cutout/full_gear_motion.gd',
+    'scripts/protagonist_cutout/gear_carry.gd',
+    'scripts/protagonist_cutout/gear_layers.gd',
+    'scripts/protagonist_cutout/motion.gd',
+    'scripts/protagonist_cutout/rig.gd',
+    'scripts/protagonist_cutout/rig_data.gd',
+    'tests/maquette_cutout/capture_storage.gd',
+    'tests/maquette_cutout/native_capture.gd',
+    'tests/maquette_cutout/pixel_capture.gd',
+    'tests/maquette_cutout/pixel_samples.gd',
+    'tests/maquette_cutout/proof_inputs.gd',
+    'tests/maquette_cutout/reference_masks.gd',
+    'tests/maquette_cutout/render_settings.gd',
+    'tests/maquette_cutout/seam_capture.gd',
+]
+
+PRODUCTION_RUNTIME_PATHS = [
+    'scripts/run_scene.gd',
+    'scripts/combat_board_view.gd',
+    'scripts/cutout_context.gd',
+    'scripts/actor_presentation.gd',
+    'data/enemies.json',
+    'scripts/combat_engine.gd',
+    'scripts/maquette_cutout_runtime/action.gd',
+    'scripts/maquette_cutout_runtime/presentation.gd',
+    'scripts/maquette_cutout_runtime/portrait.gd',
+]
 
 def production_bindings(base):
     paths={'compiled_motion.json','front.json','rear.json','front/rest.png','rear/rest.png'}
     for view in ('front','rear'):paths.update(p['file'] for p in read_json(base/(view+'.json'))['parts'])
-    return {'production:'+p:digest(base/p) for p in paths}
+    result = {'production:'+p:digest(base/p) for p in paths}
+    runtime_paths = set(PRODUCTION_RUNTIME_PATHS)
+    # Legacy case extensions include board adapters and build tools. They
+    # belong to production provenance, never the isolated rig's input closure.
+    case = PROJECT / read_json(base / 'integration.json')['case']
+    runtime_paths.update(read_json(case / 'cutout.json').get('runtime_paths', []))
+    result['cel_look_mode'] = 'off'  # Gates judge source art, including retained native proof.
+    result.update({'runtime:' + p: digest(PROJECT / p) for p in runtime_paths})
+    return result
 
 def input_bindings(case):
+    # motion.gd is retained authoring provenance. The pixel/native probes do
+    # not execute it: they use the shared sampler and compiled_motion.json.
     paths = {'cutout.json','compiled_motion.json','director_motion.json','source/spec.json','motion.gd','layouts/front.json','layouts/rear.json'}
     if (case / 'seams.json').exists(): paths.add('seams.json')
     if (case / 'seam_parent_decisions.json').exists(): paths.add('seam_parent_decisions.json')
@@ -126,9 +179,9 @@ def input_bindings(case):
         for feature in read_json(case/'features.json')['features']:
             paths.update(d['mask'] for d in feature['views'].values() if not d['mask'].startswith('TODO_DESIGN_'))
     result={p:digest(case/p) for p in paths}
+    result.update(layout_resource_bindings(case, PROJECT, read_json, digest))
+    result['cel_look_mode'] = 'off'  # Gates judge source art, including retained native proof.
     result.update({'runtime:'+p:digest(PROJECT/p) for p in RUNTIME_PATHS})
-    for path in read_json(case / 'cutout.json').get('runtime_paths', []):
-        result['runtime:' + path] = digest(PROJECT / path)
     return result
 
 
@@ -149,9 +202,9 @@ def bindings_match(case, recorded):
 
 
 def verification_bindings():
-    paths = (*VERIFICATION_ONLY_PATHS, 'tools/maquette_motion/native_ties.py', 'tools/maquette_motion/gates.py',
-             'tools/maquette_motion/certificates.py')
-    return {p: digest(PROJECT / p) for p in paths}
+    entrypoints = (*VERIFICATION_ONLY_PATHS, 'tools/maquette_motion/native_ties.py',
+                   'tools/maquette_motion/gates.py', 'tools/maquette_motion/certificates.py')
+    return {p: digest(PROJECT / p) for p in sorted(python_import_closure(PROJECT, entrypoints))}
 
 def native_errors(case, capture):
     failures=[]

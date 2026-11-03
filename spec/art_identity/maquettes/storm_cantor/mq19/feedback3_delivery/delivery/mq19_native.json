@@ -1,0 +1,4908 @@
+{
+  "passed": true,
+  "checks": {
+    "pose_values": true,
+    "feet_planted": true,
+    "staff_butt_outward_of_far_foot": true,
+    "far_elbow_not_forward": true,
+    "forearm_forward": true,
+    "shoulder_rule": true,
+    "level_shoulders": true,
+    "true_turn": true,
+    "facing": true,
+    "design_resolved": true,
+    "cloak": true,
+    "tabard": true,
+    "front_far_exposure": true,
+    "r3_shapes_preserved": true,
+    "cloak_occlusion": true,
+    "native_mesh_binding": true,
+    "native_endpoints": true,
+    "native_build": true,
+    "native_mutations": true,
+    "restored_native_geometry": true
+  },
+  "pose_values": [
+    {
+      "requirement": 1,
+      "name": "near_knee_degrees",
+      "target": 22,
+      "measured": 22.00000367897603,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 1,
+      "name": "far_knee_degrees",
+      "target": 10,
+      "measured": 9.999997652196416,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 2,
+      "name": "pelvis_down_near_degrees",
+      "target": 4,
+      "measured": 4.00004457791461,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 2,
+      "name": "forward_lean_degrees",
+      "target": 14,
+      "measured": 13.999990905160269,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 3,
+      "name": "chest_yaw_toward_viewer_degrees",
+      "target": 6,
+      "measured": 6.000000524621572,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 4,
+      "name": "head_down_degrees",
+      "target": 15,
+      "measured": 15.000000410786807,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 4,
+      "name": "head_matches_chest_yaw",
+      "target": 0,
+      "measured": -5.602541364169156e-07,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 5,
+      "name": "ankle_span_over_shoulders",
+      "target": 1.5,
+      "measured": 1.5000002200809637,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 6,
+      "name": "near_step_over_L",
+      "target": 0.18,
+      "measured": 0.18000002205371857,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "fist_height_over_H",
+      "target": 0.56,
+      "measured": 0.5599999438072073,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "fist_forward_over_L",
+      "target": 0.1,
+      "measured": 0.09999999403953552,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "fist_outward_over_L",
+      "target": 0.36,
+      "measured": 0.35999995470046997,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "staff_from_vertical_degrees",
+      "target": 4,
+      "measured": 4.0000000490902075,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "staff_forward_degrees",
+      "target": 4,
+      "measured": 4.000000049090246,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "staff_butt_sole_over_H",
+      "target": 0,
+      "measured": 0.0,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "staff_grip_axis_distance_over_L",
+      "target": 0,
+      "measured": 4.045108589754947e-08,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 8,
+      "name": "far_elbow_outward_degrees",
+      "target": 40,
+      "measured": 40.00001446765779,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_upper_out_degrees",
+      "target": 20,
+      "measured": 19.999985111083024,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_elbow_degrees",
+      "target": 45,
+      "measured": 44.9999879887528,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_0_knuckle_0",
+      "target": 45,
+      "measured": 44.99999711805226,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_0_knuckle_1",
+      "target": 45,
+      "measured": 45.000012315230784,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_0_knuckle_2",
+      "target": 45,
+      "measured": 44.999975672629894,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_1_knuckle_0",
+      "target": 45,
+      "measured": 45.00000017820044,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_1_knuckle_1",
+      "target": 45,
+      "measured": 45.00000956226344,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_1_knuckle_2",
+      "target": 45,
+      "measured": 44.999977139606905,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_2_knuckle_0",
+      "target": 45,
+      "measured": 44.999996844546786,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_2_knuckle_1",
+      "target": 45,
+      "measured": 45.00000991586975,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_2_knuckle_2",
+      "target": 45,
+      "measured": 44.99996599912876,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_3_knuckle_0",
+      "target": 45,
+      "measured": 44.99999974978742,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_3_knuckle_1",
+      "target": 45,
+      "measured": 45.000007543364994,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_3_knuckle_2",
+      "target": 45,
+      "measured": 44.99996909795255,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_wrist_ahead_over_L",
+      "target": 0.15,
+      "measured": 0.14999999105930328,
+      "tolerance": 0.01,
+      "passed": true
+    }
+  ],
+  "soles_m": {
+    "near": 0.0,
+    "far": 0.0
+  },
+  "staff_top_over_H": 1.049629800278565,
+  "staff_butt_outward_clearance_over_L": 0.11266648272673291,
+  "shoulder_and_turn": {
+    "passed": true,
+    "checks": {
+      "shoulder_rule": true,
+      "shoulders_level_3d": true,
+      "native_joint_projection": true,
+      "proper_true_turn": true,
+      "same_camera_angles_and_scale": true,
+      "front_staff_side": true,
+      "rear_staff_side": true
+    },
+    "shoulder_rise_px": 18.700920651515162,
+    "target_shoulder_rise_px": 32.64839983934822,
+    "shoulder_error_px": 13.94747918783306,
+    "shoulder_rule_limit_px": 15.0,
+    "within_standard_10px": false,
+    "level_difference_m": 3.5762786865234375e-07,
+    "level_tolerance_m": 0.012473118279569893,
+    "maximum_joint_projection_error_px": 0.0,
+    "rear_relative_matrix": [
+      [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "rear_determinant": 1.0
+  },
+  "cloak": {
+    "passed": true,
+    "checks": {
+      "three_actual_holes": true,
+      "nine_actual_strips": true,
+      "elliptical_tears": true,
+      "tear_centres_preserved": true,
+      "fold_amplitude_growth": true,
+      "five_radial_folds": true,
+      "back_centre_valley": true,
+      "root_wrap_200_degrees": true,
+      "exact_side_notch_counts": true,
+      "linear_root_chord": true,
+      "strip_widths": true,
+      "strip_lengths": true,
+      "near_longest_tip": true,
+      "tips_above_sole_floor": true,
+      "width_ratios_preserved": true,
+      "widths_and_cuts_fill_root": true,
+      "thickness": true,
+      "root_heights": true,
+      "root_near_flare": true,
+      "shoulder_attachment": true,
+      "flat_lower_ribbons": true,
+      "continuous_shared_strip_roots": true,
+      "eight_slits_start_003H_above_root": true
+    },
+    "ribbon_drape": {
+      "ribbons": [
+        {
+          "lower_half_plane_error_over_H": 6.3977077916997115e-09,
+          "root_edges_shared": true
+        },
+        {
+          "lower_half_plane_error_over_H": 9.47905766054448e-09,
+          "root_edges_shared": true
+        },
+        {
+          "lower_half_plane_error_over_H": 1.0584913424259612e-08,
+          "root_edges_shared": true
+        },
+        {
+          "lower_half_plane_error_over_H": 1.0609430901520011e-08,
+          "root_edges_shared": true
+        },
+        {
+          "lower_half_plane_error_over_H": 8.220692146305692e-09,
+          "root_edges_shared": true
+        },
+        {
+          "lower_half_plane_error_over_H": 8.917714030975349e-09,
+          "root_edges_shared": true
+        },
+        {
+          "lower_half_plane_error_over_H": 7.216297247346542e-09,
+          "root_edges_shared": true
+        },
+        {
+          "lower_half_plane_error_over_H": 3.4013600111287907e-09,
+          "root_edges_shared": true
+        },
+        {
+          "lower_half_plane_error_over_H": 3.2352817605131125e-09,
+          "root_edges_shared": true
+        }
+      ],
+      "slits": [
+        {
+          "start_above_root_over_H": 0.028908976344843018
+        },
+        {
+          "start_above_root_over_H": 0.028154918865381184
+        },
+        {
+          "start_above_root_over_H": 0.02952179072735167
+        },
+        {
+          "start_above_root_over_H": 0.02823230372828045
+        },
+        {
+          "start_above_root_over_H": 0.02919360619324196
+        },
+        {
+          "start_above_root_over_H": 0.028816949248129498
+        },
+        {
+          "start_above_root_over_H": 0.02829966899664549
+        },
+        {
+          "start_above_root_over_H": 0.02953166279742092
+        }
+      ],
+      "checks": {
+        "flat_lower_ribbons": true,
+        "continuous_shared_strip_roots": true,
+        "eight_slits_start_003H_above_root": true
+      }
+    },
+    "hole_count": 3,
+    "boundary_loop_count": 4,
+    "tears": [
+      {
+        "centre_angle_degrees": 10.0,
+        "centre_height_over_H": 0.42,
+        "centroid_error_developed_over_H": [
+          2.191970805781524e-05,
+          4.305206373271819e-05
+        ],
+        "width_over_H": 0.014251821647879137,
+        "height_over_H": 0.028844709283319003,
+        "aspect_ratio": 2.0239313959988747,
+        "area_over_H2": 0.0003150906937555871,
+        "target_area_over_H2": 0.0003141592653589793,
+        "area_ratio": 1.002964828669126,
+        "long_axis_from_vertical_degrees": 0.3395946307222858
+      },
+      {
+        "centre_angle_degrees": -35.0,
+        "centre_height_over_H": 0.38,
+        "centroid_error_developed_over_H": [
+          -0.0008550117498603151,
+          2.4685770471626425e-05
+        ],
+        "width_over_H": 0.01782845819940415,
+        "height_over_H": 0.035313433999645316,
+        "aspect_ratio": 1.9807340379453302,
+        "area_over_H2": 0.0004898429252602891,
+        "target_area_over_H2": 0.0004908738521234052,
+        "area_ratio": 0.9978998130402412,
+        "long_axis_from_vertical_degrees": 0.581576139934842
+      },
+      {
+        "centre_angle_degrees": 45.0,
+        "centre_height_over_H": 0.34,
+        "centroid_error_developed_over_H": [
+          -0.0013909637430502546,
+          0.00016301706600595594
+        ],
+        "width_over_H": 0.02064083129842892,
+        "height_over_H": 0.043264913533268334,
+        "aspect_ratio": 2.096083869284928,
+        "area_over_H2": 0.0006901035255089151,
+        "target_area_over_H2": 0.0007068583470577034,
+        "area_ratio": 0.9762967762656687,
+        "long_axis_from_vertical_degrees": 0.028289319397037178
+      }
+    ],
+    "fold_amplitude_rows": [
+      {
+        "v": 0.0,
+        "amplitude_over_H": 9.232291258599677e-17,
+        "expected_over_H": 0.0,
+        "residual_over_H": 1.3877787807814457e-16
+      },
+      {
+        "v": 0.0078125,
+        "amplitude_over_H": 0.0001562494019914352,
+        "expected_over_H": 0.00015625,
+        "residual_over_H": 1.57211922924283e-08
+      },
+      {
+        "v": 0.015625,
+        "amplitude_over_H": 0.00031249982795733436,
+        "expected_over_H": 0.0003125,
+        "residual_over_H": 1.6965142776714792e-08
+      },
+      {
+        "v": 0.0234375,
+        "amplitude_over_H": 0.0004687496509778922,
+        "expected_over_H": 0.00046875,
+        "residual_over_H": 1.5562423433257422e-08
+      },
+      {
+        "v": 0.023993620421125506,
+        "amplitude_over_H": 0.0004798721745342571,
+        "expected_over_H": 0.0004798724084225101,
+        "residual_over_H": 2.193107812020756e-08
+      },
+      {
+        "v": 0.03125,
+        "amplitude_over_H": 0.00062499994320902,
+        "expected_over_H": 0.000625,
+        "residual_over_H": 1.0738777325713933e-08
+      },
+      {
+        "v": 0.0390625,
+        "amplitude_over_H": 0.0007812493257714638,
+        "expected_over_H": 0.00078125,
+        "residual_over_H": 1.268881000271449e-08
+      },
+      {
+        "v": 0.046875,
+        "amplitude_over_H": 0.0009375002340177778,
+        "expected_over_H": 0.0009375,
+        "residual_over_H": 1.1662277893398354e-08
+      },
+      {
+        "v": 0.0546875,
+        "amplitude_over_H": 0.0010937500096095453,
+        "expected_over_H": 0.00109375,
+        "residual_over_H": 1.376567880517765e-08
+      },
+      {
+        "v": 0.0625,
+        "amplitude_over_H": 0.0012499998913777803,
+        "expected_over_H": 0.00125,
+        "residual_over_H": 1.1290538365349434e-08
+      },
+      {
+        "v": 0.0703125,
+        "amplitude_over_H": 0.0014062493750661132,
+        "expected_over_H": 0.00140625,
+        "residual_over_H": 8.467912204768169e-09
+      },
+      {
+        "v": 0.078125,
+        "amplitude_over_H": 0.0015625001186970388,
+        "expected_over_H": 0.0015625,
+        "residual_over_H": 8.539314227951067e-09
+      },
+      {
+        "v": 0.0859375,
+        "amplitude_over_H": 0.0017187498910169485,
+        "expected_over_H": 0.00171875,
+        "residual_over_H": 9.453667182413028e-09
+      },
+      {
+        "v": 0.09375,
+        "amplitude_over_H": 0.0018749996230724728,
+        "expected_over_H": 0.001875,
+        "residual_over_H": 8.861178790731117e-09
+      },
+      {
+        "v": 0.1015625,
+        "amplitude_over_H": 0.002031250287009502,
+        "expected_over_H": 0.00203125,
+        "residual_over_H": 7.163676818411346e-09
+      },
+      {
+        "v": 0.109375,
+        "amplitude_over_H": 0.002187500200515397,
+        "expected_over_H": 0.0021875,
+        "residual_over_H": 6.320284060001846e-09
+      },
+      {
+        "v": 0.10960821512102673,
+        "amplitude_over_H": 0.002192164687989559,
+        "expected_over_H": 0.0021921643024205347,
+        "residual_over_H": 7.922387662562258e-09
+      },
+      {
+        "v": 0.1171875,
+        "amplitude_over_H": 0.0023437494758825174,
+        "expected_over_H": 0.00234375,
+        "residual_over_H": 6.774562938405282e-09
+      },
+      {
+        "v": 0.125,
+        "amplitude_over_H": 0.0025000002751638653,
+        "expected_over_H": 0.0025,
+        "residual_over_H": 6.35905036960871e-09
+      },
+      {
+        "v": 0.13243877370766707,
+        "amplitude_over_H": 0.0026487754662348705,
+        "expected_over_H": 0.0026487754741533415,
+        "residual_over_H": 5.772662514669236e-09
+      },
+      {
+        "v": 0.1328125,
+        "amplitude_over_H": 0.002656250035368948,
+        "expected_over_H": 0.00265625,
+        "residual_over_H": 6.147246281451579e-09
+      },
+      {
+        "v": 0.140625,
+        "amplitude_over_H": 0.002812500170421042,
+        "expected_over_H": 0.0028125,
+        "residual_over_H": 5.489521712198631e-09
+      },
+      {
+        "v": 0.1484375,
+        "amplitude_over_H": 0.002968749735163423,
+        "expected_over_H": 0.00296875,
+        "residual_over_H": 6.8610573333849345e-09
+      },
+      {
+        "v": 0.15625,
+        "amplitude_over_H": 0.0031249997874361387,
+        "expected_over_H": 0.003125,
+        "residual_over_H": 6.76443137614946e-09
+      },
+      {
+        "v": 0.1640625,
+        "amplitude_over_H": 0.0032812497577364326,
+        "expected_over_H": 0.00328125,
+        "residual_over_H": 7.067227109081031e-09
+      },
+      {
+        "v": 0.171875,
+        "amplitude_over_H": 0.0034374996594578808,
+        "expected_over_H": 0.0034375,
+        "residual_over_H": 7.1967298093111864e-09
+      },
+      {
+        "v": 0.1796875,
+        "amplitude_over_H": 0.003593750443680349,
+        "expected_over_H": 0.00359375,
+        "residual_over_H": 7.629077161674935e-09
+      },
+      {
+        "v": 0.1875,
+        "amplitude_over_H": 0.003749999580493454,
+        "expected_over_H": 0.00375,
+        "residual_over_H": 7.104161051096902e-09
+      },
+      {
+        "v": 0.19522280982092796,
+        "amplitude_over_H": 0.003904455994525204,
+        "expected_over_H": 0.0039044561964185595,
+        "residual_over_H": 7.711472516103157e-09
+      },
+      {
+        "v": 0.1953125,
+        "amplitude_over_H": 0.003906250219084277,
+        "expected_over_H": 0.00390625,
+        "residual_over_H": 7.2800804967743105e-09
+      },
+      {
+        "v": 0.20093044946758817,
+        "amplitude_over_H": 0.004018608496166975,
+        "expected_over_H": 0.004018608989351764,
+        "residual_over_H": 7.262998216739369e-09
+      },
+      {
+        "v": 0.203125,
+        "amplitude_over_H": 0.004062499757005947,
+        "expected_over_H": 0.0040625,
+        "residual_over_H": 8.343729637760866e-09
+      },
+      {
+        "v": 0.2109375,
+        "amplitude_over_H": 0.00421875003415816,
+        "expected_over_H": 0.00421875,
+        "residual_over_H": 6.373042163443365e-09
+      },
+      {
+        "v": 0.21875,
+        "amplitude_over_H": 0.004374999644489331,
+        "expected_over_H": 0.004375,
+        "residual_over_H": 8.442638171901606e-09
+      },
+      {
+        "v": 0.2265625,
+        "amplitude_over_H": 0.004531249493717592,
+        "expected_over_H": 0.00453125,
+        "residual_over_H": 8.768551801319191e-09
+      },
+      {
+        "v": 0.234375,
+        "amplitude_over_H": 0.004687500372477497,
+        "expected_over_H": 0.0046875,
+        "residual_over_H": 7.819903724559651e-09
+      },
+      {
+        "v": 0.2421875,
+        "amplitude_over_H": 0.004843749805928284,
+        "expected_over_H": 0.00484375,
+        "residual_over_H": 7.187006656472761e-09
+      },
+      {
+        "v": 0.25,
+        "amplitude_over_H": 0.00499999975738596,
+        "expected_over_H": 0.005,
+        "residual_over_H": 8.366939308057653e-09
+      },
+      {
+        "v": 0.2578125,
+        "amplitude_over_H": 0.005156249726528374,
+        "expected_over_H": 0.00515625,
+        "residual_over_H": 6.751199099763738e-09
+      },
+      {
+        "v": 0.265625,
+        "amplitude_over_H": 0.005312499841566689,
+        "expected_over_H": 0.0053125,
+        "residual_over_H": 8.285397312679521e-09
+      },
+      {
+        "v": 0.26942212522750925,
+        "amplitude_over_H": 0.005388442783099307,
+        "expected_over_H": 0.005388442504550185,
+        "residual_over_H": 7.672917398671153e-09
+      },
+      {
+        "v": 0.2734375,
+        "amplitude_over_H": 0.005468749875181069,
+        "expected_over_H": 0.0054687500000000005,
+        "residual_over_H": 7.328814791152105e-09
+      },
+      {
+        "v": 0.28125,
+        "amplitude_over_H": 0.005625000023241656,
+        "expected_over_H": 0.005625,
+        "residual_over_H": 7.832812287666968e-09
+      },
+      {
+        "v": 0.2890625,
+        "amplitude_over_H": 0.005781250146474718,
+        "expected_over_H": 0.00578125,
+        "residual_over_H": 7.698731818717164e-09
+      },
+      {
+        "v": 0.296875,
+        "amplitude_over_H": 0.005937499775608342,
+        "expected_over_H": 0.0059375,
+        "residual_over_H": 8.409186361135745e-09
+      },
+      {
+        "v": 0.3046875,
+        "amplitude_over_H": 0.006093749547673606,
+        "expected_over_H": 0.00609375,
+        "residual_over_H": 8.057105621572802e-09
+      },
+      {
+        "v": 0.3125,
+        "amplitude_over_H": 0.0062500000876309575,
+        "expected_over_H": 0.00625,
+        "residual_over_H": 7.675840990595262e-09
+      },
+      {
+        "v": 0.3203125,
+        "amplitude_over_H": 0.006406249863479696,
+        "expected_over_H": 0.0064062500000000005,
+        "residual_over_H": 7.700934306908991e-09
+      },
+      {
+        "v": 0.328125,
+        "amplitude_over_H": 0.006562500212530382,
+        "expected_over_H": 0.0065625,
+        "residual_over_H": 7.996121584308291e-09
+      },
+      {
+        "v": 0.3359375,
+        "amplitude_over_H": 0.006718749779511314,
+        "expected_over_H": 0.00671875,
+        "residual_over_H": 7.097316317983271e-09
+      },
+      {
+        "v": 0.3436214406340903,
+        "amplitude_over_H": 0.006872428825140098,
+        "expected_over_H": 0.006872428812681805,
+        "residual_over_H": 7.357169498622973e-09
+      },
+      {
+        "v": 0.34375,
+        "amplitude_over_H": 0.006874999815665424,
+        "expected_over_H": 0.006875,
+        "residual_over_H": 8.257542094547432e-09
+      },
+      {
+        "v": 0.3515625,
+        "amplitude_over_H": 0.007031250190661652,
+        "expected_over_H": 0.00703125,
+        "residual_over_H": 7.03887305386619e-09
+      },
+      {
+        "v": 0.359375,
+        "amplitude_over_H": 0.007187500368672933,
+        "expected_over_H": 0.0071875,
+        "residual_over_H": 7.184127168158305e-09
+      },
+      {
+        "v": 0.3671875,
+        "amplitude_over_H": 0.007343749695379304,
+        "expected_over_H": 0.0073437500000000005,
+        "residual_over_H": 7.538175389454338e-09
+      },
+      {
+        "v": 0.375,
+        "amplitude_over_H": 0.007499999829457958,
+        "expected_over_H": 0.0075,
+        "residual_over_H": 7.134923180052155e-09
+      },
+      {
+        "v": 0.3828125,
+        "amplitude_over_H": 0.00765625045913464,
+        "expected_over_H": 0.00765625,
+        "residual_over_H": 1.215561969136747e-08
+      },
+      {
+        "v": 0.390625,
+        "amplitude_over_H": 0.007812500509342768,
+        "expected_over_H": 0.0078125,
+        "residual_over_H": 9.375691417679022e-09
+      },
+      {
+        "v": 0.3984375,
+        "amplitude_over_H": 0.007968750725450092,
+        "expected_over_H": 0.00796875,
+        "residual_over_H": 7.834655771365995e-09
+      },
+      {
+        "v": 0.40625,
+        "amplitude_over_H": 0.008125000603732321,
+        "expected_over_H": 0.008125,
+        "residual_over_H": 9.851229262891614e-09
+      },
+      {
+        "v": 0.4140625,
+        "amplitude_over_H": 0.008281250288528861,
+        "expected_over_H": 0.00828125,
+        "residual_over_H": 9.478582752020515e-09
+      },
+      {
+        "v": 0.421875,
+        "amplitude_over_H": 0.00843750078414536,
+        "expected_over_H": 0.0084375,
+        "residual_over_H": 7.721310979480478e-09
+      },
+      {
+        "v": 0.4292360353339915,
+        "amplitude_over_H": 0.008584721247076951,
+        "expected_over_H": 0.00858472070667983,
+        "residual_over_H": 9.645363008292662e-09
+      },
+      {
+        "v": 0.4296875,
+        "amplitude_over_H": 0.008593750172058079,
+        "expected_over_H": 0.00859375,
+        "residual_over_H": 1.0687721208046952e-08
+      },
+      {
+        "v": 0.4375,
+        "amplitude_over_H": 0.008750000407618856,
+        "expected_over_H": 0.00875,
+        "residual_over_H": 9.374676465667697e-09
+      },
+      {
+        "v": 0.4453125,
+        "amplitude_over_H": 0.008906250644651875,
+        "expected_over_H": 0.008906250000000001,
+        "residual_over_H": 8.126136957775643e-09
+      },
+      {
+        "v": 0.45206659392063187,
+        "amplitude_over_H": 0.009041332128867822,
+        "expected_over_H": 0.009041331878412637,
+        "residual_over_H": 9.369550274529459e-09
+      },
+      {
+        "v": 0.453125,
+        "amplitude_over_H": 0.009062500358923212,
+        "expected_over_H": 0.0090625,
+        "residual_over_H": 1.209076316843749e-08
+      },
+      {
+        "v": 0.4609375,
+        "amplitude_over_H": 0.009218750308694517,
+        "expected_over_H": 0.00921875,
+        "residual_over_H": 9.957527219439655e-09
+      },
+      {
+        "v": 0.46875,
+        "amplitude_over_H": 0.009375000763714147,
+        "expected_over_H": 0.009375,
+        "residual_over_H": 8.69192619268322e-09
+      },
+      {
+        "v": 0.4765625,
+        "amplitude_over_H": 0.009531250296696225,
+        "expected_over_H": 0.00953125,
+        "residual_over_H": 1.1283440334852735e-08
+      },
+      {
+        "v": 0.484375,
+        "amplitude_over_H": 0.00968750088386004,
+        "expected_over_H": 0.0096875,
+        "residual_over_H": 9.357637706375321e-09
+      },
+      {
+        "v": 0.4921875,
+        "amplitude_over_H": 0.00984374998767825,
+        "expected_over_H": 0.00984375,
+        "residual_over_H": 1.1229467328233156e-08
+      },
+      {
+        "v": 0.5,
+        "amplitude_over_H": 0.010000000260492645,
+        "expected_over_H": 0.01,
+        "residual_over_H": 1.1261419047281507e-08
+      },
+      {
+        "v": 0.5078125,
+        "amplitude_over_H": 0.010156251028203993,
+        "expected_over_H": 0.01015625,
+        "residual_over_H": 1.3208472024461848e-08
+      },
+      {
+        "v": 0.5148506300338928,
+        "amplitude_over_H": 0.010297012980335677,
+        "expected_over_H": 0.010297012600677856,
+        "residual_over_H": 1.256080318923214e-08
+      },
+      {
+        "v": 0.515625,
+        "amplitude_over_H": 0.010312500897613281,
+        "expected_over_H": 0.0103125,
+        "residual_over_H": 1.5111664378175682e-08
+      },
+      {
+        "v": 0.520558269680553,
+        "amplitude_over_H": 0.010411166787533992,
+        "expected_over_H": 0.010411165393611059,
+        "residual_over_H": 1.3058946535249305e-08
+      },
+      {
+        "v": 0.5234375,
+        "amplitude_over_H": 0.010468750682491595,
+        "expected_over_H": 0.01046875,
+        "residual_over_H": 1.3144647037499624e-08
+      },
+      {
+        "v": 0.53125,
+        "amplitude_over_H": 0.01062500108376167,
+        "expected_over_H": 0.010625,
+        "residual_over_H": 1.5347255702402585e-08
+      },
+      {
+        "v": 0.5390625,
+        "amplitude_over_H": 0.010781250690809086,
+        "expected_over_H": 0.010781250000000001,
+        "residual_over_H": 1.1331671295744528e-08
+      },
+      {
+        "v": 0.546875,
+        "amplitude_over_H": 0.010937501321879393,
+        "expected_over_H": 0.010937500000000001,
+        "residual_over_H": 1.1662291604652708e-08
+      },
+      {
+        "v": 0.5546875,
+        "amplitude_over_H": 0.011093751145665399,
+        "expected_over_H": 0.01109375,
+        "residual_over_H": 1.1933137394892768e-08
+      },
+      {
+        "v": 0.5625,
+        "amplitude_over_H": 0.011250001023667284,
+        "expected_over_H": 0.01125,
+        "residual_over_H": 1.0993084123556152e-08
+      },
+      {
+        "v": 0.5703125,
+        "amplitude_over_H": 0.011406250618042822,
+        "expected_over_H": 0.01140625,
+        "residual_over_H": 1.2365400370306645e-08
+      },
+      {
+        "v": 0.578125,
+        "amplitude_over_H": 0.011562501179332644,
+        "expected_over_H": 0.0115625,
+        "residual_over_H": 1.3188839367850314e-08
+      },
+      {
+        "v": 0.5859375,
+        "amplitude_over_H": 0.011718750986923088,
+        "expected_over_H": 0.01171875,
+        "residual_over_H": 1.3876950033520075e-08
+      },
+      {
+        "v": 0.5890499454404741,
+        "amplitude_over_H": 0.011781000277371289,
+        "expected_over_H": 0.011780998908809482,
+        "residual_over_H": 1.1981860004173228e-08
+      },
+      {
+        "v": 0.59375,
+        "amplitude_over_H": 0.01187500158640509,
+        "expected_over_H": 0.011875,
+        "residual_over_H": 1.3730547532286863e-08
+      },
+      {
+        "v": 0.6015625,
+        "amplitude_over_H": 0.012031251830807556,
+        "expected_over_H": 0.01203125,
+        "residual_over_H": 1.0779760237222824e-08
+      },
+      {
+        "v": 0.609375,
+        "amplitude_over_H": 0.01218750170169249,
+        "expected_over_H": 0.0121875,
+        "residual_over_H": 1.3208978244527714e-08
+      },
+      {
+        "v": 0.6171875,
+        "amplitude_over_H": 0.012343751614478312,
+        "expected_over_H": 0.01234375,
+        "residual_over_H": 1.5496124272651457e-08
+      },
+      {
+        "v": 0.6175881436737743,
+        "amplitude_over_H": 0.012351763862811253,
+        "expected_over_H": 0.012351762873475487,
+        "residual_over_H": 1.331973814577836e-08
+      },
+      {
+        "v": 0.625,
+        "amplitude_over_H": 0.01250000161131039,
+        "expected_over_H": 0.0125,
+        "residual_over_H": 1.372982207092921e-08
+      },
+      {
+        "v": 0.6252543356106147,
+        "amplitude_over_H": 0.01250508788513946,
+        "expected_over_H": 0.012505086712212295,
+        "residual_over_H": 1.367947034813799e-08
+      },
+      {
+        "v": 0.6328125,
+        "amplitude_over_H": 0.012656251254573493,
+        "expected_over_H": 0.01265625,
+        "residual_over_H": 1.1709107392010587e-08
+      },
+      {
+        "v": 0.640625,
+        "amplitude_over_H": 0.01281250142129656,
+        "expected_over_H": 0.012812500000000001,
+        "residual_over_H": 1.4715038534895974e-08
+      },
+      {
+        "v": 0.6484375,
+        "amplitude_over_H": 0.012968751114588041,
+        "expected_over_H": 0.012968750000000001,
+        "residual_over_H": 1.1257183324397957e-08
+      },
+      {
+        "v": 0.6510238291069196,
+        "amplitude_over_H": 0.013020478733651747,
+        "expected_over_H": 0.013020476582138393,
+        "residual_over_H": 1.5794806615399004e-08
+      },
+      {
+        "v": 0.6536682788976349,
+        "amplitude_over_H": 0.013073367668782013,
+        "expected_over_H": 0.013073365577952698,
+        "residual_over_H": 1.4023156885700772e-08
+      },
+      {
+        "v": 0.65625,
+        "amplitude_over_H": 0.01312500103390945,
+        "expected_over_H": 0.013125,
+        "residual_over_H": 1.430120370737864e-08
+      },
+      {
+        "v": 0.6563127286883503,
+        "amplitude_over_H": 0.013126256044652096,
+        "expected_over_H": 0.013126254573767007,
+        "residual_over_H": 1.2041145677765819e-08
+      },
+      {
+        "v": 0.6575416212003949,
+        "amplitude_over_H": 0.013150834039790496,
+        "expected_over_H": 0.0131508324240079,
+        "residual_over_H": 1.4374227100266701e-08
+      },
+      {
+        "v": 0.6589571784790655,
+        "amplitude_over_H": 0.013179144911656112,
+        "expected_over_H": 0.013179143569581312,
+        "residual_over_H": 1.3545037771955926e-08
+      },
+      {
+        "v": 0.6616016282697809,
+        "amplitude_over_H": 0.013232034163403805,
+        "expected_over_H": 0.013232032565395617,
+        "residual_over_H": 1.1751459347286719e-08
+      },
+      {
+        "v": 0.6640625,
+        "amplitude_over_H": 0.013281251472571719,
+        "expected_over_H": 0.01328125,
+        "residual_over_H": 1.4201638420807683e-08
+      },
+      {
+        "v": 0.6642460780604962,
+        "amplitude_over_H": 0.013284923267684429,
+        "expected_over_H": 0.013284921561209924,
+        "residual_over_H": 1.4130833489445216e-08
+      },
+      {
+        "v": 0.6668905278512116,
+        "amplitude_over_H": 0.013337812627913458,
+        "expected_over_H": 0.013337810557024233,
+        "residual_over_H": 1.1431892474322858e-08
+      },
+      {
+        "v": 0.6695349776419269,
+        "amplitude_over_H": 0.013390701050284852,
+        "expected_over_H": 0.01339069955283854,
+        "residual_over_H": 1.3575351148764625e-08
+      },
+      {
+        "v": 0.671875,
+        "amplitude_over_H": 0.013437501699196167,
+        "expected_over_H": 0.0134375,
+        "residual_over_H": 1.4896932784558281e-08
+      },
+      {
+        "v": 0.6721794274326423,
+        "amplitude_over_H": 0.01344358998685253,
+        "expected_over_H": 0.013443588548652845,
+        "residual_over_H": 1.1341554279065136e-08
+      },
+      {
+        "v": 0.6748238772233577,
+        "amplitude_over_H": 0.013496478532331088,
+        "expected_over_H": 0.013496477544467153,
+        "residual_over_H": 1.3253740105412248e-08
+      },
+      {
+        "v": 0.6774683270140729,
+        "amplitude_over_H": 0.013549368154618458,
+        "expected_over_H": 0.013549366540281459,
+        "residual_over_H": 1.1678565503547844e-08
+      },
+      {
+        "v": 0.6796875,
+        "amplitude_over_H": 0.013593752202890302,
+        "expected_over_H": 0.01359375,
+        "residual_over_H": 1.2595505333168333e-08
+      },
+      {
+        "v": 0.6801127768047882,
+        "amplitude_over_H": 0.013602256435830342,
+        "expected_over_H": 0.013602255536095764,
+        "residual_over_H": 1.4036993845056855e-08
+      },
+      {
+        "v": 0.6827572265955036,
+        "amplitude_over_H": 0.013655146043618798,
+        "expected_over_H": 0.013655144531910073,
+        "residual_over_H": 1.2101220650539979e-08
+      },
+      {
+        "v": 0.685401676386219,
+        "amplitude_over_H": 0.013708034921216411,
+        "expected_over_H": 0.01370803352772438,
+        "residual_over_H": 1.223880922995857e-08
+      },
+      {
+        "v": 0.6875,
+        "amplitude_over_H": 0.013750001281058615,
+        "expected_over_H": 0.01375,
+        "residual_over_H": 1.0793065344238961e-08
+      },
+      {
+        "v": 0.6880461261769343,
+        "amplitude_over_H": 0.013760924180119457,
+        "expected_over_H": 0.013760922523538686,
+        "residual_over_H": 1.4050061461490237e-08
+      },
+      {
+        "v": 0.6898289067901753,
+        "amplitude_over_H": 0.013796580035550824,
+        "expected_over_H": 0.013796578135803506,
+        "residual_over_H": 1.3935357381922309e-08
+      },
+      {
+        "v": 0.6906905759676497,
+        "amplitude_over_H": 0.013813812313125565,
+        "expected_over_H": 0.013813811519352995,
+        "residual_over_H": 1.1756875514801202e-08
+      },
+      {
+        "v": 0.693335025758365,
+        "amplitude_over_H": 0.01386670218162798,
+        "expected_over_H": 0.0138667005151673,
+        "residual_over_H": 1.272234798066485e-08
+      },
+      {
+        "v": 0.6953125,
+        "amplitude_over_H": 0.013906251696650693,
+        "expected_over_H": 0.01390625,
+        "residual_over_H": 1.3062515791251172e-08
+      },
+      {
+        "v": 0.6959794755490804,
+        "amplitude_over_H": 0.013919591237217567,
+        "expected_over_H": 0.013919589510981607,
+        "residual_over_H": 1.4138904297356092e-08
+      },
+      {
+        "v": 0.6986239253397958,
+        "amplitude_over_H": 0.013972480553278696,
+        "expected_over_H": 0.013972478506795916,
+        "residual_over_H": 1.3254593742018095e-08
+      },
+      {
+        "v": 0.701268375130511,
+        "amplitude_over_H": 0.014025368987780805,
+        "expected_over_H": 0.01402536750261022,
+        "residual_over_H": 1.1364936061686315e-08
+      },
+      {
+        "v": 0.703125,
+        "amplitude_over_H": 0.014062501916427165,
+        "expected_over_H": 0.0140625,
+        "residual_over_H": 1.1906948205187007e-08
+      },
+      {
+        "v": 0.7032027383736755,
+        "amplitude_over_H": 0.014064056336132922,
+        "expected_over_H": 0.014064054767473511,
+        "residual_over_H": 1.42638383326954e-08
+      },
+      {
+        "v": 0.7039128249212263,
+        "amplitude_over_H": 0.014078257602959833,
+        "expected_over_H": 0.014078256498424526,
+        "residual_over_H": 1.2485091224756495e-08
+      },
+      {
+        "v": 0.7065572747119417,
+        "amplitude_over_H": 0.014131147459415289,
+        "expected_over_H": 0.014131145494238835,
+        "residual_over_H": 1.2020799536327509e-08
+      },
+      {
+        "v": 0.7085047485597309,
+        "amplitude_over_H": 0.014170096509551106,
+        "expected_over_H": 0.014170094971194619,
+        "residual_over_H": 1.2463407500495904e-08
+      },
+      {
+        "v": 0.7092017245026571,
+        "amplitude_over_H": 0.014184035469823157,
+        "expected_over_H": 0.014184034490053142,
+        "residual_over_H": 1.235579996650138e-08
+      },
+      {
+        "v": 0.7109375,
+        "amplitude_over_H": 0.014218751468705887,
+        "expected_over_H": 0.01421875,
+        "residual_over_H": 1.1823730314275416e-08
+      },
+      {
+        "v": 0.7118461742933724,
+        "amplitude_over_H": 0.014236924872661774,
+        "expected_over_H": 0.014236923485867447,
+        "residual_over_H": 1.534982746465019e-08
+      },
+      {
+        "v": 0.7144906240840878,
+        "amplitude_over_H": 0.014289813600682965,
+        "expected_over_H": 0.014289812481681756,
+        "residual_over_H": 1.1619223388992239e-08
+      },
+      {
+        "v": 0.7171350738748031,
+        "amplitude_over_H": 0.01434270326998502,
+        "expected_over_H": 0.014342701477496063,
+        "residual_over_H": 1.1863617491170153e-08
+      },
+      {
+        "v": 0.71875,
+        "amplitude_over_H": 0.014375001074305655,
+        "expected_over_H": 0.014375,
+        "residual_over_H": 1.2949246827598238e-08
+      },
+      {
+        "v": 0.7197795236655185,
+        "amplitude_over_H": 0.014395591626430062,
+        "expected_over_H": 0.01439559047331037,
+        "residual_over_H": 1.2369303775683349e-08
+      },
+      {
+        "v": 0.7224239734562339,
+        "amplitude_over_H": 0.014448480948479397,
+        "expected_over_H": 0.014448479469124679,
+        "residual_over_H": 1.1698289573147669e-08
+      },
+      {
+        "v": 0.7250684232469491,
+        "amplitude_over_H": 0.014501369269176589,
+        "expected_over_H": 0.014501368464938982,
+        "residual_over_H": 1.14912176996107e-08
+      },
+      {
+        "v": 0.7260081456353346,
+        "amplitude_over_H": 0.014520163957632823,
+        "expected_over_H": 0.014520162912706691,
+        "residual_over_H": 1.3140060969862866e-08
+      },
+      {
+        "v": 0.7265625,
+        "amplitude_over_H": 0.014531251160392994,
+        "expected_over_H": 0.01453125,
+        "residual_over_H": 1.380397693373503e-08
+      },
+      {
+        "v": 0.7277128730376644,
+        "amplitude_over_H": 0.014554258777737509,
+        "expected_over_H": 0.014554257460753289,
+        "residual_over_H": 1.2834006454798264e-08
+      },
+      {
+        "v": 0.7292599126420456,
+        "amplitude_over_H": 0.014585199150329558,
+        "expected_over_H": 0.014585198252840912,
+        "residual_over_H": 1.3630972434119926e-08
+      },
+      {
+        "v": 0.7303573228283797,
+        "amplitude_over_H": 0.014607147940619463,
+        "expected_over_H": 0.014607146456567594,
+        "residual_over_H": 1.3862861678037852e-08
+      },
+      {
+        "v": 0.7325116796487566,
+        "amplitude_over_H": 0.014650235176081399,
+        "expected_over_H": 0.014650233592975133,
+        "residual_over_H": 1.4165231085327967e-08
+      },
+      {
+        "v": 0.7330017726190952,
+        "amplitude_over_H": 0.01466003636692449,
+        "expected_over_H": 0.014660035452381903,
+        "residual_over_H": 1.3704526069524547e-08
+      },
+      {
+        "v": 0.734375,
+        "amplitude_over_H": 0.014687501448078184,
+        "expected_over_H": 0.014687500000000001,
+        "residual_over_H": 1.221522999417246e-08
+      },
+      {
+        "v": 0.7356462224098105,
+        "amplitude_over_H": 0.014712925289204159,
+        "expected_over_H": 0.01471292444819621,
+        "residual_over_H": 1.1750192541182258e-08
+      },
+      {
+        "v": 0.7357634466554678,
+        "amplitude_over_H": 0.01471527026588487,
+        "expected_over_H": 0.014715268933109356,
+        "residual_over_H": 1.251751942377144e-08
+      },
+      {
+        "v": 0.7390152136621787,
+        "amplitude_over_H": 0.01478030544524493,
+        "expected_over_H": 0.014780304273243575,
+        "residual_over_H": 1.2820306025118633e-08
+      },
+      {
+        "v": 0.7421875,
+        "amplitude_over_H": 0.014843751249918272,
+        "expected_over_H": 0.014843750000000001,
+        "residual_over_H": 1.2622273587448163e-08
+      },
+      {
+        "v": 0.7422669806688899,
+        "amplitude_over_H": 0.01484534056114643,
+        "expected_over_H": 0.014845339613377797,
+        "residual_over_H": 1.2576122740415308e-08
+      },
+      {
+        "v": 0.7455187476756009,
+        "amplitude_over_H": 0.014910375777702087,
+        "expected_over_H": 0.014910374953512018,
+        "residual_over_H": 1.4235667561424137e-08
+      },
+      {
+        "v": 0.7487705146823118,
+        "amplitude_over_H": 0.014975410747467067,
+        "expected_over_H": 0.014975410293646237,
+        "residual_over_H": 1.4170656412182403e-08
+      },
+      {
+        "v": 0.7488638555469563,
+        "amplitude_over_H": 0.01497727758247307,
+        "expected_over_H": 0.014977277110939127,
+        "residual_over_H": 1.1779799885536235e-08
+      },
+      {
+        "v": 0.75,
+        "amplitude_over_H": 0.01500000059366293,
+        "expected_over_H": 0.015,
+        "residual_over_H": 1.2262273266228085e-08
+      },
+      {
+        "v": 0.752022281689023,
+        "amplitude_over_H": 0.015040445803547606,
+        "expected_over_H": 0.01504044563378046,
+        "residual_over_H": 1.3033799622919062e-08
+      },
+      {
+        "v": 0.7552740486957339,
+        "amplitude_over_H": 0.015105481167343896,
+        "expected_over_H": 0.015105480973914677,
+        "residual_over_H": 1.6385649809214087e-08
+      },
+      {
+        "v": 0.7578125,
+        "amplitude_over_H": 0.015156250609600772,
+        "expected_over_H": 0.01515625,
+        "residual_over_H": 1.1572903135803614e-08
+      },
+      {
+        "v": 0.758525815702445,
+        "amplitude_over_H": 0.01517051654172623,
+        "expected_over_H": 0.015170516314048902,
+        "residual_over_H": 1.2512932995312198e-08
+      },
+      {
+        "v": 0.7617775827091562,
+        "amplitude_over_H": 0.015235552136153654,
+        "expected_over_H": 0.015235551654183124,
+        "residual_over_H": 1.3749721708422591e-08
+      },
+      {
+        "v": 0.7650293497158671,
+        "amplitude_over_H": 0.015300588074215242,
+        "expected_over_H": 0.015300586994317343,
+        "residual_over_H": 1.1543057523710765e-08
+      },
+      {
+        "v": 0.765625,
+        "amplitude_over_H": 0.015312500791547725,
+        "expected_over_H": 0.0153125,
+        "residual_over_H": 1.0983019937960137e-08
+      },
+      {
+        "v": 0.7682811167225782,
+        "amplitude_over_H": 0.015365623496956062,
+        "expected_over_H": 0.015365622334451563,
+        "residual_over_H": 1.2832264667528293e-08
+      },
+      {
+        "v": 0.7715328837292893,
+        "amplitude_over_H": 0.015430658240118494,
+        "expected_over_H": 0.015430657674585787,
+        "residual_over_H": 1.2002529831134368e-08
+      },
+      {
+        "v": 0.7734375,
+        "amplitude_over_H": 0.015468750460467506,
+        "expected_over_H": 0.01546875,
+        "residual_over_H": 1.1797239782285196e-08
+      },
+      {
+        "v": 0.7747846507360002,
+        "amplitude_over_H": 0.015495693503562778,
+        "expected_over_H": 0.015495693014720004,
+        "residual_over_H": 1.2164912938095185e-08
+      },
+      {
+        "v": 0.7780364177427114,
+        "amplitude_over_H": 0.015560728756043366,
+        "expected_over_H": 0.015560728354854227,
+        "residual_over_H": 1.1353912324207904e-08
+      },
+      {
+        "v": 0.78125,
+        "amplitude_over_H": 0.015625000402519646,
+        "expected_over_H": 0.015625,
+        "residual_over_H": 1.344920333434807e-08
+      },
+      {
+        "v": 0.7812881847494225,
+        "amplitude_over_H": 0.01562576433443171,
+        "expected_over_H": 0.01562576369498845,
+        "residual_over_H": 1.049567933952833e-08
+      },
+      {
+        "v": 0.7845399517561334,
+        "amplitude_over_H": 0.015690800231536763,
+        "expected_over_H": 0.01569079903512267,
+        "residual_over_H": 1.3252378402994758e-08
+      },
+      {
+        "v": 0.7877917187628445,
+        "amplitude_over_H": 0.015755834760565707,
+        "expected_over_H": 0.01575583437525689,
+        "residual_over_H": 1.2068313279267606e-08
+      },
+      {
+        "v": 0.7888173330735768,
+        "amplitude_over_H": 0.01577634736365237,
+        "expected_over_H": 0.015776346661471537,
+        "residual_over_H": 1.195574479695427e-08
+      },
+      {
+        "v": 0.7890625,
+        "amplitude_over_H": 0.015781250333607617,
+        "expected_over_H": 0.01578125,
+        "residual_over_H": 1.251063409812847e-08
+      },
+      {
+        "v": 0.7892229625341817,
+        "amplitude_over_H": 0.01578445918548372,
+        "expected_over_H": 0.015784459250683634,
+        "residual_over_H": 1.3120435501945416e-08
+      },
+      {
+        "v": 0.7910434857695556,
+        "amplitude_over_H": 0.015820870379021124,
+        "expected_over_H": 0.015820869715391112,
+        "residual_over_H": 1.1041012909496217e-08
+      },
+      {
+        "v": 0.7917551615088472,
+        "amplitude_over_H": 0.015835103899108784,
+        "expected_over_H": 0.015835103230176943,
+        "residual_over_H": 1.0051011717360225e-08
+      },
+      {
+        "v": 0.7942952527762666,
+        "amplitude_over_H": 0.015885906250909503,
+        "expected_over_H": 0.015885905055525333,
+        "residual_over_H": 1.1170093724977015e-08
+      },
+      {
+        "v": 0.796875,
+        "amplitude_over_H": 0.01593750102613903,
+        "expected_over_H": 0.0159375,
+        "residual_over_H": 1.1981371533797969e-08
+      },
+      {
+        "v": 0.7975470197829777,
+        "amplitude_over_H": 0.015950941139031546,
+        "expected_over_H": 0.015950940395659554,
+        "residual_over_H": 1.4910302922888086e-08
+      },
+      {
+        "v": 0.8007987867896887,
+        "amplitude_over_H": 0.016015976340267635,
+        "expected_over_H": 0.016015975735793775,
+        "residual_over_H": 1.3447319022197313e-08
+      },
+      {
+        "v": 0.8040505537963998,
+        "amplitude_over_H": 0.016081011700302246,
+        "expected_over_H": 0.016081011075927996,
+        "residual_over_H": 1.3576170188045467e-08
+      },
+      {
+        "v": 0.8046875,
+        "amplitude_over_H": 0.016093750856467522,
+        "expected_over_H": 0.01609375,
+        "residual_over_H": 1.2248158168248757e-08
+      },
+      {
+        "v": 0.8073023208031108,
+        "amplitude_over_H": 0.016146047585458196,
+        "expected_over_H": 0.016146046416062217,
+        "residual_over_H": 1.2058457163344194e-08
+      },
+      {
+        "v": 0.808150836785943,
+        "amplitude_over_H": 0.016163017273979514,
+        "expected_over_H": 0.01616301673571886,
+        "residual_over_H": 1.11111850692458e-08
+      },
+      {
+        "v": 0.8105540878098219,
+        "amplitude_over_H": 0.016211082414921335,
+        "expected_over_H": 0.016211081756196438,
+        "residual_over_H": 1.3385595562520614e-08
+      },
+      {
+        "v": 0.8120166703161534,
+        "amplitude_over_H": 0.016240333948284967,
+        "expected_over_H": 0.016240333406323068,
+        "residual_over_H": 1.1708943023491791e-08
+      },
+      {
+        "v": 0.8125,
+        "amplitude_over_H": 0.016250000883887068,
+        "expected_over_H": 0.01625,
+        "residual_over_H": 1.0415915976946799e-08
+      },
+      {
+        "v": 0.8138058548165329,
+        "amplitude_over_H": 0.016276117861554147,
+        "expected_over_H": 0.01627611709633066,
+        "residual_over_H": 1.2004187421865709e-08
+      },
+      {
+        "v": 0.8158825038463637,
+        "amplitude_over_H": 0.016317650780333044,
+        "expected_over_H": 0.016317650076927277,
+        "residual_over_H": 1.050092991727869e-08
+      },
+      {
+        "v": 0.817057621823244,
+        "amplitude_over_H": 0.016341152667006992,
+        "expected_over_H": 0.016341152436464883,
+        "residual_over_H": 1.3015741900934685e-08
+      },
+      {
+        "v": 0.819748337376574,
+        "amplitude_over_H": 0.016394967654509058,
+        "expected_over_H": 0.01639496674753148,
+        "residual_over_H": 1.315208529584222e-08
+      },
+      {
+        "v": 0.820309388829955,
+        "amplitude_over_H": 0.016406188757010994,
+        "expected_over_H": 0.0164061877765991,
+        "residual_over_H": 1.2408468003100026e-08
+      },
+      {
+        "v": 0.8203125,
+        "amplitude_over_H": 0.016406251021562093,
+        "expected_over_H": 0.01640625,
+        "residual_over_H": 1.3748860369644511e-08
+      },
+      {
+        "v": 0.8235611558366661,
+        "amplitude_over_H": 0.016471224707737417,
+        "expected_over_H": 0.01647122311673332,
+        "residual_over_H": 1.4290562747043545e-08
+      },
+      {
+        "v": 0.8236141709067843,
+        "amplitude_over_H": 0.016472284224698496,
+        "expected_over_H": 0.016472283418135687,
+        "residual_over_H": 1.4063044354029053e-08
+      },
+      {
+        "v": 0.8268129228433772,
+        "amplitude_over_H": 0.01653625914338196,
+        "expected_over_H": 0.016536258456867542,
+        "residual_over_H": 1.1806419134008372e-08
+      },
+      {
+        "v": 0.8274800044369948,
+        "amplitude_over_H": 0.01654960131031378,
+        "expected_over_H": 0.016549600088739895,
+        "residual_over_H": 1.3553984032355082e-08
+      },
+      {
+        "v": 0.828125,
+        "amplitude_over_H": 0.016562501048335263,
+        "expected_over_H": 0.0165625,
+        "residual_over_H": 1.3127576442562017e-08
+      },
+      {
+        "v": 0.8300646898500882,
+        "amplitude_over_H": 0.01660129528003801,
+        "expected_over_H": 0.016601293797001763,
+        "residual_over_H": 1.3805376564146599e-08
+      },
+      {
+        "v": 0.8313458379672051,
+        "amplitude_over_H": 0.0166269180651822,
+        "expected_over_H": 0.0166269167593441,
+        "residual_over_H": 1.4678016080349465e-08
+      },
+      {
+        "v": 0.8352116714974154,
+        "amplitude_over_H": 0.016704234105905203,
+        "expected_over_H": 0.01670423342994831,
+        "residual_over_H": 1.2149027436847426e-08
+      },
+      {
+        "v": 0.8359375,
+        "amplitude_over_H": 0.016718751184832667,
+        "expected_over_H": 0.01671875,
+        "residual_over_H": 1.2907506716230976e-08
+      },
+      {
+        "v": 0.8390775050276257,
+        "amplitude_over_H": 0.016781550975632033,
+        "expected_over_H": 0.016781550100552513,
+        "residual_over_H": 1.1407431915744226e-08
+      },
+      {
+        "v": 0.8401860898935176,
+        "amplitude_over_H": 0.016803722763319248,
+        "expected_over_H": 0.016803721797870354,
+        "residual_over_H": 1.3632871886937181e-08
+      },
+      {
+        "v": 0.8429433385578361,
+        "amplitude_over_H": 0.016858868220483297,
+        "expected_over_H": 0.016858866771156722,
+        "residual_over_H": 1.191441990899822e-08
+      },
+      {
+        "v": 0.84375,
+        "amplitude_over_H": 0.01687500081049605,
+        "expected_over_H": 0.016875,
+        "residual_over_H": 1.3858157649204728e-08
+      },
+      {
+        "v": 0.8468091720880464,
+        "amplitude_over_H": 0.01693618355868469,
+        "expected_over_H": 0.016936183441760927,
+        "residual_over_H": 1.2874660351713807e-08
+      },
+      {
+        "v": 0.8506750056182567,
+        "amplitude_over_H": 0.017013500519086948,
+        "expected_over_H": 0.017013500112365135,
+        "residual_over_H": 1.061912846544999e-08
+      },
+      {
+        "v": 0.8515625,
+        "amplitude_over_H": 0.017031251160332557,
+        "expected_over_H": 0.01703125,
+        "residual_over_H": 1.2444274791190146e-08
+      },
+      {
+        "v": 0.854540839148467,
+        "amplitude_over_H": 0.017090818360232022,
+        "expected_over_H": 0.01709081678296934,
+        "residual_over_H": 1.1465295823853694e-08
+      },
+      {
+        "v": 0.8584066726786774,
+        "amplitude_over_H": 0.01716813464424977,
+        "expected_over_H": 0.01716813345357355,
+        "residual_over_H": 1.3349020694386482e-08
+      },
+      {
+        "v": 0.859375,
+        "amplitude_over_H": 0.017187500894315477,
+        "expected_over_H": 0.0171875,
+        "residual_over_H": 1.0746709161457701e-08
+      },
+      {
+        "v": 0.8622725062088877,
+        "amplitude_over_H": 0.017245451949362535,
+        "expected_over_H": 0.017245450124177754,
+        "residual_over_H": 1.0531363087151746e-08
+      },
+      {
+        "v": 0.866138339739098,
+        "amplitude_over_H": 0.01732276813662914,
+        "expected_over_H": 0.017322766794781962,
+        "residual_over_H": 1.3356207279047183e-08
+      },
+      {
+        "v": 0.8671875,
+        "amplitude_over_H": 0.01734375103437547,
+        "expected_over_H": 0.01734375,
+        "residual_over_H": 1.4387969274332058e-08
+      },
+      {
+        "v": 0.8700041732693083,
+        "amplitude_over_H": 0.017400084352903508,
+        "expected_over_H": 0.017400083465386167,
+        "residual_over_H": 1.3012584579308317e-08
+      },
+      {
+        "v": 0.8738700067995188,
+        "amplitude_over_H": 0.017477401366412702,
+        "expected_over_H": 0.017477400135990376,
+        "residual_over_H": 1.1786899498100745e-08
+      },
+      {
+        "v": 0.875,
+        "amplitude_over_H": 0.017500000760392955,
+        "expected_over_H": 0.0175,
+        "residual_over_H": 1.280169245609919e-08
+      },
+      {
+        "v": 0.8777358403297291,
+        "amplitude_over_H": 0.017554718131331772,
+        "expected_over_H": 0.01755471680659458,
+        "residual_over_H": 1.2405279858906937e-08
+      },
+      {
+        "v": 0.8816016738599394,
+        "amplitude_over_H": 0.017632034313832885,
+        "expected_over_H": 0.01763203347719879,
+        "residual_over_H": 1.3095054915424065e-08
+      },
+      {
+        "v": 0.8828125,
+        "amplitude_over_H": 0.017656250789727955,
+        "expected_over_H": 0.017656250000000002,
+        "residual_over_H": 1.010994367389717e-08
+      },
+      {
+        "v": 0.8854675073901497,
+        "amplitude_over_H": 0.017709351655095806,
+        "expected_over_H": 0.017709350147802994,
+        "residual_over_H": 1.4079134538769189e-08
+      },
+      {
+        "v": 0.888617018278188,
+        "amplitude_over_H": 0.017772341704624817,
+        "expected_over_H": 0.01777234036556376,
+        "residual_over_H": 1.2257965545381388e-08
+      },
+      {
+        "v": 0.8893333409203601,
+        "amplitude_over_H": 0.017786667827853108,
+        "expected_over_H": 0.017786666818407203,
+        "residual_over_H": 1.4281579877040151e-08
+      },
+      {
+        "v": 0.890625,
+        "amplitude_over_H": 0.01781250075489914,
+        "expected_over_H": 0.017812500000000002,
+        "residual_over_H": 1.445104916286688e-08
+      },
+      {
+        "v": 0.8931991744505704,
+        "amplitude_over_H": 0.017863984143556322,
+        "expected_over_H": 0.017863983489011408,
+        "residual_over_H": 1.1145030634485131e-08
+      },
+      {
+        "v": 0.8970650079807807,
+        "amplitude_over_H": 0.017941301047906637,
+        "expected_over_H": 0.017941300159615616,
+        "residual_over_H": 1.192123122439881e-08
+      },
+      {
+        "v": 0.8984375,
+        "amplitude_over_H": 0.01796875089520462,
+        "expected_over_H": 0.017968750000000002,
+        "residual_over_H": 1.2133431620542368e-08
+      },
+      {
+        "v": 0.900930841510991,
+        "amplitude_over_H": 0.01801861748069308,
+        "expected_over_H": 0.01801861683021982,
+        "residual_over_H": 1.2158473561285632e-08
+      },
+      {
+        "v": 0.9047966750412014,
+        "amplitude_over_H": 0.018095934843382164,
+        "expected_over_H": 0.01809593350082403,
+        "residual_over_H": 1.3774177812231336e-08
+      },
+      {
+        "v": 0.90625,
+        "amplitude_over_H": 0.018125001317983034,
+        "expected_over_H": 0.018125,
+        "residual_over_H": 1.0739146655280862e-08
+      },
+      {
+        "v": 0.9086625085714117,
+        "amplitude_over_H": 0.018173250656136345,
+        "expected_over_H": 0.018173250171428235,
+        "residual_over_H": 1.2495529014278084e-08
+      },
+      {
+        "v": 0.912528342101622,
+        "amplitude_over_H": 0.01825056797167049,
+        "expected_over_H": 0.01825056684203244,
+        "residual_over_H": 1.219064540980419e-08
+      },
+      {
+        "v": 0.9140625,
+        "amplitude_over_H": 0.01828125083988498,
+        "expected_over_H": 0.01828125,
+        "residual_over_H": 1.3900753340068128e-08
+      },
+      {
+        "v": 0.9163941756318323,
+        "amplitude_over_H": 0.018327884332380154,
+        "expected_over_H": 0.018327883512636648,
+        "residual_over_H": 1.651316433592953e-08
+      },
+      {
+        "v": 0.9202600091620428,
+        "amplitude_over_H": 0.018405200899283814,
+        "expected_over_H": 0.018405200183240857,
+        "residual_over_H": 1.556317380524419e-08
+      },
+      {
+        "v": 0.921875,
+        "amplitude_over_H": 0.01843750096589361,
+        "expected_over_H": 0.0184375,
+        "residual_over_H": 1.4958835004019733e-08
+      },
+      {
+        "v": 0.9241258426922531,
+        "amplitude_over_H": 0.01848251745002813,
+        "expected_over_H": 0.01848251685384506,
+        "residual_over_H": 1.3792349429220252e-08
+      },
+      {
+        "v": 0.9251873617522751,
+        "amplitude_over_H": 0.018503747625576803,
+        "expected_over_H": 0.0185037472350455,
+        "residual_over_H": 1.1937510896453674e-08
+      },
+      {
+        "v": 0.9252200147027492,
+        "amplitude_over_H": 0.018504400765111888,
+        "expected_over_H": 0.018504400294054982,
+        "residual_over_H": 1.333925826740856e-08
+      },
+      {
+        "v": 0.9264233583082011,
+        "amplitude_over_H": 0.018528468330117,
+        "expected_over_H": 0.018528467166164023,
+        "residual_over_H": 1.2357216250258318e-08
+      },
+      {
+        "v": 0.9268008941472574,
+        "amplitude_over_H": 0.01853601892212004,
+        "expected_over_H": 0.01853601788294515,
+        "residual_over_H": 1.3388565853200696e-08
+      },
+      {
+        "v": 0.9272660176821687,
+        "amplitude_over_H": 0.018545321244701977,
+        "expected_over_H": 0.018545320353643372,
+        "residual_over_H": 1.1595617410709025e-08
+      },
+      {
+        "v": 0.9276322494292614,
+        "amplitude_over_H": 0.018552645868874635,
+        "expected_over_H": 0.018552644988585228,
+        "residual_over_H": 1.1535583016586415e-08
+      },
+      {
+        "v": 0.9279331502650867,
+        "amplitude_over_H": 0.018558663642816078,
+        "expected_over_H": 0.018558663005301734,
+        "residual_over_H": 1.1751664502623882e-08
+      },
+      {
+        "v": 0.9279916762224634,
+        "amplitude_over_H": 0.018559833841997758,
+        "expected_over_H": 0.018559833524449267,
+        "residual_over_H": 1.3018069844328295e-08
+      },
+      {
+        "v": 0.9291163059091079,
+        "amplitude_over_H": 0.01858232726133204,
+        "expected_over_H": 0.018582326118182158,
+        "residual_over_H": 1.581276166950918e-08
+      },
+      {
+        "v": 0.9296875,
+        "amplitude_over_H": 0.01859375155333196,
+        "expected_over_H": 0.01859375,
+        "residual_over_H": 1.1252237600012371e-08
+      },
+      {
+        "v": 0.9318575097526737,
+        "amplitude_over_H": 0.018637150486265307,
+        "expected_over_H": 0.018637150195053475,
+        "residual_over_H": 1.5327270605491883e-08
+      },
+      {
+        "v": 0.9375,
+        "amplitude_over_H": 0.018750000778922537,
+        "expected_over_H": 0.01875,
+        "residual_over_H": 1.3469979978641966e-08
+      },
+      {
+        "v": 0.9453125,
+        "amplitude_over_H": 0.018906251100758047,
+        "expected_over_H": 0.01890625,
+        "residual_over_H": 1.3592789768757108e-08
+      },
+      {
+        "v": 0.953125,
+        "amplitude_over_H": 0.01906250026328048,
+        "expected_over_H": 0.0190625,
+        "residual_over_H": 1.0868721422863103e-08
+      },
+      {
+        "v": 0.9609375,
+        "amplitude_over_H": 0.019218750598630045,
+        "expected_over_H": 0.01921875,
+        "residual_over_H": 1.045388711706785e-08
+      },
+      {
+        "v": 0.96875,
+        "amplitude_over_H": 0.019375000450946266,
+        "expected_over_H": 0.019375,
+        "residual_over_H": 1.1897328927590323e-08
+      },
+      {
+        "v": 0.9765625,
+        "amplitude_over_H": 0.019531250470453548,
+        "expected_over_H": 0.01953125,
+        "residual_over_H": 1.050227560472905e-08
+      },
+      {
+        "v": 0.984375,
+        "amplitude_over_H": 0.019687500206581637,
+        "expected_over_H": 0.0196875,
+        "residual_over_H": 1.2593219439471781e-08
+      },
+      {
+        "v": 0.9921875,
+        "amplitude_over_H": 0.019843749631879185,
+        "expected_over_H": 0.01984375,
+        "residual_over_H": 1.0956055784827612e-08
+      },
+      {
+        "v": 1.0,
+        "amplitude_over_H": 0.019999999298209316,
+        "expected_over_H": 0.02,
+        "residual_over_H": 1.2788170383748465e-08
+      }
+    ],
+    "hole_developed_diameters_over_H": [
+      0.02774187491525891,
+      0.03386145707140633,
+      0.04173204174007446
+    ],
+    "strip_count": 9,
+    "strips": [
+      {
+        "lowest_tip_skin_over_H": 0.15360735408191023,
+        "width_over_H": 0.051335137342596614,
+        "length_over_H": 0.11999997963772084,
+        "tip_z_over_H": 0.15360735408191023
+      },
+      {
+        "lowest_tip_skin_over_H": 0.05999999056602347,
+        "width_over_H": 0.07697196524355494,
+        "length_over_H": 0.21750077268079454,
+        "tip_z_over_H": 0.05999999056602347
+      },
+      {
+        "lowest_tip_skin_over_H": 0.21278049514211458,
+        "width_over_H": 0.03850886746458057,
+        "length_over_H": 0.07499997347093434,
+        "tip_z_over_H": 0.21278049514211458
+      },
+      {
+        "lowest_tip_skin_over_H": 0.0961181608767345,
+        "width_over_H": 0.06413842045512087,
+        "length_over_H": 0.194999985569857,
+        "tip_z_over_H": 0.0961181608767345
+      },
+      {
+        "lowest_tip_skin_over_H": 0.20804901215536842,
+        "width_over_H": 0.05130569372466094,
+        "length_over_H": 0.0899999781314495,
+        "tip_z_over_H": 0.20804901215536842
+      },
+      {
+        "lowest_tip_skin_over_H": 0.07018271653816618,
+        "width_over_H": 0.0769765177157337,
+        "length_over_H": 0.2249999823350215,
+        "tip_z_over_H": 0.07018271653816618
+      },
+      {
+        "lowest_tip_skin_over_H": 0.2092040592226489,
+        "width_over_H": 0.038516689676297684,
+        "length_over_H": 0.07500004055490633,
+        "tip_z_over_H": 0.2092040592226489
+      },
+      {
+        "lowest_tip_skin_over_H": 0.10111715259223149,
+        "width_over_H": 0.06416109066309846,
+        "length_over_H": 0.18000000105718797,
+        "tip_z_over_H": 0.10111715259223149
+      },
+      {
+        "lowest_tip_skin_over_H": 0.10000000020553326,
+        "width_over_H": 0.06415958746032217,
+        "length_over_H": 0.17130470990662838,
+        "tip_z_over_H": 0.10000000020553326
+      }
+    ],
+    "root_transverse_width_m": 0.5564516186714172,
+    "side_notch_counts": {
+      "far": 2,
+      "near": 3
+    },
+    "strip_width_scale": 1.284090735507476,
+    "root_arc_over_H": 0.5904772015580653,
+    "clamped_strips": [
+      2
+    ],
+    "measured_fold_amplitude_over_H": 0.020000000819147042,
+    "fold_fit_residual_over_H": 1.2373157969467397e-08,
+    "near_tip_over_H": 0.10000000020553326
+  },
+  "tabard": {
+    "passed": true,
+    "checks": {
+      "five_added_torn_points": true,
+      "exact_director_tent_profile": true,
+      "cloth_thickness": true
+    },
+    "added_point_columns": [
+      2,
+      7,
+      12,
+      17,
+      22
+    ],
+    "visible_outline_valleys": [
+      2,
+      7,
+      17,
+      22
+    ],
+    "measured_depths_over_H": [
+      0.008000070029521522,
+      0.02400005220623025,
+      0.04000003597056764,
+      0.02400004208862333,
+      0.008000036289160462,
+      0.012000032124258986,
+      0.0360000332240383,
+      0.060000020610329524,
+      0.036000013216859944,
+      0.012000013724807523,
+      0.006000016312441153,
+      0.01800000494945103,
+      0.030000005608149916,
+      0.017999998155721675,
+      0.005999980737999927,
+      0.009999977954637473,
+      0.029999981831629816,
+      0.04999997675840066,
+      0.029999972695710864,
+      0.009999966563604162,
+      0.007999962563268681,
+      0.023999959991329783,
+      0.03999995151480332,
+      0.02399993564819733,
+      0.007999959230256537
+    ]
+  },
+  "proportions": {
+    "helm_without_tines_over_H": 0.1250000676001489,
+    "tines_over_H": 0.12517240052125414,
+    "shoulder_transverse_width_over_H": 0.19396551087746014,
+    "torso_neck_to_waist_over_H": 0.2760717274486347,
+    "leg_hip_to_sole_over_H": 0.3957989383778119
+  },
+  "definition": "H and L retain mq-17 gauges. Body-space transverse width is measured in the chest frame; sole plane is Z=0.",
+  "front_far_exposure": {
+    "definition": "Native polygon silhouette left edge at pixel-centre scanlines; all body/arm pieces except staff and cloak form the comparison. Cloak solo is conservative even when occluded.",
+    "maximum_beyond_body_over_H": 0.028891712649013593,
+    "maximum_row_px": 690,
+    "cloak_left_px": 421.0445994411633,
+    "staff_hand_left_px": 329.64512572066326,
+    "checks": {
+      "front_far_exposure_at_most_006H": true,
+      "no_cloth_past_staff_hand": true
+    }
+  },
+  "preserved_shapes": {
+    "passed": true,
+    "pieces": {
+      "bell": {
+        "passed": true,
+        "maximum_error_over_H": 2.4642281900158156e-08
+      },
+      "closed_back_plate": {
+        "passed": true,
+        "maximum_error_over_H": 2.471343573762655e-08
+      },
+      "elbow_joint_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.411670228528409e-08
+      },
+      "elbow_joint_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.4426253327892705e-08
+      },
+      "finger_far_0": {
+        "passed": true,
+        "maximum_error_over_H": 2.5912839365764497e-08
+      },
+      "finger_far_1": {
+        "passed": true,
+        "maximum_error_over_H": 2.53575454107584e-08
+      },
+      "finger_far_2": {
+        "passed": true,
+        "maximum_error_over_H": 2.488099795987102e-08
+      },
+      "finger_far_3": {
+        "passed": true,
+        "maximum_error_over_H": 2.5080951889212626e-08
+      },
+      "fore_plate_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.7035950089321645e-08
+      },
+      "fore_plate_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.458691165799115e-08
+      },
+      "gauntlet_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.708506846599307e-08
+      },
+      "gauntlet_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.554517811126524e-08
+      },
+      "great_helm": {
+        "passed": true,
+        "maximum_error_over_H": 5.641349041172616e-08
+      },
+      "helm_tine_far": {
+        "passed": true,
+        "maximum_error_over_H": 5.001105713861125e-08
+      },
+      "helm_tine_near": {
+        "passed": true,
+        "maximum_error_over_H": 5.3947682665956096e-08
+      },
+      "hip_joint_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.3345355044587628e-08
+      },
+      "hip_joint_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.3651082131674416e-08
+      },
+      "hood_back_cape": {
+        "passed": true,
+        "maximum_error_over_H": 2.4006786834809235e-08
+      },
+      "hood_scarf": {
+        "passed": true,
+        "maximum_error_over_H": 2.890635175479164e-08
+      },
+      "knee_joint_far": {
+        "passed": true,
+        "maximum_error_over_H": 1.2374240086316422e-08
+      },
+      "knee_joint_near": {
+        "passed": true,
+        "maximum_error_over_H": 1.2470501929728418e-08
+      },
+      "lower_abdomen": {
+        "passed": true,
+        "maximum_error_over_H": 2.4057716106945806e-08
+      },
+      "medallion": {
+        "passed": true,
+        "maximum_error_over_H": 2.5014151465823576e-08
+      },
+      "medallion_hanger": {
+        "passed": true,
+        "maximum_error_over_H": 2.535621012497133e-08
+      },
+      "neck_roll": {
+        "passed": true,
+        "maximum_error_over_H": 2.5494053667788864e-08
+      },
+      "pauldron_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.5236804670308046e-08
+      },
+      "pauldron_lame_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.4868855983369156e-08
+      },
+      "pauldron_lame_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.5786528481959037e-08
+      },
+      "pauldron_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.6497569329516117e-08
+      },
+      "pelvis_plate": {
+        "passed": true,
+        "maximum_error_over_H": 2.3460725557091524e-08
+      },
+      "pointed_sabaton_far": {
+        "passed": true,
+        "maximum_error_over_H": 7.002432408470057e-09
+      },
+      "pointed_sabaton_near": {
+        "passed": true,
+        "maximum_error_over_H": 7.3667985737756195e-09
+      },
+      "rib_0": {
+        "passed": true,
+        "maximum_error_over_H": 2.5631224372025667e-08
+      },
+      "rib_1": {
+        "passed": true,
+        "maximum_error_over_H": 2.5132369166573448e-08
+      },
+      "rib_2": {
+        "passed": true,
+        "maximum_error_over_H": 2.4999496617727543e-08
+      },
+      "rib_3": {
+        "passed": true,
+        "maximum_error_over_H": 2.4638667167985542e-08
+      },
+      "rib_4": {
+        "passed": true,
+        "maximum_error_over_H": 2.564020430755014e-08
+      },
+      "sash_knot": {
+        "passed": true,
+        "maximum_error_over_H": 2.4626133618402755e-08
+      },
+      "shin_plate_far": {
+        "passed": true,
+        "maximum_error_over_H": 1.1909228072345465e-08
+      },
+      "shin_plate_near": {
+        "passed": true,
+        "maximum_error_over_H": 1.1985819796782978e-08
+      },
+      "shin_wrap_far_0": {
+        "passed": true,
+        "maximum_error_over_H": 5.844033274878387e-09
+      },
+      "shin_wrap_far_1": {
+        "passed": true,
+        "maximum_error_over_H": 7.250468108686786e-09
+      },
+      "shin_wrap_far_2": {
+        "passed": true,
+        "maximum_error_over_H": 6.749151490791376e-09
+      },
+      "shin_wrap_near_0": {
+        "passed": true,
+        "maximum_error_over_H": 4.567465053709401e-09
+      },
+      "shin_wrap_near_1": {
+        "passed": true,
+        "maximum_error_over_H": 5.24024014950953e-09
+      },
+      "shin_wrap_near_2": {
+        "passed": true,
+        "maximum_error_over_H": 6.332635835846262e-09
+      },
+      "shoulder_spike_far_0": {
+        "passed": true,
+        "maximum_error_over_H": 2.6291366199924923e-08
+      },
+      "shoulder_spike_far_1": {
+        "passed": true,
+        "maximum_error_over_H": 2.4611718805375958e-08
+      },
+      "shoulder_spike_far_2": {
+        "passed": true,
+        "maximum_error_over_H": 2.362445956647711e-08
+      },
+      "shoulder_spike_near_0": {
+        "passed": true,
+        "maximum_error_over_H": 2.569460327537955e-08
+      },
+      "shoulder_spike_near_1": {
+        "passed": true,
+        "maximum_error_over_H": 2.403138003625815e-08
+      },
+      "shoulder_spike_near_2": {
+        "passed": true,
+        "maximum_error_over_H": 2.4290755551552462e-08
+      },
+      "spine_ridge": {
+        "passed": true,
+        "maximum_error_over_H": 2.4869664392347354e-08
+      },
+      "sternum_hook": {
+        "passed": true,
+        "maximum_error_over_H": 2.7351228120436264e-08
+      },
+      "thigh_plate_far": {
+        "passed": true,
+        "maximum_error_over_H": 1.2601934423416456e-08
+      },
+      "thigh_plate_near": {
+        "passed": true,
+        "maximum_error_over_H": 1.2821801315988589e-08
+      },
+      "thumb_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.573747671091818e-08
+      },
+      "thumb_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.5452739119250386e-08
+      },
+      "upper_plate_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.4606727782570678e-08
+      },
+      "upper_plate_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.458627750470816e-08
+      },
+      "visor_slit": {
+        "passed": true,
+        "maximum_error_over_H": 1.2812944357920254e-08
+      },
+      "waist_sash": {
+        "passed": true,
+        "maximum_error_over_H": 2.4560251061249118e-08
+      }
+    }
+  },
+  "cloak_occlusion": {
+    "passed": true,
+    "checks": {
+      "shoulder_attachment_tucked_001H": true,
+      "cloak_stays_behind_near_arm": true,
+      "coverage_definition_resolved": true,
+      "rear_torso_silhouette_95_percent": true
+    },
+    "coverage_domain": "world_shoulder_plane",
+    "coverage_acceptance": "selected domain",
+    "definition": "Native rear pixel-centre rays through torso solo. Two cutoff domains are reported without choosing one: opened torso hits below the 3D level-shoulder plane, and pixels below the 2D projected shoulder line. New cloak plus its retained overlapping hood cape/scarf must be closer than or on the torso. The torso denominator includes those garments. New-cloak-only 3D-plane coverage is reported separately. Tears count as uncovered. No hole fill or surface-vertex weighting.",
+    "shoulder_plane_z_m": 1.6855657114708715,
+    "projected_line_proxy": {
+      "pixels": 34506,
+      "covered": 30379,
+      "coverage": 0.8803976120095056
+    },
+    "rear_torso_silhouette_pixels": 26813,
+    "rear_cloak_covered_pixels": 26240,
+    "new_cloak_only_covered_pixels": 26154,
+    "new_cloak_only_coverage": 0.9754223697460187,
+    "rear_visible_cloak_pixels": 26152,
+    "rear_torso_silhouette_coverage": 0.9786297691418342,
+    "uncovered_torso_pixels": [
+      [
+        538,
+        378
+      ],
+      [
+        539,
+        378
+      ],
+      [
+        533,
+        379
+      ],
+      [
+        534,
+        379
+      ],
+      [
+        535,
+        379
+      ],
+      [
+        536,
+        379
+      ],
+      [
+        537,
+        379
+      ],
+      [
+        538,
+        379
+      ],
+      [
+        526,
+        380
+      ],
+      [
+        527,
+        380
+      ],
+      [
+        528,
+        380
+      ],
+      [
+        529,
+        380
+      ],
+      [
+        530,
+        380
+      ],
+      [
+        531,
+        380
+      ],
+      [
+        532,
+        380
+      ],
+      [
+        533,
+        380
+      ],
+      [
+        534,
+        380
+      ],
+      [
+        535,
+        380
+      ],
+      [
+        536,
+        380
+      ],
+      [
+        537,
+        380
+      ],
+      [
+        496,
+        381
+      ],
+      [
+        497,
+        381
+      ],
+      [
+        498,
+        381
+      ],
+      [
+        499,
+        381
+      ],
+      [
+        500,
+        381
+      ],
+      [
+        501,
+        381
+      ],
+      [
+        502,
+        381
+      ],
+      [
+        503,
+        381
+      ],
+      [
+        504,
+        381
+      ],
+      [
+        505,
+        381
+      ],
+      [
+        506,
+        381
+      ],
+      [
+        510,
+        381
+      ],
+      [
+        511,
+        381
+      ],
+      [
+        512,
+        381
+      ],
+      [
+        513,
+        381
+      ],
+      [
+        514,
+        381
+      ],
+      [
+        515,
+        381
+      ],
+      [
+        516,
+        381
+      ],
+      [
+        517,
+        381
+      ],
+      [
+        518,
+        381
+      ],
+      [
+        519,
+        381
+      ],
+      [
+        520,
+        381
+      ],
+      [
+        521,
+        381
+      ],
+      [
+        522,
+        381
+      ],
+      [
+        523,
+        381
+      ],
+      [
+        524,
+        381
+      ],
+      [
+        525,
+        381
+      ],
+      [
+        526,
+        381
+      ],
+      [
+        527,
+        381
+      ],
+      [
+        528,
+        381
+      ],
+      [
+        529,
+        381
+      ],
+      [
+        530,
+        381
+      ],
+      [
+        531,
+        381
+      ],
+      [
+        532,
+        381
+      ],
+      [
+        533,
+        381
+      ],
+      [
+        534,
+        381
+      ],
+      [
+        535,
+        381
+      ],
+      [
+        536,
+        381
+      ],
+      [
+        501,
+        382
+      ],
+      [
+        502,
+        382
+      ],
+      [
+        503,
+        382
+      ],
+      [
+        504,
+        382
+      ],
+      [
+        505,
+        382
+      ],
+      [
+        506,
+        382
+      ],
+      [
+        507,
+        382
+      ],
+      [
+        508,
+        382
+      ],
+      [
+        509,
+        382
+      ],
+      [
+        510,
+        382
+      ],
+      [
+        511,
+        382
+      ],
+      [
+        512,
+        382
+      ],
+      [
+        513,
+        382
+      ],
+      [
+        514,
+        382
+      ],
+      [
+        515,
+        382
+      ],
+      [
+        516,
+        382
+      ],
+      [
+        517,
+        382
+      ],
+      [
+        518,
+        382
+      ],
+      [
+        519,
+        382
+      ],
+      [
+        520,
+        382
+      ],
+      [
+        521,
+        382
+      ],
+      [
+        522,
+        382
+      ],
+      [
+        523,
+        382
+      ],
+      [
+        524,
+        382
+      ],
+      [
+        525,
+        382
+      ],
+      [
+        526,
+        382
+      ],
+      [
+        527,
+        382
+      ],
+      [
+        528,
+        382
+      ],
+      [
+        529,
+        382
+      ],
+      [
+        530,
+        382
+      ],
+      [
+        531,
+        382
+      ],
+      [
+        532,
+        382
+      ],
+      [
+        533,
+        382
+      ],
+      [
+        534,
+        382
+      ],
+      [
+        535,
+        382
+      ],
+      [
+        507,
+        383
+      ],
+      [
+        508,
+        383
+      ],
+      [
+        509,
+        383
+      ],
+      [
+        510,
+        383
+      ],
+      [
+        511,
+        383
+      ],
+      [
+        512,
+        383
+      ],
+      [
+        513,
+        383
+      ],
+      [
+        514,
+        383
+      ],
+      [
+        515,
+        383
+      ],
+      [
+        516,
+        383
+      ],
+      [
+        517,
+        383
+      ],
+      [
+        518,
+        383
+      ],
+      [
+        519,
+        383
+      ],
+      [
+        520,
+        383
+      ],
+      [
+        521,
+        383
+      ],
+      [
+        522,
+        383
+      ],
+      [
+        523,
+        383
+      ],
+      [
+        524,
+        383
+      ],
+      [
+        525,
+        383
+      ],
+      [
+        526,
+        383
+      ],
+      [
+        527,
+        383
+      ],
+      [
+        528,
+        383
+      ],
+      [
+        529,
+        383
+      ],
+      [
+        530,
+        383
+      ],
+      [
+        531,
+        383
+      ],
+      [
+        532,
+        383
+      ],
+      [
+        533,
+        383
+      ],
+      [
+        534,
+        383
+      ],
+      [
+        515,
+        384
+      ],
+      [
+        516,
+        384
+      ],
+      [
+        517,
+        384
+      ],
+      [
+        518,
+        384
+      ],
+      [
+        519,
+        384
+      ],
+      [
+        520,
+        384
+      ],
+      [
+        521,
+        384
+      ],
+      [
+        522,
+        384
+      ],
+      [
+        523,
+        384
+      ],
+      [
+        524,
+        384
+      ],
+      [
+        525,
+        384
+      ],
+      [
+        526,
+        384
+      ],
+      [
+        527,
+        384
+      ],
+      [
+        528,
+        384
+      ],
+      [
+        529,
+        384
+      ],
+      [
+        530,
+        384
+      ],
+      [
+        531,
+        384
+      ],
+      [
+        532,
+        384
+      ],
+      [
+        533,
+        384
+      ],
+      [
+        525,
+        385
+      ],
+      [
+        526,
+        385
+      ],
+      [
+        527,
+        385
+      ],
+      [
+        528,
+        385
+      ],
+      [
+        529,
+        385
+      ],
+      [
+        530,
+        385
+      ],
+      [
+        531,
+        385
+      ],
+      [
+        532,
+        385
+      ],
+      [
+        576,
+        404
+      ],
+      [
+        577,
+        404
+      ],
+      [
+        575,
+        405
+      ],
+      [
+        576,
+        405
+      ],
+      [
+        577,
+        405
+      ],
+      [
+        574,
+        406
+      ],
+      [
+        575,
+        406
+      ],
+      [
+        576,
+        406
+      ],
+      [
+        577,
+        406
+      ],
+      [
+        574,
+        407
+      ],
+      [
+        575,
+        407
+      ],
+      [
+        576,
+        407
+      ],
+      [
+        577,
+        407
+      ],
+      [
+        572,
+        408
+      ],
+      [
+        573,
+        408
+      ],
+      [
+        574,
+        408
+      ],
+      [
+        575,
+        408
+      ],
+      [
+        576,
+        408
+      ],
+      [
+        577,
+        408
+      ],
+      [
+        571,
+        409
+      ],
+      [
+        572,
+        409
+      ],
+      [
+        573,
+        409
+      ],
+      [
+        574,
+        409
+      ],
+      [
+        575,
+        409
+      ],
+      [
+        576,
+        409
+      ],
+      [
+        577,
+        409
+      ],
+      [
+        570,
+        410
+      ],
+      [
+        571,
+        410
+      ],
+      [
+        572,
+        410
+      ],
+      [
+        573,
+        410
+      ],
+      [
+        574,
+        410
+      ],
+      [
+        575,
+        410
+      ],
+      [
+        576,
+        410
+      ],
+      [
+        570,
+        411
+      ],
+      [
+        571,
+        411
+      ],
+      [
+        572,
+        411
+      ],
+      [
+        573,
+        411
+      ],
+      [
+        574,
+        411
+      ],
+      [
+        575,
+        411
+      ],
+      [
+        576,
+        411
+      ],
+      [
+        569,
+        412
+      ],
+      [
+        570,
+        412
+      ],
+      [
+        571,
+        412
+      ],
+      [
+        572,
+        412
+      ],
+      [
+        573,
+        412
+      ],
+      [
+        574,
+        412
+      ],
+      [
+        575,
+        412
+      ],
+      [
+        576,
+        412
+      ],
+      [
+        569,
+        413
+      ],
+      [
+        570,
+        413
+      ],
+      [
+        571,
+        413
+      ],
+      [
+        572,
+        413
+      ],
+      [
+        573,
+        413
+      ],
+      [
+        574,
+        413
+      ],
+      [
+        575,
+        413
+      ],
+      [
+        576,
+        413
+      ],
+      [
+        569,
+        414
+      ],
+      [
+        570,
+        414
+      ],
+      [
+        571,
+        414
+      ],
+      [
+        572,
+        414
+      ],
+      [
+        573,
+        414
+      ],
+      [
+        574,
+        414
+      ],
+      [
+        575,
+        414
+      ],
+      [
+        576,
+        414
+      ],
+      [
+        567,
+        415
+      ],
+      [
+        568,
+        415
+      ],
+      [
+        569,
+        415
+      ],
+      [
+        570,
+        415
+      ],
+      [
+        571,
+        415
+      ],
+      [
+        572,
+        415
+      ],
+      [
+        573,
+        415
+      ],
+      [
+        574,
+        415
+      ],
+      [
+        575,
+        415
+      ],
+      [
+        576,
+        415
+      ],
+      [
+        567,
+        416
+      ],
+      [
+        568,
+        416
+      ],
+      [
+        569,
+        416
+      ],
+      [
+        570,
+        416
+      ],
+      [
+        571,
+        416
+      ],
+      [
+        572,
+        416
+      ],
+      [
+        573,
+        416
+      ],
+      [
+        574,
+        416
+      ],
+      [
+        575,
+        416
+      ],
+      [
+        576,
+        416
+      ],
+      [
+        567,
+        417
+      ],
+      [
+        568,
+        417
+      ],
+      [
+        569,
+        417
+      ],
+      [
+        570,
+        417
+      ],
+      [
+        571,
+        417
+      ],
+      [
+        572,
+        417
+      ],
+      [
+        573,
+        417
+      ],
+      [
+        574,
+        417
+      ],
+      [
+        575,
+        417
+      ],
+      [
+        576,
+        417
+      ],
+      [
+        567,
+        418
+      ],
+      [
+        568,
+        418
+      ],
+      [
+        569,
+        418
+      ],
+      [
+        570,
+        418
+      ],
+      [
+        571,
+        418
+      ],
+      [
+        572,
+        418
+      ],
+      [
+        573,
+        418
+      ],
+      [
+        574,
+        418
+      ],
+      [
+        575,
+        418
+      ],
+      [
+        576,
+        418
+      ],
+      [
+        567,
+        419
+      ],
+      [
+        568,
+        419
+      ],
+      [
+        569,
+        419
+      ],
+      [
+        570,
+        419
+      ],
+      [
+        571,
+        419
+      ],
+      [
+        572,
+        419
+      ],
+      [
+        573,
+        419
+      ],
+      [
+        574,
+        419
+      ],
+      [
+        575,
+        419
+      ],
+      [
+        576,
+        419
+      ],
+      [
+        567,
+        420
+      ],
+      [
+        568,
+        420
+      ],
+      [
+        569,
+        420
+      ],
+      [
+        570,
+        420
+      ],
+      [
+        571,
+        420
+      ],
+      [
+        572,
+        420
+      ],
+      [
+        573,
+        420
+      ],
+      [
+        574,
+        420
+      ],
+      [
+        575,
+        420
+      ],
+      [
+        576,
+        420
+      ],
+      [
+        567,
+        421
+      ],
+      [
+        568,
+        421
+      ],
+      [
+        569,
+        421
+      ],
+      [
+        570,
+        421
+      ],
+      [
+        571,
+        421
+      ],
+      [
+        572,
+        421
+      ],
+      [
+        573,
+        421
+      ],
+      [
+        574,
+        421
+      ],
+      [
+        575,
+        421
+      ],
+      [
+        576,
+        421
+      ],
+      [
+        565,
+        422
+      ],
+      [
+        566,
+        422
+      ],
+      [
+        567,
+        422
+      ],
+      [
+        568,
+        422
+      ],
+      [
+        569,
+        422
+      ],
+      [
+        570,
+        422
+      ],
+      [
+        571,
+        422
+      ],
+      [
+        572,
+        422
+      ],
+      [
+        573,
+        422
+      ],
+      [
+        574,
+        422
+      ],
+      [
+        575,
+        422
+      ],
+      [
+        565,
+        423
+      ],
+      [
+        566,
+        423
+      ],
+      [
+        567,
+        423
+      ],
+      [
+        568,
+        423
+      ],
+      [
+        569,
+        423
+      ],
+      [
+        570,
+        423
+      ],
+      [
+        571,
+        423
+      ],
+      [
+        572,
+        423
+      ],
+      [
+        573,
+        423
+      ],
+      [
+        574,
+        423
+      ],
+      [
+        575,
+        423
+      ],
+      [
+        565,
+        424
+      ],
+      [
+        566,
+        424
+      ],
+      [
+        567,
+        424
+      ],
+      [
+        568,
+        424
+      ],
+      [
+        569,
+        424
+      ],
+      [
+        570,
+        424
+      ],
+      [
+        571,
+        424
+      ],
+      [
+        572,
+        424
+      ],
+      [
+        573,
+        424
+      ],
+      [
+        574,
+        424
+      ],
+      [
+        575,
+        424
+      ],
+      [
+        565,
+        425
+      ],
+      [
+        566,
+        425
+      ],
+      [
+        567,
+        425
+      ],
+      [
+        568,
+        425
+      ],
+      [
+        569,
+        425
+      ],
+      [
+        570,
+        425
+      ],
+      [
+        571,
+        425
+      ],
+      [
+        572,
+        425
+      ],
+      [
+        573,
+        425
+      ],
+      [
+        574,
+        425
+      ],
+      [
+        575,
+        425
+      ],
+      [
+        563,
+        426
+      ],
+      [
+        564,
+        426
+      ],
+      [
+        565,
+        426
+      ],
+      [
+        566,
+        426
+      ],
+      [
+        567,
+        426
+      ],
+      [
+        568,
+        426
+      ],
+      [
+        569,
+        426
+      ],
+      [
+        570,
+        426
+      ],
+      [
+        571,
+        426
+      ],
+      [
+        572,
+        426
+      ],
+      [
+        573,
+        426
+      ],
+      [
+        574,
+        426
+      ],
+      [
+        575,
+        426
+      ],
+      [
+        563,
+        427
+      ],
+      [
+        564,
+        427
+      ],
+      [
+        565,
+        427
+      ],
+      [
+        566,
+        427
+      ],
+      [
+        567,
+        427
+      ],
+      [
+        568,
+        427
+      ],
+      [
+        569,
+        427
+      ],
+      [
+        570,
+        427
+      ],
+      [
+        571,
+        427
+      ],
+      [
+        572,
+        427
+      ],
+      [
+        573,
+        427
+      ],
+      [
+        574,
+        427
+      ],
+      [
+        575,
+        427
+      ],
+      [
+        563,
+        428
+      ],
+      [
+        564,
+        428
+      ],
+      [
+        565,
+        428
+      ],
+      [
+        566,
+        428
+      ],
+      [
+        567,
+        428
+      ],
+      [
+        568,
+        428
+      ],
+      [
+        569,
+        428
+      ],
+      [
+        570,
+        428
+      ],
+      [
+        571,
+        428
+      ],
+      [
+        572,
+        428
+      ],
+      [
+        573,
+        428
+      ],
+      [
+        574,
+        428
+      ],
+      [
+        575,
+        428
+      ],
+      [
+        563,
+        429
+      ],
+      [
+        564,
+        429
+      ],
+      [
+        565,
+        429
+      ],
+      [
+        566,
+        429
+      ],
+      [
+        567,
+        429
+      ],
+      [
+        568,
+        429
+      ],
+      [
+        569,
+        429
+      ],
+      [
+        570,
+        429
+      ],
+      [
+        571,
+        429
+      ],
+      [
+        572,
+        429
+      ],
+      [
+        573,
+        429
+      ],
+      [
+        574,
+        429
+      ],
+      [
+        563,
+        430
+      ],
+      [
+        564,
+        430
+      ],
+      [
+        565,
+        430
+      ],
+      [
+        566,
+        430
+      ],
+      [
+        567,
+        430
+      ],
+      [
+        568,
+        430
+      ],
+      [
+        569,
+        430
+      ],
+      [
+        570,
+        430
+      ],
+      [
+        571,
+        430
+      ],
+      [
+        572,
+        430
+      ],
+      [
+        573,
+        430
+      ],
+      [
+        574,
+        430
+      ],
+      [
+        563,
+        431
+      ],
+      [
+        564,
+        431
+      ],
+      [
+        565,
+        431
+      ],
+      [
+        566,
+        431
+      ],
+      [
+        567,
+        431
+      ],
+      [
+        568,
+        431
+      ],
+      [
+        569,
+        431
+      ],
+      [
+        570,
+        431
+      ],
+      [
+        571,
+        431
+      ],
+      [
+        572,
+        431
+      ],
+      [
+        573,
+        431
+      ],
+      [
+        574,
+        431
+      ],
+      [
+        563,
+        432
+      ],
+      [
+        564,
+        432
+      ],
+      [
+        565,
+        432
+      ],
+      [
+        566,
+        432
+      ],
+      [
+        567,
+        432
+      ],
+      [
+        568,
+        432
+      ],
+      [
+        569,
+        432
+      ],
+      [
+        570,
+        432
+      ],
+      [
+        571,
+        432
+      ],
+      [
+        572,
+        432
+      ],
+      [
+        573,
+        432
+      ],
+      [
+        574,
+        432
+      ],
+      [
+        560,
+        433
+      ],
+      [
+        561,
+        433
+      ],
+      [
+        562,
+        433
+      ],
+      [
+        563,
+        433
+      ],
+      [
+        564,
+        433
+      ],
+      [
+        565,
+        433
+      ],
+      [
+        566,
+        433
+      ],
+      [
+        567,
+        433
+      ],
+      [
+        568,
+        433
+      ],
+      [
+        569,
+        433
+      ],
+      [
+        570,
+        433
+      ],
+      [
+        571,
+        433
+      ],
+      [
+        572,
+        433
+      ],
+      [
+        573,
+        433
+      ],
+      [
+        574,
+        433
+      ],
+      [
+        560,
+        434
+      ],
+      [
+        561,
+        434
+      ],
+      [
+        562,
+        434
+      ],
+      [
+        563,
+        434
+      ],
+      [
+        564,
+        434
+      ],
+      [
+        565,
+        434
+      ],
+      [
+        566,
+        434
+      ],
+      [
+        567,
+        434
+      ],
+      [
+        568,
+        434
+      ],
+      [
+        569,
+        434
+      ],
+      [
+        570,
+        434
+      ],
+      [
+        571,
+        434
+      ],
+      [
+        572,
+        434
+      ],
+      [
+        573,
+        434
+      ],
+      [
+        574,
+        434
+      ],
+      [
+        560,
+        435
+      ],
+      [
+        561,
+        435
+      ],
+      [
+        562,
+        435
+      ],
+      [
+        563,
+        435
+      ],
+      [
+        564,
+        435
+      ],
+      [
+        565,
+        435
+      ],
+      [
+        566,
+        435
+      ],
+      [
+        567,
+        435
+      ],
+      [
+        568,
+        435
+      ],
+      [
+        569,
+        435
+      ],
+      [
+        570,
+        435
+      ],
+      [
+        571,
+        435
+      ],
+      [
+        572,
+        435
+      ],
+      [
+        573,
+        435
+      ],
+      [
+        562,
+        436
+      ],
+      [
+        563,
+        436
+      ],
+      [
+        564,
+        436
+      ],
+      [
+        565,
+        436
+      ],
+      [
+        566,
+        436
+      ],
+      [
+        567,
+        436
+      ],
+      [
+        568,
+        436
+      ],
+      [
+        569,
+        436
+      ],
+      [
+        570,
+        436
+      ],
+      [
+        571,
+        436
+      ],
+      [
+        572,
+        436
+      ],
+      [
+        573,
+        436
+      ],
+      [
+        562,
+        437
+      ],
+      [
+        563,
+        437
+      ],
+      [
+        564,
+        437
+      ],
+      [
+        565,
+        437
+      ],
+      [
+        566,
+        437
+      ],
+      [
+        567,
+        437
+      ],
+      [
+        568,
+        437
+      ],
+      [
+        569,
+        437
+      ],
+      [
+        570,
+        437
+      ],
+      [
+        571,
+        437
+      ],
+      [
+        572,
+        437
+      ],
+      [
+        573,
+        437
+      ],
+      [
+        562,
+        438
+      ],
+      [
+        563,
+        438
+      ],
+      [
+        564,
+        438
+      ],
+      [
+        565,
+        438
+      ],
+      [
+        566,
+        438
+      ],
+      [
+        567,
+        438
+      ],
+      [
+        568,
+        438
+      ],
+      [
+        569,
+        438
+      ],
+      [
+        570,
+        438
+      ],
+      [
+        571,
+        438
+      ],
+      [
+        572,
+        438
+      ],
+      [
+        573,
+        438
+      ],
+      [
+        562,
+        439
+      ],
+      [
+        563,
+        439
+      ],
+      [
+        564,
+        439
+      ],
+      [
+        565,
+        439
+      ],
+      [
+        566,
+        439
+      ],
+      [
+        567,
+        439
+      ],
+      [
+        568,
+        439
+      ],
+      [
+        569,
+        439
+      ],
+      [
+        570,
+        439
+      ],
+      [
+        571,
+        439
+      ],
+      [
+        572,
+        439
+      ],
+      [
+        573,
+        439
+      ],
+      [
+        564,
+        440
+      ],
+      [
+        565,
+        440
+      ],
+      [
+        566,
+        440
+      ],
+      [
+        567,
+        440
+      ],
+      [
+        568,
+        440
+      ],
+      [
+        569,
+        440
+      ],
+      [
+        570,
+        440
+      ],
+      [
+        571,
+        440
+      ],
+      [
+        572,
+        440
+      ],
+      [
+        564,
+        441
+      ],
+      [
+        565,
+        441
+      ],
+      [
+        566,
+        441
+      ],
+      [
+        567,
+        441
+      ],
+      [
+        568,
+        441
+      ],
+      [
+        569,
+        441
+      ],
+      [
+        570,
+        441
+      ],
+      [
+        571,
+        441
+      ],
+      [
+        572,
+        441
+      ],
+      [
+        564,
+        442
+      ],
+      [
+        565,
+        442
+      ],
+      [
+        566,
+        442
+      ],
+      [
+        567,
+        442
+      ],
+      [
+        568,
+        442
+      ],
+      [
+        569,
+        442
+      ],
+      [
+        570,
+        442
+      ],
+      [
+        571,
+        442
+      ],
+      [
+        572,
+        442
+      ],
+      [
+        566,
+        443
+      ],
+      [
+        567,
+        443
+      ],
+      [
+        568,
+        443
+      ],
+      [
+        569,
+        443
+      ],
+      [
+        570,
+        443
+      ],
+      [
+        571,
+        443
+      ],
+      [
+        572,
+        443
+      ],
+      [
+        566,
+        444
+      ],
+      [
+        567,
+        444
+      ],
+      [
+        568,
+        444
+      ],
+      [
+        569,
+        444
+      ],
+      [
+        570,
+        444
+      ],
+      [
+        571,
+        444
+      ],
+      [
+        566,
+        445
+      ],
+      [
+        567,
+        445
+      ],
+      [
+        568,
+        445
+      ],
+      [
+        569,
+        445
+      ],
+      [
+        570,
+        445
+      ],
+      [
+        571,
+        445
+      ],
+      [
+        566,
+        446
+      ],
+      [
+        567,
+        446
+      ],
+      [
+        568,
+        446
+      ],
+      [
+        569,
+        446
+      ],
+      [
+        570,
+        446
+      ],
+      [
+        571,
+        446
+      ],
+      [
+        566,
+        447
+      ],
+      [
+        567,
+        447
+      ],
+      [
+        568,
+        447
+      ],
+      [
+        569,
+        447
+      ],
+      [
+        570,
+        447
+      ],
+      [
+        571,
+        447
+      ],
+      [
+        566,
+        448
+      ],
+      [
+        567,
+        448
+      ],
+      [
+        568,
+        448
+      ],
+      [
+        569,
+        448
+      ],
+      [
+        570,
+        448
+      ],
+      [
+        571,
+        448
+      ],
+      [
+        570,
+        449
+      ],
+      [
+        570,
+        450
+      ],
+      [
+        570,
+        451
+      ],
+      [
+        570,
+        452
+      ]
+    ],
+    "shoulder_line_px": [
+      [
+        597.1127393456206,
+        347.9107288481757
+      ],
+      [
+        379.4567373187204,
+        329.2096947629442
+      ]
+    ],
+    "attachment": {
+      "maximum_distance_over_H": 0.004128539284434298,
+      "camera_visibility_observations": {
+        "front": {
+          "top_skin_points": 734,
+          "hidden_by_non_cloak_geometry": 734,
+          "exposed": []
+        },
+        "rear": {
+          "top_skin_points": 734,
+          "hidden_by_non_cloak_geometry": 734,
+          "exposed": []
+        }
+      },
+      "lap_definition": "world Z above opened native local hem; both skins have a real outward support ray hit",
+      "minimum_lap_over_H": 0.009999970223961818,
+      "maximum_lap_over_H": 0.010000041528885562,
+      "live_top_vertices": 367,
+      "trimmed_top_vertices": 2,
+      "failed_tuck_vertices": []
+    },
+    "front_near_arm_samples": 625,
+    "front_unobscured_near_arm_samples": 625
+  },
+  "spec_hash": "f32626af7e3e98ec5aaf5dc319118d4a9549f34c6cc5df6d5a0543638094ff5b",
+  "native_mesh_hash": "701aaccd13fa98ba250b4b6c13d82cb57058ee89acfdd7aedc8c0fcc3f6acdc6",
+  "observed_joints": {
+    "pelvis": [
+      2.9802322387695312e-08,
+      0.006197988986968994,
+      1.2197997570037842
+    ],
+    "torso": [
+      0.1371227502822876,
+      0.08410375565290451,
+      1.5356526374816895
+    ],
+    "head": [
+      0.2131241410970688,
+      0.13781526684761047,
+      1.861325979232788
+    ],
+    "head_tip": [
+      0.2933890223503113,
+      0.14625145494937897,
+      2.1625285148620605
+    ],
+    "shoulder_near": [
+      0.013521715998649597,
+      0.33322587609291077,
+      1.6855658292770386
+    ],
+    "elbow_near": [
+      0.018398428335785866,
+      0.4045146703720093,
+      1.3709988594055176
+    ],
+    "hand_near": [
+      0.25496628880500793,
+      0.49033451080322266,
+      1.1524083614349365
+    ],
+    "hand_tip_near": [
+      0.2380770593881607,
+      0.4783985912799835,
+      1.0800365209579468
+    ],
+    "hip_near": [
+      -0.07816371321678162,
+      0.13200446963310242,
+      0.9379428625106812
+    ],
+    "knee_near": [
+      0.08767642080783844,
+      0.24296775460243225,
+      0.5492037534713745
+    ],
+    "ankle_near": [
+      0.09000000357627869,
+      0.36290329694747925,
+      0.12903229892253876
+    ],
+    "foot_tip_near": [
+      0.2351612001657486,
+      0.36290234327316284,
+      0.06451596319675446
+    ],
+    "shoulder_far": [
+      0.33069324493408203,
+      -0.11556974053382874,
+      1.68556547164917
+    ],
+    "elbow_far": [
+      0.21718747913837433,
+      -0.219639852643013,
+      1.4021154642105103
+    ],
+    "hand_far": [
+      0.43069323897361755,
+      -0.4755696952342987,
+      1.396989107131958
+    ],
+    "hand_tip_far": [
+      0.4138040542602539,
+      -0.48750558495521545,
+      1.3246172666549683
+    ],
+    "hip_far": [
+      0.07816381752490997,
+      -0.1576109379529953,
+      0.9581949710845947
+    ],
+    "knee_far": [
+      0.03144824504852295,
+      -0.26202505826950073,
+      0.5364729762077332
+    ],
+    "ankle_far": [
+      -0.09000001847743988,
+      -0.3629032373428345,
+      0.12903223931789398
+    ],
+    "foot_tip_far": [
+      0.055161356925964355,
+      -0.3629034161567688,
+      0.06451624631881714
+    ]
+  },
+  "observed_forward": {
+    "pelvis": [
+      0.9172870516777039,
+      -1.4449881291511701e-09,
+      -0.39822620153427124
+    ],
+    "torso": [
+      0.9649803042411804,
+      0.10142352432012558,
+      -0.24192194640636444
+    ],
+    "head": [
+      0.9606343507766724,
+      0.10096673667430878,
+      -0.258819043636322
+    ]
+  },
+  "mutations": {
+    "detached_staff": true,
+    "flattened_finger": true
+  }
+}

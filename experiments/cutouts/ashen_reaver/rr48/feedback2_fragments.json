@@ -1,0 +1,142 @@
+{
+  "fragments": [
+    {
+      "view": "front",
+      "source": "leg_far",
+      "target": "hand_far",
+      "decision": "re-own",
+      "contacts": {
+        "hand_far": 4
+      },
+      "source_pixels": 4,
+      "texels": [
+        [
+          114,
+          134
+        ],
+        [
+          114,
+          135
+        ],
+        [
+          114,
+          136
+        ],
+        [
+          114,
+          137
+        ]
+      ],
+      "rule": "measured thin detached source; touching foot first, then largest shared rest boundary; lexical tie only; no rest contact clears"
+    },
+    {
+      "view": "rear",
+      "source": "leg_far",
+      "target": "hand_far",
+      "decision": "re-own",
+      "contacts": {
+        "hand_far": 3
+      },
+      "source_pixels": 6,
+      "texels": [
+        [
+          146,
+          157
+        ],
+        [
+          147,
+          158
+        ],
+        [
+          149,
+          158
+        ],
+        [
+          147,
+          159
+        ],
+        [
+          148,
+          159
+        ],
+        [
+          150,
+          159
+        ]
+      ],
+      "rule": "measured thin detached source; touching foot first, then largest shared rest boundary; lexical tie only; no rest contact clears"
+    },
+    {
+      "view": "rear",
+      "source": "leg_far",
+      "target": "loincloth",
+      "decision": "re-own",
+      "contacts": {
+        "loincloth": 2
+      },
+      "source_pixels": 5,
+      "texels": [
+        [
+          108,
+          166
+        ],
+        [
+          107,
+          167
+        ],
+        [
+          108,
+          167
+        ],
+        [
+          107,
+          168
+        ],
+        [
+          108,
+          168
+        ]
+      ],
+      "rule": "measured thin detached source; touching foot first, then largest shared rest boundary; lexical tie only; no rest contact clears"
+    },
+    {
+      "view": "rear",
+      "source": "leg_near",
+      "target": "loincloth_back",
+      "decision": "re-own",
+      "contacts": {
+        "loincloth_back": 5
+      },
+      "source_pixels": 6,
+      "texels": [
+        [
+          84,
+          175
+        ],
+        [
+          85,
+          175
+        ],
+        [
+          84,
+          176
+        ],
+        [
+          85,
+          176
+        ],
+        [
+          84,
+          177
+        ],
+        [
+          85,
+          177
+        ]
+      ],
+      "rule": "measured thin detached source; touching foot first, then largest shared rest boundary; lexical tie only; no rest contact clears"
+    }
+  ],
+  "native_pixels": false,
+  "source_revision": "7b4198b20"
+}

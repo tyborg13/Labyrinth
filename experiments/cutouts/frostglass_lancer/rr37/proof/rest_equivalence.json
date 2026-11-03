@@ -1,0 +1,14 @@
+{
+  "native_pixels": false,
+  "method": "CPU raster of fresh production Godot rest poses",
+  "pose_sha256": "c034c5bfef7e16f0ffa28dbf673af1ad81cdfb45316102b3def3997a95f4993a",
+  "mismatch_pixels": {
+    "front": 0,
+    "rear": 0
+  },
+  "production_rest_sha256": {
+    "front": "b24aa2be07667f97d4c357e209315b4109e2eb43209199a7d8c121323ac1d41c",
+    "rear": "f8738992d7e4165a19c563b9394a4b397ef08e11ede70248e8f6db9e5dd918d3"
+  },
+  "native_capture": "separate director evidence; this report verifies CPU equivalence only"
+}

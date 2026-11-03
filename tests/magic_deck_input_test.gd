@@ -144,7 +144,7 @@ func _list_navigation(modal: Control, source: String) -> void:
 		_expect(_viewport.gui_get_focus_owner() == controls[0], source + " Right wraps to the first card")
 		if controls.size() > 8:
 			await _key(KEY_DOWN)
-			_expect(_viewport.gui_get_focus_owner() == controls[7], source + " Down moves to the second row")
+			_expect(_viewport.gui_get_focus_owner() == controls[6], source + " Down moves to the second row")
 			await _key(KEY_UP)
 			_expect(_viewport.gui_get_focus_owner() == controls[0], source + " Up moves to the matching first-row card")
 	modal.call("focus_default")

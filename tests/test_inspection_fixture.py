@@ -6,6 +6,12 @@ from pathlib import Path
 import subprocess
 import sys
 import unittest
+import tempfile
+from unittest import mock
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
+import inspection_fixture
+import umbra_inspection_fixture
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,6 +19,52 @@ SCRIPT = ROOT / "tools" / "inspection_fixture.py"
 
 
 class InspectionFixtureTests(unittest.TestCase):
+    def test_umbra_delegates_to_fresh_player_launch_with_explicit_modes(self):
+        command = umbra_inspection_fixture.launch_command(ROOT, 'cel-03', 'stage_deep')
+        self.assertEqual(command[:2], [sys.executable, 'tools/inspection_fixture.py'])
+        self.assertIn('--launch', command)
+        self.assertEqual(command[command.index('--umbra-stage') + 1], 'deep')
+        for value in (None, 'off', 'actors', 'all', ''):
+            with self.subTest(value=value), tempfile.TemporaryDirectory() as directory, mock.patch.dict(os.environ):
+                os.environ.pop('LABYRINTH_CEL_LOOK', None)
+                if value is not None:
+                    os.environ['LABYRINTH_CEL_LOOK'] = value
+                with mock.patch.object(inspection_fixture.subprocess, 'run',
+                        return_value=subprocess.CompletedProcess([], 0)) as run:
+                    result = inspection_fixture.main(command[2:] + ['--manifest', directory + '/fixture.json'])
+                self.assertEqual(result, 0)
+                calls = run.call_args_list
+                self.assertEqual([c.kwargs['env']['LABYRINTH_CEL_LOOK'] for c in calls[:2]], ['off', 'off'])
+                self.assertEqual(calls[2].args[0][-3:], ['tools/cel_look.py', 'build', '--if-stale'])
+                self.assertEqual(calls[3].kwargs['env']['LABYRINTH_CEL_LOOK'], 'all' if value is None else value)
+        print('CEL_UMBRA_LAUNCH rebuild/source-off/player-all/explicit-override PASS')
+
+    def test_cel_source_steps_and_fresh_play_launch(self):
+        for value in (None, 'off', 'actors', 'all', ''):
+            with self.subTest(value=value), tempfile.TemporaryDirectory() as directory, mock.patch.dict(os.environ):
+                os.environ.pop('LABYRINTH_CEL_LOOK', None)
+                if value is not None:
+                    os.environ['LABYRINTH_CEL_LOOK'] = value
+                with mock.patch.object(inspection_fixture.subprocess, 'run',
+                        return_value=subprocess.CompletedProcess([], 0)) as run:
+                    result = inspection_fixture.main(['--project', str(ROOT), '--task-id', 'cel-03',
+                        '--manifest', directory + '/manifest.json', '--scenario', 'start', '--launch'])
+                self.assertEqual(result, 0)
+                calls = run.call_args_list
+                self.assertEqual(len(calls), 4)
+                self.assertEqual([c.kwargs['env']['LABYRINTH_CEL_LOOK'] for c in calls[:2]], ['off', 'off'])
+                self.assertEqual(calls[2].args[0][-3:], ['tools/cel_look.py', 'build', '--if-stale'])
+                self.assertEqual(calls[3].kwargs['env']['LABYRINTH_CEL_LOOK'], 'all' if value is None else value)
+
+    def test_failed_cel_build_prevents_inspection_launch(self):
+        with tempfile.TemporaryDirectory() as directory, mock.patch.object(inspection_fixture.subprocess, 'run',
+                side_effect=[subprocess.CompletedProcess([], 0), subprocess.CompletedProcess([], 0),
+                             subprocess.CompletedProcess([], 7)]) as run:
+            result = inspection_fixture.main(['--project', str(ROOT), '--task-id', 'cel-03',
+                '--manifest', directory + '/manifest.json', '--launch'])
+        self.assertEqual(result, 7)
+        self.assertEqual(run.call_count, 3)
+
     def test_handoff_command_is_self_healing_and_verified(self) -> None:
         result = subprocess.run(
             [

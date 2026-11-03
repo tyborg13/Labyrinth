@@ -1,0 +1,214 @@
+{
+  "rule": "rr-42 rest-contact ownership; director rr-44 feedback 2",
+  "native_fixture_sha256": "1ba4c6511c9ac48dafb38408b5f80b600d3eb25a82baba20b03877429ebba2ad",
+  "visible_transfers": [
+    {
+      "view": "front",
+      "source": "leg_far",
+      "destination": "coat_far",
+      "texels": [
+        [
+          114,
+          135
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "chain",
+      "destination": "foot_far",
+      "texels": [
+        [
+          158,
+          224
+        ],
+        [
+          158,
+          225
+        ],
+        [
+          158,
+          226
+        ],
+        [
+          159,
+          226
+        ],
+        [
+          158,
+          227
+        ],
+        [
+          159,
+          227
+        ],
+        [
+          158,
+          228
+        ],
+        [
+          159,
+          228
+        ],
+        [
+          158,
+          229
+        ],
+        [
+          159,
+          229
+        ],
+        [
+          158,
+          230
+        ],
+        [
+          159,
+          230
+        ],
+        [
+          158,
+          231
+        ],
+        [
+          159,
+          231
+        ],
+        [
+          158,
+          232
+        ],
+        [
+          159,
+          232
+        ],
+        [
+          158,
+          233
+        ],
+        [
+          159,
+          233
+        ],
+        [
+          158,
+          234
+        ],
+        [
+          158,
+          235
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "foot_far",
+      "destination": "coat_far",
+      "texels": [
+        [
+          115,
+          221
+        ]
+      ]
+    }
+  ],
+  "hidden_transfers": [
+    {
+      "view": "front",
+      "source": "hidden_leg_far",
+      "destination": "hidden_pelvis",
+      "texels": [
+        [
+          113,
+          127
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "hidden_coat_far",
+      "destination": "hidden_foot_far",
+      "source_box": [
+        158,
+        224,
+        160,
+        236
+      ]
+    },
+    {
+      "view": "front",
+      "source": "hidden_torso",
+      "destination": "torso",
+      "texels": [
+        [
+          179,
+          83
+        ]
+      ],
+      "decision": "Clear unapproved procedural duplicate [8,9,9,255]; retain already-owned approved edge [0,0,0,255] and its exact joint cap.",
+      "retire_duplicate": true,
+      "old_rgba": [
+        8,
+        9,
+        9,
+        255
+      ],
+      "owner_rgba": [
+        0,
+        0,
+        0,
+        255
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "hidden_leg_far",
+      "destination": "foot_far",
+      "texels": [
+        [
+          131,
+          216
+        ]
+      ],
+      "decision": "Clear unapproved shin donor [100,69,59,255]; retain already-owned boot paint [36,23,22,255].",
+      "retire_duplicate": true,
+      "old_rgba": [
+        100,
+        69,
+        59,
+        255
+      ],
+      "owner_rgba": [
+        36,
+        23,
+        22,
+        255
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "hidden_foot_far",
+      "destination": "coat_far",
+      "texels": [
+        [
+          134,
+          214
+        ]
+      ],
+      "retire_duplicate": true,
+      "old_rgba": [
+        33,
+        22,
+        21,
+        255
+      ],
+      "owner_rgba": [
+        27,
+        19,
+        19,
+        255
+      ],
+      "decision": "Clear unapproved foot donor over a coat-owned rest texel; keep the approved coat paint."
+    }
+  ]
+}

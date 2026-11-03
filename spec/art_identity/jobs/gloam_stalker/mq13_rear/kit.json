@@ -1,0 +1,61 @@
+{
+ "K": 4,
+ "anatomy": "biped",
+ "id": "gloam_stalker",
+ "job_id": "mq13-gloam-rear-r3",
+ "kind": "creature",
+ "kit_kind": "maquette",
+ "kit_version": "7bb7552bfc8db79390103efba08ae6da84ac1c8c7ea35a13d4ee9c579a10983a",
+ "match_reference": {
+  "job_path": "spec/art_identity/jobs/gloam_stalker/mq13_front/kit.json",
+  "pixel_sha256": "faba7d1712b6074ddde2c015b1376443edba9cab0e3a40a2dcb143a38cdae925"
+ },
+ "method": "paint-over of the mq-13 r3 rear maquette (true turn of the r3 crouch, flush plates) with the approved r3 front as identity; palette matched to mq13_front",
+ "peers": [
+  "glacial_mirror_rear",
+  "hero_rear"
+ ],
+ "prompt_path": "prompt.md",
+ "prompt_sha256": "b19e9706dab813259cc70eac99e54f42a7a4fdcb40e51b50010816a62fe024b0",
+ "prompt_source": "spec/art_identity/maquettes/gloam_stalker/prompt_rear_r3.md",
+ "refs": [
+  {
+   "canon_id": "maquette_rear_parts_mq13",
+   "file": "refs/01_maquette_rear_parts_mq13.png",
+   "pixel_sha256": "4de5ad808a2ec4b4574c242c38417252d4a7d61a2edf2f934209ea3671a5ae20",
+   "role": "maquette_parts",
+   "source_file": "spec/art_identity/maquettes/gloam_stalker/delivery/rear_parts.png (mq-13 r3)"
+  },
+  {
+   "canon_id": "maquette_rear_clay_mq13",
+   "file": "refs/02_maquette_rear_clay_mq13.png",
+   "pixel_sha256": "6e7ba8fd402fbe9016153fb5250cddc17b526bdf7079421e2f33c459245a54b7",
+   "role": "maquette_clay",
+   "source_file": "spec/art_identity/maquettes/gloam_stalker/delivery/rear_clay.png (mq-13 r3)"
+  },
+  {
+   "canon_id": "gloam_stalker_front_mq13_processed_4x",
+   "file": "refs/03_approved_front_r3.png",
+   "pixel_sha256": "bbc348356d247fc58213b781f6dab9cad007b790ba6cbca645d23b800871f7ff",
+   "role": "identity",
+   "source_file": "spec/art_identity/jobs/gloam_stalker/mq13_front/processed.png (on #00FF00, 4x nearest)"
+  },
+  {
+   "canon_id": "glacial_mirror_rear",
+   "file": "refs/04_glacial_mirror_rear.png",
+   "pixel_sha256": "00f8011727f155d8f97a9ac174b49c5347a6b064fee872484f6926cd55dfcb87",
+   "role": "canon",
+   "source_file": "spec/art_identity/jobs/gloam_stalker/mq5_rear/refs/04_glacial_mirror_rear.png"
+  },
+  {
+   "canon_id": "hero_rear",
+   "file": "refs/05_hero_rear.png",
+   "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+   "role": "canon",
+   "source_file": "spec/art_identity/jobs/gloam_stalker/mq5_rear/refs/05_hero_rear.png"
+  }
+ ],
+ "size_class": "medium",
+ "target_h": 215,
+ "view": "creature_rear"
+}

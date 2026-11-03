@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "spec_hash": "37ff2f890f47158e0d03652f8aa0bce3abce49dcda313be0e720b5888f92dcae",
+  "native_mesh_hash": "1e311a282c7bd71755065bfe5aab1285c397e9e36ac7f32843231ba4a960d9ba",
+  "loaded_geometry_verified": true,
+  "moved_hood_vertex_rejected": true,
+  "geometry_restored": true,
+  "probe_defaults": {
+    "vertex_delta_m": 0.001
+  }
+}

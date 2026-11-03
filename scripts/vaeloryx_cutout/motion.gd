@@ -7,7 +7,10 @@ const WALK_SECONDS: float = 0.70
 const IDLE_BOB: float = 2.4
 const CONTACT: float = 0.42
 
-static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+# Per-channel joint-budget clamps; absent fields retain the director's values.
+const ROAR_CLAMPS: Dictionary = {"gather_scale": 0.66, "up_px": 3.2, "wing_near": 0.94}
+
+static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String, reduced_motion: bool = false, roar_clamps: Dictionary = ROAR_CLAMPS) -> Dictionary:
 	var pose: Dictionary = {}
 	for name: String in layout["joints"]:
 		var parent: Variant = layout["joints"][name].get("parent")
@@ -32,6 +35,21 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 			pose[limb]["position"] += Vector2(0.0, 0.7 * breath)
 		pose["tail_mid"]["position"] += Vector2(0.0, 1.2 * breath)
 		pose["tail_tip"]["position"] += Vector2(0.0, 0.6 * breath)
+		return pose
+	if clip == "roar":
+		var gather: float = _curve(t, PackedVector2Array([Vector2(0, 0), Vector2(0.21, 1), Vector2(0.27, 0), Vector2(1, 0)]))
+		var roar: float = _curve(t, PackedVector2Array([Vector2(0, 0), Vector2(0.21, 0), Vector2(0.27, 1), Vector2(0.79, 1), Vector2(1, 0)]))
+		var roar_sign: float = side
+		var torso_move := Vector2(roar_sign * (float(roar_clamps.get("back_px", 1.5)) * float(roar_clamps.get("gather_scale", 1.0)) * gather - float(roar_clamps.get("forward_px", 1.0)) * roar), float(roar_clamps.get("down_px", 2.0)) * float(roar_clamps.get("gather_scale", 1.0)) * gather - float(roar_clamps.get("up_px", 4.0)) * roar)
+		pose["body"]["position"] += torso_move
+		pose["neck"]["rotation"] = roar_sign * (-0.10 * gather + 0.30 * roar + _roar_tremble(t, reduced_motion))
+		pose["head"]["rotation"] = roar_sign * 0.12 * roar
+		pose["wing_near"]["rotation"] = 1.0 * (0.06 * gather - 0.24 * roar)
+		pose["wing_far"]["rotation"] = 1.0 * (-0.05 * gather + 0.23 * roar)
+		# This rig hovers; its claws stay attached to the lifted body.
+		for bone: String in roar_clamps:
+			if pose.has(bone):
+				pose[bone]["rotation"] *= float(roar_clamps[bone])
 		return pose
 	if clip == "walk":
 		# One deliberate wing beat accompanies 96:48 source pixels of travel.
@@ -128,3 +146,11 @@ static func _curve(t: float, keys: PackedVector2Array) -> float:
 			var u: float = inverse_lerp(keys[index - 1].x, keys[index].x, t)
 			return lerpf(keys[index - 1].y, keys[index].y, u * u * (3.0 - 2.0 * u))
 	return keys[-1].y
+
+# The hold tremble is measured from the unchanged 0.40 s audio cue, not frames.
+static func _roar_tremble(t: float, reduced_motion: bool) -> float:
+	if reduced_motion or t < 0.27 or t > 0.79:
+		return 0.0
+	var seconds_since_cue: float = t * 1.90 - 0.40
+	var fade: float = 1.0 - inverse_lerp(0.27, 0.79, t)
+	return 0.02 * sin(TAU * 14.0 * seconds_since_cue) * fade

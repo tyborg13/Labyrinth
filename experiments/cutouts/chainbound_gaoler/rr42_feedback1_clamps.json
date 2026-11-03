@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "channels": [
+    {"clip": "death", "source": "coat_near_tip.lift_px", "peak": 2.5, "director_peak": 4, "search_step": 0.25, "receipt": "proof/feedback1_death_coat_near_tip_lift_px_search.json"},
+    {"clip": "pin", "source": "chain.angle_deg", "peak": 30.5, "director_peak": 55, "search_step": 0.25, "receipt": "proof/feedback1_pin_chain_angle_deg_search.json"},
+    {"clip": "reel", "source": "chain.angle_deg", "peak": 38.25, "director_peak": 75, "search_step": 0.25, "receipt": "proof/feedback1_reel_chain_angle_deg_search.json"}
+  ]
+}

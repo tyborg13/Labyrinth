@@ -1,0 +1,434 @@
+{
+  "files": {
+    "experiments/cutouts/frostglass_lancer/rr37/compiled_motion.json": "d908df93aa65a0b4f1c19697d118d26da0cc7db7e3e429240f03e60dcb9d39f2",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/arm_far.png": "0e197885270b42992500aa80f3b1cd85f40a17254efcc09640d2e24662ba0c47",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/arm_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/arm_near.png": "0558a3e96f3beccebde1cac28d451cff1feaff3d4b0ba8546ec3609e9cde8f78",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/arm_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/cape_far.png": "ddf001c4f8cf9d83024ad62fa9366c3ddafd10d3014cbcddd4f2734b850c5990",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/cape_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/cape_near.png": "ba0752eb464ffcfc79a424d703b1779f71fc13fb2551f388b45a6f34e9d90cc9",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/cape_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/covered_cape_far.png": "8bcf25209d6f805a16f6ccf73242b79a24c810087872773691ec5b3ec62cc0f6",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/covered_cape_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/covered_foot_far.png": "53adb5c1ffab6f6b45a61c3f51c0989f119be934b379946a94bd4aa9d5ea28cd",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/covered_foot_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/covered_torso.png": "fe50c1331ad61f1c6879320578ade287a3d5bf858d79f17851bd7f3a0ee661cd",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/covered_torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/foot_far.png": "e1aea020752a5f6314a940f80865c32059e9c0f2b0244ddab7d8992c298f87fe",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/foot_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/foot_near.png": "ccab32ab6f4558be1c7b75c6580cf52b81723f08694f60803144b05dc7edb1b4",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/foot_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hand_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hand_near.png": "1b69c48ccf048cbf31069a1792fc97e9d68ad8a9d1ade21b9a935d67c5ba356b",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hand_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/head.png": "4c29578abba8bf175e0b87a5bb5e6e5a367f4a39eba5fdd57123e69c2b4ac7ad",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/head.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_arm_far.png": "522eb591da94b329a918080eafd6e93a77517ef3759ab88bbdf75681d616836e",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_arm_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_arm_near.png": "c7cb168042955dfecc3f6f9d71d355e52d1872ad060d69f36846927a61aafd74",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_arm_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_cape_far.png": "8f73640b5ed0abe9f62301ada166b989846dff196a6654bc87d8fd7435ed6428",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_cape_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_cape_near.png": "a7881354c3f0f85cc32af7ab776344b726517615ce3ee61094430f29b945ec6a",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_cape_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_foot_far.png": "cd8bdf6731601b95d5fd3d696a3d2292165dc05afaa09ba1b4092305e1ea50c4",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_foot_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_foot_near.png": "336f6b6c7fe8007aaec439cc6809a8294663bbf84348f772ebfde578e8884f3f",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_foot_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_hand_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_hand_near.png": "415f794400e4a97a82be3452d6286a0b0e0b62159544a0ff989f081549aa5734",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_hand_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_head.png": "555a821677c90324413b389c2b7aabbbddac60798fde2499b6668b51f9359f18",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_head.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_leg_far.png": "d83f40cdad4d938fc6cd066a976fa18bdedffd29987fcd0bc3087a3811f9fe02",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_leg_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_leg_near.png": "ba777766199ba96e18c167a6a8dd269c838f0d302de49a02a561ce424fd5ea4b",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_leg_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_pelvis.png": "c8ef5a2feb6c1f0f9521e328ff89deea7c1b08f0129cf7f3230602a16b69043c",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_pelvis.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_spear.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_tabard.png": "cd2d8109ee34f26e1ceb2692854a97011ef2ca8090f5f20e5effc42aa41f51f3",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_tabard.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_torso.png": "579580b127f52e9ffe7211a9f6d46f55af77b953e17587681e8920ad65222f6c",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/leg_far.png": "3bcd85f2f48da1cbdcb8e423e3f58df70be0dd7bd769f894282614457545a59f",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/leg_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/leg_near.png": "0f77114cdddfbb6e3331b9cecc5fc5d5eec7285932f95980086980d31940ca72",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/leg_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/pelvis.png": "a4f4654bcf3e7461d13cb802c871b8a8b03e1af36e4dc42f52a29cdf340cd979",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/pelvis.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/spear.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/tabard.png": "ac1d3ed24f47bc8a9d35d2effb412f1aad38b78d4ce8c9e6f1b41d9eebfec022",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/tabard.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/torso.png": "c2e9817fc1d19280964b8cb2c01a2ed133a56657bbfd00ef8201ee3a949b57d8",
+    "experiments/cutouts/frostglass_lancer/rr37/pieces/front/torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "spec/art_identity/jobs/frostglass_lancer/mq14_front/kit.json": "d846e910dbb06be15ffb1a88c352c1f42bb84cb07ef9137d0d6e68bfc734f4db",
+    "spec/art_identity/jobs/frostglass_lancer/mq14_front/processed.json": "2a7908ad839357dcdaabc0a838414b4a0aee197929c1ff556cc8f5f10896c8d7",
+    "spec/art_identity/jobs/frostglass_lancer/mq14_front/processed.png": "25d01561a84c0e9b9030fca6a777a43a9213d8a47fecb2c27cb35c73860bb465",
+    "spec/art_identity/jobs/frostglass_lancer/mq14_front/prompt.md": "4eef0a3d26bf7610048488c614e4515a391d08566ade14837cdeb334888a5daf",
+    "spec/art_identity/jobs/frostglass_lancer/mq14_front/refs/01_approved_painting_r4.png": "8766e15627dee6476d78e27da543534e1ec3288a9e8e95bc856e8ab02d4cdc70",
+    "spec/art_identity/jobs/frostglass_lancer/mq14_front/refs/02_maquette_front_parts_mq14.png": "2648df39cdfb0bc9fecc4fc5ea4ccddc4f07c7ec6803c13da11acb2316bb7133",
+    "spec/art_identity/jobs/frostglass_lancer/mq14_front/refs/03_maquette_front_clay_mq14.png": "008a4540cc1e8efa75772b898c92a4f8db21fd2483df60680b06a13ee278b6e9",
+    "spec/art_identity/jobs/frostglass_lancer/mq14_front/refs/raw_approved.png": "986a9862f65cae533f14e86bed158679895a227f5f3aeb55e172de21aae11b11",
+    "spec/peer_benchmark/staged/rr-39/.gdignore": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "spec/peer_benchmark/staged/rr-39/front_far_footprint_mask.png": "0500fc56333c7a8ac9153e51e6092bd4a9a5a8e590208b693bfd139b13f3f55b",
+    "spec/peer_benchmark/staged/rr-39/front_far_footprint_mask.png.import": "42a9163bc13ef2b70857e3e8b7093c7b24377b9703aed308eebb89017818d0bd",
+    "spec/peer_benchmark/staged/rr-39/front_far_underlay.png": "7b707557c7ced6fa303ced4206ed404cf7a5958f6a8ad8811b50b628f91f0c43",
+    "spec/peer_benchmark/staged/rr-39/front_far_underlay.png.import": "088ae41712e0b2ad54043dd48c2af32922e2f838934ea6f599a0a835e50e8494",
+    "spec/peer_benchmark/staged/rr-39/prompt_front_underlay_r1.md": "89505bfc469aac97f922afef66247f05396e9a07019b0b15504f65865c160eb1",
+    "spec/peer_benchmark/staged/rr-39/provenance.json": "4af630b2bcf52240e4018beb42cafae3dacf3aafdf067439b1a8ceaa63675804",
+    "spec/peer_benchmark/staged/rr-41/.gdignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "spec/peer_benchmark/staged/rr-41/director_preview_x3.png": "14cd83c0ab8ec7df658270cd86a99eccde1af5de1b8efb3f2310b3b228fb352b",
+    "spec/peer_benchmark/staged/rr-41/front_legs_footprint_mask.png": "07e3ff9dedbe89c112638179bdc01c1623af0839c63cf5bf55b3741c12935af2",
+    "spec/peer_benchmark/staged/rr-41/front_legs_underlay.png": "f35071187d694ff1601ddc3ebd0859e9a7b89d5784399ef7988694c2e2d7fc4d",
+    "spec/peer_benchmark/staged/rr-41/front_near_leg_footprint_mask.png": "f4b9798cca2e9497e49b81939cab1091444655db7260618ed3b5846def855c16",
+    "spec/peer_benchmark/staged/rr-41/prompt_legs_underlay_r1.md": "388bdec354efda933896de5fca05f22fa700ffdc6855ec047e841b7602bfc498",
+    "spec/peer_benchmark/staged/rr-41/provenance.json": "01db4f0c5f225946cb69fde6168b3c2098f4ba7880b7cf423ab49d6689192d57",
+    "spec/peer_benchmark/staged/rr-43/.gdignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "spec/peer_benchmark/staged/rr-43/director_compare_front_old_new_x3.png": "e7cbb7be09e9aba5aa0b4d90b07c1275639c3e233d55090fd2b4385e2bafc9db",
+    "spec/peer_benchmark/staged/rr-43/prompt_rear_v2_edit.md": "3ac5470bd35bb955f6194f8cfd686214be8aa883746fbc453d8140d612cea180",
+    "spec/peer_benchmark/staged/rr-43/rear_v2_processed.png": "85845e1e0c66ab760afd6671390dfab71f5a20c7e62c3e8b1420b74250c7e8b7",
+    "spec/peer_benchmark/staged/rr-43/rear_v2_raw_1024.png": "d3fd34f585647d96daf1f43f71c83396e032cd9f56bbaeac88c42269b718872d",
+    "spec/peer_benchmark/staged/rr-43/recolour_rear.py": "acc62d607d59b2a76c017e6a55e78ce0db20d2f7ea79ea6b047e748b1ff5a4cd"
+  },
+  "policy": "Unchanged front painting/lining/motion; exact visible wood transfer and own-glove hidden backing",
+  "rigid_item_anchors": {
+    "front": [
+      27,
+      6
+    ],
+    "rear": [
+      166,
+      32
+    ]
+  },
+  "source_joints": {
+    "front": {
+      "root": {
+        "position": [
+          154.3967906736596,
+          232.13448735019975
+        ],
+        "parent": null
+      },
+      "pelvis": {
+        "position": [
+          117.41709693198185,
+          112.50399467376832
+        ],
+        "parent": "root"
+      },
+      "torso": {
+        "position": [
+          117.41709693198185,
+          90.67809587217045
+        ],
+        "parent": "pelvis"
+      },
+      "head": {
+        "position": [
+          117.41709693198185,
+          52.155459387483354
+        ],
+        "parent": "torso"
+      },
+      "spear": {
+        "position": [
+          60.81956031413897,
+          123.98169107856194
+        ],
+        "parent": "hand_far"
+      },
+      "upper_near": {
+        "position": [
+          145.15111823690862,
+          78.86484687083887
+        ],
+        "parent": "torso"
+      },
+      "fore_near": {
+        "position": [
+          155.42442050055706,
+          113.01930758988016
+        ],
+        "parent": "upper_near"
+      },
+      "hand_near": {
+        "position": [
+          139.75830864969157,
+          135.8728362183755
+        ],
+        "parent": "fore_near"
+      },
+      "thigh_near": {
+        "position": [
+          128.97268947525748,
+          129.96770972037282
+        ],
+        "parent": "pelvis"
+      },
+      "shin_near": {
+        "position": [
+          143.0988545884399,
+          180.5582556591212
+        ],
+        "parent": "thigh_near"
+      },
+      "foot_near": {
+        "position": [
+          153.36916084676213,
+          226.2683089214381
+        ],
+        "parent": "shin_near"
+      },
+      "upper_far": {
+        "position": [
+          94.04825538737465,
+          71.19806924101198
+        ],
+        "parent": "torso"
+      },
+      "fore_far": {
+        "position": [
+          74.78693714503112,
+          101.79327563249001
+        ],
+        "parent": "upper_far"
+      },
+      "hand_far": {
+        "position": [
+          60.81956031413897,
+          123.98169107856194
+        ],
+        "parent": "fore_far"
+      },
+      "thigh_far": {
+        "position": [
+          105.60384793065029,
+          129.96770972037282
+        ],
+        "parent": "pelvis"
+      },
+      "shin_far": {
+        "position": [
+          97.64346177885268,
+          178.76065246338217
+        ],
+        "parent": "thigh_far"
+      },
+      "foot_far": {
+        "position": [
+          96.36117149922553,
+          223.18541944074568
+        ],
+        "parent": "shin_far"
+      },
+      "cape_near_mid": {
+        "parent": "torso",
+        "position": [
+          146.95854846599093,
+          153.33904793608522
+        ]
+      },
+      "cape_near_tip": {
+        "parent": "cape_near_mid",
+        "position": [
+          176.5,
+          216.0
+        ]
+      },
+      "cape_far_mid": {
+        "parent": "torso",
+        "position": [
+          112.70854846599093,
+          145.33904793608522
+        ]
+      },
+      "cape_far_tip": {
+        "parent": "cape_far_mid",
+        "position": [
+          108.0,
+          200.0
+        ]
+      },
+      "tabard_mid": {
+        "parent": "pelvis",
+        "position": [
+          106.70854846599093,
+          145.75199733688416
+        ]
+      },
+      "tabard_tip": {
+        "parent": "tabard_mid",
+        "position": [
+          96.0,
+          179.0
+        ]
+      }
+    },
+    "rear": {
+      "root": {
+        "position": [
+          88.49233684210529,
+          257.10835199999997
+        ],
+        "parent": null
+      },
+      "pelvis": {
+        "position": [
+          133.12462484210528,
+          144.95811200000003
+        ],
+        "parent": "root"
+      },
+      "torso": {
+        "position": [
+          133.12462484210528,
+          101.211744
+        ],
+        "parent": "pelvis"
+      },
+      "head": {
+        "position": [
+          133.12462484210528,
+          54.709984000000006
+        ],
+        "parent": "torso"
+      },
+      "spear": {
+        "position": [
+          201.4344808421053,
+          108.84512
+        ],
+        "parent": "hand_far"
+      },
+      "upper_near": {
+        "position": [
+          99.65131284210528,
+          84.777024
+        ],
+        "parent": "torso"
+      },
+      "fore_near": {
+        "position": [
+          87.2520488421053,
+          114.55839999999999
+        ],
+        "parent": "upper_near"
+      },
+      "hand_near": {
+        "position": [
+          106.16011284210529,
+          125.91264
+        ],
+        "parent": "fore_near"
+      },
+      "thigh_near": {
+        "position": [
+          119.17771284210528,
+          146.78419200000002
+        ],
+        "parent": "pelvis"
+      },
+      "shin_near": {
+        "position": [
+          102.1282728421053,
+          191.09103999999996
+        ],
+        "parent": "thigh_near"
+      },
+      "foot_near": {
+        "position": [
+          89.73262484210528,
+          227.54032
+        ],
+        "parent": "shin_near"
+      },
+      "upper_far": {
+        "position": [
+          161.32942484210525,
+          94.030368
+        ],
+        "parent": "torso"
+      },
+      "fore_far": {
+        "position": [
+          184.57668884210528,
+          102.614752
+        ],
+        "parent": "upper_far"
+      },
+      "hand_far": {
+        "position": [
+          201.4344808421053,
+          108.84512
+        ],
+        "parent": "fore_far"
+      },
+      "thigh_far": {
+        "position": [
+          147.38251284210529,
+          146.78419200000002
+        ],
+        "parent": "pelvis"
+      },
+      "shin_far": {
+        "position": [
+          156.99022484210528,
+          193.26063999999997
+        ],
+        "parent": "thigh_far"
+      },
+      "foot_far": {
+        "position": [
+          158.5378728421053,
+          231.26118399999996
+        ],
+        "parent": "shin_far"
+      },
+      "cape_near_mid": {
+        "parent": "torso",
+        "position": [
+          113.06231242105264,
+          167.605872
+        ]
+      },
+      "cape_near_tip": {
+        "parent": "cape_near_mid",
+        "position": [
+          93.0,
+          234.0
+        ]
+      },
+      "cape_far_mid": {
+        "parent": "torso",
+        "position": [
+          118.31231242105264,
+          165.605872
+        ]
+      },
+      "cape_far_tip": {
+        "parent": "cape_far_mid",
+        "position": [
+          103.5,
+          230.0
+        ]
+      },
+      "tabard_mid": {
+        "parent": "pelvis",
+        "position": [
+          159.81231242105264,
+          158.979056
+        ]
+      },
+      "tabard_tip": {
+        "parent": "tabard_mid",
+        "position": [
+          186.5,
+          173.0
+        ]
+      }
+    }
+  }
+}

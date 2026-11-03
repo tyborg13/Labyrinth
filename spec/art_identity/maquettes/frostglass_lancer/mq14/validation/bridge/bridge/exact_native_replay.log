@@ -1,0 +1,5 @@
+00:00.284  blend            | Read blend: "/private/tmp/labyrinth_codex/mq-14/final_delivery/cold/maquette.blend"
+00:00.439  blend            | Read blend: "/private/tmp/labyrinth_codex/mq-14/final_delivery/replay/maquette.blend"
+00:00.595  blend            | Read blend: "/private/tmp/labyrinth_codex/mq-14/final_delivery/independent_cold/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=52

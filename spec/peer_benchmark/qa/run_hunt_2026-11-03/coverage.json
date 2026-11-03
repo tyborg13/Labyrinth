@@ -1,0 +1,190 @@
+{
+  "default": {
+    "runs_started": 12,
+    "processes_ended": 12,
+    "completions": 11,
+    "outcomes": {
+      "embrace": 11,
+      "fight_limit": 1
+    },
+    "room_entries": 323,
+    "section_runs": {
+      "0": 12,
+      "1": 7,
+      "2": 4,
+      "3": 2,
+      "4": 2,
+      "5": 2
+    },
+    "room_kind_entries": {
+      "start": 29,
+      "combat": 99,
+      "event": 60,
+      "treasure": 32,
+      "umbral_snare": 4,
+      "scavenger": 29,
+      "campfire": 28,
+      "boss": 17,
+      "warband": 2,
+      "guardian": 9,
+      "graftwright": 3,
+      "last_light": 7,
+      "ember_hoarder": 4
+    },
+    "final_dragon_runs": [],
+    "decisions": 13049,
+    "action_counts": {
+      "begin_combat": 142,
+      "blink": 121,
+      "card": 3812,
+      "confirm_card": 1046,
+      "dialogue": 71,
+      "equipment": 170,
+      "leave_browse": 92,
+      "map_room": 307,
+      "melee": 375,
+      "move": 3341,
+      "pass": 686,
+      "ranged": 1168,
+      "side_deck": 11,
+      "side_escape": 28,
+      "side_hover_hand": 17,
+      "side_map": 30,
+      "side_reduced_motion": 31,
+      "side_resume": 31,
+      "side_settings": 28,
+      "ui": 1475,
+      "aoe": 10,
+      "illusion": 2,
+      "cancel_card": 17,
+      "surface": 1,
+      "illuminate": 20,
+      "pull": 17
+    },
+    "maximum_orphans": 0,
+    "endpoint_censuses": [
+      {
+        "seed": 2,
+        "start_tree_nodes": 1542,
+        "section_5_tree_nodes": 6765,
+        "start_orphans": 0,
+        "section_5_orphans": 0
+      },
+      {
+        "seed": 5,
+        "start_tree_nodes": 1548,
+        "section_5_tree_nodes": 5380,
+        "start_orphans": 0,
+        "section_5_orphans": 0
+      }
+    ],
+    "wall_seconds": 3053.722878167,
+    "launch_cutoff_minutes": 45.0,
+    "maximum_processes": 2,
+    "campaign_evidence": "/private/tmp/labyrinth_codex/qa-23/campaign-default"
+  },
+  "no-embrace": {
+    "runs_started": 4,
+    "processes_ended": 4,
+    "completions": 4,
+    "outcomes": {
+      "victory": 4
+    },
+    "room_entries": 288,
+    "section_runs": {
+      "0": 4,
+      "1": 4,
+      "2": 4,
+      "3": 4,
+      "4": 4,
+      "5": 4
+    },
+    "room_kind_entries": {
+      "start": 24,
+      "combat": 90,
+      "event": 45,
+      "scavenger": 21,
+      "treasure": 28,
+      "ember_hoarder": 6,
+      "campfire": 24,
+      "boss": 24,
+      "warband": 2,
+      "graftwright": 6,
+      "last_light": 3,
+      "guardian": 10,
+      "umbral_snare": 5
+    },
+    "final_dragon_runs": [
+      2,
+      1,
+      3,
+      4
+    ],
+    "decisions": 11977,
+    "action_counts": {
+      "aoe": 5,
+      "begin_combat": 140,
+      "blink": 194,
+      "burst_terrain": 2,
+      "card": 3518,
+      "confirm_card": 705,
+      "dialogue": 20,
+      "equipment": 178,
+      "illusion": 2,
+      "leave_browse": 84,
+      "map_room": 283,
+      "melee": 243,
+      "move": 3075,
+      "pass": 545,
+      "push": 2,
+      "ranged": 1318,
+      "side_deck": 14,
+      "side_escape": 31,
+      "side_hover_hand": 21,
+      "side_map": 32,
+      "side_reduced_motion": 28,
+      "side_resume": 38,
+      "side_settings": 32,
+      "ui": 1397,
+      "cancel_card": 10,
+      "pull": 10,
+      "surface": 3,
+      "meteor_marks": 47
+    },
+    "maximum_orphans": 0,
+    "endpoint_censuses": [
+      {
+        "seed": 1,
+        "start_tree_nodes": 1533,
+        "section_5_tree_nodes": 5905,
+        "start_orphans": 0,
+        "section_5_orphans": 0
+      },
+      {
+        "seed": 2,
+        "start_tree_nodes": 1542,
+        "section_5_tree_nodes": 7986,
+        "start_orphans": 0,
+        "section_5_orphans": 0
+      },
+      {
+        "seed": 3,
+        "start_tree_nodes": 1549,
+        "section_5_tree_nodes": 7339,
+        "start_orphans": 0,
+        "section_5_orphans": 0
+      },
+      {
+        "seed": 4,
+        "start_tree_nodes": 1548,
+        "section_5_tree_nodes": 7904,
+        "start_orphans": 0,
+        "section_5_orphans": 0
+      }
+    ],
+    "wall_seconds": 2919.77055625,
+    "launch_cutoff_minutes": 45.0,
+    "maximum_processes": 2,
+    "campaign_evidence": "/private/tmp/labyrinth_codex/qa-23/campaign-no-embrace"
+  }
+}

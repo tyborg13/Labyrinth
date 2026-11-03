@@ -1,0 +1,10 @@
+00:00.758  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_final_clean/native/maquette.blend"
+00:06.390  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_final_clean/front_solo_16/front_silhouette.png'
+00:11.559  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_final_clean/front_solo_16/front_silhouette.png'
+00:16.729  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_final_clean/front_solo_16/front_parts.png'
+00:21.872  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_final_clean/front_solo_16/front_silhouette.png'
+00:26.761  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_final_clean/front_solo_16/front_silhouette.png'
+00:31.699  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_final_clean/front_solo_16/front_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+BLENDER_FACING: PASS
+MQ17_BOUNDED_CAPTURE: PASS; front; pauldron_far,bell

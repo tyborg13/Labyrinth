@@ -5,6 +5,7 @@ const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
 ## Windowed, fixed 1920x1080 proof; sequential native 60fps samples, never CPU art.
 const Rig = preload("res://scripts/maquette_cutout_runtime/rig.gd")
 const Motion = preload("res://scripts/maquette_cutout_runtime/motion.gd")
+const RenderSettings = preload("render_settings.gd")
 const SIZE := Vector2i(1920, 1080)
 const POSE_SIZE := Vector2i(512, 512)
 const FPS: float = 60.0
@@ -27,6 +28,7 @@ var _pixels := preload("pixel_capture.gd").new()
 var _seams := preload("seam_capture.gd").new()
 
 func _initialize() -> void:
+	RenderSettings.apply(root)
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	_run.call_deferred()
 
@@ -148,6 +150,7 @@ func _run() -> void:
 
 func viewport(dimensions: Vector2i, transparent: bool) -> SubViewport:
 	var result := SubViewport.new()
+	RenderSettings.apply(result)
 	result.size = dimensions
 	result.transparent_bg = transparent
 	result.disable_3d = true

@@ -1,0 +1,151 @@
+{
+  "authority": "director rr-44 feedback 2 and continuation 2b; all 34 historical design requests decided",
+  "historical_catalog_sha256": "038960bdd3f82b6a797880393fda852e9435b4e8f91d6b86d8f45b18d80f44df",
+  "historical_catalog_preserved": true,
+  "acceptance_files": {
+    "feedback2_continuation_acceptance.json": "880a1a089604305b5b4f41f3a9e4b17a281864253aafd8bf3ab74c51c6b57c79",
+    "feedback2_domain_calibration.json": "c5dd60c091b653a8c6fb43f52bf30732f72f9c64bee5b75f1f5dd3277b711ef6",
+    "feedback2_backing_acceptance.json": "49c23f88cc7203a2bc431e9edabdb2497ff4cf4d4832de9c5ca5b89b73e341b6",
+    "feedback2_native_flat_baseline.json": "9e4bbe462255ec5f47d3fc0142745227418b073665b7187ea4a13b03e9d07add",
+    "feedback2_flat_baseline.json": "69ffeead027bcaf8f3defd9290095d6913d898ea50f3a29be388bd17929fbdc8"
+  },
+  "active_design_placeholders": {},
+  "requests": {
+    "TODO_DESIGN_painted_backing_front_hidden_arm_near": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_front_hidden_coat_far": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_front_hidden_coat_near": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_front_hidden_foot_far": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_front_hidden_foot_near": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_front_hidden_hand_near": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_front_hidden_head": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_front_hidden_leg_far": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_front_hidden_leg_near": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_front_hidden_pelvis": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_front_hidden_torso": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_rear_hidden_coat_far": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_rear_hidden_coat_near": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_rear_hidden_foot_far": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_rear_hidden_foot_near": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_rear_hidden_head": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_rear_hidden_leg_far": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_rear_hidden_leg_near": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_rear_hidden_pelvis": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_painted_backing_rear_hidden_torso": {
+      "director_decided": true,
+      "decision": "Exact r1 source UV/RGBA accepted; see feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_hidden_surface_front_hand_far": {
+      "director_decided": true,
+      "decision": "Implementation defect: exact own-paint joint cap over preserved accepted backing; no paint requested."
+    },
+    "TODO_DESIGN_hidden_surface_front_thigh_far": {
+      "director_decided": true,
+      "decision": "Implementation defect: strict painted grip or rest-contact ownership repair; no paint requested."
+    },
+    "TODO_DESIGN_hidden_surface_front_torso": {
+      "director_decided": true,
+      "decision": "Implementation defect: exact own-paint joint cap over preserved accepted backing; no paint requested."
+    },
+    "TODO_DESIGN_hidden_surface_front_upper_far": {
+      "director_decided": true,
+      "decision": "Implementation defect: exact own-paint joint cap over preserved accepted backing; no paint requested."
+    },
+    "TODO_DESIGN_hidden_surface_rear_coat_far_tip": {
+      "director_decided": true,
+      "decision": "Implementation defect: strict painted grip or rest-contact ownership repair; no paint requested."
+    },
+    "TODO_DESIGN_hidden_surface_rear_foot_far": {
+      "director_decided": true,
+      "decision": "Implementation defect: strict painted grip or rest-contact ownership repair; no paint requested."
+    },
+    "TODO_DESIGN_hidden_surface_rear_fore_near": {
+      "director_decided": true,
+      "decision": "Implementation defect: exact own-paint joint cap over preserved accepted backing; no paint requested."
+    },
+    "TODO_DESIGN_hidden_surface_rear_hand_far": {
+      "director_decided": true,
+      "decision": "Implementation defect: exact own-paint joint cap over preserved accepted backing; no paint requested."
+    },
+    "TODO_DESIGN_hidden_surface_rear_hand_near": {
+      "director_decided": true,
+      "decision": "Implementation defect: exact own-paint joint cap over preserved accepted backing; no paint requested."
+    },
+    "TODO_DESIGN_hidden_surface_rear_head": {
+      "director_decided": true,
+      "decision": "Implementation defect: exact own-paint joint cap over preserved accepted backing; no paint requested."
+    },
+    "TODO_DESIGN_hidden_surface_rear_shin_far": {
+      "director_decided": true,
+      "decision": "Implementation defect: strict painted grip or rest-contact ownership repair; no paint requested."
+    },
+    "TODO_DESIGN_hidden_surface_rear_upper_far": {
+      "director_decided": true,
+      "decision": "Implementation defect: exact own-paint joint cap over preserved accepted backing; no paint requested."
+    },
+    "TODO_DESIGN_rear_underlay_strip": {
+      "director_decided": true,
+      "decision": "Accepted supplied gambeson flank; underlay hash bound by feedback2_backing_acceptance.json."
+    },
+    "TODO_DESIGN_flat_backing_regions": {
+      "director_decided": true,
+      "decision": "Frozen r1 CPU/native inventory; new regions or growth greater than 2px fail."
+    }
+  }
+}

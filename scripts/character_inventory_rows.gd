@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Geometry = preload("res://scripts/retained_view_geometry.gd")
+
 # The scene owns one hidden host and only its current pack rows. Inputs are
 # exact owned presentation snapshots; controls keep the original constructors,
 # callbacks and order. A displayed row never doubles as a speculative snapshot.
@@ -98,6 +100,9 @@ func make_view_dialog(dialog: PanelContainer) -> PanelContainer:
 	return prepared
 
 func store_view(mode: String, dialog: PanelContainer, input: Dictionary, bindings: Dictionary) -> void:
+	if not _fits_one_screen(dialog):
+		_discard(dialog)
+		return
 	var previous: Control = _cached_control(_views.get(mode, {}))
 	if previous != dialog: _discard(previous)
 	_views[mode] = {"node": dialog, "input": input.duplicate(true), "bindings": bindings.duplicate()}
@@ -174,6 +179,7 @@ static func prepare_current_for(scene: Node, revision: int, present: Callable, s
 		if not _preparation_active(scene, revision, still_active) or scene._character_row_preparation_key() == source: break
 	if is_instance_valid(scene) and scene._character_row_preparation_running_revision == revision:
 		scene._character_row_preparation_running_revision = -1
+		release_closed_for(scene)
 
 static func _prepare_owned_current_for(scene: Node, revision: int, present: Callable, still_active: Callable) -> void:
 	if not _preparation_active(scene, revision, still_active): return
@@ -287,3 +293,50 @@ static func _other_active(scene: Variant, generation: int, live_mode: String, li
 
 static func _other_matches(scene: Variant, generation: int, live_mode: String, live_dialog: Variant, source: Dictionary) -> bool:
 	return _other_active(scene, generation, live_mode, live_dialog) and scene._character_row_preparation_key() == source
+
+# Another tab's binding snapshot can still address a discarded view. Validate
+# those handles before assigning them back to the scene's typed Control fields.
+static func live_binding(value: Variant) -> Variant:
+	if typeof(value) == TYPE_OBJECT:
+		if not is_instance_valid(value): return null
+		if value is Node:
+			var owner: Node = value
+			while owner != null:
+				if owner.is_queued_for_deletion(): return null
+				owner = owner.get_parent()
+	elif value is Dictionary:
+		var result: Dictionary = {}
+		for key: Variant in value:
+			var entry: Variant = live_binding(value[key])
+			if entry != null: result[key] = entry
+		return result
+	return value
+
+# Prepared columns must fit their authored viewport. A scrolling pack/deck is
+# built synchronously while open and released when that view ends, rather than
+# retaining one node population per owned item/card for the rest of the run.
+static func _fits_one_screen(dialog: Control) -> bool:
+	for candidate: Node in dialog.find_children("*", "ScrollContainer", true, false):
+		var scroll: ScrollContainer = candidate as ScrollContainer
+		if scroll.get_child_count() == 0: continue
+		var content: Control = scroll.get_child(0) as Control
+		if content == null: continue
+		if ceilf(Geometry.minimum_height(content)) > ceilf(Geometry.scroll_height(scroll, dialog)): return false
+	return true
+
+static func release_closed_for(scene: Node) -> void:
+	if not is_instance_valid(scene) or scene.is_queued_for_deletion() or not is_instance_valid(scene._upgrade_scrim) or scene._upgrade_scrim.visible: return
+	var pool: RefCounted = scene._character_inventory_rows
+	for view: Dictionary in pool._views.values():
+		var dialog: Control = pool._cached_control(view)
+		if is_instance_valid(dialog) and not _fits_one_screen(dialog): pool._discard(dialog)
+	if is_instance_valid(pool._hidden_host):
+		for child: Node in pool._hidden_host.get_children(): pool._discard(child)
+	if is_instance_valid(scene._upgrade_dialog) and not _fits_one_screen(scene._upgrade_dialog):
+		scene._preserve_character_skill_tree()
+		for child: Node in scene._upgrade_dialog.get_children(): pool._discard(child)
+		scene._live_character_view_key.clear()
+		for field: String in scene.CHARACTER_VIEW_BINDINGS:
+			var value: Variant = scene.get(field)
+			if typeof(value) == TYPE_DICTIONARY: value.clear()
+			else: scene.set(field, null)

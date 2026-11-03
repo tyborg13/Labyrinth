@@ -1,0 +1,16 @@
+{
+  "front": {
+    "ok": true,
+    "errors": [],
+    "frames": 1166,
+    "movement_records": 284,
+    "native_pixels": false
+  },
+  "rear": {
+    "ok": true,
+    "errors": [],
+    "frames": 1166,
+    "movement_records": 284,
+    "native_pixels": false
+  }
+}

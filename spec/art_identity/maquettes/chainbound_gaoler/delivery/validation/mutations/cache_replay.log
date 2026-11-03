@@ -1,0 +1,14 @@
+test_exact_cache_replay_cannot_differ (tests.test_mq15_maquette.DeliveryTests) ... FAIL
+
+======================================================================
+FAIL: test_exact_cache_replay_cannot_differ (tests.test_mq15_maquette.DeliveryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 144, in test_exact_cache_replay_cannot_differ
+    validate_delivery(self.spec, self.folder, require_binding=False)
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.159s
+
+FAILED (failures=1)

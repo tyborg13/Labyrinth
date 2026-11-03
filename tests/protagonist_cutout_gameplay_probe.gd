@@ -255,6 +255,7 @@ func _fixture(player_tile: Vector2i, enemy_tile: Vector2i, reduced: bool = false
 	_instance.set("_progression", progression)
 	_instance.set("_run_state", run)
 	var settings: Dictionary = (_instance.get("_settings") as Dictionary).duplicate(true)
+	settings["hero_facing"] = "snap" # Preserve this suite's legacy front-idle contract.
 	settings["reduced_motion"] = reduced
 	settings["ui_scale"] = 1.0
 	_instance.set("_settings", settings)

@@ -5,7 +5,9 @@ extends RefCounted
 const Surface = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Tempo = preload("res://scripts/tempo_rules.gd")
-const STORED := "relic_stored_surfaces"
+const Expend = preload("res://scripts/surface_expend_rules.gd")
+const DIAL_SOURCE := "Black Sun Dial"
+const DIAL_SURFACE_SEQUENCE := "relic_dial_surface_sequence"
 const KNOTS := "relic_element_knots"
 const LAST := "variety_last_card_element"
 const REFUNDS := "light_move_refunds"
@@ -17,8 +19,13 @@ static func effect(effects: Array, type: String) -> Dictionary:
 		if str(entry.get("type", "")) == type: return entry
 	return {}
 
-static func stored(state: Dictionary) -> Array:
-	return state.get(STORED, []) as Array
+static func dial_buff(state: Dictionary) -> Dictionary:
+	for buff: Dictionary in Tempo.next_attack_buffs(state):
+		if str(buff.get("source", "")) == DIAL_SOURCE: return buff
+	return {}
+
+static func pending_dial_damage(state: Dictionary) -> int:
+	return int(dial_buff(state).get("damage", 0))
 
 static func knots(state: Dictionary) -> Array:
 	return state.get(KNOTS, []) as Array
@@ -89,42 +96,33 @@ static func resolve_action(state: Dictionary, action: Dictionary, effects: Array
 	if not knot_effect.is_empty():
 		if tied.size() >= int(knot_effect.get("pierce_threshold", 3)): action["pierce"] = true
 		if tied.size() >= int(knot_effect.get("chain_threshold", 4)): action["chain"] = maxi(int(knot_effect.get("chain", 1)), int(action.get("chain", 0)))
-	var dial: Dictionary = effect(effects, "store_consumed_surface_release")
-	if not dial.is_empty() and not stored(state).is_empty():
-		action["_stored_release"] = stored(state).duplicate()
-		action["_stored_release_damage"] = stored(state).size() * int(dial.get("damage", 2))
-		action["damage"] = int(action.get("damage", 0)) + int(action["_stored_release_damage"])
 
-static func before_action(state: Dictionary, action: Dictionary) -> void:
-	if action.has("_stored_release"): state[STORED] = []
-
-static func after_action(engine: RefCounted, before: Dictionary, state: Dictionary, action: Dictionary, target: Vector2i, effects: Array) -> Dictionary:
-	var dial: Dictionary = effect(effects, "store_consumed_surface_release")
+static func collect_removals(state: Dictionary, since_sequence: int, effects: Array) -> Dictionary:
+	var dial: Dictionary = effect(effects, "expend_next_attack_damage")
 	if not dial.is_empty():
-		var held: Array = stored(state).duplicate()
+		var seen: int = maxi(since_sequence, int(state.get(DIAL_SURFACE_SEQUENCE, 0)))
 		for event: Dictionary in state.get("surface_events", []):
-			if int(event.get("sequence", 0)) <= int(before.get("surface_event_sequence", 0)): continue
+			if int(event.get("sequence", 0)) <= seen: continue
 			var source: Dictionary = event.get("source", {}) as Dictionary
-			if str(source.get("actor_kind", "")) != "player" or str(source.get("source_kind", "")) == "trap": continue
-			if str(event.get("kind", "")) == "surface_removed" and str(event.get("reason", "")) in ["detonate", "chain", "conduction", "freeze", "consume", "attack_consume", "melee_consume", "relic_redirect", "relic_attack_origin", "force_collision", "discharge", "consumed", "clear"]:
-				if held.size() < int(dial.get("capacity", 3)): held.append(str(event["surface"]))
-		state[STORED] = held
-	if action.has("_stored_release"):
-		var index: int = engine._enemy_index_for_id(state, int((state.get("last_action_target_actor", {}) as Dictionary).get("enemy_id", -1)))
-		if index < 0: index = engine._enemy_index_at_tile(state, target)
-		if index >= 0:
-			for surface: String in action["_stored_release"]:
-				# Keyword application normalizes/replaces the enemy dictionary.
-				var enemy: Dictionary = state["enemies"][index]
-				match surface:
-					"fire":
-						for tile: Vector2i in Surface.footprint_tiles(enemy): Surface.place(state, tile, "fire", {"kind": "relic", "actor_kind": "player"})
-					"ice":
-						if int(enemy.get("hp", 0)) > 0 and int(enemy.get("freeze", 0)) <= 0 and not engine._enemy_is_immune_to_status(enemy, "chilled"):
-							enemy["chilled"] = true
-							enemy["relic_chilled"] = true # Chill from a rider does not need supporting Ice.
-					"electrified": state = engine._apply_action_keywords_to_enemy(state, index, {"shock": 1}, target)
-					"rubble": engine._apply_stagger_to_enemy(state, int(enemy["id"]), 2)
+			if str(source.get("actor_kind", "")) != "player" or Expend.is_trap_source(source): continue
+			if str(event.get("kind", "")) != "surface_removed" or not bool(source.get(Expend.KEYWORD, false)): continue
+			# The removing card/relic's displayed Expend identity is authoritative;
+			# removal reasons are analytics only. Old stored saves are ignored.
+			var pending: int = pending_dial_damage(state)
+			var added: int = mini(int(dial.get("damage", 3)), maxi(0, int(dial.get("max", 9)) - pending))
+			if added > 0:
+				var buff: Dictionary = dial_buff(state)
+				if buff.is_empty():
+					Tempo.gain_next_attack(state, {"damage": added}, DIAL_SOURCE)
+				else:
+					buff["damage"] = pending + added
+					# New fuel cannot boost another attack in this granting card.
+					buff["granted_at"] = Tempo.cards_finished(state)
+			# Preserve the existing surface_event trigger and its source/sequence.
+			event["damage_added"] = added
+		# Action, echo preview and commit collectors can overlap. Persist the
+		# monotonic cursor so even a spent bonus cannot be granted a second time.
+		state[DIAL_SURFACE_SEQUENCE] = int(state.get("surface_event_sequence", seen))
 	return state
 
 static func blink(state: Dictionary, distance: int, effects: Array) -> void:
@@ -167,7 +165,7 @@ static func death(engine: RefCounted, state: Dictionary, enemy: Dictionary, effe
 				other["chilled"] = true
 				other["relic_chilled"] = true
 			elif status == "immobilize": other["immobilize"] = true
-			elif status == "petrify" and not engine.DragonBossLibrary.is_dragon_boss_id(str(other.get("type", ""))): other["petrify"] = maxi(int(other.get("petrify", 0)), int(statuses[status]))
+			elif status == "petrify": engine.ManeuverRules.petrify_enemy(engine, state, other, {"actor_kind": "player", "causal_owner": "player", "source_kind": "relic", "player_card": false, "relic_id": str(spread.get("relic_id", ""))})
 	return state
 
 static func hero_light(state: Dictionary, tile: Vector2i) -> bool:

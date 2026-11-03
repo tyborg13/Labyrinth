@@ -2,7 +2,6 @@ extends SceneTree
 
 const Combat = preload("res://scripts/combat_engine.gd")
 const Fixtures = preload("res://tests/suites/en03_enemies_suite.gd")
-const Dive = preload("res://scripts/enemy_mechanics/dive.gd")
 const Reflect = preload("res://scripts/enemy_mechanics/reflect.gd")
 var _errors: Array[String]
 
@@ -17,10 +16,10 @@ func _initialize() -> void:
 		_expect(after["player"]["hp"] < mirror["player"]["hp"] and after["enemies"][1]["hp"] < mirror["enemies"][1]["hp"], "%s Refraction still strikes both teams" % element)
 		var shrike: Dictionary = Fixtures.state([Fixtures.enemy("gust_shrike", 1, Vector2i(2, 4), "dive"), Fixtures.enemy("crawler", 2, Vector2i(3, 4))], Vector2i(6, 4), element)
 		action = shrike["enemies"][0]["intent"]["actions"][0]
-		after = engine._resolve_enemy_action(shrike.duplicate(true), 0, action)
-		_expect(engine._enemy_distance_to_tile(after["enemies"][0], after["player"]["pos"]) == 1 and after["player"]["hp"] < shrike["player"]["hp"], "%s Dive strikes and ends adjacent" % element)
-		var plan: Dictionary = Dive.plan(engine, shrike, 0, shrike["enemies"][0]["intent"])
-		_expect(engine.enemy_threat_tiles(shrike, 0)["projected_attack"] == plan["dive_tiles"], "%s Dive telegraph matches resolution geometry" % element)
+		after = engine._resolve_enemy_intent(shrike.duplicate(true), 0, shrike["enemies"][0]["intent"])
+		_expect(after["enemies"][0]["pos"] == engine.enemy_intent_plan(shrike, 0)["destination"] and (after["player"]["hp"] < shrike["player"]["hp"]) == engine.enemy_intent_plan(shrike, 0)["projected_attack"].has(shrike["player"]["pos"]), "%s Dive strikes and ends adjacent" % element)
+		var plan: Dictionary = engine.enemy_intent_plan(shrike, 0)
+		_expect(engine.enemy_threat_tiles(shrike, 0)["projected_attack"] == plan["projected_attack"], "%s Dive telegraph matches resolution geometry" % element)
 	for error: String in _errors: push_error(error)
 	print("EN05 ELEMENTAL INTEGRATION: %s (12 checks, %d failures; neutral, ice, air)" % ["PASS" if _errors.is_empty() else "FAIL", _errors.size()])
 	quit(0 if _errors.is_empty() else 1)

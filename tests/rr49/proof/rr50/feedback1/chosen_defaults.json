@@ -1,0 +1,24 @@
+{
+  "REFERENCE_FACTOR_PERCENTILE": 0.9,
+  "reason": "P90 of matched same-pose production/reference ratios checks slower submissions while rejecting isolated scheduler outliers. The first median-only trial let the 30% mutation through at 1.295x.",
+  "inherited": {
+    "PAIR_ROUNDS": 3,
+    "WARMUP_POSES": 3,
+    "POSE_COUNT": 51,
+    "RUNNER_TIMEOUT_SECONDS": 120,
+    "TIMING_HEADROOM_FACTOR": 2.0
+  },
+  "prescribed": {
+    "MINIMUM_SPEEDUP": 1.6,
+    "MAXIMUM_REFERENCE_FACTOR": 1.3,
+    "CLEAN_TIMING_RUNS": 5
+  },
+  "counted": {
+    "IMPLEMENTATIONS": 3,
+    "MOTION_CLIPS_PER_VIEW": 7,
+    "MATCHED_POSES_PER_VIEW": 1071
+  },
+  "mutation_comment": "newline plus # rr-50 forged approved source byte",
+  "player_facing_changes": [],
+  "TODO_DESIGN": []
+}

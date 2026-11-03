@@ -287,7 +287,7 @@ static func _test_objective_persistence_and_ui_surfaces(expect: Callable) -> voi
 	var hud := CombatObjectiveHud.new()
 	hud.set_combat_state(state)
 	var detail: Label = hud.find_child("ObjectiveLiveDetail", true, false) as Label
-	expect.call(detail != null and detail.text.contains("time remaining") and detail.text.contains("Reinforcements in"), "The live survival HUD should expose both victory time and the next reinforcement clock")
+	expect.call(detail != null and detail.text.begins_with("Dawn in ") and detail.text.contains("Reinforcements in"), "The live survival HUD should expose both victory time and the next reinforcement clock")
 	hud.free()
 
 static func _room_metadata(depth: int) -> Dictionary:

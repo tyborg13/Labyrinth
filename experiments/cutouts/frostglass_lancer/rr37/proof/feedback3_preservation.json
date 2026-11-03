@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "comparison": "git diff --quiet HEAD; exact JSON equality after removing Lancer-owned entries",
+  "protected_files": 37914,
+  "protected_sha256": "8394f816b4be7779a4d5dc87b801b417561d3df5e9503009be3760b748426a2d",
+  "non_lancer_registry_records": {
+    "spec/art_identity/registry.json": 145,
+    "spec/assets/board_pixel_density/registry.json": 111,
+    "spec/assets/board_pixel_density/outputs.json": 2140
+  },
+  "shadow": "scoped shadow_refresh.gd asserts every retained entry/source_sha256 is unchanged",
+  "motion_sha256": "65fe0b1a4892ad3a75827ba14cdd14dd8c41253f8f0ef1ebf79fb1240e7dc039",
+  "anatomy_and_release_declaration_unchanged": true,
+  "compiled_motion_unchanged": true,
+  "changed_paths_within_unit": true,
+  "shipped_motion_unchanged": true,
+  "branch": "codex/rr-37",
+  "final_scope_check": true
+}

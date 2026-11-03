@@ -596,6 +596,9 @@ static func turn_start_presentation_steps(engine: RefCounted, before_state: Dict
 		for loss_var: Variant in losses:
 			if typeof(loss_var) == TYPE_DICTIONARY:
 				impact_keys.append(str((loss_var as Dictionary).get("key", "")))
+		var meteor_surfaces: Dictionary = {}
+		for tile: Vector2i in tiles:
+			meteor_surfaces[Surfaces.tile_key(tile)] = Surfaces.surface_at(after_state, tile).duplicate(true)
 		steps.append({
 			"kind": "status_damage",
 			"label": "Impact",
@@ -613,6 +616,7 @@ static func turn_start_presentation_steps(engine: RefCounted, before_state: Dict
 			"impact_actor_keys": impact_keys,
 			"enemies_after": (after_state.get("enemies", []) as Array).duplicate(true),
 			"player_after": (after_state.get("player", {}) as Dictionary).duplicate(true),
+			"meteor_surfaces": meteor_surfaces,
 			"meteor_impact": event.duplicate(true)
 		})
 	return steps

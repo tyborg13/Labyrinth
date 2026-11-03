@@ -191,8 +191,9 @@ class ClassicalSoundtrackPipelineTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as temporary:
                 output = Path(temporary)
                 report = render_track(CONFIG, output)
-                self.assertEqual("bb0a7c9b30883e87f0d2c0be88fd11844056ce40c628860950a02fc51677403b", report["audio"]["ogg_sha256"])
-                self.assertEqual("722be73cd85a4c69618ffa3b66c3f0b1f98ab91dd3ace78772c04c0f1ac8c18b", report["audio"]["flac_sha256"])
+                golden = json.loads((REPO_ROOT / 'tests/goldens/classical_audio.json').read_text())
+                self.assertEqual(golden["ogg_sha256"], report["audio"]["ogg_sha256"])
+                self.assertEqual(golden["flac_sha256"], report["audio"]["flac_sha256"])
                 verification = verify_track(CONFIG, output)
                 self.assertTrue(verification["ok"])
                 self.assertEqual(736, verification["midi"]["note_counts"]["Funeral Pulse / Procedural Percussion"])

@@ -1,0 +1,223 @@
+[
+  {
+    "view": "front",
+    "clip": "death",
+    "frame": 10,
+    "source_sha256": "a840ddf00657fefef4d5b48fcc55d1e00440b0a94d71c2c999901015cef4164a",
+    "crop": "front_death_010_native_4x.webp",
+    "crop_box": [
+      263,
+      222,
+      408,
+      438
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frame": 11,
+    "source_sha256": "a24b2e40099005a64f708b90a5afbff76a25363802d93f406ff99615605da563",
+    "crop": "front_death_011_native_4x.webp",
+    "crop_box": [
+      263,
+      221,
+      408,
+      438
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frame": 12,
+    "source_sha256": "4af4ff9583e79d7083581ecaba00345a936b6aa3705e03e633cb04bcc4f58223",
+    "crop": "front_death_012_native_4x.webp",
+    "crop_box": [
+      263,
+      221,
+      408,
+      438
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frame": 13,
+    "source_sha256": "60a11cdb9a6baeb8029e4ed5e11c52d66a802849eae6ec6815177cc954687639",
+    "crop": "front_death_013_native_4x.webp",
+    "crop_box": [
+      263,
+      221,
+      408,
+      438
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frame": 16,
+    "source_sha256": "c9d24f09f471b5db3239089e9088b96a335758dde0d56e4db24b315d369d109c",
+    "crop": "front_death_016_native_4x.webp",
+    "crop_box": [
+      263,
+      221,
+      408,
+      438
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frame": 17,
+    "source_sha256": "a7ff1170414398b01f30bfd3f55233917c3830ff2bd57394becba6293c03ce43",
+    "crop": "front_death_017_native_4x.webp",
+    "crop_box": [
+      263,
+      221,
+      408,
+      438
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frame": 18,
+    "source_sha256": "12d5704b88e369948e4b2a9717194093104a75bcc9df9930e9314a4f784254a6",
+    "crop": "front_death_018_native_4x.webp",
+    "crop_box": [
+      262,
+      221,
+      408,
+      438
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frame": 19,
+    "source_sha256": "6aa64481c17bb7784ec651c5dfb1ca6e7a8fd85c82b8654022020ec60b474605",
+    "crop": "front_death_019_native_4x.webp",
+    "crop_box": [
+      262,
+      221,
+      408,
+      438
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frame": 20,
+    "source_sha256": "322bede9378d405a4f0a2ec5d1e47710014852aa0ff73a8345229e7b0afb20fd",
+    "crop": "front_death_020_native_4x.webp",
+    "crop_box": [
+      262,
+      221,
+      408,
+      438
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frame": 21,
+    "source_sha256": "322bede9378d405a4f0a2ec5d1e47710014852aa0ff73a8345229e7b0afb20fd",
+    "crop": "front_death_021_native_4x.webp",
+    "crop_box": [
+      262,
+      221,
+      408,
+      438
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frame": 22,
+    "source_sha256": "f7b4fb6ae720c662743799b118f1ba3e23caf67a74e236d14a875cb647c8a269",
+    "crop": "front_death_022_native_4x.webp",
+    "crop_box": [
+      262,
+      221,
+      408,
+      438
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frame": 31,
+    "source_sha256": "622109d0c353b29d1deab0fc2856708bbb9e23bdb576bb9613200e2f622538c6",
+    "crop": "front_death_031_native_4x.webp",
+    "crop_box": [
+      262,
+      221,
+      408,
+      438
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "press",
+    "frame": 13,
+    "source_sha256": "dda2e51ff4611927817cb808d8c88a07cf7a0710b440e7a10a18ad1a284b72af",
+    "crop": "front_press_013_native_4x.webp",
+    "crop_box": [
+      265,
+      222,
+      411,
+      440
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "press",
+    "frame": 14,
+    "source_sha256": "d7e2490ca3a2843d198bc43ccf43b0be702f57b8b6aee4ffb3e6ff3791223cb2",
+    "crop": "front_press_014_native_4x.webp",
+    "crop_box": [
+      265,
+      223,
+      411,
+      440
+    ]
+  },
+  {
+    "view": "front",
+    "clip": "press",
+    "frame": 15,
+    "source_sha256": "667ec97f8a9e3e9ad5358a0e2ffaf0f080cc355c77afa75ed0d548339d723b72",
+    "crop": "front_press_015_native_4x.webp",
+    "crop_box": [
+      265,
+      223,
+      411,
+      440
+    ]
+  },
+  {
+    "view": "rear",
+    "clip": "death",
+    "frame": 10,
+    "source_sha256": "2705b89a64fad51dcb15250beb464c252ee9404abb8c5d7b422a0f3c5cea4aa3",
+    "crop": "rear_death_010_native_4x.webp",
+    "crop_box": [
+      233,
+      223,
+      382,
+      438
+    ]
+  },
+  {
+    "view": "rear",
+    "clip": "death",
+    "frame": 31,
+    "source_sha256": "e76c9bde38b17544aff59bc29374bea92b513dc2c3bdc17c8ee8a17a8ae0cebb",
+    "crop": "rear_death_031_native_4x.webp",
+    "crop_box": [
+      233,
+      222,
+      383,
+      438
+    ]
+  }
+]

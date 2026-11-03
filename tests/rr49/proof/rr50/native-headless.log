@@ -1,0 +1,16 @@
+test_all_52_final_native_findings_and_missing_category_mutations (test_rr49_native.NativeRegressionTests) ... ok
+test_fresh_actual_submissions_and_mutations (test_rr49_native.NativeRegressionTests) ... ok
+test_native_fixture_corruption_rejected (test_rr49_native.NativeRegressionTests) ... ok
+test_post_pose_root_mutations_follow_all_submitted_geometry (test_rr49_native.NativeRegressionTests) ... ok
+test_sheets_uses_the_exact_release_policy_and_default_is_unchanged (test_rr49_native.NativeRegressionTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 56.984s
+
+OK
+RR49 BASELINE: PASS (52/52; source=24 idle=24 released=4; omitted-category mutations rejected)
+RR49 SUBMITTED GEOMETRY: PASS (892 fresh frames; 100 idle frames; buffer, skin, texture, duplicate-transform and missing-policy mutations rejected)
+RR49 ROOT TRANSFORM: {"checks":1184,"detached_mutation_quads":{"NE":16,"NW":16,"SE":16,"SW":16},"errors":[],"facings":4,"native":false,"quad_checks":256}
+RR10 SHEETS: PASS (0 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr49-compose-routing-7dizpm94/sheets)
+RR10 SHEETS: PASS (0 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr49-compose-routing-7dizpm94/sheets)
+RR49 SHEETS ROUTING: PASS (strict release oracle forwarded; generic default unchanged)

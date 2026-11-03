@@ -1,0 +1,654 @@
+{
+  "min_images": 38,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "enter_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "enter_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "leave_enter_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "leave_enter_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "click_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "click_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "tutorial_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "tutorial_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "motion_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "motion_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "rest_sweep_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "rest_sweep_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "rest_rest_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "rest_rest_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "sweep_sweep_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "sweep_sweep_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "sweep_rest_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "sweep_rest_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "sweep_rest_sweep_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "sweep_rest_sweep_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "sweep_rest_rest_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "sweep_rest_rest_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "sweep_exit_sweep_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "sweep_exit_sweep_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "sweep_exit_rest_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "sweep_exit_rest_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "reduced_rest_sweep_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "reduced_rest_sweep_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "reduced_rest_rest_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "reduced_rest_rest_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "key_focus_sweep_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "key_focus_sweep_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "key_focus_rest_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "key_focus_rest_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "controller_focus_sweep_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "controller_focus_sweep_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "controller_focus_rest_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "controller_focus_rest_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

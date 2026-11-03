@@ -1445,7 +1445,7 @@
         }
       },
       "gate": {
-        "iou_min": 0.7,
+        "iou_min": 0.65,
         "median_band_error_max": 0.12,
         "max_band_error_max": 0.3,
         "landmark_error_max": 0.03
@@ -2263,5 +2263,81 @@
       "back_carapace"
     ]
   ],
-  "carapace_layering": "Four closed curved carapace plates retain their measured outer spike rims. Native exact boolean cutouts clear expanded convex envelopes of the solved cloth; clothing stays unchanged. Every pair is measured against the same 3 mm gate as anatomy."
+  "carapace_layering": "Four closed curved carapace plates retain their measured outer spike rims. Native exact boolean cutouts clear expanded convex envelopes of the solved cloth; clothing stays unchanged. Every pair is measured against the same 3 mm gate as anatomy.",
+  "pose_constraints": [
+    {
+      "chain": [
+        "shoulder_far",
+        "elbow_far",
+        "hand_far"
+      ],
+      "shoulder_front_px": [
+        333.9999999999999,
+        335.7000000000001
+      ],
+      "shoulder_height_joint": "shoulder_near",
+      "translate_with_hand": [
+        "hand_tip_far"
+      ],
+      "arm_mode": "translate"
+    }
+  ],
+  "deferred_surface_pose": {
+    "claw_far": "elbow_far"
+  },
+  "shoulder_revision_contract": {
+    "authority": "mq-12; spec/peer_benchmark/humanoid_cutout_rig.md section 3",
+    "target_front_px": [
+      333.9999999999999,
+      335.7000000000001
+    ],
+    "slope": 0.15,
+    "tolerance_px": 10,
+    "source_recipe": "delivery/review/mq12_before_recipe.json",
+    "protected_surfaces": "All except the named far-arm pieces; original garments are solved before correction."
+  },
+  "shoulder_garment_motion": {
+    "torso_cloth": "far_top",
+    "cloak": "far_top",
+    "front_cloak": "far_top",
+    "back_carapace": "far_side",
+    "hood": "far_skirt"
+  },
+  "feedback_1_authority": "Director feedback 1: round-0 poses locked; far shoulder garment attachments ride with the shoulder, blending to unchanged near side and remote edges. Gloam front fit minimum 0.65.",
+  "hood_shoulder_attachment_basis": "The head label contains a shoulder cowl below the native skull. Only its far shoulder skirt follows the shoulder delta. Entire faces touching the native skull lower bound, the opening, and all near faces remain fixed.",
+  "articulated_pose": {
+    "ankles_front_px": {
+      "near": [
+        650,
+        900
+      ],
+      "far": [
+        430,
+        790
+      ]
+    },
+    "floor_joint": "ankle_near",
+    "facing": [
+      1,
+      0,
+      0
+    ],
+    "head_front_px": [
+      440,
+      330
+    ],
+    "shell": {
+      "piece": "back_carapace",
+      "scale": 0.6,
+      "support": [
+        "hood",
+        "cloak",
+        "front_cloak"
+      ],
+      "max_overhang_px": 40
+    },
+    "hood_reference": {
+      "head_floor_z": 1.679695725440979
+    }
+  }
 }

@@ -6,11 +6,15 @@ const Hearth = preload("res://tests/suites/ember_hearth_suite.gd")
 const ProbeScene = preload("res://tests/fixtures/ember_hearth_run_scene.gd")
 const OUTPUT_DIR: String = "user://ember_hearth_probe_v2"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
+const RESULT_WAIT_TIMEOUT_MSEC: int = 2000
 var _failed: bool = false
 var _instance: Node
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	if DisplayServer.get_name() == "headless":
+		print("HEADLESS SEMANTICS ONLY: no renderer captures")
+		process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_set_size(PROBE_VIEWPORT)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
@@ -59,7 +63,7 @@ func _run() -> void:
 	await _click_panel(0)
 	_check(bool(_instance.get("_campfire_choice_action_pending")), "Pointer activation begins one selection")
 	await _capture("05_selected")
-	await create_timer(0.22).timeout
+	await _wait_healing_result()
 	var board: Node = _instance.get("board_view")
 	var presentation: Dictionary = board.get("presentation")
 	_check((presentation.get("effect", {}) as Dictionary).get("kind", "") == "heal", "Healing uses the real character effect")
@@ -106,8 +110,11 @@ func _run() -> void:
 	await create_timer(0.44).timeout
 	_check(not Store.has_saved_run(), "Embrace is already durably banked during departure")
 	await _capture("13_bank_departure")
-	await create_timer(1.1).timeout
-	_check(_instance.get("requested_scene") == "res://scenes/main_menu.tscn", "Embrace finishes by returning to the main menu")
+	await Hearth.wait_finished(self, _instance)
+	var recap: Control = _instance.get("_run_end_recap") as Control
+	_check(recap != null and recap.visible and str(recap.call("recap_model").get("title", "")) == "WITHDRAWN", "Embrace finishes with the WITHDRAWN recap")
+	_check(not bool(_instance.get("_animation_lock")), "Embrace recap releases input")
+	await _capture("14_withdrawn_recap")
 	router.call("clear_forced_state_for_test")
 	_instance.queue_free()
 	await process_frame
@@ -156,6 +163,15 @@ func _assert_framing() -> void:
 func _capture(name: String) -> void:
 	await _save_root_screenshot("%s/hearth_v2_%s.png" % [OUTPUT_DIR, name])
 
+func _wait_healing_result() -> void:
+	# The authored normal-motion selection lasts 0.26s. Renderer latency used
+	# to hide this probe's earlier 0.22s sample; wait for the actual result.
+	var deadline: int = Time.get_ticks_msec() + RESULT_WAIT_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline:
+		var presentation: Dictionary = (_instance.get("board_view") as Node).get("presentation")
+		if str((presentation.get("effect", {}) as Dictionary).get("kind", "")) == "heal": return
+		await process_frame
+
 func _check(ok: bool, message: String) -> void:
 	if not ok: _fail(message)
 
@@ -167,6 +183,7 @@ func _fail(message: String) -> void:
 func _save_root_screenshot(output_path: String) -> void:
 	await process_frame
 	await process_frame
+	if DisplayServer.get_name() == "headless": return
 	RenderingServer.force_draw(true)
 	var image: Image = root.get_viewport().get_texture().get_image()
 	if image == null:

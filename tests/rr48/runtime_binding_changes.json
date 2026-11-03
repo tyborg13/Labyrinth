@@ -1,0 +1,42 @@
+{
+  "baseline_revision": "6135c6ec6",
+  "bindings": {
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd": {
+      "before": "f8a426c31cacedc9ebc4652b3b40a6ef30cfea209b8f395f145788c71ab68b96",
+      "after": "7d4c80aa621eac77926952e50f142b9e306a75cb344932cb3e688acf7d56fe97"
+    },
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd": {
+      "before": "f6c2c8d5be0d01bf7ee9093f906f337d9f5106148bde8921b680d4c760a96e60",
+      "after": "b430a1e69709ba8ca32f356139a04449e7e623cce31075c7228245108c5e7f8f"
+    },
+    "scripts/maquette_cutout_runtime/humanoid_grip.gd": {
+      "before": null,
+      "after": "93c0b72d6dc308397f1be1178af613b91197fd7d0d339b256a5c07492f0d1a22"
+    },
+    "tools/humanoid_cutout/cpu_pose.py": {
+      "before": "4a106224ac4cb05d9fc434f5279a158c045d557026618a7e9e21ce3b2e7c1606",
+      "after": "13586d7417cea582fd08c305196a90390efc9774bc6fd00d078706675aa06249"
+    },
+    "tools/maquette_motion/gates.py": {
+      "before": "d152dd489dbb4bd12ba3b11295a874caf6404a076ac596af23349fef40cadc30",
+      "after": "7c7a189156d43f26b30f1a13f933069ce8727e5dcada6b045683dd88f398ac5c"
+    },
+    "tests/maquette_cutout/proof_inputs.gd": {
+      "before": "8381a18b69d72c62091d4cfdad6ed6392ece859d902b93af078a554fe9ce1e5c",
+      "after": "4b7d90c49a100328fc72e30b228b0b2cd5e840fef11d1388826748d822881c86"
+    },
+    "scripts/maquette_cutout_runtime/humanoid_held_follow.gd": {
+      "before": "3e9c47148a5e507f575602e11a82db23dc53c2ac1985df367eb4bf0041a1bbc1",
+      "after": "dfc0afc83659f8df33c10ed5d72c424d09864a301f6889ac4299d8d7080178c3"
+    },
+    "tools/humanoid_cutout/gates.py": {
+      "before": "4a6f614c3be9e70dc165ffd5e7f298d1db3aca6d0d1b6579190bba26516fb5d0",
+      "after": "610a041c64bfd4c04f773f67331a594bbfc85e84c6f1a07c30cd01431a7d384a"
+    },
+    "scripts/maquette_cutout_runtime/presentation.gd": {
+      "before": "66222e4403ff4ccb21b17421ee3591cf4ec896c0baa13272caf779dfcd6571e4",
+      "after": "08f5d1fa7018cd978152713438e3674bbbe1a2bff44769f9a7fc576937e636da"
+    }
+  },
+  "parity": "INT07 664 other-rig submissions; RR49 304685 buffers and timing; Gaoler exact additive preservation"
+}

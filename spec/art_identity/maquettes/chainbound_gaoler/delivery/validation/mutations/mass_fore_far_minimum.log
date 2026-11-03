@@ -1,0 +1,13 @@
+test_each_mass_row_has_its_own_enforced_limit (tests.test_mq15_maquette.MassGuardTests) ... 
+======================================================================
+FAIL: test_each_mass_row_has_its_own_enforced_limit (tests.test_mq15_maquette.MassGuardTests) (name='fore_far_minimum')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 232, in test_each_mass_row_has_its_own_enforced_limit
+    self.assertFalse(mass_row_passed(name,0,approved,data['tolerances'],65))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.007s
+
+FAILED (failures=1)

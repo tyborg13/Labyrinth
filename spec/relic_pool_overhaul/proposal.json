@@ -2288,18 +2288,25 @@
    ],
    "I": 0,
    "E": 3,
-   "text": "Consuming a surface stores it (max 3). Your next attack deals 2 more damage per stored surface, and its target gets each one's effect: Fire beneath it, Chilled, Shock, Stagger 2.",
+   "text": "Each ground tile you Expend gives your next attack +3 damage (up to +9).",
    "was": "Once per combat, your first elemental consume on Rubble deals 6 to everyone in a cross and grants 6 Stoneskin.",
    "intrinsic": "Nothing without surfaces to spend.",
-   "extrinsic": "Spend three schools' ground, then unload it in one hit.",
+   "extrinsic": "Each ground tile you Expend gives your next attack +3 damage (up to +9).",
    "combos": [
     "relic:flint_edge",
     "relic:overflow_censer",
     "card:magma_vent"
    ],
-   "note": "Shown on the badge as up to three stored elements.",
+   "note": "one-sentence rework after owner playtest 13; the riders were cut and the bonus rose to +3 per tile",
    "impl": 2,
-   "replacement": null
+   "replacement": null,
+   "effects": [
+    {
+     "type": "expend_next_attack_damage",
+     "damage": 3,
+     "max": 9
+    }
+   ]
   },
   {
    "id": "fivefold_knot",

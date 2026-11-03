@@ -1,0 +1,14 @@
+test_hash_binding_rejects_changed_even_passing_report (tests.test_mq15_maquette.DeliveryTests) ... FAIL
+
+======================================================================
+FAIL: test_hash_binding_rejects_changed_even_passing_report (tests.test_mq15_maquette.DeliveryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 159, in test_hash_binding_rejects_changed_even_passing_report
+    validate_delivery(self.spec, self.folder)
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.161s
+
+FAILED (failures=1)

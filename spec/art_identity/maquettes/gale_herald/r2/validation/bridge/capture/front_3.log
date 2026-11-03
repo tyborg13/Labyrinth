@@ -1,0 +1,14 @@
+00:00.386  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/cold/maquette.blend"
+00:03.886  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_3/front_silhouette.png'
+00:06.218  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_3/front_silhouette.png'
+00:08.784  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_3/front_parts.png'
+00:10.944  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_3/front_silhouette.png'
+00:13.295  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_3/front_silhouette.png'
+00:15.546  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_3/front_silhouette.png'
+00:17.793  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_3/front_silhouette.png'
+00:20.267  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_3/front_silhouette.png'
+BLENDER_FACING: PASS
+MQ12_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=front; solos=['foot_near', 'thigh_far', 'shin_far', 'foot_far']
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit

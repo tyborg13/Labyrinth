@@ -1,0 +1,30 @@
+{
+  "starting_head": "f6603b5a272a0c3249f7239b8a1c41d0d63916e9",
+  "tests": [
+    {
+      "test": "test_rr38_feedback2.Feedback2Tests.test_row_fill_pixels_are_own_painted_values_and_rest_is_exact",
+      "cause": "Historical rr-38 director_motion.json retains the kneel; protected staged/rr-38/motion_tracks.json was edited by the director to the rr-42 planted-feet slump.",
+      "files": [
+        {
+          "file": "tests/test_rr38_feedback2.py",
+          "starting_sha256": "1f2b7458e1480998344b25064019f8e5ed65534783fb64b6fbc833dcd4163489",
+          "current_sha256": "1f2b7458e1480998344b25064019f8e5ed65534783fb64b6fbc833dcd4163489",
+          "unchanged_from_starting_head": true
+        },
+        {
+          "file": "experiments/cutouts/chainbound_gaoler/rr38/director_motion.json",
+          "starting_sha256": "2d2aef18cd5f6bb213285253955073d398b9c6eb183b851b9fcfc8de3578ba98",
+          "current_sha256": "2d2aef18cd5f6bb213285253955073d398b9c6eb183b851b9fcfc8de3578ba98",
+          "unchanged_from_starting_head": true
+        },
+        {
+          "file": "spec/peer_benchmark/staged/rr-38/motion_tracks.json",
+          "starting_sha256": "d193048ceb6643707a874a66baf0f4a94a118581477fc792f6ffcccb63cf3dcd",
+          "current_sha256": "d193048ceb6643707a874a66baf0f4a94a118581477fc792f6ffcccb63cf3dcd",
+          "unchanged_from_starting_head": true
+        }
+      ]
+    }
+  ],
+  "assertions_modified": false
+}

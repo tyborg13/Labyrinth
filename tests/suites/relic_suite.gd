@@ -31,7 +31,7 @@ const SUPPORTED_EFFECT_TYPES := [
   "health_cost_stoneskin", "health_loss_next_attack", "opening_hand_rite",
   "card_time_discount", "exhaust_time_stoneskin", "turn_start_active_rite_block",
   "rite_no_card_play", "turn_start_return_exhaust", "status_applied_reward",
-  "death_on_surface_spread", "elemental_overwrite_spread", "store_consumed_surface_release",
+  "death_on_surface_spread", "elemental_overwrite_spread", "expend_next_attack_damage",
   "combat_element_knots", "alternating_element_card_bonus", "matching_equipment_card_bonus",
   "blink_distance_next_attack", "light_move_refund", "move_through_enemies_stagger",
   "light_move_links", "death_status_spread",
@@ -501,12 +501,13 @@ static func _test_damage_feedback_contract(expect: Callable) -> void:
 	before["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(4, 3), 20)
 	Surface.place(before, Vector2i(4, 4), "fire")
 	Surface.place(before, Vector2i(4, 4), "rubble")
-	before["relic_stored_surfaces"] = ["rubble", "rubble", "rubble"]
+	preload("res://scripts/tempo_rules.gd").gain_next_attack(before, {"damage": 9}, "Black Sun Dial")
+	before["turn_flags"]["cards_finished"] = 1
 	var after: Dictionary = combat.apply_player_action(before, {"type": "detonate", "damage": 1, "range": 5, "element": "fire"}, Vector2i(4, 4))
 	var held: Dictionary = scene.call("_state_with_enemy_durability_from", after, before)
 	expect.call(_enemy_durability(held, 1) == _enemy_durability(before, 1) and _enemy_durability(held, 2) == _enemy_durability(before, 2), "Surface blast presentation can hold exact pre-hit durability until impact")
 	expect.call(Surface.element_at(held, Vector2i(4, 4)).is_empty() and Surface.has_rubble(held, Vector2i(4, 4)), "Holding durability preserves resolved terrain consumption")
-	expect.call(int(after["enemies"][0]["hp"]) == 13 and int(after["enemies"][1]["hp"]) == 13, "The committed impact matches the blast plus three stored surfaces")
+	expect.call(int(after["enemies"][0]["hp"]) == 10 and int(after["enemies"][1]["hp"]) == 10, "The committed impact matches the blast plus the pending Dial bonus")
 	scene.free()
 
 static func _floating_text_count(floating_texts: Array, expected_text: String) -> int:

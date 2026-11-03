@@ -45,8 +45,10 @@ func _initialize() -> void:
 	var entry: Button = shop.find_child("ScavengerPurge", true, false)
 	var sell: Button = shop.find_child("ScavengerSellMode", true, false)
 	_expect(entry != null and entry.text == "Purge a spell" and entry.tooltip_text == "Remove a spell from your deck.", "Scavenger uses the one-line service and tooltip")
-	_expect(entry.size == sell.size and entry.get_theme_font_size("font_size") == sell.get_theme_font_size("font_size"), "Purge reuses the Sell plate size and type")
-	_expect(entry.get_node("ScavengerPurgePrice/PriceTagInk/PriceTagValue").text == "50", "Service price uses the existing parchment tag")
+	_expect(entry.size.y == sell.size.y and entry.get_theme_font_size("font_size") == sell.get_theme_font_size("font_size"), "Purge keeps the tab row's height and type")
+	_expect(entry.get_global_rect().position.x > sell.get_global_rect().end.x, "Purge stands beside the tabs, not among them")
+	_expect(entry.get_node("ScavengerPurgePrice/PriceTagValue").text == "50", "Service price is inked on its own strap")
+	_expect(entry.get_global_rect().encloses(entry.get_node("ScavengerPurgePrice").get_global_rect()), "Service price stays inside its strap")
 	var service_label: Label = entry.get("_label")
 	_expect(service_label.get_line_count() == 1 and service_label.get_minimum_size().y <= service_label.size.y, "Service label fits on one line")
 	_assert_service_text_fit(entry, "enabled Scavenger service")
@@ -89,7 +91,7 @@ func _initialize() -> void:
 	var after: Dictionary = instance.get("_run_state")
 	_expect(after["attuned_magic_cards"].count("pale_spark") == 1 and engine.held_embers(after) == MagicSuite.TEST_WALLET - 50 and _exhaust_requests == 1, "Scavenger commits one copy, one price and one Exhaust")
 	_expect(after["notice"] == "Purged Pale Spark." and _labels_text(shop).contains("Purged Pale Spark."), "Scavenger retains its persisted notice")
-	_expect(entry.get_node("ScavengerPurgePrice/PriceTagInk/PriceTagValue").text == "75", "Service price refreshes after payment")
+	_expect(entry.get_node("ScavengerPurgePrice/PriceTagValue").text == "75", "Service price refreshes after payment")
 	_expect(ProgressionStore.load_saved_run()["attuned_magic_cards"] == after["attuned_magic_cards"], "Purge persists before closing")
 	# Four unique spells use a centred single row.
 	var small: Dictionary = MagicSuite.shop_fixture(engine)
@@ -102,7 +104,7 @@ func _initialize() -> void:
 	# The service remains available when poor, but the destructive action cannot run.
 	var poor: Dictionary = engine.set_held_embers(state, POOR_WALLET)
 	modal = await _open(instance, poor, "scavenger")
-	_expect(not bool(shop.find_child("ScavengerPurgePrice", true, false).get("affordable")), "Service tag retains its unaffordable treatment")
+	_expect(not bool(shop.find_child("ScavengerPurgePrice", true, false).get_meta("affordable", true)), "Service price retains its unaffordable treatment")
 	modal.call("select_card", "pale_spark")
 	await _settle()
 	Presentation.assert_confirmation(modal, true, false, POOR_WALLET, _expect)
@@ -194,8 +196,8 @@ func _check_and_capture(modal: Control, stem: String) -> void:
 	await _proof_capture(stem)
 
 func _assert_service_text_fit(service: Button, context: String) -> void:
-	# Recursion includes the rendered _label and the parchment price tag's
-	# nested value label, even when the service is disabled.
+	# Recursion includes the rendered _label and the inked price's value
+	# label, even when the service is disabled.
 	for failure: String in Presentation.text_fit_failures(service): _expect(false, context + ": " + failure)
 
 func _test_service_text_fit_mutation(service: Button, context: String) -> void:

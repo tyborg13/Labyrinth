@@ -1,0 +1,833 @@
+{
+  "frames": [
+    {
+      "kinds": [],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "clean": {
+        "outside_pixels": 0,
+        "exposed_continuation_pixels": 145,
+        "exposed_outline_pixels": 0,
+        "dark_slab_blocks": 0,
+        "outline_outside_pixels": 0,
+        "stray_components": 0,
+        "stray_pixels": 0,
+        "exempt_outline_components": 0,
+        "interior_hole_sizes": [
+          26,
+          25,
+          18,
+          16,
+          4,
+          3
+        ]
+      },
+      "joint_tears": [],
+      "source_space": {
+        "failures": [],
+        "air_pockets": [
+          {
+            "bbox": [
+              382,
+              357,
+              388,
+              362
+            ],
+            "pixel_count": 26,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              379,
+              334,
+              384,
+              339
+            ],
+            "pixel_count": 24,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              377,
+              310,
+              382,
+              315
+            ],
+            "pixel_count": 18,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              306,
+              230,
+              310,
+              234
+            ],
+            "pixel_count": 16,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              270,
+              364,
+              272,
+              366
+            ],
+            "pixel_count": 4,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              295,
+              405,
+              296,
+              409
+            ],
+            "pixel_count": 4,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              264,
+              371,
+              267,
+              372
+            ],
+            "pixel_count": 3,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              294,
+              397,
+              295,
+              400
+            ],
+            "pixel_count": 3,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              295,
+              400,
+              296,
+              402
+            ],
+            "pixel_count": 2,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              267,
+              308,
+              268,
+              309
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              372,
+              311,
+              373,
+              312
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              384,
+              333,
+              385,
+              334
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              296,
+              402,
+              297,
+              403
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              297,
+              403,
+              298,
+              404
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              296,
+              404,
+              297,
+              405
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              294,
+              409,
+              295,
+              410
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          }
+        ]
+      },
+      "components": {
+        "errors": [],
+        "components": 1,
+        "rest_components": 1,
+        "released_components": []
+      },
+      "detached": {
+        "metrics": {
+          "stray_components": 0,
+          "stray_pixels": 0,
+          "exempt_outline_components": 0
+        },
+        "source_components": [],
+        "unmatched_components": []
+      },
+      "diagnostics": {},
+      "view": "rear",
+      "clip": "press",
+      "frame": 12
+    },
+    {
+      "kinds": [],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "clean": {
+        "outside_pixels": 0,
+        "exposed_continuation_pixels": 163,
+        "exposed_outline_pixels": 0,
+        "dark_slab_blocks": 0,
+        "outline_outside_pixels": 0,
+        "stray_components": 0,
+        "stray_pixels": 0,
+        "exempt_outline_components": 0,
+        "interior_hole_sizes": [
+          26,
+          25,
+          17,
+          16,
+          4,
+          3
+        ]
+      },
+      "joint_tears": [],
+      "source_space": {
+        "failures": [],
+        "air_pockets": [
+          {
+            "bbox": [
+              382,
+              357,
+              388,
+              362
+            ],
+            "pixel_count": 26,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              379,
+              334,
+              384,
+              339
+            ],
+            "pixel_count": 24,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              377,
+              310,
+              382,
+              315
+            ],
+            "pixel_count": 17,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              306,
+              230,
+              310,
+              234
+            ],
+            "pixel_count": 16,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              270,
+              364,
+              272,
+              366
+            ],
+            "pixel_count": 4,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              295,
+              405,
+              296,
+              409
+            ],
+            "pixel_count": 4,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              264,
+              371,
+              267,
+              372
+            ],
+            "pixel_count": 3,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              294,
+              397,
+              295,
+              400
+            ],
+            "pixel_count": 3,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              372,
+              310,
+              373,
+              312
+            ],
+            "pixel_count": 2,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              295,
+              400,
+              296,
+              402
+            ],
+            "pixel_count": 2,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              334,
+              319,
+              335,
+              320
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              384,
+              333,
+              385,
+              334
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              296,
+              402,
+              297,
+              403
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              297,
+              403,
+              298,
+              404
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              296,
+              404,
+              297,
+              405
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              294,
+              409,
+              295,
+              410
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          }
+        ]
+      },
+      "components": {
+        "errors": [],
+        "components": 1,
+        "rest_components": 1,
+        "released_components": []
+      },
+      "detached": {
+        "metrics": {
+          "stray_components": 0,
+          "stray_pixels": 0,
+          "exempt_outline_components": 0
+        },
+        "source_components": [],
+        "unmatched_components": []
+      },
+      "diagnostics": {},
+      "view": "rear",
+      "clip": "press",
+      "frame": 13
+    },
+    {
+      "kinds": [],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "clean": {
+        "outside_pixels": 0,
+        "exposed_continuation_pixels": 152,
+        "exposed_outline_pixels": 0,
+        "dark_slab_blocks": 0,
+        "outline_outside_pixels": 0,
+        "stray_components": 0,
+        "stray_pixels": 0,
+        "exempt_outline_components": 0,
+        "interior_hole_sizes": [
+          26,
+          25,
+          17,
+          16,
+          4,
+          3
+        ]
+      },
+      "joint_tears": [],
+      "source_space": {
+        "failures": [],
+        "air_pockets": [
+          {
+            "bbox": [
+              382,
+              357,
+              388,
+              362
+            ],
+            "pixel_count": 26,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              379,
+              334,
+              384,
+              339
+            ],
+            "pixel_count": 24,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              377,
+              310,
+              382,
+              315
+            ],
+            "pixel_count": 17,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              306,
+              230,
+              310,
+              234
+            ],
+            "pixel_count": 16,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              270,
+              364,
+              272,
+              366
+            ],
+            "pixel_count": 4,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              295,
+              405,
+              296,
+              409
+            ],
+            "pixel_count": 4,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              264,
+              371,
+              267,
+              372
+            ],
+            "pixel_count": 3,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              294,
+              397,
+              295,
+              400
+            ],
+            "pixel_count": 3,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              372,
+              310,
+              373,
+              312
+            ],
+            "pixel_count": 2,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              334,
+              319,
+              335,
+              321
+            ],
+            "pixel_count": 2,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              295,
+              400,
+              296,
+              402
+            ],
+            "pixel_count": 2,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              384,
+              333,
+              385,
+              334
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              296,
+              402,
+              297,
+              403
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              297,
+              403,
+              298,
+              404
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              296,
+              404,
+              297,
+              405
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              294,
+              409,
+              295,
+              410
+            ],
+            "pixel_count": 1,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          }
+        ]
+      },
+      "components": {
+        "errors": [],
+        "components": 1,
+        "rest_components": 1,
+        "released_components": []
+      },
+      "detached": {
+        "metrics": {
+          "stray_components": 0,
+          "stray_pixels": 0,
+          "exempt_outline_components": 0
+        },
+        "source_components": [],
+        "unmatched_components": []
+      },
+      "diagnostics": {},
+      "view": "rear",
+      "clip": "press",
+      "frame": 14
+    },
+    {
+      "kinds": [],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "clean": {
+        "outside_pixels": 0,
+        "exposed_continuation_pixels": 181,
+        "exposed_outline_pixels": 0,
+        "dark_slab_blocks": 0,
+        "outline_outside_pixels": 0,
+        "stray_components": 0,
+        "stray_pixels": 0,
+        "exempt_outline_components": 0,
+        "interior_hole_sizes": [
+          26,
+          26,
+          19,
+          16,
+          4,
+          3
+        ]
+      },
+      "joint_tears": [],
+      "source_space": {
+        "failures": [],
+        "air_pockets": [
+          {
+            "bbox": [
+              378,
+              332,
+              384,
+              338
+            ],
+            "pixel_count": 26,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              381,
+              356,
+              387,
+              361
+            ],
+            "pixel_count": 26,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              376,
+              309,
+              382,
+              314
+            ],
+            "pixel_count": 19,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              306,
+              230,
+              310,
+              234
+            ],
+            "pixel_count": 16,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              270,
+              364,
+              272,
+              366
+            ],
+            "pixel_count": 4,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              264,
+              371,
+              267,
+              372
+            ],
+            "pixel_count": 3,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              295,
+              405,
+              296,
+              408
+            ],
+            "pixel_count": 3,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          },
+          {
+            "bbox": [
+              334,
+              319,
+              335,
+              321
+            ],
+            "pixel_count": 2,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": false
+          }
+        ]
+      },
+      "components": {
+        "errors": [],
+        "components": 1,
+        "rest_components": 1,
+        "released_components": []
+      },
+      "detached": {
+        "metrics": {
+          "stray_components": 0,
+          "stray_pixels": 0,
+          "exempt_outline_components": 0
+        },
+        "source_components": [],
+        "unmatched_components": []
+      },
+      "diagnostics": {},
+      "view": "rear",
+      "clip": "press",
+      "frame": 15
+    }
+  ],
+  "ok": true
+}

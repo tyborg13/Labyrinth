@@ -47,13 +47,7 @@ FULL_FRONT_MASK_REGION = {"name": "entire front fixture", "exclude_green": False
                           "box": [0, 0, RAW_STEP_FIXTURE_SIDE, RAW_STEP_FIXTURE_SIDE]}
 # Decoded goldens re-recorded from the passing art-05 byte goldens (2026-10-15).
 # Independent of the thin wrappers and PNG encoder; exercise RGB conversion, LANCZOS and hue wrap.
-RAW_STEP_LEGACY_PIXEL_SHA256 = {
-    "raw": "ae3b017af374fcccf330e6d4ac041a8aa1ff57fa4a70b8436d333107d86c9373",
-    "edit": "7a8f8a6f2ee780cdf7eca3d29bb5d637887cf7f561dc5b3dc544e461a2723dc2",
-    "composite": "b45629935c7262a01286d68eb9f507f714ed176f1e388547b2c709ec9379be77",
-    "tone": "d4a00b9a0a760afe2694c5c19e9d7c9e74f54341a0189b2cc10815c1f9578ad0",
-    "mask": "77208bb9ad762fe2ab0785f24e8efec319748d70a0c7c16cfe3774128ada0234",
-}
+RAW_STEP_LEGACY_PIXEL_SHA256 = json.loads((ROOT / 'tests/goldens/art_raw_steps.json').read_text())
 REENCODE_COMPRESSION_LEVEL = 0  # Proof-only zlib setting deliberately unlike Pillow's default.
 TONE_LIMIT_FIXTURE_COLORS = ((110, 85, 65, 255), (240, 150, 30, 255), (240, 235, 230, 255))
 TONE_LIMIT_FIXTURE_REGION = {"name": "brown body", "box": [0, 0, 3, 1], "max_chroma": 0.3,
@@ -2207,7 +2201,7 @@ class GateTests(unittest.TestCase):
                 subjects = [subject for call in render.call_args_list for subject in call.args[2]]
                 self.assertEqual([subject[2] for subject in subjects], ids)
                 by_id = {label: (image, scale) for image, scale, label in subjects}
-                self.assertEqual(by_id["burrow_grub_" + view][1], 0.85)
+                self.assertEqual(by_id["burrow_grub_" + view][1], 0.64)
                 self.assertEqual(by_id["slag_mortar_" + view][1], 1.04)
                 for id, (image, _) in by_id.items():
                     self.assertEqual(gate.pixel_digest(image), gate.pixel_digest(gate.rgba(ROOT / canon[id]["path"])))

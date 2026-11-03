@@ -6,9 +6,17 @@ const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutori
 const InputRouter = preload("res://scripts/input_router.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
-const Cutout = preload("res://scripts/frostglass_lancer_cutout/renderer.gd")
+const Presentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
+const Facing = preload("res://scripts/enemy_cutout_facing.gd")
+const Motion = preload("res://scripts/maquette_cutout_runtime/motion.gd")
+const Gait = preload("res://scripts/maquette_cutout_runtime/humanoid_gait.gd")
+const SpriteGeometry = preload("res://tests/rr40/board_sprite_geometry.gd")
 const OUTPUT: String = "user://probes/frostglass_gameplay_v01"
 const SIZE := Vector2i(1920, 1080)
+const FIXTURE_ACTION_LEAD_TICKS: int = 1
+const FIXTURE_OTHER_DELAY_TICKS: int = 1000
+const FIXTURE_LUNGE_DISTANCE_TILES: int = 4
+var _output: String = OUTPUT
 var _errors: Array[String]
 var _capture: bool = true
 var _instance: Node
@@ -16,10 +24,19 @@ var _board: Control
 var _render_viewport: SubViewport
 var _manifest: Dictionary = {"size": [1920, 1080], "ui_scale": 1.0, "clips": [], "errors": []}
 var _texture_id: int = 0
+var _expected_player_hp: int = 40
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
-	_capture = not OS.get_cmdline_user_args().has("--logic-only")
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	var output_index: int = args.find("--output")
+	if output_index >= 0:
+		if output_index + 1 >= args.size():
+			push_error("--output requires a capture directory")
+			quit(1)
+			return
+		_output = args[output_index + 1]
+	_capture = not args.has("--logic-only")
 	if not _capture:
 		# Headless rendering never emits this signal. Advance the existing
 		# first-frame barriers for logic checks only; native proof uses real draws.
@@ -30,7 +47,7 @@ func _run() -> void:
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	root.content_scale_size = SIZE
 	root.size = SIZE
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output))
 	ProgressionStore.set_storage_path("user://frostglass_probe_progression.json")
 	ProgressionStore.set_run_storage_path("user://frostglass_probe_run.save")
 	ProgressionStore.clear_saved_run()
@@ -48,7 +65,7 @@ func _run() -> void:
 	directions.assign([Vector2i(0,1),Vector2i(1,0),Vector2i(0,-1),Vector2i(-1,0)])
 	for index: int in range(directions.size()):
 		var origin: Vector2i = [Vector2i(3,1),Vector2i(1,3),Vector2i(3,6),Vector2i(6,3)][index]
-		await _fixture(origin + directions[index] * 5,origin,false,"glass_lunge")
+		await _fixture(origin + directions[index] * FIXTURE_LUNGE_DISTANCE_TILES,origin,false,"glass_lunge")
 		_texture_id = int(_snapshot().get("texture_id",0))
 		_assert(_texture_id != 0,"Actual RunScene owns the Frostglass texture")
 		await _record("idle_"+_direction_name(index),false,false,{},3.6)
@@ -66,8 +83,8 @@ func _run() -> void:
 		await _fixture(Vector2i(3,5),Vector2i(3,3),true,action)
 		_texture_id = int(_snapshot()["texture_id"])
 		await _pass_and_compare("reduced_"+action,false)
-		_assert(_snapshot()["clip"] == "rest","Reduced motion keeps the painted rest pose")
-	await _fixture(Vector2i(3, 4), Vector2i(3, 3), false, "glass_lunge", 9)
+		_assert(_snapshot()["shown_clip"] == "rest","Reduced motion keeps the painted rest pose")
+	await _fixture(Vector2i(3, 4), Vector2i(3, 3), false, "glass_lunge", int(GameData.card_def("quick_stab")["actions"][0]["damage"]))
 	_texture_id = int(_snapshot()["texture_id"])
 	await _instance.call("_on_card_pressed", 0)
 	_instance.call("_on_board_tile_hovered", Vector2i(3, 3))
@@ -114,15 +131,17 @@ func _run() -> void:
 		var after: Dictionary = _instance.get("_combat_state")
 		_assert(after["player"]["pos"] == destination and int(after["player"]["hp"]) == 40, "Real two-tile player movement completes without damage")
 		_assert((_manifest["clips"][-1]["phases_seen"] as Array).has("player_walk"), "Facing proof exercises actual animated player movement")
-		var facing: Dictionary = Cutout.direction_for_delta(destination - Vector2i(3, 3))
+		var facing: Dictionary = Facing.direction_for_delta(destination - Vector2i(3, 3))
 		_assert(_snapshot()["clip"] == "idle" and _snapshot()["facing"] == facing["facing"] and _snapshot()["mirrored"] == facing["mirrored"], "Frostglass Lancer idle turns toward the player's completed destination")
 		var player_idle: Dictionary = _board.call("protagonist_animation_snapshot")
 		_assert(player_idle["clip"] == "idle" and player_idle["facing"] == "front" and not player_idle["mirrored"], "Player still returns to camera-facing idle")
 	var portrait: String = str(_instance.TURN_ORDER_PORTRAITS.get("frostglass_lancer", ""))
 	_assert(portrait == "res://assets/art/portraits/frostglass_lancer.png" and preload("res://scripts/asset_loader.gd").load_texture_source_first(portrait) != null, "Turn clock retains the dedicated Frostglass Lancer portrait")
+	_manifest["sprite_geometry"] = await SpriteGeometry.run(self,false,_output.path_join("sprite_geometry"))
+	for error: String in _manifest["sprite_geometry"]["errors"]: _assert(false,error)
 	_manifest["errors"] = _errors
 	_manifest["ok"] = _errors.is_empty()
-	var file := FileAccess.open(OUTPUT.path_join("manifest.json"), FileAccess.WRITE)
+	var file := FileAccess.open(_output.path_join("manifest.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(_manifest, "\t"))
 	file.close()
 	_instance.queue_free()
@@ -130,7 +149,7 @@ func _run() -> void:
 	await process_frame
 	for error: String in _errors:
 		push_error(error)
-	print("Saved " + ProjectSettings.globalize_path(OUTPUT))
+	print("Saved " + ProjectSettings.globalize_path(_output))
 	print("FROSTGLASS GAMEPLAY PROBE: " + ("PASS" if _errors.is_empty() else "FAIL"))
 	quit(0 if _errors.is_empty() else 1)
 
@@ -138,6 +157,7 @@ func _pass_and_compare(label: String, require_attack: bool) -> void:
 	var before: Dictionary = (_instance.get("_combat_state") as Dictionary).duplicate(true)
 	var engine := CombatEngine.new()
 	var expected: Dictionary = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(before))["state"]
+	_expected_player_hp = int(expected["player"]["hp"])
 	_instance.call("_on_pass_turn_pressed")
 	await _record(label,false,require_attack)
 	var after: Dictionary = _instance.get("_combat_state")
@@ -146,7 +166,7 @@ func _pass_and_compare(label: String, require_attack: bool) -> void:
 	_assert(int(after["enemies"][0].get("block",0)) == int(expected["enemies"][0].get("block",0)),label+" preserves defense outcomes")
 	_assert(int(after["initiative_clock"]) == int(expected["initiative_clock"]),label+" preserves initiative")
 	if label.begins_with("lunge_"):
-		_assert((_manifest["clips"][-1]["phases_seen"] as Array).has("walk"),"Glass Lunge uses the live travel cycle before thrust")
+		_assert((_manifest["clips"][-1]["phases_seen"] as Array).has("move"),"Glass Lunge uses the live travel cycle before lunge")
 
 func _fixture(player_tile: Vector2i, enemy_tile: Vector2i, reduced: bool = false, intent_id: String = "glass_lunge", frostglass_hp: int = 12) -> void:
 	_instance.call("_cancel_drag_play")
@@ -167,8 +187,6 @@ func _fixture(player_tile: Vector2i, enemy_tile: Vector2i, reduced: bool = false
 	for intent: Dictionary in GameData.enemy_def("frostglass_lancer")["intents"]:
 		if str(intent["id"]) == intent_id:
 			state["enemies"][0]["intent"] = intent.duplicate(true)
-	for entry: Dictionary in state["turn_queue"]:
-		entry["time"] = 1 if int(entry.get("enemy_id", -1)) == 1 else 100
 	state["deck"] = {"hand": hand.duplicate(), "draw": [], "discard": [], "burned": []}
 	state["current_actor"] = {"kind": "player", "key": "player"}
 	state["cards_played_this_turn"] = 0
@@ -177,6 +195,13 @@ func _fixture(player_tile: Vector2i, enemy_tile: Vector2i, reduced: bool = false
 	state["traps"] = []
 	state["terrain"] = []
 	state = combat.normalize_player_movement_pool(state)
+	# Isolate exactly one selected activation before the next player turn.
+	# Derive its deadline from the resolver rather than the retired initiative.
+	var next_player_time: int = 0
+	for entry: Dictionary in combat.finish_player_activation(state)["turn_queue"]:
+		if entry.get("kind") == "player": next_player_time = int(entry["time"])
+	for entry: Dictionary in state["turn_queue"]:
+		entry["time"] = next_player_time - FIXTURE_ACTION_LEAD_TICKS if int(entry.get("enemy_id", -1)) == 1 else next_player_time + FIXTURE_OTHER_DELAY_TICKS
 	var progression: Dictionary = (_instance.get("_progression") as Dictionary).duplicate(true)
 	for prompt: String in ContextualCombatTutorial.prompt_ids():
 		progression = ContextualCombatTutorial.resolve_progression(progression, prompt)
@@ -212,6 +237,8 @@ func _record(label: String, allow_death: bool, require_attack: bool, observer_be
 	var images: Array[Image]
 	var previous_support: Dictionary = {}
 	var max_drift: float = 0.0
+	var support_comparisons: int = 0
+	var tracked_support: bool = false
 	while Time.get_ticks_usec() - started < 12000000:
 		await process_frame
 		var now: int = Time.get_ticks_usec()
@@ -231,19 +258,20 @@ func _record(label: String, allow_death: bool, require_attack: bool, observer_be
 		for candidate: Dictionary in _board.call("_visible_units"):
 			if str(candidate.get("key", "")) == "enemy_1":
 				unit = candidate
-		if str(snapshot.get("clip", "")) in ["thrust","cast","pin"]:
-			_assert((_board.call("_unit_center", unit) as Vector2).is_equal_approx(_board.call("world_position_for_tile", unit["pos"])), "Frostglass Lancer attack keeps its planted stance on its actual tile")
-			var progress: float = float(presentation.get("effect_progress", 0.0))
-			var boundary: float = float(_instance.call("_attack_feedback_start_progress", effect))
-			if effect.is_empty():
-				_assert(int(display_state["player"]["hp"]) == 40,"Preparation precedes visible damage")
-			elif int(effect.get("hp_loss",0)) > 0:
-				_assert((int(display_state["player"]["hp"]) == 40) == (progress < boundary),"Visible damage changes at the existing contact boundary")
-		if str(snapshot.get("clip", "")) == "walk" and not unit.is_empty():
+		if str(snapshot.get("clip", "")) in ["lunge","jab","cast","pin"]:
+			_assert_root_pose(unit, snapshot)
+			var contact: float = float(Motion.data_for({"motion_data": Presentation.asset_directory("frostglass_lancer").path_join("compiled_motion.json")})["clips"][snapshot["clip"]]["contact"])
+			# Reduced motion displays phase-zero rest, while the action's actual
+			# director phase still reaches contact and applies its resolver result.
+			var action_phase: float = float(_board.unit_cutout_renderer(unit).phase)
+			_assert(int(display_state["player"]["hp"]) == (40 if action_phase < contact else _expected_player_hp), "Visible damage changes at the authored v2 contact boundary")
+		if str(snapshot.get("shown_clip", "")) == "move" and not unit.is_empty():
+			tracked_support = true
 			var support: Dictionary = _support_points(unit, snapshot)
 			if previous_support.get("view", "") == support["view"]:
-				for foot: String in ["foot_r", "foot_l"]:
-					if support.has(foot) and previous_support.has(foot) and float(support[foot]["cycle"]) >= float(previous_support[foot]["cycle"]):
+				for foot: String in ["foot_near", "foot_far"]:
+					if support.has(foot) and previous_support.has(foot) and (support[foot]["anchor"] as Vector2).is_equal_approx(previous_support[foot]["anchor"]):
+						support_comparisons += 1
 						var drift: float = (support[foot]["world"] as Vector2).distance_to(previous_support[foot]["world"])
 						max_drift = maxf(max_drift, drift)
 			previous_support = support
@@ -257,31 +285,35 @@ func _record(label: String, allow_death: bool, require_attack: bool, observer_be
 				"death_units": presentation.get("death_animation_units", []).duplicate(true)})
 			if _capture:
 				await RenderingServer.frame_post_draw
+				_check_live_sprite_geometry()
 				images.append(_render_viewport.get_texture().get_image())
+			else:
+				_check_live_sprite_geometry()
 		if finish > 0 and now - finish > 250000 and float(now - started) / 1000000.0 >= minimum_seconds:
 			break
 	_assert(not bool(_instance.get("_animation_lock")), "Input returns after " + label)
 	_assert(max_drift < 0.2, "Native world-space support feet stay planted through " + label)
+	_assert(not tracked_support or support_comparisons > 0, "Moving v2 support proof must compare actual planted samples in " + label)
 	if require_attack:
-		_assert(phases.has("thrust") or phases.has("cast") or phases.has("pin"), "Actual End Turn plays the Frostglass Lancer weapon action in " + label)
-	var folder: String = OUTPUT.path_join(label)
+		_assert(phases.has("lunge") or phases.has("jab") or phases.has("cast") or phases.has("pin"), "Actual End Turn plays the Frostglass Lancer weapon action in " + label)
+	var folder: String = _output.path_join(label)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder))
 	for index: int in range(images.size()):
 		images[index].save_jpg(folder.path_join("frame_%04d.jpg" % index), 0.95)
 	if not images.is_empty():
-		images[-1].save_png(OUTPUT.path_join(label + ".png"))
+		images[-1].save_png(_output.path_join(label + ".png"))
 		for target: float in [0.32, 0.5, 0.65]:
 			var nearest: int = -1
 			var difference: float = INF
 			for index: int in range(samples.size()):
-				if not str(samples[index]["animation"].get("clip", "")) in ["thrust","cast","pin"]:
+				if not str(samples[index]["animation"].get("clip", "")) in ["lunge","jab","cast","pin"]:
 					continue
 				var gap: float = absf(float(samples[index]["animation"]["phase"]) - target)
 				if gap < difference:
 					difference = gap
 					nearest = index
 			if nearest >= 0:
-				images[nearest].save_png(OUTPUT.path_join(label + "_attack_%03d.png" % roundi(target * 100)))
+				images[nearest].save_png(_output.path_join(label + "_attack_%03d.png" % roundi(target * 100)))
 		if allow_death:
 			for target: float in [0.0, 0.5, 0.8]:
 				var nearest: int = -1
@@ -295,22 +327,33 @@ func _record(label: String, allow_death: bool, require_attack: bool, observer_be
 							difference = gap
 							nearest = index
 				if nearest >= 0:
-					images[nearest].save_png(OUTPUT.path_join(label + "_dissolve_%03d.png" % roundi(target * 100)))
+					images[nearest].save_png(_output.path_join(label + "_dissolve_%03d.png" % roundi(target * 100)))
 	print("FROSTGLASS CLIP "+label+": "+str(phases.keys())+" errors="+str(_errors))
-	_manifest["clips"].append({"label": label, "phases_seen": phases.keys(), "max_support_drift_px": max_drift, "samples": samples})
+	_manifest["clips"].append({"label": label, "phases_seen": phases.keys(), "max_support_drift_px": max_drift, "support_comparisons": support_comparisons, "samples": samples})
+
+func _assert_root_pose(unit: Dictionary, snapshot: Dictionary) -> void:
+	var renderer: Node = _board.unit_cutout_renderer(unit)
+	var rig: Node2D = renderer.rigs[snapshot["facing"]]
+	var pose: Dictionary = Motion.sample_pose(snapshot["shown_clip"], float(snapshot["presented_phase"]), rig.layout, rig.facing)
+	var bind: Vector2 = Motion.point(rig.layout["joints"]["root"]["position"])
+	var authored: Vector2 = pose.get("root", {}).get("position", bind)
+	_assert((rig.bones["root"] as Node2D).position.is_equal_approx(bind + (authored - bind).round()), "Attack body root follows the authored v2 pose")
 
 func _support_points(unit: Dictionary, snapshot: Dictionary) -> Dictionary:
-	var renderer: Node = (_board.get("_frostglass_renderers") as Dictionary)["enemy_1"]
-	var rig: Node2D = renderer.get("rigs")[snapshot["facing"]]
-	var logical: Rect2 = _board.call("_unit_draw_rect", unit)
+	var renderer: Node = _board.unit_cutout_renderer(unit)
+	_assert(renderer != null and renderer.get_script() == Presentation.renderer_script("frostglass_lancer"), "Support proof uses the production renderer")
+	var rig: Node2D = renderer.rigs[snapshot["facing"]]
+	var texture_rect: Rect2 = _board._unit_texture_draw_rect(unit, _board._unit_center(unit))
+	var canvas_size: Vector2 = renderer.canvas_geometry()["size"]
+	var phase: float = float(snapshot["presented_phase"])
+	var data: Dictionary = renderer.motion_data()
+	var channels: Dictionary = Motion.channels_at(data, "move", phase, rig.facing, float(rig.layout["step_distance_px"]))
+	var anchors: Dictionary = Gait.world_targets(data, rig.layout, rig.facing, "move", phase)
 	var result: Dictionary = {"view": str(snapshot["facing"]) + str(snapshot["mirrored"])}
-	for foot: String in ["foot_r", "foot_l"]:
-		var state: Dictionary = Cutout.Motion.walk_foot_state(float(snapshot["phase"]), foot, rig.layout, str(snapshot["facing"]))
-		if not bool(state["contact"]):
-			continue
-		var offset: Vector2 = Cutout.Motion.landmark(rig.layout,"sole_"+foot.trim_prefix("foot_")) - Cutout.Motion.point(rig.layout, foot)
-		var canvas_point: Vector2 = (rig.bones[foot] as Node2D).global_transform * offset
-		result[foot] = {"world": logical.position + (canvas_point - Cutout.SOURCE_OFFSET) * logical.size / Cutout.SOURCE_SIZE, "cycle": state["cycle_phase"]}
+	for foot: String in ["foot_near", "foot_far"]:
+		if not is_zero_approx(float(channels[foot]["lift_px"])): continue
+		var canvas_point: Vector2 = (rig.bones[foot] as Node2D).global_position
+		result[foot] = {"world": texture_rect.position + canvas_point * texture_rect.size / canvas_size, "anchor": anchors[foot]}
 	return result
 
 func _check_direction(index: int) -> void:
@@ -320,7 +363,7 @@ func _check_direction(index: int) -> void:
 	mirrors.assign([false, true, false, true])
 	for sample: Dictionary in _manifest["clips"][-1]["samples"]:
 		var animation: Dictionary = sample["animation"]
-		if str(animation.get("clip", "")) in ["walk","thrust","cast","pin"]:
+		if str(animation.get("clip", "")) in ["move","lunge","jab","cast","pin"]:
 			_assert(animation["facing"] == facings[index] and animation["mirrored"] == mirrors[index], "Frostglass Lancer movement and melee face " + _direction_name(index))
 	_assert(_snapshot()["facing"] == facings[index] and _snapshot()["mirrored"] == mirrors[index], "Idle retains the completed direction")
 
@@ -331,7 +374,18 @@ func _still(label: String) -> void:
 	if not _capture:
 		return
 	await RenderingServer.frame_post_draw
-	_render_viewport.get_texture().get_image().save_png(OUTPUT.path_join(label + ".png"))
+	_check_live_sprite_geometry()
+	_render_viewport.get_texture().get_image().save_png(_output.path_join(label + ".png"))
+
+func _check_live_sprite_geometry() -> void:
+	for unit: Dictionary in _board._visible_units():
+		if str(unit.get("type", "")) not in SpriteGeometry.TYPES or bool(unit.get("death_animation",false)): continue
+		if _board._unit_is_preview_echo(unit): continue
+		var renderer: Node = _board.unit_cutout_renderer(unit)
+		if renderer == null or str(renderer.snapshot()["shown_clip"]) in ["move","death"]: continue
+		var row: Dictionary = SpriteGeometry.measure(_board,unit)
+		_assert(row["basis_ok"],"Live standing sprite must be upright: "+str(unit.get("key")))
+		if row["native"]: _assert(row["placement_ok"],"Live opaque sprite must overlap its tile and expected screen rect: "+str(row))
 
 func _direction_name(index: int) -> String:
 	return ["southwest", "southeast", "northeast", "northwest"][index]

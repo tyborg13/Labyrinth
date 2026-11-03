@@ -5,43 +5,43 @@
     "joint_endpoints": true,
     "native_geometry": true
   },
-  "spec_hash": "c6bcc0f7ef16787d27d5bdc5d09bf996ae0fb6d53a271ec50a05ccc85b08bc08",
+  "spec_hash": "f7727d46d72c7b0bf150d27dd4d4bb6ecd5169f0df77a83c816ff78f2d83df0a",
   "cache_revision": 8,
   "raw_hashes_identical": true,
   "mesh_count": 41,
   "joint_errors": {
-    "pelvis": 2.391450680152183e-07,
-    "torso": 6.869095904598301e-08,
-    "head": 3.0719530773294423e-08,
-    "shoulder_near": 1.4975481660844222e-07,
-    "elbow_near": 1.812804499357408e-07,
-    "hand_near": 8.940696716308594e-08,
-    "hip_near": 3.607720072018032e-06,
-    "knee_near": 3.793216365980463e-07,
-    "ankle_near": 1.1451859883173852e-07,
-    "shoulder_far": 8.429369702178807e-08,
-    "elbow_far": 2.497889789080651e-07,
-    "hand_far": 9.06402249678704e-08,
-    "hip_far": 1.5520115573753758e-06,
-    "knee_far": 6.803424554987257e-07,
-    "ankle_far": 3.500980175873855e-07
+    "pelvis": 3.578800129628918e-07,
+    "torso": 1.3436890242152983e-07,
+    "head": 5.3338039902137046e-08,
+    "shoulder_near": 1.55572690202453e-07,
+    "elbow_near": 2.421152116249788e-07,
+    "hand_near": 9.541398640621973e-08,
+    "hip_near": 3.6445526169567926e-06,
+    "knee_near": 3.6378370570342845e-07,
+    "ankle_near": 1.284550104257961e-07,
+    "shoulder_far": 9.541398640621973e-08,
+    "elbow_far": 2.669762502188819e-07,
+    "hand_far": 1.4975481660844222e-07,
+    "hip_far": 1.5526016044746866e-06,
+    "knee_far": 7.452908539676129e-07,
+    "ankle_far": 2.893282151065409e-07
   },
   "combined_mesh_hashes": {
-    "cold": "165e96c16042284b4b2f6cc2c382e7bdc227675e0c278fe69fda78e83e7f9fea",
-    "replay": "165e96c16042284b4b2f6cc2c382e7bdc227675e0c278fe69fda78e83e7f9fea",
-    "independent_cold": "165e96c16042284b4b2f6cc2c382e7bdc227675e0c278fe69fda78e83e7f9fea"
+    "cold": "8c820b414057b1775fad8d75d72ba87d9688b6dee8d6d594f5da027a8f34cbcf",
+    "replay": "8c820b414057b1775fad8d75d72ba87d9688b6dee8d6d594f5da027a8f34cbcf",
+    "independent_cold": "8c820b414057b1775fad8d75d72ba87d9688b6dee8d6d594f5da027a8f34cbcf"
   },
   "delivery_binding": {
-    "spec_hash": "c6bcc0f7ef16787d27d5bdc5d09bf996ae0fb6d53a271ec50a05ccc85b08bc08",
-    "cold_mesh_hash": "165e96c16042284b4b2f6cc2c382e7bdc227675e0c278fe69fda78e83e7f9fea",
+    "spec_hash": "f7727d46d72c7b0bf150d27dd4d4bb6ecd5169f0df77a83c816ff78f2d83df0a",
+    "cold_mesh_hash": "8c820b414057b1775fad8d75d72ba87d9688b6dee8d6d594f5da027a8f34cbcf",
     "report_sha256": {
-      "build_report.json": "2f8c79299cfb06eb24b9965cab75a9be5741f8f153d354c48ae75336c96d6212",
-      "capture_checks.json": "77fd4eab7725cc60b651c75734f15032897ce79b19de62e4b33a9e9d21bfe207",
-      "facing_report.json": "82d3647e7dd9184a668e6404230d2d6bfaa8e14c608151fc70c93a0111c8a4a5",
-      "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
-      "solo_coverage.json": "6e496563d1804fd682a300222fd7139abdd695393c91389627fcc06e08c4a0cf",
-      "capture_manifest.json": "0797136c04c6708415d3331111c289c40800292f0891f05306430943f78939e3"
+      "build_report.json": "498a0000bdcb5a74f96573998701cb112c92b700689fa95a0068eb05542b2337",
+      "capture_checks.json": "a2992e4c4a777cfe36314c4b055ae9736eaa0c37ab1db948f08cf41c4f71c4b1",
+      "facing_report.json": "33a32c827e920a1b006a8e32812580f96df4f157e1e77752b89da72e98209f1d",
+      "ownership_validation.json": "90421ed7df4d9f8f5cf3294d11301b2e1a4038e54ee67af2d5d1844b61f1b9fc",
+      "solo_coverage.json": "b6c9c6c6c9b6c8286560d083910200f542e4fab51903e58a71e5d18b8bfb8402",
+      "capture_manifest.json": "b9f0ea1264a2d3de57f470227111be06c157ddbcba80cf167bb4a32b1d72927f"
     },
-    "exact_native_replay_sha256": "f56161a32d848a53d570904784ef32577f25af94607f6374e7c6bc15193c7956"
+    "exact_native_replay_sha256": "1a29ff24c85b12e2a3f4b1199ff120d8bab9174aafade4fc5d9ae06d90d55edd"
   }
 }

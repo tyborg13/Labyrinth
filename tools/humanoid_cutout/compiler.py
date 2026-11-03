@@ -26,9 +26,21 @@ def compile_motion(source, creature, layouts, projection):
     author = json.loads(source.read_bytes())[creature]
     if author['rig'] != 'humanoid_v2' or author['units'] != 'source_px':
         raise ValueError('Expected humanoid_v2 source-pixel tracks')
+    # Opposite board directions must share one line, including at tile seams.
+    # Validate before emitting any tracks; a stale first-build axis otherwise
+    # survives every motion-only recompile.
+    front = projection['front']['forward']
+    rear = projection['rear']['forward']
+    if len(front) != 2 or len(rear) != 2 or not all(
+            abs(a + b) <= 1e-9 for a, b in zip(front, rear)):
+        raise ValueError('humanoid_v2: rear.forward must equal -front.forward within 1e-9')
     result = {'rig': author['rig'], 'units': author['units'], 'creature': creature,
               'director_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
               'projection': projection, 'clips': {}, 'view_tracks': {}, 'TODO_DESIGN': {}}
+    if 'elbow_policy' in author:
+        from .elbows import validate_policy
+        validate_policy(author['elbow_policy'], layouts)
+        result['elbow_policy'] = dict(author['elbow_policy'])
     for view, layout in layouts.items():
         anatomy = for_layout(layout)
         roles = roles_for(anatomy, view)
@@ -53,6 +65,21 @@ def compile_motion(source, creature, layouts, projection):
             if conflicts:
                 raise ValueError('gait: director key on generated channel: ' + str(sorted(conflicts)))
             effective_keys.update(generated)
+            if 'held_follow' in definition:
+                from .held_follow import validate
+                follow = dict(definition['held_follow'])
+                if 'reference_frame' not in follow and clip in layout.get('held_follow_reference_frames', {}):
+                    follow['reference_frame'] = layout['held_follow_reference_frames'][clip]
+                validate(dict(definition, held_follow=follow), layout, clip)
+                if 'reference_frame' not in follow:
+                    placeholder = 'TODO_DESIGN_held_follow_reference_frame'
+                    follow['reference_frame'] = placeholder
+                    result['TODO_DESIGN'][placeholder] = 'Choose world or moving_root displacement; protected director file is unchanged.'
+                result['clips'][clip]['held_follow'] = follow
+                name = definition['held_follow']['item'] + '.angle_deg'
+                if name in effective_keys:
+                    raise ValueError('held_follow: director key on generated channel: ' + name)
+                effective_keys[name] = [[0, 0], [1, 0]]
             tracks, release = [], {}
             modes = {}
             for name, keys in effective_keys.items():
@@ -70,9 +97,24 @@ def compile_motion(source, creature, layouts, projection):
                         raise ValueError('TODO_DESIGN_' + name)
                     release[bone] = keys
                     continue
+                if channel == 'drop':
+                    if (clip != 'death' or bone not in layout.get('held_items', {}) or
+                            not isinstance(keys, dict) or keys.get('start') != effective_keys.get(source_bone+'.release_at') or
+                            not 0 <= keys['start'] < keys.get('land', -1) <= 1 or
+                            (keys.get('ease'), keys.get('to'), keys.get('pivot_after_land')) !=
+                            ('in', 'floor_line', 'floor_contact') or
+                            'floor_line_y' not in layout['held_items'][bone] or
+                            not isinstance(layout.get('held_drop_runtime'), str)):
+                        raise ValueError('TODO_DESIGN_' + name)
+                    result.setdefault('view_held_drops', {}).setdefault(view, {}).setdefault(clip, {})[bone] = dict(keys)
+                    continue
                 if channel not in CHANNELS:
                     raise ValueError('TODO_DESIGN_' + name)
                 sign = projection[view]['lean_sign'] if channel in ('lean_deg', 'angle_deg', 'swing_deg') else 1
+                # A hanging item's lower end leads its positive cast. Upright
+                # items retain the established top-leading convention.
+                if channel == 'angle_deg':
+                    sign *= layout.get('held_items', {}).get(bone, {}).get('angle_sign', 1)
                 rows = []
                 for row in keys:
                     interpolation = row[2] if len(row) > 2 else 'smoothstep'
@@ -84,6 +126,8 @@ def compile_motion(source, creature, layouts, projection):
                     raise ValueError('Invalid keys: ' + name)
                 tracks.append({'source': name, 'bone': bone, 'channel': channel, 'keys': rows,
                                'forward_mode': effective_keys.get(source_bone + '.forward_mode', 'pixels')})
+                if 'held_follow' in definition and name == definition['held_follow']['item'] + '.angle_deg':
+                    tracks[-1]['generated'] = 'held_follow'
             # Only positional tracks make a support keyed in the runtime.
             # Rotation-only supports still need explicit mode metadata, just
             # like mode-only supports. Preserve legacy positional-track bytes.

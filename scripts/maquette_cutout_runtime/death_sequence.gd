@@ -7,7 +7,7 @@ const Death = preload("death.gd")
 static func configure(clock: Dictionary, scene: Node, units: Array[Dictionary], overlap: bool = false) -> void:
 	var declared: bool = false
 	for unit: Dictionary in units:
-		if not Death.declaration(str(unit.get("type", ""))).is_empty(): declared = true
+		if Death.uses_parity(str(unit.get("type", ""))) or not Death.declaration(str(unit.get("type", ""))).is_empty(): declared = true
 	if not declared: return
 	var clocks: Dictionary = {}
 	var times: Dictionary = {0: true}

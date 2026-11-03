@@ -1,5 +1,6 @@
 extends RefCounted
 
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const Transition = preload("res://scripts/section_transition.gd")
 const Flow = preload("res://scripts/start_room_map_flow.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
@@ -68,6 +69,7 @@ static func install(tree: SceneTree, host: Node, state: Dictionary) -> void:
 	var deadline: int = Time.get_ticks_msec() + WAIT_TIMEOUT_MSEC
 	while bool(host.call("_treasure_presentation_busy")) and Time.get_ticks_msec() < deadline:
 		await tree.process_frame
+	assert(not bool(host.call("_treasure_presentation_busy")), "Timeout waiting for loaded treasure presentation")
 
 static func event_count(entry: String) -> int:
 	var count: int = 0
@@ -132,6 +134,11 @@ static func run(expect: Callable) -> void:
 	panel.free()
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _run_live_scoped(scope, tree, expect)
+	)
+
+static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	prepare_storage()
 	tree.root.size = Vector2i(1920, 1080)
 	var host: Node = Observer.host()
@@ -269,6 +276,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	expect.call(host.get("_section_transition") == null and host.get("_run_state")["mode"] == "victory", "Final CONTINUE keeps the existing terminal path")
 	var deadline: int = Time.get_ticks_msec() + WAIT_TIMEOUT_MSEC
 	while bool(host.call("_treasure_presentation_busy")) and Time.get_ticks_msec() < deadline: await tree.process_frame
+	expect.call(not bool(host.call("_treasure_presentation_busy")), "Timeout waiting for terminal treasure presentation")
 	host.queue_free()
 	await settle(tree)
 

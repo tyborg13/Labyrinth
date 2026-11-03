@@ -62,7 +62,17 @@ def structure_errors(layout, build):
         from .mesh import grid, weights_for
         vertices,uvs,triangles=grid(mesh['bbox'])
         garment=mesh.get('garment',mesh['name'])
-        if mesh.get('hidden_material') and (garment not in meshes or mesh.get('weight_bounds') != meshes[garment]['bbox']):
+        if mesh.get('rigid_painted_caps'):
+            from .painted_caps import rigid_base,apply as cap_mesh
+            try:
+                part=next(p for p in layout['parts'] if p['name']==mesh['name'])
+                expected_cap=cap_mesh(rigid_base(part),mesh['painted_joint_caps'])
+                if not part.get('hidden_material') or garment in anatomy['meshes']:raise ValueError('Rigid cap needs a rigid hidden source')
+                for field in ('vertices','uvs','triangles','weights'):
+                    if mesh[field]!=expected_cap[field]:raise ValueError('Changed rigid cap '+field)
+            except (ValueError,KeyError,TypeError) as error:errors.append('mesh: invalid rigid painted cap: '+str(error))
+            continue
+        if mesh.get('hidden_material') and (garment not in meshes or mesh.get('weight_bounds') != meshes[garment].get('weight_bounds',meshes[garment]['bbox'])):
             errors.append('mesh: hidden layer must share its garment field: '+mesh['name'])
         if garment not in anatomy['meshes']:
             errors.append('mesh: unknown garment: ' + garment)
@@ -77,6 +87,13 @@ def structure_errors(layout, build):
             except (ValueError, KeyError, TypeError) as error:
                 errors.append('mesh: invalid texel attachment: ' + mesh['name'] + ': ' + str(error))
                 continue
+        if 'painted_joint_caps' in mesh:
+            from .painted_caps import apply as cap_mesh
+            try:
+                capped=cap_mesh({'bbox':mesh['bbox'],'vertices':vertices,'uvs':uvs,'triangles':triangles,'weights':expected},mesh['painted_joint_caps'])
+                vertices,uvs,triangles,expected=[capped[key] for key in ('vertices','uvs','triangles','weights')]
+            except (ValueError,KeyError,TypeError) as error:
+                errors.append('mesh: invalid painted cap: '+mesh['name']+': '+str(error));continue
         if mesh['vertices']!=vertices or mesh['uvs']!=uvs or mesh['triangles']!=triangles:
             errors.append('mesh: source two-pixel grid differs: '+mesh['name'])
         if set(mesh['weights'])!=set(expected) or any(len(mesh['weights'][name])!=len(values) or not np.allclose(mesh['weights'][name],values,atol=1e-12,rtol=0) for name,values in expected.items()):
@@ -123,6 +140,8 @@ def source_errors(case, layout, build):
     if not np.array_equal(np.asarray(rest),approved): errors.append('rest: composed source mismatch')
     from .texel_attachments import surface_errors as attachment_errors
     errors += attachment_errors(layout, images, continuations)
+    from .painted_caps import source_errors as cap_errors
+    errors += cap_errors(case,layout,images,for_layout(layout))
     from .ownership import partition_errors
     errors += partition_errors(case,layout,build,images,continuations,approved)
     from .occluded_surface import source_errors as occluded_errors
@@ -137,6 +156,15 @@ def source_errors(case, layout, build):
         for part in layout['parts']:
             if part['logical_part']==tuck['piece']:
                 supplied |= images[part['name']][...,3]>0
+        # Optional source-coordinate ownership transfers retain the complete
+        # required mask. The owning case independently certifies each transfer.
+        for binding in tuck.get('owner_bindings',[]):
+            name=binding['part'];xy=np.asarray(binding['texels'],dtype=int)
+            if name not in images or xy.ndim!=2 or xy.shape[1]!=2 or np.any(xy<0) or np.any(xy>=255):
+                errors.append('tuck: invalid owner binding: '+tuck['piece']);continue
+            x,y=xy.T
+            if not np.all(mask[y,x]):errors.append('tuck: owner binding outside requirement: '+tuck['piece'])
+            supplied[y,x] |= images[name][y,x,3]>0
         if np.any(mask & ~supplied): errors.append('tuck: missing actual texels: '+tuck['piece'])
     for feature in layout['features']:
         mask = np.asarray(load_frame(case / feature['mask'])) > 0
@@ -162,7 +190,7 @@ def source_errors(case, layout, build):
     return errors
 
 
-def bone_errors(layout, data, report, current_bindings):
+def bone_errors(layout, data, report, current_bindings, *, walk_samples=None):
     from .bone_evidence import evidence_errors
     errors = evidence_errors(data, report, current_bindings, EPSILON)
     if errors:
@@ -188,7 +216,7 @@ def bone_errors(layout, data, report, current_bindings):
             gait = 'gait' in data['clips'][clip]
             chains = target_chains(layout, values)
             solved = {chain[key] for chain in chains for key in ('first', 'second', 'target')}
-            fk = fk_world(layout, values, modes, forward, step)
+            fk = fk_world(layout, values, modes, forward, step, clip=clip)
             for name, channels in values.items():
                 if name in solved or name in layout.get('held_items', {}) or (gait and name == 'pelvis'): continue
                 position = np.asarray(joints[name]['position'])
@@ -200,15 +228,25 @@ def bone_errors(layout, data, report, current_bindings):
                 expected = origin + forward * amount + [
                     np.sign(joints['root']['position'][0] - position[0]) * channels.get('inward_px', 0.),
                     -channels.get('lift_px', 0.)]
+                if name in layout.get('screen_lift_bones', {}).get(clip, []):expected[1] -= forward[1] * amount
                 if not np.allclose(bones[name]['local'][4:], expected, atol=EPSILON, rtol=0):
                     errors.append(tag + ': signed translation: ' + name)
                 if abs(angle(bones[name]['local']) - (channels.get('lean_deg', 0.) + channels.get('swing_deg', 0.))) > EPSILON:
                     errors.append(tag + ': signed rotation: ' + name)
             for chain in chains:
                 if gait and chain['target'].startswith('foot_'): continue
-                errors += [tag + ': ' + error for error in ik_errors(layout, bones, chain, fk, EPSILON, anatomy)]
+                errors += [tag + ': ' + error for error in ik_errors(layout, bones, chain, fk, EPSILON, anatomy, data.get('elbow_policy'), forward)]
             for item in layout.get('held_items', {}):
+                # Generated channels have their own displacement/lag oracle;
+                # their zero endpoint keys are not an authored angle curve.
+                if data['clips'][clip].get('held_follow', {}).get('item') == item:
+                    continue
                 expected_angle = values.get(item, {}).get('angle_deg', 0.)
+                drop = data.get('view_held_drops', {}).get(row['view'], {}).get(clip, {}).get(item)
+                if drop:
+                    from .held_drop import angle_at
+                    track = next(t for t in data['view_tracks'][row['view']][clip] if t['bone']==item and t['channel']=='angle_deg')
+                    expected_angle = angle_at(track['keys'], phase, drop, evaluate)
                 if abs(angle(bones[item]['global']) - expected_angle) > EPSILON:
                     errors.append(tag + ': world-relative ' + item + ' angle')
         if clip == 'idle':
@@ -237,16 +275,22 @@ def bone_errors(layout, data, report, current_bindings):
                           not np.allclose(actual, expected, atol=EPSILON, rtol=0))
                 if failed:
                     errors.append(tag + ': planted anchor moved: ' + name)
-        if abs(angle(bones['torso']['local'])) > (25 if clip == 'death' else 4) + EPSILON:
+        torso_limit = layout.get('presentation_angle_limits_deg', {}).get(clip, {}).get('torso', 25 if clip == 'death' else 4)
+        if abs(angle(bones['torso']['local'])) > torso_limit + EPSILON:
             errors.append(tag + ': torso lean limit')
         if abs(relative_angle(bones['head']['global'], bones['torso']['global'])) > (20 if clip == 'death' else 6) + EPSILON:
             errors.append(tag + ': head nod limit')
         for item in layout.get('held_items', {}):
-            if clip != 'death' and abs(angle(bones[item]['global'])) > 35 + EPSILON:
+            # A protected case may explicitly declare a larger authored item arc.
+            limit = layout['held_items'][item].get('angle_limits_deg', {}).get(clip, 35)
+            if clip != 'death' and abs(angle(bones[item]['global'])) > limit + EPSILON:
                 errors.append(tag + ': ' + item + ' angle limit')
     if any('gait' in definition for definition in data['clips'].values()):
         from .walk_gates import report as walk_report
-        errors += walk_report(layout, data, report)['errors']
+        # Standalone clip evidence uses frame/(count-1); RunScene movement
+        # uses frame/count. Board proofs can supply that exact frame inventory
+        # without changing either the standalone contract or any walk gate.
+        errors += walk_report(layout, data, report if walk_samples is None else walk_samples)['errors']
     from .action_direction import report as action_direction_report
     errors += action_direction_report(layout, data, report, current_bindings)['errors']
     return sorted(set(errors))
@@ -312,7 +356,17 @@ def clean_metrics(layers, outline_rules=None):
     return result
 
 
-def native_errors(case, capture, failure_output=None, hole_details=None, space_details=None):
+def native_errors(case, capture, failure_output=None, hole_details=None, space_details=None, *, retained_binding_validator=None, release_policy_factory=None, surface_policy_factory=None):
+    from .canvas import for_case
+    with for_case(case):
+        if retained_binding_validator is None and release_policy_factory is None and surface_policy_factory is None:
+            return _native_errors(case,capture,failure_output,hole_details,space_details)
+        if surface_policy_factory is None:
+            return _native_errors(case, capture, failure_output, hole_details, space_details,retained_binding_validator=retained_binding_validator,release_policy_factory=release_policy_factory)
+        return _native_errors(case, capture, failure_output, hole_details, space_details,retained_binding_validator=retained_binding_validator,release_policy_factory=release_policy_factory,surface_policy_factory=surface_policy_factory)
+
+
+def _native_errors(case, capture, failure_output=None, hole_details=None, space_details=None, *, retained_binding_validator=None, release_policy_factory=None, surface_policy_factory=None):
     """No image claims without hashed native captures and complete progression."""
     manifest = read_json(capture / 'frames.json')
     anatomy = load(case)
@@ -327,7 +381,11 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
     if not manifest['native_pixels'] or manifest['size'] != [1920,1080] or manifest['ui_scale'] != 1:
         errors.append('native renderer / 1920x1080 / 100% proof required')
     bound_inputs=bindings(case)
-    if manifest['inputs'] != bound_inputs: errors.append('stale native proof inputs')
+    if manifest['inputs'] != bound_inputs:
+        if retained_binding_validator is None:errors.append('stale native proof inputs')
+        else:
+            try:retained_binding_validator(manifest['inputs'],bound_inputs,capture)
+            except ValueError as error:errors.append('stale native proof inputs: '+str(error))
     data = read_json(case / 'compiled_motion.json')
     from .bone_evidence import evidence_errors, read_report
     sampled = read_report(case)
@@ -337,8 +395,18 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
     layouts={view:read_json(case / f'layouts/{view}.json') for view in data['view_tracks']}
     from .rigid_air import for_case as air_policy_for_case
     air_policies = {view: air_policy_for_case(case, layout, anatomy) for view, layout in layouts.items()}
+    surfaces = {view: surface_policy_factory(case, layout) for view, layout in layouts.items()} if surface_policy_factory is not None else {}
     from .source_space import DetachedSource, pocket_report, gate_errors as frame_errors
     detached_sources = {view: DetachedSource(case, layout) for view, layout in layouts.items()}
+    from .held_release import ComponentPolicy
+    release_policies = {}
+    if anatomy.get('held_item_release_exemptions'):
+        from maquette_motion.silhouette import components
+        for view, layout in layouts.items():
+            rest = np.asarray(load_frame(case / layout['rest_source']).convert('RGBA'))
+            count=len(components(rest[..., 3] > 0, 8)[1])
+            release_policies[view] = (ComponentPolicy(anatomy,data,layout,count) if release_policy_factory is None
+                                      else release_policy_factory(case,anatomy,data,layout,count))
     passed_spaces = []
     for layout in layouts.values():
         errors += source_errors(case,layout,read_json(case/'proof/build.json'))
@@ -407,7 +475,7 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
                 # Use the established real-source UV tie candidates, just as
                 # the rigid shimmer gate does. A default tie direction alone
                 # falsely rejects rear Thrall hidden_tube at a 45-degree pose.
-                expected=render(source,unpack(row['transform']),(0,0,512,512),with_ties=True)
+                expected=render(source,unpack(row['transform']),(0,0,image.shape[1],image.shape[0]),with_ties=True)
                 if not native_frame_matches(image,expected.default,expected): errors.append(row['file']+': rigid native agreement')
             part = next(p for p in layout['parts'] if p['name'] == row['name'])
             layers.append((dict(row, occluded_surface=part.get('occluded_surface', False)),image,checks))
@@ -424,28 +492,41 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
         for row in seam_frames.get(key, []):
             seam |= np.asarray(load_frame(capture / row['file']).convert('RGBA'))[...,3] > 0
         pose = expected_poses.get(key)
+        surface = surfaces.get(view)
+        if surface is not None and pose is not None: metric = surface.metrics(layers, pose, metric)
         space = pocket_report(layers)
         if pose is None:
             errors.append(str(key) + ': missing independent joint-boundary pose')
         else:
             from maquette_motion.pixels import PROOF_DEFAULTS
-            owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'], anatomy['ownership'])
+            ownership=anatomy['ownership']
+            policy=release_policies.get(view)
+            if hasattr(policy,'boundary_ownership'):ownership=policy.boundary_ownership(ownership,clip,pose['phase'])
+            owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'], ownership)
             air_policy = air_policies[view]
-            if air_policy is None:
+            if surface is not None:
+                space = surface.space(occupied, pose)
+            elif air_policy is None:
                 tears = joint_holes(occupied, seam, owners, references, pocket_details=True)
                 space = pocket_report(layers, tears)
             else:
                 transforms = {name: part['transform'] for name, part in pose['parts'].items()}
                 space = air_policy.report(occupied, owners, transforms)
             transforms = {name: part['transform'] for name, part in pose['parts'].items()}
-            detached = detached_sources[view].report(layers, transforms)
+            release = {'masks': []}
+            if view in release_policies:
+                if release_policy_factory is None:release = release_policies[view].report(occupied, layers, clip, pose['phase'])
+                else:release = release_policies[view].report(occupied, layers, clip, pose['phase'],pose=pose)
+                errors += [str(key) + ': ' + error for error in release['errors']]
+                space['released_components'] = release['released_components']
+            detached = detached_sources[view].report(layers, transforms, release['masks'])
             metric.update(detached['metrics'])
             space.update(source_components=detached['source_components'],
                          unmatched_components=detached['unmatched_components'])
         new_holes = space['failures']
-        if space['air_pockets'] or new_holes or space.get('source_components') or space.get('unmatched_components'):
+        if space['air_pockets'] or new_holes or space.get('source_components') or space.get('unmatched_components') or space.get('released_components'):
             passed_spaces.append({'view': view, 'clip': clip, 'frame': frame, **space})
-        composite = Image.new('RGBA',(512,512))
+        composite = Image.new('RGBA',(layers[0][1].shape[1],layers[0][1].shape[0]))
         for _,image,_ in sorted(layers,key=lambda item:item[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
         if key not in native_frames: errors.append(str(key)+': missing composed native frame')
         else:
@@ -468,6 +549,7 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
             target.parent.mkdir(parents=True,exist_ok=True)
             crop = composite.crop(composite.getbbox())
             crop.resize((crop.width*FAILURE_CROP_ZOOM,crop.height*FAILURE_CROP_ZOOM),Image.Resampling.NEAREST).save(target)
+    for surface in surfaces.values(): errors += surface.finish()
     expected_frames = sum(round(c['seconds'] * 60) for c in data['clips'].values()) * len(data['view_tracks'])
     if len(layer_frames) != expected_frames: errors.append('incomplete clean union/material proof')
     if bindings(case)!=bound_inputs: errors.append('inputs changed during native gate')
@@ -488,9 +570,13 @@ def bindings(case):
     result['runtime:tests/maquette_cutout/capture_storage.gd'] = digest(project / 'tests/maquette_cutout/capture_storage.gd')
     integration = load(case)['integration']
     for folder in integration['binding_folders']:
-        for path in (project / folder).rglob('*'):
-            if path.is_file() and path.suffix in ('.gd','.py','.json'):
-                result['runtime:' + str(path.relative_to(project))] = digest(path)
+        # The Godot binder prunes captures in runtime folders as well as cases.
+        for directory, children, files in os.walk(project / folder):
+            children[:] = [name for name in children if name != 'proof']
+            for name in files:
+                path = Path(directory) / name
+                if path.suffix in ('.gd','.py','.json'):
+                    result['runtime:' + str(path.relative_to(project))] = digest(path)
     if integration['production_root'] is None:
         return result  # Diagnostic anatomy with no production integration.
     production = project / integration['production_root']

@@ -1,0 +1,53 @@
+{
+ "K": 4,
+ "anatomy": "biped",
+ "id": "storm_cantor",
+ "job_id": "img-storm-cantor-rear",
+ "kind": "creature",
+ "kit_kind": "maquette",
+ "kit_version": "acb8312ee67b49d355e4e5f1e2eab16fbc251ccf54943505f3b1a80b89058435",
+ "method": "maquette paint-over rear (mq-17 r3) from the approved v2 front, K=4",
+ "peers": [
+  "hoarfrost_seer_front",
+  "gale_herald_front"
+ ],
+ "prompt_path": "prompt.md",
+ "prompt_sha256": "35cea9c0da93d4bed9b568ee0e8b51d7a789c1e81301d17288b870b1f6cbee8e",
+ "prompt_source": "spec/art_identity/maquettes/storm_cantor/prompt_rear.md",
+ "refs": [
+  {
+   "canon_id": "maquette_mq17_rear_parts",
+   "file": "refs/01_maquette_rear_parts.png",
+   "pixel_sha256": "c68d818c2cedb2001f4d897ef5925333f28e24fb4c363292d624a9f5ea858f4b",
+   "role": "maquette_parts"
+  },
+  {
+   "canon_id": "maquette_mq17_rear_clay",
+   "file": "refs/02_maquette_rear_clay.png",
+   "pixel_sha256": "0f215f183c459a8c33383d47c46eee0f28e1e597f0f1c16785ef29aeb1ec241f",
+   "role": "maquette_clay"
+  },
+  {
+   "canon_id": "approved_cantor_mq_front_v2",
+   "file": "refs/03_approved_front.png",
+   "pixel_sha256": "985fd0d3f3e3f9be56588dac8848ab4091242f2bf48ac0c4bd3d269948e02007",
+   "role": "identity"
+  },
+  {
+   "canon_id": "hoarfrost_seer_rear",
+   "file": "refs/04_hoarfrost_seer_rear.png",
+   "pixel_sha256": "0afe5dd59b3f2fc2e6239be8e8ded394a2ff2b81ff784a48b5221fdc35559bc5",
+   "role": "canon"
+  },
+  {
+   "canon_id": "hero_rear",
+   "file": "refs/05_hero_rear.png",
+   "pixel_sha256": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af",
+   "role": "canon"
+  }
+ ],
+ "size_class": "large",
+ "target_h": null,
+ "target_w": null,
+ "view": "creature_rear"
+}

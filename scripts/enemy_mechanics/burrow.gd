@@ -30,7 +30,7 @@ static func available(enemy: Dictionary, intent: Dictionary) -> bool:
 		if bool(enemy.get("burrowed", false)) and str(action.get("type", "")) != "erupt": return false
 	return true
 
-static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, bleed_steps: Array[Dictionary] = []) -> Dictionary:
+static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
 	if str(action.get("type", "")) == "burrow":
 		enemy["burrowed"] = true
@@ -84,6 +84,11 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 				struck_player = true
 				health_loss = maxi(0, hp_before - int(state["player"].get("hp", 0)))
 				block_loss = maxi(0, block_before - int(state["player"].get("block", 0)))
+				# Record the central hit before any forced placement, arrival trap
+				# or neighboring push. The live facing adapter may have captured
+				# this same damage call already; base-engine callers need it too.
+				if int(action.get("damage", 0)) > 0 and not action_context.has("direct_player_hits"):
+					action_context["direct_player_hits"] = [{"source_actor_key": "enemy_%d" % int(enemy["id"]), "source_tile": destination, "target_key": "player", "target_tile": marked, "damage": int(action["damage"])}]
 			var unit: Dictionary = engine._surface_actor(state, str(actor["kind"]), int(actor["id"]))
 			if int(unit.get("hp", 0)) <= 0 or bool(unit.get("burrowed", false)): continue
 			if destination != marked: continue
@@ -184,11 +189,18 @@ static func threat(engine: RefCounted, state: Dictionary, index: int, intent: Di
 	return {"move": [], "attack": tiles, "projected_path": path, "projected_attack": tiles, "projected_destination": destination,
 		"projected_attack_action": action, "projected_attack_element": "earth", "projected_attack_from": enemy["pos"], "projected_attack_target": destination}
 
-static func animation_step(before: Dictionary, after: Dictionary, index: int, action: Dictionary) -> Dictionary:
+static func animation_step(before: Dictionary, after: Dictionary, index: int, action: Dictionary, action_context: Dictionary = {}) -> Dictionary:
 	var enemy: Dictionary = after["enemies"][index]
 	if str(action["type"]) == "erupt" and not bool(enemy.get("erupt_resolved", false)): return {}
-	return {"kind": str(action["type"]), "actor_key": "enemy_%d" % int(enemy["id"]), "actor_name": Data.enemy_def(str(enemy["type"]))["name"],
+	var step: Dictionary = {"kind": str(action["type"]), "actor_key": "enemy_%d" % int(enemy["id"]), "actor_name": Data.enemy_def(str(enemy["type"]))["name"],
 		"tile": enemy["pos"], "from": before["enemies"][index]["pos"], "to": enemy["pos"], "state_after": after.duplicate(true)}
+	if str(action["type"]) == "erupt":
+		step["source_actor_key"] = step["actor_key"]
+		if before["enemies"][index].has("display_name"): step["actor_name"] = str(before["enemies"][index]["display_name"])
+		step["source_tile"] = enemy["pos"]
+		step["direct_player_hits"] = action_context.get("direct_player_hits", []).duplicate(true)
+		step["impact_actor_keys"] = ["player"] if not step["direct_player_hits"].is_empty() else []
+	return step
 
 static func projected_player_force(engine: RefCounted, state: Dictionary, index: int, action: Dictionary) -> Dictionary:
 	var trial: Dictionary = state.duplicate(true)

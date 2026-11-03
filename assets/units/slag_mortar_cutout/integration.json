@@ -3,7 +3,7 @@
   "rig": "humanoid_v2",
   "action_adapter": "res://assets/units/slag_mortar_cutout/actions.gd",
   "case": "experiments/cutouts/slag_mortar/rr30",
-  "director_sha256": "f8351c6a1a6bbb5eda7796c3ec030064de2df869e21c303b353aea9bfaaac6a2",
+  "director_sha256": "3d3e6ddab598c28132b90f78b577d8a5744254c3cc280cb03bb08d56568c8821",
   "design_placeholders": {},
   "native_proof": "pending rr-31 director visual judgment and rr-30 native gates; image diagnostics non-blocking",
   "rest_identity": {
@@ -19,8 +19,8 @@
   "files": {
     "actions.gd": "4fc89429295c6db6a7e332b543604344e1a67d0de6e25acaa7aadcad89849c11",
     "front.json": "6c27ce44616dd5d87d7ae9707f03cc3499c6fd3e25fa71580600f1d7ce3bff7b",
-    "humanoid_v2/compiled_motion.json": "66f1e8d6b0fe380f93ddfa84c66d2dada777f1165943df77740a96e0ca88cc8a",
-    "humanoid_v2/director_motion.json": "f8351c6a1a6bbb5eda7796c3ec030064de2df869e21c303b353aea9bfaaac6a2",
+    "humanoid_v2/compiled_motion.json": "75745b003cb2b42b5a1cc2a7a900545b7b50affbd361da94bea0848f51d3aa06",
+    "humanoid_v2/director_motion.json": "3d3e6ddab598c28132b90f78b577d8a5744254c3cc280cb03bb08d56568c8821",
     "humanoid_v2/front/apron.png": "8cd87e998dbe4344fa66dbaf741de75ae85e85b29db807b8ca383d74061e7df9",
     "humanoid_v2/front/apron.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/arm_far.png": "5a269aad91b60a446a78035f1aa31e590b9cf24ac7aa1d55e19f82122eb2ccc1",
@@ -234,9 +234,7 @@
   "rig_directory": "humanoid_v2",
   "idle_phase_seed": "slot",
   "death_timing": {
-    "clip_seconds": 1.5,
-    "dissolve_frames": 28,
-    "dissolve_frame_seconds": 0.037
+    "reduced_motion_sequence": true
   },
   "retained_action_selectors": {}
 }

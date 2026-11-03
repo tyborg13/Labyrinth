@@ -53,8 +53,8 @@
       "current_name": "Flying",
       "current_definition": "Flying: moves over traps, surfaces, Bramble and Ice Pillars and takes no surface damage. Can still be pushed.",
       "name": "Flying",
-      "definition": "Moves over Bramble and Ice Pillars. Ignores traps, ground and Collision damage. Push, Pull and Wind still move it.",
-      "words": 19,
+      "definition": "Ignores traps, ground and Collision damage. Push, Pull and Gust still move it.",
+      "words": 13,
       "changed": true,
       "reason": "accuracy",
       "evidence": [
@@ -91,7 +91,8 @@
       ],
       "merge_into": null,
       "director_decision_needed": null,
-      "note": "Label 'Thornwall' was the intent name; the board object is Bramble. Lifetime counts enemy turns (every enemy, including the grow turn), not rounds; 'pushed' also covers Pull. Copies at bramble_view.gd:14 and bramble.gd:97 must follow."
+      "note": "Label 'Thornwall' was the intent name; the board object is Bramble. Lifetime counts enemy turns (every enemy, including the grow turn), not rounds; 'pushed' also covers Pull. Copies at bramble_view.gd:14 and bramble.gd:97 must follow.",
+      "deleted": true
     },
     {
       "id": "lob",
@@ -168,8 +169,8 @@
       "current_name": "Icefall",
       "current_definition": "Icefall: icicles fall on the marked tiles on the Seer's next turn.",
       "name": "Icefall",
-      "definition": "Marks 3 tiles across your tile. Next turn they take the shown damage; empty ones become Ice Pillars.",
-      "words": 18,
+      "definition": "Marks 3 tiles across your tile. Next turn they take the shown damage and turn to Ice.",
+      "words": 17,
       "changed": true,
       "reason": "accuracy",
       "evidence": [
@@ -188,25 +189,24 @@
     },
     {
       "id": "wind",
-      "current_name": "Wind",
-      "current_definition": "Wind: at the end of each enemy turn, everything not anchored is pushed one tile with the wind.",
-      "name": "Wind",
-      "definition": "After each of the next 2 enemy turns, Push every unit 1 tile downwind. Anchored units and bosses are immune.",
-      "words": 20,
+      "current_name": "Gust",
+      "current_definition": "The wind Pushes every unit 1 tile downwind on its beat. Anchored units don't move.",
+      "name": "Gust",
+      "definition": "On its beat, the wind Pushes every unit downwind. Anchored units don't move.",
+      "words": 13,
       "changed": true,
       "reason": "accuracy",
       "evidence": [
-        "scripts/enemy_mechanics/wind.gd:17-47",
-        "scripts/enemy_mechanics/wind.gd:58-72",
-        "scripts/enemy_mechanics/wind.gd:74-110",
-        "data/enemies.json:2827"
+        "scripts/battlefield_rules/gust.gd",
+        "spec/peer_benchmark/element_rules/design.md"
       ],
       "aliases": [
-        "call_wind"
+        "call_wind",
+        "gust"
       ],
       "merge_into": null,
       "director_decision_needed": null,
-      "note": "'Not anchored' was misleading: bosses, guardians, constructs, objective leaders and burrowed units are immune too. Also wind_view.gd:172."
+      "note": "el-01: Wind became the Gust battlefield rule (owner-approved element rules, revision 3). Only Anchored units hold; the Gale Herald is Anchored by data, with no wielder immunity."
     },
     {
       "id": "tether",
@@ -228,7 +228,8 @@
       ],
       "merge_into": null,
       "director_decision_needed": null,
-      "note": "'for 4' was hard-coded (depth scaling adds damage). Standing in the line does not break it; only killing/moving a Thrall or terrain between them does."
+      "note": "'for 4' was hard-coded (depth scaling adds damage). Standing in the line does not break it; only killing/moving a Thrall or terrain between them does.",
+      "deleted": true
     },
     {
       "id": "veil",
@@ -1152,7 +1153,7 @@
       "current_name": "Petrify",
       "current_definition": "The enemy skips its next turn (the skipped turn still costs its Time) and gains Block that lasts through your next turn. Not Freeze: no extra damage. Dragons are immune.",
       "name": "Petrify",
-      "definition": "Skips its next turn, still paying its Time. Gains the shown Block, kept through that turn. Dragons are immune.",
+      "definition": "Skips its next turn, still paying its Time, and gains 5 Block through your next turn. Dragons are immune.",
       "words": 19,
       "changed": true,
       "reason": "length",
@@ -2808,7 +2809,8 @@
       "director_decision_needed": null,
       "new_entry": true,
       "icon": null,
-      "note": "Text-only (decision Q9). Raised by Icefall on each empty marked tile; can't be attacked; lifetime ticks after every enemy turn (terrain_rounds 3); collision damage is flat shatter_damage 2. Flying units pass over it."
+      "note": "Text-only (decision Q9). Raised by Icefall on each empty marked tile; can't be attacked; lifetime ticks after every enemy turn (terrain_rounds 3); collision damage is flat shatter_damage 2. Flying units pass over it.",
+      "deleted": true
     },
     {
       "id": "movement",
@@ -2887,6 +2889,44 @@
       "new_entry": true,
       "icon": null,
       "note": "All three player kinds come from the same 'outcrop' action (crag_outcrop default, powder_keg, worldspine). Plain outcrops block sight and leave Rubble; kegs block neither sight nor leave Rubble, they burst; Worldspines leave Rubble but don't block sight. Craghide's crag outcrops are the same kind (owner enemy)."
+    },
+    {
+      "id": "wildfire",
+      "name": "Wildfire",
+      "definition": "On its beat, each Fire tile sets the next tile in the blaze's direction on Fire.",
+      "aliases": [],
+      "words": 16
+    },
+    {
+      "id": "frostbite",
+      "name": "Frostbite",
+      "definition": "On its beat, an Ice hit strikes everyone standing on Ice, Freezing them.",
+      "aliases": [],
+      "words": 13
+    },
+    {
+      "id": "lightning_storm",
+      "name": "Lightning Storm",
+      "definition": "On its beat, lightning strikes every Electrified tile; some storms Chain on.",
+      "aliases": [],
+      "words": 12
+    },
+    {
+      "id": "upheaval",
+      "name": "Upheaval",
+      "definition": "On its beat, the marked tiles rise as Outcrops, throwing off whoever stands there.",
+      "aliases": [
+        "upheaval_mark",
+        "Thornwall"
+      ],
+      "words": 14
+    },
+    {
+      "id": "shadowstep",
+      "name": "Shadowstep",
+      "definition": "On its beat, every enemy hidden in the dark Blinks toward you.",
+      "aliases": [],
+      "words": 12
     }
   ]
 }

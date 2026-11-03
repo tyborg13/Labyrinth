@@ -1,0 +1,6 @@
+00:00.959  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/native/maquette.blend"
+00:05.199  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/rear_preview/rear_parts.png'
+00:16.181  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/rear_preview/rear_clay.png'
+00:18.999  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/rear_preview/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+MQ18_BOUNDED_CAPTURE: PASS; rear; preview

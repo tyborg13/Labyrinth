@@ -1,0 +1,756 @@
+{
+  "native_pixels": false,
+  "sweep_sha256": "9328a8a1972d153f2708def257c111b10649732bcb13acbdf6adcc4265775eb7",
+  "frames": 892,
+  "findings": 228,
+  "per_clip": [
+    {
+      "view": "front",
+      "clip": "death",
+      "kinds": "",
+      "frames": 39
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "kinds": "missing,procedural,seam",
+      "frames": 21
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "kinds": "missing,seam",
+      "frames": 5
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "kinds": "procedural",
+      "frames": 31
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "kinds": "",
+      "frames": 13
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "kinds": "missing,procedural,seam",
+      "frames": 3
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "kinds": "missing,seam",
+      "frames": 30
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "kinds": "procedural",
+      "frames": 8
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "kinds": "",
+      "frames": 30
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "kinds": "",
+      "frames": 50
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "kinds": "",
+      "frames": 25
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "kinds": "detached,floating",
+      "frames": 1
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "kinds": "detached,floating,missing,procedural,seam",
+      "frames": 2
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "kinds": "detached,floating,procedural",
+      "frames": 7
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "kinds": "missing,procedural,seam",
+      "frames": 2
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "kinds": "missing,seam",
+      "frames": 2
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "kinds": "procedural",
+      "frames": 12
+    },
+    {
+      "view": "front",
+      "clip": "pin",
+      "kinds": "",
+      "frames": 48
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "kinds": "",
+      "frames": 13
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "kinds": "missing,procedural,seam",
+      "frames": 10
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "kinds": "missing,seam",
+      "frames": 5
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "kinds": "procedural",
+      "frames": 23
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "kinds": "",
+      "frames": 35
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "kinds": "detached,floating,missing,seam,tiny",
+      "frames": 1
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "kinds": "detached,floating,tiny",
+      "frames": 6
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "kinds": "missing,procedural,seam",
+      "frames": 2
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "kinds": "missing,seam",
+      "frames": 13
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "kinds": "procedural",
+      "frames": 9
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "kinds": "",
+      "frames": 89
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "kinds": "detached,floating",
+      "frames": 5
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "kinds": "missing,seam",
+      "frames": 2
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "kinds": "",
+      "frames": 50
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "kinds": "detached,floating",
+      "frames": 4
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "kinds": "",
+      "frames": 30
+    },
+    {
+      "view": "rear",
+      "clip": "idle",
+      "kinds": "",
+      "frames": 50
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "kinds": "",
+      "frames": 40
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "kinds": "detached,floating",
+      "frames": 11
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "kinds": "",
+      "frames": 46
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "kinds": "missing,seam",
+      "frames": 2
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "kinds": "",
+      "frames": 49
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "kinds": "detached,floating",
+      "frames": 2
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "kinds": "",
+      "frames": 57
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "kinds": "detached,floating",
+      "frames": 8
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "kinds": "missing,seam",
+      "frames": 1
+    }
+  ],
+  "motion_clamps": [],
+  "acceptance": "STOP: death floor still tears; source/native gates are not waived",
+  "floor_candidates": {
+    "press_hip-rest": {
+      "case": "experiments/cutouts/chainbound_gaoler/rr42/proof/limits/press_hip-rest",
+      "frames": 102,
+      "findings": 0,
+      "scales": {
+        "pelvis.lift_px": 0
+      },
+      "report_sha256": "09f10e3b4b1ae98d3b77a0e8206046557f88d50b05fc1bb2cfb0077c1603a8fa",
+      "first_front_failure": null
+    },
+    "death_relaxed": {
+      "case": "experiments/cutouts/chainbound_gaoler/rr42/proof/limits/death_relaxed",
+      "frames": 192,
+      "findings": 39,
+      "scales": {
+        "pelvis.lift_px": 0.6666666666666666,
+        "hand_far.lift_px": 0,
+        "pelvis.forward_px": 0,
+        "torso.lean_deg": 0,
+        "torso.forward_px": 0,
+        "head.lean_deg": 0
+      },
+      "report_sha256": "569cff2439f3a3b0cd07f9d2d6330981fec9f0d4f4b47711c255af9fb3d5bbb2",
+      "first_front_failure": {
+        "frame": 41,
+        "metrics": {
+          "uncovered_missing_pixels": 9,
+          "uncovered_foreign_texels": 0,
+          "uncovered_outline_pixels": 0,
+          "uncovered_tiny_components": 0,
+          "uncovered_outside_surface_pixels": 0
+        },
+        "source_space": {
+          "failures": [
+            {
+              "bbox": [
+                298,
+                371,
+                301,
+                378
+              ],
+              "pixel_count": 9,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": true
+            }
+          ],
+          "air_pockets": [
+            {
+              "bbox": [
+                259,
+                300,
+                262,
+                310
+              ],
+              "pixel_count": 25,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                242,
+                374,
+                248,
+                378
+              ],
+              "pixel_count": 22,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                246,
+                354,
+                252,
+                358
+              ],
+              "pixel_count": 19,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                250,
+                336,
+                255,
+                340
+              ],
+              "pixel_count": 15,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                331,
+                230,
+                334,
+                233
+              ],
+              "pixel_count": 9,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                253,
+                319,
+                258,
+                321
+              ],
+              "pixel_count": 8,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                378,
+                301,
+                381
+              ],
+              "pixel_count": 3,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                342,
+                360,
+                343,
+                362
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                345,
+                367,
+                346,
+                369
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                261,
+                276,
+                262,
+                277
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                332,
+                399,
+                333,
+                400
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            }
+          ]
+        },
+        "crop": "proof/logs/rr42_crops/front_death_041_4x.png"
+      }
+    },
+    "death_all-rest": {
+      "case": "experiments/cutouts/chainbound_gaoler/rr42/proof/limits/death_all-rest",
+      "frames": 192,
+      "findings": 38,
+      "scales": {
+        "pelvis.lift_px": 0.6666666666666666,
+        "hand_far.lift_px": 0,
+        "pelvis.forward_px": 0,
+        "torso.lean_deg": 0,
+        "torso.forward_px": 0,
+        "head.lean_deg": 0,
+        "hand_near.lift_px": 0,
+        "coat_near_tip.lift_px": 0,
+        "coat_far_tip.lift_px": 0,
+        "tabard_tip.lift_px": 0
+      },
+      "report_sha256": "4af4dea71c898b271ac542e4c721646151684fd1be88248edd670e67d4be0120",
+      "first_front_failure": {
+        "frame": 41,
+        "metrics": {
+          "uncovered_missing_pixels": 9,
+          "uncovered_foreign_texels": 0,
+          "uncovered_outline_pixels": 0,
+          "uncovered_tiny_components": 0,
+          "uncovered_outside_surface_pixels": 0
+        },
+        "source_space": {
+          "failures": [
+            {
+              "bbox": [
+                298,
+                371,
+                301,
+                378
+              ],
+              "pixel_count": 9,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": true
+            }
+          ],
+          "air_pockets": [
+            {
+              "bbox": [
+                259,
+                300,
+                262,
+                310
+              ],
+              "pixel_count": 25,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                242,
+                374,
+                248,
+                378
+              ],
+              "pixel_count": 22,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                246,
+                354,
+                252,
+                358
+              ],
+              "pixel_count": 19,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                250,
+                336,
+                255,
+                340
+              ],
+              "pixel_count": 15,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                331,
+                230,
+                334,
+                233
+              ],
+              "pixel_count": 9,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                253,
+                319,
+                258,
+                321
+              ],
+              "pixel_count": 8,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                345,
+                366,
+                346,
+                369
+              ],
+              "pixel_count": 3,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                378,
+                301,
+                381
+              ],
+              "pixel_count": 3,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                342,
+                360,
+                343,
+                362
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                261,
+                276,
+                262,
+                277
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            }
+          ]
+        },
+        "crop": "proof/logs/rr42_crops/front_death_041_4x.png"
+      }
+    }
+  },
+  "logs": {
+    "focused": {
+      "file": "proof/logs/final/focused.log",
+      "sha256": "9c0aaad89a58ee1234b3ca2c3d667578a2475410e946d6e46803b4e944659a04",
+      "result_lines": [
+        "Ran 6 tests in 12.679s",
+        "OK"
+      ]
+    },
+    "reference_focused": {
+      "file": "proof/logs/final/reference_focused.log",
+      "sha256": "8e24b5285831bc3c5509e2284b895af979f2ec4afeb4315e044c0ded512ff17e",
+      "result_lines": [
+        ".........................RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)",
+        "RR38 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)",
+        "RR38 CPU/NATIVE CALIBRATION: PASS (263/263 frame/kind signatures; 314 native errors; 0 misses)",
+        "..RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR39 RETAINED BINDINGS: PASS (55 absent optional zero certificates; geometry and paint strict)",
+        "Ran 39 tests in 356.983s",
+        "OK",
+        "RR39 NATIVE UNCOVERED TIES: PASS (64 resolved: 33 outline, 31 missing; 0 remaining; exact retained native pixels)"
+      ]
+    },
+    "python_full": {
+      "file": "proof/logs/final/python_full.log",
+      "sha256": "f11a08b35c7d785c01162bc804ed960594908ef1b970b4d6f1293671687cffae",
+      "result_lines": [
+        "RR39 UNDERLAY: PASS (protected hashes; complete 2622px footprint; exact texels and air; both rests 0px)",
+        "RR39 RR37 NATIVE REJECTION: PASS (17 rejected frames; 2 clean rest controls)",
+        "Ran 31 tests in 148.694s",
+        "OK",
+        "RR39 CLEAN CHECKOUT: PASS (HEAD 5bfcd5f7c117895ff3af46139ce094200a7bfb6e; 0 ignored input files; scoped fix overlay=0 files)",
+        "test_all_64_director_errors_resolve_as_exact_source_edge_ties (test_rr39_native_ties.RetainedNativeTieTests) ... RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR39 OUTSIDE-CLOAK MUTATION: PASS (reviewer texel [378,311] rejected)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR39 UNDERLAY: PASS (protected hashes; complete 2622px footprint; exact texels and air; both rests 0px)",
+        "RR39 RR37 NATIVE REJECTION: PASS (17 rejected frames; 2 clean rest controls)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR39 RETAINED BINDINGS: PASS (55 absent optional zero certificates; geometry and paint strict)",
+        "Ran 1993 tests in 3645.489s",
+        "FAILED (failures=3, errors=2, skipped=66)",
+        "RR39 NATIVE UNCOVERED TIES: PASS (64 resolved: 33 outline, 31 missing; 0 remaining; exact retained native pixels)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)"
+      ]
+    },
+    "godot_full": {
+      "file": "proof/logs/final/godot_full.log",
+      "sha256": "49d5758ea078589ddd2bd350a10a7159acb5f7a89f657ff57602e6c91d803f23",
+      "result_lines": [
+        "EL04 RULE VIEWS RESULT: PASS (0 failures)",
+        "FIX-11 TEST RESULT: PASS (36 checks, 0 failures)",
+        "FIX-11 PROBE CONTRACT: PASS (2 checks; 1920x1080, UI scale 100%)",
+        "FIX-12 PROBE CONTRACT: PASS (24025 checks; 1920x1080, UI scale 100%)",
+        "FIX-14 TEST RESULT: PASS (2539 checks, 0 failures)",
+        "FIX-14 MATRIX TEST RESULT: PASS (20854 checks, 0 failures)",
+        "FIX-12 ARRIVAL TEST RESULT: PASS (1293 checks, 0 failures)",
+        "FIX-12 REACTIONS_0 TEST RESULT: PASS (163 checks, 0 failures)",
+        "FIX-12 REACTIONS_1 TEST RESULT: PASS (142 checks, 0 failures)",
+        "FIX-12 CASCADES TEST RESULT: PASS (178 checks, 0 failures)",
+        "FIX-12 FEEDBACK TEST RESULT: PASS (215 checks, 0 failures)",
+        "FIX-12 BLEED TEST RESULT: PASS (143 checks, 0 failures)",
+        "TT01 GRIMOIRE DISCOVERY: PASS (39 entries; 10 default, 29 discovered; 31 independent encounters)",
+        "SHORT CARD TOOLTIPS TEST RESULT: PASS (845 checks, 0 failures)",
+        "RR38 RUNTIME: PASS (239 checks; headless registration, views, portraits and clocks)",
+        "TEST RESULT: FAIL (4 failure(s))"
+      ]
+    },
+    "registration": {
+      "file": "proof/logs/final/registration.log",
+      "sha256": "472ce837ab453dbcd4456a560e4d18854356b14492457052a53cd31f304b5cfb",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (841 scripts; full suite=487, quarantined=29, windowed probe=325)"
+      ]
+    },
+    "runtime": {
+      "file": "proof/logs/final/runtime.log",
+      "sha256": "e8c20baf061d86e7d5679351eff2bef5514d7e1abb344f6cc917f20048af4200",
+      "result_lines": [
+        "RR38 RUNTIME: PASS (239 checks; headless registration, views, portraits and clocks)"
+      ]
+    },
+    "canvas": {
+      "file": "proof/logs/final/canvas.log",
+      "sha256": "2b3cd22863d8bd329b74c79595af727dc24cdfa2c70591a3180b63ea6b59326f",
+      "result_lines": []
+    },
+    "density": {
+      "file": "proof/logs/final/density.log",
+      "sha256": "fc0805f5b885ebfa08b1ef349d1c7530594734c814cbaf6d4a218eda454d3c77",
+      "result_lines": [
+        "CHECK-OK"
+      ]
+    },
+    "shadow": {
+      "file": "proof/logs/final/shadow.log",
+      "sha256": "ae91133f5eca7e1a33424e7c4f6238b69c2db17c53df2a780ed21770e5ec80e3",
+      "result_lines": [
+        "RR38 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ]
+    },
+    "rest": {
+      "file": "proof/logs/final/rest.log",
+      "sha256": "e7edac400b3cc5f31f7e8302b68c386f05f2d27dc37c132e702253d505abf86c",
+      "result_lines": [
+        "RR38 BONE SAMPLES: PASS (2 poses; headless transforms only)",
+        "RR42 REST EQUIVALENCE: PASS (front=0px rear=0px; native_pixels=False)"
+      ]
+    },
+    "enemy_no_action_retry": {
+      "file": "proof/logs/final/enemy_no_action_retry.log",
+      "sha256": "b358c96f3438751791cd794650875916166b444c772fcdb398c8c0c99860c8ef",
+      "result_lines": []
+    },
+    "art_identity": {
+      "file": "proof/logs/final/art_identity.log",
+      "sha256": "3ac7cd5cf65ec68710ea37bc1ecadf937d4fc8e3422c66f7c528936f8c8e9e04",
+      "result_lines": [
+        "Ran 111 tests in 42.557s",
+        "OK"
+      ]
+    },
+    "sidecars": {
+      "file": "proof/logs/final/sidecars.log",
+      "sha256": "17b335db2f1c8f1631d9076286a7d782e7506b4cc3b55076fce1a8ada29743ec",
+      "result_lines": [
+        "Ran 19 tests in 2.023s",
+        "OK"
+      ]
+    },
+    "all_gates": {
+      "file": "proof/logs/final/all_gates.log",
+      "sha256": "c82ae795e384119291390ab0bdffb521e10f706955bc8fec0885020bfc4500e0",
+      "result_lines": []
+    },
+    "exposure_witness": {
+      "file": "proof/logs/final/exposure_witness.log",
+      "sha256": "dfd65cab1e3bf905883afc00643ae81d44095ad2011fce63bd7737bd295a169d",
+      "result_lines": []
+    },
+    "density_focused_final": {
+      "file": "proof/logs/final/density_focused_final.log",
+      "sha256": "2d404e4d4e643534c61f8abd66e4d58ca9d8e4901df8fe8bcd78347b68b65c0f",
+      "result_lines": [
+        "Ran 53 tests in 101.503s",
+        "OK",
+        "CHECK-OK",
+        "CHECK-OK"
+      ]
+    }
+  }
+}

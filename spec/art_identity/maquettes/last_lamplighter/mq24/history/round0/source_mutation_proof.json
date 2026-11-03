@@ -1,0 +1,59 @@
+{
+  "scope": "source_debug_fixture_target_gates_only; not_native_acceptance",
+  "overall_fixture_baseline_passed": false,
+  "native_mutations_run": false,
+  "caught": 6,
+  "survived": 0,
+  "rows": [
+    {
+      "mutation": "plate_readded",
+      "target_gate_baseline_passed": true,
+      "target_gate_mutant_passed": false,
+      "caught": true
+    },
+    {
+      "mutation": "two_fingers_fused",
+      "target_gate_baseline_passed": true,
+      "target_gate_mutant_passed": false,
+      "caught": true
+    },
+    {
+      "mutation": "finger_shortened_20_percent",
+      "target_gate_baseline_passed": true,
+      "target_gate_mutant_passed": false,
+      "caught": true
+    },
+    {
+      "mutation": "curl_zero",
+      "target_gate_baseline_passed": true,
+      "target_gate_mutant_passed": false,
+      "caught": true
+    },
+    {
+      "mutation": "ring_outside_fist",
+      "target_gate_baseline_passed": true,
+      "target_gate_mutant_passed": false,
+      "caught": true
+    },
+    {
+      "mutation": "arm_scaled_2_percent",
+      "target_gate_baseline_passed": true,
+      "target_gate_mutant_passed": false,
+      "caught": true
+    }
+  ],
+  "input_sha256": {
+    "spec/art_identity/maquettes/last_lamplighter/mq24/delivery.py": "47fd197b6ff1bac0da73871dfd5e8aa74c1fc81f343ebd150f58fbbfd5f1f570",
+    "spec/art_identity/maquettes/last_lamplighter/mq24/measure.py": "54b208457ded7214522d73e51bfcc29c4553a6162c65163f84ff72f467c0c04d",
+    "spec/art_identity/maquettes/last_lamplighter/mq24/mutations.py": "cbed35b467d740844af7d44869c25f84c172751ef4792fc18799e7cfb2790856",
+    "spec/art_identity/maquettes/last_lamplighter/mq24/__init__.py": "3f642daa483f0006804cff62aab59f189513a89a4cc718f5620d239784a601c7",
+    "spec/art_identity/maquettes/last_lamplighter/mq24/native_probe.py": "84cdd9b26df175956dd1823f5dde87afd3d094e8eeb46cf7aa03ee4765909ada",
+    "spec/art_identity/maquettes/last_lamplighter/mq24/capture.py": "79bf32ca08f26534f3deee5bdae672363dd97d19296fb02720d2981237f8ac1c",
+    "spec/art_identity/maquettes/last_lamplighter/mq24/proof.py": "2724121d4d2e8ab4328ab9304a03056d30a3d170020da8d97f31d93f9d3ab806",
+    "spec/art_identity/maquettes/last_lamplighter/mq24/oracle.py": "e1368934335c527bb903a9acefde754afa7d698af54004285d777a5709b0b622",
+    "spec/art_identity/maquettes/last_lamplighter/mq24/recipe.py": "78d61fe8ee5c3c62dd5d5b0fac5fab214db8e27da617edf6b6e98f5a07100e24",
+    "spec/art_identity/maquettes/last_lamplighter/mq24/contact.py": "9e5f8c2bd8ce5e3bffd923148952b3238c88d3539338377d2b4c93378b5e37b6",
+    "spec/art_identity/maquettes/last_lamplighter/mq24/contract.json": "2162ab4c5ec87149483c8d1638ad0d9529b5f7efde925b982e95c94645901fa4",
+    "tests/test_mq24_maquette.py": "ef532c57f3cb8403431332323f838511548a650d46b390ca173778f37bc08b9f"
+  }
+}

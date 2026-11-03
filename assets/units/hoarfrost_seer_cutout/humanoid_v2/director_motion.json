@@ -62,7 +62,7 @@
         }
       },
       "move": {
-        "seconds": 0.9,
+        "seconds": 0.3333333333333333,
         "intents": [
           "withdraw:move_away"
         ],

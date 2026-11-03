@@ -1,0 +1,62 @@
+{
+  "min_images": 9,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "grimoire_enemy_zekarion.png",
+      "min_count": 1,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "grimoire_combat_worldspines.png",
+      "min_count": 1,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "grimoire_combat_cinder_marks.png",
+      "min_count": 1,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "grimoire_combat_hollow_gale.png",
+      "min_count": 1,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "grimoire_enemy_tharokh.png",
+      "min_count": 1,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "grimoire_enemy_vyraketh.png",
+      "min_count": 1,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "grimoire_enemy_vaeloryx.png",
+      "min_count": 1,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "grimoire_enemy_iskaldra.png",
+      "min_count": 1,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "grimoire_enemy_noctyrax.png",
+      "min_count": 1,
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

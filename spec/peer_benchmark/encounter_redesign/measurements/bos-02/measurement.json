@@ -1,0 +1,350 @@
+{
+  "tharokh": {
+    "before": {
+      "n": 50,
+      "win_rate": 0.74,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 8.0,
+        "p10": 6,
+        "p90": 10
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 16.5,
+        "p10": 5,
+        "p90": 24
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "earth": 50
+      },
+      "beats_fired": 0,
+      "damage_to_enemies": 0,
+      "damage_to_player": 0,
+      "half_health_switches": 0,
+      "lieutenant_kills": 0,
+      "band": "OUTSIDE",
+      "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    },
+    "after": {
+      "n": 50,
+      "win_rate": 0.72,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 11.0,
+        "p10": 6,
+        "p90": 16
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 18.0,
+        "p10": 6,
+        "p90": 24
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "earth": 50
+      },
+      "beats_fired": 398,
+      "damage_to_enemies": 12,
+      "damage_to_player": 0,
+      "half_health_switches": 45,
+      "lieutenant_kills": 87,
+      "band": "OUTSIDE",
+      "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    }
+  },
+  "vyraketh": {
+    "before": {
+      "n": 50,
+      "win_rate": 0.36,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 5.0,
+        "p10": 4,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 15,
+        "p90": 24
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "fire": 50
+      },
+      "beats_fired": 0,
+      "damage_to_enemies": 0,
+      "damage_to_player": 0,
+      "half_health_switches": 0,
+      "lieutenant_kills": 0,
+      "band": "within",
+      "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    },
+    "after": {
+      "n": 50,
+      "win_rate": 0.18,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 22,
+        "p90": 24
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "fire": 50
+      },
+      "beats_fired": 65,
+      "damage_to_enemies": 0,
+      "damage_to_player": 0,
+      "half_health_switches": 36,
+      "lieutenant_kills": 89,
+      "band": "OUTSIDE",
+      "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    }
+  },
+  "vaeloryx": {
+    "before": {
+      "n": 50,
+      "win_rate": 0.5,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 7.0,
+        "p10": 5,
+        "p90": 9
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 10,
+        "p90": 25
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 50
+      },
+      "beats_fired": 0,
+      "damage_to_enemies": 0,
+      "damage_to_player": 0,
+      "half_health_switches": 0,
+      "lieutenant_kills": 0,
+      "band": "within",
+      "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    },
+    "after": {
+      "n": 50,
+      "win_rate": 0.12,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 22,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 50
+      },
+      "beats_fired": 181,
+      "damage_to_enemies": 169,
+      "damage_to_player": 30,
+      "half_health_switches": 31,
+      "lieutenant_kills": 36,
+      "band": "OUTSIDE",
+      "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    }
+  },
+  "iskaldra": {
+    "before": {
+      "n": 50,
+      "win_rate": 0.5,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 6.5,
+        "p10": 5,
+        "p90": 9
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 11,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "ice": 50
+      },
+      "beats_fired": 0,
+      "damage_to_enemies": 0,
+      "damage_to_player": 0,
+      "half_health_switches": 0,
+      "lieutenant_kills": 0,
+      "band": "within",
+      "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    },
+    "after": {
+      "n": 50,
+      "win_rate": 0.36,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 5.0,
+        "p10": 4,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 13,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "ice": 50
+      },
+      "beats_fired": 57,
+      "damage_to_enemies": 217,
+      "damage_to_player": 8,
+      "half_health_switches": 36,
+      "lieutenant_kills": 84,
+      "band": "within",
+      "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    }
+  },
+  "zekarion": {
+    "before": {
+      "n": 50,
+      "win_rate": 0.12,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 3.0,
+        "p10": 2,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 21,
+        "p90": 24
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "lightning": 50
+      },
+      "beats_fired": 0,
+      "damage_to_enemies": 0,
+      "damage_to_player": 0,
+      "half_health_switches": 0,
+      "lieutenant_kills": 64,
+      "band": "OUTSIDE",
+      "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    },
+    "after": {
+      "n": 50,
+      "win_rate": 0.22,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 15,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "lightning": 50
+      },
+      "beats_fired": 42,
+      "damage_to_enemies": 178,
+      "damage_to_player": 37,
+      "half_health_switches": 29,
+      "lieutenant_kills": 84,
+      "band": "OUTSIDE",
+      "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    }
+  },
+  "noctyrax": {
+    "before": {
+      "n": 50,
+      "win_rate": 0.0,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "shadow": 50
+      },
+      "beats_fired": 0,
+      "damage_to_enemies": 0,
+      "damage_to_player": 0,
+      "half_health_switches": 0,
+      "lieutenant_kills": 71,
+      "band": "OUTSIDE",
+      "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    },
+    "after": {
+      "n": 50,
+      "win_rate": 0.12,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 8.0,
+        "p10": 6,
+        "p90": 13
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "shadow": 50
+      },
+      "beats_fired": 103,
+      "damage_to_enemies": 4,
+      "damage_to_player": 0,
+      "half_health_switches": 0,
+      "lieutenant_kills": 137,
+      "band": "OUTSIDE",
+      "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    }
+  }
+}

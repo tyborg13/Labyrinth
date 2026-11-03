@@ -29,9 +29,9 @@ static func make_text(text: String) -> PanelContainer:
 			body_lines.append(body_line)
 	return make_lines(title, body_lines)
 
-static func make_lines(title: String, body_lines: PackedStringArray) -> PanelContainer:
-	var panel: PanelContainer = _make_panel(MIN_PANEL_WIDTH, 16.0)
-	panel.add_child(_make_text_box(title, body_lines, MAX_BODY_WIDTH, 8))
+static func make_lines(title: String, body_lines: PackedStringArray, panel_width: float = 0.0) -> PanelContainer:
+	var panel: PanelContainer = _make_panel(panel_width if panel_width > 0 else MIN_PANEL_WIDTH, 16.0)
+	panel.add_child(_make_text_box(title, body_lines, panel_width - 32.0 if panel_width > 0 else MAX_BODY_WIDTH, 8))
 	_finish_panel(panel)
 	return panel
 

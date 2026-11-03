@@ -1,0 +1,19 @@
+Running task-local command:
+  task: pt13-08
+  run: pt13-08-1793087180124454000-55561
+  HOME: /private/tmp/labyrinth-godot-home/pt13-08-1793087180124454000-55561
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-08-1793087180124454000-55561/godot.log --headless --path . --script tests/card_legibility_test.gd -- --negative-fixtures
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+LIVE AUDIT: combat fixture mode=combat
+LIVE AUDIT OPEN: graftwright_inspection
+CARD LEGIBILITY NEGATIVE FIXTURES: PASS (26 checks, 0 failures)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

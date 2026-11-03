@@ -1,0 +1,89 @@
+{
+  "campaign": "default",
+  "seed": 5,
+  "replay_context": {
+    "decision": 2475,
+    "mode": "combat",
+    "room": "(22, -8)",
+    "room_kind": "combat",
+    "room_metadata": {
+      "biome": "shadow",
+      "cleared": false,
+      "connections": [
+        {
+          "coord": "(23, -23)",
+          "door_dir": "(0, -1)",
+          "kind": "outward"
+        },
+        {
+          "coord": "(23, -22)",
+          "door_dir": "(1, 0)",
+          "kind": "outward"
+        }
+      ],
+      "coord": "(22, -8)",
+      "depth": 22,
+      "element": "air",
+      "encounter_id": "t2_biome_warden",
+      "map_lane": 1,
+      "map_outline": true,
+      "map_step": 7,
+      "merchant_kind": "",
+      "npcs": [],
+      "revealed": true,
+      "sealed": false,
+      "section_index": 5,
+      "type": "combat",
+      "visited": true
+    },
+    "section": 5,
+    "seed": 5
+  },
+  "error": "SCRIPT ERROR: Invalid access to property or key 'actor_key' on a base object of type 'Dictionary'.",
+  "log": "/private/tmp/labyrinth_codex/qa-23/replay-default-seed-5/seed-000005/godot.log",
+  "replay_script": "/private/tmp/labyrinth_codex/qa-23/run_hunt_census.gd",
+  "root_payload_log": "/private/tmp/labyrinth_codex/qa-23/contact-payload.log",
+  "fix": "Not applied: protected cutout runtime; owning unit must fix and add its regression",
+  "additional_recurrences": [
+    {
+      "seed": 4,
+      "configuration": "no-embrace, full original driver on fixed art renderer",
+      "context": {
+        "decision": 2756,
+        "mode": "combat",
+        "room": "(23, -11)",
+        "room_kind": "combat",
+        "room_metadata": {
+          "biome": "shadow",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(23, -6)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(23, -11)",
+          "depth": 23,
+          "element": "lightning",
+          "encounter_id": "t3_biome_support",
+          "map_lane": 2,
+          "map_outline": true,
+          "map_step": 10,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 5,
+          "type": "combat",
+          "visited": true
+        },
+        "section": 5,
+        "seed": 4
+      },
+      "location": "res://scripts/maquette_cutout_runtime/contact_actions.gd:18",
+      "log": "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-4-fixed/seed-000004/godot.log",
+      "child_returncode": 1
+    }
+  ]
+}

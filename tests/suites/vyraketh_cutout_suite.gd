@@ -108,7 +108,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	expect.call(board.vyraketh_animation_snapshot("enemy_1").is_empty() and (board.get("_vyraketh_renderers") as Dictionary).size() == 1, "Removed Vyraketh actors release their viewport after death presentation")
 	expect.call(board.vyraketh_animation_snapshot("enemy_2")["texture_id"] == second["texture_id"], "Removing one actor preserves the other's renderer")
 	var definition: Dictionary = GameData.enemy_def("vyraketh")
-	expect.call(int(definition["max_hp"]) == 60 and int(definition["base_initiative"]) == 13 and int(definition["reward_embers"]) == 80 and bool(definition["boss_bar"]) and int(definition["footprint"][0]) == 2 and int(definition["footprint"][1]) == 2, "Production presentation preserves Vyraketh combat data")
+	expect.call(int(definition["max_hp"]) == 52 and int(definition["base_initiative"]) == 13 and int(definition["reward_embers"]) == 80 and bool(definition["boss_bar"]) and int(definition["footprint"][0]) == 2 and int(definition["footprint"][1]) == 2, "Production presentation preserves Vyraketh combat data")
 	expect.call(Cutout.action_for_effect({"kind": "intent"}, {"type": "vyraketh"}).is_empty() and Cutout.action_for_effect({"kind": "melee"}, {"type": "crawler"}).is_empty(), "Routing excludes non-actions and unrelated enemy types")
 	for pair: Array in [[{"kind":"melee","intent_id":"cinder_maw"},"maw"],[{"kind":"aoe","action_type":"cinder_marks"},"kindle"],[{"kind":"aoe","action_type":"detonate_cinders"},"crownfire"],[{"kind":"aoe","action_type":"aoe","intent_id":"cinderfall"},"cinderfall"]]:
 		expect.call(Cutout.action_for_effect(pair[0], {"type":"vyraketh"}) == pair[1], "Every existing Vyraketh action family has its own dragon choreography")

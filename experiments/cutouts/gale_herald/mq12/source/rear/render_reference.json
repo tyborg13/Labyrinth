@@ -1,0 +1,6 @@
+{
+  "source": "approved.png",
+  "rule": "transparent RGB only; all visible RGBA unchanged",
+  "transparent_rgb_normalizations": 0,
+  "pixel_sha256": "0592bbc605101379bfb1a7282a6fc4b0e76ae5e1817ec7d4f66b459f29c11d03"
+}

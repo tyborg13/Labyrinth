@@ -1,19 +1,33 @@
 extends RefCounted
 
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const RunSfx = preload("res://scripts/run_sfx_library.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
 static func run(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _run_scoped(scope, tree, expect)
+	)
+
+static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	var feedback: Node = tree.root.get_node_or_null("CursorFeedback")
 	expect.call(feedback != null, "Shared button sound should use the existing UI feedback owner")
 	if feedback == null: return
-	var router: Node = tree.root.get_node("InputRouter")
-	var original_modality: String = str(router.call("modality"))
-	SettingsStore.apply_audio_settings(SettingsStore.default_settings())
+	# Snapshot stable service state, after its real asynchronous loader finishes.
 	while bool(feedback.call("is_loading")):
 		await tree.process_frame
+	_globals.preserve_feedback_state(feedback, tree.root.get_node("InputRouter"))
+	var original_script: Script = feedback.get_script()
+	var properties: Dictionary = {}
+	for property: Dictionary in feedback.get_property_list():
+		if int(property["usage"]) & PROPERTY_USAGE_SCRIPT_VARIABLE: properties[property["name"]] = feedback.get(property["name"])
+	TestClock.now_usec = TestClock.FEEDBACK_START_USEC
+	feedback.set_script(TestClock.clocked_script(original_script, true))
+	for key: String in properties: feedback.set(key, properties[key])
+	SettingsStore.apply_audio_settings(SettingsStore.default_settings())
+	_test_focus_cooldown(feedback, expect)
 	var surface := Control.new()
 	surface.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	tree.root.add_child(surface)
@@ -143,7 +157,6 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	expect.call(_count(feedback) == before + 1, "New screens receive feedback after the old focused control is freed")
 	replacement.queue_free()
 	await tree.process_frame
-	router.call("set_modality", original_modality)
 
 static func _move(tree: SceneTree, point: Vector2) -> void:
 	var event := InputEventMouseMotion.new()
@@ -155,7 +168,22 @@ static func _count(feedback: Node) -> int:
 	return int(feedback.call("feedback_counts").get("focus", 0))
 
 static func _wait(tree: SceneTree) -> void:
-	# Feedback rate limits use wall time, including in an uncapped headless run.
-	var deadline: int = Time.get_ticks_msec() + 110
-	while Time.get_ticks_msec() < deadline:
-		await tree.process_frame
+	# A cooldown window, not a watchdog: retain the same 110 ms on its clock.
+	TestClock.now_usec += 110000
+	await tree.process_frame
+
+static func _test_focus_cooldown(feedback: Node, expect: Callable) -> void:
+	var saved_last: int = int(feedback.get("_last_focus_msec"))
+	var saved_counts: Dictionary = feedback.get("_feedback_counts").duplicate()
+	var start: int = TestClock.now_usec
+	feedback.set("_last_focus_msec", start / 1000 - 80)
+	feedback.call("play_focus_feedback")
+	var before: int = _count(feedback)
+	TestClock.now_usec = start + 79000
+	feedback.call("play_focus_feedback")
+	expect.call(_count(feedback) == before, "Focus cooldown suppresses another cue until the full 80 ms")
+	TestClock.now_usec = start + 110000
+	feedback.call("play_focus_feedback")
+	expect.call(_count(feedback) == before + 1, "Focus cooldown releases by the existing 110 ms sample")
+	feedback.set("_last_focus_msec", saved_last)
+	feedback.set("_feedback_counts", saved_counts)

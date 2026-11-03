@@ -1,0 +1,53 @@
+{
+ "K": 4,
+ "anatomy": "biped",
+ "id": "ashen_reaver",
+ "job_id": "img-ashen-reaver-front",
+ "kind": "creature",
+ "kit_kind": "maquette",
+ "kit_version": "f741cfc341e5a8d87cb7063e321f644b6eb5a3daae46cdbe2a881b184375c0f4",
+ "method": "maquette paint-over (mq-16 r2 delivery): part map + clay + old-art materials + slag_mortar + hero refs, painted at K=4",
+ "peers": [
+  "slag_mortar_front",
+  "grave_surgeon_front"
+ ],
+ "prompt_path": "prompt.md",
+ "prompt_sha256": "9eb98318c67c7613f1a3ef429b2f98445bb649318ee11d4138d51a485dbe294f",
+ "prompt_source": "spec/art_identity/maquettes/ashen_reaver/prompt_front.md",
+ "refs": [
+  {
+   "canon_id": "maquette_mq16_front_parts",
+   "file": "refs/01_maquette_front_parts.png",
+   "pixel_sha256": "4f923c3d97ba42c36cdc1ecfc209278b8b23b421e47edc0182264aba536e3498",
+   "role": "maquette_parts"
+  },
+  {
+   "canon_id": "maquette_mq16_front_clay",
+   "file": "refs/02_maquette_front_clay.png",
+   "pixel_sha256": "56c10053c2b09abcad876591601ef4284e8b496f5867a6043f783a5e553ae419",
+   "role": "maquette_clay"
+  },
+  {
+   "canon_id": "legacy_ashen_reaver_materials",
+   "file": "refs/03_reaver_materials.png",
+   "pixel_sha256": "a3a6a487c9e0172c5fd0eb3c31884ef41debbf0702279a019e8d9056d6bfcd20",
+   "role": "identity"
+  },
+  {
+   "canon_id": "slag_mortar_front",
+   "file": "refs/04_slag_mortar_front.png",
+   "pixel_sha256": "ed36225ebb9cfd3526ab97b883329804f83363ea8bfce231cce747b86852c45b",
+   "role": "canon"
+  },
+  {
+   "canon_id": "hero_front",
+   "file": "refs/05_hero_front.png",
+   "pixel_sha256": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f",
+   "role": "canon"
+  }
+ ],
+ "size_class": "large",
+ "target_h": null,
+ "target_w": null,
+ "view": "creature_front"
+}

@@ -50,7 +50,7 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 				await RenderingServer.frame_post_draw
 				var path: String = "%s/%02d_%s.png" % [capture_dir, index, modality]
 				expect.call(viewport.get_texture().get_image().save_png(path) == OK, "Copy probe saves %s" % path)
-	expect.call(Glossary.definition("time") == "Cards cost Time; the more you spend, the later your next turn. Playing under 2 cards adds Wait.", "Time keyword uses its exact approved definition")
+	expect.call(Glossary.definition("time") == "Spending Time makes your next turn come later.", "Time keyword uses its exact approved definition")
 	router.call("set_modality", old_modality)
 	viewport.queue_free()
 	await tree.process_frame

@@ -11,7 +11,7 @@ import numpy as np
 from PIL import Image
 
 from cutout_pipeline.cases import digest, read_json, write_json
-from art_identity_gate import pixel_digest
+from art_identity_gate import pixel_digest, replay_raw_steps
 from maquette_cutout import decode_labels, nearest_labels, hidden_region, depth_order, projected
 from maquette_motion.bleed import edge_texels
 from maquette_motion.silhouette import components
@@ -32,12 +32,19 @@ def prepare(project, case, inputs, view, pieces, registration, palette_for, dept
     if pixel_digest(Image.open(job/'processed.png')) != record['pixel_sha256']:
         raise ValueError('Changed approved painting: '+view)
     manifest=read_json(delivery/'capture_manifest.json')
-    raw = next((p for p in sorted(job.rglob('*.png')) if digest(p) == record['raw_sha256']), None)
+    if record.get('raw_steps'):
+        raw = source / 'raw.png'
+        replay = replay_raw_steps(job / 'kit.json')
+        if pixel_digest(replay) != record['raw_pixel_sha256']:
+            raise ValueError('Changed approved raw-step replay: ' + view)
+        replay.save(raw)
+    else:
+        raw = next((p for p in sorted(job.rglob('*.png')) if digest(p) == record['raw_sha256']), None)
     if raw is None:
         raise ValueError('TODO_DESIGN_' + view + '_registration_raw')
     for name in ('processed.png', 'processed.json'):
         shutil.copyfile(job / name, source / name)
-    shutil.copyfile(raw, source / 'raw.png')
+    if raw != source / 'raw.png': shutil.copyfile(raw, source / 'raw.png')
     base_spec = compile_recipe(read_json(delivery.parent / 'measurements.json'))
     spec = spec_for_view(base_spec, delivery, view)
     transform = registration(raw, record)
@@ -97,7 +104,8 @@ def prepare(project, case, inputs, view, pieces, registration, palette_for, dept
             fused = next(group for group in pieces.values() if name in group)
             fused_visible = inputs.get('fused_occlusion', False) and any(
                 (owners == names.index(other)).any() for other in fused if other != name)
-            if donor is None and not fused_visible and placeholder not in inputs.get('design_placeholders',{}):
+            intentionally_empty = inputs.get('intentionally_empty', {}).get(view, {}).get(name)
+            if donor is None and not fused_visible and not intentionally_empty and placeholder not in inputs.get('design_placeholders',{}):
                 raise ValueError(placeholder)
             ys, xs = np.nonzero(solos[name])
         bounds = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]

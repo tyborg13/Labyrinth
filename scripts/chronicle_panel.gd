@@ -181,7 +181,10 @@ func _ready() -> void:
 	visible = false
 
 func _layout() -> void:
-	_panel.position = (size - PANEL_SIZE) * 0.5
+	# At a larger interface scale the screen is smaller than the 1920x1080 this frame was laid out for.
+	var fit: float = minf(1.0, minf(size.x / 1920.0, size.y / 1080.0))
+	_panel.scale = Vector2.ONE * fit
+	_panel.position = (size - PANEL_SIZE * fit) * 0.5
 	_prompt_bar.position = Vector2(size.x - _prompt_bar.size.x - 60, size.y - _prompt_bar.size.y - 24)
 
 func _position_chips() -> void:
@@ -217,8 +220,9 @@ func open(profile: Dictionary = {}, log_event: bool = true) -> void:
 		chip.add_theme_stylebox_override("panel", style)
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 6)
+		var one: bool = int(totals[key]) == 1
 		row.add_child(_label(Rules.Score.grouped_number(int(totals[key])), 17, Palette.TEXT, Typography.ui_font()))
-		row.add_child(_label(str({"runs": "runs", "escapes": "escapes", "best_score": "best score", "dragons_slain": "dragons slain", "deepest_depth": "deepest depth"}[key]), 17, Palette.TEXT_2))
+		row.add_child(_label(str({"runs": "run" if one else "runs", "escapes": "escape" if one else "escapes", "best_score": "best score", "dragons_slain": "dragon slain" if one else "dragons slain", "deepest_depth": "deepest depth"}[key]), 17, Palette.TEXT_2))
 		chip.add_child(row)
 		_chips.add_child(chip)
 	_chips.reset_size()

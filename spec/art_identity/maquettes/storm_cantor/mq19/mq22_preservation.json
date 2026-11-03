@@ -1,0 +1,1025 @@
+{
+  "comparison_phase": "final; after all four Python shards completed",
+  "baseline_head": "8eb6d3ef3",
+  "unexpected_changed_files": [],
+  "all_foreign_figures_and_builder": {
+    "files": 2360,
+    "before_inventory_sha256": "0a13caa44d3f3583aa30a974dcf98281651d8d0663b55223b3e44ce25695df75",
+    "after_inventory_sha256": "0a13caa44d3f3583aa30a974dcf98281651d8d0663b55223b3e44ce25695df75",
+    "byte_identical": true
+  },
+  "storm_cantor_jobs": {
+    "files": 62,
+    "before_inventory_sha256": "1424a384199bc32c5f8b38b3875a89e7fecc47720301d0013fc9ddc3e0fe7f8a",
+    "after_inventory_sha256": "1424a384199bc32c5f8b38b3875a89e7fecc47720301d0013fc9ddc3e0fe7f8a",
+    "byte_identical": true
+  },
+  "all_rendered_images": {
+    "files": 841,
+    "before_inventory_sha256": "7099adc85826d9c7c83a97bbf2adc80e2ef30d64b919adabd90ad7bbf9042845",
+    "after_inventory_sha256": "7099adc85826d9c7c83a97bbf2adc80e2ef30d64b919adabd90ad7bbf9042845",
+    "byte_identical": true
+  },
+  "geometry_inputs": {
+    "files": 75,
+    "before_inventory_sha256": "fa5d912980e2894c415e29920e2b0cf0fa37c4bb44f43674dab0f49bf4b26172",
+    "after_inventory_sha256": "fa5d912980e2894c415e29920e2b0cf0fa37c4bb44f43674dab0f49bf4b26172",
+    "byte_identical": true
+  },
+  "deliveries": {
+    "files": 247,
+    "before_inventory_sha256": "528081ab23732668b9cd310f862cfc367882881b68dee9f84d82564b043d93c6",
+    "after_inventory_sha256": "528081ab23732668b9cd310f862cfc367882881b68dee9f84d82564b043d93c6",
+    "byte_identical": true
+  },
+  "delivery_file_hashes": {
+    "spec/art_identity/maquettes/storm_cantor/delivery/build_report.json": {
+      "before": "a3b758ecdcacb8274a61521e0376a821698b96b9228c71d2c598dad8fc3c5345",
+      "after": "a3b758ecdcacb8274a61521e0376a821698b96b9228c71d2c598dad8fc3c5345"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/capture_checks.json": {
+      "before": "3b8b2cdf7a4cc57686515aa1ac7bdb6b888de6705fb3892985642c53dd4a06d3",
+      "after": "3b8b2cdf7a4cc57686515aa1ac7bdb6b888de6705fb3892985642c53dd4a06d3"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/capture_manifest.json": {
+      "before": "bfd1d530d378708920ba819016770ca9a6ea8b468a7c84007c618dda6c7e539d",
+      "after": "bfd1d530d378708920ba819016770ca9a6ea8b468a7c84007c618dda6c7e539d"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/capture_packing.json": {
+      "before": "f94d5255f9acbb45b14d179ed14c44f80e8f9ab81a02c7f06245c573d4e5aae5",
+      "after": "f94d5255f9acbb45b14d179ed14c44f80e8f9ab81a02c7f06245c573d4e5aae5"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/contact_sheet.json": {
+      "before": "88047c0e829c8b0b859e4583ffaf2e00917f5801935cb6de3f2fe598fc03f69a",
+      "after": "88047c0e829c8b0b859e4583ffaf2e00917f5801935cb6de3f2fe598fc03f69a"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/contact_sheet.webp": {
+      "before": "f24899e4675f908d8b91f8b4df3af45f66a1099ba36de72665166eae32702643",
+      "after": "f24899e4675f908d8b91f8b4df3af45f66a1099ba36de72665166eae32702643"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/exact_native_replay.json": {
+      "before": "923a254ebd516adee0d274d3e4afacda593a5ac5df09f547d3fdf853b0584700",
+      "after": "923a254ebd516adee0d274d3e4afacda593a5ac5df09f547d3fdf853b0584700"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/facing_report.json": {
+      "before": "8736d62a4835dc174d2fe64c65bdfc4b8e303987a836f3469adcbfcca313c600",
+      "after": "8736d62a4835dc174d2fe64c65bdfc4b8e303987a836f3469adcbfcca313c600"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_clay.png": {
+      "before": "421126ae91b681f812342075c1927f87a51752becb2968f16ed3c1a8dff5475c",
+      "after": "421126ae91b681f812342075c1927f87a51752becb2968f16ed3c1a8dff5475c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_parts.png": {
+      "before": "07f3e2c29a2c40cbcb63acec4049b4f30a18faa941066e263ea41ad46cb1c9aa",
+      "after": "07f3e2c29a2c40cbcb63acec4049b4f30a18faa941066e263ea41ad46cb1c9aa"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_silhouette.png": {
+      "before": "589fa890c7ae9d7113179a151175d386ed41e013aff8c2965a20c62ad8bfdfbf",
+      "after": "589fa890c7ae9d7113179a151175d386ed41e013aff8c2965a20c62ad8bfdfbf"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_bell.png": {
+      "before": "07f752a3cb3d96d02601d3c54dcb51685d1fcaf8dd1dd51f96e174140f09f1ad",
+      "after": "07f752a3cb3d96d02601d3c54dcb51685d1fcaf8dd1dd51f96e174140f09f1ad"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_cloak.png": {
+      "before": "3c2aa525b318f55f76c48bb67278e439b469e2404a721a0f42fbeac20e295342",
+      "after": "3c2aa525b318f55f76c48bb67278e439b469e2404a721a0f42fbeac20e295342"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_foot_far.png": {
+      "before": "e05eba93c19729f5524d99d621de4eecd262cedb11bbbd19f6ba30e88afbf40e",
+      "after": "e05eba93c19729f5524d99d621de4eecd262cedb11bbbd19f6ba30e88afbf40e"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_foot_near.png": {
+      "before": "0d370e3998ec717d02f7b5840eefc257430fd0f584e377ed3e7f92c9d07d88a1",
+      "after": "0d370e3998ec717d02f7b5840eefc257430fd0f584e377ed3e7f92c9d07d88a1"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_fore_far.png": {
+      "before": "0cf365e755a6ffb67b81c0c3802c80d8ffcf61795b5ec9ae73a7fbe878712725",
+      "after": "0cf365e755a6ffb67b81c0c3802c80d8ffcf61795b5ec9ae73a7fbe878712725"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_fore_near.png": {
+      "before": "c599f8d07f9de6b6cf01574445fd0366a9b2ebacbec5f1651a124b62cef16ce5",
+      "after": "c599f8d07f9de6b6cf01574445fd0366a9b2ebacbec5f1651a124b62cef16ce5"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_hand_far.png": {
+      "before": "87a7ce8441683beda6b463f52be2ee9f65ff423d1125dea85d2546046e95e309",
+      "after": "87a7ce8441683beda6b463f52be2ee9f65ff423d1125dea85d2546046e95e309"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_hand_near.png": {
+      "before": "27d4083bac4948027eebea8ea2298394232be3d7132c6f69513502020b3ab88d",
+      "after": "27d4083bac4948027eebea8ea2298394232be3d7132c6f69513502020b3ab88d"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_head.png": {
+      "before": "14a13e3d7b714d5c86dfc53c0d8c6cfbe604a5a3b18f7a2577203ee414e5f1a1",
+      "after": "14a13e3d7b714d5c86dfc53c0d8c6cfbe604a5a3b18f7a2577203ee414e5f1a1"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_pauldron_far.png": {
+      "before": "a853f21fb35296457e65655ef4de6c338b97197c8ebc9fde1b63ba0bf6442429",
+      "after": "a853f21fb35296457e65655ef4de6c338b97197c8ebc9fde1b63ba0bf6442429"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_pauldron_near.png": {
+      "before": "5db891e8eaf845f4edb2317dfc2c02c6f4af78e113ef77f993e79602062dfcfe",
+      "after": "5db891e8eaf845f4edb2317dfc2c02c6f4af78e113ef77f993e79602062dfcfe"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_pelvis.png": {
+      "before": "90f0970cf0bea190ac47cb1bc2b3a83e5aa2b3db7c0d9a505fc70e76594b1fa0",
+      "after": "90f0970cf0bea190ac47cb1bc2b3a83e5aa2b3db7c0d9a505fc70e76594b1fa0"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_sash.png": {
+      "before": "39b55a4ffbd30a605d7f9aeeb9e8d8479857cb167b82e07bfee6838a48ffb6cb",
+      "after": "39b55a4ffbd30a605d7f9aeeb9e8d8479857cb167b82e07bfee6838a48ffb6cb"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_shin_far.png": {
+      "before": "0fb648d0c3f11522ab7d7f94f1141c6c2bba785c0666496beb258a31ad0a70a4",
+      "after": "0fb648d0c3f11522ab7d7f94f1141c6c2bba785c0666496beb258a31ad0a70a4"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_shin_near.png": {
+      "before": "b253a41feb073c612369c1ca320fd1e50bc52f9288f6926ff4da9ef6594888e2",
+      "after": "b253a41feb073c612369c1ca320fd1e50bc52f9288f6926ff4da9ef6594888e2"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_staff.png": {
+      "before": "29184267df9e20d9aaff7d21ca32203d95827e7748bebd49dc06192bc5c48e36",
+      "after": "29184267df9e20d9aaff7d21ca32203d95827e7748bebd49dc06192bc5c48e36"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_tabard.png": {
+      "before": "4d341b742cc7731050e6f079aeddff3af8f474ca6ba60f1c98be4368a516abfe",
+      "after": "4d341b742cc7731050e6f079aeddff3af8f474ca6ba60f1c98be4368a516abfe"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_thigh_far.png": {
+      "before": "6085163469fa95e99ccea467575e4960fb9c9294ef6d904f20640d771ad9260e",
+      "after": "6085163469fa95e99ccea467575e4960fb9c9294ef6d904f20640d771ad9260e"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_thigh_near.png": {
+      "before": "4d73e5e617623c627437b606e0ec5063a03e60969b85dce667cbc7a5f0912b94",
+      "after": "4d73e5e617623c627437b606e0ec5063a03e60969b85dce667cbc7a5f0912b94"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_torso.png": {
+      "before": "e572504c93eec7b1d976504b746d9d3c4cc4e7b4f3c4719e5bbf5e6ddbf2203d",
+      "after": "e572504c93eec7b1d976504b746d9d3c4cc4e7b4f3c4719e5bbf5e6ddbf2203d"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_upper_far.png": {
+      "before": "762488c7b752a4f9a456b703785ae3978f890fbd135f170bb5d2f6ddaa811c2a",
+      "after": "762488c7b752a4f9a456b703785ae3978f890fbd135f170bb5d2f6ddaa811c2a"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_solo_upper_near.png": {
+      "before": "29d056bbf6f998a99371056daad9af45fee5d936ba7826eb0b4dded044e40760",
+      "after": "29d056bbf6f998a99371056daad9af45fee5d936ba7826eb0b4dded044e40760"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_torso.png": {
+      "before": "5e6df4fcf378b97eacda8d0f48f886760e7f3612aee9520cca071d56aae42a89",
+      "after": "5e6df4fcf378b97eacda8d0f48f886760e7f3612aee9520cca071d56aae42a89"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/front_torso_frontal_control.png": {
+      "before": "0f8a2eed256de9abfdee3c6f1fc12bda2312d83313d434923382464bd0d25383",
+      "after": "0f8a2eed256de9abfdee3c6f1fc12bda2312d83313d434923382464bd0d25383"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/joints_px.json": {
+      "before": "1985bfe64079cf82f3d4018d4565be03f618fd8f01f0fe540743c3dab659b0bc",
+      "after": "1985bfe64079cf82f3d4018d4565be03f618fd8f01f0fe540743c3dab659b0bc"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/mq17_acceptance.json": {
+      "before": "eef1a92190bce9b58f794804c940760291594d43e9ad73483c03f370a2afa792",
+      "after": "eef1a92190bce9b58f794804c940760291594d43e9ad73483c03f370a2afa792"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/native_capture_manifest.json": {
+      "before": "f4c5e7866eb867b50fe4f17c14daeb36269726dac5bead63d330e5eb8f34726a",
+      "after": "f4c5e7866eb867b50fe4f17c14daeb36269726dac5bead63d330e5eb8f34726a"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/native_probe.json": {
+      "before": "9c82f68301644246101f54fa50b6dd98c38bc244e60c4ad19026b40d51d30615",
+      "after": "9c82f68301644246101f54fa50b6dd98c38bc244e60c4ad19026b40d51d30615"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/native_render_manifest.json": {
+      "before": "1f300201bbd861456db2c20c211567ec2f12f83782ca08ec144410fa2cf22376",
+      "after": "1f300201bbd861456db2c20c211567ec2f12f83782ca08ec144410fa2cf22376"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/ownership_validation.json": {
+      "before": "90421ed7df4d9f8f5cf3294d11301b2e1a4038e54ee67af2d5d1844b61f1b9fc",
+      "after": "90421ed7df4d9f8f5cf3294d11301b2e1a4038e54ee67af2d5d1844b61f1b9fc"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/per_part_coverage.csv": {
+      "before": "6dad243c2d22355e805c840c3065adeba84a4189295353c888f50384d125dfd0",
+      "after": "6dad243c2d22355e805c840c3065adeba84a4189295353c888f50384d125dfd0"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/pose_table.md": {
+      "before": "46e23629d13cf50836198b38555a7ec99c9cab75b16492d0e691299e172d504c",
+      "after": "46e23629d13cf50836198b38555a7ec99c9cab75b16492d0e691299e172d504c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/proportion_table.md": {
+      "before": "ced7ec9172ab77750a19143c1ca21a9a5439220377ab4742dc48f02da76da96f",
+      "after": "ced7ec9172ab77750a19143c1ca21a9a5439220377ab4742dc48f02da76da96f"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/provenance.json": {
+      "before": "cf44175c1f2d780bf61fc619f520051836cfc8211c4d7733197de47a2248d2e3",
+      "after": "cf44175c1f2d780bf61fc619f520051836cfc8211c4d7733197de47a2248d2e3"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_clay.png": {
+      "before": "fbe18603708e6eb577664e497e860a543a1b6df380ee650a3c714dd835a0d9b3",
+      "after": "fbe18603708e6eb577664e497e860a543a1b6df380ee650a3c714dd835a0d9b3"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_parts.png": {
+      "before": "91c11c88da47ea94b504927fe4f8dfba0e5f220631c6e4effa5ab71888a090c8",
+      "after": "91c11c88da47ea94b504927fe4f8dfba0e5f220631c6e4effa5ab71888a090c8"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_silhouette.png": {
+      "before": "35ec9d1eb9f8fd9083c83ef696c60860e6fa72d04bbd8ff32e7c6306e662e728",
+      "after": "35ec9d1eb9f8fd9083c83ef696c60860e6fa72d04bbd8ff32e7c6306e662e728"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_bell.png": {
+      "before": "4a62fbc9425d50158d1a5443eb793aada7702890978fa890ade1aba88bcfb98d",
+      "after": "4a62fbc9425d50158d1a5443eb793aada7702890978fa890ade1aba88bcfb98d"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_cloak.png": {
+      "before": "15d0ab362c22f53ecdd167300afdb7a957f5bfb24622b3acdc003954395174f4",
+      "after": "15d0ab362c22f53ecdd167300afdb7a957f5bfb24622b3acdc003954395174f4"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_foot_far.png": {
+      "before": "3d15b64424db502a12247b86ec68937a22b6b4feaece38c7e15abb90eb501ab7",
+      "after": "3d15b64424db502a12247b86ec68937a22b6b4feaece38c7e15abb90eb501ab7"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_foot_near.png": {
+      "before": "2be9559e8fd9430f00e851c797463ec9255d406d6c6002997ada4f7ea199cc85",
+      "after": "2be9559e8fd9430f00e851c797463ec9255d406d6c6002997ada4f7ea199cc85"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_fore_far.png": {
+      "before": "e0e50ff86f46da89d140abb9cc86812aef13f58a5567b3476b57f51c38af91fb",
+      "after": "e0e50ff86f46da89d140abb9cc86812aef13f58a5567b3476b57f51c38af91fb"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_fore_near.png": {
+      "before": "95cc46a53ee75a164c8c1c66f906651a81215a8057a780af488627838fdc4583",
+      "after": "95cc46a53ee75a164c8c1c66f906651a81215a8057a780af488627838fdc4583"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_hand_far.png": {
+      "before": "b7080769f6026b1fade0184b51785decca5548462b31dfbe8fadf239ade2b338",
+      "after": "b7080769f6026b1fade0184b51785decca5548462b31dfbe8fadf239ade2b338"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_hand_near.png": {
+      "before": "f96444c029bbb1045138a37a2de415061c5623a923ede9c5e3cbbda0c38dccbe",
+      "after": "f96444c029bbb1045138a37a2de415061c5623a923ede9c5e3cbbda0c38dccbe"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_head.png": {
+      "before": "0119081578190b854dc4aa0702d7afc4b07f214c069d30b201966dedaa2dbdad",
+      "after": "0119081578190b854dc4aa0702d7afc4b07f214c069d30b201966dedaa2dbdad"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_pauldron_far.png": {
+      "before": "99b0bf7a6b8c37b8847154360e9be2b18a8756a81ecd43cbecfaae6278f7b168",
+      "after": "99b0bf7a6b8c37b8847154360e9be2b18a8756a81ecd43cbecfaae6278f7b168"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_pauldron_near.png": {
+      "before": "168b0b53848c0578f946a6c5769f34d40b913b01164709dd2429d4019c853f1c",
+      "after": "168b0b53848c0578f946a6c5769f34d40b913b01164709dd2429d4019c853f1c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_pelvis.png": {
+      "before": "d044a4e09604bc5aa352b6eac74a4cdb2a36fcbd6749d0ab508b3b15b7140690",
+      "after": "d044a4e09604bc5aa352b6eac74a4cdb2a36fcbd6749d0ab508b3b15b7140690"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_sash.png": {
+      "before": "deee10d6260fdcdbb41f900a6c3181c640944f3f0ea84aa1eb04db6b16249c0c",
+      "after": "deee10d6260fdcdbb41f900a6c3181c640944f3f0ea84aa1eb04db6b16249c0c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_shin_far.png": {
+      "before": "6212c7abb1e72266973e6c76b4ef182f243df315a075bc5af2ed265d1e0b6097",
+      "after": "6212c7abb1e72266973e6c76b4ef182f243df315a075bc5af2ed265d1e0b6097"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_shin_near.png": {
+      "before": "4306cd0f00f8a180e421cfe8f3185d8fcbf1504946000e4d9d1f696949bb078f",
+      "after": "4306cd0f00f8a180e421cfe8f3185d8fcbf1504946000e4d9d1f696949bb078f"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_staff.png": {
+      "before": "ff659fe0682568db096a8da37e5d32ea69643789c6d89da37cb61d1bbc92bc73",
+      "after": "ff659fe0682568db096a8da37e5d32ea69643789c6d89da37cb61d1bbc92bc73"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_tabard.png": {
+      "before": "723500e442a41af6b4ea8494e9f8ccbb29aba1fd88ef92eb91ab21438176be22",
+      "after": "723500e442a41af6b4ea8494e9f8ccbb29aba1fd88ef92eb91ab21438176be22"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_thigh_far.png": {
+      "before": "ef5c053f149f2883e453a70c4f7df4c6b93c6b485ef11cc456d3c3e71acf22f5",
+      "after": "ef5c053f149f2883e453a70c4f7df4c6b93c6b485ef11cc456d3c3e71acf22f5"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_thigh_near.png": {
+      "before": "273f51f4a543f6b14e12c95bfc58bfa49d73b6e4790bdc9d4d2c6d5d2175b773",
+      "after": "273f51f4a543f6b14e12c95bfc58bfa49d73b6e4790bdc9d4d2c6d5d2175b773"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_torso.png": {
+      "before": "24be6663525e2bed83fb79ea923f2fa16127044760136c517f142078ebff2ceb",
+      "after": "24be6663525e2bed83fb79ea923f2fa16127044760136c517f142078ebff2ceb"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_upper_far.png": {
+      "before": "a4a625207e4e7152cfb999c8c534bd635fcdceae867797eef38f456e5db5114b",
+      "after": "a4a625207e4e7152cfb999c8c534bd635fcdceae867797eef38f456e5db5114b"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/rear_solo_upper_near.png": {
+      "before": "235f99ceb4af645bd0a24c521d74e1019cc37cc7a6f3418ac214f8475e2b7f98",
+      "after": "235f99ceb4af645bd0a24c521d74e1019cc37cc7a6f3418ac214f8475e2b7f98"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/recipe_proof.json": {
+      "before": "459516e79181aedf050f36e10c06c9b919e6e2be5e9fbcd1230d5743ec014353",
+      "after": "459516e79181aedf050f36e10c06c9b919e6e2be5e9fbcd1230d5743ec014353"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/solo_coverage.json": {
+      "before": "fc9a64f7ab52d9db2bd2fc1d8c3b24b6cbe74bf87c27e741811e3c2af1790b00",
+      "after": "fc9a64f7ab52d9db2bd2fc1d8c3b24b6cbe74bf87c27e741811e3c2af1790b00"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/build.json": {
+      "before": "0c6b2df0f59df599ce8e9a001a8299a7e8c1460e58c0aa442200ddfc07298019",
+      "after": "0c6b2df0f59df599ce8e9a001a8299a7e8c1460e58c0aa442200ddfc07298019"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/build.log": {
+      "before": "85b03aff8635ec762b50d80c1f901ffbd39b77eff952fd4d6648641c3dbf4cf7",
+      "after": "85b03aff8635ec762b50d80c1f901ffbd39b77eff952fd4d6648641c3dbf4cf7"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/cold_replay.json": {
+      "before": "b303d612377d60dc9838d5bef8aab579d7bdc20175d5d4ae0c78f9d94a9ba172",
+      "after": "b303d612377d60dc9838d5bef8aab579d7bdc20175d5d4ae0c78f9d94a9ba172"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/cold_replay.log": {
+      "before": "9a4d348783ce7a2ff923cf770e1a553f217e536ef0fceae141894a30832e60cf",
+      "after": "9a4d348783ce7a2ff923cf770e1a553f217e536ef0fceae141894a30832e60cf"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/exact_replay.json": {
+      "before": "92d136a23e96709f3ef323644a06e1b76692585754f162a45c7e283e6eb40270",
+      "after": "92d136a23e96709f3ef323644a06e1b76692585754f162a45c7e283e6eb40270"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/exact_replay.log": {
+      "before": "3247d4b73b773b3f23f00a1493e256b58659e113be58fb92da6cd2a949faaba6",
+      "after": "3247d4b73b773b3f23f00a1493e256b58659e113be58fb92da6cd2a949faaba6"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_preview.json": {
+      "before": "6e4b7a606bc2e2ab6a9387a0de74e6711185a54164bb111a38c32d407fc7509b",
+      "after": "6e4b7a606bc2e2ab6a9387a0de74e6711185a54164bb111a38c32d407fc7509b"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_preview.log": {
+      "before": "261194f39f4771cf13ab04a5d4eaebba52a4c9d981bccfa09f68ab698e47d669",
+      "after": "261194f39f4771cf13ab04a5d4eaebba52a4c9d981bccfa09f68ab698e47d669"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_solo_0.json": {
+      "before": "424c51827b2f63c59768ab788ea43e6ae945b1a89fd58e8f01a6da176542cf68",
+      "after": "424c51827b2f63c59768ab788ea43e6ae945b1a89fd58e8f01a6da176542cf68"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_solo_0.log": {
+      "before": "8cd6885c7abf310f5a9c9e5a41fe6474661e716528f760ed4ba590b85d79b4e1",
+      "after": "8cd6885c7abf310f5a9c9e5a41fe6474661e716528f760ed4ba590b85d79b4e1"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_solo_12.json": {
+      "before": "e4652ea644356deffd23eb3004487cf6a42e67c32bb0b6269ecce3294f361de5",
+      "after": "e4652ea644356deffd23eb3004487cf6a42e67c32bb0b6269ecce3294f361de5"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_solo_12.log": {
+      "before": "a5a56b4eac206ef0be5d026583fb7cf3f257d3034377958f81351677e68f00f2",
+      "after": "a5a56b4eac206ef0be5d026583fb7cf3f257d3034377958f81351677e68f00f2"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_solo_16.json": {
+      "before": "67dd6ff2007cf481e649051c6968410c4aad1faa1dbc855d7230b5673ac9fda6",
+      "after": "67dd6ff2007cf481e649051c6968410c4aad1faa1dbc855d7230b5673ac9fda6"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_solo_16.log": {
+      "before": "2349d1cd190fe90aaae2096443477c767d09ecc3aa9a9741ca7fcd3bfea18172",
+      "after": "2349d1cd190fe90aaae2096443477c767d09ecc3aa9a9741ca7fcd3bfea18172"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_solo_20.json": {
+      "before": "a7d2ded6f40b0f571c2d628ff3460558073f1ac803b6404d2c33c7442c43bf81",
+      "after": "a7d2ded6f40b0f571c2d628ff3460558073f1ac803b6404d2c33c7442c43bf81"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_solo_20.log": {
+      "before": "e8426b8e932cc9d314c8da76790ade97b422c73447089bc0f886aeaa8da13e9a",
+      "after": "e8426b8e932cc9d314c8da76790ade97b422c73447089bc0f886aeaa8da13e9a"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_solo_4.json": {
+      "before": "fd146bfd7c032484cdbc71c05cdbe709fba199546d95fcab2d72cb87f8fed4b2",
+      "after": "fd146bfd7c032484cdbc71c05cdbe709fba199546d95fcab2d72cb87f8fed4b2"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_solo_4.log": {
+      "before": "d561047ac5aee3bf02b170a2b84ffbcc13c9d547b8b95db9bea1218e6233eab2",
+      "after": "d561047ac5aee3bf02b170a2b84ffbcc13c9d547b8b95db9bea1218e6233eab2"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_solo_8.json": {
+      "before": "3e6025b02e5d6709073fd59ff7749fcbb2af4e46f7b090bbf9707c95f9ce10b1",
+      "after": "3e6025b02e5d6709073fd59ff7749fcbb2af4e46f7b090bbf9707c95f9ce10b1"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/front_solo_8.log": {
+      "before": "007051f7d176deec6a98f488f6b02d45c2f3e5b7877c10dbda0c4af2d7d534a6",
+      "after": "007051f7d176deec6a98f488f6b02d45c2f3e5b7877c10dbda0c4af2d7d534a6"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/native_probe.json": {
+      "before": "13ec0b0c9bb76d8f91dddd1d64cb4ab143ef4f2a0903c210cd5c94e1a1396db0",
+      "after": "13ec0b0c9bb76d8f91dddd1d64cb4ab143ef4f2a0903c210cd5c94e1a1396db0"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/native_probe.log": {
+      "before": "919171814246c490922e454836c034deb0019a9ebc1b3300c32598745cb6c184",
+      "after": "919171814246c490922e454836c034deb0019a9ebc1b3300c32598745cb6c184"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_preview.json": {
+      "before": "1ed06ecbc47f84fce29453a247d99921502ef31401521eefb6874bb571b4a1e9",
+      "after": "1ed06ecbc47f84fce29453a247d99921502ef31401521eefb6874bb571b4a1e9"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_preview.log": {
+      "before": "f5c366bf86feade3377b2c002e27bbd6fdb45ac8f8defdce9779315e84f5d60a",
+      "after": "f5c366bf86feade3377b2c002e27bbd6fdb45ac8f8defdce9779315e84f5d60a"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_solo_0.json": {
+      "before": "d5b753875c4bf4351971c884407348c3ec11f4fd9f465f4f23cbb627f53b324a",
+      "after": "d5b753875c4bf4351971c884407348c3ec11f4fd9f465f4f23cbb627f53b324a"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_solo_0.log": {
+      "before": "5ba81c832efa0a5db29dbebc171f333f20101bf4522df6bed41aaf72b414e028",
+      "after": "5ba81c832efa0a5db29dbebc171f333f20101bf4522df6bed41aaf72b414e028"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_solo_12.json": {
+      "before": "d7b040d9516fcb65c98ef77702a774b28131d0921777d64017b9a89c3ed9f825",
+      "after": "d7b040d9516fcb65c98ef77702a774b28131d0921777d64017b9a89c3ed9f825"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_solo_12.log": {
+      "before": "76d316aea573a9a6f4b17784ca5b61cba5d669cef51dbeec97fdce0c6e20256e",
+      "after": "76d316aea573a9a6f4b17784ca5b61cba5d669cef51dbeec97fdce0c6e20256e"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_solo_16.json": {
+      "before": "5ca9ba0a5061988bab0304990d77b7b2588df3f2bb57b2efec603db583d799e5",
+      "after": "5ca9ba0a5061988bab0304990d77b7b2588df3f2bb57b2efec603db583d799e5"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_solo_16.log": {
+      "before": "ce2b43e16e8423a4fb813c9616229359d75a1d561d7fadbe0f90faf1ac065a62",
+      "after": "ce2b43e16e8423a4fb813c9616229359d75a1d561d7fadbe0f90faf1ac065a62"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_solo_20.json": {
+      "before": "b1a6363f82b50329bae18c588e031ea11a49e3885d87e6a09fd2aaa1659fdc6f",
+      "after": "b1a6363f82b50329bae18c588e031ea11a49e3885d87e6a09fd2aaa1659fdc6f"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_solo_20.log": {
+      "before": "837b8a3c344746f03dab771ff68717d14dc51d38d4158d90821d2d41c4bad7d5",
+      "after": "837b8a3c344746f03dab771ff68717d14dc51d38d4158d90821d2d41c4bad7d5"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_solo_4.json": {
+      "before": "7c582d67cf32c03d990f44bc98a25fae4047cad4415f3086a919045fc6171f26",
+      "after": "7c582d67cf32c03d990f44bc98a25fae4047cad4415f3086a919045fc6171f26"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_solo_4.log": {
+      "before": "51f21e7188f2de50fcc4bd07064ab96f84e23b043fc0d08e109000672130ede4",
+      "after": "51f21e7188f2de50fcc4bd07064ab96f84e23b043fc0d08e109000672130ede4"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_solo_8.json": {
+      "before": "b068518fdb2cee6b885b1fb3057f624d3bdf756bd3d24ac55bf0a97a7a668a44",
+      "after": "b068518fdb2cee6b885b1fb3057f624d3bdf756bd3d24ac55bf0a97a7a668a44"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/bridge/rear_solo_8.log": {
+      "before": "3e8f422ef4780d1db386470c764692c11c366c4459ebf66f69458dbdc40cb55a",
+      "after": "3e8f422ef4780d1db386470c764692c11c366c4459ebf66f69458dbdc40cb55a"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/build.json": {
+      "before": "69305f482b702649bdb7ca817a57983c0be1aee46ca896fdf29d95377fd57905",
+      "after": "69305f482b702649bdb7ca817a57983c0be1aee46ca896fdf29d95377fd57905"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/build.log": {
+      "before": "85b03aff8635ec762b50d80c1f901ffbd39b77eff952fd4d6648641c3dbf4cf7",
+      "after": "85b03aff8635ec762b50d80c1f901ffbd39b77eff952fd4d6648641c3dbf4cf7"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/fresh_native_probe.json": {
+      "before": "06b3c7a868b8a5252cc38196bd693836523f649201ff57b466d51eeb6ff2449c",
+      "after": "06b3c7a868b8a5252cc38196bd693836523f649201ff57b466d51eeb6ff2449c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/fresh_native_probe.log": {
+      "before": "a08cc014c3dd852c3d0d7d0c450bc42b9d7ba338ef0771db441e962e3bc816a1",
+      "after": "a08cc014c3dd852c3d0d7d0c450bc42b9d7ba338ef0771db441e962e3bc816a1"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_preview.json": {
+      "before": "cc2c821425caf09036bf923a44f60465382ad343790a672f4bfcc832a879584d",
+      "after": "cc2c821425caf09036bf923a44f60465382ad343790a672f4bfcc832a879584d"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_preview.log": {
+      "before": "4c037fd9ac0a9e96fdee07972cb5905a0cf9791378eda8b95630b9173da9decc",
+      "after": "4c037fd9ac0a9e96fdee07972cb5905a0cf9791378eda8b95630b9173da9decc"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_0.json": {
+      "before": "e2b4c72b819f7ad8ce208c24931d9953d9c4612374f53685bc2d0c1fc107d613",
+      "after": "e2b4c72b819f7ad8ce208c24931d9953d9c4612374f53685bc2d0c1fc107d613"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_0.log": {
+      "before": "feb9ac0d824577f3d64f695f9a912999d4aaa0da03dc36a22fa8069a86848c1e",
+      "after": "feb9ac0d824577f3d64f695f9a912999d4aaa0da03dc36a22fa8069a86848c1e"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_10.json": {
+      "before": "bf00c43dad9ed90723976265c0ab3047b2b7a044955ac238957aaa9a02bfdae3",
+      "after": "bf00c43dad9ed90723976265c0ab3047b2b7a044955ac238957aaa9a02bfdae3"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_10.log": {
+      "before": "e1c7295752ed4ee5b9f1294eda82eb6ab63e2027617bfac0c937c5ff8a6865ee",
+      "after": "e1c7295752ed4ee5b9f1294eda82eb6ab63e2027617bfac0c937c5ff8a6865ee"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_12.json": {
+      "before": "a95ec5129cef33937952e5cb1dc6d409f64094dac0f92c599db14db5f92efa83",
+      "after": "a95ec5129cef33937952e5cb1dc6d409f64094dac0f92c599db14db5f92efa83"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_12.log": {
+      "before": "3b43f137a2513422959333a442468a038045d46e8bd50e78b1635c6009068e07",
+      "after": "3b43f137a2513422959333a442468a038045d46e8bd50e78b1635c6009068e07"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_14.json": {
+      "before": "e01a62dd81072ce3c23a9f6058fda9815f47fcab863572e9681ae633191318b2",
+      "after": "e01a62dd81072ce3c23a9f6058fda9815f47fcab863572e9681ae633191318b2"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_14.log": {
+      "before": "0b5bd7317d8f356490e6a862c9d4d5c35a10cc0f81966fd3f8f9ac6a94e22656",
+      "after": "0b5bd7317d8f356490e6a862c9d4d5c35a10cc0f81966fd3f8f9ac6a94e22656"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_16.json": {
+      "before": "971739f09a089d35bb92614f77b599d418246fd1524c354207670a63ec297b38",
+      "after": "971739f09a089d35bb92614f77b599d418246fd1524c354207670a63ec297b38"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_16.log": {
+      "before": "eb5a22e6a434426298d5fdf17c4d1f8f35375df8b8a960fcf97ca4d34efa1416",
+      "after": "eb5a22e6a434426298d5fdf17c4d1f8f35375df8b8a960fcf97ca4d34efa1416"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_18.json": {
+      "before": "01e7a95eef49f19cec9fa972065745a4bc2c825fb41d4819ff342902bcaaa8b3",
+      "after": "01e7a95eef49f19cec9fa972065745a4bc2c825fb41d4819ff342902bcaaa8b3"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_18.log": {
+      "before": "4bae3f35c380358ef7d05674e5bd942d4ea626c80394e1ab908e1abb6d95d71e",
+      "after": "4bae3f35c380358ef7d05674e5bd942d4ea626c80394e1ab908e1abb6d95d71e"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_2.json": {
+      "before": "8b8450090ec9fd497256b1637a4a6a2de7c6f50d0f6753d8b2e671523b0359d0",
+      "after": "8b8450090ec9fd497256b1637a4a6a2de7c6f50d0f6753d8b2e671523b0359d0"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_2.log": {
+      "before": "d70571fe8ab110e33d32788d854bb2830f1bac89260786e225d746249709c841",
+      "after": "d70571fe8ab110e33d32788d854bb2830f1bac89260786e225d746249709c841"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_20.json": {
+      "before": "3839591ba1cfedda311cee5c9acfec38c938f85a293687dd7d28edfb70d66467",
+      "after": "3839591ba1cfedda311cee5c9acfec38c938f85a293687dd7d28edfb70d66467"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_20.log": {
+      "before": "ccbdca485aaf7af59a31e2228cfefac7de32a4a14242feb10e5db0f7e220d9af",
+      "after": "ccbdca485aaf7af59a31e2228cfefac7de32a4a14242feb10e5db0f7e220d9af"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_4.json": {
+      "before": "fb23add97d9701a3f38e4a5471d4d015c72960eddaa670389e1f390649da4975",
+      "after": "fb23add97d9701a3f38e4a5471d4d015c72960eddaa670389e1f390649da4975"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_4.log": {
+      "before": "5a50eb78354fc1a34333e2e07f71067a06bfa4bcf0173291aa099d6e16df5d00",
+      "after": "5a50eb78354fc1a34333e2e07f71067a06bfa4bcf0173291aa099d6e16df5d00"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_6.json": {
+      "before": "ce8ed082668dad1b76e13ae3c6e0a8792afec3b17a4251bbf0fd17f587d1e460",
+      "after": "ce8ed082668dad1b76e13ae3c6e0a8792afec3b17a4251bbf0fd17f587d1e460"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_6.log": {
+      "before": "2283fa769b8bd6d1ea5bea17a819be8aa13cf10d9e02cb2872024dd83a758388",
+      "after": "2283fa769b8bd6d1ea5bea17a819be8aa13cf10d9e02cb2872024dd83a758388"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_8.json": {
+      "before": "fd1914e06ae31d436044adc8e1bc2e3e13ab3c6d8a44cc1e81d5719502333df2",
+      "after": "fd1914e06ae31d436044adc8e1bc2e3e13ab3c6d8a44cc1e81d5719502333df2"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/front_solo_8.log": {
+      "before": "e6f8a833fc2082114dc182e32281b078b545852fb770a4254bbbf83a86d3b094",
+      "after": "e6f8a833fc2082114dc182e32281b078b545852fb770a4254bbbf83a86d3b094"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_preview.json": {
+      "before": "775646e19b7160f6d038f0b33743634bdf2812d529afe26536e270fff366b291",
+      "after": "775646e19b7160f6d038f0b33743634bdf2812d529afe26536e270fff366b291"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_preview.log": {
+      "before": "97156098c9f885d44177253463b1334212d08b79abc7ff697ac72579e7cfb9f3",
+      "after": "97156098c9f885d44177253463b1334212d08b79abc7ff697ac72579e7cfb9f3"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_0.json": {
+      "before": "1eb4179d339e9d642a9e3e23b9f72b19bb7c849bcc857b08bcedba0261e8be66",
+      "after": "1eb4179d339e9d642a9e3e23b9f72b19bb7c849bcc857b08bcedba0261e8be66"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_0.log": {
+      "before": "ea3b9d317655ed596875c266e6d0d20a94a5c9e976da780272949468a2a0f3fa",
+      "after": "ea3b9d317655ed596875c266e6d0d20a94a5c9e976da780272949468a2a0f3fa"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_10.json": {
+      "before": "95a2575128da941defcdb3ad13278de0a1adde61ab5534a0e4d98e9db03d6c6c",
+      "after": "95a2575128da941defcdb3ad13278de0a1adde61ab5534a0e4d98e9db03d6c6c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_10.log": {
+      "before": "c8f4c1896fd8538c6a7324fd825be3b85e9b1556261ae4c65cd6e85ba3a62c7a",
+      "after": "c8f4c1896fd8538c6a7324fd825be3b85e9b1556261ae4c65cd6e85ba3a62c7a"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_12.json": {
+      "before": "a1eaa84e2aabb437b89408f9cf240c96e23cf9c10112cdfcf1348a46bd98abd7",
+      "after": "a1eaa84e2aabb437b89408f9cf240c96e23cf9c10112cdfcf1348a46bd98abd7"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_12.log": {
+      "before": "6c8c179d14b9487505c205da0c606e10cd0a25d8eb7dff2375a3a5b6c550cbbc",
+      "after": "6c8c179d14b9487505c205da0c606e10cd0a25d8eb7dff2375a3a5b6c550cbbc"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_14.json": {
+      "before": "79070d486c980a4932ceb3cda550f70e8fee3cee1e6090e65c07b4a6a03aad6f",
+      "after": "79070d486c980a4932ceb3cda550f70e8fee3cee1e6090e65c07b4a6a03aad6f"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_14.log": {
+      "before": "3fbee5fbc53b067052e3174f09d88305a6a5de4403a69a1ef2ceb117d2bbec9c",
+      "after": "3fbee5fbc53b067052e3174f09d88305a6a5de4403a69a1ef2ceb117d2bbec9c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_16.json": {
+      "before": "c2cdb2df11c60753b38d42633eecbde3471d1d8de408e77c3fea5817ec06490e",
+      "after": "c2cdb2df11c60753b38d42633eecbde3471d1d8de408e77c3fea5817ec06490e"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_16.log": {
+      "before": "8004cbb57c1e77010881e5f5adec04e27c901f1eb79a8b8ecfda963a2bac89a3",
+      "after": "8004cbb57c1e77010881e5f5adec04e27c901f1eb79a8b8ecfda963a2bac89a3"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_18.json": {
+      "before": "8cf176b6b4cec0693785b0868cc8a6e42b41aa1cf214f3ff46e1d7119a24d69c",
+      "after": "8cf176b6b4cec0693785b0868cc8a6e42b41aa1cf214f3ff46e1d7119a24d69c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_18.log": {
+      "before": "6f902f6c3f8e4a101c478e84a9dbb6fb579718e104bcf699fc1bf4eac3f4819f",
+      "after": "6f902f6c3f8e4a101c478e84a9dbb6fb579718e104bcf699fc1bf4eac3f4819f"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_2.json": {
+      "before": "0522e4e542fd0982729bacecde7385887b5474f2f3b3d2c8bb9d94dbf7c29f3a",
+      "after": "0522e4e542fd0982729bacecde7385887b5474f2f3b3d2c8bb9d94dbf7c29f3a"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_2.log": {
+      "before": "6f48b04e29a636c697dadb8c308124680c6b4a608f79c91191f1f95ba4240675",
+      "after": "6f48b04e29a636c697dadb8c308124680c6b4a608f79c91191f1f95ba4240675"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_20.json": {
+      "before": "02cef92d0dd73cb8c11bf98d4e1b71922ebb15ebd8bd43188357eb7a990faec2",
+      "after": "02cef92d0dd73cb8c11bf98d4e1b71922ebb15ebd8bd43188357eb7a990faec2"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_20.log": {
+      "before": "d0eacb348940c8eb2ddbb75a4723bd8ce3ee768ebd7a7aa0406856a197517eac",
+      "after": "d0eacb348940c8eb2ddbb75a4723bd8ce3ee768ebd7a7aa0406856a197517eac"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_4.json": {
+      "before": "52c540b69a7f43ce6a03cab2f08f3d203f12e6d42beb334313501387e70ab42c",
+      "after": "52c540b69a7f43ce6a03cab2f08f3d203f12e6d42beb334313501387e70ab42c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_4.log": {
+      "before": "ef1bf4c94910288151830e6b5aa1a1874ee152e516f3600962ee1a7ea098d88c",
+      "after": "ef1bf4c94910288151830e6b5aa1a1874ee152e516f3600962ee1a7ea098d88c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_6.json": {
+      "before": "acc1b4024b3d6f3573ed59b71606696f23e0a1a11333d7b65a61dc33d7183e00",
+      "after": "acc1b4024b3d6f3573ed59b71606696f23e0a1a11333d7b65a61dc33d7183e00"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_6.log": {
+      "before": "1e433b12c3915917719cbb8cdf73246a9b10f4a9c12af0a9fb6aa23708076da0",
+      "after": "1e433b12c3915917719cbb8cdf73246a9b10f4a9c12af0a9fb6aa23708076da0"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_8.json": {
+      "before": "82ebed150b6f0e4c266b9de6e8188336f70d8ec2bc69548b000d510cc84f966a",
+      "after": "82ebed150b6f0e4c266b9de6e8188336f70d8ec2bc69548b000d510cc84f966a"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/bridge/rear_solo_8.log": {
+      "before": "6fc05a8b4566df6147a0266715bc612194282b2eebf111e2c00b8ae8167b5027",
+      "after": "6fc05a8b4566df6147a0266715bc612194282b2eebf111e2c00b8ae8167b5027"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/clean_input_sha256.json": {
+      "before": "5545cf4904ecb10b9774a7dd1c8b5ac8ec4f1fea820101865f7c9565d31e72bb",
+      "after": "5545cf4904ecb10b9774a7dd1c8b5ac8ec4f1fea820101865f7c9565d31e72bb"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/compile.log": {
+      "before": "0a237148a122a94d53649c7c0e023ae7f5902a0823446d5fd8d3aed9931c508d",
+      "after": "0a237148a122a94d53649c7c0e023ae7f5902a0823446d5fd8d3aed9931c508d"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/regenerated_capture_manifest.json": {
+      "before": "b57a3c6be29534674b65074bff46315cf2f10b87329bc7c735ae2b6f8def4c4c",
+      "after": "b57a3c6be29534674b65074bff46315cf2f10b87329bc7c735ae2b6f8def4c4c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/delivery/validation/regeneration/regeneration.json": {
+      "before": "6d982e7e3f06a3f5ac09da4fe2609d1ec77961753bb9d5f0387ab31db07e549d",
+      "after": "6d982e7e3f06a3f5ac09da4fe2609d1ec77961753bb9d5f0387ab31db07e549d"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/COMMIT_MANIFEST.txt": {
+      "before": "68a9ec3c7f68f3fc3cac711fc7b41f3a4c1799a454d8c7c719adebb8b6a7f4b8",
+      "after": "68a9ec3c7f68f3fc3cac711fc7b41f3a4c1799a454d8c7c719adebb8b6a7f4b8"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/bundle_sha256.json": {
+      "before": "0269af47097f05bb1b39f3d86e58fa56a5e8f14b23201a4080eeea7011d9a99e",
+      "after": "0269af47097f05bb1b39f3d86e58fa56a5e8f14b23201a4080eeea7011d9a99e"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/clean_input_sha256.json": {
+      "before": "7c9397a81888565c34e62ac0cfac426e2537f48d58ff812548fc82dd101b1557",
+      "after": "7c9397a81888565c34e62ac0cfac426e2537f48d58ff812548fc82dd101b1557"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/build_report.json": {
+      "before": "855bb45f47641e19a9e7db0133d06b8afab9f68069f0215ea8fce04ed2338511",
+      "after": "855bb45f47641e19a9e7db0133d06b8afab9f68069f0215ea8fce04ed2338511"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/capture_checks.json": {
+      "before": "d0f6fa4f82c19987c2c0f583054de01d0c9ca3a8fe84b3372942c276e785ff80",
+      "after": "d0f6fa4f82c19987c2c0f583054de01d0c9ca3a8fe84b3372942c276e785ff80"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/capture_manifest.json": {
+      "before": "1d0a76dacfaee392a4dd101c5b8dacd022e9d29ff95d38e9f089fffe8df7ddf8",
+      "after": "1d0a76dacfaee392a4dd101c5b8dacd022e9d29ff95d38e9f089fffe8df7ddf8"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/capture_packing.json": {
+      "before": "ac1f01a3d88d260976721d66ad7ccbfd2038af07659e237b6d038b1cf23ae566",
+      "after": "ac1f01a3d88d260976721d66ad7ccbfd2038af07659e237b6d038b1cf23ae566"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/contact_sheet.json": {
+      "before": "0a688b66779869309b7eeb8b3ac94e97a964519d4786900b39e8960c930941b0",
+      "after": "0a688b66779869309b7eeb8b3ac94e97a964519d4786900b39e8960c930941b0"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/contact_sheet.webp": {
+      "before": "7d7946177ea64a2c9c1a2678becb1dcd63e8800d4131c9729a32a4cfea0d87f1",
+      "after": "7d7946177ea64a2c9c1a2678becb1dcd63e8800d4131c9729a32a4cfea0d87f1"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/exact_native_replay.json": {
+      "before": "ca3d60e0a4f12e9cbda16e2fc11aefd0de4974a794627ab971f660e88e7fb0a0",
+      "after": "ca3d60e0a4f12e9cbda16e2fc11aefd0de4974a794627ab971f660e88e7fb0a0"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/facing_report.json": {
+      "before": "d5180dac4c5d723274a59d85241042003eb321f621c89c9813efae453cd3064c",
+      "after": "d5180dac4c5d723274a59d85241042003eb321f621c89c9813efae453cd3064c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_clay.png": {
+      "before": "e058c0358e09e1437e9e5a5631e112932f39cb72d35ccfc3fb59e841a1171dcb",
+      "after": "e058c0358e09e1437e9e5a5631e112932f39cb72d35ccfc3fb59e841a1171dcb"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_far_2x.json": {
+      "before": "f0569c01cd18d3d379b26bce2be45051812d56a1b5a700c9b781ae709f714b65",
+      "after": "f0569c01cd18d3d379b26bce2be45051812d56a1b5a700c9b781ae709f714b65"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_far_2x.webp": {
+      "before": "47da89ec77c9a2736567f61ea383dd8e91ab40ea89bc90c0e525618781363069",
+      "after": "47da89ec77c9a2736567f61ea383dd8e91ab40ea89bc90c0e525618781363069"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_parts.png": {
+      "before": "2676833e62f6e6ab9fb4e62dc1bec14b3977e0349632d9c8d729c4f799124cac",
+      "after": "2676833e62f6e6ab9fb4e62dc1bec14b3977e0349632d9c8d729c4f799124cac"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_silhouette.png": {
+      "before": "8eacf9c570d924cd57ebd7bf4c6423f76e3b9ff1afb1c66d163cddd9a0307099",
+      "after": "8eacf9c570d924cd57ebd7bf4c6423f76e3b9ff1afb1c66d163cddd9a0307099"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_bell.png": {
+      "before": "b5b7153d116ad77961d0cdfec1d5cc4a057f5aaafd340467ed10976874c43def",
+      "after": "b5b7153d116ad77961d0cdfec1d5cc4a057f5aaafd340467ed10976874c43def"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_cloak.png": {
+      "before": "00313d7015593b47873d867b67ac48a101882f844e24c46063c347db81f792e4",
+      "after": "00313d7015593b47873d867b67ac48a101882f844e24c46063c347db81f792e4"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_foot_far.png": {
+      "before": "fb2199db3c734de7960e5c9a061970e87a6692d5ae73a588cd1a89deff511c72",
+      "after": "fb2199db3c734de7960e5c9a061970e87a6692d5ae73a588cd1a89deff511c72"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_foot_near.png": {
+      "before": "7f07c481395b78d734b4ed5ee0af63a7bd596f9d510111f9ab4346aad8120e30",
+      "after": "7f07c481395b78d734b4ed5ee0af63a7bd596f9d510111f9ab4346aad8120e30"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_fore_far.png": {
+      "before": "6441504c5ce356d26e957d5015f0f52c9cf8fd7b0d42b9cb2a17586cc7b463e8",
+      "after": "6441504c5ce356d26e957d5015f0f52c9cf8fd7b0d42b9cb2a17586cc7b463e8"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_fore_near.png": {
+      "before": "6f4dfb33c1cdfd6216f434a8007eb76a32e4bc8771f1dba664c68fc2982f1bbb",
+      "after": "6f4dfb33c1cdfd6216f434a8007eb76a32e4bc8771f1dba664c68fc2982f1bbb"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_hand_far.png": {
+      "before": "093aa80a75acaef9d12a6220305788adc5edacc3debb57a535cefc27946e6d16",
+      "after": "093aa80a75acaef9d12a6220305788adc5edacc3debb57a535cefc27946e6d16"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_hand_near.png": {
+      "before": "5b475762b80cbe030e498cd7230c29f09f6fb111d97f50e678d116fc9ae5dff3",
+      "after": "5b475762b80cbe030e498cd7230c29f09f6fb111d97f50e678d116fc9ae5dff3"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_head.png": {
+      "before": "4ff6c3ce45da9edcf4c08107a38c9cf818cd35dd47425d4768a84fbbd1b219ef",
+      "after": "4ff6c3ce45da9edcf4c08107a38c9cf818cd35dd47425d4768a84fbbd1b219ef"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_pauldron_far.png": {
+      "before": "7538bcf83a61be6bb7b087359c7cf5420dcd1cd5b192c565ebdbc264ed34b62a",
+      "after": "7538bcf83a61be6bb7b087359c7cf5420dcd1cd5b192c565ebdbc264ed34b62a"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_pauldron_near.png": {
+      "before": "82ac05178c35570971030a8c68fcd1abfa89f2897b6eb6ced2f79d76b846f74b",
+      "after": "82ac05178c35570971030a8c68fcd1abfa89f2897b6eb6ced2f79d76b846f74b"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_pelvis.png": {
+      "before": "5866386604356dd94ccb78d7b569cc76f55f21cdecd6b548d4f8da8a0bc2070b",
+      "after": "5866386604356dd94ccb78d7b569cc76f55f21cdecd6b548d4f8da8a0bc2070b"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_sash.png": {
+      "before": "b25efc5bf2ab7209d14166f31b051960edeae58e83f6fe8d8a5a225716c6942f",
+      "after": "b25efc5bf2ab7209d14166f31b051960edeae58e83f6fe8d8a5a225716c6942f"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_shin_far.png": {
+      "before": "9a6dba5afe000750cf741b096856c426af13313d096f7d0616b7bb5ed464c25b",
+      "after": "9a6dba5afe000750cf741b096856c426af13313d096f7d0616b7bb5ed464c25b"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_shin_near.png": {
+      "before": "67427b9fe254e1a5dfcfe6cd0115dd1d2e68208aa7e678af87605a7a3c20d3fe",
+      "after": "67427b9fe254e1a5dfcfe6cd0115dd1d2e68208aa7e678af87605a7a3c20d3fe"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_staff.png": {
+      "before": "1c4cdfe1e4b41be1fd789afec7cf58a5f739ff345dbf78472c47196217541b0c",
+      "after": "1c4cdfe1e4b41be1fd789afec7cf58a5f739ff345dbf78472c47196217541b0c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_tabard.png": {
+      "before": "afa5523a768f12ec0002cc50e3938c19aac136793b69b838afb08d754e8fb03d",
+      "after": "afa5523a768f12ec0002cc50e3938c19aac136793b69b838afb08d754e8fb03d"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_thigh_far.png": {
+      "before": "b92243a10e6b0f153592fd2ec9ed9592f88208c0615fd6774824588ff7cf8f3d",
+      "after": "b92243a10e6b0f153592fd2ec9ed9592f88208c0615fd6774824588ff7cf8f3d"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_thigh_near.png": {
+      "before": "15f7dbcce2e025373a3a1d1e84bffa14fabf83da88f477cad6fc742894f42172",
+      "after": "15f7dbcce2e025373a3a1d1e84bffa14fabf83da88f477cad6fc742894f42172"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_torso.png": {
+      "before": "9edd2fc3043929bd86539b3c0cda531dc5b30b0c159ce694abaf8ed9423082d3",
+      "after": "9edd2fc3043929bd86539b3c0cda531dc5b30b0c159ce694abaf8ed9423082d3"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_upper_far.png": {
+      "before": "c22c3ad62f173a280a9e6e5c099fec3c3eaeabd07df056a600d904b04abbd65e",
+      "after": "c22c3ad62f173a280a9e6e5c099fec3c3eaeabd07df056a600d904b04abbd65e"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_solo_upper_near.png": {
+      "before": "8077e6b7eab26e061e4a104d1e220f3c7c674728d7fbdcfd45e0bed9f4c8c28c",
+      "after": "8077e6b7eab26e061e4a104d1e220f3c7c674728d7fbdcfd45e0bed9f4c8c28c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_torso.png": {
+      "before": "4b7318f9b84362dd5fcb3cf5c53b1a361e94e983b112730abc9634bb8234e635",
+      "after": "4b7318f9b84362dd5fcb3cf5c53b1a361e94e983b112730abc9634bb8234e635"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/front_torso_frontal_control.png": {
+      "before": "36aa9f9e0660140861fd354d71a24a9f52743006122fe81ff4f5c976182c5cbf",
+      "after": "36aa9f9e0660140861fd354d71a24a9f52743006122fe81ff4f5c976182c5cbf"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/joints_px.json": {
+      "before": "d968ecb4c6b494b487bf4217077aa3016781338c9cfddcc6881ecdb6398f6b2f",
+      "after": "d968ecb4c6b494b487bf4217077aa3016781338c9cfddcc6881ecdb6398f6b2f"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/mq19_acceptance.json": {
+      "before": "6e5e0b47b7f5a68b4f944a786d2cc8ad4574d7c372948817467eea1929bcffa0",
+      "after": "6e5e0b47b7f5a68b4f944a786d2cc8ad4574d7c372948817467eea1929bcffa0"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/mq19_native.json": {
+      "before": "fa25e245faa521970d8c5b5bef6ed95d615b410fe2572eb5d048d03aed38991d",
+      "after": "fa25e245faa521970d8c5b5bef6ed95d615b410fe2572eb5d048d03aed38991d"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/native_render_manifest.json": {
+      "before": "5be4fbf867df1416b55996391fc5f6ed126f01e2337bbf685116735df6782e49",
+      "after": "5be4fbf867df1416b55996391fc5f6ed126f01e2337bbf685116735df6782e49"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/ownership_validation.json": {
+      "before": "90421ed7df4d9f8f5cf3294d11301b2e1a4038e54ee67af2d5d1844b61f1b9fc",
+      "after": "90421ed7df4d9f8f5cf3294d11301b2e1a4038e54ee67af2d5d1844b61f1b9fc"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/per_part_coverage.csv": {
+      "before": "b1f061ddf479f80801597ea922e13d04f1d567f90ebb3a56844a4106b6171c4b",
+      "after": "b1f061ddf479f80801597ea922e13d04f1d567f90ebb3a56844a4106b6171c4b"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/pose_table.md": {
+      "before": "3d0b3e294681143447e381c5aa38d2a3631db7e2a0e6b6ed856e3e5ece160f57",
+      "after": "3d0b3e294681143447e381c5aa38d2a3631db7e2a0e6b6ed856e3e5ece160f57"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/proportion_table.md": {
+      "before": "56f747fadd4f27aeba8cbf11b0b77bcae5073f1f8125309b70e5db416d935f9c",
+      "after": "56f747fadd4f27aeba8cbf11b0b77bcae5073f1f8125309b70e5db416d935f9c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_clay.png": {
+      "before": "11a79051b0458a76b5b777ab7f2dd0e1bf53ad87f906bf4ed9f95a7aadffd227",
+      "after": "11a79051b0458a76b5b777ab7f2dd0e1bf53ad87f906bf4ed9f95a7aadffd227"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_cloak_2x.json": {
+      "before": "9e5d4f6e4f396e5922060eec257cdacaf2c68dddad36db4215ec017c0ba29909",
+      "after": "9e5d4f6e4f396e5922060eec257cdacaf2c68dddad36db4215ec017c0ba29909"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_cloak_2x.webp": {
+      "before": "866a4e8788ca0908c430126fd35659ed549ea74ef1b19130999fda80bea4d501",
+      "after": "866a4e8788ca0908c430126fd35659ed549ea74ef1b19130999fda80bea4d501"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_parts.png": {
+      "before": "6be2fe416ea1ff85c7a8ec74ace6be421a2436ca677a810156e9d5c9823c6092",
+      "after": "6be2fe416ea1ff85c7a8ec74ace6be421a2436ca677a810156e9d5c9823c6092"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_silhouette.png": {
+      "before": "8f6c2ddfa4d4c152b51f5cc06a0cf5725a764957c6030d3a537f292c77b22cb5",
+      "after": "8f6c2ddfa4d4c152b51f5cc06a0cf5725a764957c6030d3a537f292c77b22cb5"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_bell.png": {
+      "before": "61e19d4b9499cebda686502232802a3fb39ed28345ee0894316a1be9d2d11942",
+      "after": "61e19d4b9499cebda686502232802a3fb39ed28345ee0894316a1be9d2d11942"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_cloak.png": {
+      "before": "e7db78463324ba5e96a0366b9d639f69e56e8c18254051386d448f2e785786f5",
+      "after": "e7db78463324ba5e96a0366b9d639f69e56e8c18254051386d448f2e785786f5"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_foot_far.png": {
+      "before": "0178849db351ff1d6c0afd7328d1ee6d59e8594e80bdb9a19fb68d1e9edc51c6",
+      "after": "0178849db351ff1d6c0afd7328d1ee6d59e8594e80bdb9a19fb68d1e9edc51c6"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_foot_near.png": {
+      "before": "813f0daa53dec76897295f6e1b578a3d5e04dea871d86e8a1343723250df1d4d",
+      "after": "813f0daa53dec76897295f6e1b578a3d5e04dea871d86e8a1343723250df1d4d"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_fore_far.png": {
+      "before": "8304a7bea35fede5b526a2e4657fbae4f539186585023bc30032bf43cdfce715",
+      "after": "8304a7bea35fede5b526a2e4657fbae4f539186585023bc30032bf43cdfce715"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_fore_near.png": {
+      "before": "fd9ec8bec49a1b3e606d6fcddbb25b0a2f5b60ab6d58e1df5caa31227791346c",
+      "after": "fd9ec8bec49a1b3e606d6fcddbb25b0a2f5b60ab6d58e1df5caa31227791346c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_hand_far.png": {
+      "before": "93ed5a68e9b2b3da6e2212c3fc3b4049e1637e0321712e0d3c225d7f6fb62974",
+      "after": "93ed5a68e9b2b3da6e2212c3fc3b4049e1637e0321712e0d3c225d7f6fb62974"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_hand_near.png": {
+      "before": "a104805ee46935d804c0605224647eae348463e96e0034bae6247edf8a8fce73",
+      "after": "a104805ee46935d804c0605224647eae348463e96e0034bae6247edf8a8fce73"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_head.png": {
+      "before": "dd56deeacfecec4d3085f9b9b1324785c347c1770c4caef3aa28870142cb1cf7",
+      "after": "dd56deeacfecec4d3085f9b9b1324785c347c1770c4caef3aa28870142cb1cf7"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_pauldron_far.png": {
+      "before": "b9c52b351a00e09db9b92c01517d2bffc0af1bc24b55db0ccc56b1873eede228",
+      "after": "b9c52b351a00e09db9b92c01517d2bffc0af1bc24b55db0ccc56b1873eede228"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_pauldron_near.png": {
+      "before": "446d0661e2ae502babee4e5d71d29ae05615101dc3bfb7723b90425e6778105a",
+      "after": "446d0661e2ae502babee4e5d71d29ae05615101dc3bfb7723b90425e6778105a"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_pelvis.png": {
+      "before": "8455d2af8e5101da7d14dcf4babb2b281680a4e77071a5d00d2a55cc3fcbfdb8",
+      "after": "8455d2af8e5101da7d14dcf4babb2b281680a4e77071a5d00d2a55cc3fcbfdb8"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_sash.png": {
+      "before": "de05071950df7e809b3e232263da193bb7566cf80a6070732597ec516951aa7f",
+      "after": "de05071950df7e809b3e232263da193bb7566cf80a6070732597ec516951aa7f"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_shin_far.png": {
+      "before": "1a4892a8447b49095801209684e503afa0186c734e55e3d1aa8e541fc3bcdb1e",
+      "after": "1a4892a8447b49095801209684e503afa0186c734e55e3d1aa8e541fc3bcdb1e"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_shin_near.png": {
+      "before": "5783d6c6b3b358b8850874902efce0bc70095008cf056c31bee1018bb28dbeb4",
+      "after": "5783d6c6b3b358b8850874902efce0bc70095008cf056c31bee1018bb28dbeb4"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_staff.png": {
+      "before": "be041650e73704c60eed7bdcb134dbcd7ef223be26c37925c0e232302946f611",
+      "after": "be041650e73704c60eed7bdcb134dbcd7ef223be26c37925c0e232302946f611"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_tabard.png": {
+      "before": "8e6d70e2a2404db67b11cd55a649bdab57d15879d4d97da7a7cc01a25d103cf2",
+      "after": "8e6d70e2a2404db67b11cd55a649bdab57d15879d4d97da7a7cc01a25d103cf2"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_thigh_far.png": {
+      "before": "0870eb2c1a190d2069c7bbf525239003e05978fcbf082f2e2a99d7f5e00ad98d",
+      "after": "0870eb2c1a190d2069c7bbf525239003e05978fcbf082f2e2a99d7f5e00ad98d"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_thigh_near.png": {
+      "before": "998edffbcc76dac2d7bd3d65c637cb72d313794b1a92f41f8eda363011ddbc73",
+      "after": "998edffbcc76dac2d7bd3d65c637cb72d313794b1a92f41f8eda363011ddbc73"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_torso.png": {
+      "before": "79c150e75de5ef1095e303938f706240ea1a070e11e9193dc4693df47288701c",
+      "after": "79c150e75de5ef1095e303938f706240ea1a070e11e9193dc4693df47288701c"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_upper_far.png": {
+      "before": "93818fb11ea49963bf858a6459ddcd2f239c89acd1ffcb7bbf555596fdff178b",
+      "after": "93818fb11ea49963bf858a6459ddcd2f239c89acd1ffcb7bbf555596fdff178b"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/rear_solo_upper_near.png": {
+      "before": "51eb7fa6570897e7321f1645dc51096b20c7add4aa67adc9841fc9f662c8e606",
+      "after": "51eb7fa6570897e7321f1645dc51096b20c7add4aa67adc9841fc9f662c8e606"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/recipe_proof.json": {
+      "before": "224ccdd4a17446a19091cfdf4b0cc32dd9149f159b55d674617a6587d4b36bb9",
+      "after": "224ccdd4a17446a19091cfdf4b0cc32dd9149f159b55d674617a6587d4b36bb9"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/delivery/solo_coverage.json": {
+      "before": "a807e2329809a9dfff8437c2c6525ea5cbcabf8646a9cc0e50c9511b474e0686",
+      "after": "a807e2329809a9dfff8437c2c6525ea5cbcabf8646a9cc0e50c9511b474e0686"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/measurement_reproduction.json": {
+      "before": "112b131dbf4e74ff191df847721d670543421af3f03bb03f98aa34f33f9679f6",
+      "after": "112b131dbf4e74ff191df847721d670543421af3f03bb03f98aa34f33f9679f6"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/mq17_baseline.json": {
+      "before": "1e03a9c23a8884c4313ed544334dc59e479f4f78b580458630f5c0706055f0e4",
+      "after": "1e03a9c23a8884c4313ed544334dc59e479f4f78b580458630f5c0706055f0e4"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/prompt_front_v2.md": {
+      "before": "19f30186898d4b5b0eb14bbb6806babde509e272b598f3c4f6c5cc5066d99bfe",
+      "after": "19f30186898d4b5b0eb14bbb6806babde509e272b598f3c4f6c5cc5066d99bfe"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/prompt_rear.md": {
+      "before": "35cea9c0da93d4bed9b568ee0e8b51d7a789c1e81301d17288b870b1f6cbee8e",
+      "after": "35cea9c0da93d4bed9b568ee0e8b51d7a789c1e81301d17288b870b1f6cbee8e"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/regeneration/regeneration.json": {
+      "before": "cf3db2c2470e2f3b62da3cbbf0041a9452532fb5bb1dbfc57aebc5afe2cc93e6",
+      "after": "cf3db2c2470e2f3b62da3cbbf0041a9452532fb5bb1dbfc57aebc5afe2cc93e6"
+    },
+    "spec/art_identity/maquettes/storm_cantor/mq19/feedback3_delivery/source_inputs.tar.xz": {
+      "before": "dfa5504f768c9958a270111dfa1f594688410c6f0e3c93a792b9380f5413ac5e",
+      "after": "dfa5504f768c9958a270111dfa1f594688410c6f0e3c93a792b9380f5413ac5e"
+    }
+  }
+}

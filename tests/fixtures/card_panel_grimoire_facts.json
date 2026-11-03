@@ -1,0 +1,123 @@
+{
+  "petrify": {
+    "owner": "combat:petrify",
+    "paragraphs": [
+      "A Petrified enemy skips its next turn. The skipped turn still costs its normal Time on the Turn Clock, so it does not come back sooner.",
+      "Petrify also gives the enemy 5 Block, which lasts through your next turn. It is not Freeze: there is no damage multiplier and no Chill interaction. Dragons cannot be Petrified."
+    ],
+    "appended": false
+  },
+  "keg_detonate": {
+    "owner": "keyword:detonate",
+    "paragraphs": [
+      "this includes you, illusions, enemies and terrain; kegs set each other off."
+    ],
+    "appended": true
+  },
+  "meteorfall": {
+    "owner": "combat:cinder_marks",
+    "paragraphs": [
+      "The Meteorfall card marks a line of tiles the same way. The marks stay through enemy turns; at the start of your next turn, before you draw, each marked tile takes the damage (anyone standing there, including you) and becomes Fire."
+    ],
+    "appended": false
+  },
+  "raise_worldspine": {
+    "owner": "combat:outcrops",
+    "paragraphs": [
+      "Worldspines block movement, not sight, and leave Rubble when destroyed."
+    ],
+    "appended": true
+  },
+  "raise_outcrop": {
+    "owner": "combat:outcrops",
+    "paragraphs": [
+      "Outcrop cards raise crag outcrops on empty floor. An outcrop blocks movement and line of sight, can be attacked like other terrain, and leaves Rubble when destroyed."
+    ],
+    "appended": false
+  },
+  "crystal_mantle": {
+    "owner": "combat:crystal_armor",
+    "paragraphs": [
+      "Crystal Mantle cards give you the same layers: each direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and health costs bypass it. Your layers last until broken or the combat ends."
+    ],
+    "appended": false
+  },
+  "shatter": {
+    "owner": "keyword:freeze",
+    "paragraphs": [
+      "Shatter checks Freeze before the hit, and its splash damage is not tripled."
+    ],
+    "appended": true
+  },
+  "worldspine_burst": {
+    "owner": "keyword:terrain_burst",
+    "paragraphs": [
+      "it happens at the start of each of your turns, once per enemy however many spires touch it."
+    ],
+    "appended": true
+  },
+  "swap_illusion": {
+    "owner": "keyword:illusion_swap",
+    "paragraphs": [
+      "both of you trigger the ground and traps where you land."
+    ],
+    "appended": true
+  },
+  "swap": {
+    "owner": "combat:swap",
+    "paragraphs": [
+      "Swap places with a visible one-tile enemy or one of your illusions within range and line of sight. Large enemies cannot be swapped.",
+      "Both of you arrive normally: ground and traps trigger for each, and you collect loot on your new tile. A swap is not a Push or Pull, so nothing collides and Anchored does not stop it."
+    ],
+    "appended": false
+  },
+  "shatter_illusion": {
+    "owner": "keyword:shatter_illusion",
+    "paragraphs": [
+      "it counts as destroyed for illusion effects."
+    ],
+    "appended": true
+  },
+  "retaliate_illusion_lightning": {
+    "owner": "keyword:retaliate",
+    "paragraphs": [
+      "an illusion's Retaliate triggers once per enemy attack."
+    ],
+    "appended": true
+  },
+  "quicken": {
+    "owner": "keyword:quicken",
+    "paragraphs": [
+      "Your next card this turn costs that much less Time, to a minimum of 1. The card that grants Quicken never discounts itself."
+    ],
+    "appended": false
+  },
+  "shock_all_hits": {
+    "owner": "keyword:shock",
+    "paragraphs": [
+      "Chain and conducted hits Shock too."
+    ],
+    "appended": true
+  },
+  "expend_after_hit": {
+    "owner": "keyword:surface_consume",
+    "paragraphs": [
+      "the ground is removed after the hit."
+    ],
+    "appended": true
+  },
+  "title_sentence_push_area": {
+    "owner": "keyword:push",
+    "paragraphs": [
+      "in an area push each enemy moves along its own straight line; stopped lines collide."
+    ],
+    "appended": true
+  },
+  "title_sentence_pull_area": {
+    "owner": "keyword:pull",
+    "paragraphs": [
+      "in an area pull each enemy moves along its own straight line; stopped lines collide."
+    ],
+    "appended": true
+  }
+}

@@ -1,0 +1,537 @@
+{
+  "petrify": {
+    "card": "petrify",
+    "panels": [
+      {
+        "title": "Petrify",
+        "text": "Skips its next turn and gains 5 Block."
+      }
+    ]
+  },
+  "keg_detonate": {
+    "card": "powder_keg",
+    "panels": [
+      {
+        "title": "Detonate",
+        "text": "When destroyed, the keg deals 6 to everything on and next to it."
+      }
+    ]
+  },
+  "meteorfall": {
+    "card": "meteorfall",
+    "panels": [
+      {
+        "title": "Cinder Marks",
+        "text": "At your next turn, the marked tiles take the damage, you included, and turn to Fire."
+      }
+    ]
+  },
+  "raise_worldspine": {
+    "card": "worldspine",
+    "panels": [
+      {
+        "title": "Raise Terrain",
+        "text": "Raises a Worldspine with this much Health on each empty tile around the target."
+      }
+    ]
+  },
+  "raise_outcrop": {
+    "card": "geode",
+    "panels": [
+      {
+        "title": "Raise Terrain",
+        "text": "Raises an outcrop with this much Health that blocks movement and sight."
+      }
+    ]
+  },
+  "raise_keg": {
+    "card": "powder_keg",
+    "panels": [
+      {
+        "title": "Raise Terrain",
+        "text": "Places a powder keg with this much Health that blocks movement, not sight."
+      }
+    ]
+  },
+  "crystal_mantle": {
+    "card": "crystal_mantle",
+    "panels": [
+      {
+        "title": "Crystal Mantle",
+        "glossary": "frost_armor"
+      }
+    ]
+  },
+  "ground_placement": {
+    "card": "flame_jet",
+    "panels": [
+      {
+        "title": "Fire",
+        "glossary": "surface_fire"
+      }
+    ]
+  },
+  "ice_to_electrified": {
+    "card": "frost_circuit",
+    "panels": [
+      {
+        "title": "Ice",
+        "text": "The chosen Ice and all Ice connected to it become Electrified."
+      }
+    ]
+  },
+  "only_light": {
+    "card": "revealing_glare",
+    "panels": [
+      {
+        "title": "Light",
+        "text": "Only enemies standing in Light are hit."
+      }
+    ]
+  },
+  "only_fire": {
+    "card": "stoke",
+    "panels": [
+      {
+        "title": "Fire",
+        "text": "Only enemies standing on Fire are hit."
+      }
+    ]
+  },
+  "only_chilled": {
+    "card": "white_silence",
+    "panels": [
+      {
+        "title": "Chilled",
+        "text": "Only Chilled enemies are hit."
+      }
+    ]
+  },
+  "only_electrified": {
+    "card": "fixture_only_electrified",
+    "panels": [
+      {
+        "title": "Electrified",
+        "text": "Only enemies standing on Electrified ground are hit."
+      }
+    ],
+    "definition": {
+      "name": "tt02 selector fixture",
+      "actions": [
+        {
+          "type": "all_enemies",
+          "selector": "on_electrified",
+          "damage": 3
+        }
+      ]
+    }
+  },
+  "shatter": {
+    "card": "shatter",
+    "panels": [
+      {
+        "title": "Shatter",
+        "text": "If the target was Frozen, deal 5 to each enemy next to it."
+      }
+    ]
+  },
+  "worldspine_burst": {
+    "card": "worldspine",
+    "panels": [
+      {
+        "title": "Terrain Burst",
+        "text": "Each turn, enemies next to your Worldspines take 3."
+      }
+    ]
+  },
+  "terrain_burst_any": {
+    "card": "rockburst",
+    "panels": [
+      {
+        "title": "Terrain Burst",
+        "text": "Destroy an outcrop, crate or other terrain in range and sight."
+      }
+    ]
+  },
+  "terrain_burst_own": {
+    "card": "worldbreak",
+    "panels": [
+      {
+        "title": "Terrain Burst",
+        "text": "Destroy an adjacent outcrop or Worldspine you raised."
+      }
+    ]
+  },
+  "if_half_health": {
+    "card": "butcher_chop",
+    "panels": [
+      {
+        "title": "If at Half Health",
+        "text": "This bonus applies if the target is at or below half Health."
+      }
+    ]
+  },
+  "if_frozen": {
+    "card": "shatter",
+    "panels": [
+      {
+        "title": "If Frozen",
+        "text": "This bonus applies if the target is Frozen."
+      }
+    ]
+  },
+  "if_in_light": {
+    "card": "blinding_bash",
+    "panels": [
+      {
+        "title": "If in Light",
+        "text": "This bonus applies if the target stands in Light."
+      }
+    ]
+  },
+  "swap_illusion": {
+    "card": "empty_husk",
+    "panels": [
+      {
+        "title": "Swap Illusion",
+        "glossary": "illusion_swap"
+      }
+    ]
+  },
+  "swap": {
+    "card": "changing_winds",
+    "panels": [
+      {
+        "title": "Swap",
+        "glossary": "swap"
+      }
+    ]
+  },
+  "shatter_illusion": {
+    "card": "shattered_reflection",
+    "panels": [
+      {
+        "title": "Shatter Illusion",
+        "glossary": "shatter_illusion"
+      }
+    ]
+  },
+  "illusion_block": {
+    "card": "empty_husk",
+    "panels": [
+      {
+        "title": "Block",
+        "text": "Your illusion takes all your Block as extra Health."
+      }
+    ]
+  },
+  "retaliate_illusion_lightning": {
+    "card": "ball_lightning",
+    "panels": [
+      {
+        "title": "Retaliate",
+        "text": "Enemies that damage this illusion take 4 Lightning damage and are Shocked."
+      }
+    ]
+  },
+  "retaliate_illusion_reflect": {
+    "card": "reflected_threat",
+    "panels": [
+      {
+        "title": "Retaliate",
+        "text": "Enemies that damage this illusion take that much damage too."
+      }
+    ]
+  },
+  "retaliate_melee": {
+    "card": "battle_rhythm",
+    "panels": [
+      {
+        "title": "Retaliate",
+        "text": "Until your next turn, enemies that hit you in melee take 3."
+      }
+    ]
+  },
+  "skate": {
+    "card": "skate",
+    "panels": [
+      {
+        "title": "Skate",
+        "glossary": "skate"
+      }
+    ]
+  },
+  "empower": {
+    "card": "royal_bramble",
+    "panels": [
+      {
+        "title": "Empower",
+        "glossary": "empower"
+      }
+    ]
+  },
+  "follow_up": {
+    "card": "quick_stab",
+    "panels": [
+      {
+        "title": "Follow-up",
+        "glossary": "follow_up"
+      }
+    ]
+  },
+  "expose": {
+    "card": "mirror_feint",
+    "panels": [
+      {
+        "title": "Expose",
+        "glossary": "expose"
+      }
+    ]
+  },
+  "fireproof": {
+    "card": "cinder_trail",
+    "panels": [
+      {
+        "title": "Fireproof",
+        "glossary": "fireproof"
+      }
+    ]
+  },
+  "move_scaling": {
+    "card": "iron_wheel",
+    "panels": [
+      {
+        "title": "Move",
+        "text": "Deals 1 more for each tile you moved this turn, up to 5 more."
+      }
+    ]
+  },
+  "next_attack_move": {
+    "card": "headlong",
+    "panels": [
+      {
+        "title": "Next Attack",
+        "text": "Your next attack this turn deals 1 more per tile you moved, up to 4 more."
+      }
+    ]
+  },
+  "stoneskin_scaling": {
+    "card": "stonefist",
+    "panels": [
+      {
+        "title": "Stoneskin",
+        "text": "Deals 1 more for each Stoneskin you have, up to 6 more."
+      }
+    ]
+  },
+  "next_attack_pierce": {
+    "card": "whetstone",
+    "panels": [
+      {
+        "title": "Next Attack",
+        "text": "Your next attack this turn deals 4 more and Pierces."
+      },
+      {
+        "title": "Pierce",
+        "glossary": "pierce"
+      }
+    ]
+  },
+  "next_attack_chain": {
+    "card": "capacitor",
+    "panels": [
+      {
+        "title": "Next Attack",
+        "text": "Your next Lightning attack this turn gains Chain 2."
+      },
+      {
+        "title": "Chain",
+        "glossary": "chain"
+      }
+    ]
+  },
+  "block_to_stoneskin": {
+    "card": "shrug_off",
+    "panels": [
+      {
+        "title": "Block",
+        "text": "Turn all your Block into Stoneskin."
+      },
+      {
+        "title": "Stoneskin",
+        "glossary": "stoneskin"
+      }
+    ]
+  },
+  "quicken": {
+    "card": "spur_spark",
+    "panels": [
+      {
+        "title": "Quicken",
+        "text": "Your next card this turn costs 1 less Time."
+      }
+    ]
+  },
+  "shock_all_hits": {
+    "card": "skybolt",
+    "panels": [
+      {
+        "title": "Shock",
+        "text": "Every enemy this hits is Shocked."
+      }
+    ]
+  },
+  "range_ice": {
+    "card": "frost_circuit",
+    "panels": [
+      {
+        "title": "Range",
+        "text": "Choose an Ice tile within this range and line of sight."
+      }
+    ]
+  },
+  "range_light": {
+    "card": "glowstone_ward",
+    "panels": [
+      {
+        "title": "Range",
+        "text": "Place the Light within this range."
+      }
+    ]
+  },
+  "range_illusion": {
+    "card": "reflected_threat",
+    "panels": [
+      {
+        "title": "Range",
+        "text": "Place the illusion within this range."
+      }
+    ]
+  },
+  "range_outcrop": {
+    "card": "geode",
+    "panels": [
+      {
+        "title": "Range",
+        "text": "Place the outcrop within this range."
+      }
+    ]
+  },
+  "expend_after_hit": {
+    "card": "flashsteam",
+    "panels": [
+      {
+        "title": "Expend",
+        "text": "Removes the Ice on each pattern tile."
+      }
+    ]
+  },
+  "light_trail": {
+    "card": "sunpath_stride",
+    "panels": [
+      {
+        "title": "Light",
+        "text": "Creates Light of this radius on each tile you enter."
+      }
+    ]
+  },
+  "light_target": {
+    "card": "lantern_shot",
+    "panels": [
+      {
+        "title": "Light",
+        "text": "Creates Light of this radius at the target."
+      }
+    ]
+  },
+  "light_land": {
+    "card": "threaded_path",
+    "panels": [
+      {
+        "title": "Light",
+        "text": "Creates Light of this radius where you land."
+      }
+    ]
+  },
+  "cleanse": {
+    "card": "threadbare_guard",
+    "panels": [
+      {
+        "title": "Cleanse",
+        "text": "Remove Bleed, Immobilize and Chilled from yourself."
+      }
+    ]
+  },
+  "title_sentence_light": {
+    "card": "glowstone_ward",
+    "panels": [
+      {
+        "title": "Light",
+        "text": "Creates Light of this radius."
+      }
+    ]
+  },
+  "title_sentence_push_area": {
+    "card": "unsealed_gale",
+    "panels": [
+      {
+        "title": "Push",
+        "text": "Pushes each enemy within 3 of you 3 tiles away."
+      }
+    ]
+  },
+  "title_sentence_pull_area": {
+    "card": "cyclone_seal",
+    "panels": [
+      {
+        "title": "Pull",
+        "text": "Pulls each enemy within 3 of the chosen tile 3 tiles toward it."
+      }
+    ]
+  },
+  "title_sentence_push_any": {
+    "card": "crosswind",
+    "panels": [
+      {
+        "title": "Push",
+        "text": "Push the target 2 tiles in any open direction."
+      }
+    ]
+  },
+  "title_sentence_range_terrain": {
+    "card": "rockburst",
+    "panels": [
+      {
+        "title": "Range",
+        "text": "Destroy terrain within this range."
+      }
+    ]
+  },
+  "title_sentence_range_illusion": {
+    "card": "shattered_reflection",
+    "panels": [
+      {
+        "title": "Range",
+        "text": "Destroy an illusion within this range."
+      }
+    ]
+  },
+  "aoe_facing": {
+    "card": "needle_flurry",
+    "panels": [
+      {
+        "title": "Area Attack",
+        "text": "Hits the red tiles, aimed at the adjacent tile you choose."
+      }
+    ]
+  },
+  "aoe_plain": {
+    "card": "meteorfall",
+    "panels": [
+      {
+        "title": "Area Attack",
+        "glossary": "aoe"
+      }
+    ]
+  }
+}

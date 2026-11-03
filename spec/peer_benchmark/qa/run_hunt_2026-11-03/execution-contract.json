@@ -1,0 +1,30 @@
+{
+  "task_id": "qa-23",
+  "base_head": "65b9d0d43636c1d5bd72944c38518c5a8540e5cb",
+  "launcher": "/private/tmp/labyrinth_codex/qa-23/run_hunt_task.py",
+  "launcher_sha256": "98595a0a6262ed695701b51a8a85dda719ed1cec02e87815dbeaaa7e35a5ec21",
+  "override": "command_for --task-id qa-23; replay commands use private launcher; hunt inputs and policy unchanged",
+  "chosen_defaults": {
+    "TASK_ID": "qa-23",
+    "campaign_seed": 1
+  },
+  "risk_tier": "standard",
+  "acceptance": [
+    "Two fresh 45-minute campaigns; at most two Godot processes total",
+    "Replay each distinct finding once; minimally fix owned confirmed defects and add existing-file regression",
+    "Rebuild reports with --report-only and replay evidence",
+    "Focused affected programs and Python default group; no full suites"
+  ],
+  "protected_areas": [
+    "Humanoid rig data",
+    "scripts/maquette_cutout_runtime/*",
+    "Turn-start HUD path",
+    "qa-22 tests (list requested)"
+  ],
+  "private_proof_sha256": {
+    "run_hunt_task.py": "98595a0a6262ed695701b51a8a85dda719ed1cec02e87815dbeaaa7e35a5ec21",
+    "run_hunt_census.gd": "790957be1693e446ff9ea55dd3aed41147872de1ab148f9dea48ead256313f6e",
+    "contact_payload_diagnostic.gd": "9373f592f620f27dcc01d08d53f92cea1e4c2f683cab8d3ee308fe173f732c37",
+    "replay_findings.py": "acd1c0b283dfca0ca26ff0933c68c29b7e2ffa316d4bf7b4896128b51222009e"
+  }
+}

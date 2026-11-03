@@ -1,0 +1,29 @@
+{
+  "command": "python3 tools/godot_task_runner.py --task-id bos-02 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+  "exit": 124,
+  "log": "/private/tmp/bos-02-godot-final-complete.log",
+  "main_body_seconds": 723.039,
+  "main_body_assertions_executed": 495679,
+  "program_exit_0": 143,
+  "program_exit_1": 3,
+  "program_180_second_timeouts": 3,
+  "parent_interrupted_or_not_started": 98,
+  "dragon_programs": {
+    "dragon_committed_patterns_test": 0,
+    "dragon_exchange_presentation_test": 0,
+    "dragon_feedback_mechanics_test": 0,
+    "dragon_pressure_mechanics_test": 0,
+    "dragon_reward_feedback_test": 0,
+    "dragon_spire_routes_test": 0,
+    "dragon_trophy_feedback_test": 0,
+    "dragon_wallet_ack_test": 0
+  },
+  "sentence_provenance_failures": 0,
+  "complete_execution": false,
+  "previous_complete_execution": {
+    "log": "/private/tmp/bos-02-full-godot-final.log",
+    "seconds": 829.519,
+    "result": "TEST RESULT: FAIL (12 failure(s))",
+    "note": "All 247 programs executed before the test-only sentence-provenance fix. Six new-dragon provenance failures are now fixed and pass both focused checks and the final main body. Runtime implementation is identical."
+  }
+}

@@ -1,0 +1,24 @@
+{
+ "schema": 1,
+ "unit": "rr-48",
+ "what": "director art for the Ashen Reaver rig: body underlays behind the arms, gauntlets, falchion and loincloths (front and rear), from the owner-approved take-two paintings",
+ "image_jobs": {
+  "front_underlay": "img-rr48-reaver-front-underlay-r1 (edit of mq21_front processed x4; the tool returned 1254 px)",
+  "rear_underlay": "img-rr48-reaver-rear-underlay-r1 (edit of mq21_rear processed x4)"
+ },
+ "processing": {
+  "underlays": "../rr-44/reduce_underlay.py <raw> <painting> <out> (the rr-42/rr-44 processing: 1024 px, crop [2:1022], 4x4 block median, chroma key, the painting's palette, registration (0,0))"
+ },
+ "approved_by": "director, 2026-10-29 (registration (0,0); silhouette agreement outside the motion footprints 99.1% front / 99.96% rear; used only inside vacated footprints)",
+ "files": {
+  "motion_tracks.json": "bd73148007e974725c5136a2fb88fa605447b57f72ec27e4e2ed278f2823adfd",
+  "ref_front_approved_x4.png": "9fd819e68c75564cad6e59538d97aebc05accfa24aa05da7b14d98d0e5f1bebe",
+  "ref_rear_approved_x4.png": "3beb508215ebe02b895ec2f75a807a52bf30d568780f187510ed7d5f57e6a47b",
+  "prompt_front_body_underlay_r1.md": "45c9920ba97740ecc0476677c548c395478d0c21aea02f6ace3b5268f41485e7",
+  "prompt_rear_body_underlay_r1.md": "d3a6c36353fa7bb96cdc99bf363e06c19afd619b5730c42d37acbd2f033e1421",
+  "front_underlay_raw.png": "3232509e21e2b7d5101e437038c506618edc6de0fce4855d946015a1dead322b",
+  "rear_underlay_raw.png": "243103e675eb9fdb30866dbc4c00582f771f38ec9d72f1cd7d1fe9df3a13e7f4",
+  "front_body_underlay.png": "f626ff24c06a470204f6be55ee89d2edf997ab5ebe8b991195c65c7ec7f1fcbf",
+  "rear_body_underlay.png": "3f89d0c9dd0519e0528b9b29e4ec0f08ab565f862fc08201dcc07ffb3f9ea94e"
+ }
+}

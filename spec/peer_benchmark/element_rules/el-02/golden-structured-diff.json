@@ -1,0 +1,1270 @@
+{
+  "affected_enemy_types": [
+    "arc_thrall",
+    "briar_weaver",
+    "hoarfrost_seer"
+  ],
+  "changed_rooms": [
+    {
+      "seed": 19,
+      "room_index": 8,
+      "coord": {
+        "x": 11,
+        "y": -4
+      },
+      "roster": [
+        "acolyte",
+        "arc_thrall",
+        "chainbound_gaoler",
+        "cinder_ooze",
+        "warden"
+      ],
+      "changes": [
+        {
+          "field": "/combat/0/enemies/2/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between_thralls"
+        },
+        {
+          "field": "/combat/0/enemies/2/intent/actions/0/scale_damage",
+          "before": null,
+          "after": false
+        },
+        {
+          "field": "/combat/0/enemies/2/intent/actions/0/surface",
+          "before": null,
+          "after": "electrified"
+        },
+        {
+          "field": "/combat/0/enemies/2/intent/actions/0/type",
+          "before": "tether_beam",
+          "after": "lightning_strikes"
+        },
+        {
+          "field": "/combat/0/enemies/3/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between_thralls"
+        },
+        {
+          "field": "/combat/0/enemies/3/intent/actions/0/scale_damage",
+          "before": null,
+          "after": false
+        },
+        {
+          "field": "/combat/0/enemies/3/intent/actions/0/surface",
+          "before": null,
+          "after": "electrified"
+        },
+        {
+          "field": "/combat/0/enemies/3/intent/actions/0/type",
+          "before": "tether_beam",
+          "after": "lightning_strikes"
+        },
+        {
+          "field": "/combat/1/enemies/2/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between_thralls"
+        },
+        {
+          "field": "/combat/1/enemies/2/intent/actions/0/scale_damage",
+          "before": null,
+          "after": false
+        },
+        {
+          "field": "/combat/1/enemies/2/intent/actions/0/surface",
+          "before": null,
+          "after": "electrified"
+        },
+        {
+          "field": "/combat/1/enemies/2/intent/actions/0/type",
+          "before": "tether_beam",
+          "after": "lightning_strikes"
+        },
+        {
+          "field": "/combat/1/enemies/3/hp",
+          "before": 5,
+          "after": 11
+        },
+        {
+          "field": "/combat/1/enemies/3/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between_thralls"
+        },
+        {
+          "field": "/combat/1/enemies/3/intent/actions/0/scale_damage",
+          "before": null,
+          "after": false
+        },
+        {
+          "field": "/combat/1/enemies/3/intent/actions/0/surface",
+          "before": null,
+          "after": "electrified"
+        },
+        {
+          "field": "/combat/1/enemies/3/intent/actions/0/type",
+          "before": "tether_beam",
+          "after": "lightning_strikes"
+        },
+        {
+          "field": "/combat/1/log/2",
+          "before": "Cinder Ooze closes in.",
+          "after": "A hidden presence attacks."
+        },
+        {
+          "field": "/combat/1/log/3",
+          "before": "Fire trap: 9 center damage.",
+          "after": "Cinder Ooze closes in."
+        },
+        {
+          "field": "/combat/1/run_stats/damage_dealt",
+          "before": 9,
+          "after": 3
+        },
+        {
+          "field": "/combat/1/surface_event_sequence",
+          "before": 3,
+          "after": 5
+        },
+        {
+          "field": "/combat/1/surface_events",
+          "before": [
+            {
+              "kind": "surface_created",
+              "previous_surface": "",
+              "rules_version": 5,
+              "sequence": 1,
+              "source": {
+                "actor_kind": "trap",
+                "tile": {
+                  "x": 5,
+                  "y": 3
+                }
+              },
+              "surface": "fire",
+              "tile": {
+                "x": 5,
+                "y": 2
+              }
+            },
+            {
+              "kind": "surface_created",
+              "previous_surface": "",
+              "rules_version": 5,
+              "sequence": 2,
+              "source": {
+                "actor_kind": "trap",
+                "tile": {
+                  "x": 5,
+                  "y": 3
+                }
+              },
+              "surface": "fire",
+              "tile": {
+                "x": 5,
+                "y": 4
+              }
+            },
+            {
+              "damage": 9,
+              "element": "fire",
+              "kind": "trap_triggered",
+              "rules_version": 5,
+              "sequence": 3,
+              "tile": {
+                "x": 5,
+                "y": 3
+              },
+              "wake_tiles": [
+                {
+                  "x": 5,
+                  "y": 2
+                },
+                {
+                  "x": 5,
+                  "y": 4
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "kind": "surface_created",
+              "previous_surface": "",
+              "rules_version": 5,
+              "sequence": 1,
+              "source": {
+                "actor_kind": "trap",
+                "tile": {
+                  "x": 5,
+                  "y": 3
+                }
+              },
+              "surface": "fire",
+              "tile": {
+                "x": 5,
+                "y": 2
+              }
+            },
+            {
+              "kind": "surface_created",
+              "previous_surface": "",
+              "rules_version": 5,
+              "sequence": 2,
+              "source": {
+                "actor_kind": "trap",
+                "tile": {
+                  "x": 5,
+                  "y": 3
+                }
+              },
+              "surface": "fire",
+              "tile": {
+                "x": 5,
+                "y": 4
+              }
+            },
+            {
+              "damage": 9,
+              "element": "fire",
+              "kind": "trap_triggered",
+              "rules_version": 5,
+              "sequence": 3,
+              "tile": {
+                "x": 5,
+                "y": 3
+              },
+              "wake_tiles": [
+                {
+                  "x": 5,
+                  "y": 2
+                },
+                {
+                  "x": 5,
+                  "y": 4
+                }
+              ]
+            },
+            {
+              "kind": "surface_created",
+              "previous_surface": "",
+              "rules_version": 5,
+              "sequence": 4,
+              "source": {
+                "action_type": "lightning_strikes",
+                "actor_id": 3,
+                "actor_kind": "enemy",
+                "card_id": "",
+                "player_card": false
+              },
+              "surface": "electrified",
+              "tile": {
+                "x": 5,
+                "y": 3
+              }
+            },
+            {
+              "actor_key": "enemy_4",
+              "actor_kind": "enemy",
+              "amount": 3,
+              "health_lost": 3,
+              "id": 4,
+              "kind": "surface_damage",
+              "rules_version": 5,
+              "sequence": 5,
+              "source": {
+                "card_id": "",
+                "causal_owner": "trap",
+                "phase": "activation_start",
+                "player_card": false,
+                "source_kind": "surface_fire",
+                "surface_source": {
+                  "actor_kind": "trap",
+                  "tile": {
+                    "x": 5,
+                    "y": 3
+                  }
+                }
+              },
+              "surface": "fire",
+              "tile": {
+                "x": 5,
+                "y": 4
+              },
+              "trigger": "start"
+            }
+          ]
+        },
+        {
+          "field": "/combat/1/surface_revision",
+          "before": 2,
+          "after": 3
+        },
+        {
+          "field": "/combat/1/surfaces/5,3",
+          "before": null,
+          "after": {
+            "elemental": "electrified",
+            "elemental_source": {
+              "action_type": "lightning_strikes",
+              "actor_id": 3,
+              "actor_kind": "enemy",
+              "card_id": "",
+              "player_card": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 13,
+      "coord": {
+        "x": 18,
+        "y": -11
+      },
+      "roster": [
+        "acolyte",
+        "briar_weaver",
+        "chainbound_gaoler",
+        "crawler",
+        "grave_surgeon"
+      ],
+      "changes": [
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/health",
+          "before": null,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/length",
+          "before": null,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between"
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/pushed_bleed",
+          "before": 1.0,
+          "after": null
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/pushed_damage",
+          "before": 2.0,
+          "after": null
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/rounds",
+          "before": 3.0,
+          "after": null
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/shape",
+          "before": "line3_perpendicular_front_of_hero",
+          "after": null
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/type",
+          "before": "grow_bramble",
+          "after": "upheaval_mark"
+        },
+        {
+          "field": "/combat/1/enemies/0/bramble_serial",
+          "before": 1,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/bleed",
+          "before": 1,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/damage",
+          "before": 5,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/element",
+          "before": "earth",
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/health",
+          "before": null,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/length",
+          "before": null,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between"
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/range",
+          "before": 3.0,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/type",
+          "before": "ranged",
+          "after": "upheaval_mark"
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/id",
+          "before": "lash_of_thorns",
+          "after": "thornwall"
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/name",
+          "before": "Lash of Thorns",
+          "after": "Thornwall"
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/time",
+          "before": 5.0,
+          "after": 6.0
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/weight",
+          "before": 2.0,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/1/enemies/0/upheaval_pending",
+          "before": null,
+          "after": {
+            "dials": {
+              "health": 3,
+              "length": 3,
+              "pattern": "line_between"
+            },
+            "marks": [
+              {
+                "x": 1,
+                "y": 5
+              },
+              {
+                "x": 2,
+                "y": 5
+              },
+              {
+                "x": 3,
+                "y": 5
+              }
+            ],
+            "rule": "upheaval",
+            "source": {
+              "id": 1,
+              "kind": "enemy"
+            }
+          }
+        },
+        {
+          "field": "/combat/1/enemies/5/hp",
+          "before": 19,
+          "after": 8
+        },
+        {
+          "field": "/combat/1/enemies/5/intent/actions/0/range",
+          "before": 3.0,
+          "after": 2.0
+        },
+        {
+          "field": "/combat/1/enemies/5/intent/actions/1/bleed",
+          "before": null,
+          "after": 1
+        },
+        {
+          "field": "/combat/1/enemies/5/intent/actions/1/damage",
+          "before": 5,
+          "after": 6
+        },
+        {
+          "field": "/combat/1/enemies/5/intent/id",
+          "before": "lunge",
+          "after": "skitter_strike"
+        },
+        {
+          "field": "/combat/1/enemies/5/intent/name",
+          "before": "Lunge",
+          "after": "Skitter Strike"
+        },
+        {
+          "field": "/combat/1/enemies/5/intent/purpose",
+          "before": "approach",
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/5/intent/time",
+          "before": 6.0,
+          "after": 5.0
+        },
+        {
+          "field": "/combat/1/enemies/5/intent/weight",
+          "before": 2.0,
+          "after": 4.0
+        },
+        {
+          "field": "/combat/1/enemies/5/pos/x",
+          "before": 4,
+          "after": 2
+        },
+        {
+          "field": "/combat/1/enemies/5/pos/y",
+          "before": 6,
+          "after": 4
+        },
+        {
+          "field": "/combat/1/log",
+          "before": [
+            "Entered Shuttered Antechamber.",
+            "Something shifts in the Umbra.",
+            "A hidden presence attacks.",
+            "Something shifts in the Umbra.",
+            "Dust Acolyte hits.",
+            "Grave Surgeon guards itself for 5 block.",
+            "Something shifts in the Umbra.",
+            "Something shifts in the Umbra.",
+            "Something shifts in the Umbra."
+          ],
+          "after": [
+            "Entered Shuttered Antechamber.",
+            "Something shifts in the Umbra.",
+            "A hidden presence attacks.",
+            "Something shifts in the Umbra.",
+            "Dust Acolyte hits.",
+            "Grave Surgeon guards itself for 5 block.",
+            "Something shifts in the Umbra.",
+            "Tunnel Crawler hits.",
+            "Something shifts in the Umbra.",
+            "Something shifts in the Umbra."
+          ]
+        },
+        {
+          "field": "/combat/1/player/hp",
+          "before": 20,
+          "after": 15
+        },
+        {
+          "field": "/combat/1/run_stats/damage_dealt",
+          "before": 0,
+          "after": 11
+        },
+        {
+          "field": "/combat/1/run_stats/damage_received",
+          "before": 4,
+          "after": 9
+        },
+        {
+          "field": "/combat/1/surface_event_sequence",
+          "before": null,
+          "after": 4
+        },
+        {
+          "field": "/combat/1/surface_events",
+          "before": [],
+          "after": [
+            {
+              "kind": "surface_created",
+              "previous_surface": "",
+              "rules_version": 5,
+              "sequence": 1,
+              "source": {
+                "actor_kind": "trap",
+                "tile": {
+                  "x": 2,
+                  "y": 6
+                }
+              },
+              "surface": "fire",
+              "tile": {
+                "x": 2,
+                "y": 5
+              }
+            },
+            {
+              "kind": "surface_created",
+              "previous_surface": "",
+              "rules_version": 5,
+              "sequence": 2,
+              "source": {
+                "actor_kind": "trap",
+                "tile": {
+                  "x": 2,
+                  "y": 6
+                }
+              },
+              "surface": "fire",
+              "tile": {
+                "x": 2,
+                "y": 7
+              }
+            },
+            {
+              "damage": 9,
+              "element": "fire",
+              "kind": "trap_triggered",
+              "rules_version": 5,
+              "sequence": 3,
+              "tile": {
+                "x": 2,
+                "y": 6
+              },
+              "wake_tiles": [
+                {
+                  "x": 2,
+                  "y": 5
+                },
+                {
+                  "x": 2,
+                  "y": 7
+                }
+              ]
+            },
+            {
+              "actor_key": "enemy_6",
+              "actor_kind": "enemy",
+              "amount": 2,
+              "health_lost": 2,
+              "id": 6,
+              "kind": "surface_damage",
+              "rules_version": 5,
+              "sequence": 4,
+              "source": {
+                "actor_id": 6,
+                "actor_kind": "enemy",
+                "card_id": "",
+                "causal_owner": "trap",
+                "enemy_type": "crawler",
+                "intent_id": "lunge",
+                "player_card": false,
+                "source_kind": "surface_fire",
+                "surface_source": {
+                  "actor_kind": "trap",
+                  "tile": {
+                    "x": 2,
+                    "y": 6
+                  }
+                }
+              },
+              "surface": "fire",
+              "tile": {
+                "x": 2,
+                "y": 5
+              },
+              "trigger": "entry"
+            }
+          ]
+        },
+        {
+          "field": "/combat/1/surface_revision",
+          "before": 0,
+          "after": 2
+        },
+        {
+          "field": "/combat/1/surfaces/2,5",
+          "before": null,
+          "after": {
+            "elemental": "fire",
+            "elemental_source": {
+              "actor_kind": "trap",
+              "tile": {
+                "x": 2,
+                "y": 6
+              }
+            }
+          }
+        },
+        {
+          "field": "/combat/1/surfaces/2,7",
+          "before": null,
+          "after": {
+            "elemental": "fire",
+            "elemental_source": {
+              "actor_kind": "trap",
+              "tile": {
+                "x": 2,
+                "y": 6
+              }
+            }
+          }
+        },
+        {
+          "field": "/combat/1/traps",
+          "before": [
+            {
+              "base_damage": 9,
+              "damage": 9,
+              "element": "fire",
+              "id": "trap_2_6",
+              "pos": {
+                "x": 2,
+                "y": 6
+              }
+            },
+            {
+              "base_damage": 9,
+              "damage": 9,
+              "element": "fire",
+              "id": "trap_4_5",
+              "pos": {
+                "x": 4,
+                "y": 5
+              }
+            },
+            {
+              "base_damage": 9,
+              "damage": 9,
+              "element": "fire",
+              "id": "trap_3_3",
+              "pos": {
+                "x": 3,
+                "y": 3
+              }
+            }
+          ],
+          "after": [
+            {
+              "base_damage": 9,
+              "damage": 9,
+              "element": "fire",
+              "id": "trap_4_5",
+              "pos": {
+                "x": 4,
+                "y": 5
+              }
+            },
+            {
+              "base_damage": 9,
+              "damage": 9,
+              "element": "fire",
+              "id": "trap_3_3",
+              "pos": {
+                "x": 3,
+                "y": 3
+              }
+            }
+          ]
+        },
+        {
+          "field": "/combat/1/turn_queue/2/pos/x",
+          "before": 4,
+          "after": 2
+        },
+        {
+          "field": "/combat/1/turn_queue/2/pos/y",
+          "before": 6,
+          "after": 4
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 14,
+      "coord": {
+        "x": 19,
+        "y": -11
+      },
+      "roster": [
+        "acolyte",
+        "briar_weaver",
+        "chainbound_gaoler",
+        "crawler",
+        "stoneback_mite",
+        "warden"
+      ],
+      "changes": [
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/health",
+          "before": null,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/length",
+          "before": null,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between"
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/pushed_bleed",
+          "before": 1.0,
+          "after": null
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/pushed_damage",
+          "before": 2.0,
+          "after": null
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/rounds",
+          "before": 3.0,
+          "after": null
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/shape",
+          "before": "line3_perpendicular_front_of_hero",
+          "after": null
+        },
+        {
+          "field": "/combat/0/enemies/0/intent/actions/0/type",
+          "before": "grow_bramble",
+          "after": "upheaval_mark"
+        },
+        {
+          "field": "/combat/1/enemies/0/bramble_serial",
+          "before": 1,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/bleed",
+          "before": 1,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/damage",
+          "before": 5,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/element",
+          "before": "earth",
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/health",
+          "before": null,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/length",
+          "before": null,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between"
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/range",
+          "before": 3.0,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/type",
+          "before": "ranged",
+          "after": "upheaval_mark"
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/id",
+          "before": "lash_of_thorns",
+          "after": "thornwall"
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/name",
+          "before": "Lash of Thorns",
+          "after": "Thornwall"
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/time",
+          "before": 5.0,
+          "after": 6.0
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/weight",
+          "before": 2.0,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/1/enemies/0/upheaval_pending",
+          "before": null,
+          "after": {
+            "dials": {
+              "health": 3,
+              "length": 3,
+              "pattern": "line_between"
+            },
+            "marks": [
+              {
+                "x": 4,
+                "y": 6
+              },
+              {
+                "x": 6,
+                "y": 6
+              }
+            ],
+            "rule": "upheaval",
+            "source": {
+              "id": 1,
+              "kind": "enemy"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 1,
+      "coord": {
+        "x": 1,
+        "y": 2
+      },
+      "roster": [
+        "acolyte",
+        "arc_thrall",
+        "crawler",
+        "grave_surgeon"
+      ],
+      "changes": [
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between_thralls"
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/scale_damage",
+          "before": null,
+          "after": false
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/surface",
+          "before": null,
+          "after": "electrified"
+        },
+        {
+          "field": "/combat/1/enemies/0/intent/actions/0/type",
+          "before": "tether_beam",
+          "after": "lightning_strikes"
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between_thralls"
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/scale_damage",
+          "before": null,
+          "after": false
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/surface",
+          "before": null,
+          "after": "electrified"
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/type",
+          "before": "tether_beam",
+          "after": "lightning_strikes"
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 2,
+      "coord": {
+        "x": 3,
+        "y": 0
+      },
+      "roster": [
+        "acolyte",
+        "arc_thrall",
+        "cinder_ooze",
+        "crawler",
+        "warden"
+      ],
+      "changes": [
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between_thralls"
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/scale_damage",
+          "before": null,
+          "after": false
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/surface",
+          "before": null,
+          "after": "electrified"
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/type",
+          "before": "tether_beam",
+          "after": "lightning_strikes"
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 11,
+      "coord": {
+        "x": 15,
+        "y": -12
+      },
+      "roster": [
+        "acolyte",
+        "briar_weaver",
+        "burrow_grub",
+        "warden"
+      ],
+      "changes": [
+        {
+          "field": "/combat/0/enemies/1/intent/actions/0/health",
+          "before": null,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/0/enemies/1/intent/actions/0/length",
+          "before": null,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/0/enemies/1/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between"
+        },
+        {
+          "field": "/combat/0/enemies/1/intent/actions/0/pushed_bleed",
+          "before": 1.0,
+          "after": null
+        },
+        {
+          "field": "/combat/0/enemies/1/intent/actions/0/pushed_damage",
+          "before": 2.0,
+          "after": null
+        },
+        {
+          "field": "/combat/0/enemies/1/intent/actions/0/rounds",
+          "before": 3.0,
+          "after": null
+        },
+        {
+          "field": "/combat/0/enemies/1/intent/actions/0/shape",
+          "before": "line3_perpendicular_front_of_hero",
+          "after": null
+        },
+        {
+          "field": "/combat/0/enemies/1/intent/actions/0/type",
+          "before": "grow_bramble",
+          "after": "upheaval_mark"
+        },
+        {
+          "field": "/combat/1/enemies/1/bramble_serial",
+          "before": 1,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/bleed",
+          "before": 1,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/damage",
+          "before": 5,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/element",
+          "before": "earth",
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/health",
+          "before": null,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/length",
+          "before": null,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/pattern",
+          "before": null,
+          "after": "line_between"
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/range",
+          "before": 3.0,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/actions/0/type",
+          "before": "ranged",
+          "after": "upheaval_mark"
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/id",
+          "before": "lash_of_thorns",
+          "after": "thornwall"
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/name",
+          "before": "Lash of Thorns",
+          "after": "Thornwall"
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/time",
+          "before": 5.0,
+          "after": 6.0
+        },
+        {
+          "field": "/combat/1/enemies/1/intent/weight",
+          "before": 2.0,
+          "after": 3.0
+        },
+        {
+          "field": "/combat/1/enemies/1/upheaval_pending",
+          "before": null,
+          "after": {
+            "dials": {
+              "health": 3,
+              "length": 3,
+              "pattern": "line_between"
+            },
+            "marks": [
+              {
+                "x": 1,
+                "y": 5
+              },
+              {
+                "x": 2,
+                "y": 5
+              },
+              {
+                "x": 3,
+                "y": 5
+              }
+            ],
+            "rule": "upheaval",
+            "source": {
+              "id": 2,
+              "kind": "enemy"
+            }
+          }
+        },
+        {
+          "field": "/combat/1/enemies/3/pos/x",
+          "before": 6,
+          "after": 5
+        },
+        {
+          "field": "/combat/1/enemies/3/pos/y",
+          "before": 5,
+          "after": 6
+        },
+        {
+          "field": "/combat/1/log",
+          "before": [
+            "Entered Fevered Sanctum.",
+            "Something shifts in the Umbra.",
+            "A hidden presence attacks.",
+            "Something shifts in the Umbra."
+          ],
+          "after": [
+            "Entered Fevered Sanctum.",
+            "Something shifts in the Umbra.",
+            "Something shifts in the Umbra."
+          ]
+        },
+        {
+          "field": "/combat/1/terrain/0/hp",
+          "before": 0,
+          "after": 3
+        },
+        {
+          "field": "/combat/1/turn_queue/1/pos/x",
+          "before": 6,
+          "after": 5
+        },
+        {
+          "field": "/combat/1/turn_queue/1/pos/y",
+          "before": 5,
+          "after": 6
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 14,
+      "coord": {
+        "x": 19,
+        "y": -17
+      },
+      "roster": [
+        "chainbound_gaoler",
+        "hoarfrost_seer",
+        "warden"
+      ],
+      "changes": [
+        {
+          "field": "/combat/1/enemies/2/intent/actions/0/pillar_shatter_damage",
+          "before": 2.0,
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/2/intent/actions/0/terrain",
+          "before": "ice_pillar",
+          "after": null
+        },
+        {
+          "field": "/combat/1/enemies/2/intent/actions/0/terrain_rounds",
+          "before": 3.0,
+          "after": null
+        }
+      ]
+    }
+  ],
+  "hashes_before": {
+    "1": {
+      "combat": "28ebb3bc2548162d99ab245c55a164f6fef9576de6b89c922dc2d98930455822",
+      "map": "413b808b2689fe76a3193296d5a1d07c21717e365f6605fcb901dab3f9ea2ed5",
+      "rooms": "a246f1c9eb7adb100c2a3fd0be04764f6e20235d8b927ef1220aad61c10bdcbc",
+      "save_roundtrip": "4fe031deda46bb988e20b56981f641f132a57028b9a094e615d6b373b6bae676"
+    },
+    "19": {
+      "combat": "6ffba8d1e0e71cabae4593ef295e97aa645b79c4be485b1a9e0020225b540066",
+      "map": "ad7ae46debe6e2723aad5d3cfe541cddc7a011e83bc8e2127d8dfc7f85770a17",
+      "rooms": "7878fd528dd78e67f4ef0dc0667765957965e36efeb1edf0235a2d3803e1a5d7",
+      "save_roundtrip": "7d2bfab932b6d1c7f770b8298b1225be8eb339ad6140b643a1e6982b1c898cdd"
+    },
+    "421": {
+      "combat": "980fd9648757c4d7197bb0a4bf525bfa795d91d3a4377b1f1bef13dd4cb213d2",
+      "map": "0e1e1ac991e9f8412b433f04382db333673277865b9b5e439b93263f509de0bf",
+      "rooms": "aed535a3ac3679de2e8f306814d7b37d43facf1e942e7ae1722cb27a2b944199",
+      "save_roundtrip": "837ca51f0234d7c691faa7ffeb9bf3835fa21b3391ab0a583b6c3fb2b2b3e270"
+    }
+  },
+  "hashes_after": {
+    "1": {
+      "combat": "28ebb3bc2548162d99ab245c55a164f6fef9576de6b89c922dc2d98930455822",
+      "map": "413b808b2689fe76a3193296d5a1d07c21717e365f6605fcb901dab3f9ea2ed5",
+      "rooms": "a246f1c9eb7adb100c2a3fd0be04764f6e20235d8b927ef1220aad61c10bdcbc",
+      "save_roundtrip": "4fe031deda46bb988e20b56981f641f132a57028b9a094e615d6b373b6bae676"
+    },
+    "19": {
+      "combat": "8badfa2381012f44f72b1d83c2842417863e901a9333b6926b8d86935bcf1101",
+      "map": "ad7ae46debe6e2723aad5d3cfe541cddc7a011e83bc8e2127d8dfc7f85770a17",
+      "rooms": "7878fd528dd78e67f4ef0dc0667765957965e36efeb1edf0235a2d3803e1a5d7",
+      "save_roundtrip": "6bcfdadca0ec0ebe980779bd075135d68ae4630be99fd263b34e4a0c47a7479e"
+    },
+    "421": {
+      "combat": "ae92c86fb9905598b4100e6ff46754f19930031235a023806a9b11fadfe91516",
+      "map": "0e1e1ac991e9f8412b433f04382db333673277865b9b5e439b93263f509de0bf",
+      "rooms": "aed535a3ac3679de2e8f306814d7b37d43facf1e942e7ae1722cb27a2b944199",
+      "save_roundtrip": "43c1bb1911fea7ff7b20d21c81ba9d5153a9a188b3b6902f46265b75f30a25ed"
+    }
+  }
+}

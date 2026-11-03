@@ -1,0 +1,11 @@
+{
+  "sweep_supervisor_workers": 8,
+  "shard_timeout_s": 85,
+  "shard_frames": 4,
+  "certified_shards_retained": 103,
+  "remaining_shards": 125,
+  "resume_plan": "/private/tmp/rr44-sweep-final-plan.txt",
+  "reason": "Full suites finished; eight independent CPU workers fit the 15 logical CPUs. Raster inputs and all limits unchanged.",
+  "result": "125 shards; 0 process failures",
+  "complete": true
+}

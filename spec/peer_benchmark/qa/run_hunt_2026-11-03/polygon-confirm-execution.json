@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "/private/tmp/labyrinth_codex/qa-23/run_hunt_task.py",
+    "--seed",
+    "3",
+    "--runs",
+    "1",
+    "--processes",
+    "1",
+    "--no-embrace",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-3-polygon-confirm"
+  ],
+  "baseline_sha256": "0eda4992babc1dbf0dbcf430ee817cc6935ce71f7317a7299ae78b247058686f",
+  "diagnostic_sha256": "dbf20b166468413bc62078c9365057ecd80032395e9364a427f86bd8e91f5214",
+  "started": 1793684669.1232781,
+  "note": "Read-only quad logging immediately before unchanged draw_polygon submission; no drawing/input/tuning change",
+  "returncode": 0,
+  "restored_baseline": true,
+  "wall_seconds": 1095.8138229846954
+}

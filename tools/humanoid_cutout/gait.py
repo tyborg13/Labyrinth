@@ -38,7 +38,7 @@ def validate(gait, clip):
     if required - set(gait): raise ValueError('gait: missing fields: ' + str(sorted(required - set(gait))))
     if gait['model'] != 'protagonist_walk': raise ValueError('gait: expected protagonist_walk model')
     count = gait['steps_per_tile']
-    if type(count) is not int or count < 2 or count % 2: raise ValueError('gait: step count must be positive and even')
+    if type(count) is not int or count < 2: raise ValueError('gait: step count must be an integer >= 2')
     if gait['lead'] not in SIDES: raise ValueError('gait: invalid lead')
     if not .5 < gait['stance_fraction'] < 1: raise ValueError('gait: stance_fraction must be between .5 and 1')
     if set(gait['settle_px']) != {'contact', 'down', 'passing', 'up'}: raise ValueError('gait: unknown/missing settle fields')

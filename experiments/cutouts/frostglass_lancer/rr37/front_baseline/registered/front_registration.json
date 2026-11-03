@@ -1,0 +1,66 @@
+{
+  "scale": [
+    0.2996005326231691,
+    0.2996005326231691
+  ],
+  "offset": [
+    1.0013179705970288,
+    -16.15046604527297
+  ],
+  "trace": {
+    "policy": "mq14 independent hood/sole/ground registration",
+    "source_frame": {
+      "head_top": 21,
+      "sole_bottom": 246,
+      "ground_x": 150.0
+    },
+    "maquette_frame": {
+      "head_top": 124.0,
+      "sole_bottom": 875.0,
+      "ground_x": 497.32448979591834
+    },
+    "painting_sha256": "25d01561a84c0e9b9030fca6a777a43a9213d8a47fecb2c27cb35c73860bb465",
+    "raw_reducer": {
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "raw_crop": [
+        36,
+        36,
+        844,
+        996
+      ],
+      "reduced_size": [
+        202,
+        240
+      ],
+      "trim": [
+        0,
+        0,
+        202,
+        240
+      ],
+      "before_fit": [
+        202,
+        240
+      ],
+      "after_fit": [
+        202,
+        240
+      ],
+      "final_trim": [
+        0,
+        0,
+        202,
+        240
+      ],
+      "placement": [
+        27,
+        6
+      ],
+      "render_size": 1024,
+      "render_to_raw_scale": 1.0
+    }
+  }
+}

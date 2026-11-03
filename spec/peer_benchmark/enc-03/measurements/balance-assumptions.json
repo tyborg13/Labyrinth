@@ -1,0 +1,31 @@
+{
+  "current_scorer_assumptions": {
+    "hp": 18,
+    "initiative": 14,
+    "embers": 13,
+    "override_source": "data/enemies.json (enc-03)",
+    "lob_weight": 4,
+    "ranged_initial_cycle": 20,
+    "ranged_repeat_cycle": 19.0,
+    "close_cycle": 19,
+    "lob_range": [
+      2,
+      6
+    ],
+    "tiles": "fixed centre plus four board orthogonals, clipped only off-board; ignores LOS",
+    "landing": "5 centre / 3 arms fire, once per unit at highest intersected value; Fire on legal surface tiles",
+    "brace": "adjacent only, Block 6",
+    "scatter": "adjacent only, ranged 3 + Push 1",
+    "counterplay": "leave cross; push enemies into it; dive mortar"
+  },
+  "before_authored_cadence_at_distance_4": {
+    "initial": 19.75,
+    "including_forced_landings": 19
+  },
+  "after_authored_cadence_at_distance_4": {
+    "initial": 20,
+    "including_forced_landings": 19
+  },
+  "adjacent_cadence_both": 19,
+  "card_coefficients": "unchanged"
+}

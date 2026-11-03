@@ -1835,13 +1835,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Deal 3 Lightning damage along a three-tile line at range 2, then leave Electrified.",
+    "description": "Deal 4 Lightning damage along a three-tile line at range 2, then leave Electrified.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/volt_surge.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 3,
+        "damage": 4,
         "range": 2,
         "pattern": [
           [
@@ -1960,14 +1960,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Push 2 at range 3 for 3 damage.",
+    "description": "Push 2 at range 4 for 3 damage.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/updraft.png",
     "actions": [
       {
         "type": "push",
         "damage": 3,
-        "range": 3,
+        "range": 4,
         "amount": 2,
         "element": "air"
       }
@@ -2846,23 +2846,22 @@
     ]
   },
   "sawtooth_flurry": {
-    "name": "Sawtooth Flurry",
+    "name": "Sawtooth Rake",
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Flurry. Strike for 3 and Bleed 1 for each Card Play spent.",
+    "description": "Strike for 5 and Bleed 2.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/sawtooth_flurry.png",
-    "flurry": true,
     "reward_pool": false,
     "actions": [
       {
         "type": "melee",
-        "damage": 3,
+        "damage": 5,
         "range": 1,
         "element": "none",
-        "bleed": 1
+        "bleed": 2
       }
     ]
   },
@@ -4349,17 +4348,16 @@
     "name": "Windlass Volley",
     "rarity": "rare",
     "burn": false,
-    "flurry": true,
     "health_cost": 0,
-    "time": 4,
-    "description": "Flurry. Deal 2 along a 2-tile line at range 3 for each Card Play spent.",
+    "time": 3,
+    "description": "Deal 4 along a 2-tile line at range 3.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/windlass_volley.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 2,
+        "damage": 4,
         "range": 3,
         "pattern": [
           [
@@ -4401,21 +4399,20 @@
     "name": "Blade Dance",
     "rarity": "epic",
     "burn": false,
-    "flurry": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Flurry. Gain 2 block, then strike for 4, for each Card Play spent.",
+    "description": "Gain 4 block, then strike for 7.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/blade_dance.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "block",
-        "amount": 2
+        "amount": 4
       },
       {
         "type": "melee",
-        "damage": 4,
+        "damage": 7,
         "range": 1,
         "element": "none"
       }
@@ -4451,16 +4448,15 @@
     "element": "fire",
     "rarity": "rare",
     "burn": false,
-    "flurry": true,
     "health_cost": 0,
-    "time": 5,
-    "description": "Flurry. Deal 2 at range 3 and leave Fire for each Card Play spent.",
+    "time": 4,
+    "description": "Deal 6 at range 3 and leave Fire.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinder_fusillade.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 2,
+        "damage": 6,
         "range": 3,
         "surface": "fire",
         "element": "fire"
@@ -4472,23 +4468,22 @@
     "element": "lightning",
     "rarity": "epic",
     "burn": false,
-    "flurry": true,
     "health_cost": 0,
     "time": 6,
-    "description": "Flurry. Deal 2 at range 3 with chain 1, then draw 1, for each Card Play spent.",
+    "description": "Deal 5 Lightning damage with Chain 2 at range 3, then draw 2.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/storm_salvo.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 2,
+        "damage": 5,
         "range": 3,
-        "chain": 1,
+        "chain": 2,
         "element": "lightning"
       },
       {
         "type": "draw",
-        "amount": 1
+        "amount": 2
       }
     ]
   },
@@ -4497,18 +4492,17 @@
     "element": "air",
     "rarity": "rare",
     "burn": false,
-    "flurry": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Flurry. Deal 2 at range 2 and push 1 for each Card Play spent.",
+    "description": "Deal 4 at range 3 and push 2.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/razor_gale.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 2,
-        "range": 2,
-        "push": 1,
+        "damage": 4,
+        "range": 3,
+        "push": 2,
         "element": "air"
       }
     ]
@@ -6212,13 +6206,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Gain 6 Block. Until your next turn, enemies that hit you in melee are pushed 2.",
+    "description": "Gain 9 Block. Until your next turn, enemies that hit you in melee are pushed 2.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/eye_of_the_storm.png",
     "actions": [
       {
         "type": "block",
-        "amount": 6
+        "amount": 9
       },
       {
         "type": "retaliate",
@@ -6968,14 +6962,14 @@
     "burn": true,
     "health_cost": 0,
     "time": 5,
-    "description": "Rite: your cards cost 1 less Time (minimum 1).",
+    "description": "Rite: your cards cost 2 less Time (minimum 1).",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/tempest_form.png",
     "rite": {
       "effects": [
         {
           "type": "card_time_discount",
-          "amount": 1
+          "amount": 2
         }
       ]
     },
@@ -8132,14 +8126,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "An enemy within range 3 (not a dragon) skips its next turn and gains 5 Block.",
+    "description": "Petrify an enemy within range 3 (not a dragon). It skips its next turn and gains 5 Block.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/petrify.png",
     "actions": [
       {
         "type": "petrify",
-        "range": 3,
-        "block": 5
+        "range": 3
       }
     ]
   },
@@ -8349,7 +8342,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Deal 3 to each enemy standing in Light.",
+    "description": "Deal 5 to each enemy standing in Light.",
     "accent": "#e6c56c",
     "art_path": "res://assets/art/cards/searing_light.png",
     "radiance": true,
@@ -8357,7 +8350,7 @@
       {
         "type": "all_enemies",
         "selector": "in_light",
-        "damage": 3
+        "damage": 5
       }
     ]
   },
@@ -8508,16 +8501,16 @@
     "name": "Skybolt",
     "element": "lightning",
     "rarity": "legendary",
-    "burn": false,
+    "burn": true,
     "health_cost": 0,
     "time": 7,
-    "description": "Deal 7 Lightning damage to any enemy you can see, ignoring range and line of sight. It conducts; everything it hits is Shocked.",
+    "description": "Exhaust. Deal 8 Lightning damage to any enemy you can see, ignoring range and line of sight. It conducts; everything it hits is Shocked.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/skybolt.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 7,
+        "damage": 8,
         "range": 99,
         "element": "lightning",
         "ignore_los": true,

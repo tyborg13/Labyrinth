@@ -1,0 +1,206 @@
+{
+  "task_id": "meas-02",
+  "source_head": "d96eadf4f3d3b98085b444bc28b5d456b8716163",
+  "risk_tier": "low",
+  "inspection": {
+    "applicable": false,
+    "reason": "Offline measurement tools and reports only; no gameplay or player-facing change."
+  },
+  "requirements": [
+    {
+      "requirement": 1,
+      "status": "pass",
+      "evidence": "Guardian/boss selection, complete production objective equality, natural Guardian tier and tier-3 boss preset tested at revisions 5, 6 and 7; policy file unchanged."
+    },
+    {
+      "requirement": 2,
+      "status": "pass",
+      "runs": 2100,
+      "groups": 15,
+      "runs_per_regular_or_guardian_tier": 200,
+      "runs_per_dragon": 50,
+      "first_seed": 1,
+      "workers": 6,
+      "composition_rooms": 12000,
+      "composition_seeds_per_bin": 200
+    },
+    {
+      "requirement": 3,
+      "status": "pass",
+      "report": "../../baseline_revision7.md",
+      "evidence": "Combat statistics table, Guardian/dragon composition table and one comparisons-only paragraph; raw records recompute every summary."
+    }
+  ],
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "chosen_defaults": {
+    "TASK_ID": "meas-02",
+    "composition_seeds_per_cohort_tier_biome": 200,
+    "measurement_entrypoint": "tools/encounter_measurement_bot.gd",
+    "import_resume_timeout_seconds": 900
+  },
+  "TODO_DESIGN": [],
+  "proof_for_design_owner": {
+    "windowed_commands": [],
+    "capture_paths": [],
+    "inspection_fixture_command": null,
+    "reason": "Not applicable: measurement only."
+  },
+  "checks": [
+    {
+      "name": "output guards",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-02 && python3 tools/output_gdignore.py",
+      "exit_code": 0,
+      "log": null,
+      "result_lines": [
+        "OUTPUT GDIGNORE: PASS (12 folders; 4 referenced roots)"
+      ]
+    },
+    {
+      "name": "focused Godot",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-02 && python3 tools/godot_task_runner.py --task-id meas-02 --stream -- godot --headless --path . --script tests/encounter_measurement_test.gd",
+      "exit_code": 0,
+      "log": "/private/tmp/meas-02-focused-godot.log",
+      "result_lines": [
+        "ENCOUNTER RUN SAVE: PASS (3 seeds; ProgressionStore; complete state equality)",
+        "ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)",
+        "ENCOUNTER SMALL SWEEP: PASS (revision 5; 84 rooms; seeds 1..15)",
+        "ENCOUNTER SMALL SWEEP: PASS (revision 6; 120 rooms; seeds 1..25)",
+        "ENCOUNTER SMALL SWEEP: PASS (revision 7; 120 rooms; seeds 1..21)",
+        "ENCOUNTER BOT DODGE/DEFENSE: PASS",
+        "ENCOUNTER BOT DETERMINISM: PASS (3 explicit objective fixtures, repeated seeded rooms)",
+        "ENCOUNTER MEASUREMENT: PASS (2602 checks; 0 failures)"
+      ]
+    },
+    {
+      "name": "focused Python",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-02 && python3 -m unittest discover -s tests -p test_encounter_measurement.py -v",
+      "exit_code": 0,
+      "log": "/private/tmp/meas-02-focused-python.log",
+      "result_lines": [
+        "Ran 14 tests in 1.718s",
+        "OK",
+        "ENCOUNTER BASELINE: PASS (2100 runs; revision 7; 15 groups); /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpjfftwrco/baseline.md"
+      ]
+    },
+    {
+      "name": "composition",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-02 && python3 tools/encounter_sweep.py --revision 7 --seeds 200 --first-seed 1",
+      "exit_code": 0,
+      "log": "/private/tmp/spx-01-measurement-logs/sweep-eaob97r3/sweep.log",
+      "result_lines": [
+        "ENCOUNTER SWEEP: seed 100, 3991 rooms",
+        "ENCOUNTER SWEEP: seed 200, 8005 rooms",
+        "ENCOUNTER SWEEP: seed 300, 9526 rooms",
+        "ENCOUNTER SWEEP: seed 400, 10367 rooms",
+        "ENCOUNTER SWEEP: seed 500, 10854 rooms",
+        "ENCOUNTER SWEEP: seed 600, 11228 rooms",
+        "ENCOUNTER SWEEP: seed 700, 11381 rooms",
+        "ENCOUNTER SWEEP: seed 800, 11457 rooms",
+        "ENCOUNTER SWEEP: seed 900, 11539 rooms",
+        "ENCOUNTER SWEEP: seed 1000, 11619 rooms",
+        "ENCOUNTER SWEEP: seed 1100, 11694 rooms",
+        "ENCOUNTER SWEEP: seed 1200, 11778 rooms",
+        "ENCOUNTER SWEEP: seed 1300, 11872 rooms",
+        "ENCOUNTER SWEEP: seed 1400, 11956 rooms",
+        "ENCOUNTER SWEEP: seed 1500, 11990 rooms",
+        "ENCOUNTER SWEEP: PASS (12000 rooms; revision 7; 200 seeds per cohort/tier/biome; seeds 1..1529)"
+      ]
+    },
+    {
+      "name": "baseline",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-02 && python3 tools/encounter_bot.py --baseline --revision 7 --runs 200 --boss-runs 50 --seed 1 --workers 6",
+      "exit_code": 0,
+      "log": null,
+      "result_lines": [
+        "ENCOUNTER BASELINE: PASS (2100 runs; revision 7; 15 groups); /Users/borgerding/workspace/Labyrinth.worktrees/meas-02/spec/peer_benchmark/encounter_redesign/baseline_revision7.md"
+      ],
+      "process_log_directory": "/private/tmp/spx-01-measurement-logs/bot-ngve9p78"
+    },
+    {
+      "name": "full Godot",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-02 && python3 tools/godot_task_runner.py --task-id meas-02 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+      "exit_code": 0,
+      "log": "/private/tmp/meas-02-full-godot.log",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (786 scripts; full suite=434, quarantined=29, windowed probe=323)",
+        "MAIN BODY RUNTIME: 341.650 seconds",
+        "MAIN BODY ASSERTIONS: 494879",
+        "ENCOUNTER ASSERTIONS: 4341",
+        "ENCOUNTER ASSERTIONS: 22656",
+        "ENCOUNTER ASSERTIONS: 22656",
+        "ENCOUNTER ASSERTIONS: 1",
+        "ENCOUNTER CALLER METADATA: PASS (UI/headless; combat, Guardian, boss; start/end/rewards)",
+        "ENCOUNTER ANALYTICS: PASS (0 failures)",
+        "ENCOUNTER RUN SAVE: PASS (3 seeds; ProgressionStore; complete state equality)",
+        "ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)",
+        "ENCOUNTER SMALL SWEEP: PASS (revision 5; 84 rooms; seeds 1..15)",
+        "ENCOUNTER SMALL SWEEP: PASS (revision 6; 120 rooms; seeds 1..25)",
+        "ENCOUNTER SMALL SWEEP: PASS (revision 7; 120 rooms; seeds 1..21)",
+        "ENCOUNTER BOT DODGE/DEFENSE: PASS",
+        "ENCOUNTER BOT DETERMINISM: PASS (3 explicit objective fixtures, repeated seeded rooms)",
+        "ENCOUNTER MEASUREMENT: PASS (2602 checks; 0 failures)",
+        "FULL SUITE RUNTIME: 611.647 seconds (budget 900 seconds)",
+        "TEST RESULT: PASS"
+      ]
+    },
+    {
+      "name": "registration audit",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-02 && python3 tools/test_registration_audit.py",
+      "exit_code": 0,
+      "log": null,
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (786 scripts; full suite=434, quarantined=29, windowed probe=323)"
+      ]
+    },
+    {
+      "name": "import initial cap",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-02 && python3 tools/godot_task_runner.py --task-id meas-02 --stream -- godot --headless --path . --import",
+      "exit_code": 124,
+      "log": "/private/tmp/meas-02-import.log",
+      "result_lines": [
+        "Reached 84% of resource import before the default 300-second cap."
+      ]
+    },
+    {
+      "name": "import resume",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-02 && python3 tools/godot_task_runner.py --task-id meas-02 --timeout 900 --stream -- godot --headless --path . --import",
+      "exit_code": 0,
+      "log": "/private/tmp/meas-02-import-resume.log",
+      "result_lines": [
+        "Completed resource import and generated the new script UID."
+      ]
+    },
+    {
+      "name": "full Python",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-02 && python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "log": "/private/tmp/meas-02-full-python.log",
+      "result_lines": [
+        "Ran 1639 tests in 2203.126s",
+        "OK (skipped=66)"
+      ],
+      "skip_count": 66
+    }
+  ],
+  "driver_parity": {
+    "revision": 6,
+    "seed": 1,
+    "tier": 1,
+    "cohort": "standard",
+    "complete_reports_equal": true,
+    "original_report": "/private/tmp/meas-02-original-driver-r6.json",
+    "measurement_report": "/private/tmp/meas-02-measurement-driver-r6.json",
+    "runs": 1
+  },
+  "full_python_status": "pass",
+  "full_godot_load": "Ran concurrently with the remaining encounter measurements; 900-second hard cap retained.",
+  "protected_evidence_check": {
+    "status": "pass",
+    "files_unchanged": 12,
+    "result_line": "PROTECTED POLICY AND REVISION-6 EVIDENCE: PASS (12 files unchanged)"
+  },
+  "test_generated_noise_restored": [
+    "experiments/cutouts/briar_weaver/mq9/proof/samples.json"
+  ],
+  "open_issues": []
+}

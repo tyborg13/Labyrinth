@@ -1,0 +1,24 @@
+{
+ "schema": 1,
+ "unit": "rr-41",
+ "what": "director underlay for the Lancer front legs: the rr-39 underlay (far arm and spear already removed) repainted with both legs and boots removed and the cloak's inner lining painted behind them",
+ "image_job": "img-rr41-lancer-legs-underlay-r1 (built-in image generation, edit of the rr-39 underlay x4, approved r5 front x4 as style reference)",
+ "prompt": "prompt_legs_underlay_r1.md",
+ "prompt_sha256": "388bdec354efda933896de5fca05f22fa700ffdc6855ec047e841b7602bfc498",
+ "raw_sha256": "6414792ea25e7c9ca98c247555aa778f838179ed9e0d668b7edf5122e6d77483",
+ "raw_size": [
+  1254,
+  1254
+ ],
+ "processing": "Lanczos 1254->1024; 4x4 block median down to 255 (canvas offset 0); chroma-green key; each pixel mapped to the nearest colour in the approved mq14_front/processed.png palette; registered to mq14_front/processed.png by -1 px x (alpha IoU 0.811 over rows 0-104, the unedited upper body)",
+ "files": {
+  "front_legs_underlay.png": "f35071187d694ff1601ddc3ebd0859e9a7b89d5784399ef7988694c2e2d7fc4d",
+  "front_near_leg_footprint_mask.png": "f4b9798cca2e9497e49b81939cab1091444655db7260618ed3b5846def855c16",
+  "front_legs_footprint_mask.png": "07e3ff9dedbe89c112638179bdc01c1623af0839c63cf5bf55b3741c12935af2"
+ },
+ "footprints": {
+  "front_near_leg_footprint_mask.png": "union of the rest alphas of leg_near and foot_near from experiments/cutouts/frostglass_lancer/rr37/layouts/front.json at bbb11242f (1961 px; the underlay is opaque on 61% of it, transparent below the cloak hem where the floor shows)",
+  "front_legs_footprint_mask.png": "leg_near, foot_near, leg_far, foot_far (4027 px)"
+ },
+ "approved_by": "director, 2026-10-25 (3x preview: approved front with the near-leg footprint replaced reads as cloak lining behind the body; no visible seam; director_preview_x3.png)"
+}

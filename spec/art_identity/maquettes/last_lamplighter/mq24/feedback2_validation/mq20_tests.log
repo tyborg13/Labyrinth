@@ -1,0 +1,7 @@
+......MQ20_CONTACT_SHEET: PASS; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/mq20_sheet_uoaghwy4/contact_sheet.webp
+....MQ20_SOURCE_GEOMETRY: FAIL; rows=89; clearance_over_H=0.0; unresolved=[]
+.........................
+----------------------------------------------------------------------
+Ran 35 tests in 26.866s
+
+OK

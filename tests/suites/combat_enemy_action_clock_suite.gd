@@ -1,5 +1,6 @@
 extends RefCounted
 ## Enemy action clock coverage, independent of gameplay tuning and assets.
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const Pacing = preload("res://scripts/combat_pacing.gd")
 const Motion = preload("res://tests/suites/combat_motion_timing_suite.gd")
 const En03 = preload("res://tests/suites/en03_enemies_suite.gd")
@@ -28,6 +29,11 @@ class ClockOwner:
 const ObservedScene = preload("res://tests/helpers/combat_action_clock_scene.gd")
 
 static func run(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _run_scoped(scope, tree, expect)
+	)
+
+static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	await action_clocks(tree, expect)
 	await _nested_movement(tree, expect)
 	await veil_blinks(tree, expect)
@@ -35,6 +41,11 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	await _mechanic_views(tree, expect)
 
 static func action_clocks(tree: SceneTree, expect: Callable, pacing_script: Script = Pacing) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _action_clocks_scoped(scope, tree, expect, pacing_script)
+	)
+
+static func _action_clocks_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable, pacing_script: Script = Pacing) -> void:
 	var settings_script = preload("res://scripts/settings_store.gd")
 	for speed: String in ["normal", "fast", "fastest"]:
 		for reduced: bool in [false, true]:
@@ -42,8 +53,7 @@ static func action_clocks(tree: SceneTree, expect: Callable, pacing_script: Scri
 			owner._settings["combat_speed"] = speed
 			owner._settings["reduced_motion"] = reduced
 			tree.root.add_child(owner)
-			var pacing: Node = pacing_script.new()
-			pacing.install(owner)
+			var pacing: Node = TestClock.install_pacing(owner, pacing_script)
 			var scale: float = settings_script.combat_speed_scale(owner._settings)
 			pacing.begin_enemies()
 			for kind: String in Pacing.ENEMY_ACTION_KINDS:
@@ -55,10 +65,10 @@ static func action_clocks(tree: SceneTree, expect: Callable, pacing_script: Scri
 			counts.assign([1])
 			expect.call(is_equal_approx(pacing.walk_frame_seconds("fixture",counts,1.0)+preload("res://scripts/floating_combat_text.gd").TARGET_FRAME_SECONDS,0.20),"Movement keeps the 0.20 s tile bound")
 			await pacing.before_step({"kind":"melee"})
-			var began: int = Time.get_ticks_usec()
+			var began: int = TestClock.now_usec
 			var clock_began: int = pacing.presentation_usec()
 			await pacing._wait_until(clock_began+int(CLOCK_SAMPLE_SECONDS*1000000.0))
-			var elapsed: float = float(Time.get_ticks_usec()-began)/1000000.0
+			var elapsed: float = float(TestClock.now_usec-began)/1000000.0
 			expect.call(elapsed >= CLOCK_SAMPLE_SECONDS/(scale*0.80) and elapsed <= CLOCK_SAMPLE_SECONDS/(scale*0.80)+CLOCK_SAMPLE_TOLERANCE_SECONDS,"Enemy clock keeps the full authored duration at %s" % speed)
 			pacing.hit_stop.request(12,false,false,reduced)
 			expect.call(Engine.time_scale == 0.0,"Enemy action hit-stop freezes the presentation clock")
@@ -87,8 +97,13 @@ static func action_clocks(tree: SceneTree, expect: Callable, pacing_script: Scri
 			owner.free()
 	print("COMBAT ACTION CLOCKS: all action kinds / three speeds / reduced motion / movement / hero / hit-stop / modal / director checked")
 
-static func _nested_movement(tree: SceneTree, expect: Callable) -> void:
-	var scene: Node = await _scene(tree)
+static func _nested_movement(tree: SceneTree, expect: Callable, scene_script: Script = ObservedScene) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _nested_movement_scoped(scope, tree, expect, scene_script)
+	)
+
+static func _nested_movement_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable, scene_script: Script = ObservedScene) -> void:
+	var scene: Node = await _scene(tree, scene_script)
 	for speed: String in ["normal", "fast", "fastest"]:
 		for reduced: bool in [false, true]:
 			var before: Dictionary = scene.get("_combat_state").duplicate(true)
@@ -109,12 +124,16 @@ static func _nested_movement(tree: SceneTree, expect: Callable) -> void:
 	print("COMBAT NESTED MOVEMENT CLOCKS: three speeds / reduced motion / action resume checked")
 
 static func veil_blinks(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _veil_blinks_scoped(scope, tree, expect)
+	)
+
+static func _veil_blinks_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	var scene: Node = await _scene(tree)
 	for speed: String in ["normal", "fast", "fastest"]:
 		for reduced: bool in [false, true]:
 			for intent: String in ["fade", "ambush"]:
 				var before: Dictionary = En03.state([En03.enemy("gloam_stalker",1,BLINK_FIXTURE_FROM,intent)])
-				before["enemies"][0]["veiled"] = intent == "ambush"
 				var resolved: Dictionary = En06.resolve_action(before)
 				var step: Dictionary = resolved["step"]
 				expect.call(step["from"] == BLINK_FIXTURE_FROM and step["to"] == BLINK_FIXTURE_TO,"Fade and Ambush fixtures share the same nonzero blink")
@@ -136,39 +155,55 @@ static func veil_blinks(tree: SceneTree, expect: Callable) -> void:
 	print("COMBAT VEIL BLINK CLOCKS: Fade / Ambush / three speeds / reduced motion / independent blink and strike scales checked")
 
 static func unaligned_dive(tree: SceneTree, expect: Callable, scene_script: Script = ObservedScene) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _unaligned_dive_scoped(scope, tree, expect, scene_script)
+	)
+
+static func _unaligned_dive_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable, scene_script: Script = ObservedScene) -> void:
 	var scene: Node = await _scene(tree,scene_script)
 	for speed: String in ["normal", "fast", "fastest"]:
 		for reduced: bool in [false, true]:
-			var before: Dictionary = En05.shrike()
-			before["enemies"][0]["pos"] = En05.TEST_UNALIGNED_START
-			var resolved: Dictionary = En06.resolve_action(before)
-			var step: Dictionary = resolved["step"]
-			expect.call((step.get("approach_path",[]) as Array).size() > 1 and not bool(step.get("cancelled",false)),"Unaligned Dive fixture must walk before its attack")
+			var before: Dictionary = preload("res://tests/suites/sta01_mechanics_suite.gd").state("gust_shrike", "dive")
+			var combat := Combat.new()
+			var context: Dictionary = combat.enemy_intent_plan(before, 0)
+			context["action_index"] = 0
+			var action: Dictionary = before["enemies"][0]["intent"]["actions"][0]
+			var moved: Dictionary = combat._resolve_enemy_action(before.duplicate(true), 0, action, null, {}, [], context)
+			var movement: Dictionary = combat._enemy_action_step(before, moved, 0, action, context)
+			action = before["enemies"][0]["intent"]["actions"][1]
+			var after: Dictionary = combat._resolve_enemy_action(moved.duplicate(true), 0, action, null, {}, [], context)
+			var step: Dictionary = combat._enemy_action_step(moved, after, 0, action, context)
+			expect.call((movement.get("path",[]) as Array).size() > 1, "Shared Dive fixture moves before its attack")
 			_start(scene,before,speed,reduced)
-			await scene.call("_animate_enemy_phase_steps",before,[step])
+			await scene.call("_animate_enemy_phase_steps",before,[movement,step])
 			scene.get("_combat_pacing").end_scope()
 			var scale: float = Settings.combat_speed_scale(scene.get("_settings"))
 			var approaches: Array = scene.get("movement_scales")
-			var attacks: Array = scene.get("effect_scales").get("dive_line",[])
+			var attacks: Array = scene.get("effect_scales").get("aoe",[])
 			expect.call(not approaches.is_empty() and approaches.all(func(value: float) -> bool: return is_equal_approx(value,scale)),"Unaligned Dive approach uses combat speed at %s reduced=%s" % [speed,reduced])
 			expect.call(not attacks.is_empty() and attacks.all(func(value: float) -> bool: return is_equal_approx(value,scale*0.80)),"Unaligned Dive attack resumes the enemy action scale at %s reduced=%s" % [speed,reduced])
-			expect.call(before["enemies"] == resolved["state"]["enemies"] and before["player"] == resolved["state"]["player"],"Unaligned Dive presentation preserves the resolved approach/attack outcome")
+			expect.call(before["enemies"] == after["enemies"] and before["player"] == after["player"],"Unaligned Dive presentation preserves the resolved approach/attack outcome")
 			_verify_presentations(scene,expect,"Unaligned Dive")
 	scene.queue_free()
 	await tree.process_frame
 	print("COMBAT UNALIGNED DIVE CLOCKS: nonzero approach / three speeds / reduced motion / independent approach and attack scales checked")
 
 static func _mechanic_views(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _mechanic_views_scoped(scope, tree, expect)
+	)
+
+static func _mechanic_views_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	var scene: Node = await _scene(tree)
 	var engine := Combat.new()
 	# Existing fixtures and authored intents only; no gameplay values are tuned.
 	var cases: Array = [
 		["hoarfrost_seer","icefall"], ["hoarfrost_seer","icefall_land"],
 		["gale_herald","call_the_wind"], ["briar_weaver","thornwall"],
-		["slag_mortar","slag_lands"], ["arc_thrall","tether"],
+		["slag_mortar","slag_lands"], ["arc_thrall","arc_bolt"],
 		["ember_tick","kindle"], ["burrow_grub","burrow"],
 		["glacial_mirror","refraction"], ["gust_shrike","dive"],
-		["storm_capacitor","discharge"], ["hollow_mimic","mirror"]]
+		["storm_capacitor","discharge"], ["hollow_mimic","echo"]]
 	for speed: String in ["normal", "fast", "fastest"]:
 		for reduced: bool in [false, true]:
 			for fixture: Array in cases:
@@ -181,10 +216,14 @@ static func _mechanic_views(tree: SceneTree, expect: Callable) -> void:
 				if type != "hollow_mimic": before["enemies"][0]["intent"] = En02.intent(type,fixture[1])
 				if str(fixture[1]) == "icefall_land": before["enemies"][0]["icefall_tiles"] = [before["player"]["pos"]]
 				if str(fixture[1]) == "slag_lands": before["enemies"][0]["lob_center"] = before["player"]["pos"]
-				var resolved: Dictionary = En06.resolve_action(before)
+				var action: Dictionary = before["enemies"][0]["intent"]["actions"][1] if type == "arc_thrall" else {}
+				var resolved: Dictionary = En06.resolve_action(before, action)
+				# Dive is now two shared actions. The first is movement, so a
+				# single-action fixture no longer reaches its attack or settle.
+				if type == "gust_shrike": resolved = _shared_dive(before)
 				var expected: Dictionary = resolved["state"]
 				_start(scene, before, speed, reduced)
-				await scene.call("_animate_enemy_phase_steps",before,[resolved["step"]])
+				await scene.call("_animate_enemy_phase_steps",before,resolved.get("steps", [resolved.get("step", {})]))
 				var pacing: Node = scene.get("_combat_pacing")
 				pacing.end_scope()
 				var scale: float = Settings.combat_speed_scale(scene.get("_settings"))*0.80
@@ -199,6 +238,19 @@ static func _mechanic_views(tree: SceneTree, expect: Callable) -> void:
 	scene.queue_free()
 	await tree.process_frame
 	print("COMBAT MECHANIC ACTION CLOCKS: 12 routes / three speeds / reduced motion / complete authored presentations checked")
+
+static func _shared_dive(before: Dictionary) -> Dictionary:
+	var engine := Combat.new()
+	var context: Dictionary = engine.enemy_intent_plan(before, 0)
+	var state: Dictionary = before.duplicate(true)
+	var steps: Array[Dictionary]
+	var actions: Array = before["enemies"][0]["intent"]["actions"]
+	for index: int in range(actions.size()):
+		context["action_index"] = index
+		var after: Dictionary = engine._resolve_enemy_action(state.duplicate(true), 0, actions[index], null, {}, [], context)
+		steps.append(engine._enemy_action_step(state, after, 0, actions[index], context))
+		state = after
+	return {"state": state, "steps": steps}
 
 static func _scene(tree: SceneTree, scene_script: Script = ObservedScene) -> Node:
 	var scene: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()

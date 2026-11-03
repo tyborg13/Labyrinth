@@ -1,0 +1,230 @@
+{
+  "unit": "rr-32",
+  "revision": "director feedback 2",
+  "status": "requested focused headless checks passed; fresh native proof pending",
+  "director_sha256": "3a55e2f5fab1ca0b348624fe83611806e7c77a59aa3ef7ee73d01462431739fe",
+  "protected_motion_byte_identical": true,
+  "authored_death_horn_terminal_angle_deg": -30,
+  "motion_keys_changed": false,
+  "gate_exceptions_added": [],
+  "TODO_DESIGN": {},
+  "new_runtime_defaults": {},
+  "proof_defaults_added": {
+    "cpu_mask_uv_margin_px": 1
+  },
+  "source_rest_identity": {
+    "ok": true,
+    "views": {
+      "front": {
+        "different_pixels": 0,
+        "pixel_identical": true
+      },
+      "rear": {
+        "different_pixels": 0,
+        "pixel_identical": true
+      }
+    }
+  },
+  "observed_prior_native_errors": 259,
+  "prior_native_receipt": "feedback2_director_native_gates.json",
+  "native_revalidation": "not run: no window-server access; old native inputs remain stale",
+  "herald": {
+    "exit": 0,
+    "result_lines": [
+      "Ran 21 tests in 165.575s",
+      "OK"
+    ],
+    "transcript": "logs/feedback2/frozen_herald.txt"
+  },
+  "reference_rigs": [
+    {
+      "family": "seer",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "seer"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 86 tests in 74.085s",
+        "OK"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback2/seer.txt"
+    },
+    {
+      "family": "thrall",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "thrall"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 88 tests in 115.028s",
+        "OK (skipped=1)"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback2/thrall.txt"
+    },
+    {
+      "family": "mirror",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "mirror"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 39 tests in 52.682s",
+        "OK"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback2/mirror.txt"
+    },
+    {
+      "family": "capacitor",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "capacitor"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 38 tests in 165.712s",
+        "OK"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback2/capacitor.txt"
+    },
+    {
+      "family": "weaver",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "weaver"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 33 tests in 220.868s",
+        "OK"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback2/weaver.txt"
+    },
+    {
+      "family": "mimic",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "mimic"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 30 tests in 72.132s",
+        "OK"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback2/mimic.txt"
+    },
+    {
+      "family": "mortar",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "mortar"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 66 tests in 683.219s",
+        "OK"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback2/mortar.txt"
+    }
+  ],
+  "strict_gates": {
+    "ok": true,
+    "errors": [],
+    "result_lines": [
+      "RR32 FRONT CUT: PASS (0 errors)",
+      "RR32 FRONT BONES: PASS (0 errors)",
+      "RR32 FRONT DIRECTION: PASS (0 errors)",
+      "RR32 FRONT WALK: PASS (0 errors)",
+      "RR32 FRONT SUPPORTS: PASS (0 errors)",
+      "RR32 FRONT REACH: REPORT (9 paths; 1000 intervals; 0 errors; 3 overreach reports)",
+      "RR32 REAR CUT: PASS (0 errors)",
+      "RR32 REAR BONES: PASS (0 errors)",
+      "RR32 REAR DIRECTION: PASS (0 errors)",
+      "RR32 REAR WALK: PASS (0 errors)",
+      "RR32 REAR SUPPORTS: PASS (0 errors)",
+      "RR32 REAR REACH: REPORT (9 paths; 1000 intervals; 0 errors; 5 overreach reports)",
+      "RR32 HEADLESS GATES: PASS (0 errors)"
+    ],
+    "receipt": "gates.json"
+  },
+  "cpu_coverage": {
+    "front": {
+      "ok": true,
+      "native_pixels": false,
+      "frames": 398,
+      "error_frames": 0,
+      "receipt": "seam_cpu/feedback2/frozen_front.json",
+      "sha256": "a6cd9100726dafbd437cbc51a35d68d034548fbe3ae1d32f0f3f5c57b2117dbe",
+      "inputs_current": true
+    },
+    "rear": {
+      "ok": true,
+      "native_pixels": false,
+      "frames": 398,
+      "error_frames": 0,
+      "receipt": "seam_cpu/feedback2/frozen_rear.json",
+      "sha256": "44b2ec961d133b8c9e59a7df2db500d4c9d4b83792a76623c2415d71a95bddb3",
+      "inputs_current": true
+    }
+  },
+  "cpu_capture_manifest": "seam_cpu/feedback2/final_crops/frames.json",
+  "auxiliary_result_lines": [
+    "RR32 IDENTITY: exit 0",
+    "Ran 111 tests in 67.036s",
+    "OK",
+    "RR32 IDENTITY: exit 0",
+    "Ran 7 tests in 0.127s",
+    "OK",
+    "identity exit 0",
+    "RR32 SFX: exit 0",
+    "SFX SYNC HARNESS RESULT: PASS (4231 observations, 0 failures)",
+    "RR32 SFX: exit 0",
+    "SFX SYNC HARNESS RESULT: PASS (3504 observations, 0 failures)",
+    "RR32 SFX: exit 0",
+    "SFX SYNC HARNESS RESULT: PASS (1682 observations, 0 failures)",
+    "sfx exit 0",
+    "RR32 AUDIT: exit 0",
+    "TEST REGISTRATION AUDIT: PASS (805 scripts; full suite=449, quarantined=29, windowed probe=327)",
+    "audit exit 0"
+  ],
+  "production_logic": "production_logic.json",
+  "density": {
+    "paint": "processed with existing registered parameters",
+    "native_rests_pending": [
+      "rest rebake needed: assets/units/gale_herald_cutout/humanoid_v2/front/rest.png: rest pixels changed since recorded rebake",
+      "rest rebake needed: assets/units/gale_herald_cutout/humanoid_v2/rear/rest.png: rest pixels changed since recorded rebake"
+    ]
+  },
+  "earlier_rig_and_case_tracked_bytes_unchanged": true,
+  "unrelated_registry_records_unchanged": true,
+  "full_suites": "not run, per director instruction",
+  "windowed_commands": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-32 && sh experiments/cutouts/gale_herald/proof.sh density",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-32 && sh experiments/cutouts/gale_herald/proof.sh rest",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-32 && sh experiments/cutouts/gale_herald/proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-32 && sh experiments/cutouts/gale_herald/proof.sh sheets",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-32 && sh experiments/cutouts/gale_herald/proof.sh idle",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-32 && sh experiments/cutouts/gale_herald/proof.sh production",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-32 && sh experiments/cutouts/gale_herald/proof.sh review"
+  ],
+  "limitations": [
+    "Native rendering, production native rest rebake, Herald shadow refresh and visual inspection remain director-run.",
+    "The preserved generated shadow cache and prior native/idle proof were supplied by the director; they were not edited or relabelled by this worker."
+  ]
+}

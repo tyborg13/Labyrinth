@@ -1,0 +1,44 @@
+{
+  "min_images": 3,
+  "required_images": [
+    {
+      "pattern": "*rr46_fire_fight.png",
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1600,
+            900
+          ],
+          "min_luma_range": 0,
+          "min_luma_stdev": 0
+        }
+      ]
+    },
+    {
+      "pattern": "*fight_*.png",
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1600,
+            900
+          ],
+          "min_luma_range": 0,
+          "min_luma_stdev": 0
+        }
+      ]
+    }
+  ],
+  "frame_size_policy": {
+    "matches": "window_logical_size",
+    "minimum_size": [
+      1600,
+      900
+    ],
+    "ui_scale": 1.0,
+    "capture_source": "root_viewport"
+  }
+}

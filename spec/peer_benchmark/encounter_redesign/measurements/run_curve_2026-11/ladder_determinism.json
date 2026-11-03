@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "seed": 1,
+  "repeat_count": 2,
+  "record_sha256": "07e2f63772045e6dc24f12f11926376b5c166561950dbd9f72c4287d33f06311",
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "fights": 32,
+  "forced_victories": 14,
+  "sections": 6
+}

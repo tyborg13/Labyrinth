@@ -1,0 +1,87 @@
+{
+  "unit": "rr-36",
+  "round": "feedback 2",
+  "base_head": "85f33073d89edc276e609a7b90f3cff19c2e57ae",
+  "uncommitted": true,
+  "scope": "Repin accepted production rest reconciliation only; no cut, coverage, layout, asset or motion edits.",
+  "regeneration": {
+    "command": "PYTHONPATH=tools python3 -B -c \"import sys; sys.path.insert(0, 'experiments/cutouts/gloam_stalker'); from rr36_repair import preservation_receipt; preservation_receipt()\"",
+    "result": "PASS; generated through preservation_receipt(), then repeated to verify byte-identical output (idempotent)."
+  },
+  "front": {
+    "before_sha256": "85e742bf541c98e9339720015021dfd54e52301b9e6e525e0c6596b1889f2bec",
+    "accepted_sha256": "4cfbb64cca7bee767983df25d9f3740e3e7f0913cf2175df66e9f2d97fa77acf",
+    "revision": "a7a894dbbd93572115de7d4673851241449acd43"
+  },
+  "rear": {
+    "before_sha256": "42dfcc6bd8aa5c6b0797cbe1f890c5be8a1730a6155fbdaf4a83e071e1b27aa5",
+    "accepted_sha256": "df2bcd1c6dcc7f583e986f480fac30e533500df13e6a7f314e601ee85af2d8b5",
+    "revision": "187ce0327f3da507d4ba1e24ea55f4b76fdf09a8",
+    "unchanged": "Entire prior record preserved exactly; a7a894dbb has the same rear PNG hash."
+  },
+  "pre_rr35_before_hashes_preserved": true,
+  "derived_partition_records_unchanged": true,
+  "checks": [
+    {
+      "name": "reconcile test",
+      "command": "LABYRINTH_TASK_ID=rr-36 python3 -B -m unittest tests.test_rr35_native_defects.NativeDefectTests.test_reconciled_rest_records_are_exactly_the_director_rebakes",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 1 test in 1.834s",
+        "OK"
+      ]
+    },
+    {
+      "name": "full focused rr35/rr36 set",
+      "command": "LABYRINTH_TASK_ID=rr-36 python3 -B -m unittest tests.test_rr35_cutout tests.test_rr35_production tests.test_rr35_native_defects",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 37 tests in 126.229s",
+        "OK"
+      ],
+      "failures": 0
+    },
+    {
+      "name": "preservation",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_preservation.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 PRESERVATION: PASS (2959 protected files; 3 expected generic changes)"
+      ]
+    }
+  ],
+  "reference_tests": {
+    "command": "LABYRINTH_TASK_ID=rr-36 python3 -B tests/rr35/run_reference_tests.py --compare-legacy-reach tests.test_rr10_humanoid tests.test_rr11_humanoid tests.test_rr18_humanoid tests.test_rr17_cutout tests.test_rr17_integration tests.test_rr21_cutout tests.test_rr21_production tests.test_rr26_consolidation tests.test_rr29_mimic tests.test_rr30_mortar tests.test_rr31_calibration tests.test_rr31_storage tests.test_rr32_herald tests.test_rr32_production tests.test_rr15_reach tests.test_rr16_feedback1 tests.test_rr16_review_fixes tests.test_rr14_anatomy",
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 177 tests in 431.229s",
+      "OK",
+      "RR16 CURVED REACH: FAIL AS REQUIRED (23.113249183 px at 0.500730859)",
+      "RR16 SUPPORT MODES: PASS (4 views/configurations)",
+      "RR35 LEGACY REACH REPORTS: PASS (23 byte-identical JSON reports)"
+    ]
+  },
+  "proof_binding": {
+    "native_input_count": 466,
+    "changed": false,
+    "stages_director_must_rerun": [],
+    "reason": "rr36_repair.py is outside configured native binding folders; generated proof metadata is excluded from the case input closure.",
+    "changed_files_in_current_binding": {
+      "experiments/cutouts/gloam_stalker/rr35/proof/preservation.json": [],
+      "experiments/cutouts/gloam_stalker/rr35/proof/round0/samples.json": [],
+      "experiments/cutouts/gloam_stalker/rr35/proof/rr36_preservation.json": [],
+      "experiments/cutouts/gloam_stalker/rr36_repair.py": [],
+      "experiments/cutouts/gloam_stalker/rr35/proof/rr36_feedback2.json": []
+    }
+  },
+  "protected_data": {
+    "files_checked": 682,
+    "changed": [],
+    "result": "PASS; no cut, coverage, layout, asset, motion or protected evidence bytes changed"
+  },
+  "windowed_runs_attempted": false,
+  "peer_review_run": false,
+  "TODO_DESIGN": [],
+  "chosen_defaults": [],
+  "open_issues": []
+}

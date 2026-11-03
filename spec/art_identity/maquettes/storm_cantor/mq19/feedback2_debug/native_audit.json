@@ -1,0 +1,2954 @@
+{
+  "passed": false,
+  "checks": {
+    "pose_values": true,
+    "feet_planted": true,
+    "staff_butt_outward_of_far_foot": true,
+    "far_elbow_not_forward": true,
+    "forearm_forward": true,
+    "shoulder_rule": false,
+    "level_shoulders": true,
+    "true_turn": true,
+    "facing": false,
+    "design_resolved": true,
+    "cloak": true,
+    "tabard": true,
+    "r3_shapes_preserved": true,
+    "cloak_occlusion": false,
+    "native_mesh_binding": true,
+    "native_endpoints": true,
+    "native_build": false,
+    "native_mutations": false,
+    "restored_native_geometry": true
+  },
+  "pose_values": [
+    {
+      "requirement": 1,
+      "name": "near_knee_degrees",
+      "target": 22,
+      "measured": 22.00000794993481,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 1,
+      "name": "far_knee_degrees",
+      "target": 10,
+      "measured": 10.000001597827946,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 2,
+      "name": "pelvis_down_near_degrees",
+      "target": 4,
+      "measured": 4.0000456036168766,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 2,
+      "name": "forward_lean_degrees",
+      "target": 14,
+      "measured": 14.000019415384484,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 3,
+      "name": "chest_yaw_toward_viewer_degrees",
+      "target": 10,
+      "measured": 9.999998043507732,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 4,
+      "name": "head_down_degrees",
+      "target": 15,
+      "measured": 15.000000629707877,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 4,
+      "name": "head_matches_chest_yaw",
+      "target": 0,
+      "measured": 2.9574587756542314e-07,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 5,
+      "name": "ankle_span_over_shoulders",
+      "target": 1.5,
+      "measured": 1.4999996694292324,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 6,
+      "name": "near_step_over_L",
+      "target": 0.18,
+      "measured": 0.18000002950429916,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "fist_height_over_H",
+      "target": 0.56,
+      "measured": 0.5599999438072073,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "fist_forward_over_L",
+      "target": 0.1,
+      "measured": 0.1000000536441803,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "fist_outward_over_L",
+      "target": 0.36,
+      "measured": 0.35999997705221176,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "staff_from_vertical_degrees",
+      "target": 4,
+      "measured": 3.999999917793136,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "staff_forward_degrees",
+      "target": 4,
+      "measured": 3.999999917793159,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "staff_butt_sole_over_H",
+      "target": 0,
+      "measured": 0.0,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 7,
+      "name": "staff_grip_axis_distance_over_L",
+      "target": 0,
+      "measured": 1.1255877717913752e-07,
+      "tolerance": 0.01,
+      "passed": true
+    },
+    {
+      "requirement": 8,
+      "name": "far_elbow_outward_degrees",
+      "target": 40,
+      "measured": 39.999950080297765,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_upper_out_degrees",
+      "target": 20,
+      "measured": 19.99997485407742,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_elbow_degrees",
+      "target": 45,
+      "measured": 44.99998358656049,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_0_knuckle_0",
+      "target": 45,
+      "measured": 45.00000458126419,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_0_knuckle_1",
+      "target": 45,
+      "measured": 44.99999203606423,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_0_knuckle_2",
+      "target": 45,
+      "measured": 44.99998903655992,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_1_knuckle_0",
+      "target": 45,
+      "measured": 45.00000921393633,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_1_knuckle_1",
+      "target": 45,
+      "measured": 44.99998453614813,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_1_knuckle_2",
+      "target": 45,
+      "measured": 45.000030105585,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_2_knuckle_0",
+      "target": 45,
+      "measured": 45.00000663006456,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_2_knuckle_1",
+      "target": 45,
+      "measured": 45.000004081139494,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_2_knuckle_2",
+      "target": 45,
+      "measured": 44.99997787232111,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_3_knuckle_0",
+      "target": 45,
+      "measured": 44.99998863539583,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_3_knuckle_1",
+      "target": 45,
+      "measured": 45.000004823469055,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_finger_3_knuckle_2",
+      "target": 45,
+      "measured": 45.000000555969166,
+      "tolerance": 1.0,
+      "passed": true
+    },
+    {
+      "requirement": 9,
+      "name": "near_wrist_ahead_over_L",
+      "target": 0.15,
+      "measured": 0.15000008046627045,
+      "tolerance": 0.01,
+      "passed": true
+    }
+  ],
+  "soles_m": {
+    "near": 0.0,
+    "far": 0.0
+  },
+  "staff_top_over_H": 1.049629800278565,
+  "staff_butt_outward_clearance_over_L": 0.0893481895327568,
+  "shoulder_and_turn": {
+    "passed": false,
+    "checks": {
+      "shoulder_rule": false,
+      "shoulders_level_3d": true,
+      "native_joint_projection": true,
+      "proper_true_turn": true,
+      "same_camera_angles_and_scale": true,
+      "front_staff_side": true,
+      "rear_staff_side": true
+    },
+    "shoulder_rise_px": 11.06420833366019,
+    "target_shoulder_rise_px": 32.960226408439745,
+    "shoulder_error_px": 21.896018074779555,
+    "level_difference_m": 4.76837158203125e-07,
+    "level_tolerance_m": 0.012473118279569893,
+    "maximum_joint_projection_error_px": 0.0,
+    "rear_relative_matrix": [
+      [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "rear_determinant": 1.0
+  },
+  "cloak": {
+    "passed": true,
+    "checks": {
+      "three_actual_holes": true,
+      "nine_actual_strips": true,
+      "elliptical_tears": true,
+      "tear_centres_preserved": true,
+      "fold_amplitude_growth": true,
+      "five_radial_folds": true,
+      "back_centre_valley": true,
+      "root_wrap_200_degrees": true,
+      "exact_side_notch_counts": true,
+      "linear_root_chord": true,
+      "strip_widths": true,
+      "strip_lengths": true,
+      "near_longest_tip": true,
+      "tips_above_sole_floor": true,
+      "width_ratios_preserved": true,
+      "widths_and_cuts_fill_root": true,
+      "thickness": true,
+      "root_heights": true,
+      "root_near_flare": true,
+      "shoulder_attachment": true
+    },
+    "hole_count": 3,
+    "boundary_loop_count": 4,
+    "tears": [
+      {
+        "centre_angle_degrees": 10.0,
+        "centre_height_over_H": 0.42,
+        "centroid_error_developed_over_H": [
+          5.453502997565167e-06,
+          -0.00011964136181341431
+        ],
+        "width_over_H": 0.014165330188981029,
+        "height_over_H": 0.029254884555422023,
+        "aspect_ratio": 2.0652455089383586,
+        "area_over_H2": 0.0003178330581257635,
+        "target_area_over_H2": 0.0003141592653589793,
+        "area_ratio": 1.011694045574579,
+        "long_axis_from_vertical_degrees": 0.5331928737351361
+      },
+      {
+        "centre_angle_degrees": -35.0,
+        "centre_height_over_H": 0.38,
+        "centroid_error_developed_over_H": [
+          -0.00044280548710849183,
+          3.513230181095002e-05
+        ],
+        "width_over_H": 0.01787109329531747,
+        "height_over_H": 0.03529864408332728,
+        "aspect_ratio": 1.9751810087957027,
+        "area_over_H2": 0.0004955291400225471,
+        "target_area_over_H2": 0.0004908738521234052,
+        "area_ratio": 1.0094836746325033,
+        "long_axis_from_vertical_degrees": 0.3840491978811481
+      },
+      {
+        "centre_angle_degrees": 45.0,
+        "centre_height_over_H": 0.34,
+        "centroid_error_developed_over_H": [
+          -0.0006772767076334054,
+          3.523905953381303e-05
+        ],
+        "width_over_H": 0.02175184460195967,
+        "height_over_H": 0.04327239211777162,
+        "aspect_ratio": 1.9893665530266393,
+        "area_over_H2": 0.0007116692500401882,
+        "target_area_over_H2": 0.0007068583470577034,
+        "area_ratio": 1.0068060354702044,
+        "long_axis_from_vertical_degrees": 0.10580320863121877
+      }
+    ],
+    "fold_amplitude_rows": [
+      {
+        "v": 0.0,
+        "amplitude_over_H": 0.005000000000000055,
+        "expected_over_H": 0.005,
+        "residual_over_H": 2.220446049250313e-16
+      },
+      {
+        "v": 0.0078125,
+        "amplitude_over_H": 0.005195312791940629,
+        "expected_over_H": 0.0051953125,
+        "residual_over_H": 1.0268162015103499e-08
+      },
+      {
+        "v": 0.015625,
+        "amplitude_over_H": 0.0053906250582022785,
+        "expected_over_H": 0.0053906250000000005,
+        "residual_over_H": 9.591511723749946e-09
+      },
+      {
+        "v": 0.0234375,
+        "amplitude_over_H": 0.005585938405537029,
+        "expected_over_H": 0.005585937500000001,
+        "residual_over_H": 1.170808175410265e-08
+      },
+      {
+        "v": 0.023993620421125506,
+        "amplitude_over_H": 0.005599840243530577,
+        "expected_over_H": 0.005599840510528138,
+        "residual_over_H": 1.1137824440510258e-08
+      },
+      {
+        "v": 0.03125,
+        "amplitude_over_H": 0.005781249650373095,
+        "expected_over_H": 0.00578125,
+        "residual_over_H": 8.297146081304163e-09
+      },
+      {
+        "v": 0.0390625,
+        "amplitude_over_H": 0.005976562135848279,
+        "expected_over_H": 0.0059765625,
+        "residual_over_H": 8.877784285488133e-09
+      },
+      {
+        "v": 0.046875,
+        "amplitude_over_H": 0.006171874284480741,
+        "expected_over_H": 0.006171875,
+        "residual_over_H": 9.1334018403888e-09
+      },
+      {
+        "v": 0.0546875,
+        "amplitude_over_H": 0.006367187661439394,
+        "expected_over_H": 0.0063671875000000005,
+        "residual_over_H": 1.0069797690137605e-08
+      },
+      {
+        "v": 0.0625,
+        "amplitude_over_H": 0.006562499945888946,
+        "expected_over_H": 0.006562500000000001,
+        "residual_over_H": 6.686249373610842e-09
+      },
+      {
+        "v": 0.0703125,
+        "amplitude_over_H": 0.006757812455219737,
+        "expected_over_H": 0.0067578125,
+        "residual_over_H": 9.051754706890236e-09
+      },
+      {
+        "v": 0.078125,
+        "amplitude_over_H": 0.0069531244897463726,
+        "expected_over_H": 0.006953125,
+        "residual_over_H": 6.60326768264774e-09
+      },
+      {
+        "v": 0.0859375,
+        "amplitude_over_H": 0.007148437375840388,
+        "expected_over_H": 0.0071484375,
+        "residual_over_H": 8.635015896762965e-09
+      },
+      {
+        "v": 0.09375,
+        "amplitude_over_H": 0.007343749572889543,
+        "expected_over_H": 0.0073437500000000005,
+        "residual_over_H": 9.556224450646411e-09
+      },
+      {
+        "v": 0.1015625,
+        "amplitude_over_H": 0.007539061640469004,
+        "expected_over_H": 0.007539062500000001,
+        "residual_over_H": 8.471080448213542e-09
+      },
+      {
+        "v": 0.109375,
+        "amplitude_over_H": 0.007734373919397327,
+        "expected_over_H": 0.007734375,
+        "residual_over_H": 7.202452884103039e-09
+      },
+      {
+        "v": 0.10960821512102673,
+        "amplitude_over_H": 0.007740204056144734,
+        "expected_over_H": 0.007740205378025668,
+        "residual_over_H": 6.000232338765343e-09
+      },
+      {
+        "v": 0.1171875,
+        "amplitude_over_H": 0.007929687558402993,
+        "expected_over_H": 0.007929687500000001,
+        "residual_over_H": 8.114322713748123e-09
+      },
+      {
+        "v": 0.125,
+        "amplitude_over_H": 0.008124999628048439,
+        "expected_over_H": 0.008125,
+        "residual_over_H": 8.0893237525137e-09
+      },
+      {
+        "v": 0.13243877370766707,
+        "amplitude_over_H": 0.008310970551587927,
+        "expected_over_H": 0.008310969342691677,
+        "residual_over_H": 8.486563687903903e-09
+      },
+      {
+        "v": 0.1328125,
+        "amplitude_over_H": 0.008320312341699776,
+        "expected_over_H": 0.0083203125,
+        "residual_over_H": 8.117023997389339e-09
+      },
+      {
+        "v": 0.140625,
+        "amplitude_over_H": 0.008515625616338264,
+        "expected_over_H": 0.008515625,
+        "residual_over_H": 8.596714784481208e-09
+      },
+      {
+        "v": 0.1484375,
+        "amplitude_over_H": 0.008710937514642084,
+        "expected_over_H": 0.0087109375,
+        "residual_over_H": 9.063741729375963e-09
+      },
+      {
+        "v": 0.15625,
+        "amplitude_over_H": 0.008906249885814285,
+        "expected_over_H": 0.008906250000000001,
+        "residual_over_H": 7.550231745367952e-09
+      },
+      {
+        "v": 0.1640625,
+        "amplitude_over_H": 0.009101562772220004,
+        "expected_over_H": 0.0091015625,
+        "residual_over_H": 9.606610534840243e-09
+      },
+      {
+        "v": 0.171875,
+        "amplitude_over_H": 0.00929687521792602,
+        "expected_over_H": 0.009296875,
+        "residual_over_H": 1.0434769354139561e-08
+      },
+      {
+        "v": 0.1796875,
+        "amplitude_over_H": 0.009492187041893576,
+        "expected_over_H": 0.0094921875,
+        "residual_over_H": 8.088137382067373e-09
+      },
+      {
+        "v": 0.1875,
+        "amplitude_over_H": 0.009687499447859415,
+        "expected_over_H": 0.009687500000000002,
+        "residual_over_H": 8.795208866763105e-09
+      },
+      {
+        "v": 0.19522280982092796,
+        "amplitude_over_H": 0.00988056986974305,
+        "expected_over_H": 0.0098805702455232,
+        "residual_over_H": 7.271500596095493e-09
+      },
+      {
+        "v": 0.1953125,
+        "amplitude_over_H": 0.009882812027339366,
+        "expected_over_H": 0.009882812500000001,
+        "residual_over_H": 8.694673647724471e-09
+      },
+      {
+        "v": 0.20093044946758817,
+        "amplitude_over_H": 0.010023261089478852,
+        "expected_over_H": 0.010023261236689705,
+        "residual_over_H": 6.966502236194216e-09
+      },
+      {
+        "v": 0.203125,
+        "amplitude_over_H": 0.010078125225675746,
+        "expected_over_H": 0.010078125,
+        "residual_over_H": 7.195268714177416e-09
+      },
+      {
+        "v": 0.2109375,
+        "amplitude_over_H": 0.010273436654170683,
+        "expected_over_H": 0.0102734375,
+        "residual_over_H": 8.109131239761314e-09
+      },
+      {
+        "v": 0.21875,
+        "amplitude_over_H": 0.01046874957046942,
+        "expected_over_H": 0.01046875,
+        "residual_over_H": 8.669279988327006e-09
+      },
+      {
+        "v": 0.2265625,
+        "amplitude_over_H": 0.01066406234819609,
+        "expected_over_H": 0.010664062500000002,
+        "residual_over_H": 7.75109484929537e-09
+      },
+      {
+        "v": 0.234375,
+        "amplitude_over_H": 0.01085937472623047,
+        "expected_over_H": 0.010859375000000001,
+        "residual_over_H": 6.929913393127762e-09
+      },
+      {
+        "v": 0.2421875,
+        "amplitude_over_H": 0.011054685997246084,
+        "expected_over_H": 0.0110546875,
+        "residual_over_H": 1.0241312131675784e-08
+      },
+      {
+        "v": 0.25,
+        "amplitude_over_H": 0.01124999976374941,
+        "expected_over_H": 0.01125,
+        "residual_over_H": 7.5030085477934e-09
+      },
+      {
+        "v": 0.2578125,
+        "amplitude_over_H": 0.01144531220674151,
+        "expected_over_H": 0.0114453125,
+        "residual_over_H": 7.3396100521046226e-09
+      },
+      {
+        "v": 0.265625,
+        "amplitude_over_H": 0.011640625106392239,
+        "expected_over_H": 0.011640625000000002,
+        "residual_over_H": 1.0511871845197973e-08
+      },
+      {
+        "v": 0.26942212522750925,
+        "amplitude_over_H": 0.011735552760425223,
+        "expected_over_H": 0.01173555313068773,
+        "residual_over_H": 8.021447006623106e-09
+      },
+      {
+        "v": 0.2734375,
+        "amplitude_over_H": 0.011835937335530315,
+        "expected_over_H": 0.011835937500000001,
+        "residual_over_H": 1.0313715631538045e-08
+      },
+      {
+        "v": 0.28125,
+        "amplitude_over_H": 0.012031250832603592,
+        "expected_over_H": 0.01203125,
+        "residual_over_H": 9.635478415148668e-09
+      },
+      {
+        "v": 0.2890625,
+        "amplitude_over_H": 0.012226563306185602,
+        "expected_over_H": 0.0122265625,
+        "residual_over_H": 1.028324675411696e-08
+      },
+      {
+        "v": 0.296875,
+        "amplitude_over_H": 0.012421875899693312,
+        "expected_over_H": 0.012421875,
+        "residual_over_H": 8.14193301668098e-09
+      },
+      {
+        "v": 0.3046875,
+        "amplitude_over_H": 0.012617187073593782,
+        "expected_over_H": 0.012617187500000002,
+        "residual_over_H": 1.037854280294681e-08
+      },
+      {
+        "v": 0.3125,
+        "amplitude_over_H": 0.012812500311072934,
+        "expected_over_H": 0.012812500000000001,
+        "residual_over_H": 1.1180208980832163e-08
+      },
+      {
+        "v": 0.3203125,
+        "amplitude_over_H": 0.013007812926227305,
+        "expected_over_H": 0.0130078125,
+        "residual_over_H": 1.2752248562675206e-08
+      },
+      {
+        "v": 0.328125,
+        "amplitude_over_H": 0.013203126994930165,
+        "expected_over_H": 0.013203125,
+        "residual_over_H": 1.1407187888723413e-08
+      },
+      {
+        "v": 0.3359375,
+        "amplitude_over_H": 0.01339843808469691,
+        "expected_over_H": 0.013398437499999999,
+        "residual_over_H": 7.932966505919126e-09
+      },
+      {
+        "v": 0.3436214406340903,
+        "amplitude_over_H": 0.013590537140581258,
+        "expected_over_H": 0.013590536015852257,
+        "residual_over_H": 8.990373445705302e-09
+      },
+      {
+        "v": 0.34375,
+        "amplitude_over_H": 0.013593751221646506,
+        "expected_over_H": 0.013593750000000002,
+        "residual_over_H": 9.893477065370249e-09
+      },
+      {
+        "v": 0.3515625,
+        "amplitude_over_H": 0.013789063339348392,
+        "expected_over_H": 0.013789062500000001,
+        "residual_over_H": 1.2959724265959593e-08
+      },
+      {
+        "v": 0.359375,
+        "amplitude_over_H": 0.013984376349812104,
+        "expected_over_H": 0.013984375,
+        "residual_over_H": 1.4033041839667248e-08
+      },
+      {
+        "v": 0.3671875,
+        "amplitude_over_H": 0.014179689831427889,
+        "expected_over_H": 0.0141796875,
+        "residual_over_H": 1.2479058258962894e-08
+      },
+      {
+        "v": 0.375,
+        "amplitude_over_H": 0.014375000413501107,
+        "expected_over_H": 0.014375000000000002,
+        "residual_over_H": 1.1491768647786671e-08
+      },
+      {
+        "v": 0.3828125,
+        "amplitude_over_H": 0.014570313973107176,
+        "expected_over_H": 0.014570312500000002,
+        "residual_over_H": 1.249537995295924e-08
+      },
+      {
+        "v": 0.390625,
+        "amplitude_over_H": 0.014765626242284646,
+        "expected_over_H": 0.014765625000000001,
+        "residual_over_H": 1.0922997978335403e-08
+      },
+      {
+        "v": 0.3984375,
+        "amplitude_over_H": 0.014960939079804428,
+        "expected_over_H": 0.0149609375,
+        "residual_over_H": 9.056042679644882e-09
+      },
+      {
+        "v": 0.40625,
+        "amplitude_over_H": 0.015156251098391388,
+        "expected_over_H": 0.01515625,
+        "residual_over_H": 1.0013015167009698e-08
+      },
+      {
+        "v": 0.4140625,
+        "amplitude_over_H": 0.01535156417672769,
+        "expected_over_H": 0.015351562500000002,
+        "residual_over_H": 1.4356785760227808e-08
+      },
+      {
+        "v": 0.421875,
+        "amplitude_over_H": 0.015546876016185682,
+        "expected_over_H": 0.015546875000000002,
+        "residual_over_H": 1.076735708926968e-08
+      },
+      {
+        "v": 0.4292360353339915,
+        "amplitude_over_H": 0.015730901997545507,
+        "expected_over_H": 0.015730900883349788,
+        "residual_over_H": 9.117845395367752e-09
+      },
+      {
+        "v": 0.4296875,
+        "amplitude_over_H": 0.015742188415041096,
+        "expected_over_H": 0.0157421875,
+        "residual_over_H": 8.56239268376413e-09
+      },
+      {
+        "v": 0.4375,
+        "amplitude_over_H": 0.015937501343983817,
+        "expected_over_H": 0.0159375,
+        "residual_over_H": 8.907790505219282e-09
+      },
+      {
+        "v": 0.4453125,
+        "amplitude_over_H": 0.016132814035442006,
+        "expected_over_H": 0.0161328125,
+        "residual_over_H": 1.1787398390694648e-08
+      },
+      {
+        "v": 0.45206659392063187,
+        "amplitude_over_H": 0.016301664987900522,
+        "expected_over_H": 0.016301664848015797,
+        "residual_over_H": 9.763795077999404e-09
+      },
+      {
+        "v": 0.453125,
+        "amplitude_over_H": 0.016328125532108682,
+        "expected_over_H": 0.016328125000000002,
+        "residual_over_H": 1.1261337889978407e-08
+      },
+      {
+        "v": 0.4609375,
+        "amplitude_over_H": 0.016523437983613266,
+        "expected_over_H": 0.0165234375,
+        "residual_over_H": 1.3390240305444223e-08
+      },
+      {
+        "v": 0.46875,
+        "amplitude_over_H": 0.01671875091158377,
+        "expected_over_H": 0.01671875,
+        "residual_over_H": 9.240893911188763e-09
+      },
+      {
+        "v": 0.4765625,
+        "amplitude_over_H": 0.01691406255448644,
+        "expected_over_H": 0.0169140625,
+        "residual_over_H": 1.0369840708346345e-08
+      },
+      {
+        "v": 0.484375,
+        "amplitude_over_H": 0.017109375581922534,
+        "expected_over_H": 0.017109375,
+        "residual_over_H": 1.0747295497992582e-08
+      },
+      {
+        "v": 0.4921875,
+        "amplitude_over_H": 0.01730468713505114,
+        "expected_over_H": 0.017304687500000002,
+        "residual_over_H": 1.2360102052966226e-08
+      },
+      {
+        "v": 0.5,
+        "amplitude_over_H": 0.017500000312813496,
+        "expected_over_H": 0.0175,
+        "residual_over_H": 1.2289210427063324e-08
+      },
+      {
+        "v": 0.5078125,
+        "amplitude_over_H": 0.01769531322627976,
+        "expected_over_H": 0.0176953125,
+        "residual_over_H": 1.2131529808501185e-08
+      },
+      {
+        "v": 0.5148506300338928,
+        "amplitude_over_H": 0.017871264799747807,
+        "expected_over_H": 0.01787126575084732,
+        "residual_over_H": 1.2149886485790518e-08
+      },
+      {
+        "v": 0.515625,
+        "amplitude_over_H": 0.017890625254698138,
+        "expected_over_H": 0.017890625,
+        "residual_over_H": 1.4109505314108262e-08
+      },
+      {
+        "v": 0.520558269680553,
+        "amplitude_over_H": 0.018013956649386084,
+        "expected_over_H": 0.018013956742013826,
+        "residual_over_H": 1.1746789541078329e-08
+      },
+      {
+        "v": 0.5234375,
+        "amplitude_over_H": 0.018085938186224924,
+        "expected_over_H": 0.0180859375,
+        "residual_over_H": 1.311536013126613e-08
+      },
+      {
+        "v": 0.53125,
+        "amplitude_over_H": 0.018281250641744816,
+        "expected_over_H": 0.018281250000000002,
+        "residual_over_H": 1.3040397622843258e-08
+      },
+      {
+        "v": 0.5390625,
+        "amplitude_over_H": 0.01847656231521696,
+        "expected_over_H": 0.0184765625,
+        "residual_over_H": 1.1210471051459336e-08
+      },
+      {
+        "v": 0.546875,
+        "amplitude_over_H": 0.018671874458732245,
+        "expected_over_H": 0.018671875,
+        "residual_over_H": 1.0622817042671429e-08
+      },
+      {
+        "v": 0.5546875,
+        "amplitude_over_H": 0.018867187416932864,
+        "expected_over_H": 0.0188671875,
+        "residual_over_H": 1.2241587854511238e-08
+      },
+      {
+        "v": 0.5625,
+        "amplitude_over_H": 0.019062500352283518,
+        "expected_over_H": 0.0190625,
+        "residual_over_H": 1.1705714647591847e-08
+      },
+      {
+        "v": 0.5703125,
+        "amplitude_over_H": 0.019257812958748552,
+        "expected_over_H": 0.019257812500000002,
+        "residual_over_H": 1.36797937144717e-08
+      },
+      {
+        "v": 0.578125,
+        "amplitude_over_H": 0.019453125432983817,
+        "expected_over_H": 0.019453125,
+        "residual_over_H": 1.3291585526653549e-08
+      },
+      {
+        "v": 0.5859375,
+        "amplitude_over_H": 0.019648437914935857,
+        "expected_over_H": 0.0196484375,
+        "residual_over_H": 1.4215069454870388e-08
+      },
+      {
+        "v": 0.5890499454404741,
+        "amplitude_over_H": 0.019726248271136056,
+        "expected_over_H": 0.019726248636011853,
+        "residual_over_H": 1.1591014204004324e-08
+      },
+      {
+        "v": 0.59375,
+        "amplitude_over_H": 0.01984375019576456,
+        "expected_over_H": 0.01984375,
+        "residual_over_H": 1.0450361187519519e-08
+      },
+      {
+        "v": 0.6015625,
+        "amplitude_over_H": 0.02003906231876007,
+        "expected_over_H": 0.0200390625,
+        "residual_over_H": 1.1179515202464074e-08
+      },
+      {
+        "v": 0.609375,
+        "amplitude_over_H": 0.020234375473451978,
+        "expected_over_H": 0.020234375000000002,
+        "residual_over_H": 1.2607110383422437e-08
+      },
+      {
+        "v": 0.6171875,
+        "amplitude_over_H": 0.020429687389872293,
+        "expected_over_H": 0.0204296875,
+        "residual_over_H": 1.1803729244030947e-08
+      },
+      {
+        "v": 0.6175881436737743,
+        "amplitude_over_H": 0.020439703045522402,
+        "expected_over_H": 0.02043970359184436,
+        "residual_over_H": 1.101374186296411e-08
+      },
+      {
+        "v": 0.625,
+        "amplitude_over_H": 0.02062500041163604,
+        "expected_over_H": 0.020625,
+        "residual_over_H": 1.1568087654456605e-08
+      },
+      {
+        "v": 0.6252543356106147,
+        "amplitude_over_H": 0.020631358147847573,
+        "expected_over_H": 0.02063135839026537,
+        "residual_over_H": 1.1274643179140509e-08
+      },
+      {
+        "v": 0.6328125,
+        "amplitude_over_H": 0.020820311997125442,
+        "expected_over_H": 0.0208203125,
+        "residual_over_H": 1.1884001671624844e-08
+      },
+      {
+        "v": 0.640625,
+        "amplitude_over_H": 0.02101562378960305,
+        "expected_over_H": 0.021015625000000003,
+        "residual_over_H": 1.2694154005732372e-08
+      },
+      {
+        "v": 0.6484375,
+        "amplitude_over_H": 0.021210937444534426,
+        "expected_over_H": 0.021210937500000002,
+        "residual_over_H": 8.964441550185498e-09
+      },
+      {
+        "v": 0.6510238291069196,
+        "amplitude_over_H": 0.02127559611861679,
+        "expected_over_H": 0.021275595727672993,
+        "residual_over_H": 1.5260957553220322e-08
+      },
+      {
+        "v": 0.65625,
+        "amplitude_over_H": 0.02140624982113656,
+        "expected_over_H": 0.02140625,
+        "residual_over_H": 1.342557004457845e-08
+      },
+      {
+        "v": 0.6563127286883503,
+        "amplitude_over_H": 0.021407818203893564,
+        "expected_over_H": 0.02140781821720876,
+        "residual_over_H": 1.3063836387661176e-08
+      },
+      {
+        "v": 0.6575416212003949,
+        "amplitude_over_H": 0.0214385410182454,
+        "expected_over_H": 0.021438540530009875,
+        "residual_over_H": 1.1226698959365677e-08
+      },
+      {
+        "v": 0.6616016282697809,
+        "amplitude_over_H": 0.021540041506101813,
+        "expected_over_H": 0.021540040706744524,
+        "residual_over_H": 1.1388679693746795e-08
+      },
+      {
+        "v": 0.6640625,
+        "amplitude_over_H": 0.02160156152021304,
+        "expected_over_H": 0.0216015625,
+        "residual_over_H": 1.0279941134450077e-08
+      },
+      {
+        "v": 0.6668905278512116,
+        "amplitude_over_H": 0.021672262791264715,
+        "expected_over_H": 0.02167226319628029,
+        "residual_over_H": 1.2851491648646629e-08
+      },
+      {
+        "v": 0.671875,
+        "amplitude_over_H": 0.021796874162641484,
+        "expected_over_H": 0.021796875,
+        "residual_over_H": 1.095934490380479e-08
+      },
+      {
+        "v": 0.6721794274326423,
+        "amplitude_over_H": 0.021804486045721744,
+        "expected_over_H": 0.02180448568581606,
+        "residual_over_H": 1.3694661071816938e-08
+      },
+      {
+        "v": 0.6774683270140729,
+        "amplitude_over_H": 0.021936707809575982,
+        "expected_over_H": 0.021936708175351823,
+        "residual_over_H": 1.1855284420825285e-08
+      },
+      {
+        "v": 0.6796875,
+        "amplitude_over_H": 0.02199218856383334,
+        "expected_over_H": 0.021992187500000003,
+        "residual_over_H": 1.1787296916310197e-08
+      },
+      {
+        "v": 0.6827572265955036,
+        "amplitude_over_H": 0.02206893112810161,
+        "expected_over_H": 0.022068930664887593,
+        "residual_over_H": 1.3321318353964884e-08
+      },
+      {
+        "v": 0.6875,
+        "amplitude_over_H": 0.022187500219666437,
+        "expected_over_H": 0.022187500000000002,
+        "residual_over_H": 1.3879022320306689e-08
+      },
+      {
+        "v": 0.6880461261769343,
+        "amplitude_over_H": 0.02220115297476632,
+        "expected_over_H": 0.022201153154423357,
+        "residual_over_H": 1.0105445091834753e-08
+      },
+      {
+        "v": 0.6898289067901753,
+        "amplitude_over_H": 0.022245723368018076,
+        "expected_over_H": 0.022245722669754383,
+        "residual_over_H": 1.1581995709719628e-08
+      },
+      {
+        "v": 0.693335025758365,
+        "amplitude_over_H": 0.022333376325103196,
+        "expected_over_H": 0.022333375643959128,
+        "residual_over_H": 1.2605130342291382e-08
+      },
+      {
+        "v": 0.6953125,
+        "amplitude_over_H": 0.022382813679605925,
+        "expected_over_H": 0.0223828125,
+        "residual_over_H": 1.0915452042237206e-08
+      },
+      {
+        "v": 0.6986239253397958,
+        "amplitude_over_H": 0.022465598490300564,
+        "expected_over_H": 0.022465598133494896,
+        "residual_over_H": 1.1014924194974185e-08
+      },
+      {
+        "v": 0.703125,
+        "amplitude_over_H": 0.02257812563851163,
+        "expected_over_H": 0.022578125,
+        "residual_over_H": 1.0112898879421905e-08
+      },
+      {
+        "v": 0.7032027383736755,
+        "amplitude_over_H": 0.022580069772267057,
+        "expected_over_H": 0.02258006845934189,
+        "residual_over_H": 1.3056246750409173e-08
+      },
+      {
+        "v": 0.7039128249212263,
+        "amplitude_over_H": 0.022597821757926805,
+        "expected_over_H": 0.02259782062303066,
+        "residual_over_H": 1.0983706333345111e-08
+      },
+      {
+        "v": 0.7085047485597309,
+        "amplitude_over_H": 0.022712619198235945,
+        "expected_over_H": 0.022712618713993275,
+        "residual_over_H": 1.4101440029556933e-08
+      },
+      {
+        "v": 0.7092017245026571,
+        "amplitude_over_H": 0.0227300438753781,
+        "expected_over_H": 0.022730043112566427,
+        "residual_over_H": 1.240174080097134e-08
+      },
+      {
+        "v": 0.7109375,
+        "amplitude_over_H": 0.02277343847859362,
+        "expected_over_H": 0.0227734375,
+        "residual_over_H": 1.1686055192972056e-08
+      },
+      {
+        "v": 0.7144906240840878,
+        "amplitude_over_H": 0.02286226502417573,
+        "expected_over_H": 0.022862265602102198,
+        "residual_over_H": 9.978068482574542e-09
+      },
+      {
+        "v": 0.71875,
+        "amplitude_over_H": 0.022968750320070515,
+        "expected_over_H": 0.022968750000000003,
+        "residual_over_H": 1.28889536266108e-08
+      },
+      {
+        "v": 0.7197795236655185,
+        "amplitude_over_H": 0.02299448826045925,
+        "expected_over_H": 0.02299448809163796,
+        "residual_over_H": 1.0839075095803175e-08
+      },
+      {
+        "v": 0.7250684232469491,
+        "amplitude_over_H": 0.023126710567873722,
+        "expected_over_H": 0.02312671058117373,
+        "residual_over_H": 1.5114735962828973e-08
+      },
+      {
+        "v": 0.7260081456353346,
+        "amplitude_over_H": 0.02315020377255611,
+        "expected_over_H": 0.023150203640883365,
+        "residual_over_H": 1.3720397207261925e-08
+      },
+      {
+        "v": 0.7265625,
+        "amplitude_over_H": 0.023164063477359737,
+        "expected_over_H": 0.023164062500000002,
+        "residual_over_H": 1.14339283041609e-08
+      },
+      {
+        "v": 0.7303573228283797,
+        "amplitude_over_H": 0.023258932586959706,
+        "expected_over_H": 0.023258933070709496,
+        "residual_over_H": 1.2323046416629069e-08
+      },
+      {
+        "v": 0.7325116796487566,
+        "amplitude_over_H": 0.023312792832077673,
+        "expected_over_H": 0.02331279199121892,
+        "residual_over_H": 9.809104001279323e-09
+      },
+      {
+        "v": 0.734375,
+        "amplitude_over_H": 0.023359375412184226,
+        "expected_over_H": 0.023359375,
+        "residual_over_H": 1.2154046047374578e-08
+      },
+      {
+        "v": 0.7356462224098105,
+        "amplitude_over_H": 0.023391155807061945,
+        "expected_over_H": 0.023391155560245264,
+        "residual_over_H": 1.1035722696783878e-08
+      },
+      {
+        "v": 0.7390152136621787,
+        "amplitude_over_H": 0.02347537988569564,
+        "expected_over_H": 0.02347538034155447,
+        "residual_over_H": 1.0936993033450193e-08
+      },
+      {
+        "v": 0.7421875,
+        "amplitude_over_H": 0.023554687739273696,
+        "expected_over_H": 0.0235546875,
+        "residual_over_H": 1.4425881100788018e-08
+      },
+      {
+        "v": 0.7455187476756009,
+        "amplitude_over_H": 0.023637968919184512,
+        "expected_over_H": 0.023637968691890023,
+        "residual_over_H": 1.0354228405229371e-08
+      },
+      {
+        "v": 0.7488638555469563,
+        "amplitude_over_H": 0.023721597366057157,
+        "expected_over_H": 0.02372159638867391,
+        "residual_over_H": 1.0146835732749437e-08
+      },
+      {
+        "v": 0.75,
+        "amplitude_over_H": 0.02375000080296434,
+        "expected_over_H": 0.023750000000000004,
+        "residual_over_H": 1.3992348335545302e-08
+      },
+      {
+        "v": 0.752022281689023,
+        "amplitude_over_H": 0.023800557253658847,
+        "expected_over_H": 0.023800557042225577,
+        "residual_over_H": 1.3264267351154047e-08
+      },
+      {
+        "v": 0.7578125,
+        "amplitude_over_H": 0.02394531358553705,
+        "expected_over_H": 0.023945312500000003,
+        "residual_over_H": 9.702194131433473e-09
+      },
+      {
+        "v": 0.758525815702445,
+        "amplitude_over_H": 0.02396314585539855,
+        "expected_over_H": 0.023963145392561128,
+        "residual_over_H": 9.754987415067085e-09
+      },
+      {
+        "v": 0.7650293497158671,
+        "amplitude_over_H": 0.02412573509574329,
+        "expected_over_H": 0.02412573374289668,
+        "residual_over_H": 1.2920816583328332e-08
+      },
+      {
+        "v": 0.765625,
+        "amplitude_over_H": 0.024140625597305378,
+        "expected_over_H": 0.024140625000000002,
+        "residual_over_H": 1.0829927010735929e-08
+      },
+      {
+        "v": 0.7715328837292893,
+        "amplitude_over_H": 0.024288322853437478,
+        "expected_over_H": 0.024288322093232236,
+        "residual_over_H": 1.0624812946113948e-08
+      },
+      {
+        "v": 0.7734375,
+        "amplitude_over_H": 0.024335937963396826,
+        "expected_over_H": 0.0243359375,
+        "residual_over_H": 1.2137650440280368e-08
+      },
+      {
+        "v": 0.7780364177427114,
+        "amplitude_over_H": 0.024450910487008124,
+        "expected_over_H": 0.024450910443567786,
+        "residual_over_H": 1.185685000182346e-08
+      },
+      {
+        "v": 0.78125,
+        "amplitude_over_H": 0.024531250977690666,
+        "expected_over_H": 0.02453125,
+        "residual_over_H": 1.1197117538719326e-08
+      },
+      {
+        "v": 0.7845399517561334,
+        "amplitude_over_H": 0.02461349959319509,
+        "expected_over_H": 0.02461349879390334,
+        "residual_over_H": 1.1346466877171224e-08
+      },
+      {
+        "v": 0.7888173330735768,
+        "amplitude_over_H": 0.02472043432586324,
+        "expected_over_H": 0.024720433326839424,
+        "residual_over_H": 1.4680162446767397e-08
+      },
+      {
+        "v": 0.7890625,
+        "amplitude_over_H": 0.0247265634112862,
+        "expected_over_H": 0.024726562500000004,
+        "residual_over_H": 1.1740537153581698e-08
+      },
+      {
+        "v": 0.7892229625341817,
+        "amplitude_over_H": 0.024730574632383765,
+        "expected_over_H": 0.024730574063354546,
+        "residual_over_H": 1.510028208029368e-08
+      },
+      {
+        "v": 0.7910434857695556,
+        "amplitude_over_H": 0.02477608811180054,
+        "expected_over_H": 0.024776087144238894,
+        "residual_over_H": 1.0299792119888851e-08
+      },
+      {
+        "v": 0.7917551615088472,
+        "amplitude_over_H": 0.024793879581094955,
+        "expected_over_H": 0.02479387903772118,
+        "residual_over_H": 1.280003536496821e-08
+      },
+      {
+        "v": 0.796875,
+        "amplitude_over_H": 0.02492187571154299,
+        "expected_over_H": 0.024921875000000003,
+        "residual_over_H": 1.2858026449125148e-08
+      },
+      {
+        "v": 0.7975470197829777,
+        "amplitude_over_H": 0.024938676318646547,
+        "expected_over_H": 0.024938675494574444,
+        "residual_over_H": 1.196063814656867e-08
+      },
+      {
+        "v": 0.8040505537963998,
+        "amplitude_over_H": 0.025101264258973358,
+        "expected_over_H": 0.025101263844909998,
+        "residual_over_H": 1.540078742312545e-08
+      },
+      {
+        "v": 0.8046875,
+        "amplitude_over_H": 0.025117188560697078,
+        "expected_over_H": 0.025117187500000002,
+        "residual_over_H": 1.2232650822840974e-08
+      },
+      {
+        "v": 0.808150836785943,
+        "amplitude_over_H": 0.02520377136877498,
+        "expected_over_H": 0.025203770919648576,
+        "residual_over_H": 1.1104723751653722e-08
+      },
+      {
+        "v": 0.8105540878098219,
+        "amplitude_over_H": 0.02526385237148265,
+        "expected_over_H": 0.02526385219524555,
+        "residual_over_H": 1.0543247136451939e-08
+      },
+      {
+        "v": 0.8125,
+        "amplitude_over_H": 0.025312499722698008,
+        "expected_over_H": 0.0253125,
+        "residual_over_H": 1.4489532546013706e-08
+      },
+      {
+        "v": 0.8158825038463637,
+        "amplitude_over_H": 0.025397062309237557,
+        "expected_over_H": 0.025397062596159096,
+        "residual_over_H": 1.3128461706646277e-08
+      },
+      {
+        "v": 0.817057621823244,
+        "amplitude_over_H": 0.025426441271310985,
+        "expected_over_H": 0.025426440545581103,
+        "residual_over_H": 1.2307828228808049e-08
+      },
+      {
+        "v": 0.8203125,
+        "amplitude_over_H": 0.0255078128505138,
+        "expected_over_H": 0.0255078125,
+        "residual_over_H": 1.2926774761723436e-08
+      },
+      {
+        "v": 0.8235611558366661,
+        "amplitude_over_H": 0.025589029987255263,
+        "expected_over_H": 0.025589028895916657,
+        "residual_over_H": 1.0204734723906483e-08
+      },
+      {
+        "v": 0.8236141709067843,
+        "amplitude_over_H": 0.02559035439746282,
+        "expected_over_H": 0.025590354272669612,
+        "residual_over_H": 1.0377081277601619e-08
+      },
+      {
+        "v": 0.828125,
+        "amplitude_over_H": 0.025703126036031105,
+        "expected_over_H": 0.025703125000000004,
+        "residual_over_H": 1.0942877687325492e-08
+      },
+      {
+        "v": 0.8300646898500882,
+        "amplitude_over_H": 0.02575161772002632,
+        "expected_over_H": 0.025751617246252207,
+        "residual_over_H": 9.370892645188533e-09
+      },
+      {
+        "v": 0.8313458379672051,
+        "amplitude_over_H": 0.025783646611196375,
+        "expected_over_H": 0.025783645949180128,
+        "residual_over_H": 1.1570277513861527e-08
+      },
+      {
+        "v": 0.8359375,
+        "amplitude_over_H": 0.025898438377833156,
+        "expected_over_H": 0.025898437500000003,
+        "residual_over_H": 1.2706615981628033e-08
+      },
+      {
+        "v": 0.8390775050276257,
+        "amplitude_over_H": 0.02597693851300875,
+        "expected_over_H": 0.025976937625690644,
+        "residual_over_H": 1.0712750520003311e-08
+      },
+      {
+        "v": 0.8401860898935176,
+        "amplitude_over_H": 0.026004652419362735,
+        "expected_over_H": 0.02600465224733794,
+        "residual_over_H": 1.2319748526889995e-08
+      },
+      {
+        "v": 0.84375,
+        "amplitude_over_H": 0.026093750952924353,
+        "expected_over_H": 0.026093750000000002,
+        "residual_over_H": 1.626054085823725e-08
+      },
+      {
+        "v": 0.8468091720880464,
+        "amplitude_over_H": 0.026170230073180457,
+        "expected_over_H": 0.026170229302201163,
+        "residual_over_H": 1.0926957949575211e-08
+      },
+      {
+        "v": 0.8515625,
+        "amplitude_over_H": 0.0262890632633701,
+        "expected_over_H": 0.0262890625,
+        "residual_over_H": 1.0954238155447271e-08
+      },
+      {
+        "v": 0.854540839148467,
+        "amplitude_over_H": 0.02636352240711148,
+        "expected_over_H": 0.02636352097871168,
+        "residual_over_H": 1.2429654805412582e-08
+      },
+      {
+        "v": 0.859375,
+        "amplitude_over_H": 0.02648437608092862,
+        "expected_over_H": 0.026484375,
+        "residual_over_H": 1.1075245442970783e-08
+      },
+      {
+        "v": 0.8622725062088877,
+        "amplitude_over_H": 0.026556812596191106,
+        "expected_over_H": 0.026556812655222195,
+        "residual_over_H": 1.1727983695308808e-08
+      },
+      {
+        "v": 0.8671875,
+        "amplitude_over_H": 0.026679687868873807,
+        "expected_over_H": 0.026679687500000004,
+        "residual_over_H": 1.3916031410543539e-08
+      },
+      {
+        "v": 0.8700041732693083,
+        "amplitude_over_H": 0.026750105759376037,
+        "expected_over_H": 0.02675010433173271,
+        "residual_over_H": 9.080468422323351e-09
+      },
+      {
+        "v": 0.875,
+        "amplitude_over_H": 0.02687500047848356,
+        "expected_over_H": 0.026875000000000003,
+        "residual_over_H": 1.2672111304734557e-08
+      },
+      {
+        "v": 0.8777358403297291,
+        "amplitude_over_H": 0.026943395674104576,
+        "expected_over_H": 0.02694339600824323,
+        "residual_over_H": 1.0773966996335815e-08
+      },
+      {
+        "v": 0.8828125,
+        "amplitude_over_H": 0.027070314292325728,
+        "expected_over_H": 0.027070312500000002,
+        "residual_over_H": 1.467320007164652e-08
+      },
+      {
+        "v": 0.8854675073901497,
+        "amplitude_over_H": 0.027136688177425535,
+        "expected_over_H": 0.027136687684753743,
+        "residual_over_H": 1.1482377049176762e-08
+      },
+      {
+        "v": 0.888617018278188,
+        "amplitude_over_H": 0.027215426342344008,
+        "expected_over_H": 0.0272154254569547,
+        "residual_over_H": 1.0418173879145343e-08
+      },
+      {
+        "v": 0.890625,
+        "amplitude_over_H": 0.027265625561710374,
+        "expected_over_H": 0.027265625,
+        "residual_over_H": 1.1457602533404554e-08
+      },
+      {
+        "v": 0.8931991744505704,
+        "amplitude_over_H": 0.02732998040492541,
+        "expected_over_H": 0.027329979361264262,
+        "residual_over_H": 1.1228363905324557e-08
+      },
+      {
+        "v": 0.8984375,
+        "amplitude_over_H": 0.027460938384519233,
+        "expected_over_H": 0.0274609375,
+        "residual_over_H": 1.2346929135348406e-08
+      },
+      {
+        "v": 0.900930841510991,
+        "amplitude_over_H": 0.02752327230864643,
+        "expected_over_H": 0.02752327103777478,
+        "residual_over_H": 9.464729066460675e-09
+      },
+      {
+        "v": 0.90625,
+        "amplitude_over_H": 0.02765625125808403,
+        "expected_over_H": 0.027656250000000004,
+        "residual_over_H": 1.2956805031660856e-08
+      },
+      {
+        "v": 0.9086625085714117,
+        "amplitude_over_H": 0.027716563547888977,
+        "expected_over_H": 0.027716562714285294,
+        "residual_over_H": 1.2399865093049023e-08
+      },
+      {
+        "v": 0.9140625,
+        "amplitude_over_H": 0.027851563667746014,
+        "expected_over_H": 0.027851562500000003,
+        "residual_over_H": 1.3473383186912713e-08
+      },
+      {
+        "v": 0.9163941756318323,
+        "amplitude_over_H": 0.027909854979722468,
+        "expected_over_H": 0.02790985439079581,
+        "residual_over_H": 8.712062682381116e-09
+      },
+      {
+        "v": 0.921875,
+        "amplitude_over_H": 0.028046875759401263,
+        "expected_over_H": 0.028046875000000002,
+        "residual_over_H": 1.224411089184585e-08
+      },
+      {
+        "v": 0.9241258426922531,
+        "amplitude_over_H": 0.02810314836787248,
+        "expected_over_H": 0.02810314606730633,
+        "residual_over_H": 1.4358760458410558e-08
+      },
+      {
+        "v": 0.9296875,
+        "amplitude_over_H": 0.02824218795637934,
+        "expected_over_H": 0.0282421875,
+        "residual_over_H": 1.111056668889887e-08
+      },
+      {
+        "v": 0.9318575097526737,
+        "amplitude_over_H": 0.028296437573822986,
+        "expected_over_H": 0.028296437743816846,
+        "residual_over_H": 1.1500395913355277e-08
+      },
+      {
+        "v": 0.9375,
+        "amplitude_over_H": 0.02843750036923584,
+        "expected_over_H": 0.0284375,
+        "residual_over_H": 1.0543412976016242e-08
+      },
+      {
+        "v": 0.9453125,
+        "amplitude_over_H": 0.028632812536738494,
+        "expected_over_H": 0.028632812500000004,
+        "residual_over_H": 1.2047357958455684e-08
+      },
+      {
+        "v": 0.953125,
+        "amplitude_over_H": 0.02882812553130302,
+        "expected_over_H": 0.028828125000000003,
+        "residual_over_H": 1.4352974975206934e-08
+      },
+      {
+        "v": 0.9609375,
+        "amplitude_over_H": 0.02902343842000484,
+        "expected_over_H": 0.029023437500000002,
+        "residual_over_H": 1.376310454492824e-08
+      },
+      {
+        "v": 0.96875,
+        "amplitude_over_H": 0.029218750923639153,
+        "expected_over_H": 0.02921875,
+        "residual_over_H": 1.0865935942683258e-08
+      },
+      {
+        "v": 0.9765625,
+        "amplitude_over_H": 0.029414062460321137,
+        "expected_over_H": 0.0294140625,
+        "residual_over_H": 1.3581036906185062e-08
+      },
+      {
+        "v": 0.984375,
+        "amplitude_over_H": 0.02960937604688832,
+        "expected_over_H": 0.029609375000000004,
+        "residual_over_H": 1.0923986104582895e-08
+      },
+      {
+        "v": 0.9921875,
+        "amplitude_over_H": 0.02980468771290359,
+        "expected_over_H": 0.029804687500000003,
+        "residual_over_H": 1.4699203687573714e-08
+      },
+      {
+        "v": 1.0,
+        "amplitude_over_H": 0.03000000078585291,
+        "expected_over_H": 0.030000000000000002,
+        "residual_over_H": 1.0364226560310996e-08
+      }
+    ],
+    "hole_developed_diameters_over_H": [
+      0.029352900253578215,
+      0.03616055652127729,
+      0.04809712316618416
+    ],
+    "strip_count": 9,
+    "strips": [
+      {
+        "lowest_tip_skin_over_H": 0.1539211201256719,
+        "width_over_H": 0.07753909437935005,
+        "length_over_H": 0.11999997468540577,
+        "tip_z_over_H": 0.1539211201256719
+      },
+      {
+        "lowest_tip_skin_over_H": 0.05999999056602347,
+        "width_over_H": 0.1162686649946244,
+        "length_over_H": 0.21795714093615054,
+        "tip_z_over_H": 0.05999999056602347
+      },
+      {
+        "lowest_tip_skin_over_H": 0.21384082940118065,
+        "width_over_H": 0.058159584468849446,
+        "length_over_H": 0.07500000837116792,
+        "tip_z_over_H": 0.21384082940118065
+      },
+      {
+        "lowest_tip_skin_over_H": 0.09658570382101782,
+        "width_over_H": 0.09688872159909633,
+        "length_over_H": 0.1950000195017886,
+        "tip_z_over_H": 0.09658570382101782
+      },
+      {
+        "lowest_tip_skin_over_H": 0.20811271153647323,
+        "width_over_H": 0.07750380229955402,
+        "length_over_H": 0.08999998272071691,
+        "tip_z_over_H": 0.20811271153647323
+      },
+      {
+        "lowest_tip_skin_over_H": 0.0706782145746823,
+        "width_over_H": 0.11628109251112197,
+        "length_over_H": 0.22499999143663627,
+        "tip_z_over_H": 0.0706782145746823
+      },
+      {
+        "lowest_tip_skin_over_H": 0.20980506981241293,
+        "width_over_H": 0.058161596795660034,
+        "length_over_H": 0.0749999943367722,
+        "tip_z_over_H": 0.20980506981241293
+      },
+      {
+        "lowest_tip_skin_over_H": 0.10220907371619652,
+        "width_over_H": 0.09689507924329491,
+        "length_over_H": 0.17999998994336341,
+        "tip_z_over_H": 0.10220907371619652
+      },
+      {
+        "lowest_tip_skin_over_H": 0.10000000020553326,
+        "width_over_H": 0.0968695697078302,
+        "length_over_H": 0.17145179562628263,
+        "tip_z_over_H": 0.10000000020553326
+      }
+    ],
+    "root_transverse_width_m": 0.7258064150810242,
+    "side_notch_counts": {
+      "far": 2,
+      "near": 3
+    },
+    "strip_width_scale": 1.9397011472556671,
+    "root_arc_over_H": 0.8592774703748236,
+    "clamped_strips": [
+      2
+    ],
+    "measured_fold_amplitude_over_H": 0.030000000788854696,
+    "fold_fit_residual_over_H": 1.2453805469168587e-08,
+    "near_tip_over_H": 0.10000000020553326
+  },
+  "tabard": {
+    "passed": true,
+    "checks": {
+      "five_added_torn_points": true,
+      "exact_director_tent_profile": true,
+      "cloth_thickness": true
+    },
+    "added_point_columns": [
+      2,
+      7,
+      12,
+      17,
+      22
+    ],
+    "visible_outline_valleys": [
+      2,
+      7,
+      17,
+      22
+    ],
+    "measured_depths_over_H": [
+      0.00800007137239428,
+      0.024000053437196966,
+      0.04000003708962821,
+      0.024000043095778162,
+      0.008000037184409642,
+      0.01200003290760182,
+      0.03600003389547449,
+      0.060000021169859113,
+      0.03600001366448352,
+      0.012000014060525616,
+      0.0060000165362534,
+      0.018000005061357238,
+      0.030000005608150082,
+      0.017999998043815746,
+      0.00599998051418793,
+      0.009999977618919131,
+      0.029999981384004865,
+      0.049999976198869645,
+      0.029999972024274346,
+      0.009999965780262188,
+      0.007999961668020944,
+      0.02399995898417559,
+      0.03999995039574264,
+      0.02399993441723075,
+      0.007999957887383918
+    ]
+  },
+  "proportions": {
+    "helm_without_tines_over_H": 0.12500006536325595,
+    "tines_over_H": 0.12517240206085656,
+    "shoulder_transverse_width_over_H": 0.19396556615360777,
+    "torso_neck_to_waist_over_H": 0.27591121997707563,
+    "leg_hip_to_sole_over_H": 0.39579891972207737
+  },
+  "definition": "H and L retain mq-17 gauges. Body-space transverse width is measured in the chest frame; sole plane is Z=0.",
+  "preserved_shapes": {
+    "passed": true,
+    "pieces": {
+      "bell": {
+        "passed": true,
+        "maximum_error_over_H": 2.4830603920518675e-08
+      },
+      "closed_back_plate": {
+        "passed": true,
+        "maximum_error_over_H": 2.539981794623515e-08
+      },
+      "elbow_joint_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.41307375474182e-08
+      },
+      "elbow_joint_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.4376299640635465e-08
+      },
+      "finger_far_0": {
+        "passed": true,
+        "maximum_error_over_H": 2.6698804659023804e-08
+      },
+      "finger_far_1": {
+        "passed": true,
+        "maximum_error_over_H": 2.6991714692474163e-08
+      },
+      "finger_far_2": {
+        "passed": true,
+        "maximum_error_over_H": 2.6719514358562514e-08
+      },
+      "finger_far_3": {
+        "passed": true,
+        "maximum_error_over_H": 2.683225230319138e-08
+      },
+      "fore_plate_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.565801886615143e-08
+      },
+      "fore_plate_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.6992981525939247e-08
+      },
+      "gauntlet_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.506581562166155e-08
+      },
+      "gauntlet_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.7229195631255438e-08
+      },
+      "great_helm": {
+        "passed": true,
+        "maximum_error_over_H": 5.6038182941330293e-08
+      },
+      "helm_tine_far": {
+        "passed": true,
+        "maximum_error_over_H": 4.9658671689671324e-08
+      },
+      "helm_tine_near": {
+        "passed": true,
+        "maximum_error_over_H": 5.368725904273399e-08
+      },
+      "hip_joint_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.3345355044587628e-08
+      },
+      "hip_joint_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.3651082131674416e-08
+      },
+      "hood_back_cape": {
+        "passed": true,
+        "maximum_error_over_H": 2.457400680727441e-08
+      },
+      "hood_scarf": {
+        "passed": true,
+        "maximum_error_over_H": 2.8793951291620484e-08
+      },
+      "knee_joint_far": {
+        "passed": true,
+        "maximum_error_over_H": 1.2374240086316422e-08
+      },
+      "knee_joint_near": {
+        "passed": true,
+        "maximum_error_over_H": 1.2470501929728418e-08
+      },
+      "lower_abdomen": {
+        "passed": true,
+        "maximum_error_over_H": 2.4021301878682645e-08
+      },
+      "medallion": {
+        "passed": true,
+        "maximum_error_over_H": 2.5014151465823576e-08
+      },
+      "medallion_hanger": {
+        "passed": true,
+        "maximum_error_over_H": 2.535621012497133e-08
+      },
+      "neck_roll": {
+        "passed": true,
+        "maximum_error_over_H": 2.511930862552734e-08
+      },
+      "pauldron_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.5709015102210827e-08
+      },
+      "pauldron_lame_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.5300992764253466e-08
+      },
+      "pauldron_lame_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.5588377574821008e-08
+      },
+      "pauldron_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.608211398676795e-08
+      },
+      "pelvis_plate": {
+        "passed": true,
+        "maximum_error_over_H": 2.3460725557091524e-08
+      },
+      "pointed_sabaton_far": {
+        "passed": true,
+        "maximum_error_over_H": 7.002432408470057e-09
+      },
+      "pointed_sabaton_near": {
+        "passed": true,
+        "maximum_error_over_H": 7.3667985737756195e-09
+      },
+      "rib_0": {
+        "passed": true,
+        "maximum_error_over_H": 2.5224429491736897e-08
+      },
+      "rib_1": {
+        "passed": true,
+        "maximum_error_over_H": 2.539083279362259e-08
+      },
+      "rib_2": {
+        "passed": true,
+        "maximum_error_over_H": 2.4552030524175156e-08
+      },
+      "rib_3": {
+        "passed": true,
+        "maximum_error_over_H": 2.599117210781749e-08
+      },
+      "rib_4": {
+        "passed": true,
+        "maximum_error_over_H": 2.5860775592963562e-08
+      },
+      "sash_knot": {
+        "passed": true,
+        "maximum_error_over_H": 2.4626133618402755e-08
+      },
+      "shin_plate_far": {
+        "passed": true,
+        "maximum_error_over_H": 1.1909228072345465e-08
+      },
+      "shin_plate_near": {
+        "passed": true,
+        "maximum_error_over_H": 1.1985819796782978e-08
+      },
+      "shin_wrap_far_0": {
+        "passed": true,
+        "maximum_error_over_H": 5.844033274878387e-09
+      },
+      "shin_wrap_far_1": {
+        "passed": true,
+        "maximum_error_over_H": 7.250468108686786e-09
+      },
+      "shin_wrap_far_2": {
+        "passed": true,
+        "maximum_error_over_H": 6.749151490791376e-09
+      },
+      "shin_wrap_near_0": {
+        "passed": true,
+        "maximum_error_over_H": 4.567465053709401e-09
+      },
+      "shin_wrap_near_1": {
+        "passed": true,
+        "maximum_error_over_H": 5.24024014950953e-09
+      },
+      "shin_wrap_near_2": {
+        "passed": true,
+        "maximum_error_over_H": 6.332635835846262e-09
+      },
+      "shoulder_spike_far_0": {
+        "passed": true,
+        "maximum_error_over_H": 2.6533846634549927e-08
+      },
+      "shoulder_spike_far_1": {
+        "passed": true,
+        "maximum_error_over_H": 2.4688083929487114e-08
+      },
+      "shoulder_spike_far_2": {
+        "passed": true,
+        "maximum_error_over_H": 2.4191190363271373e-08
+      },
+      "shoulder_spike_near_0": {
+        "passed": true,
+        "maximum_error_over_H": 2.5519373389272796e-08
+      },
+      "shoulder_spike_near_1": {
+        "passed": true,
+        "maximum_error_over_H": 2.412396224419944e-08
+      },
+      "shoulder_spike_near_2": {
+        "passed": true,
+        "maximum_error_over_H": 2.4631007909954515e-08
+      },
+      "spine_ridge": {
+        "passed": true,
+        "maximum_error_over_H": 2.4610121965511246e-08
+      },
+      "sternum_hook": {
+        "passed": true,
+        "maximum_error_over_H": 2.8496223153174193e-08
+      },
+      "thigh_plate_far": {
+        "passed": true,
+        "maximum_error_over_H": 1.2601934423416456e-08
+      },
+      "thigh_plate_near": {
+        "passed": true,
+        "maximum_error_over_H": 1.2821801315988589e-08
+      },
+      "thumb_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.4236942906393713e-08
+      },
+      "thumb_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.7953183516260193e-08
+      },
+      "upper_plate_far": {
+        "passed": true,
+        "maximum_error_over_H": 2.5302139494049508e-08
+      },
+      "upper_plate_near": {
+        "passed": true,
+        "maximum_error_over_H": 2.4068736877998914e-08
+      },
+      "visor_slit": {
+        "passed": true,
+        "maximum_error_over_H": 1.2622292366351139e-08
+      },
+      "waist_sash": {
+        "passed": true,
+        "maximum_error_over_H": 2.4560251061249118e-08
+      }
+    }
+  },
+  "cloak_occlusion": {
+    "passed": false,
+    "checks": {
+      "shoulder_attachment_tucked_001H": true,
+      "cloak_stays_behind_near_arm": true,
+      "coverage_definition_resolved": false,
+      "rear_torso_silhouette_95_percent": false
+    },
+    "coverage_domain": null,
+    "coverage_acceptance": "pending director selection",
+    "definition": "Native rear pixel-centre rays through torso solo. Two cutoff domains are reported without choosing one: opened torso hits below the 3D level-shoulder plane, and pixels below the 2D projected shoulder line. New cloak plus its retained overlapping hood cape/scarf must be closer than or on the torso. The torso denominator includes those garments. New-cloak-only 3D-plane coverage is reported separately. Tears count as uncovered. No hole fill or surface-vertex weighting.",
+    "shoulder_plane_z_m": 1.6855657114708715,
+    "projected_line_proxy": {
+      "pixels": 34758,
+      "covered": 30706,
+      "coverage": 0.8834225214339145
+    },
+    "rear_torso_silhouette_pixels": 27111,
+    "rear_cloak_covered_pixels": 26922,
+    "new_cloak_only_covered_pixels": 26728,
+    "new_cloak_only_coverage": 0.9858728929216923,
+    "rear_visible_cloak_pixels": 26727,
+    "rear_torso_silhouette_coverage": 0.9930286599535244,
+    "uncovered_torso_pixels": [
+      [
+        547,
+        371
+      ],
+      [
+        548,
+        371
+      ],
+      [
+        545,
+        372
+      ],
+      [
+        546,
+        372
+      ],
+      [
+        547,
+        372
+      ],
+      [
+        543,
+        373
+      ],
+      [
+        544,
+        373
+      ],
+      [
+        545,
+        373
+      ],
+      [
+        546,
+        373
+      ],
+      [
+        540,
+        374
+      ],
+      [
+        541,
+        374
+      ],
+      [
+        542,
+        374
+      ],
+      [
+        543,
+        374
+      ],
+      [
+        544,
+        374
+      ],
+      [
+        545,
+        374
+      ],
+      [
+        537,
+        375
+      ],
+      [
+        538,
+        375
+      ],
+      [
+        539,
+        375
+      ],
+      [
+        540,
+        375
+      ],
+      [
+        541,
+        375
+      ],
+      [
+        542,
+        375
+      ],
+      [
+        543,
+        375
+      ],
+      [
+        534,
+        376
+      ],
+      [
+        535,
+        376
+      ],
+      [
+        536,
+        376
+      ],
+      [
+        537,
+        376
+      ],
+      [
+        538,
+        376
+      ],
+      [
+        539,
+        376
+      ],
+      [
+        540,
+        376
+      ],
+      [
+        541,
+        376
+      ],
+      [
+        459,
+        377
+      ],
+      [
+        460,
+        377
+      ],
+      [
+        531,
+        377
+      ],
+      [
+        532,
+        377
+      ],
+      [
+        533,
+        377
+      ],
+      [
+        534,
+        377
+      ],
+      [
+        535,
+        377
+      ],
+      [
+        536,
+        377
+      ],
+      [
+        537,
+        377
+      ],
+      [
+        538,
+        377
+      ],
+      [
+        539,
+        377
+      ],
+      [
+        460,
+        378
+      ],
+      [
+        461,
+        378
+      ],
+      [
+        462,
+        378
+      ],
+      [
+        463,
+        378
+      ],
+      [
+        464,
+        378
+      ],
+      [
+        465,
+        378
+      ],
+      [
+        526,
+        378
+      ],
+      [
+        527,
+        378
+      ],
+      [
+        528,
+        378
+      ],
+      [
+        529,
+        378
+      ],
+      [
+        530,
+        378
+      ],
+      [
+        531,
+        378
+      ],
+      [
+        532,
+        378
+      ],
+      [
+        533,
+        378
+      ],
+      [
+        534,
+        378
+      ],
+      [
+        535,
+        378
+      ],
+      [
+        536,
+        378
+      ],
+      [
+        462,
+        379
+      ],
+      [
+        463,
+        379
+      ],
+      [
+        464,
+        379
+      ],
+      [
+        465,
+        379
+      ],
+      [
+        466,
+        379
+      ],
+      [
+        467,
+        379
+      ],
+      [
+        468,
+        379
+      ],
+      [
+        469,
+        379
+      ],
+      [
+        470,
+        379
+      ],
+      [
+        471,
+        379
+      ],
+      [
+        472,
+        379
+      ],
+      [
+        521,
+        379
+      ],
+      [
+        522,
+        379
+      ],
+      [
+        523,
+        379
+      ],
+      [
+        524,
+        379
+      ],
+      [
+        525,
+        379
+      ],
+      [
+        526,
+        379
+      ],
+      [
+        527,
+        379
+      ],
+      [
+        528,
+        379
+      ],
+      [
+        529,
+        379
+      ],
+      [
+        530,
+        379
+      ],
+      [
+        531,
+        379
+      ],
+      [
+        464,
+        380
+      ],
+      [
+        465,
+        380
+      ],
+      [
+        466,
+        380
+      ],
+      [
+        467,
+        380
+      ],
+      [
+        468,
+        380
+      ],
+      [
+        469,
+        380
+      ],
+      [
+        470,
+        380
+      ],
+      [
+        471,
+        380
+      ],
+      [
+        472,
+        380
+      ],
+      [
+        473,
+        380
+      ],
+      [
+        474,
+        380
+      ],
+      [
+        475,
+        380
+      ],
+      [
+        476,
+        380
+      ],
+      [
+        477,
+        380
+      ],
+      [
+        478,
+        380
+      ],
+      [
+        479,
+        380
+      ],
+      [
+        480,
+        380
+      ],
+      [
+        481,
+        380
+      ],
+      [
+        513,
+        380
+      ],
+      [
+        466,
+        381
+      ],
+      [
+        467,
+        381
+      ],
+      [
+        468,
+        381
+      ],
+      [
+        469,
+        381
+      ],
+      [
+        470,
+        381
+      ],
+      [
+        471,
+        381
+      ],
+      [
+        472,
+        381
+      ],
+      [
+        473,
+        381
+      ],
+      [
+        474,
+        381
+      ],
+      [
+        475,
+        381
+      ],
+      [
+        476,
+        381
+      ],
+      [
+        477,
+        381
+      ],
+      [
+        478,
+        381
+      ],
+      [
+        479,
+        381
+      ],
+      [
+        480,
+        381
+      ],
+      [
+        481,
+        381
+      ],
+      [
+        482,
+        381
+      ],
+      [
+        483,
+        381
+      ],
+      [
+        484,
+        381
+      ],
+      [
+        485,
+        381
+      ],
+      [
+        486,
+        381
+      ],
+      [
+        487,
+        381
+      ],
+      [
+        488,
+        381
+      ],
+      [
+        489,
+        381
+      ],
+      [
+        490,
+        381
+      ],
+      [
+        491,
+        381
+      ],
+      [
+        492,
+        381
+      ],
+      [
+        493,
+        381
+      ],
+      [
+        494,
+        381
+      ],
+      [
+        495,
+        381
+      ],
+      [
+        496,
+        381
+      ],
+      [
+        497,
+        381
+      ],
+      [
+        498,
+        381
+      ],
+      [
+        499,
+        381
+      ],
+      [
+        500,
+        381
+      ],
+      [
+        501,
+        381
+      ],
+      [
+        469,
+        382
+      ],
+      [
+        470,
+        382
+      ],
+      [
+        471,
+        382
+      ],
+      [
+        472,
+        382
+      ],
+      [
+        473,
+        382
+      ],
+      [
+        474,
+        382
+      ],
+      [
+        475,
+        382
+      ],
+      [
+        476,
+        382
+      ],
+      [
+        477,
+        382
+      ],
+      [
+        478,
+        382
+      ],
+      [
+        479,
+        382
+      ],
+      [
+        480,
+        382
+      ],
+      [
+        481,
+        382
+      ],
+      [
+        482,
+        382
+      ],
+      [
+        483,
+        382
+      ],
+      [
+        484,
+        382
+      ],
+      [
+        485,
+        382
+      ],
+      [
+        486,
+        382
+      ],
+      [
+        487,
+        382
+      ],
+      [
+        488,
+        382
+      ],
+      [
+        489,
+        382
+      ],
+      [
+        490,
+        382
+      ],
+      [
+        491,
+        382
+      ],
+      [
+        492,
+        382
+      ],
+      [
+        493,
+        382
+      ],
+      [
+        494,
+        382
+      ],
+      [
+        495,
+        382
+      ],
+      [
+        472,
+        383
+      ],
+      [
+        473,
+        383
+      ],
+      [
+        474,
+        383
+      ],
+      [
+        475,
+        383
+      ],
+      [
+        476,
+        383
+      ],
+      [
+        477,
+        383
+      ],
+      [
+        478,
+        383
+      ],
+      [
+        479,
+        383
+      ],
+      [
+        480,
+        383
+      ],
+      [
+        481,
+        383
+      ],
+      [
+        482,
+        383
+      ],
+      [
+        483,
+        383
+      ],
+      [
+        484,
+        383
+      ],
+      [
+        485,
+        383
+      ],
+      [
+        486,
+        383
+      ],
+      [
+        487,
+        383
+      ],
+      [
+        488,
+        383
+      ],
+      [
+        489,
+        383
+      ],
+      [
+        490,
+        383
+      ],
+      [
+        477,
+        384
+      ],
+      [
+        478,
+        384
+      ],
+      [
+        479,
+        384
+      ],
+      [
+        480,
+        384
+      ],
+      [
+        481,
+        384
+      ],
+      [
+        482,
+        384
+      ],
+      [
+        483,
+        384
+      ],
+      [
+        484,
+        384
+      ]
+    ],
+    "shoulder_line_px": [
+      [
+        586.9294278498044,
+        344.55420849248424
+      ],
+      [
+        367.1945885181802,
+        333.490186781694
+      ]
+    ],
+    "attachment": {
+      "maximum_distance_over_H": 0.011077390469867608,
+      "camera_visibility_observations": {
+        "front": {
+          "top_skin_points": 422,
+          "hidden_by_non_cloak_geometry": 422,
+          "exposed": []
+        },
+        "rear": {
+          "top_skin_points": 422,
+          "hidden_by_non_cloak_geometry": 421,
+          "exposed": [
+            {
+              "u": 0.15,
+              "index": 45130,
+              "pixel": [
+                596.232361025684,
+                339.6948784397305
+              ]
+            }
+          ]
+        }
+      },
+      "lap_definition": "world Z above opened native local hem; both skins have a real outward support ray hit",
+      "minimum_lap_over_H": 0.009999968112531121,
+      "maximum_lap_over_H": 0.010000039666660299,
+      "live_top_vertices": 211,
+      "trimmed_top_vertices": 2,
+      "failed_tuck_vertices": []
+    },
+    "front_near_arm_samples": 625,
+    "front_unobscured_near_arm_samples": 625
+  },
+  "spec_hash": "f18ed4c4f827bfaf1ca656d35c626897bd5e8d7dcc149d3e2e49c9dc67c9ebad",
+  "native_mesh_hash": "aac71b02cc09ad905f42e6f2f2bfe735da1fc083e6eb2e46b2e363cb49befcce",
+  "observed_joints": {
+    "pelvis": [
+      2.9802322387695312e-08,
+      0.006197988986968994,
+      1.2197997570037842
+    ],
+    "torso": [
+      0.13002867996692657,
+      0.09343285113573074,
+      1.5356525182724
+    ],
+    "head": [
+      0.20209835469722748,
+      0.15231510996818542,
+      1.861325740814209
+    ],
+    "head_tip": [
+      0.28157922625541687,
+      0.1663297414779663,
+      2.1625285148620605
+    ],
+    "shoulder_near": [
+      -0.010648980736732483,
+      0.3333263397216797,
+      1.6855655908584595
+    ],
+    "elbow_near": [
+      0.010984431952238083,
+      0.40960693359375,
+      1.3728814125061035
+    ],
+    "hand_near": [
+      0.2549663782119751,
+      0.5171492099761963,
+      1.1728346347808838
+    ],
+    "hand_tip_near": [
+      0.2389509081840515,
+      0.5040642619132996,
+      1.100462794303894
+    ],
+    "hip_near": [
+      -0.07816381007432938,
+      0.13200438022613525,
+      0.9379428029060364
+    ],
+    "knee_near": [
+      0.08767637610435486,
+      0.24296773970127106,
+      0.5492037534713745
+    ],
+    "ankle_near": [
+      0.08999998867511749,
+      0.36290326714515686,
+      0.12903226912021637
+    ],
+    "foot_tip_near": [
+      0.2351611703634262,
+      0.3629022538661957,
+      0.06451591849327087
+    ],
+    "shoulder_far": [
+      0.33705630898475647,
+      -0.09225130826234818,
+      1.6855660676956177
+    ],
+    "elbow_far": [
+      0.22355054318904877,
+      -0.19632147252559662,
+      1.4021153450012207
+    ],
+    "hand_far": [
+      0.43705636262893677,
+      -0.45225128531455994,
+      1.396989107131958
+    ],
+    "hand_tip_far": [
+      0.4210408926010132,
+      -0.4653362035751343,
+      1.3246172666549683
+    ],
+    "hip_far": [
+      0.07816381007432938,
+      -0.1576109528541565,
+      0.95819491147995
+    ],
+    "knee_far": [
+      0.03144824877381325,
+      -0.26202499866485596,
+      0.5364729762077332
+    ],
+    "ankle_far": [
+      -0.09000004082918167,
+      -0.3629032075405121,
+      0.12903225421905518
+    ],
+    "foot_tip_far": [
+      0.055161334574222565,
+      -0.3629033863544464,
+      0.06451626121997833
+    ]
+  },
+  "observed_forward": {
+    "pelvis": [
+      0.9247070550918579,
+      6.1272658058442175e-09,
+      -0.3806789517402649
+    ],
+    "torso": [
+      0.955554723739624,
+      0.16849005222320557,
+      -0.24192200601100922
+    ],
+    "head": [
+      0.9512510895729065,
+      0.16773121058940887,
+      -0.25881901383399963
+    ]
+  },
+  "mutations": {}
+}

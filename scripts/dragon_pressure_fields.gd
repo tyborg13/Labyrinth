@@ -55,12 +55,8 @@ static func neighborhood(engine: RefCounted, state: Dictionary, centers: Array[V
 	return result
 
 static func refuge_tiles(engine: RefCounted, state: Dictionary, action: Dictionary) -> Array[Vector2i]:
-	# Current warnings contest the player's declared position, including their
-	# own Light. The area never follows later movement. Unflagged saved actions
-	# retain the original nearest-brazier anchor.
-	if str(action.get("field_anchor", "")) == "player":
-		action["field_center"] = state["player"]["pos"]
-		return neighborhood(engine, state, vectors([action["field_center"]]), int(action.get("field_radius", 2)))
+	# Compatibility for the original saved nearest-brazier warning. Current
+	# dragon intents no longer contain the separate player-anchored sweeps.
 	var choices: Array = state.get("guardian_braziers", []).duplicate()
 	choices.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var da: int = Paths.manhattan(a["pos"], state["player"]["pos"])

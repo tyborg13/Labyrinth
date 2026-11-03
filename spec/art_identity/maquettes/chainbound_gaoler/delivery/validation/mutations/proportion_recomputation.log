@@ -1,0 +1,14 @@
+test_forged_proportion_table_cannot_be_resealed_as_acceptance (tests.test_mq15_maquette.DeliveryTests) ... FAIL
+
+======================================================================
+FAIL: test_forged_proportion_table_cannot_be_resealed_as_acceptance (tests.test_mq15_maquette.DeliveryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 214, in test_forged_proportion_table_cannot_be_resealed_as_acceptance
+    validate_acceptance(FOLDER, self.folder)
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.145s
+
+FAILED (failures=1)

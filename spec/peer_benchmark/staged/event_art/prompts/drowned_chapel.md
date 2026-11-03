@@ -1,0 +1,1 @@
+Subject: a ruined chapel nave flooded knee-deep with perfectly still black water, broken pews just breaking the surface. At the far altar a golden reliquary glows from under the water, its light rippling up the columns. Mood: cold, sacred, tempting.

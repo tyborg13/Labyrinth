@@ -100,9 +100,11 @@ and manifests succeed even when a target is missed.
   - Reference: `scripts/protagonist_cutout/motion.gd` (`walk_foot_state`, `_solve_leg`, `_fit_walk_pelvis`).
   - A `move` clip declares a `gait` block (§4). The compiler expands it into foot, pelvis and hand tracks; the
     director keys only the rest (torso, head, cloth).
-  - Every humanoid walks **6 steps per tile, rest to rest**: an opening half step, four full steps, and a closing half
+  - Gait-driven humanoid enemies walk **at 12 steps per second, rest to rest**: an opening half step, full steps, and a closing half
     step that brings the feet together at rest on the next tile. The `near` foot leads, in both views. The root moves
     linearly over the whole clip.
+  - Choose each rig's reach with the unchanged gates in both views: use 4 steps if every gate passes, otherwise 5
+    if every gate passes, otherwise retain 6. `move.seconds = steps_per_tile / 12`: 20, 25 or 30 frames at 60 Hz.
   - Each foot's cycle is 60% stance (the hero's `WALK_STANCE_FRACTION`). A stance foot is world-planted. A swing foot
     follows the hero's Hermite path and lifts `lift_px × sin(πu)^1.35`.
   - Walking lanes narrow 70% of the way from the painted ankle toward the thigh (hero). A foot changes lane only in
@@ -120,9 +122,14 @@ and manifests succeed even when a target is missed.
   - Knees keep the existing policy: they bend toward the facing; a rest knee within `knee_policy.near_straight_deg` of
     straight counts as straight.
 - **Walk gates** (both views, both legs, every frame of `move`):
+  - Board proof samples the production movement clock: rest at 0, then frames 1…N at `frame / N`.
+    Standalone clip inventories retain their endpoint-inclusive `frame / (N − 1)` convention.
   - Every stance is planted: target error ≤ 0.7072 px and zero frame-to-frame shift.
   - Every swing peaks at a knee bend of at least 15°, and at its apex the swing knee bends more than the stance knee.
     Lift-off and touch-down frames are naturally near-straight.
+    A case may declare `knee_policy.crouched_stance_deg` (rr-33 director native review): when the stance bend at
+    the apex strictly exceeds that angle, require the swing apex to bend at least 15° instead of exceeding the
+    stance. An omitted field preserves the ordinary comparison; all other walk checks remain unchanged.
   - No leg overreaches after scale and fit.
   - The pelvis fit adds at most 6 px. Report the maximum fit and the maximum total pelvis drop per view.
   - Rigid-piece legs: report the largest opened air per joint; it fails above 3 px.
@@ -170,7 +177,7 @@ relative to its parent's animated frame.
 ```json
 "gait": {
   "model": "protagonist_walk",
-  "steps_per_tile": 6,
+  "steps_per_tile": 4,
   "lead": "near",
   "stance_fraction": 0.6,
   "lift_px": 6,
@@ -187,8 +194,17 @@ relative to its parent's animated frame.
   - Step `i` (1…n) moves the lead foot on odd `i` and the other foot on even `i`, to `i / n` of the tile. It lifts at
     `previous + a` (step 1 lifts at 0) and lands at `i / n − a`.
   - The closing step moves the foot still behind from its last position to 1.0. It lifts at `last + a` and lands at 1.0.
-  - For 6 steps: lead swings 0–0.08 (to 0.2), 0.32–0.48 (to 0.6) and 0.72–0.88 (to 1.0); the other foot swings
-    0.12–0.28 (to 0.4), 0.52–0.68 (to 0.8) and 0.92–1.0 (to 1.0).
+  - For 4 steps (`n = 3`, `a = 0.2`): lead swings 0–2/15 (to 1/3) and 8/15–4/5 (to 1);
+    the other foot swings 1/5–7/15 (to 2/3) and 13/15–1 (to 1).
+  - Enemy-phase playback uses each reviewed humanoid's authored `move.seconds`,
+    before the legacy enemy cap. The Seer's hand-keyed four-shuffle hobble keeps its keys and takes 4/12 s (20 frames).
+    Hero and non-humanoid clocks, reduced-motion routing, gameplay and sound event boundaries stay unchanged.
+  - Both view axes lie on the same board path: `rear.forward = -front.forward`, within 1e-9 at compile time.
+  - The walk-01 reach selection is 4 steps for Reaver, Gaoler, Lancer and Mortar; 5 for Briar Weaver; 6 for Thrall,
+    Herald, Mirror and Gloam. Gate thresholds and anatomy remain unchanged.
+  - Authored per-full-step jolts follow the new schedule's full-step landings. Preserve their amplitudes,
+    interpolation and lead-in/recovery spans in seconds. Mortar's `torso.lift_px` starts at the landing,
+    reaches -1 px 0.017 s later, then returns to 0 over 0.034 s. Other director keys remain unchanged.
 - **Swing path:** the hero's Hermite (`walk_foot_state`), parameterised by the swing's `u`, with the endpoint tangents
   matching the planted speed; lift `lift_px × sin(πu)^1.35`.
 - **Lane:** the foot's lateral anchor moves from its painted ankle toward the thigh's x by `lane_narrowing`, eased over

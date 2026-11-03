@@ -1,0 +1,135 @@
+{
+  "headless_complete": true,
+  "native_windowed_run": false,
+  "full_suite_run": false,
+  "native_acceptance": "pending director seven-stage windowed run and 2x judgment",
+  "release_policy": {
+    "declaration": [
+      {
+        "item": "spear",
+        "clip": "death"
+      }
+    ],
+    "timing": "compiled_motion release_at with runtime view override",
+    "max_extra_components": 1,
+    "item_connectivity": 8,
+    "foreign_paint_allowed": false
+  },
+  "production_raster": {
+    "front": {
+      "frames": 512,
+      "death_frames": 96,
+      "failures": 0
+    },
+    "rear": {
+      "frames": 512,
+      "death_frames": 96,
+      "failures": 0
+    },
+    "scope": "software raster of exact treated production textures using fresh actual runtime poses; not native renderer proof"
+  },
+  "results": {
+    "focused": {
+      "command": "python3 -m unittest tests.test_rr37_lancer tests.test_rr37_production tests.test_rr37_feedback2 -v",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback2-focused.log",
+      "sha256": "137df12849329c57cb110c210a0e913eada0ec4152a15bd35b33a93e8df5ddcd",
+      "result_lines": [
+        "Ran 19 tests in 152.753s",
+        "OK",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1634 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1634 frames)"
+      ],
+      "exit_code": 0
+    },
+    "mutations": {
+      "command": "python3 -m unittest tests.test_rr37_feedback2 -v",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback2-mutations.log",
+      "sha256": "d956c33416c6e30a0d84937087a17fa4dde5f4cafb6a7d35d118f03a619bf994",
+      "result_lines": [
+        "Ran 6 tests in 0.037s",
+        "OK"
+      ],
+      "exit_code": 0
+    },
+    "raster": {
+      "command": "python3 -m unittest tests.test_rr37_feedback1 -v",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback2-raster.log",
+      "sha256": "06b40ac22d5208cce66cb9c73fada948e24503d2b539bda9d60230b010c1766b",
+      "result_lines": [
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR37 FRONT PRODUCTION FRAMES: PASS (512 frames; 0 failures; software raster, native runtime poses)",
+        "RR37 REAR PRODUCTION FRAMES: PASS (512 frames; 0 failures; software raster, native runtime poses)",
+        "Ran 5 tests in 225.924s",
+        "OK",
+        "RR37 REJECTED NATIVE REGRESSION: PASS (6 rejected frames + 1 unchanged rear-idle control; components and joint seams detected)",
+        "RR37 REJECTED PRODUCTION RASTER: PASS (detects 6 components > rest 1)"
+      ],
+      "exit_code": 0
+    },
+    "references": {
+      "command": "env LABYRINTH_TASK_ID=rr-37 python3 tests/rr35/run_reference_tests.py tests.test_rr10_humanoid tests.test_rr11_humanoid tests.test_rr18_humanoid tests.test_rr17_cutout tests.test_rr21_cutout tests.test_rr20_cutout tests.test_rr22_humanoid tests.test_rr32_herald tests.test_rr35_cutout tests.test_rr35_native_defects",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback2-references.log",
+      "sha256": "3ad867d8201e9d585681805152e508be0027b833e61a26fc00ce66ba60ea8c56",
+      "result_lines": [
+        "Ran 168 tests in 271.445s",
+        "OK"
+      ],
+      "exit_code": 0
+    },
+    "gates": {
+      "command": "rr37_evidence.refresh_samples(case), then rr37_gates.py --case <case>, for source CASE and treated PROOF_CASE",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback2-gates.log",
+      "sha256": "48ddae79e259a37379dd59137b43ff0b6d0d44c6f27119147f8611ef0d2206d7",
+      "result_lines": [
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+        "RR37 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+        "RR37 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+        "RR37 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+        "RR37 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+        "RR37 COMPACT SAMPLES: PASS (1396 poses; full transforms in ignored logs)",
+        "RR37 COMPACT SAMPLES: PASS (1396 poses; full transforms in ignored logs)"
+      ],
+      "exit_code": 0
+    },
+    "preservation": {
+      "command": "git diff --quiet HEAD for protected paths; previous/current anatomy and retained pose fixture equality",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback2-preservation.log",
+      "sha256": "60829cf44c7734c096cbcd20152fb1ec32f73a8853c225aceb22eb4850e923af",
+      "result_lines": [
+        "RR37 FEEDBACK2 PRESERVATION: PASS (5809 protected tracked files; all production rigs, paintings, maquette and motion byte-identical)",
+        "RR37 POSE/CASE PRESERVATION: PASS (54 retained poses byte-equivalent; cuts, rests, compiled motion and prior anatomy unchanged)"
+      ],
+      "exit_code": 0
+    },
+    "static": {
+      "command": "git diff --check; sh -n experiments/cutouts/frostglass_lancer/rr37_proof.sh",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback2-static.log",
+      "sha256": "aeb1f42f2126cfbe6041590648ea6ac016d32cc959c5e151794cb0398b290eab",
+      "result_lines": [
+        "RR37 DIFF CHECK: PASS",
+        "RR37 PROOF SHELL SYNTAX: PASS"
+      ],
+      "exit_code": 0
+    }
+  },
+  "implementation_sha256": {
+    "experiments/cutouts/frostglass_lancer/rr37/anatomy.json": "9004d315410616d609fd555413d0f42d86ced40ce0dc47f2a305bba20f0cc966",
+    "experiments/cutouts/frostglass_lancer/rr37_acceptance.py": "548f5bef971fd2ebba973eaf231d0632968041c2839e27190ba91e00262dc0b5",
+    "experiments/cutouts/frostglass_lancer/rr37_case.py": "05973cf0a8d37dddf2d51907ec5bb2b7fc064d2fdba4c864fc5141e5418f8d59",
+    "experiments/cutouts/frostglass_lancer/rr37_frames.py": "b4fbe9597737679838c44b0f7684d29a83d07a911e0706793da288bae7b99894",
+    "experiments/cutouts/frostglass_lancer/rr37_gates.py": "ac5a2af90b54c501a0c132b3b7e4f5d1d8ddfe0a6ccc1f57ae93f1732da42cbf",
+    "tests/test_rr37_feedback1.py": "c15a34f72fb0bbe309ba257d7e8b8cb6df65af2f2144e9462632ee954ae4c42c",
+    "tools/humanoid_cutout/anatomy.schema.json": "65f48554e10fb80865d0c7c2ded41484ddb2fdcb242cb394e42a4799d154d4fd",
+    "tools/humanoid_cutout/gates.py": "01cdbe2c1da128503b0556c87e35062503cea5a4145372d7df2cc565ddcccf1d",
+    "tools/humanoid_cutout/source_space.py": "055eb7cf94633e02ee77d6b9e4a9ebf654d725cdf15a034e659c519485900069",
+    "tests/test_rr37_feedback2.py": "c167b3f1c8ed2a026ce344fb62c88a965371f2bc8b7b29bdefe48e85fbd5f051",
+    "tools/humanoid_cutout/held_release.py": "6bf4c2b2c55c4756173d418cd773cd58f2f847d770f5249deefac2001dbf35a7"
+  },
+  "todo_design": {},
+  "chosen_defaults": "Only named test fixture geometry and alternate release phases in tests/test_rr37_feedback2.py::FIXTURE; see HANDOFF.md",
+  "protected_motion_sha256": "65fe0b1a4892ad3a75827ba14cdd14dd8c41253f8f0ef1ebf79fb1240e7dc039"
+}

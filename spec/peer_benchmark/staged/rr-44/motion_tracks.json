@@ -1,0 +1,1419 @@
+{
+ "_doc": "Director motion data (rr-44), humanoid rig v2 for the Chainbound Gaoler after the owner's gaoler-rig verdict (2026-10-27, NEEDS CHANGES): the chain arm is repainted hanging low at his side (staged/rr-44 art; the hook now points away from his body), both arms swing from the shoulder in the walk, every elbow has a declared bend side, and the hands carry the hit. Death is unchanged except where the lowered arm changes the drop height (owner: 'death animation is perfect ... no notes'). Same binding semantics as rr-38 (held item, angle_deg, release_at), rr-29 (shoulder_pendulum) and the rig spec. chain.angle_deg rotates the chain about the grip; positive swings the hanging hook toward the facing's forward.",
+ "chainbound_gaoler": {
+  "rig": "humanoid_v2",
+  "units": "source_px",
+  "maquette": "spec/art_identity/maquettes/chainbound_gaoler/measurements.json",
+  "art": {
+   "front": "spec/art_identity/jobs/chainbound_gaoler/mq3_front_v5 (rr-44 registers it from staged/rr-44)",
+   "rear": "spec/art_identity/jobs/chainbound_gaoler/mq3_rear_v4 (rr-44 registers it from staged/rr-44)"
+  },
+  "pieces_note": "head = the bucket helm with its ring and visor slit (front only), rigid; torso with the hood-and-scarf cowl fused in (rigid; the cowl covers both shoulder joints, so no cowl pixel may belong to an arm); pelvis with the belt and buckle fused in; tabard = the oxblood panel with its tower emblem (front only) as a skinned cloth chain on pelvis (tabard_mid, tabard_tip; at most 3 px follow-through); coat_near and coat_far = the ragged gambeson tails as skinned cloth chains on pelvis (coat_near_mid, coat_near_tip, coat_far_mid, coat_far_tip; at most 4 px follow-through, settled by clip end); per arm a skinned root limb over upper and fore (the leather bands ride the forearm) with the gloved fist as a rigid hand; chain = the chain, the spare loop above the fist and the hook as one rigid held item in hand_far, pivot at the grip, hanging at rest (rr-44 art: the fist at the hip, the hook at shin height); per leg a skinned root leg and a rigid boot. Hidden fills (spec \u00a71, the rr-37 lesson): every area a moving arm, fist, chain or coat tail uncovers shows its covered piece's own painted continuation: the torso flank under each arm's full rest footprint, the near coat tail and trousers under the near fist and forearm, the far flank and the far coat tail under the lowered chain arm's full rest footprint and the chain's (rr-44 director underlay).",
+  "clips": {
+   "idle": {
+    "seconds": 0.84,
+    "loop": true,
+    "intents": [],
+    "note": "the protagonist's cut-out bob: the upper body drops 2 px and returns as one rigid piece; the lowered chain arm with its hanging chain follows a beat later as one rigid group (the Thrall's pre-computed lag curve on upper_far); the chain hangs plumb and never swings; the coat tails, tabard, legs and boots stay still",
+    "keys": {
+     "torso.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -2
+      ],
+      [
+       0.55,
+       -2
+      ],
+      [
+       0.91,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "upper_far.lift_px": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.05,
+       0.38
+      ],
+      [
+       0.1,
+       1.17
+      ],
+      [
+       0.15,
+       1.47
+      ],
+      [
+       0.2,
+       0.83
+      ],
+      [
+       0.25,
+       0.15
+      ],
+      [
+       0.3,
+       0.0
+      ],
+      [
+       0.35,
+       0.0
+      ],
+      [
+       0.4,
+       0.0
+      ],
+      [
+       0.45,
+       0.0
+      ],
+      [
+       0.5,
+       0.0
+      ],
+      [
+       0.55,
+       0.0
+      ],
+      [
+       0.6,
+       -0.11
+      ],
+      [
+       0.65,
+       -0.25
+      ],
+      [
+       0.7,
+       -0.31
+      ],
+      [
+       0.75,
+       -0.3
+      ],
+      [
+       0.8,
+       -0.24
+      ],
+      [
+       0.85,
+       -0.15
+      ],
+      [
+       0.9,
+       -0.04
+      ],
+      [
+       0.95,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ]
+    }
+   },
+   "move": {
+    "seconds": 0.85,
+    "intents": [],
+    "note": "a heavy jailer's plod on the protagonist's model: both legs step, six steps per tile, near foot leading, a short 4 px lift on the stocky legs; a 3 degree forward lean; both arms swing from the shoulder like pendulums, opposite their same-side legs, the forearm trailing (the Mimic's model, owner 2026-10-20 and 2026-10-27: 'one wiggles the other is still'); the chain arm swings less; the hook trails the fist (held_follow); the coat tails trail 2 px",
+    "gait": {
+     "model": "protagonist_walk",
+     "steps_per_tile": 6,
+     "lead": "near",
+     "stance_fraction": 0.6,
+     "lift_px": 4,
+     "lane_narrowing": 0.5,
+     "leg_scale_max": 1.22,
+     "settle_px": {
+      "contact": 1.5,
+      "down": 3.0,
+      "passing": 0.8,
+      "up": 0.4
+     },
+     "arm_swing": {
+      "model": "shoulder_pendulum",
+      "_doc": "Director rr-44 (owner: 'His arms don't move naturally while he walks, one wiggles the other is still'). As rr-29: the upper arm rotates about the shoulder toward the facing and away from it, opposite the same-side leg; the forearm follows with a lag and bends more on the backswing; the hand is rigid with the forearm. A heavy plod: a little less than the Mimic, and less on the chain arm.",
+      "phase": "opposite_same_side_leg",
+      "near": {
+       "upper_deg": 14,
+       "forearm_lag_s": 0.08,
+       "forearm_bend_deg": {
+        "forward": 3,
+        "back": 10
+       }
+      },
+      "far": {
+       "upper_deg": 10,
+       "forearm_lag_s": 0.08,
+       "forearm_bend_deg": {
+        "forward": 2,
+        "back": 7
+       }
+      },
+      "envelope": {
+       "ramp_fraction": 0.12,
+       "ease": "smoothstep"
+      }
+     },
+     "max_fit_px": 6
+    },
+    "keys": {
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.12,
+       3
+      ],
+      [
+       0.88,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "coat_near_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       -2
+      ],
+      [
+       0.9,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "coat_far_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       -2
+      ],
+      [
+       0.9,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    },
+    "held_follow": {
+     "_doc": "The hook trails the swinging fist: chain.angle_deg(t) = deg_per_px x (the grip's displacement along the facing, in source px, from its rest position, at t - lag_s; 0 before the clip starts). The fist swinging forward tips the hook back. Generated like the gait tracks; no other chain key in move.",
+     "item": "chain",
+     "grip": "hand_far",
+     "deg_per_px": -0.6,
+     "lag_s": 0.06
+    }
+   },
+   "reel": {
+    "seconds": 1.1,
+    "contact": 0.5,
+    "intents": [
+     "chain_reel:pull"
+    ],
+    "note": "from the low hold: winds the chain back with the fist drawn back past the hip (the hook swings behind), then swings the arm forward and up and casts the hook out at the target (the chain swings forward to nearly level at waist height, contact), then heaves it back to the hip with a lean back and a dropped hip (the pull); the free fist counter-balances; the chain falls back to hang",
+    "keys": {
+     "chain.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -35
+      ],
+      [
+       0.5,
+       75
+      ],
+      [
+       0.62,
+       70
+      ],
+      [
+       0.78,
+       20
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -6
+      ],
+      [
+       0.5,
+       10
+      ],
+      [
+       0.62,
+       10
+      ],
+      [
+       0.78,
+       -8
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       4
+      ],
+      [
+       0.5,
+       8
+      ],
+      [
+       0.62,
+       8
+      ],
+      [
+       0.78,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -3
+      ],
+      [
+       0.5,
+       4
+      ],
+      [
+       0.62,
+       4
+      ],
+      [
+       0.78,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -2
+      ],
+      [
+       0.5,
+       3
+      ],
+      [
+       0.62,
+       3
+      ],
+      [
+       0.78,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.62,
+       0
+      ],
+      [
+       0.78,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       2
+      ],
+      [
+       0.5,
+       -2
+      ],
+      [
+       0.78,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       2
+      ],
+      [
+       0.78,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "coat_near_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.55,
+       2
+      ],
+      [
+       0.85,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "coat_far_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.55,
+       2
+      ],
+      [
+       0.85,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "pin": {
+    "seconds": 0.8,
+    "contact": 0.5,
+    "intents": [
+     "manacle_pin:ranged"
+    ],
+    "note": "a short whip from the low hold: the chain flicks back, then snaps the hook forward at the target's feet (contact), held a beat, then hangs again",
+    "keys": {
+     "chain.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -20
+      ],
+      [
+       0.5,
+       55
+      ],
+      [
+       0.65,
+       40
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -3
+      ],
+      [
+       0.5,
+       6
+      ],
+      [
+       0.65,
+       5
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       3
+      ],
+      [
+       0.5,
+       4
+      ],
+      [
+       0.65,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -2
+      ],
+      [
+       0.5,
+       3
+      ],
+      [
+       0.65,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "press": {
+    "seconds": 0.85,
+    "contact": 0.5,
+    "intents": [
+     "cudgel_press:melee"
+    ],
+    "note": "after the step in (the move clip), a hammer blow with the free fist: wound up high and back with a lean back, then slammed forward and down into the target (contact) with the body behind it and the hips dropped; held, then recovered; the hanging chain swings back with the lunge; the free arm's elbow flexes toward the facing through the wind-up and the slam (elbow_policy), never backward",
+    "keys": {
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       22
+      ],
+      [
+       0.5,
+       -6
+      ],
+      [
+       0.65,
+       -6
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -8
+      ],
+      [
+       0.5,
+       18
+      ],
+      [
+       0.65,
+       18
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -4
+      ],
+      [
+       0.5,
+       7
+      ],
+      [
+       0.65,
+       7
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -2
+      ],
+      [
+       0.5,
+       6
+      ],
+      [
+       0.65,
+       6
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       -4
+      ],
+      [
+       0.65,
+       -4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       3
+      ],
+      [
+       0.65,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "chain.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       -6
+      ],
+      [
+       0.7,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "coat_near_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.55,
+       2
+      ],
+      [
+       0.8,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "coat_far_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.55,
+       2
+      ],
+      [
+       0.8,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    },
+    "budget_note": "rr-38 feedback 1: these are director targets; if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp"
+   },
+   "guard": {
+    "seconds": 0.9,
+    "contact": 0.3,
+    "intents": [
+     "iron_guard:block"
+    ],
+    "note": "after the step in, hunkers down: the hips drop, the body hunches forward, the chain fist comes up to the belly so the chain hangs across the front of his legs, and the free fist comes up to the belly; holds; then eases back",
+    "keys": {
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -3
+      ],
+      [
+       0.75,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       3
+      ],
+      [
+       0.75,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       8
+      ],
+      [
+       0.75,
+       8
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       2
+      ],
+      [
+       0.75,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "chain.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -4
+      ],
+      [
+       0.75,
+       -4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       6
+      ],
+      [
+       0.75,
+       6
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       3
+      ],
+      [
+       0.75,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       3
+      ],
+      [
+       0.75,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "coat_near_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       2
+      ],
+      [
+       0.75,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "coat_far_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       2
+      ],
+      [
+       0.75,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "hit": {
+    "seconds": 0.5,
+    "intents": [],
+    "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, the helm nods back 4 degrees; both hands carry the knockback a beat late (the arms hang loose and catch up), so the elbows only flex; the hanging chain swings forward 5 degrees as the body is knocked back, then settles; the coat tails flick 2 px; recovered by 0.6",
+    "keys": {
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.2,
+       -4
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "chain.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.22,
+       5
+      ],
+      [
+       0.45,
+       -2
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "coat_near_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       2
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "coat_far_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       2
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.35,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.35,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "death": {
+    "seconds": 1.6,
+    "terminal": true,
+    "intents": [],
+    "note": "staggers back; the chain slips from the grip at 0.3, drops straight to the floor under the fist and tips forward to lie along it; the body slumps forward over planted feet (hips sink 6 px, torso folds 24 degrees, helm bowed 16 degrees), no kneel: the heavy coat cannot bend that far at the knee without tearing (rr-42 decision); the lowered chain arm hangs limp as the body folds (unchanged choreography; the drop is shorter from the hip); the coat tails and tabard settle; terminal pose held, then the existing fade",
+    "keys": {
+     "chain.release_at": 0.3,
+     "chain.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       0
+      ],
+      [
+       0.6,
+       60
+      ],
+      [
+       0.72,
+       85
+      ],
+      [
+       0.8,
+       80
+      ],
+      [
+       1,
+       82
+      ]
+     ],
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       0
+      ],
+      [
+       0.7,
+       -4
+      ],
+      [
+       0.95,
+       -6
+      ],
+      [
+       1,
+       -6
+      ]
+     ],
+     "pelvis.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.7,
+       1
+      ],
+      [
+       0.95,
+       2
+      ],
+      [
+       1,
+       2
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       -3
+      ],
+      [
+       0.7,
+       12
+      ],
+      [
+       0.95,
+       24
+      ],
+      [
+       1,
+       24
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       -1
+      ],
+      [
+       0.7,
+       5
+      ],
+      [
+       0.95,
+       8
+      ],
+      [
+       1,
+       8
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -4
+      ],
+      [
+       0.7,
+       10
+      ],
+      [
+       0.95,
+       16
+      ],
+      [
+       1,
+       16
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       0
+      ],
+      [
+       0.75,
+       -5
+      ],
+      [
+       1,
+       -6
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -2
+      ],
+      [
+       1,
+       -6
+      ]
+     ],
+     "coat_near_tip.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.7,
+       -3
+      ],
+      [
+       1,
+       -4
+      ]
+     ],
+     "coat_far_tip.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.7,
+       -3
+      ],
+      [
+       1,
+       -4
+      ]
+     ],
+     "tabard_tip.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.7,
+       -2
+      ],
+      [
+       1,
+       -3
+      ]
+     ],
+     "chain.drop": {
+      "start": 0.3,
+      "land": 0.45,
+      "ease": "in",
+      "to": "floor_line",
+      "pivot_after_land": "floor_contact",
+      "note": "translate straight down from release until the chain's lowest texel touches the unit's floor line (distance measured per facing from the rig, not tuned); from landing, chain.angle_deg pivots about the floor contact"
+     }
+    },
+    "budget_note": "rr-42 feedback 1: slump replaces the kneel (director decision); hand_far.lift_px -36 remains a target clamped to the measured joint budget"
+   }
+  },
+  "elbow_policy": {
+   "_doc": "Owner 2026-10-27: 'the non chain arm bends the wrong way during attack and hit, like he's got no bones'. A real elbow only flexes: the forearm folds from the upper arm's line toward the side the figure faces (for a hanging arm, the hand comes forward and up). The two-bone solve always takes this side; it never infers it from a near-straight rest. 'max_hyperextension_deg' is the gate: the signed flexion (positive = folding toward the facing side) may never fall below its negative in any frame.",
+   "bend": "flex_toward_facing",
+   "views": [
+    "front",
+    "rear"
+   ],
+   "sides": [
+    "near",
+    "far"
+   ],
+   "max_hyperextension_deg": 2
+  }
+ }
+}

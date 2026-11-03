@@ -1,0 +1,18 @@
+{
+  "TODO_DESIGN_ring_chain_scope": [
+    "grip_ring",
+    "held_chain",
+    "lantern_cap_ring"
+  ],
+  "question": "Does the ring/chain union include lantern_cap_ring, or only the lower half of grip_ring plus held_chain?",
+  "literal_front_failed_columns": [
+    722,
+    723,
+    724,
+    725,
+    726
+  ],
+  "including_lantern_cap_ring_variant": "Selected by director feedback 2; 30/30 occupied columns qualify in both views.",
+  "geometry_changes_permitted": false,
+  "resolution": "Director feedback 2 includes lantern_cap_ring; no design decision remains pending."
+}

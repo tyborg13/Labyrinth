@@ -5,7 +5,10 @@ const STANCE: float = 0.66
 const STRIDE: float = 48.0
 const FOOT_LIFT: float = 6.0
 
-static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String, travel_per_cycle: float = 0.0) -> Dictionary:
+# Per-channel joint-budget clamps; absent fields retain the director's values.
+const ROAR_CLAMPS: Dictionary = {}
+
+static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String, travel_per_cycle: float = 0.0, reduced_motion: bool = false, roar_clamps: Dictionary = ROAR_CLAMPS) -> Dictionary:
 	var pose: Dictionary = {}
 	for name: String in layout["joints"]:
 		pose[name] = {"position": point(layout, name) - point(layout, parent(layout, name)),
@@ -21,6 +24,22 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 		pose["pelvis"]["position"] += bob
 		for side: String in ["near", "far"]:
 			_solve_hind_leg(pose, layout, side, point(layout, "foot_" + side), 0.0, rear)
+	elif clip == "roar":
+		var gather: float = curve(t, PackedVector2Array([Vector2(0, 0), Vector2(0.21, 1), Vector2(0.27, 0), Vector2(1, 0)]))
+		var roar: float = curve(t, PackedVector2Array([Vector2(0, 0), Vector2(0.21, 0), Vector2(0.27, 1), Vector2(0.79, 1), Vector2(1, 0)]))
+		var torso_move := Vector2(sign * (float(roar_clamps.get("back_px", 1.5)) * float(roar_clamps.get("gather_scale", 1.0)) * gather - float(roar_clamps.get("forward_px", 1.0)) * roar), float(roar_clamps.get("down_px", 2.0)) * float(roar_clamps.get("gather_scale", 1.0)) * gather - float(roar_clamps.get("up_px", 4.0)) * roar)
+		# Move the shared trunk root, keeping hips, tail and suspended arms
+		# attached to the chest; support IK alone holds the grounded hind feet.
+		pose["pelvis"]["position"] += torso_move
+		# The head is this rig's single neck/head joint; death bows it with -sign.
+		pose["head"]["rotation"] = sign * (-0.10 * gather + 0.30 * roar + _roar_tremble(t, reduced_motion))
+		pose["wing_near"]["rotation"] = sign * (0.06 * gather - 0.24 * roar)
+		pose["wing_far"]["rotation"] = sign * (-0.05 * gather + 0.23 * roar)
+		for side: String in ["near", "far"]:
+			_solve_hind_leg(pose, layout, side, point(layout, "foot_" + side), 0.0, rear)
+		for bone: String in roar_clamps:
+			if pose.has(bone):
+				pose[bone]["rotation"] *= float(roar_clamps[bone])
 	elif clip == "walk":
 		pose["pelvis"]["position"] += Vector2(0, -2.8 * (0.5 - 0.5 * cos(TAU * t * 2.0)))
 		pose["arm_near"]["rotation"] = sign * 0.085 * sin(TAU * t)
@@ -164,3 +183,11 @@ static func curve(t: float, keys: PackedVector2Array) -> float:
 			var u: float = inverse_lerp(keys[i-1].x,keys[i].x,t)
 			return lerpf(keys[i-1].y,keys[i].y,u*u*(3.0-2.0*u))
 	return keys[-1].y
+
+# The hold tremble is measured from the unchanged 0.40 s audio cue, not frames.
+static func _roar_tremble(t: float, reduced_motion: bool) -> float:
+	if reduced_motion or t < 0.27 or t > 0.79:
+		return 0.0
+	var seconds_since_cue: float = t * 1.90 - 0.40
+	var fade: float = 1.0 - inverse_lerp(0.27, 0.79, t)
+	return 0.02 * sin(TAU * 14.0 * seconds_since_cue) * fade

@@ -1,0 +1,4 @@
+00:00.765  blend            | Read blend: "/private/tmp/labyrinth_codex/mq-19-feedback2-seam-debug/native/maquette.blend"
+00:14.361  render           | Saved: '/private/tmp/labyrinth_codex/mq-19-feedback2-seam-debug/rear/rear_clay.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+MQ19_DIAGNOSTIC_CAPTURE: complete; failed build gates retained

@@ -1,0 +1,11 @@
+00:00.319  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/cold/maquette.blend"
+00:03.067  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/isolated_near/feedback1/front_silhouette.png'
+00:05.384  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/isolated_near/feedback1/front_silhouette.png'
+00:07.843  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/isolated_near/feedback1/front_parts.png'
+00:09.992  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/isolated_near/feedback1/front_silhouette.png'
+00:12.355  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/isolated_near/feedback1/front_silhouette.png'
+BLENDER_FACING: PASS
+MQ12_ISOLATED_PART: PASS; cape_near
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit

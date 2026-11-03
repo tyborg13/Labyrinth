@@ -1,0 +1,518 @@
+{
+  "provenance": "Director native run 2026-10-28, rr-46 9d865698d; immutable failing evidence, not passing rr-47 proof",
+  "source_archive": "/private/tmp/labyrinth_codex/rr46/feedback3-native/fire_t1_r6/hoarfrost_seer",
+  "source_findings_sha256": "ebfd11fb41e2ce2fa803fe4c1191c554fa104db98f435273f1f194ef5c9b03f0",
+  "inventory_sha256": "2a29e3b9f49bf96a048f4eb2ca14f18792efcaa073dd41c5d579cbc7b90daf02",
+  "board": "fire_t1_r6",
+  "actor": "hoarfrost_seer",
+  "captures": [
+    {
+      "actor_ground": [
+        1051.79345703125,
+        362.937652587891
+      ],
+      "actor_mask": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f000_actor_mask.png",
+      "actual_id": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f000_actual_id.png",
+      "calibration": false,
+      "capture_size": [
+        1920,
+        1080
+      ],
+      "clip": "move",
+      "clock": {},
+      "composite_order": [
+        "floor_1_1",
+        "floor_1_2",
+        "floor_2_1",
+        "floor_1_3",
+        "floor_2_2",
+        "floor_3_1",
+        "floor_1_4",
+        "floor_2_3",
+        "floor_3_2",
+        "floor_4_1",
+        "floor_1_5",
+        "floor_2_4",
+        "floor_3_3",
+        "floor_4_2",
+        "floor_5_1",
+        "floor_1_6",
+        "floor_2_5",
+        "floor_3_4",
+        "floor_4_3",
+        "floor_5_2",
+        "floor_6_1",
+        "floor_1_7",
+        "floor_2_6",
+        "floor_3_5",
+        "floor_4_4",
+        "floor_5_3",
+        "floor_6_2",
+        "floor_7_1",
+        "floor_2_7",
+        "floor_3_6",
+        "floor_4_5",
+        "floor_5_4",
+        "floor_6_3",
+        "floor_7_2",
+        "floor_3_7",
+        "floor_4_6",
+        "floor_5_5",
+        "floor_6_4",
+        "floor_7_3",
+        "floor_4_7",
+        "floor_5_6",
+        "floor_6_5",
+        "floor_7_4",
+        "floor_5_7",
+        "floor_6_6",
+        "floor_7_5",
+        "floor_6_7",
+        "floor_7_6",
+        "floor_7_7",
+        "actor",
+        "grid_2_3",
+        "grid_5_3",
+        "grid_3_6",
+        "grid_6_5"
+      ],
+      "crop": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f000_crop.png",
+      "crop_rect": [
+        858,
+        105,
+        381,
+        381
+      ],
+      "direction": [
+        -1,
+        1
+      ],
+      "evidence": true,
+      "expected_id": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f000_expected_id.png",
+      "frame": 0,
+      "frame_file": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f000_frame.png",
+      "frame_required": true,
+      "painted": {
+        "actor_pixels": 10263,
+        "errors": [],
+        "occluders": {
+          "floor_behind": {
+            "errors": 0,
+            "overlap_pixels": 1597
+          },
+          "floor_front": {
+            "errors": 0,
+            "overlap_pixels": 3841
+          },
+          "prop_behind": {
+            "errors": 0,
+            "overlap_pixels": 0
+          },
+          "prop_front": {
+            "errors": 0,
+            "overlap_pixels": 0
+          },
+          "wall_behind": {
+            "errors": 0,
+            "overlap_pixels": 0
+          },
+          "wall_front": {
+            "errors": 0,
+            "overlap_pixels": 0
+          }
+        },
+        "painted_errors": 0
+      },
+      "phase": 0.0185185185185185,
+      "route_id": "move_2_1_-1_1",
+      "terminal_absence": false
+    },
+    {
+      "actor_ground": [
+        911.0771484375,
+        292.579528808594
+      ],
+      "actor_mask": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f036_actor_mask.png",
+      "actual_id": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f036_actual_id.png",
+      "calibration": false,
+      "capture_size": [
+        1920,
+        1080
+      ],
+      "clip": "move",
+      "clock": {},
+      "composite_order": [
+        "floor_1_1",
+        "floor_1_2",
+        "floor_2_1",
+        "floor_1_3",
+        "floor_2_2",
+        "floor_3_1",
+        "floor_1_4",
+        "floor_2_3",
+        "floor_3_2",
+        "floor_4_1",
+        "floor_1_5",
+        "floor_2_4",
+        "floor_3_3",
+        "floor_4_2",
+        "floor_5_1",
+        "floor_1_6",
+        "floor_2_5",
+        "floor_3_4",
+        "floor_4_3",
+        "floor_5_2",
+        "floor_6_1",
+        "floor_1_7",
+        "floor_2_6",
+        "floor_3_5",
+        "floor_4_4",
+        "floor_5_3",
+        "floor_6_2",
+        "floor_7_1",
+        "floor_2_7",
+        "floor_3_6",
+        "floor_4_5",
+        "floor_5_4",
+        "floor_6_3",
+        "floor_7_2",
+        "floor_3_7",
+        "floor_4_6",
+        "floor_5_5",
+        "floor_6_4",
+        "floor_7_3",
+        "floor_4_7",
+        "floor_5_6",
+        "floor_6_5",
+        "floor_7_4",
+        "floor_5_7",
+        "floor_6_6",
+        "floor_7_5",
+        "floor_6_7",
+        "floor_7_6",
+        "floor_7_7",
+        "actor",
+        "grid_2_3",
+        "grid_5_3",
+        "grid_3_6",
+        "grid_6_5"
+      ],
+      "crop": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f036_crop.png",
+      "crop_rect": [
+        858,
+        105,
+        381,
+        381
+      ],
+      "direction": [
+        -1,
+        1
+      ],
+      "evidence": true,
+      "expected_id": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f036_expected_id.png",
+      "frame": 36,
+      "frame_file": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f036_frame.png",
+      "frame_required": true,
+      "painted": {
+        "actor_pixels": 8458,
+        "errors": [
+          "painted actor/occluder order differs from independent board-depth reference"
+        ],
+        "occluders": {
+          "floor_behind": {
+            "errors": 0,
+            "overlap_pixels": 0
+          },
+          "floor_front": {
+            "errors": 1014,
+            "overlap_pixels": 1495
+          },
+          "prop_behind": {
+            "errors": 0,
+            "overlap_pixels": 0
+          },
+          "prop_front": {
+            "errors": 0,
+            "overlap_pixels": 581
+          },
+          "wall_behind": {
+            "errors": 0,
+            "overlap_pixels": 0
+          },
+          "wall_front": {
+            "errors": 0,
+            "overlap_pixels": 0
+          }
+        },
+        "painted_errors": 7877
+      },
+      "phase": 0.685185185185185,
+      "route_id": "move_2_1_-1_1",
+      "terminal_absence": false
+    },
+    {
+      "actor_ground": [
+        898.240600585938,
+        286.161224365234
+      ],
+      "actor_mask": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f040_actor_mask.png",
+      "actual_id": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f040_actual_id.png",
+      "calibration": false,
+      "capture_size": [
+        1920,
+        1080
+      ],
+      "clip": "move",
+      "clock": {},
+      "composite_order": [
+        "floor_1_1",
+        "floor_1_2",
+        "floor_2_1",
+        "floor_1_3",
+        "floor_2_2",
+        "floor_3_1",
+        "floor_1_4",
+        "floor_2_3",
+        "floor_3_2",
+        "floor_4_1",
+        "floor_1_5",
+        "floor_2_4",
+        "floor_3_3",
+        "floor_4_2",
+        "floor_5_1",
+        "floor_1_6",
+        "floor_2_5",
+        "floor_3_4",
+        "floor_4_3",
+        "floor_5_2",
+        "floor_6_1",
+        "floor_1_7",
+        "floor_2_6",
+        "floor_3_5",
+        "floor_4_4",
+        "floor_5_3",
+        "floor_6_2",
+        "floor_7_1",
+        "floor_2_7",
+        "floor_3_6",
+        "floor_4_5",
+        "floor_5_4",
+        "floor_6_3",
+        "floor_7_2",
+        "floor_3_7",
+        "floor_4_6",
+        "floor_5_5",
+        "floor_6_4",
+        "floor_7_3",
+        "floor_4_7",
+        "floor_5_6",
+        "floor_6_5",
+        "floor_7_4",
+        "floor_5_7",
+        "floor_6_6",
+        "floor_7_5",
+        "floor_6_7",
+        "floor_7_6",
+        "floor_7_7",
+        "actor",
+        "grid_2_3",
+        "grid_5_3",
+        "grid_3_6",
+        "grid_6_5"
+      ],
+      "crop": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f040_crop.png",
+      "crop_rect": [
+        858,
+        105,
+        381,
+        381
+      ],
+      "direction": [
+        -1,
+        1
+      ],
+      "evidence": true,
+      "expected_id": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f040_expected_id.png",
+      "frame": 40,
+      "frame_file": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f040_frame.png",
+      "frame_required": true,
+      "painted": {
+        "actor_pixels": 8274,
+        "errors": [
+          "painted actor/occluder order differs from independent board-depth reference"
+        ],
+        "occluders": {
+          "floor_behind": {
+            "errors": 0,
+            "overlap_pixels": 0
+          },
+          "floor_front": {
+            "errors": 363,
+            "overlap_pixels": 1038
+          },
+          "prop_behind": {
+            "errors": 0,
+            "overlap_pixels": 0
+          },
+          "prop_front": {
+            "errors": 0,
+            "overlap_pixels": 767
+          },
+          "wall_behind": {
+            "errors": 0,
+            "overlap_pixels": 0
+          },
+          "wall_front": {
+            "errors": 0,
+            "overlap_pixels": 0
+          }
+        },
+        "painted_errors": 7507
+      },
+      "phase": 0.759259259259259,
+      "route_id": "move_2_1_-1_1",
+      "terminal_absence": false
+    },
+    {
+      "actor_ground": [
+        887.425659179688,
+        280.753784179688
+      ],
+      "actor_mask": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f053_actor_mask.png",
+      "actual_id": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f053_actual_id.png",
+      "calibration": false,
+      "capture_size": [
+        1920,
+        1080
+      ],
+      "clip": "move",
+      "clock": {},
+      "composite_order": [
+        "floor_1_1",
+        "floor_1_2",
+        "floor_2_1",
+        "floor_1_3",
+        "floor_2_2",
+        "floor_3_1",
+        "floor_1_4",
+        "floor_2_3",
+        "floor_3_2",
+        "floor_4_1",
+        "floor_1_5",
+        "floor_2_4",
+        "floor_3_3",
+        "floor_4_2",
+        "floor_5_1",
+        "floor_1_6",
+        "floor_2_5",
+        "floor_3_4",
+        "floor_4_3",
+        "floor_5_2",
+        "floor_6_1",
+        "floor_1_7",
+        "floor_2_6",
+        "floor_3_5",
+        "floor_4_4",
+        "floor_5_3",
+        "floor_6_2",
+        "floor_7_1",
+        "floor_2_7",
+        "floor_3_6",
+        "floor_4_5",
+        "floor_5_4",
+        "floor_6_3",
+        "floor_7_2",
+        "floor_3_7",
+        "floor_4_6",
+        "floor_5_5",
+        "floor_6_4",
+        "floor_7_3",
+        "floor_4_7",
+        "floor_5_6",
+        "floor_6_5",
+        "floor_7_4",
+        "floor_5_7",
+        "floor_6_6",
+        "floor_7_5",
+        "floor_6_7",
+        "floor_7_6",
+        "floor_7_7",
+        "actor",
+        "grid_2_3",
+        "grid_5_3",
+        "grid_3_6",
+        "grid_6_5"
+      ],
+      "crop": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f053_crop.png",
+      "crop_rect": [
+        858,
+        105,
+        381,
+        381
+      ],
+      "direction": [
+        -1,
+        1
+      ],
+      "evidence": true,
+      "expected_id": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f053_expected_id.png",
+      "frame": 53,
+      "frame_file": "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f053_frame.png",
+      "frame_required": true,
+      "painted": {
+        "actor_pixels": 8970,
+        "errors": [
+          "painted actor/occluder order differs from independent board-depth reference"
+        ],
+        "occluders": {
+          "floor_behind": {
+            "errors": 0,
+            "overlap_pixels": 0
+          },
+          "floor_front": {
+            "errors": 112,
+            "overlap_pixels": 112
+          },
+          "prop_behind": {
+            "errors": 0,
+            "overlap_pixels": 0
+          },
+          "prop_front": {
+            "errors": 0,
+            "overlap_pixels": 416
+          },
+          "wall_behind": {
+            "errors": 0,
+            "overlap_pixels": 0
+          },
+          "wall_front": {
+            "errors": 0,
+            "overlap_pixels": 0
+          }
+        },
+        "painted_errors": 8554
+      },
+      "phase": 1.0,
+      "route_id": "move_2_1_-1_1",
+      "terminal_absence": false
+    }
+  ],
+  "files": {
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f000_frame.png": "9c3a5e42632cbfd19befcd0bff8ef889ae226445d3261b37e31ab64d362e353f",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f000_actual_id.png": "68c0c74c25da21063951c17be64999a8cd63c29a2c7f53d38f04acab47a72c44",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f000_expected_id.png": "48b17f18ac5f22e4c715d73aff4205a196a176f9268b6c10dd412bc5f2d4a485",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f000_actor_mask.png": "f837d126d92927aa55d6a246c20dfaaa5e87509176234c245fe77a6537afa1a9",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f036_frame.png": "a65e35e7415df2e5d7ad21254388c298ddfb1c0594a1f21ecc6fba1e5ca86d6c",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f036_actual_id.png": "9ffb8ac55b1e637331e8713210aff5e028214cc6abfa67e158c64c9edf3c8514",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f036_expected_id.png": "adf7e1fd935404cccb2ac410e3bc7330c99f089ea4041b7512fd63a0034489ec",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f036_actor_mask.png": "2d34af3281aec601d37667f92aa228583bbb215c3006e6405f0d3c7057e49e02",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f040_frame.png": "a65e35e7415df2e5d7ad21254388c298ddfb1c0594a1f21ecc6fba1e5ca86d6c",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f040_actual_id.png": "9ffb8ac55b1e637331e8713210aff5e028214cc6abfa67e158c64c9edf3c8514",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f040_expected_id.png": "7e79fb98523233583540d505a58bc80255ddcbfce9ec6962280dfe5fec1e58e5",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f040_actor_mask.png": "14499fecef9c01b8030104f63537455e9a77cc28ab5fd4cb295215605a5feab9",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f053_frame.png": "a65e35e7415df2e5d7ad21254388c298ddfb1c0594a1f21ecc6fba1e5ca86d6c",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f053_actual_id.png": "9ffb8ac55b1e637331e8713210aff5e028214cc6abfa67e158c64c9edf3c8514",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f053_expected_id.png": "d6dfd6e23594dcbfb4df47dfe33ea1851981c3ee11122ca43539e40295f73f73",
+    "fire_t1_r6_hoarfrost_seer_move_2_1_-1_1_f053_actor_mask.png": "585428f221cfb27bb0f59ec9c2666e94ac1ae1089b23eec3a59a59dd3a668007"
+  }
+}

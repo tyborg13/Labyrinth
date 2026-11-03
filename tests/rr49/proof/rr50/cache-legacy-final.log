@@ -1,0 +1,7 @@
+test_disabled_cache_and_legacy_inner_loop_are_rejected (tests.test_rr49_submission.SubmissionTests) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 13.399s
+
+OK
+RR49 COST MUTATIONS: PASS (disabled cache loses repeat hits; legacy per-mesh scalar path exceeds timing budget)

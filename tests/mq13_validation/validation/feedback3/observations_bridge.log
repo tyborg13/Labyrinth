@@ -1,0 +1,9 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-9cf3f256dc4242cc959f2b7634c0f63b
+BLENDER_BRIDGE_STARTED: mq03-9cf3f256dc4242cc959f2b7634c0f63b
+00:00.268  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/feedback3/build/maquette.blend"
+MQ13_NATIVE_OBSERVATIONS: COMPLETE; geometry_unchanged=True
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=3.1; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-9cf3f256dc4242cc959f2b7634c0f63b.log

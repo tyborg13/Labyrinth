@@ -14,9 +14,7 @@
     "block"
   ],
   "death_timing": {
-    "clip_seconds": 1.4,
-    "dissolve_frames": 28,
-    "dissolve_frame_seconds": 0.037
+    "reduced_motion_sequence": true
   },
   "native_proof": "pending director density/rest/native/production/idle/review",
   "rest_identity": {

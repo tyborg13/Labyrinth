@@ -6,11 +6,12 @@ const Rules = preload("res://scripts/enemy_mechanics/death_burst.gd")
 const Data = preload("res://scripts/game_data.gd")
 const BURST_ICON: String = "burst"
 const BURST_CHAIN_SECONDS: float = 0.18
-const BURST_RING_WIDTH: float = 2.0
-const BURST_RING_DASH: float = 8.0
-const BURST_RING_GAP: float = 6.0
 const FIRE: Color = Color("e8722c")
-const BURST_RING_ALPHA: float = 0.85
+const TileGlow = preload("res://scripts/tile_glow.gd")
+const Fx = preload("res://scripts/enemy_mechanics/burst_fx.gd")
+const EMPTY_EFFECTS: Array = []
+const PREVIEW_CENTRE_ALPHA: float = 0.34
+const PREVIEW_CORNER_ALPHA: float = 0.08
 # Existing generic dissolve duration, used by standalone preview/proof callers.
 const FALLBACK_DEATH_SECONDS: float = 0.975
 const FALLBACK_FRAME_SECONDS: float = 0.065
@@ -20,14 +21,16 @@ static func badges(unit: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	if int(unit.get("hp", 0)) > 0 and Data.enemies().get(str(unit.get("type", "")), {}).has("death_burst"):
 		var amount: int = Rules.damage(unit)
-		result.append({"icon": BURST_ICON, "count": amount, "icon_tint": Color.WHITE, "fill": FIRE, "border": FIRE,
+		result.append({"status_class": "trait", "icon": BURST_ICON, "count": amount, "icon_tint": Color.WHITE, "fill": FIRE, "border": FIRE,
 			"tooltip": Glossary.name_for("burst") + "\n" + Glossary.definition("burst") + "\n%d damage" % amount})
 	return result
 
-static func pre_battle_summary(enemy_type: String, fallback: String) -> String:
-	if enemy_type == "burrow_grub": return "Burrow / Erupt / Melee"
-	if enemy_type == "ember_tick": return "Bursts 4 / Kindle / Melee"
-	return fallback
+static func trait_token(unit: Dictionary) -> Dictionary:
+	if not Data.enemies().get(str(unit.get("type", "")), {}).has("death_burst"): return {}
+	var amount: int = Rules.damage(unit)
+	var token: Dictionary = preload("res://scripts/action_icon_library.gd").icon_text_token(BURST_ICON, "Bursts %d" % amount, "When it dies, it hits every unit next to it for %d and leaves Fire." % amount)
+	token["burst_trait"] = true
+	return token
 
 static func focused_tiles(view: Control) -> Array[Vector2i]:
 	var result: Array[Vector2i]
@@ -42,19 +45,9 @@ static func focused_tiles(view: Control) -> Array[Vector2i]:
 			if not result.has(tile): result.append(tile)
 	return result
 
-static func draw_ring(view: Control, tile: Vector2i) -> void:
-	if not focused_tiles(view).has(tile): return
-	# Reuse the existing collision marker's dashed geometry and fire tint.
-	var points: PackedVector2Array = view._tile_polygon(tile)
-	for index: int in range(points.size()):
-		var start: Vector2 = points[index]
-		var finish: Vector2 = points[(index + 1) % points.size()]
-		var length: float = start.distance_to(finish)
-		var direction: Vector2 = start.direction_to(finish)
-		var distance: float = 0.0
-		while distance < length:
-			view.draw_line(start + direction * distance, start + direction * minf(length, distance + BURST_RING_DASH), Color(FIRE, BURST_RING_ALPHA), BURST_RING_WIDTH)
-			distance += BURST_RING_DASH + BURST_RING_GAP
+static func draw_preview(view: Control, tile: Vector2i, draw_tiles: Variant = null) -> void:
+	if not (focused_tiles(view) if draw_tiles == null else draw_tiles).has(tile): return
+	TileGlow.draw(view, view._tile_polygon(tile), FIRE, PREVIEW_CENTRE_ALPHA, PREVIEW_CORNER_ALPHA)
 
 # Each FIFO event starts after its source dissolve begins. Chain starts are
 # spaced by the director's 0.18 s, independently of dissolve duration/frame rate.
@@ -98,15 +91,35 @@ static func event_slot(before: Dictionary, after: Dictionary, progress: float, c
 static func elapsed_seconds(progress: float, count: int, clock: Dictionary) -> float:
 	return progress * float(clock.get("duration", FALLBACK_DEATH_SECONDS + float(maxi(0, count - 1)) * BURST_CHAIN_SECONDS))
 
-static func decorate(before: Dictionary, after: Dictionary, presentation: Dictionary, progress: float, clock: Dictionary = {}) -> Dictionary:
+static func decorate(before: Dictionary, after: Dictionary, presentation: Dictionary, progress: float, clock: Dictionary = {}, scene: Node = null) -> Dictionary:
 	var baseline: int = (before.get("death_burst_events", []) as Array).size()
 	var events: Array = after.get("death_burst_events", [])
 	if events.size() <= baseline: return presentation
 	var slot: int = event_slot(before, after, progress, clock)
+	presentation["burst_playback_count"] = baseline + slot + 1
 	var elapsed: float = elapsed_seconds(progress, events.size() - baseline, clock)
 	if slot >= 0:
 		presentation["en01_burst"] = events[baseline + slot]
 		presentation["en01_burst_progress"] = progress
+	var effects: Array[Dictionary]
+	for index: int in range(baseline, events.size()):
+		var age: float = elapsed - float(clock.get("first_start", FALLBACK_FRAME_SECONDS)) - float(index - baseline) * BURST_CHAIN_SECONDS
+		if age < 0.0 or age >= Fx.GLOW_SECONDS: continue
+		var effect: Dictionary = events[index].duplicate(false)
+		effect["elapsed"] = age
+		effects.append(effect)
+	presentation["burst_effects"] = effects
+	if scene != null:
+		var texts: Array[Dictionary]
+		for index: int in range(baseline, events.size()):
+			var age: float = elapsed - float(clock.get("first_start", FALLBACK_FRAME_SECONDS)) - float(index - baseline) * BURST_CHAIN_SECONDS
+			if age < 0.0: continue
+			var base: Array = scene._burst_playback.floating_texts(scene, events[index])
+			if age < preload("res://scripts/floating_combat_text.gd").total_duration(base):
+				texts.append_array(preload("res://scripts/floating_combat_text.gd").animate_entries(base, age, scene._reduced_motion_enabled()))
+		# These labels ride the existing dissolve clock. Submitting them as new
+		# combat-feel hits would add hit-stop waits and change Burst timing.
+		presentation["burst_floating_texts"] = texts
 	var frame_state: Dictionary = state_for_frame(before, after, progress, clock)
 	var visible_deaths: Array[Dictionary]
 	for unit: Dictionary in presentation.get("death_animation_units", []):
@@ -145,8 +158,15 @@ static func play_cue(scene: Node, before: Dictionary, after: Dictionary, progres
 	scene.set_meta("en01_last_burst_cue", slot)
 	scene._play_sfx(preload("res://scripts/attack_sfx_library.gd").entry_for_enemy_action({"type": "aoe", "element": "fire"}))
 
-static func draw_resolution(view: Control) -> void:
-	var event: Dictionary = view.presentation.get("en01_burst", {})
-	if event.is_empty(): return
-	for tile: Vector2i in event.get("tiles", []):
-		if view._board_tile_is_visible_to_player(tile): view._draw_tile_ring(tile, FIRE, 3.2, 0.80)
+# Called in the floor pass; overlapping chain events retain their own age.
+static func draw_glows(view: Control, tile: Vector2i) -> void:
+	for effect: Dictionary in view.presentation.get("burst_effects", EMPTY_EFFECTS):
+		if not (effect.get("tiles", EMPTY_EFFECTS) as Array).has(tile): continue
+		var alpha: float = Fx.glow_alpha(float(effect["elapsed"]))
+		if alpha > 0.0: TileGlow.draw(view, view._tile_polygon(tile), FIRE, alpha, Fx.GLOW_CORNER_ALPHA * alpha / Fx.GLOW_PEAK_ALPHA)
+
+static func draw_flames(view: Control) -> void:
+	if bool(view.presentation.get("reduced_motion", false)): return
+	for effect: Dictionary in view.presentation.get("burst_effects", EMPTY_EFFECTS):
+		if effect["tile"].x < 0 or not view._board_tile_is_visible_to_player(effect["tile"]): continue
+		Fx.draw(view, effect)

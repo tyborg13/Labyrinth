@@ -9,6 +9,14 @@ static func queue_obstruction_changes(board: Control, previous_props: Array, nex
 	previous_entries.assign(board._foreground_obstruction_entries(units, previous_props))
 	var next_entries: Array[Dictionary]
 	next_entries.assign(board._foreground_obstruction_entries(units, next_props))
+	_queue_changes(board, previous_entries, next_entries)
+
+static func queue_terrain_obstruction_changes(board: Control, previous: Array, next: Array) -> void:
+	var units: Array[Dictionary]
+	units.assign(board._visible_units())
+	_queue_changes(board, board._foreground_obstruction_entries(units, null, previous), board._foreground_obstruction_entries(units, null, next))
+
+static func _queue_changes(board: Control, previous_entries: Array, next_entries: Array) -> void:
 	for candidate: Dictionary in board._foreground_obstruction_candidates():
 		var tile: Vector2i = candidate["tile"]
 		var rect: Rect2 = candidate["rect"]

@@ -1,0 +1,113 @@
+{
+	"branch": "focus_without_click",
+	"observations": [
+		{
+			"detail_visible": true,
+			"focus_owner": "MagicOffer_grave_mortar",
+			"measurement": {
+				"ancestor_scale": [
+					1.0,
+					1.0
+				],
+				"content_text_runs": 1,
+				"definition_signature": 544922005,
+				"expected_icons": true,
+				"icon_px": 46.0,
+				"minimum_text_px": 24.0,
+				"native_card_size": [
+					250.0,
+					352.0
+				],
+				"overflow_px": {
+					"x": 0.0,
+					"y": 0.0
+				},
+				"printed_id": "grave_mortar",
+				"rows_signature": 4100093049,
+				"shrunk": false,
+				"text_px": {
+					"footer": null,
+					"rules": null,
+					"token_number": 24.0
+				},
+				"time_surcharge": 0,
+				"visible": true
+			},
+			"offer": "grave_mortar",
+			"route": "Control.grab_focus -> focus_entered -> _focus_item -> _select_item -> _sync_detail -> _render_detail_card"
+		},
+		{
+			"detail_visible": true,
+			"focus_owner": "MagicOffer_icicle_lance",
+			"measurement": {
+				"ancestor_scale": [
+					1.0,
+					1.0
+				],
+				"content_text_runs": 2,
+				"definition_signature": 442927353,
+				"expected_icons": true,
+				"icon_px": 46.0,
+				"minimum_text_px": 24.0,
+				"native_card_size": [
+					250.0,
+					352.0
+				],
+				"overflow_px": {
+					"x": 0.0,
+					"y": 0.0
+				},
+				"printed_id": "icicle_lance",
+				"rows_signature": 4100093049,
+				"shrunk": false,
+				"text_px": {
+					"footer": null,
+					"rules": null,
+					"token_number": 24.0
+				},
+				"time_surcharge": 0,
+				"visible": true
+			},
+			"offer": "icicle_lance",
+			"route": "Control.grab_focus -> focus_entered -> _focus_item -> _select_item -> _sync_detail -> _render_detail_card"
+		},
+		{
+			"detail_visible": true,
+			"focus_owner": "MagicOffer_stonefist",
+			"measurement": {
+				"ancestor_scale": [
+					1.0,
+					1.0
+				],
+				"content_text_runs": 2,
+				"definition_signature": 585673448,
+				"expected_icons": true,
+				"icon_px": 28.0,
+				"minimum_text_px": 17.0,
+				"native_card_size": [
+					250.0,
+					352.0
+				],
+				"overflow_px": {
+					"x": 0.0,
+					"y": 0.0
+				},
+				"printed_id": "stonefist",
+				"rows_signature": 4100093049,
+				"shrunk": false,
+				"text_px": {
+					"footer": null,
+					"rules": 17.0,
+					"token_number": 17.0
+				},
+				"time_surcharge": 0,
+				"visible": true
+			},
+			"offer": "stonefist",
+			"route": "Control.grab_focus -> focus_entered -> _focus_item -> _select_item -> _sync_detail -> _render_detail_card"
+		}
+	],
+	"pressed_signals": 0,
+	"run_state_unchanged": true,
+	"shop_sha256": "1a5fd49ed06eb34ed6b1ccc7ef597baebfc6ad05923949c9f240301309e0165f"
+}

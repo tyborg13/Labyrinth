@@ -1,0 +1,15 @@
+00:00.386  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/cold/maquette.blend"
+00:04.147  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/front_2/front_silhouette.png'
+00:06.492  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/front_2/front_silhouette.png'
+00:09.068  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/front_2/front_parts.png'
+00:11.274  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/front_2/front_silhouette.png'
+00:13.492  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/front_2/front_silhouette.png'
+00:15.678  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/front_2/front_silhouette.png'
+00:17.853  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/front_2/front_silhouette.png'
+00:20.049  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/front_2/front_silhouette.png'
+00:22.442  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/front_2/front_silhouette.png'
+BLENDER_FACING: PASS
+MQ12_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=front; solos=['thigh_near', 'shin_near', 'foot_near', 'thigh_far', 'shin_far']
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit

@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "errors": [],
+  "views": {
+    "front": {
+      "rest_mismatch_pixels": 0,
+      "approved_rest_mismatch_pixels": 8
+    },
+    "rear": {
+      "rest_mismatch_pixels": 0,
+      "approved_rest_mismatch_pixels": 13
+    }
+  },
+  "native_pixels": false,
+  "footprint_pixels": {
+    "near_arm": 2915,
+    "far_arm": 2823,
+    "legs": 2744
+  },
+  "painted_pixels": {
+    "torso": 611,
+    "pelvis": 1235,
+    "tabard": 80,
+    "coat_near": 1575,
+    "coat_far": 392
+  },
+  "justified_clear_pixels": 4589
+}

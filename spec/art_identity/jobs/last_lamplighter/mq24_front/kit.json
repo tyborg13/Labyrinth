@@ -1,0 +1,53 @@
+{
+ "K": 4,
+ "anatomy": "biped",
+ "id": "last_lamplighter",
+ "job_id": "img-last-lamplighter-front-mq24",
+ "kind": "creature",
+ "kit_kind": "maquette",
+ "kit_version": "1eab009f7659800ca2abdfa765c3ff4804a7133c1ccbf35eeab7517b9795da87",
+ "method": "maquette paint-over (mq-24 delivery: no plates, real hands): part map + clay + approved take-two + canon, K=4",
+ "peers": [
+  "gloam_stalker_front",
+  "grave_surgeon_front"
+ ],
+ "prompt_path": "prompt.md",
+ "prompt_sha256": "e274982b035786b4f240fc340f365cca97dadfeb133597ba7282efe9dc09ec53",
+ "prompt_source": "spec/art_identity/maquettes/last_lamplighter/mq24/prompt_front.md",
+ "refs": [
+  {
+   "canon_id": "maquette_mq24_front_parts",
+   "file": "refs/01_maquette_front_parts.png",
+   "pixel_sha256": "6659be85d47f9131e2bb5f41d7eab90694123af16641337bd1fb6c7bb22ee36e",
+   "role": "maquette_parts"
+  },
+  {
+   "canon_id": "maquette_mq24_front_clay",
+   "file": "refs/02_maquette_front_clay.png",
+   "pixel_sha256": "2686402dc434422b0f95932120185009278abf07939015419434362a3c1eac95",
+   "role": "maquette_clay"
+  },
+  {
+   "canon_id": "approved_lamplighter_mq20_front",
+   "file": "refs/03_approved_take_two.png",
+   "pixel_sha256": "0ffe75cfb4599e2eba524010168e4a0bc542739683fae610975b4f280348fb6b",
+   "role": "identity"
+  },
+  {
+   "canon_id": "gloam_stalker_front",
+   "file": "refs/04_gloam_stalker_front.png",
+   "pixel_sha256": "b1e7bf19cd3f10f1828945993e49a42a514bc142c7a0b55d19b112737a08b0ae",
+   "role": "canon"
+  },
+  {
+   "canon_id": "hero_front",
+   "file": "refs/05_hero_front.png",
+   "pixel_sha256": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f",
+   "role": "canon"
+  }
+ ],
+ "size_class": "large",
+ "target_h": null,
+ "target_w": null,
+ "view": "creature_front"
+}

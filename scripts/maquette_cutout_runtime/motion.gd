@@ -37,10 +37,12 @@ static func channels_at(data: Dictionary, clip: String, phase: float, facing: St
 static func translation(channels: Dictionary, forward: Vector2) -> Vector2:
 	return forward * float(channels.get("forward_px", 0.0)) + Vector2(0, -float(channels.get("lift_px", 0.0)))
 
-static func root_offset(data: Dictionary, clip: String, phase: float, direction: Vector2i, step_distance_px: float) -> Vector2:
+static func root_offset(data: Dictionary, clip: String, phase: float, direction: Vector2i, step_distance_px: float, root_override: Dictionary = {}) -> Vector2:
 	var view: Dictionary = preload("res://scripts/enemy_cutout_facing.gd").direction_for_delta(direction)
 	var facing: String = view["facing"]
 	var values: Dictionary = channels_at(data, clip, phase, facing, step_distance_px)
+	if clip == "move" and not root_override.is_empty():
+		return (root_override["axis"] as Vector2) * float(root_override["forward_px"]) + Vector2(0, -float(values.get("root", {}).get("lift_px", 0.0)))
 	var offset: Vector2 = translation(values.get("root", {}), point(data["projection"][facing]["forward"]))
 	if bool(view["mirrored"]): offset.x = -offset.x
 	return offset
@@ -51,6 +53,7 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	if str(data.get("rig", "")) == "humanoid_v2":
 		return preload("humanoid_motion.gd").sample_pose(clip, phase, layout, facing)
 	var values: Dictionary = channels_at(data, clip, phase, facing, float(layout.get("step_distance_px", 0.0)))
+	apply_root_override(values, clip, layout)
 	var result: Dictionary = {}
 	var joints: Dictionary = layout["joints"]
 	var forward := point(data["projection"][facing]["forward"])
@@ -64,10 +67,22 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 		var channels: Dictionary = values.get(bone, {})
 		var squash: float = float(channels.get("squash", 1.0))
 		var uniform: float = float(channels.get("scale", 1.0))
-		result[bone] = {"position": origin + translation(channels, forward) / maxf(pixel_scale, 0.000001),
+		var axis: Vector2 = root_axis(clip, bone, layout, forward)
+		result[bone] = {"position": origin + translation(channels, axis) / maxf(pixel_scale, 0.000001),
 			"rotation": deg_to_rad(float(channels.get("raise_deg", 0.0)) + float(channels.get("lean_deg", 0.0)) * float(layout.get("forward_reflection", 1.0))),
 			"scale": Vector2(uniform / squash, uniform * squash), "alpha": float(channels.get("alpha", 1.0))}
 	return result
+
+## Only forward is replaced. Lift and every limb channel keep their tile phase.
+static func apply_root_override(values: Dictionary, clip: String, layout: Dictionary, pixel_scale: float = 1.0) -> void:
+	var override: Dictionary = layout.get("root_forward_override", {})
+	if clip != "move" or override.is_empty(): return
+	if not values.has("root"): values["root"] = {}
+	values["root"]["forward_px"] = float(override["forward_px"]) / pixel_scale
+
+static func root_axis(clip: String, bone: String, layout: Dictionary, fallback: Vector2) -> Vector2:
+	var override: Dictionary = layout.get("root_forward_override", {})
+	return override["axis"] if clip == "move" and bone == "root" and not override.is_empty() else fallback
 
 static func point(value: Array) -> Vector2:
 	return Vector2(float(value[0]), float(value[1]))

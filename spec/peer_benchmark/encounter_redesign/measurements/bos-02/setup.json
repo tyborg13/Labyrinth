@@ -1,0 +1,83 @@
+{
+  "baseline_head": "76699466bd3a5498e2d56cdbb53cf831e8f80a8a",
+  "revision": 7,
+  "runs_per_dragon": 50,
+  "first_seed": 1,
+  "deck_tier": 3,
+  "workers": 6,
+  "baseline_sampling_started_before_gameplay_edits": true,
+  "files": {
+    "data/enemies.json": {
+      "before_sha256": "f4ea9d3034711192ab2f4c68411e9305ee0cdcb2bb158d1415dd4fb7f159bf36",
+      "after_sha256": "ea5a7062b0e10f3aca5b8206af2a754f8666e71776eb5326a27e5995ae31fc3a",
+      "final_sha256": "ea5a7062b0e10f3aca5b8206af2a754f8666e71776eb5326a27e5995ae31fc3a"
+    },
+    "data/battlefield_rules.json": {
+      "before_sha256": "a06057fb752cb2bef656b5090371f2d97aed1fa938f1178d886ba2a5a965cbd3",
+      "after_sha256": "05204f60e192dea20eab76424c92741bab97e14233ad4a1b4e5cd3b4eb463445",
+      "final_sha256": "05204f60e192dea20eab76424c92741bab97e14233ad4a1b4e5cd3b4eb463445"
+    },
+    "scripts/combat_engine.gd": {
+      "before_sha256": "5cbaf33797d554be8d714aed6decede56718f52388afad3223159a51dd464991",
+      "after_sha256": "775b203d1b2cd0f1244b02033c4c8a4e962879d82e4a24d91f3e61c6a4de768c",
+      "final_sha256": "4d42a9b2d89a0de8a8b6307dfd3bb1e7e69cf11ed2825eef4a7cb9fb1be23be4"
+    },
+    "scripts/dragon_combat_rules.gd": {
+      "before_sha256": "757defbf803a45690f659592ba24c49d76e28878583b3f9826a058bbaa958795",
+      "after_sha256": "64d38252b719d82c73bc9c57ae674c3b98391b479ad748646e9fcc289d6ab286",
+      "final_sha256": "2d405bdfee56b607cfd96b315ea9c36b003648ea0f327f3ab022af908dcb7209"
+    },
+    "scripts/room_generator.gd": {
+      "before_sha256": "d6d35e1d57164c4bf77ebd5b30bb138466725fb04498e8f75908778e15f11d22",
+      "after_sha256": "cf0cfc0c42f3f5938bb63b41ffa29abcf852fab46e90372401883b386a640fab",
+      "final_sha256": "cf0cfc0c42f3f5938bb63b41ffa29abcf852fab46e90372401883b386a640fab"
+    },
+    "tools/encounter_bot.gd": {
+      "before_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+      "after_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+      "final_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+    },
+    "scripts/battlefield_rules/bot_policy.gd": {
+      "before_sha256": "71affbd6893ac94304169aae393be9e4865f13247ded42d7416f46ade04f836b",
+      "after_sha256": "71affbd6893ac94304169aae393be9e4865f13247ded42d7416f46ade04f836b",
+      "final_sha256": "71affbd6893ac94304169aae393be9e4865f13247ded42d7416f46ade04f836b"
+    },
+    "scripts/committed_pattern_shapes.gd": {
+      "before_sha256": "58a26faaec461f35e9b68e91c1bdf120bcd0eada2d0712dae05b9b961920d4f3",
+      "after_sha256": "418fd818ba9e12de90bd94730fd0f07d1b76233b1e64385a506111aaeaa86ab8",
+      "final_sha256": "418fd818ba9e12de90bd94730fd0f07d1b76233b1e64385a506111aaeaa86ab8"
+    },
+    "tools/card_heuristic.py": {
+      "before_sha256": "cbd6bb217aec1bd4123d53f5ed5b7c37465e56a84b506434f4a6e7c924c7eac3",
+      "after_sha256": "6796ecba86be2bb82236938cd775e8b1071b72f6b71d20f98fc303f994efa2e0",
+      "final_sha256": "6796ecba86be2bb82236938cd775e8b1071b72f6b71d20f98fc303f994efa2e0"
+    },
+    "spec/card_balance_heuristic.md": {
+      "before_sha256": "b8fa75d45ce3103ae29cde67d25fed07aa6527f72ff794c7122a4d3556083086",
+      "after_sha256": "964e031e3bcc66bb97411108c819ea84144e34c30fd8f631bb64f9f5aa393382",
+      "final_sha256": "964e031e3bcc66bb97411108c819ea84144e34c30fd8f631bb64f9f5aa393382"
+    },
+    "scripts/dragon_pressure_fields.gd": {
+      "before_sha256": "b782545cd584bd737e8546f505324dcaaa122301f4f55670d4fec72e644d620e",
+      "after_sha256": "b782545cd584bd737e8546f505324dcaaa122301f4f55670d4fec72e644d620e",
+      "final_sha256": "d9b1a7c1d58abe2ce216562f097a825f6a2e62fa9bdaeea3ed0c9fee555852b9"
+    }
+  },
+  "tool_sha256": {
+    "tools/dragon_rule_measurement.py": "db7b6e06da18ce0aa36c37e9615de8bed10d0fee8d823bc2d73c89cc36691055",
+    "tools/dragon_rule_measurement.gd": "c404bff1401de9fce81f5f63651e61f912ab85ae1f1949f7311458749c315954",
+    "tools/dragon_rule_measurement_engine.gd": "72485c8d5b42cee9b4faf42a9b711bd5038db9342043ed93cf999aaccdd1c96f"
+  },
+  "post_measurement_changes": [
+    "Save-load-only cleanup drops cached dive_wake recorders and plans belonging solely to removed riders; the encounter sampler never loads saves.",
+    "Dragon heuristic documentation/metadata changed without altering any of the 309 card score rows or coefficients.",
+    "Deleted the now-unused spire tile adapter and player-anchor branch; retained production encounter behavior and both frozen policies are unchanged."
+  ],
+  "test_sha256": {
+    "tests/fixtures/bos02_dragon_sentences.json": "58a9903877b567462f8768870e85691b764a54b070c5a3e81556d6660d7252a2",
+    "tests/suites/battlefield_rules_suite.gd": "2e17ba60e47375cc3aae2698ad82bbbe705e1928574beca03b5129bb61025518",
+    "tests/suites/dragon_element_rules_suite.gd": "16d1e62dbb0e0f4cde165f20e5a72a89e758cf85bdc0e1f48b347411d4e4ed80",
+    "tests/dragon_element_rules_probe.gd": "d9754c7ecfa10394bcff579551fac05273cb90b9d49dd100e55c6fadeba5de9c",
+    "tests/proof_contracts/dragon_element_rules.json": "615e2770b45e40f638824afffb742b27211b3db80f767b9af2fbb6a385e45ae1"
+  }
+}

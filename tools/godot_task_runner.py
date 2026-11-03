@@ -127,7 +127,8 @@ def terminate_process_tree(process: subprocess.Popen[str], *, platform: str | No
     else:
         try:
             os.killpg(process.pid, signal.SIGTERM)
-        except ProcessLookupError:
+        except (ProcessLookupError, PermissionError):
+            # macOS reports EPERM for a group holding only zombies.
             process.wait()
             return
     try:
@@ -136,7 +137,7 @@ def terminate_process_tree(process: subprocess.Popen[str], *, platform: str | No
         pass
     try:
         os.killpg(process.pid, signal.SIGKILL)
-    except ProcessLookupError:
+    except (ProcessLookupError, PermissionError):
         pass
     process.wait()
 
@@ -248,15 +249,24 @@ def command_run(args: argparse.Namespace) -> int:
     home_dir.mkdir(parents=True, exist_ok=True)
 
     command = list(args.command)
+    suite_project = None
     if command_requests_editor_scan(command) and not args.allow_editor_scan:
         raise SystemExit(
             "error: refusing Godot --editor scan; it generates project-wide .import/.uid sidecars in clean worktrees. "
             "Use a runtime test for parser coverage, or pass --allow-editor-scan only when the metadata changes are intentional."
         )
+    if command_is_godot(command):
+        from godot_import_cache import ensure_imported, full_suite_project
+        suite_project = full_suite_project(command, project)
+        if suite_project is not None:
+            imported = ensure_imported(suite_project, command[0], task_id)
+            if imported:
+                return imported
     if command_is_godot(command) and "--log-file" not in command:
         command = [command[0], "--log-file", str(home_dir / "godot.log"), *command[1:]]
 
     env = os.environ.copy()
+    env.setdefault("LABYRINTH_CEL_LOOK", "off")
     env["HOME"] = str(home_dir)
     if "--log-file" in command:
         env["LABYRINTH_GODOT_LOG_PATH"] = command[command.index("--log-file") + 1]
@@ -285,14 +295,19 @@ def command_run(args: argparse.Namespace) -> int:
     print("  HOME: %s" % home_dir)
     print("  Steam: %s" % ("enabled" if args.allow_steam else "disabled"))
     print("  command: %s" % " ".join(shell_quote(part) for part in command))
-    timeout = args.timeout if args.timeout > 0 else None
-    print("  timeout: %s" % ("%ss" % format_seconds(args.timeout) if timeout is not None else "disabled"))
+    timeout_seconds = args.timeout
+    if suite_project is not None and not getattr(args, "timeout_explicit", True):
+        # The scheduler bounds every child. A generic wrapper default must not
+        # reintroduce a shared deadline for the complete orchestration.
+        timeout_seconds = 0.0
+    timeout = timeout_seconds if timeout_seconds > 0 else None
+    print("  timeout: %s" % ("%ss" % format_seconds(timeout_seconds) if timeout is not None else "disabled"))
     if args.stream:
         print("  stream: enabled")
     result = run_task_command(command, project, env, timeout, args.stream)
     combined_output = result.stdout + "\n" + result.stderr
     if result.timed_out:
-        print("error: command timed out after %s seconds." % format_seconds(args.timeout), file=sys.stderr)
+        print("error: command timed out after %s seconds." % format_seconds(timeout_seconds), file=sys.stderr)
         return TIMEOUT_RETURN_CODE
     if result.returncode == 0 and godot_output_has_failure(combined_output):
         print("error: Godot reported script or test failures despite exit code 0.", file=sys.stderr)
@@ -322,7 +337,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--timeout",
         type=float,
         default=DEFAULT_TIMEOUT_SECONDS,
-        help="Seconds before terminating the command. Use 0 to disable. Defaults to %(default)s.",
+        help="Seconds before terminating the command. Use 0 to disable. Defaults to %(default)s for individual commands; full suites have no implicit outer cap.",
     )
     parser.add_argument(
         "--stream",
@@ -349,6 +364,8 @@ def main(argv: list[str] | None = None) -> int:
     if "--" in raw_args:
         raw_args.remove("--")
     args = build_parser().parse_args(raw_args)
+    wrapper_args = raw_args[:len(raw_args) - len(args.command)]
+    args.timeout_explicit = any(value == "--timeout" or value.startswith("--timeout=") for value in wrapper_args)
     return int(args.func(args) or 0)
 
 

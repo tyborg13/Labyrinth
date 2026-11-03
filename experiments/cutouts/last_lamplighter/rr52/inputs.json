@@ -1,0 +1,11 @@
+{
+  "front_job": "spec/art_identity/jobs/last_lamplighter/mq24_front",
+  "rear_job": "spec/art_identity/jobs/last_lamplighter/mq24_rear",
+  "design_placeholders": {},
+  "director_feedback_1": {
+    "art_scale": 1.03,
+    "floor_support": "first second-support stop accepted",
+    "outside_rest_texels": "185 front / 265 rear accepted"
+  },
+  "registration": "independent source-paint landmarks; maquette labels only"
+}

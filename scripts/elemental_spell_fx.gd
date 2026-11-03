@@ -773,6 +773,8 @@ static func pixel_bounds(draw_call: Callable, args: Array) -> Rect2:
 	var method: String = draw_call.get_method()
 	if method == "draw_line_command": return PixelFxLayer.line_bounds(args[0])
 	if method == "draw_hop": return Rect2(args[0], Vector2.ZERO).expand(args[1]).grow(float(args[2]))
+	if method == "flame": return Rect2(args[0], Vector2.ZERO).expand(args[1]).grow(float(args[2]) * 0.1)
+	if method == "smoke": return Rect2(args[0] - Vector2.ONE * float(args[1]), Vector2.ONE * float(args[1]) * 2.0)
 	var p: Vector2 = args[1]
 	if method == "floor_light":
 		var size: float = args[2]

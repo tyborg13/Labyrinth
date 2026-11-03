@@ -506,13 +506,13 @@ def recipe_input(binding: dict, kit_path: Path, label: str, maquette: bool = Fal
     return data
 
 
-def replay_raw_steps(kit_path: Path, allow_missing: bool = False):
+def replay_raw_steps(kit_path: Path, allow_missing: bool = False, root: Path = ROOT):
     """Bind director files by bytes and gate outputs by decoded pixels, entirely in memory."""
-    return raw_steps_image(read_json(kit_path), kit_path, allow_missing=allow_missing)
+    return raw_steps_image(read_json(kit_path), kit_path, allow_missing=allow_missing, root=root)
 
 
 def raw_steps_image(kit: dict, kit_path: Path, allow_missing: bool = False, record: bool = False,
-                    input_changes: list = None):
+                    input_changes: list = None, root: Path = ROOT):
     """Share execution and validation between read-only replay and digest recording."""
     steps = kit.get("raw_steps")
     if not isinstance(steps, list) or not steps:
@@ -536,6 +536,17 @@ def raw_steps_image(kit: dict, kit_path: Path, allow_missing: bool = False, reco
             if parameters != {"space": "CIE Lab"}:
                 raise ValueError(label + " invalid tone_region parameters")
             expected = {"raw", "config"}
+        elif kind == "lancer_rear_v2":
+            if (parameters != {} or len(steps) != 1 or kit.get("K") != 4 or
+                    kit.get("id") != "frostglass_lancer" or kit.get("view") != "creature_rear"):
+                raise ValueError(label + " invalid lancer_rear_v2 recipe")
+            expected = {"raw", "front", "recipe"}
+        elif kind == "gaoler_arm_rr44":
+            if (len(steps) != 1 or kit.get('K') != 4 or kit.get('id') != 'chainbound_gaoler' or
+                    parameters not in ({'side': 'left'}, {'side': 'right'}) or
+                    kit.get('view') != ('creature_front' if parameters.get('side')=='left' else 'creature_rear')):
+                raise ValueError(label + ' invalid gaoler_arm_rr44 recipe')
+            expected = {'raw', 'approved', 'recipe'} | ({'mask'} if parameters['side'] == 'left' else set())
         else:
             raise ValueError(label + " unknown kind: " + str(kind))
         if set(bindings) != expected:
@@ -571,8 +582,28 @@ def raw_steps_image(kit: dict, kit_path: Path, allow_missing: bool = False, reco
             if box[2] > raw.width or box[3] > raw.height:
                 raise ValueError("composite_region box exceeds approved raw")
             result = composite_region(raw, rgba(io.BytesIO(data["edit"])), box)
-        else:
+        elif step["kind"] == "tone_region":
             result = tone_region(raw, json.loads(data["config"]))
+        elif step['kind'] == 'gaoler_arm_rr44':
+            from art_identity_gaoler_arm import compose, DIRECTOR_RECIPE_SHA256
+            if sha(data['recipe']) != DIRECTOR_RECIPE_SHA256:
+                raise ValueError('gaoler_arm_rr44 recipe differs from protected director input')
+            reference, _ = derive_match_reference(kit['match_reference'], kit_path, root)
+            approved = rgba(io.BytesIO(data['approved']))
+            if pixel_digest(approved) != pixel_digest(reference):
+                raise ValueError('gaoler_arm_rr44 approved painting differs from match_reference')
+            mask = rgba(io.BytesIO(data['mask'])) if 'mask' in data else None
+            result = compose(raw, approved, mask, step['parameters']['side'])
+        else:
+            from art_identity_lancer_recolour import recolour, DIRECTOR_RECIPE_SHA256
+            # Bind the original recipe as provenance, never execute job inputs.
+            if sha(data["recipe"]) != DIRECTOR_RECIPE_SHA256:
+                raise ValueError("lancer_rear_v2 recipe differs from protected director input")
+            reference, _ = derive_match_reference(kit["match_reference"], kit_path, root)
+            front = rgba(io.BytesIO(data["front"]))
+            if pixel_digest(front) != pixel_digest(reference):
+                raise ValueError("lancer_rear_v2 front differs from match_reference")
+            result = recolour(raw, front)
         output = result.convert("RGBA")
         if record:
             step["output_raw_pixel_sha256"] = pixel_digest(output)
@@ -654,7 +685,7 @@ def record_steps(kit_path: Path, root: Path = ROOT) -> list:
     original = kit_path.read_text(encoding="utf-8")
     kit = json.loads(original)
     input_changes = []
-    raw_steps_image(kit, kit_path, record=True, input_changes=input_changes)
+    raw_steps_image(kit, kit_path, record=True, input_changes=input_changes, root=root)
     if "match_reference" in kit:
         derive_match_reference(kit["match_reference"], kit_path, root, record=True, input_changes=input_changes)
     if kit == json.loads(original):
@@ -903,7 +934,7 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT, match_f
     if not isinstance(factor, int) or isinstance(factor, bool) or factor <= 0:
         raise ValueError("K must be a positive integer")
     if "raw_steps" in kit:
-        image = replay_raw_steps(kit_path)
+        image = replay_raw_steps(kit_path, root=root)
         raw_binding = {"raw_pixel_sha256": pixel_digest(image)}
         if raw is not None and sha(raw.read_bytes()) != kit["raw_steps"][0]["inputs"]["raw"]["sha256"]:
             raise ValueError("supplied raw differs from the first raw_steps input")
@@ -913,6 +944,21 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT, match_f
         raw_binding = {"raw_sha256": sha(raw_bytes)}
     else:
         raise ValueError("process requires RAW or a kit with raw_steps")
+    if kit.get("raw_steps", [{}])[-1].get("kind") in ("lancer_rear_v2", "gaoler_arm_rr44"):
+        # This supplied recipe already keys, reduces and registers its native
+        # image. Ordinary BOX reduction/placement would change approved paint.
+        if outline or match_front is not None or image.size != (255, 255):
+            raise ValueError("lancer_rear_v2 is an already registered native recipe")
+        out.parent.mkdir(parents=True, exist_ok=True)
+        image.save(out)
+        record = {**raw_binding, "pixel_sha256": pixel_digest(image), "K": factor,
+                  "k_eff": 4.0, "fit_scale": 1.0, "drawn_size": list(image.size),
+                  "placement": [0, 0], "shift": [0, 0], "raw_steps": kit["raw_steps"],
+                  "match_reference": kit["match_reference"],
+                  "processing": kit['raw_steps'][-1]['kind'] + "_registered_native",
+                  "metrics": measure(out, kind=kit["kind"], anatomy=kit["anatomy"])}
+        write_json(out.with_suffix(".json"), record)
+        return record
     if image.width != image.height:
         raise ValueError("raw image must be square")
     k_eff = factor * image.width / RAW_CANVAS_WIDTH
@@ -1038,6 +1084,17 @@ def verify_job_recipe(kit_path: Path, root: Path = ROOT, require_inputs: bool = 
         raise ValueError("revision prompt chain kit_version does not reproduce")
     source = kit_path.parent / "processed.png"
     processed = read_json(source.with_suffix(".json"))
+    if kit.get("raw_steps", [{}])[-1].get("kind") in ("lancer_rear_v2", "gaoler_arm_rr44"):
+        raw = replay_raw_steps(kit_path, root=root)
+        with tempfile.TemporaryDirectory(prefix="lancer-rear-replay-") as folder:
+            replay = process_raw(None, kit_path, Path(folder) / "processed.png", root)
+        if replay != processed or pixel_digest(rgba(source)) != replay["pixel_sha256"]:
+            raise ValueError("replayed lancer_rear_v2 differs from approved processed sprite")
+        encoded = io.BytesIO()
+        raw.save(encoded, format="PNG")
+        return ["MATCH raw_pixel_sha256 " + pixel_digest(raw),
+                "MATCH pixel_sha256 " + replay["pixel_sha256"],
+                "INFO processed.png encoded bytes " + ("identical" if encoded.getvalue() == source.read_bytes() else "different (pixels match)")]
     steps = processed.get("post_steps", [])
     palette = [step for step in steps if step.get("step") == "palette_match"]
     if "raw_steps" in kit:
@@ -1086,7 +1143,7 @@ def verify_job_recipe(kit_path: Path, root: Path = ROOT, require_inputs: bool = 
             if replay != processed or pixel_digest(rgba(source)) != replay["pixel_sha256"]:
                 raise ValueError("replayed identity correction differs")
         return []
-    raw = replay_raw_steps(kit_path, allow_missing=not require_inputs)
+    raw = replay_raw_steps(kit_path, allow_missing=not require_inputs, root=root)
     if processed.get("raw_pixel_sha256") != kit["raw_steps"][-1]["output_raw_pixel_sha256"]:
         raise ValueError("processed raw_pixel_sha256 differs from final raw_steps output")
     if pixel_digest(rgba(source)) != processed.get("pixel_sha256"):
@@ -1560,8 +1617,56 @@ def processed_fit_scale(path: Path):
     return scale
 
 
+def cel_sheet_subjects(subjects: list, paths: list, unit_id: str, kind: str, root: Path) -> tuple:
+    """Preview candidate paint with production settings; reuse built canon variants."""
+    import cel_look
+    from cel_look_inventory import inventory
+
+    config = cel_look.settings()
+    entries, _ = inventory(root)
+    by_path = {entry["path"]: entry for entry in entries}
+    models, rendered, candidate_entries = {}, [], []
+    for index, ((image, scale, label), path) in enumerate(zip(subjects, paths)):
+        if index == 4:
+            # Mirror the filtered front, including its light and touch-ups.
+            rendered.append((ImageOps.mirror(rendered[2][0]), scale, label))
+            continue
+        if image is None:
+            rendered.append((None, scale, label))
+            continue
+        resolved = path.resolve()
+        relative = resolved.relative_to(root.resolve()).as_posix() if root.resolve() in resolved.parents else str(resolved)
+        entry = by_path.get(relative)
+        candidate = index in (2, 3)
+        if candidate:
+            facing = unit_id if kind == "object" else unit_id + ("/rear" if index == 3 else "/front")
+            # Job paintings are not inventoried yet. Inherit the live unit's
+            # category/facing, preferring its rig over a legacy static fallback.
+            production = sorted((e for e in entries if e["facing"] == facing),
+                                key=lambda e: (e["category"] not in ("rigs", "guardian_rigs"), e["path"] != e["rest"]))
+            entry = dict(entry or (production[0] if production else
+                                  {"facing": facing, "category": "props" if kind == "object" else "enemy_images"}))
+            entry.update(path=relative, rest=relative)
+            candidate_entries.append(entry)
+        elif entry is None:
+            raise ValueError("canon source missing from cel inventory: " + relative)
+        built = root / cel_look.OUTPUT_DIRECTORY / cel_look.variant_relative(relative)
+        if not candidate and built.is_file():
+            filtered = rgba(built)
+        else:
+            model = (cel_look.fit(image, cel_look.merged_look(config, entry["facing"], entry["category"]))
+                     if candidate else cel_look.entry_model(entry, root, config, models))
+            touch, _ = cel_look.entry_touch(entry, config, image, model)
+            filtered = cel_look.apply(image, model, touch)
+        rendered.append((filtered, scale, label))
+    overridden = any(key in config.get(section, {}) for entry in candidate_entries
+                     for section in ("look_overrides", "touch_ups")
+                     for key in (entry["facing"], entry["path"], "category:" + entry["category"]))
+    return rendered, "cel look: " + (unit_id + " override" if overridden else "default"), sha(cel_look.CONFIG.read_bytes())
+
+
 def make_sheet(front: Path, rear: Path, kit_path: Path, out: Path, art_scale: float = 1.0,
-               landmarks: dict = None, root: Path = ROOT) -> None:
+               landmarks: dict = None, root: Path = ROOT, no_cel: bool = False) -> None:
     kit = read_json(kit_path)
     canon = canon_entries(root, include_retired=True)
     references = [matching_view(canon, canon[p], False) for p in kit["peers"]]
@@ -1581,6 +1686,13 @@ def make_sheet(front: Path, rear: Path, kit_path: Path, out: Path, art_scale: fl
     if len(slots) < 6:
         raise ValueError("backdrop needs six ordered review slots")
     row = render_board_row(backdrop, slots[:6], subjects)
+    cel_row, cel_provenance = None, []
+    if not no_cel:
+        paths = [repo_path(root, canon["hero_front"]["path"]), repo_path(root, references[0]["path"]),
+                 front, rear, front, repo_path(root, references[1]["path"])]
+        cel_subjects, look_label, settings_digest = cel_sheet_subjects(subjects, paths, kit["id"], kit["kind"], root)
+        cel_row = render_board_row(backdrop, slots[:6], cel_subjects)
+        cel_provenance = [look_label, "cel settings sha256 " + settings_digest]
     font = proof_font()
     metric_rows = []
     bands = read_json(root / IDENTITY / "bands.json")
@@ -1616,12 +1728,17 @@ def make_sheet(front: Path, rear: Path, kit_path: Path, out: Path, art_scale: fl
         provenance.extend(["prompt chain: " + kit["prompt_source"] + " -> " + kit["revision_prompt_source"],
                            "revision prompt sha256 " + kit["revision_prompt_sha256"]])
     provenance.extend(ref["file"] + " pixels " + ref["pixel_sha256"] for ref in kit["refs"])
-    table_height = (len(metric_rows) + len(provenance) + 3) * line_height
-    output = Image.new("RGBA", (row.width * 2, row.height * 3 + SHEET_DEFAULTS["detail_height"] + table_height), "#14100c")
+    table_height = (len(metric_rows) + len(provenance) + len(cel_provenance) + 3) * line_height
+    cel_height = line_height + row.height * 2 if cel_row is not None else 0
+    output = Image.new("RGBA", (row.width * 2, row.height * 3 + cel_height + SHEET_DEFAULTS["detail_height"] + table_height), "#14100c")
     output.alpha_composite(row, (0, 0))
     output.alpha_composite(row.resize((row.width * 2, row.height * 2), RESAMPLE.NEAREST), (0, row.height))
-    detail_y = row.height * 3
     draw = ImageDraw.Draw(output)
+    if cel_row is not None:
+        cel_y = row.height * 3
+        draw.text((SHEET_DEFAULTS["margin"], cel_y), "as shipped", font=font, fill="#c9a25e")
+        output.alpha_composite(cel_row.resize((row.width * 2, row.height * 2), RESAMPLE.NEAREST), (0, cel_y + line_height))
+    detail_y = row.height * 3 + cel_height
     for index, (label, sprite) in enumerate((("front", candidate), ("rear", rear_image))):
         x = SHEET_DEFAULTS["margin"] + index * SHEET_DEFAULTS["detail_step_x"]
         y = detail_y + SHEET_DEFAULTS["detail_offset_y"]
@@ -1644,7 +1761,7 @@ def make_sheet(front: Path, rear: Path, kit_path: Path, out: Path, art_scale: fl
     for index, (metric, value, band, status) in enumerate(metric_rows, 1):
         draw.text((SHEET_DEFAULTS["margin"], table_y + index * line_height), "%-30s %-11s %-21s %s" % (metric, value, band, status), font=font,
                   fill="#e0483c" if status == "FAIL" else ("#5fae62" if status == "PASS" else "#c9a25e"))
-    for index, text in enumerate(provenance, len(metric_rows) + 2):
+    for index, text in enumerate(cel_provenance[:1] + provenance + cel_provenance[1:], len(metric_rows) + 2):
         draw.text((SHEET_DEFAULTS["margin"], table_y + index * line_height), text, font=font, fill="#c9a25e")
     out.parent.mkdir(parents=True, exist_ok=True)
     output.convert("RGB").save(out)
@@ -1686,6 +1803,7 @@ def parser() -> argparse.ArgumentParser:
     sheet.add_argument("--kit", required=True, type=Path)
     sheet.add_argument("--art-scale", type=float, default=1.0)
     sheet.add_argument("--landmarks", type=Path)
+    sheet.add_argument("--no-cel", action="store_true", help="skip the as-shipped cel comparison row")
     sheet.add_argument("--out", required=True, type=Path)
     canon_sheet = commands.add_parser("canon-sheet")
     canon_sheet.add_argument("--out", required=True, type=Path)
@@ -1720,7 +1838,7 @@ def main() -> int:
             print("\n".join(record_steps(args.kit)))
         elif args.command == "sheet":
             make_sheet(args.front, args.rear, args.kit, args.out, args.art_scale,
-                       read_json(args.landmarks) if args.landmarks else None)
+                       read_json(args.landmarks) if args.landmarks else None, no_cel=args.no_cel)
             print("ART IDENTITY SHEET: " + str(args.out))
         elif args.command == "canon-sheet":
             ids = make_canon_sheet(args.out, args.view)

@@ -3,14 +3,17 @@ extends RefCounted
 const Data = preload("res://scripts/game_data.gd")
 const Menu = preload("res://scripts/character_menu_view.gd")
 
-# Both Character and Purge use this ownership projection, ordering, and rows.
-static func entries(cards: Array) -> Array[Dictionary]:
+# Both Character and Purge use this ownership projection. Purge orders it by
+# element, then name; Character keeps deck order (first copy first), as its
+# Deck column beside it does.
+static func entries(cards: Array, deck_order: bool = false) -> Array[Dictionary]:
 	var counts: Dictionary = {}
 	for value: Variant in cards:
 		var id: String = str(value)
 		if Data.magic_card_is_purgeable(id): counts[id] = int(counts.get(id, 0)) + 1
 	var result: Array[Dictionary]
 	for id: String in counts: result.append({"card_id": id, "count": counts[id]})
+	if deck_order: return result
 	result.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var a_id: String = str(a["card_id"])
 		var b_id: String = str(b["card_id"])
@@ -20,11 +23,11 @@ static func entries(cards: Array) -> Array[Dictionary]:
 	)
 	return result
 
-static func populate(host: Node, list: VBoxContainer, cards: Array, activated: Callable = Callable(), retain: bool = false) -> Dictionary:
+static func populate(host: Node, list: Container, cards: Array, activated: Callable = Callable(), retain: bool = false) -> Dictionary:
 	var tiles: Dictionary = {}
 	var current: Array[Control]
 	var index: int = 0
-	for entry: Dictionary in entries(cards):
+	for entry: Dictionary in entries(cards, true):
 		var id: String = str(entry["card_id"])
 		var constructor: Callable = Callable(host, "_new_magic_card_tile").bind(id, "deck", index, false, false)
 		var tile: Control

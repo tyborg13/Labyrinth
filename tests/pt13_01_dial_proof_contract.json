@@ -1,0 +1,24 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*black_sun_dial.png",
+      "min_count": 1,
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [0, 0, 1920, 1080], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*black_sun_dial_spent.png",
+      "min_count": 1,
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [0, 0, 1920, 1080], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    }
+  ]
+}

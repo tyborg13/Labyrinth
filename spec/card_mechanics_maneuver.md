@@ -135,19 +135,27 @@ Shrug Off: all current Block becomes Stoneskin (Stoneskin relics trigger).
 
 ## Petrify (`petrify`)
 
-`{"type": "petrify", "range": R, "block": B}`. Target: a visible enemy (any
+`{"type": "petrify", "range": R}`. Target: a visible enemy (any
 footprint tile in range, line of sight beyond 1); dragons are illegal. The enemy
-gains B Block and `petrify: 1`. Its next activation start keeps its Block (the
+gains `petrify: 1` and, only if it was not already Petrified, adds the keyword's
+fixed 5 Block (`ManeuverRules.PETRIFY_BLOCK`) to any existing Block. Reapplying
+Petrify from any source adds no Block while the status remains active. Card
+casts and Funeral Bell's `death_status_spread` use the same
+`ManeuverRules.petrify_enemy` helper for status, Block and event recording.
+Its next activation start keeps its Block (the
 ordinary reset is skipped), consumes Petrify (and Freeze, if also Frozen), takes
 no action and reschedules after its normal intent Time (Freeze keeps its
 time-cost-0 return). The Block therefore lasts through the player's following
 turn and clears at the enemy's next real activation. It is not Freeze: no damage
 multiplier, no Chill, and Freeze immunity does not apply. Threat previews treat
 it like Freeze. UI: enemy badge, turn-order `Skips` marker and tooltip line,
-status step `Petrified`. Event `petrified {enemy_id, block}`. Card row: Petrify icon,
-range, `skips turn`, then `foe gains` + Block kept together (`row_group: foe_block`,
-token `recipient: "enemy"`) so the shield never reads as the hero's Block; at
-native size the `foe gains` pair wraps to a `↳` continuation line.
+status step `Petrified`. The badge and queued-turn tooltip use shared wording
+from `ManeuverRules.petrified_tooltip`, with the latter specific to this queued
+turn. Event `petrified {enemy_id, actor_key, tile, block, source}` records actual
+Block gained (5 for a newly Petrified enemy, 0 for reapplication). Card sources
+retain their damage context; relic spread identifies `source.relic_id` with
+`source_kind: relic`. Card row: exactly two tokens, the Petrify icon and range;
+the icon's tooltip explains the complete keyword, including its 5 Block.
 
 ## Crystal Mantle for the hero (`mantle`)
 

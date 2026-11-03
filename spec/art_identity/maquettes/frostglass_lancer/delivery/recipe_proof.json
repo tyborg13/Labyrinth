@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "checks": {
+    "fresh_and_replay_raw_hashes": true,
+    "joint_endpoints": true,
+    "native_geometry": true
+  },
+  "spec_hash": "7762a280781b2330bb691b9bd065920fb2188943445a594ec9648ab7ec1124bd",
+  "cache_revision": 8,
+  "raw_hashes_identical": true,
+  "mesh_count": 52,
+  "joint_errors": {
+    "pelvis": 1.228781230931777e-07,
+    "torso": 1.0745380149674383e-07,
+    "head": 1.2013700229374393e-07,
+    "shoulder_near": 2.6718878702647625e-08,
+    "elbow_near": 2.460542961895373e-07,
+    "hand_near": 1.2111849187716082e-07,
+    "hip_near": 6.3735449436008624e-06,
+    "knee_near": 5.932926849013106e-07,
+    "ankle_near": 2.5386698599756987e-07,
+    "shoulder_far": 1.7881393432617188e-07,
+    "elbow_far": 1.1920928955078125e-07,
+    "hand_far": 0.0,
+    "hip_far": 5.584815266829271e-06,
+    "knee_far": 7.171159634301642e-07,
+    "ankle_far": 1.802055034406159e-07
+  },
+  "combined_mesh_hashes": {
+    "cold": "c2d90282955c8cfaddd2e1b5d38256c8749ab564c9981c690c16327b07cf2fc4",
+    "replay": "c2d90282955c8cfaddd2e1b5d38256c8749ab564c9981c690c16327b07cf2fc4",
+    "independent_cold": "c2d90282955c8cfaddd2e1b5d38256c8749ab564c9981c690c16327b07cf2fc4"
+  },
+  "delivery_binding": {
+    "spec_hash": "7762a280781b2330bb691b9bd065920fb2188943445a594ec9648ab7ec1124bd",
+    "cold_mesh_hash": "c2d90282955c8cfaddd2e1b5d38256c8749ab564c9981c690c16327b07cf2fc4",
+    "report_sha256": {
+      "build_report.json": "531040da7c3a26f367b62589fb36f6ae482c80b2c91f7fe2d9e6559f23ca34d2",
+      "capture_checks.json": "f3fd1f8b68ff4fd6e97c3c9376333e7126c2a3a7a5e7a5828a71661d8118ca77",
+      "facing_report.json": "02c999a56789f52f799a2fca6564f8a3b5643ca446fc7fcc2c421ecdf04ca503",
+      "ownership_validation.json": "90421ed7df4d9f8f5cf3294d11301b2e1a4038e54ee67af2d5d1844b61f1b9fc",
+      "solo_coverage.json": "729a9d4fe3b701821c246daf127fee7b4582c24bbeda99ff40f90273ff96cba2",
+      "capture_manifest.json": "17bb921b98361ceb18a358f8bc4cf0000f9b6bc36bf0ed61e8c7e2fd53e5df0c"
+    },
+    "exact_native_replay_sha256": "7c87c3987c173e12b65e32d32242c14b38c724832ff6f8773fff86ea4940d806"
+  }
+}

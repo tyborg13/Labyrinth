@@ -1,0 +1,95 @@
+{
+  "unit": "rr-36",
+  "round": "feedback 1",
+  "reviewed_revision": "4a1e28227",
+  "base_head": "a7a894dbbd93572115de7d4673851241449acd43",
+  "uncommitted": true,
+  "scope": "D3 visible thigh/pelvis ownership diagnostic and independent negative control only",
+  "fix": "Count visible alpha on the retained rear pelvis draw node, which is empty after its wraps were reunited with leg_near. Preserve both hidden-material and duplicate-drip checks.",
+  "negative_control": {
+    "mutation": "Restore only e4b visible rear torso/pelvis/near-leg PNG partitions and leg mesh in scratch; retain repaired hidden fills.",
+    "before": [
+      "Ran 1 test in 2.544s",
+      "FAILED (failures=4)"
+    ],
+    "after": [
+      "Ran 1 test in 2.532s",
+      "OK"
+    ],
+    "frames": [
+      "rear/slash/21",
+      "rear/slash/23",
+      "rear/ambush/17",
+      "rear/ambush/25"
+    ],
+    "visible_thigh_on_pelvis_pixels_after_reversion": 214,
+    "foreign_thigh_band_pixels_after_reversion": 0,
+    "duplicated_drip_pixels_after_reversion": 0
+  },
+  "native_check": {
+    "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr36_native_checks.py --native experiments/cutouts/gloam_stalker/rr35/proof/native",
+    "exit_code": 0,
+    "result_lines": [
+      "RR36 D1: PASS (2 frames; native=True)",
+      "RR36 D2: PASS (5 frames; native=True)",
+      "RR36 D3: PASS (4 frames; native=True)",
+      "RR36 D4: PASS (2 frames; native=True)",
+      "RR36 D5: PASS (3 frames; native=True)"
+    ]
+  },
+  "reviewer_reproduction": {
+    "command": "PYTHONPATH=tools python3 -B /private/tmp/rr36-review-mutations.py",
+    "exit_code": 0,
+    "result": "All 16 complete reversions and all five disabled-guard controls remain caught; ownership-only reversion now caught at all four D3 frames."
+  },
+  "focused_tests": {
+    "command": "LABYRINTH_TASK_ID=rr-36 python3 -B -m unittest tests.test_rr35_cutout tests.test_rr35_production tests.test_rr35_native_defects",
+    "exit_code": 1,
+    "result_lines": [
+      "Ran 37 tests in 126.304s",
+      "FAILED (failures=1)"
+    ],
+    "new_control_passes": true,
+    "existing_failure": "test_reconciled_rest_records_are_exactly_the_director_rebakes expects prior 187ce0327 front rest SHA 1bed75d3..., while director rebake committed at a7a894dbb is 4cfbb64c...; reproduced using unmodified HEAD test source; no assertion, receipt or PNG changed.",
+    "baseline_reproduction": {
+      "source": "git show a7a894dbb:tests/test_rr35_native_defects.py; compiled and run in memory without editing assertions",
+      "result_lines": [
+        "Ran 1 test in 1.869s",
+        "FAILED (failures=1)"
+      ],
+      "current_front_rest_sha256": "4cfbb64cca7bee767983df25d9f3740e3e7f0913cf2175df66e9f2d97fa77acf",
+      "prior_accepted_sha256": "1bed75d322edf3c34b7f36b3f4654cd0298d2548f5980c22938c4e51268a98d4"
+    }
+  },
+  "proof_binding": {
+    "changed_files_in_current_binding": {
+      "experiments/cutouts/gloam_stalker/rr36_native_checks.py": [],
+      "tests/test_rr35_native_defects.py": [],
+      "experiments/cutouts/gloam_stalker/rr35/proof/rr36_feedback1.json": []
+    },
+    "native_manifest_input_count": 466,
+    "native_manifest_inputs_match_current": true,
+    "stages_director_must_rerun": [],
+    "reason": "Both files are outside the case JSON/PNG closure and configured binding_folders. Existing native/idle/production/review receipts contain neither path. Captures are unchanged and the new diagnostics pass against the existing native pixels."
+  },
+  "protected_data": {
+    "files_checked": 682,
+    "changed": [],
+    "result": "PASS; no cut, coverage, layout, asset, motion or protected evidence bytes changed"
+  },
+  "windowed_runs_attempted": false,
+  "peer_review_run": false,
+  "TODO_DESIGN": [],
+  "chosen_defaults": [],
+  "reference_tests": {
+    "command": "LABYRINTH_TASK_ID=rr-36 python3 -B tests/rr35/run_reference_tests.py --compare-legacy-reach tests.test_rr10_humanoid tests.test_rr11_humanoid tests.test_rr18_humanoid tests.test_rr17_cutout tests.test_rr17_integration tests.test_rr21_cutout tests.test_rr21_production tests.test_rr26_consolidation tests.test_rr29_mimic tests.test_rr30_mortar tests.test_rr31_calibration tests.test_rr31_storage tests.test_rr32_herald tests.test_rr32_production tests.test_rr15_reach tests.test_rr16_feedback1 tests.test_rr16_review_fixes tests.test_rr14_anatomy",
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 177 tests in 431.258s",
+      "OK",
+      "RR16 CURVED REACH: FAIL AS REQUIRED (23.113249183 px at 0.500730859)",
+      "RR16 SUPPORT MODES: PASS (4 views/configurations)",
+      "RR35 LEGACY REACH REPORTS: PASS (23 byte-identical JSON reports)"
+    ]
+  }
+}

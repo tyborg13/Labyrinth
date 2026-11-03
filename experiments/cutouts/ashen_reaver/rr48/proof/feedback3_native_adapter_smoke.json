@@ -1,0 +1,24 @@
+{
+  "native_pixels": false,
+  "fixture": "CPU-generated layers through production native adapter; no capture or native acceptance claim",
+  "records": [
+    {
+      "view": "front",
+      "clip": "sweep",
+      "frame": 20,
+      "rejected_outline": 0,
+      "dark_slab_blocks": 0,
+      "immediate_holes": 0,
+      "deferred_small_holes": 0
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 81,
+      "rejected_outline": 0,
+      "dark_slab_blocks": 0,
+      "immediate_holes": 0,
+      "deferred_small_holes": 1
+    }
+  ]
+}

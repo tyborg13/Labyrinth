@@ -1,0 +1,196 @@
+{
+  "status": "NATIVE_IMAGE_ACCEPTANCE_FAILED",
+  "accepted": false,
+  "geometry_changed": false,
+  "todo_design_fields": [
+    "TODO_DESIGN_below_fist_definition"
+  ],
+  "requirements": {
+    "1": "Fresh native 3D proof and all 6 mutations pass; captures and clean regeneration completed; four canonical clay/part comparisons match. Top-ring image inclusion fails, so no accepted seal and mq24 verify fails.",
+    "2": "Both director prompt hashes are admitted and checked; mq20 verify passes, mq24 remains blocked by native image acceptance.",
+    "3": "70 generated import sidecars present (17 paint job, 53 fresh native proof delivery). Prospective tracked inventory passes; actual tracked guard needs owner stage/commit.",
+    "4": "Owned tests compare only with reviewed commits, never HEAD."
+  },
+  "native": {
+    "geometry_hash": "943a4519b9f457746fc3d53609c2a26e533e8b253cf1ac7668a45df1d50e05bd",
+    "source_and_native_piece_count": 57,
+    "protected_input_count": 247,
+    "native_audit_result": "MQ24_NATIVE_AUDIT: PASS; caught=6; survived=0",
+    "capture_result": "MQ18_CAPTURE_MERGE: PASS; views=2; solos=44",
+    "capture": "ratification_validation/native_delivery",
+    "mutations": "ratification_validation/mutation_table.md",
+    "geometry_hashes": "ratification_validation/geometry_sha256.md",
+    "image_gate": "ratification_validation/native_delivery/mq24_acceptance.json",
+    "regeneration": "ratification_validation/regeneration/regeneration.json"
+  },
+  "director_files": {
+    "authority": "Director-provided mq-24 paint prompts; immutable inputs, not generated proof.",
+    "files": {
+      "prompt_front.md": "e274982b035786b4f240fc340f365cca97dadfeb133597ba7282efe9dc09ec53",
+      "prompt_rear.md": "c07d2424bf2b224e15b6cf2124b5ceea700c6d93dc148fa44c000918ea581e96"
+    }
+  },
+  "full_python": {
+    "status": "incomplete_runner_timeout",
+    "command": "python3 -B tools/run_python_suite.py --shards 4 --output-dir spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-python-full",
+    "invocations": 1,
+    "started_after_final_code_change": true,
+    "exit_code": 1,
+    "official_summary_emitted": false,
+    "report": "ratification_validation/python_full/partial_full_suite.json",
+    "result_lines": [
+      "SHARD 3 COMPLETE: 626 tests; 1579.850s",
+      "SHARD 4 COMPLETE: 574 tests; 1758.608s",
+      "RuntimeError: Shard 2 timed out after 2400s",
+      "PermissionError: [Errno 1] Operation not permitted"
+    ],
+    "observed_unittest_failures": [
+      "FAIL: test_godot_sidecars.GodotSidecarRepositoryTests.test_tracked_sources_have_sidecars_and_sidecars_have_sources",
+      "FAIL: test_mq24_maquette.ProofTests.test_native_delivery_meets_ratified_image_contract",
+      "FAIL: test_sb02_movement.Movement.test_incremental_submission"
+    ]
+  },
+  "tests": {
+    "mq24": {
+      "command": "python3 -B -m unittest tests.test_mq24_maquette",
+      "exit_code": 1,
+      "result_lines": [
+        "FAIL: test_native_delivery_meets_ratified_image_contract (tests.test_mq24_maquette.ProofTests)",
+        "Ran 45 tests in 32.216s",
+        "FAILED (failures=1)"
+      ],
+      "log": "ratification_validation/focused_mq24_final.log"
+    },
+    "mq20": {
+      "command": "python3 -B -m unittest tests.test_mq20_maquette",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 35 tests in 70.019s",
+        "OK"
+      ],
+      "log": "ratification_validation/focused_mq20.log"
+    },
+    "delivery": {
+      "command": "python3 -B -m unittest spec.art_identity.maquettes.blender.test_delivery_validation",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 11 tests in 9.452s",
+        "OK"
+      ],
+      "log": "ratification_validation/delivery_tests.log"
+    },
+    "art_identity": {
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 111 tests in 126.506s",
+        "OK"
+      ],
+      "log": "ratification_validation/art_identity.log"
+    },
+    "sidecars": {
+      "command": "python3 -B tests/test_godot_sidecars.py",
+      "exit_code": 1,
+      "result_lines": [
+        "FAIL: test_tracked_sources_have_sidecars_and_sidecars_have_sources (__main__.GodotSidecarRepositoryTests)",
+        "Ran 19 tests in 5.875s",
+        "FAILED (failures=1)"
+      ],
+      "log": "ratification_validation/sidecar_tests.log"
+    },
+    "resource_audit": {
+      "command": "python3 -B tools/run_python_suite.py --shards 4 --audit-only --output-dir spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-resource-audit",
+      "exit_code": 0,
+      "result_lines": [
+        "ISOLATION AUDIT: 236 modules; /Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-resource-audit/isolation-audit.md"
+      ],
+      "log": "ratification_validation/resource_audit.log"
+    },
+    "mq20_verify": {
+      "command": "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq20.proof verify",
+      "exit_code": 0,
+      "observed_stdout": [
+        "MQ20_HASH_BOUND_DELIVERY: PASS"
+      ]
+    },
+    "mq24_verify": {
+      "command": "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq24.proof verify --capture spec/art_identity/maquettes/last_lamplighter/mq24/ratification_validation/native_delivery --regeneration spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-regeneration",
+      "exit_code": 1,
+      "result_lines": [
+        "ValueError: mq-24 acceptance failed"
+      ],
+      "log": "ratification_validation/mq24_verify_final.log"
+    },
+    "native_prove": {
+      "command": "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq24.proof prove --out spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-native",
+      "exit_code": 1,
+      "result_lines": [
+        "MQ24_SOURCE_GEOMETRY: PASS; unresolved=[]",
+        "MQ24_NATIVE_AUDIT: PASS; caught=6; survived=0",
+        "MQ18_CAPTURE_MERGE: PASS; views=2; solos=44",
+        "ValueError: mq-24 capture acceptance failed"
+      ]
+    },
+    "regenerate": {
+      "command": "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq24.proof regenerate --out spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-regeneration --capture spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-native/capture",
+      "exit_code": 1,
+      "images_match": true,
+      "accepted": false,
+      "cache_reused": false,
+      "saved_model_reused": false,
+      "log": "ratification_validation/regeneration.log"
+    },
+    "corrected_initial_module_typo": {
+      "command": "python3 -B -m unittest tests.test_mq20_maquette tests.test_maquette_delivery_validation",
+      "exit_code": 1,
+      "result_lines": [
+        "Ran 36 tests in 65.040s",
+        "FAILED (errors=1)"
+      ],
+      "reason": "Second module name was incorrect. Correct individual module invocations and results are recorded above.",
+      "log": "ratification_validation/focused_mq20_delivery.log"
+    },
+    "sidecar_generation": {
+      "commands": [
+        "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq24.sidecars --out /private/tmp/labyrinth_codex/mq25-sidecars-r1",
+        "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq24.sidecars --out /private/tmp/labyrinth_codex/mq25-sidecars-r2"
+      ],
+      "exit_codes": [
+        0,
+        0
+      ],
+      "result_lines": [
+        "MQ25_SIDECARS: PASS; sources=118; generated=17",
+        "MQ25_SIDECARS: PASS; sources=171; generated=53",
+        "MQ25_PROSPECTIVE_SIDECAR_INVENTORY: PASS; generated=70"
+      ],
+      "report": "ratification_validation/sidecars.json"
+    }
+  },
+  "chosen_defaults": {
+    "native_capture": "chosen_defaults.json native_capture_gate",
+    "import_project": "MQ25 Proof Metadata Import",
+    "import_renderer": "gl_compatibility",
+    "native_capture_test_ring_translation_xyz": [
+      0,
+      0,
+      1
+    ],
+    "invalid_prompt_hash_fixture": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "open_issues": [
+    "The ring highest centreline is outside front hand alpha at (735,570); hand bbox y=576..624. No geometry change authorized.",
+    "Below-fist interpretation: 0 lower-ring pixels below global bottom, 8 below same-column hand edge. Both observations retained.",
+    "Actual tracked-sidecar guard cannot include new files until owner stage/commit.",
+    "Full suite invoked once but interrupted by 2400-second shard timeout; shutdown raised PermissionError. test_rr35_production and test_rr45_lancer have no completion result. No full-suite success claimed.",
+    "Unrelated unchanged SB02 Movement.test_incremental_submission fails: movement plan 7842 us exceeds 4000 us. Assertion and runtime files were preserved."
+  ],
+  "final_readback": {
+    "executable_code_and_contract_data_unchanged_after_full_suite": true,
+    "protected_input_files_byte_identical": true,
+    "protected_input_count": 247,
+    "all_57_native_mesh_hashes_match_round2": true,
+    "no_unowned_tracked_changes": true,
+    "full_suite_not_rerun": true
+  }
+}

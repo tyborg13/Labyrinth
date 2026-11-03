@@ -17,7 +17,7 @@ func _run_deck_proof(capture: bool) -> void:
 	var instance: Node = await _instance(state)
 	var roster: Array = GameData.cards().keys()
 	roster.sort()
-	for count: int in [18, 28]:
+	for count: int in [28, 36]:
 		# Exercise overflow with distinct real cards; duplicates alone would collapse
 		# to counted strips and would not prove the scrollbar's last row.
 		var deck: Array = roster.slice(0, count)
@@ -30,7 +30,6 @@ func _run_deck_proof(capture: bool) -> void:
 		var panel := instance.get("_pre_battle_panel") as Control
 		_assert_pre_battle_body_inside_panel(panel, "%d cards" % count)
 		_assert_cards(panel, deck, "deck")
-		_assert_cards(panel, loaded["attuned_magic_cards"], "attuned")
 		var scroll := panel.find_child("PreBattleDeckScroll", true, false) as ScrollContainer
 		var grid := panel.find_child("PreBattleDeckFlow", true, false) as Control
 		_expect(scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "Deck must never scroll horizontally")

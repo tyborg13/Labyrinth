@@ -60,6 +60,8 @@ ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
     frozenset({"lob_mark", "lob_land"}),
     frozenset({"heal", "heal_self"}),
     frozenset({"move", "move_toward"}),
+    # Fade is the existing Blink primitive.
+    frozenset({"blink", "veil_blink"}),
     frozenset({"outcrop", "raise_terrain"}),
     # Wave-4 maneuver family (spec/card_mechanics_maneuver.md).
     frozenset({"push", "force_area"}),
@@ -188,6 +190,26 @@ def _gd_function(source: str, function_name: str) -> str:
 
 
 class IconIdentityPolicyTests(unittest.TestCase):
+    def test_battlefield_rule_icon_inventory(self) -> None:
+        data = json.loads((REPO_ROOT / "data/battlefield_rules.json").read_text())
+        icons = {entry["id"]: entry["icon"] for entry in data["rules"]}
+        self.assertEqual(set(icons), {"gust", "wildfire", "frostbite", "lightning_storm", "upheaval", "shadowstep"})
+        self.assertEqual(icons["gust"], "wind")
+        registry = _action_icon_paths()
+        staged = REPO_ROOT / "spec/peer_benchmark/staged/element_rules/icons"
+        provenance = json.loads((staged / "provenance.json").read_text())["icons"]
+        for rule, approved in provenance.items():
+            self.assertEqual(icons[rule], rule)
+            self.assertEqual(registry[rule], f"res://assets/art/icons/{rule}.png")
+            adopted = (REPO_ROOT / "assets/art/icons" / f"{rule}.png").read_bytes()
+            self.assertEqual(adopted, (staged / approved["final"]).read_bytes())
+            self.assertEqual(hashlib.sha256(adopted).hexdigest(), approved["final_sha256"])
+        self.assertEqual(len(set(icons.values())), len(icons))
+        for retired in ("bramble", "ice_pillar", "tether", "veil", "dive"):
+            self.assertNotIn(retired, registry)
+        self.assertNotIn("grow_bramble", _action_icon_aliases())
+        self.assertNotIn("tether_beam", _action_icon_aliases())
+
     def test_en01_approved_enemy_icon_identities(self) -> None:
         registry = _action_icon_paths()
         aliases = _action_icon_aliases()
@@ -216,6 +238,15 @@ class IconIdentityPolicyTests(unittest.TestCase):
         room_icons = dict(re.findall(r'^\s*"([^\"]+)":\s*"(res://assets/art/icons/map/[^\"]+)"', room_source, re.MULTILINE))
         self.assertEqual(set(room_icons), {"boss_vyraketh", "boss_tharokh", "boss_noctyrax", "scavenger", "graftwright", "boss_zekarion", "scout", "combat", "boss_vaeloryx", "treasure", "campfire", "boss_iskaldra", "event", "start", "special_warband", "special_umbral_snare", "special_ember_hoarder", "special_last_light"})
         concepts.update({f"map:{key}": path for key, path in room_icons.items()})
+
+        # int-09: Slip Away presents the Hoarder encounter's own identity.
+        # Audit the data-backed collection and the sole approved exact-concept
+        # alias here; all map identities still join the uniqueness check below.
+        specials = json.loads((REPO_ROOT / "data/special_encounters.json").read_text())["types"]
+        panels = {key: entry["rule_panel"]["icon"] for key, entry in specials.items() if "rule_panel" in entry}
+        self.assertEqual(panels, {"ember_hoarder": room_icons["special_ember_hoarder"]})
+        self.assertEqual(specials["ember_hoarder"]["rule_panel"]["name"], "Slip Away")
+        self.assertEqual(panels["ember_hoarder"], specials["ember_hoarder"]["emblem"])
 
         omen_source = (REPO_ROOT / "scripts/omen_badges.gd").read_text(encoding="utf-8")
         omen_icons = dict(re.findall(r'^\s*"([^\"]+)": "(res://assets/art/icons/omens/[^\"]+)"', omen_source, re.MULTILINE))
@@ -271,13 +302,13 @@ class IconIdentityPolicyTests(unittest.TestCase):
             )
             concepts[f"objective:{objective_id}"] = path
 
-        # Progression resources shown as stat chips in the character menu
-        # (Ember and Defiance are already registered as keywords above).
+        # Progression resources share their own identity with their Grimoire
+        # keywords; the central registry above already audits their uniqueness.
         for resource, path in {
             "skill_point": "res://assets/art/icons/skill_point.png",
             "moltshard": "res://assets/art/icons/moltshard.png",
         }.items():
-            concepts[f"resource:{resource}"] = path
+            self.assertEqual(registry.get(resource), path)
 
         paths: dict[str, str] = {}
         hashes: dict[str, str] = {}
@@ -354,6 +385,21 @@ class IconIdentityPolicyTests(unittest.TestCase):
         self.assertEqual(aliases.get("next_attack"), "next_attack")
         self.assertNotIn("res://assets/art/icons/stat_might.png", registry.values(), "No identity borrows the retired Might art")
 
+    def test_marked_retires_keyword_pages_but_preserves_move_icons(self) -> None:
+        glossary = json.loads((REPO_ROOT / "data/glossary.json").read_text())
+        grimoire = json.loads((REPO_ROOT / "data/grimoire.json").read_text())["entries"]
+        terms = {entry["id"]: entry for entry in glossary}
+        pages = {entry["id"]: entry for entry in grimoire}
+        registry = _action_icon_paths()
+        for retired in ("icefall", "lob", "burrow", "erupt"):
+            self.assertNotIn(retired, terms)
+            self.assertNotIn(f"keyword:{retired}", pages)
+            # These are still approved move/marker paintings, not glossary terms.
+            self.assertEqual(registry[retired], f"res://assets/art/icons/{retired}.png")
+        self.assertEqual(terms["marked"]["icon"], "marked")
+        self.assertEqual(pages["keyword:marked"]["icon"], "marked")
+        self.assertEqual(registry["marked"], "res://assets/art/icons/marked.png")
+
     def test_grimoire_icons_are_registered_and_semantically_exact(self) -> None:
         registry = _action_icon_paths()
         grimoire = json.loads((REPO_ROOT / "data/grimoire.json").read_text(encoding="utf-8"))
@@ -419,6 +465,16 @@ class IconIdentityPolicyTests(unittest.TestCase):
         )
         self.assertFalse(set(authored_roles.values()) - EXPECTED_CARD_ROLE_EMBLEMS.keys())
 
+
+
+class RetiredMirrorIdentityTests(unittest.TestCase):
+    def test_mirror_keyword_is_retired(self):
+        icons = ACTION_ICON_LIBRARY.read_text()
+        self.assertNotIn('"mirror":', icons)
+        self.assertNotIn('"mirror_last_attack":', icons)
+        glossary = json.loads((REPO_ROOT / "data/glossary.json").read_text())
+        self.assertNotIn("mirror", {row["id"] for row in glossary})
+        self.assertIn('"retaliate":', icons)
 
 if __name__ == "__main__":
     unittest.main()

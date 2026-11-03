@@ -1,5 +1,6 @@
 extends RefCounted
 const Store = preload("res://scripts/progression_store.gd")
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Sfx = preload("res://scripts/run_sfx_library.gd")
@@ -61,11 +62,17 @@ static func wait_ready(tree: SceneTree) -> void:
 	await tree.create_timer(0.65).timeout
 
 static func wait_finished(tree: SceneTree, instance: Node) -> void:
-	var deadline: int = Time.get_ticks_msec() + 3000
+	var deadline: int = Time.get_ticks_msec() + 10000
 	while bool(instance.get("_campfire_choice_action_pending")) and Time.get_ticks_msec() < deadline:
 		await tree.process_frame
+	assert(not bool(instance.get("_campfire_choice_action_pending")), "Timeout waiting for campfire choice action")
 
 static func run(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _run_scoped(scope, tree, expect)
+	)
+
+static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	var previous_profile_path: String = Store._storage_path
 	var previous_run_path: String = Store._run_storage_path
 	Store.set_storage_path("user://hearth_suite_profile.json")

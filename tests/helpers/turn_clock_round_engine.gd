@@ -4,13 +4,13 @@ var finish_calls: int = 0
 var activation_kinds: Array[String]
 var _advancing: bool = false
 
-func finish_player_activation(state: Dictionary) -> Dictionary:
+func finish_player_activation(state: Dictionary, accepted: Callable = Callable()) -> Dictionary:
 	finish_calls += 1
-	return super.finish_player_activation(state)
+	return super.finish_player_activation(state, accepted)
 
-func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: bool = true) -> Dictionary:
+func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: bool = true, accepted: Callable = Callable()) -> Dictionary:
 	_advancing = true
-	var result: Dictionary = super.advance_one_activation_with_steps(state, include_commit_steps)
+	var result: Dictionary = super.advance_one_activation_with_steps(state, include_commit_steps, accepted)
 	_advancing = false
 	return result
 

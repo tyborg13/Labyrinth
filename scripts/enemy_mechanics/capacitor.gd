@@ -1,8 +1,8 @@
 extends RefCounted
 
 const Data = preload("res://scripts/game_data.gd")
-const Paths = preload("res://scripts/path_utils.gd")
-const Snapshots = preload("res://scripts/enemy_mechanics/tether.gd")
+const Snapshots = preload("res://scripts/enemy_mechanics/actor_snapshot.gd")
+const Footprints = preload("res://scripts/chain_footprint_geometry.gd")
 const MAX_CHARGE: int = 3
 const HOP_SECONDS: float = 0.12
 
@@ -20,20 +20,8 @@ static func handles_intent(intent: Dictionary) -> bool:
 		if handles(action): return true
 	return false
 
-static func threshold(state: Dictionary, enemy: Dictionary) -> int:
-	if not preload("res://scripts/warband_combat_rules.gd").order(state, enemy, "dynamo_tether"): return MAX_CHARGE
-	var thralls: int = 0
-	for follower: Dictionary in state.get("enemies", []):
-		if str(follower.get("type", "")) == "arc_thrall" and not bool(follower.get("is_leader", false)) and int(follower.get("hp", 0)) > 0: thralls += 1
-	return 2 if thralls >= 2 else MAX_CHARGE
-
-static func effective_intent(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
-	if not preload("res://scripts/warband_combat_rules.gd").order(state, enemy, "dynamo_tether"): return intent
-	var engine := preload("res://scripts/combat_engine.gd").new()
-	return choose(enemy, engine._scaled_enemy_intents(Data.enemy_def("storm_capacitor")["intents"], int(state.get("room_depth", 1)), state, enemy), state)
-
 static func choose(enemy: Dictionary, intents: Array, state: Dictionary = {}) -> Dictionary:
-	var id: String = "discharge" if int(enemy.get("charge", 0)) >= threshold(state, enemy) else "charge"
+	var id: String = "discharge" if int(enemy.get("charge", 0)) >= MAX_CHARGE else "charge"
 	for intent: Dictionary in intents:
 		if str(intent.get("id", "")) == id: return intent.duplicate(true)
 	return {}
@@ -55,17 +43,19 @@ static func targets(engine: RefCounted, state: Dictionary, index: int) -> Array[
 			result.append({"kind": "enemy", "key": engine._enemy_key(enemy), "id": enemy["id"], "pos": enemy["pos"], "unit": enemy})
 	return result
 
-static func nearest(engine: RefCounted, state: Dictionary, index: int, origin: Vector2i, visited: Dictionary, reach: int, adjacent: bool) -> Dictionary:
+static func nearest(engine: RefCounted, state: Dictionary, index: int, origin: Vector2i, visited: Dictionary, reach: int, adjacent: bool, source: Dictionary = {}) -> Dictionary:
 	var best: Dictionary = {}
 	var best_distance: int = 2147483647
 	for target: Dictionary in targets(engine, state, index):
 		if visited.has(target["key"]): continue
-		var tile: Vector2i = engine._closest_enemy_tile_to(target["unit"], origin) if target["kind"] == "enemy" else target["pos"]
-		var delta: Vector2i = tile - origin
-		var distance: int = Paths.manhattan(origin, tile)
+		var pair: Dictionary = Footprints.nearest_pair({"pos": origin} if source.is_empty() else source, target["unit"])
+		var tile: Vector2i = pair["to"]
+		var delta: Vector2i = tile - Vector2i(pair["from"])
+		var distance: int = int(pair["distance"])
 		if (maxi(absi(delta.x), absi(delta.y)) > 1 if adjacent else distance > reach): continue
 		var candidate: Dictionary = target.duplicate(true)
 		candidate["pos"] = tile
+		candidate["from"] = pair["from"]
 		if distance < best_distance or (distance == best_distance and tie_precedes(candidate, best)):
 			best = candidate
 			best_distance = distance
@@ -86,8 +76,9 @@ static func chain(engine: RefCounted, state: Dictionary, index: int, action: Dic
 	var hits: Array[Dictionary]
 	var visited: Dictionary = {}
 	var origin: Vector2i = state["enemies"][index]["pos"]
+	var source: Dictionary = (state["enemies"][index] as Dictionary).duplicate(true)
 	for hop: int in range(int(action.get("jumps", 3)) + 1):
-		var target: Dictionary = nearest(engine, state, index, origin, visited, int(action.get("first_range", 4)), hop > 0)
+		var target: Dictionary = nearest(engine, state, index, origin, visited, int(action.get("first_range", 4)), hop > 0, source)
 		if target.is_empty(): break
 		visited[target["key"]] = true
 		var damage: int = maxi(0, int(action.get("damage", 6)) - hop * int(action.get("falloff", 1)))
@@ -101,8 +92,9 @@ static func chain(engine: RefCounted, state: Dictionary, index: int, action: Dic
 				state = preload("res://scripts/retaliate_rules.gd").after_enemy_hit(engine, state, int(state["enemies"][index]["id"]), action, target["pos"])
 		var losses: Array[Dictionary] = engine._actor_target_losses(before, state)
 		losses.append_array(engine._enemy_target_losses(before, state))
-		hits.append({"from": origin, "to": target["pos"], "target_key": target["key"], "damage": damage, "target_losses": losses, "state": state.duplicate(true)})
+		hits.append({"from": target["from"], "to": target["pos"], "target_key": target["key"], "damage": damage, "target_losses": losses, "state": state.duplicate(true)})
 		origin = target["pos"]
+		source = (target["unit"] as Dictionary).duplicate(true)
 		if resolve_hits and (int(state["player"]["hp"]) <= 0 or int(state["enemies"][index]["hp"]) <= 0): break
 	return hits
 

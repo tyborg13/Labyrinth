@@ -2,7 +2,6 @@ extends RefCounted
 
 ## Automatic modal focus is silent. Only a new pointer motion or a navigation
 ## focus change may expose the secondary card's glossary stack.
-const Data = preload("res://scripts/game_data.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const NAVIGATION_ACTIONS := [&"ui_focus_next", &"ui_focus_prev", &"ui_up", &"ui_down", &"ui_left", &"ui_right"]
 var _cards: Array[Control]
@@ -13,12 +12,12 @@ var _navigation: bool = false
 func configure(stack: Control) -> void:
 	_stack = stack
 
-func bind_card(widget: Control, id: String) -> void:
+func bind_card(widget: Control) -> void:
 	_cards.append(widget)
-	widget.set_meta("boon_inspection_card", id)
 	widget.focus_entered.connect(_focus_entered.bind(widget))
 	widget.focus_exited.connect(_focus_exited.bind(widget))
 	widget.mouse_exited.connect(_pointer_exited.bind(widget))
+	widget.display_overrides_changed.connect(_display_changed.bind(widget))
 
 func handle_input(event: InputEvent) -> void:
 	if not is_instance_valid(_stack): return
@@ -46,12 +45,13 @@ func _focus_exited(widget: Control) -> void:
 func _pointer_exited(widget: Control) -> void:
 	if not _navigation: _hide(widget)
 
-func _show(widget: Control) -> void:
-	if _owner == widget and _stack.visible: return
-	var id: String = str(widget.get_meta("boon_inspection_card"))
-	var card: Dictionary = Data.card_def(id)
-	var leading: Array = ["time"] if int(card.get("time", 0)) > 0 else []
-	var entries: Array[Dictionary] = Icons.tooltip_entries_for_rows(Icons.rows_for_card(card), leading)
+func _display_changed(widget: Control) -> void:
+	if is_instance_valid(_stack) and _owner == widget and _stack.visible: _show(widget, true)
+
+func _show(widget: Control, refresh: bool = false) -> void:
+	if not is_instance_valid(_stack): return
+	if not refresh and _owner == widget and _stack.visible: return
+	var entries: Array[Dictionary] = Icons.tooltip_entries_for_rows(widget.display_summary_rows())
 	_stack.show_for(widget, entries)
 	_owner = widget
 

@@ -1,0 +1,4823 @@
+{
+  "texels": [
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        101,
+        64
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        102,
+        64
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        103,
+        64
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        2,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        104,
+        64
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        82,
+        64,
+        58,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        101,
+        65
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        102,
+        65
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        35,
+        22,
+        25,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        103,
+        65
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        39,
+        30,
+        27,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        104,
+        65
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        95,
+        74,
+        66,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        101,
+        66
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        80,
+        58,
+        50,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        102,
+        66
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        111,
+        88,
+        79,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        103,
+        66
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        115,
+        89,
+        78,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        104,
+        66
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        125,
+        96,
+        86,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        102,
+        67
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        117,
+        90,
+        81,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        103,
+        67
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        120,
+        92,
+        82,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        104,
+        67
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        120,
+        92,
+        83,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        102,
+        68
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        121,
+        93,
+        84,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        103,
+        68
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        121,
+        92,
+        83,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        102,
+        69
+      ],
+      "owner": "arm_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        124,
+        95,
+        84,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        182,
+        87
+      ],
+      "owner": "arm_near",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        15,
+        10,
+        14,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        95
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        51,
+        36,
+        32,
+        255
+      ],
+      "director_rgba": [
+        51,
+        36,
+        32,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        95
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        75,
+        50,
+        42,
+        255
+      ],
+      "director_rgba": [
+        75,
+        50,
+        42,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        95
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        92,
+        66,
+        56,
+        255
+      ],
+      "director_rgba": [
+        92,
+        66,
+        56,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        95
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        85,
+        60,
+        52,
+        255
+      ],
+      "director_rgba": [
+        85,
+        60,
+        52,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        96
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        62,
+        41,
+        37,
+        255
+      ],
+      "director_rgba": [
+        62,
+        41,
+        37,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        96
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        92,
+        61,
+        50,
+        255
+      ],
+      "director_rgba": [
+        92,
+        61,
+        50,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        96
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        96,
+        67,
+        57,
+        255
+      ],
+      "director_rgba": [
+        96,
+        67,
+        57,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        96
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        76,
+        53,
+        46,
+        255
+      ],
+      "director_rgba": [
+        76,
+        53,
+        46,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        97
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        81,
+        56,
+        49,
+        255
+      ],
+      "director_rgba": [
+        81,
+        56,
+        49,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        97
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        100,
+        70,
+        59,
+        255
+      ],
+      "director_rgba": [
+        100,
+        70,
+        59,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        97
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        94,
+        66,
+        57,
+        255
+      ],
+      "director_rgba": [
+        94,
+        66,
+        57,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        97
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        74,
+        49,
+        40,
+        255
+      ],
+      "director_rgba": [
+        74,
+        49,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        98
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        100,
+        71,
+        63,
+        255
+      ],
+      "director_rgba": [
+        100,
+        71,
+        63,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        98
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        100,
+        70,
+        59,
+        255
+      ],
+      "director_rgba": [
+        100,
+        70,
+        59,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        98
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        67,
+        46,
+        40,
+        255
+      ],
+      "director_rgba": [
+        67,
+        46,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        99
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        107,
+        78,
+        69,
+        255
+      ],
+      "director_rgba": [
+        107,
+        78,
+        69,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        99
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        91,
+        65,
+        57,
+        255
+      ],
+      "director_rgba": [
+        91,
+        65,
+        57,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        99
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        67,
+        46,
+        40,
+        255
+      ],
+      "director_rgba": [
+        67,
+        46,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        158,
+        100
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        94,
+        66,
+        57,
+        255
+      ],
+      "director_rgba": [
+        94,
+        66,
+        57,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        100
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        105,
+        77,
+        67,
+        255
+      ],
+      "director_rgba": [
+        105,
+        77,
+        67,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        100
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        77,
+        57,
+        53,
+        255
+      ],
+      "director_rgba": [
+        77,
+        57,
+        53,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        100
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        67,
+        46,
+        40,
+        255
+      ],
+      "director_rgba": [
+        67,
+        46,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        158,
+        101
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        89,
+        63,
+        56,
+        255
+      ],
+      "director_rgba": [
+        89,
+        63,
+        56,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        101
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        94,
+        68,
+        63,
+        255
+      ],
+      "director_rgba": [
+        94,
+        68,
+        63,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        101
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        70,
+        52,
+        48,
+        255
+      ],
+      "director_rgba": [
+        70,
+        52,
+        48,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        101
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        65,
+        44,
+        40,
+        255
+      ],
+      "director_rgba": [
+        65,
+        44,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        158,
+        102
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        85,
+        58,
+        50,
+        255
+      ],
+      "director_rgba": [
+        85,
+        58,
+        50,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        102
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        85,
+        61,
+        57,
+        255
+      ],
+      "director_rgba": [
+        85,
+        61,
+        57,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        102
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        60,
+        43,
+        41,
+        255
+      ],
+      "director_rgba": [
+        60,
+        43,
+        41,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        102
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        62,
+        41,
+        37,
+        255
+      ],
+      "director_rgba": [
+        62,
+        41,
+        37,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        158,
+        103
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        85,
+        58,
+        50,
+        255
+      ],
+      "director_rgba": [
+        85,
+        58,
+        50,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        103
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        73,
+        51,
+        48,
+        255
+      ],
+      "director_rgba": [
+        73,
+        51,
+        48,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        103
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        48,
+        35,
+        34,
+        255
+      ],
+      "director_rgba": [
+        48,
+        35,
+        34,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        103
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        44,
+        30,
+        29,
+        255
+      ],
+      "director_rgba": [
+        44,
+        30,
+        29,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        158,
+        104
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        80,
+        53,
+        49,
+        255
+      ],
+      "director_rgba": [
+        80,
+        53,
+        49,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        104
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        62,
+        44,
+        41,
+        255
+      ],
+      "director_rgba": [
+        62,
+        44,
+        41,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        104
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        41,
+        29,
+        29,
+        255
+      ],
+      "director_rgba": [
+        41,
+        29,
+        29,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        104
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        29,
+        18,
+        19,
+        255
+      ],
+      "director_rgba": [
+        29,
+        18,
+        19,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        158,
+        105
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        71,
+        46,
+        40,
+        255
+      ],
+      "director_rgba": [
+        71,
+        46,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        105
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        56,
+        36,
+        33,
+        255
+      ],
+      "director_rgba": [
+        56,
+        36,
+        33,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        105
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        34,
+        24,
+        25,
+        255
+      ],
+      "director_rgba": [
+        34,
+        24,
+        25,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        105
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        25,
+        16,
+        16,
+        255
+      ],
+      "director_rgba": [
+        25,
+        16,
+        16,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        106
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        55,
+        37,
+        36,
+        255
+      ],
+      "director_rgba": [
+        55,
+        37,
+        36,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        106
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        37,
+        28,
+        26,
+        255
+      ],
+      "director_rgba": [
+        37,
+        28,
+        26,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        106
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        25,
+        15,
+        15,
+        255
+      ],
+      "director_rgba": [
+        25,
+        15,
+        15,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        107
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        69,
+        47,
+        45,
+        255
+      ],
+      "director_rgba": [
+        69,
+        47,
+        45,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        107
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        46,
+        33,
+        32,
+        255
+      ],
+      "director_rgba": [
+        46,
+        33,
+        32,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        107
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        25,
+        16,
+        16,
+        255
+      ],
+      "director_rgba": [
+        25,
+        16,
+        16,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        108
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        73,
+        51,
+        48,
+        255
+      ],
+      "director_rgba": [
+        73,
+        51,
+        48,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        108
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        67,
+        46,
+        40,
+        255
+      ],
+      "director_rgba": [
+        67,
+        46,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        108
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        47,
+        31,
+        29,
+        255
+      ],
+      "director_rgba": [
+        47,
+        31,
+        29,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        109
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        67,
+        46,
+        40,
+        255
+      ],
+      "director_rgba": [
+        67,
+        46,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        109
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        68,
+        47,
+        40,
+        255
+      ],
+      "director_rgba": [
+        68,
+        47,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        109
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        68,
+        47,
+        42,
+        255
+      ],
+      "director_rgba": [
+        68,
+        47,
+        42,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        110
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        71,
+        46,
+        40,
+        255
+      ],
+      "director_rgba": [
+        71,
+        46,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        110
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        92,
+        61,
+        50,
+        255
+      ],
+      "director_rgba": [
+        92,
+        61,
+        50,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        110
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        86,
+        60,
+        54,
+        255
+      ],
+      "director_rgba": [
+        86,
+        60,
+        54,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        111
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        80,
+        53,
+        49,
+        255
+      ],
+      "director_rgba": [
+        80,
+        53,
+        49,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        111
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        88,
+        59,
+        50,
+        255
+      ],
+      "director_rgba": [
+        88,
+        59,
+        50,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        111
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        96,
+        67,
+        57,
+        255
+      ],
+      "director_rgba": [
+        96,
+        67,
+        57,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        111
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        86,
+        60,
+        54,
+        255
+      ],
+      "director_rgba": [
+        86,
+        60,
+        54,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        112
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        80,
+        53,
+        49,
+        255
+      ],
+      "director_rgba": [
+        80,
+        53,
+        49,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        112
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        87,
+        60,
+        51,
+        255
+      ],
+      "director_rgba": [
+        87,
+        60,
+        51,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        112
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        95,
+        67,
+        60,
+        255
+      ],
+      "director_rgba": [
+        95,
+        67,
+        60,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        112
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        95,
+        67,
+        60,
+        255
+      ],
+      "director_rgba": [
+        95,
+        67,
+        60,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        159,
+        113
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        78,
+        54,
+        49,
+        255
+      ],
+      "director_rgba": [
+        78,
+        54,
+        49,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        113
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        82,
+        57,
+        50,
+        255
+      ],
+      "director_rgba": [
+        82,
+        57,
+        50,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        113
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        95,
+        67,
+        60,
+        255
+      ],
+      "director_rgba": [
+        95,
+        67,
+        60,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        113
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        95,
+        67,
+        60,
+        255
+      ],
+      "director_rgba": [
+        95,
+        67,
+        60,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        114
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        78,
+        54,
+        49,
+        255
+      ],
+      "director_rgba": [
+        78,
+        54,
+        49,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        114
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        91,
+        65,
+        57,
+        255
+      ],
+      "director_rgba": [
+        91,
+        65,
+        57,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        114
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        91,
+        65,
+        58,
+        255
+      ],
+      "director_rgba": [
+        91,
+        65,
+        58,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        115
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        71,
+        46,
+        40,
+        255
+      ],
+      "director_rgba": [
+        71,
+        46,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        115
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        91,
+        65,
+        57,
+        255
+      ],
+      "director_rgba": [
+        91,
+        65,
+        57,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        115
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        94,
+        66,
+        57,
+        255
+      ],
+      "director_rgba": [
+        94,
+        66,
+        57,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        116
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        64,
+        42,
+        39,
+        255
+      ],
+      "director_rgba": [
+        64,
+        42,
+        39,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        116
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        86,
+        60,
+        54,
+        255
+      ],
+      "director_rgba": [
+        86,
+        60,
+        54,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        116
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        95,
+        67,
+        60,
+        255
+      ],
+      "director_rgba": [
+        95,
+        67,
+        60,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        116
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        85,
+        58,
+        50,
+        255
+      ],
+      "director_rgba": [
+        85,
+        58,
+        50,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        117
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        68,
+        47,
+        42,
+        255
+      ],
+      "director_rgba": [
+        68,
+        47,
+        42,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        117
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        89,
+        59,
+        56,
+        255
+      ],
+      "director_rgba": [
+        89,
+        59,
+        56,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        117
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        91,
+        65,
+        58,
+        255
+      ],
+      "director_rgba": [
+        91,
+        65,
+        58,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        117
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        78,
+        54,
+        49,
+        255
+      ],
+      "director_rgba": [
+        78,
+        54,
+        49,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        160,
+        118
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        67,
+        46,
+        40,
+        255
+      ],
+      "director_rgba": [
+        67,
+        46,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        118
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        86,
+        60,
+        54,
+        255
+      ],
+      "director_rgba": [
+        86,
+        60,
+        54,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        118
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        91,
+        65,
+        57,
+        255
+      ],
+      "director_rgba": [
+        91,
+        65,
+        57,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        118
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        82,
+        57,
+        50,
+        255
+      ],
+      "director_rgba": [
+        82,
+        57,
+        50,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        119
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        81,
+        56,
+        49,
+        255
+      ],
+      "director_rgba": [
+        81,
+        56,
+        49,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        119
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        90,
+        63,
+        54,
+        255
+      ],
+      "director_rgba": [
+        90,
+        63,
+        54,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        119
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        80,
+        53,
+        49,
+        255
+      ],
+      "director_rgba": [
+        80,
+        53,
+        49,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        120
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        76,
+        53,
+        46,
+        255
+      ],
+      "director_rgba": [
+        76,
+        53,
+        46,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        120
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        81,
+        56,
+        49,
+        255
+      ],
+      "director_rgba": [
+        81,
+        56,
+        49,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        120
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        69,
+        49,
+        43,
+        255
+      ],
+      "director_rgba": [
+        69,
+        49,
+        43,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        164,
+        120
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        64,
+        44,
+        41,
+        255
+      ],
+      "director_rgba": [
+        64,
+        44,
+        41,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        121
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        73,
+        49,
+        43,
+        255
+      ],
+      "director_rgba": [
+        73,
+        49,
+        43,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        121
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        76,
+        53,
+        46,
+        255
+      ],
+      "director_rgba": [
+        76,
+        53,
+        46,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        121
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        60,
+        42,
+        37,
+        255
+      ],
+      "director_rgba": [
+        60,
+        42,
+        37,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        164,
+        121
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        59,
+        41,
+        38,
+        255
+      ],
+      "director_rgba": [
+        59,
+        41,
+        38,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        161,
+        122
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        63,
+        44,
+        39,
+        255
+      ],
+      "director_rgba": [
+        63,
+        44,
+        39,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        122
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        75,
+        50,
+        43,
+        255
+      ],
+      "director_rgba": [
+        75,
+        50,
+        43,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        122
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        65,
+        44,
+        40,
+        255
+      ],
+      "director_rgba": [
+        65,
+        44,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        164,
+        122
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        57,
+        40,
+        37,
+        255
+      ],
+      "director_rgba": [
+        57,
+        40,
+        37,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        123
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        73,
+        49,
+        43,
+        255
+      ],
+      "director_rgba": [
+        73,
+        49,
+        43,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        123
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        65,
+        44,
+        40,
+        255
+      ],
+      "director_rgba": [
+        65,
+        44,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        164,
+        123
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        57,
+        40,
+        37,
+        255
+      ],
+      "director_rgba": [
+        57,
+        40,
+        37,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        124
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        67,
+        46,
+        40,
+        255
+      ],
+      "director_rgba": [
+        67,
+        46,
+        40,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        124
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        58,
+        38,
+        33,
+        255
+      ],
+      "director_rgba": [
+        58,
+        38,
+        33,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        164,
+        124
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        59,
+        39,
+        35,
+        255
+      ],
+      "director_rgba": [
+        59,
+        39,
+        35,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        165,
+        124
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        68,
+        47,
+        42,
+        255
+      ],
+      "director_rgba": [
+        68,
+        47,
+        42,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        125
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        64,
+        42,
+        39,
+        255
+      ],
+      "director_rgba": [
+        64,
+        42,
+        39,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        125
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        59,
+        39,
+        35,
+        255
+      ],
+      "director_rgba": [
+        59,
+        39,
+        35,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        164,
+        125
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        59,
+        41,
+        38,
+        255
+      ],
+      "director_rgba": [
+        59,
+        41,
+        38,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        165,
+        125
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        69,
+        47,
+        45,
+        255
+      ],
+      "director_rgba": [
+        69,
+        47,
+        45,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        126
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        64,
+        42,
+        39,
+        255
+      ],
+      "director_rgba": [
+        64,
+        42,
+        39,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        126
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        59,
+        41,
+        38,
+        255
+      ],
+      "director_rgba": [
+        59,
+        41,
+        38,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        164,
+        126
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        55,
+        37,
+        36,
+        255
+      ],
+      "director_rgba": [
+        55,
+        37,
+        36,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        165,
+        126
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        64,
+        44,
+        41,
+        255
+      ],
+      "director_rgba": [
+        64,
+        44,
+        41,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        127
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        49,
+        34,
+        33,
+        255
+      ],
+      "director_rgba": [
+        49,
+        34,
+        33,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        164,
+        127
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        46,
+        32,
+        31,
+        255
+      ],
+      "director_rgba": [
+        46,
+        32,
+        31,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        165,
+        127
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        53,
+        36,
+        35,
+        255
+      ],
+      "director_rgba": [
+        53,
+        36,
+        35,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        128
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        34,
+        24,
+        24,
+        255
+      ],
+      "director_rgba": [
+        34,
+        24,
+        24,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        164,
+        128
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        18,
+        13,
+        13,
+        255
+      ],
+      "director_rgba": [
+        18,
+        13,
+        13,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        165,
+        128
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        23,
+        15,
+        16,
+        255
+      ],
+      "director_rgba": [
+        23,
+        15,
+        16,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        129
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        21,
+        8,
+        6,
+        255
+      ],
+      "director_rgba": [
+        21,
+        8,
+        6,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        164,
+        129
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        24,
+        7,
+        7,
+        255
+      ],
+      "director_rgba": [
+        24,
+        7,
+        7,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        165,
+        129
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        37,
+        14,
+        10,
+        255
+      ],
+      "director_rgba": [
+        37,
+        14,
+        10,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        130
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        50,
+        18,
+        12,
+        255
+      ],
+      "director_rgba": [
+        50,
+        18,
+        12,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        130
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        80,
+        24,
+        20,
+        255
+      ],
+      "director_rgba": [
+        80,
+        24,
+        20,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        164,
+        130
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        105,
+        43,
+        28,
+        255
+      ],
+      "director_rgba": [
+        105,
+        43,
+        28,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        165,
+        130
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        118,
+        51,
+        30,
+        255
+      ],
+      "director_rgba": [
+        118,
+        51,
+        30,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        162,
+        131
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        103,
+        32,
+        24,
+        255
+      ],
+      "director_rgba": [
+        103,
+        32,
+        24,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        163,
+        131
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        119,
+        50,
+        34,
+        255
+      ],
+      "director_rgba": [
+        119,
+        50,
+        34,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        164,
+        131
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        141,
+        63,
+        44,
+        255
+      ],
+      "director_rgba": [
+        141,
+        63,
+        44,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "torso",
+      "uv": [
+        165,
+        131
+      ],
+      "owner": "hidden_pelvis",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        147,
+        64,
+        45,
+        255
+      ],
+      "director_rgba": [
+        147,
+        64,
+        45,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        114,
+        135
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        35,
+        41,
+        15,
+        255
+      ],
+      "director_rgba": [
+        35,
+        41,
+        15,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        152,
+        145
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        16,
+        12,
+        13,
+        255
+      ],
+      "director_rgba": [
+        16,
+        12,
+        13,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        153,
+        145
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        41,
+        29,
+        29,
+        255
+      ],
+      "director_rgba": [
+        41,
+        29,
+        29,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        154,
+        145
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        57,
+        40,
+        37,
+        255
+      ],
+      "director_rgba": [
+        57,
+        40,
+        37,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        152,
+        146
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        23,
+        15,
+        15,
+        255
+      ],
+      "director_rgba": [
+        23,
+        15,
+        15,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        153,
+        146
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        59,
+        41,
+        38,
+        255
+      ],
+      "director_rgba": [
+        59,
+        41,
+        38,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        152,
+        147
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        12,
+        7,
+        8,
+        255
+      ],
+      "director_rgba": [
+        12,
+        7,
+        8,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        153,
+        147
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        64,
+        44,
+        41,
+        255
+      ],
+      "director_rgba": [
+        64,
+        44,
+        41,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        152,
+        148
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        3,
+        2,
+        3,
+        255
+      ],
+      "director_rgba": [
+        3,
+        2,
+        3,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        153,
+        148
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        50,
+        34,
+        31,
+        255
+      ],
+      "director_rgba": [
+        50,
+        34,
+        31,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        151,
+        149
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        3,
+        2,
+        5,
+        255
+      ],
+      "director_rgba": [
+        3,
+        2,
+        5,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        151,
+        152
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        7,
+        5,
+        7,
+        255
+      ],
+      "director_rgba": [
+        7,
+        5,
+        7,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        152,
+        152
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        5,
+        2,
+        5,
+        255
+      ],
+      "director_rgba": [
+        5,
+        2,
+        5,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        151,
+        153
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        9,
+        5,
+        8,
+        255
+      ],
+      "director_rgba": [
+        9,
+        5,
+        8,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        152,
+        153
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        7,
+        5,
+        7,
+        255
+      ],
+      "director_rgba": [
+        7,
+        5,
+        7,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        151,
+        154
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        9,
+        6,
+        9,
+        255
+      ],
+      "director_rgba": [
+        9,
+        6,
+        9,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        152,
+        154
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        9,
+        5,
+        8,
+        255
+      ],
+      "director_rgba": [
+        9,
+        5,
+        8,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        151,
+        155
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        13,
+        7,
+        11,
+        255
+      ],
+      "director_rgba": [
+        13,
+        7,
+        11,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        151,
+        156
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        13,
+        7,
+        11,
+        255
+      ],
+      "director_rgba": [
+        13,
+        7,
+        11,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        151,
+        157
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        14,
+        8,
+        11,
+        255
+      ],
+      "director_rgba": [
+        14,
+        8,
+        11,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "pelvis",
+      "uv": [
+        151,
+        158
+      ],
+      "owner": "hidden_coat_far",
+      "reason": "director underlay partition re-owned receiving paint",
+      "rgba": [
+        18,
+        12,
+        15,
+        255
+      ],
+      "director_rgba": [
+        18,
+        12,
+        15,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        61,
+        77
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        62,
+        77
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        63,
+        77
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        10,
+        2,
+        5,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        64,
+        77
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        30,
+        16,
+        14,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        65,
+        77
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        38,
+        22,
+        19,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        66,
+        77
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        28,
+        13,
+        14,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        67,
+        77
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        12,
+        4,
+        5,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        68,
+        77
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        69,
+        77
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        62,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        63,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        64,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        65,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        66,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        67,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        68,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        69,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        70,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        71,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        72,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        18,
+        2,
+        2,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        73,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        25,
+        4,
+        5,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        74,
+        78
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        66,
+        28,
+        21,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        62,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        63,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        96,
+        78,
+        74,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        64,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        88,
+        69,
+        65,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        65,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        39,
+        27,
+        26,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        66,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        1,
+        1,
+        5,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        67,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        1,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        68,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        69,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        70,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        71,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        72,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        55,
+        32,
+        25,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        73,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        52,
+        29,
+        24,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        74,
+        79
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        30,
+        16,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        67,
+        80
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        1,
+        5,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        68,
+        80
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        69,
+        80
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        2,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        70,
+        80
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        71,
+        80
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        72,
+        80
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        23,
+        9,
+        9,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        73,
+        80
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        23,
+        9,
+        10,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "chain",
+      "uv": [
+        72,
+        81
+      ],
+      "owner": "hand_far",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "arm_far",
+      "uv": [
+        104,
+        62
+      ],
+      "owner": "torso",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "tuck": "arm_far",
+      "uv": [
+        105,
+        62
+      ],
+      "owner": "torso",
+      "reason": "director cleared procedural backing; original visible ownership retained",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "rule": "unchanged required masks; exact new owners; no painted texel removed"
+}

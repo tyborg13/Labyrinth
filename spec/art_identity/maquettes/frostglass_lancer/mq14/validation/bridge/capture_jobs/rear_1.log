@@ -1,0 +1,18 @@
+00:00.332  blend            | Read blend: "/private/tmp/labyrinth_codex/mq-14/final_delivery/cold/maquette.blend"
+00:03.242  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_parts.png'
+00:05.524  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_silhouette.png'
+00:08.118  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_silhouette.png'
+00:10.722  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_silhouette.png'
+00:13.528  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_silhouette.png'
+00:16.204  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_silhouette.png'
+00:19.064  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_silhouette.png'
+00:21.873  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_silhouette.png'
+00:24.618  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_silhouette.png'
+00:26.884  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_silhouette.png'
+00:29.151  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_silhouette.png'
+00:31.387  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_silhouette.png'
+00:33.967  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_1/rear_silhouette.png'
+MQ12_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=rear; solos=['pauldron_far', 'upper_far', 'fore_far', 'hand_far', 'thigh_near', 'shin_near', 'foot_near', 'thigh_far', 'shin_far', 'foot_far', 'spear']
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit

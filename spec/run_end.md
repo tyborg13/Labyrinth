@@ -120,8 +120,18 @@ diamonds, a Display 52 px total, NEW BEST, the approved Ember copy, and current
 slab button treatments. The proportional UI font's existing digit glyphs are
 centered in equal advances to provide tabular score values without another font.
 `LastLightRecap`, `OutcomeKicker`, `OutcomeTitle`, `NewRunButton`, and
-`MainMenuButton` ids remain. The Chronicle button is disabled with “Coming soon”.
-Rise Again keeps primary focus and left/right navigation skips disabled Chronicle.
+`MainMenuButton` ids remain. The action row holds only the two exits, Rise Again
+and Main Menu, at the three-plate size and gap, centred where three plates stood;
+on defeat they stand 44 px apart so the selected slab's arrows clear its neighbour.
+The Chronicle never leaves the screen, so it is a quiet link (`ChronicleButton`,
+“VIEW IN THE CHRONICLE ›”) in the recap column: the SCORE heading's spaced 18 px
+UI style in gold, no plate, left-aligned with the column, its capitals about 48 px
+below the summary's last line. Hover or focus turns it bright gold with a 1 px
+underline under the words, and takes the selection off the row; keyboard or
+controller focus adds the slabs' focus arrow beside it. It opens the Chronicle
+over the recap with the newest record selected; closing returns to the link.
+Rise Again keeps primary focus, left/right walk the two exits, Up reaches the
+link and Down returns to the exit last selected.
 
 The recap attaches to `UiLayer/UiRoot`, which covers the full viewport, rather
 than the inset StageRoot. The original coordinate assertion reads the correct
@@ -176,7 +186,7 @@ finishes any existing Hearth feedback, releases the choice animation lock and
 shows the recap. Withdrawal is included in terminal visibility and refresh
 routing. Its legacy defeat flag `game_over` remains false, and the displayed
 amount comes from held Embers. Rise Again and Main Menu retain their existing
-signal/action paths; Chronicle is disabled. The scene change is within the
+signal/action paths. The scene change is within the
 approved 20-line budget (19 changed lines). The score suite is registered in the
 full suite, and the authorized Hearth assertion now checks WITHDRAWN while
 retaining its banking, save-clearing and departure-cue checks.

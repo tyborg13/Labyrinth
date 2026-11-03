@@ -1,0 +1,212 @@
+{
+  "min_images": 12,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*srf01_normal_pairs.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*srf01_normal_mouse_ice.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*srf01_normal_controller_ice.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*srf01_normal_mouse_fire_trap.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*srf01_reduced_pairs.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*srf01_reduced_mouse_ice.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*srf01_reduced_controller_ice.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*srf01_reduced_mouse_fire_trap.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*srf01_edge_0.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*srf01_edge_1.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*srf01_edge_2.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*srf01_edge_3.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}

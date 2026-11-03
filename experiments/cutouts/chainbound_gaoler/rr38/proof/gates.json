@@ -1,0 +1,992 @@
+{
+  "ok": true,
+  "errors": [],
+  "views": {
+    "front": {
+      "cut_errors": [],
+      "bone_errors": [],
+      "direction": {
+        "ok": true,
+        "errors": [],
+        "positive_checks": 270,
+        "clip_positive_checks": {
+          "move": 49,
+          "reel": 86,
+          "pin": 35,
+          "press": 43,
+          "guard": 57
+        },
+        "minimum_forward_channel_dot": 0.011654906069661658
+      },
+      "reach": {
+        "ok": true,
+        "errors": [],
+        "overreach": [
+          "front/death/hand_near: maximum reach 76.487076 px > 71.902092 px at 1.000000",
+          "front/move/foot_far: maximum reach 86.866916 px > 79.896800 px at 0.669000",
+          "front/move/foot_near: maximum reach 97.462102 px > 92.658198 px at 0.875000",
+          "front/move/hand_near: maximum reach 71.996445 px > 71.902092 px at 0.680000",
+          "front/press/hand_near: maximum reach 86.619039 px > 71.902092 px at 0.500000"
+        ],
+        "paths": [
+          {
+            "clip": "move",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              44.741565613538675,
+              25.75068153340513
+            ],
+            "samples": 1014,
+            "allowed_minimum_px": 22.990884080133544,
+            "allowed_maximum_px": 71.90209208988269,
+            "minimum_px": 69.08564054182067,
+            "maximum_px": 71.99644495211422,
+            "minimum_phase": 0.48,
+            "maximum_phase": 0.68
+          },
+          {
+            "clip": "move",
+            "target": "foot_near",
+            "chain": {
+              "first": "thigh_near",
+              "second": "shin_near",
+              "target": "foot_near"
+            },
+            "segment_lengths": [
+              59.53616804578813,
+              31.305202339799763
+            ],
+            "samples": 1014,
+            "allowed_minimum_px": 32.23096570598837,
+            "allowed_maximum_px": 92.65819779329965,
+            "minimum_px": 80.79802476114595,
+            "maximum_px": 97.46210211999708,
+            "minimum_phase": 0.342,
+            "maximum_phase": 0.875
+          },
+          {
+            "clip": "move",
+            "target": "foot_far",
+            "chain": {
+              "first": "thigh_far",
+              "second": "shin_far",
+              "target": "foot_far"
+            },
+            "segment_lengths": [
+              46.53768715363586,
+              31.792508717297487
+            ],
+            "samples": 1014,
+            "allowed_minimum_px": 18.74517843633837,
+            "allowed_maximum_px": 79.89679978835203,
+            "minimum_px": 67.85878420940173,
+            "maximum_px": 86.86691609280581,
+            "minimum_phase": 0.139,
+            "maximum_phase": 0.669
+          },
+          {
+            "clip": "reel",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              44.741565613538675,
+              25.75068153340513
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 22.990884080133544,
+            "allowed_maximum_px": 71.90209208988269,
+            "minimum_px": 69.54329194958477,
+            "maximum_px": 71.48457427747115,
+            "minimum_phase": 0.5,
+            "maximum_phase": 0.3
+          },
+          {
+            "clip": "reel",
+            "target": "hand_far",
+            "chain": {
+              "first": "upper_far",
+              "second": "fore_far",
+              "target": "hand_far"
+            },
+            "segment_lengths": [
+              19.316671159892955,
+              33.58836396230918
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 18.271692802416226,
+            "allowed_maximum_px": 53.96313582464618,
+            "minimum_px": 39.28632245069158,
+            "maximum_px": 51.843077414338275,
+            "minimum_phase": 0.78,
+            "maximum_phase": 0.5
+          },
+          {
+            "clip": "pin",
+            "target": "hand_far",
+            "chain": {
+              "first": "upper_far",
+              "second": "fore_far",
+              "target": "hand_far"
+            },
+            "segment_lengths": [
+              19.316671159892955,
+              33.58836396230918
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 18.271692802416226,
+            "allowed_maximum_px": 53.96313582464618,
+            "minimum_px": 43.55690488902523,
+            "maximum_px": 48.345596266591535,
+            "minimum_phase": 0.3,
+            "maximum_phase": 0.5
+          },
+          {
+            "clip": "press",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              44.741565613538675,
+              25.75068153340513
+            ],
+            "samples": 1002,
+            "allowed_minimum_px": 22.990884080133544,
+            "allowed_maximum_px": 71.90209208988269,
+            "minimum_px": 45.03629954069842,
+            "maximum_px": 86.61903909855039,
+            "minimum_phase": 0.3,
+            "maximum_phase": 0.5
+          },
+          {
+            "clip": "guard",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              44.741565613538675,
+              25.75068153340513
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 22.990884080133544,
+            "allowed_maximum_px": 71.90209208988269,
+            "minimum_px": 66.01721423986562,
+            "maximum_px": 70.49224714398198,
+            "minimum_phase": 0.3,
+            "maximum_phase": 0.0
+          },
+          {
+            "clip": "guard",
+            "target": "hand_far",
+            "chain": {
+              "first": "upper_far",
+              "second": "fore_far",
+              "target": "hand_far"
+            },
+            "segment_lengths": [
+              19.316671159892955,
+              33.58836396230918
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 18.271692802416226,
+            "allowed_maximum_px": 53.96313582464618,
+            "minimum_px": 39.34910992135042,
+            "maximum_px": 44.14817923536957,
+            "minimum_phase": 0.3,
+            "maximum_phase": 0.0
+          },
+          {
+            "clip": "death",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              44.741565613538675,
+              25.75068153340513
+            ],
+            "samples": 1004,
+            "allowed_minimum_px": 22.990884080133544,
+            "allowed_maximum_px": 71.90209208988269,
+            "minimum_px": 70.49224714398198,
+            "maximum_px": 76.48707555999731,
+            "minimum_phase": 0.0,
+            "maximum_phase": 1.0
+          },
+          {
+            "clip": "death",
+            "target": "hand_far",
+            "chain": {
+              "first": "upper_far",
+              "second": "fore_far",
+              "target": "hand_far"
+            },
+            "segment_lengths": [
+              19.316671159892955,
+              33.58836396230918
+            ],
+            "samples": 1004,
+            "allowed_minimum_px": 18.271692802416226,
+            "allowed_maximum_px": 53.96313582464618,
+            "minimum_px": 41.001713828400845,
+            "maximum_px": 45.45924955851468,
+            "minimum_phase": 0.562,
+            "maximum_phase": 1.0
+          }
+        ],
+        "dense_intervals": 1000,
+        "minimum_margin_px": 4.0,
+        "minimum_phase_resolution": 1e-06,
+        "maximum_overshoot": 0.02,
+        "step_distance_px": 83.5248718261719,
+        "screen_pixel_scale": 0.54316328460095
+      },
+      "walk": {
+        "ok": true,
+        "errors": [],
+        "swings": [
+          {
+            "side": "near",
+            "start": 0.0,
+            "end": 0.08000000000000002,
+            "from": 0.0,
+            "to": 0.2,
+            "peak_frame": 2,
+            "peak_bend_deg": 41.20072242358162,
+            "apex_frame": 2,
+            "apex_swing_bend_deg": 41.20072242358162,
+            "apex_stance_bend_deg": 11.870290310524979
+          },
+          {
+            "side": "far",
+            "start": 0.12,
+            "end": 0.28,
+            "from": 0.0,
+            "to": 0.4,
+            "peak_frame": 10,
+            "peak_bend_deg": 39.51780337554355,
+            "apex_frame": 10,
+            "apex_swing_bend_deg": 39.51780337554355,
+            "apex_stance_bend_deg": 24.872203269605325
+          },
+          {
+            "side": "near",
+            "start": 0.32,
+            "end": 0.48,
+            "from": 0.2,
+            "to": 0.6,
+            "peak_frame": 20,
+            "peak_bend_deg": 43.728546568178004,
+            "apex_frame": 20,
+            "apex_swing_bend_deg": 43.728546568178004,
+            "apex_stance_bend_deg": 16.35209141190867
+          },
+          {
+            "side": "far",
+            "start": 0.52,
+            "end": 0.68,
+            "from": 0.4,
+            "to": 0.8,
+            "peak_frame": 30,
+            "peak_bend_deg": 41.89050535972318,
+            "apex_frame": 30,
+            "apex_swing_bend_deg": 41.89050535972318,
+            "apex_stance_bend_deg": 25.499279034763603
+          },
+          {
+            "side": "near",
+            "start": 0.72,
+            "end": 0.88,
+            "from": 0.6,
+            "to": 1.0,
+            "peak_frame": 40,
+            "peak_bend_deg": 44.34265449891239,
+            "apex_frame": 40,
+            "apex_swing_bend_deg": 44.34265449891239,
+            "apex_stance_bend_deg": 16.515004918518862
+          },
+          {
+            "side": "far",
+            "start": 0.92,
+            "end": 1.0,
+            "from": 0.8,
+            "to": 1.0,
+            "peak_frame": 48,
+            "peak_bend_deg": 38.17265109617355,
+            "apex_frame": 48,
+            "apex_swing_bend_deg": 38.17265109617355,
+            "apex_stance_bend_deg": 20.76258300491403
+          }
+        ],
+        "minimum_peak_bend_deg": 38.17265109617355,
+        "maximum_fit_px": 0.6218239061323914,
+        "maximum_total_pelvis_drop_px": 3.0000000000000284,
+        "maximum_rigid_air_px": 0.0,
+        "maximum_stance_frame_change_px": 0.0,
+        "maximum_stance_target_error_px": 0.6419752947985212,
+        "sample_counts": {
+          "frames": 133,
+          "stance": 173,
+          "rigid_air": 0
+        },
+        "rigid_air_failures": []
+      },
+      "supports": {
+        "ok": true,
+        "errors": [],
+        "swings": [
+          {
+            "side": "near",
+            "start": 0.0,
+            "end": 0.08000000000000002,
+            "from": 0.0,
+            "to": 0.2,
+            "peak_frame": 2,
+            "peak_bend_deg": 41.20072242358162,
+            "apex_frame": 2,
+            "apex_swing_bend_deg": 41.20072242358162,
+            "apex_stance_bend_deg": 11.870290310524979
+          },
+          {
+            "side": "far",
+            "start": 0.12,
+            "end": 0.28,
+            "from": 0.0,
+            "to": 0.4,
+            "peak_frame": 10,
+            "peak_bend_deg": 39.51780337554355,
+            "apex_frame": 10,
+            "apex_swing_bend_deg": 39.51780337554355,
+            "apex_stance_bend_deg": 24.872203269605325
+          },
+          {
+            "side": "near",
+            "start": 0.32,
+            "end": 0.48,
+            "from": 0.2,
+            "to": 0.6,
+            "peak_frame": 20,
+            "peak_bend_deg": 43.728546568178004,
+            "apex_frame": 20,
+            "apex_swing_bend_deg": 43.728546568178004,
+            "apex_stance_bend_deg": 16.35209141190867
+          },
+          {
+            "side": "far",
+            "start": 0.52,
+            "end": 0.68,
+            "from": 0.4,
+            "to": 0.8,
+            "peak_frame": 30,
+            "peak_bend_deg": 41.89050535972318,
+            "apex_frame": 30,
+            "apex_swing_bend_deg": 41.89050535972318,
+            "apex_stance_bend_deg": 25.499279034763603
+          },
+          {
+            "side": "near",
+            "start": 0.72,
+            "end": 0.88,
+            "from": 0.6,
+            "to": 1.0,
+            "peak_frame": 40,
+            "peak_bend_deg": 44.34265449891239,
+            "apex_frame": 40,
+            "apex_swing_bend_deg": 44.34265449891239,
+            "apex_stance_bend_deg": 16.515004918518862
+          },
+          {
+            "side": "far",
+            "start": 0.92,
+            "end": 1.0,
+            "from": 0.8,
+            "to": 1.0,
+            "peak_frame": 48,
+            "peak_bend_deg": 38.17265109617355,
+            "apex_frame": 48,
+            "apex_swing_bend_deg": 38.17265109617355,
+            "apex_stance_bend_deg": 20.76258300491403
+          }
+        ],
+        "minimum_peak_bend_deg": 38.17265109617355,
+        "maximum_fit_px": 0.6218239061323914,
+        "maximum_total_pelvis_drop_px": 3.0000000000000284,
+        "maximum_rigid_air_px": 0.0,
+        "maximum_stance_frame_change_px": 0.0,
+        "maximum_stance_target_error_px": 0.6419752947985212,
+        "maximum_jab_frame_change_px": 0.0,
+        "maximum_jab_target_error_px": 3.411968945826396e-05,
+        "maximum_target_error_px": 0.6419752947985212,
+        "maximum_frame_change_px": 0.0,
+        "sample_counts": {
+          "frames": 133,
+          "stance": 173,
+          "rigid_air": 0,
+          "jab": 646
+        },
+        "rigid_air_failures": []
+      },
+      "chain_errors": [],
+      "facing_errors": [],
+      "knee_policy": {
+        "ok": true,
+        "errors": [],
+        "near_straight_deg": 6,
+        "by_view": {
+          "front": {
+            "near": {
+              "near_straight_deg": 6,
+              "crouched_stance_deg": 15.665069117265379
+            },
+            "far": {
+              "near_straight_deg": 6,
+              "crouched_stance_deg": 5.388678964844272
+            }
+          },
+          "rear": {
+            "near": {
+              "near_straight_deg": 6,
+              "crouched_stance_deg": 17.39906965783266
+            },
+            "far": {
+              "near_straight_deg": 6,
+              "crouched_stance_deg": 6.884121842769397
+            }
+          }
+        },
+        "legs": {
+          "near": {
+            "rest_bend_deg": 15.665069117265425,
+            "rest_side": 1,
+            "near_straight": false,
+            "expected_side": 1,
+            "declared_side": 1
+          },
+          "far": {
+            "rest_bend_deg": 5.388678964844262,
+            "rest_side": -1,
+            "near_straight": true,
+            "expected_side": 1,
+            "declared_side": 1
+          }
+        }
+      },
+      "draw_order_errors": [],
+      "ownership_errors": [],
+      "bone_error_count": 0
+    },
+    "rear": {
+      "cut_errors": [],
+      "bone_errors": [],
+      "direction": {
+        "ok": true,
+        "errors": [],
+        "positive_checks": 270,
+        "clip_positive_checks": {
+          "move": 49,
+          "reel": 86,
+          "pin": 35,
+          "press": 43,
+          "guard": 57
+        },
+        "minimum_forward_channel_dot": 0.015236659690047723
+      },
+      "reach": {
+        "ok": true,
+        "errors": [],
+        "overreach": [
+          "rear/death/hand_near: maximum reach 47.741590 px > 42.590699 px at 1.000000",
+          "rear/move/foot_far: maximum reach 93.026261 px > 86.383467 px at 0.925000",
+          "rear/move/foot_near: maximum reach 81.730286 px > 76.033100 px at 0.729000",
+          "rear/move/hand_near: maximum reach 42.987378 px > 42.590699 px at 0.480000",
+          "rear/press/hand_near: maximum reach 43.981223 px > 42.590699 px at 0.500000"
+        ],
+        "paths": [
+          {
+            "clip": "move",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              26.502075839385835,
+              15.253511875735054
+            ],
+            "samples": 1014,
+            "allowed_minimum_px": 15.248563963650781,
+            "allowed_maximum_px": 42.590699469423306,
+            "minimum_px": 40.70802813702156,
+            "maximum_px": 42.987377858103784,
+            "minimum_phase": 0.28,
+            "maximum_phase": 0.48
+          },
+          {
+            "clip": "move",
+            "target": "foot_near",
+            "chain": {
+              "first": "thigh_near",
+              "second": "shin_near",
+              "target": "foot_near"
+            },
+            "segment_lengths": [
+              46.44879947605617,
+              28.093455792584937
+            ],
+            "samples": 1014,
+            "allowed_minimum_px": 22.355343683471236,
+            "allowed_maximum_px": 76.03310037401394,
+            "minimum_px": 63.37976402293328,
+            "maximum_px": 81.73028597041215,
+            "minimum_phase": 0.854,
+            "maximum_phase": 0.729
+          },
+          {
+            "clip": "move",
+            "target": "foot_far",
+            "chain": {
+              "first": "thigh_far",
+              "second": "shin_far",
+              "target": "foot_far"
+            },
+            "segment_lengths": [
+              59.49433584841512,
+              25.195337973364417
+            ],
+            "samples": 1014,
+            "allowed_minimum_px": 38.2989978750507,
+            "allowed_maximum_px": 86.38346729821512,
+            "minimum_px": 75.9529535999071,
+            "maximum_px": 93.02626138487703,
+            "minimum_phase": 0.669,
+            "maximum_phase": 0.925
+          },
+          {
+            "clip": "reel",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              26.502075839385835,
+              15.253511875735054
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 15.248563963650781,
+            "allowed_maximum_px": 42.590699469423306,
+            "minimum_px": 41.035822621091455,
+            "maximum_px": 42.55724934403362,
+            "minimum_phase": 0.3,
+            "maximum_phase": 0.5
+          },
+          {
+            "clip": "reel",
+            "target": "hand_far",
+            "chain": {
+              "first": "upper_far",
+              "second": "fore_far",
+              "target": "hand_far"
+            },
+            "segment_lengths": [
+              29.99458443052692,
+              28.82063477507384
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 5.173949655453079,
+            "allowed_maximum_px": 59.99152358971278,
+            "minimum_px": 35.55478265606365,
+            "maximum_px": 49.97245309120397,
+            "minimum_phase": 0.78,
+            "maximum_phase": 0.62
+          },
+          {
+            "clip": "pin",
+            "target": "hand_far",
+            "chain": {
+              "first": "upper_far",
+              "second": "fore_far",
+              "target": "hand_far"
+            },
+            "segment_lengths": [
+              29.99458443052692,
+              28.82063477507384
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 5.173949655453079,
+            "allowed_maximum_px": 59.99152358971278,
+            "minimum_px": 38.733163268641235,
+            "maximum_px": 46.59866387831251,
+            "minimum_phase": 0.3,
+            "maximum_phase": 0.5
+          },
+          {
+            "clip": "press",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              26.502075839385835,
+              15.253511875735054
+            ],
+            "samples": 1002,
+            "allowed_minimum_px": 15.248563963650781,
+            "allowed_maximum_px": 42.590699469423306,
+            "minimum_px": 23.58234616164427,
+            "maximum_px": 43.981222593703706,
+            "minimum_phase": 0.3,
+            "maximum_phase": 0.5
+          },
+          {
+            "clip": "guard",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              26.502075839385835,
+              15.253511875735054
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 15.248563963650781,
+            "allowed_maximum_px": 42.590699469423306,
+            "minimum_px": 34.77805300480516,
+            "maximum_px": 41.75558770943076,
+            "minimum_phase": 0.3,
+            "maximum_phase": 0.0
+          },
+          {
+            "clip": "guard",
+            "target": "hand_far",
+            "chain": {
+              "first": "upper_far",
+              "second": "fore_far",
+              "target": "hand_far"
+            },
+            "segment_lengths": [
+              29.99458443052692,
+              28.82063477507384
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 5.173949655453079,
+            "allowed_maximum_px": 59.99152358971278,
+            "minimum_px": 40.35556100761526,
+            "maximum_px": 41.64847726617137,
+            "minimum_phase": 0.3,
+            "maximum_phase": 0.0
+          },
+          {
+            "clip": "death",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              26.502075839385835,
+              15.253511875735054
+            ],
+            "samples": 1004,
+            "allowed_minimum_px": 15.248563963650781,
+            "allowed_maximum_px": 42.590699469423306,
+            "minimum_px": 41.75558770943076,
+            "maximum_px": 47.74158960903445,
+            "minimum_phase": 0.0,
+            "maximum_phase": 1.0
+          },
+          {
+            "clip": "death",
+            "target": "hand_far",
+            "chain": {
+              "first": "upper_far",
+              "second": "fore_far",
+              "target": "hand_far"
+            },
+            "segment_lengths": [
+              29.99458443052692,
+              28.82063477507384
+            ],
+            "samples": 1004,
+            "allowed_minimum_px": 5.173949655453079,
+            "allowed_maximum_px": 59.99152358971278,
+            "minimum_px": 41.64847726617135,
+            "maximum_px": 59.64068480149093,
+            "minimum_phase": 0.005,
+            "maximum_phase": 1.0
+          }
+        ],
+        "dense_intervals": 1000,
+        "minimum_margin_px": 4.0,
+        "minimum_phase_resolution": 1e-06,
+        "maximum_overshoot": 0.02,
+        "step_distance_px": 83.5248718261719,
+        "screen_pixel_scale": 0.54316328460095
+      },
+      "walk": {
+        "ok": true,
+        "errors": [],
+        "swings": [
+          {
+            "side": "near",
+            "start": 0.0,
+            "end": 0.08000000000000002,
+            "from": 0.0,
+            "to": 0.2,
+            "peak_frame": 2,
+            "peak_bend_deg": 47.24289754555379,
+            "apex_frame": 2,
+            "apex_swing_bend_deg": 47.24289754555379,
+            "apex_stance_bend_deg": 15.383313721793822
+          },
+          {
+            "side": "far",
+            "start": 0.12,
+            "end": 0.28,
+            "from": 0.0,
+            "to": 0.4,
+            "peak_frame": 10,
+            "peak_bend_deg": 45.29278668339143,
+            "apex_frame": 10,
+            "apex_swing_bend_deg": 45.29278668339143,
+            "apex_stance_bend_deg": 26.187540396874812
+          },
+          {
+            "side": "near",
+            "start": 0.32,
+            "end": 0.48,
+            "from": 0.2,
+            "to": 0.6,
+            "peak_frame": 20,
+            "peak_bend_deg": 48.83592585592985,
+            "apex_frame": 20,
+            "apex_swing_bend_deg": 48.83592585592985,
+            "apex_stance_bend_deg": 18.87943173493746
+          },
+          {
+            "side": "far",
+            "start": 0.52,
+            "end": 0.68,
+            "from": 0.4,
+            "to": 0.8,
+            "peak_frame": 30,
+            "peak_bend_deg": 42.18590227459975,
+            "apex_frame": 30,
+            "apex_swing_bend_deg": 42.18590227459975,
+            "apex_stance_bend_deg": 25.466787855225643
+          },
+          {
+            "side": "near",
+            "start": 0.72,
+            "end": 0.88,
+            "from": 0.6,
+            "to": 1.0,
+            "peak_frame": 40,
+            "peak_bend_deg": 48.100942085937945,
+            "apex_frame": 40,
+            "apex_swing_bend_deg": 48.100942085937945,
+            "apex_stance_bend_deg": 15.657265980518721
+          },
+          {
+            "side": "far",
+            "start": 0.92,
+            "end": 1.0,
+            "from": 0.8,
+            "to": 1.0,
+            "peak_frame": 48,
+            "peak_bend_deg": 40.346419316660146,
+            "apex_frame": 48,
+            "apex_swing_bend_deg": 40.346419316660146,
+            "apex_stance_bend_deg": 22.43101476738998
+          }
+        ],
+        "minimum_peak_bend_deg": 40.346419316660146,
+        "maximum_fit_px": 0.5903844426438667,
+        "maximum_total_pelvis_drop_px": 3.0000000000000098,
+        "maximum_rigid_air_px": 0.0,
+        "maximum_stance_frame_change_px": 0.0,
+        "maximum_stance_target_error_px": 0.6419893257603376,
+        "sample_counts": {
+          "frames": 133,
+          "stance": 173,
+          "rigid_air": 0
+        },
+        "rigid_air_failures": []
+      },
+      "supports": {
+        "ok": true,
+        "errors": [],
+        "swings": [
+          {
+            "side": "near",
+            "start": 0.0,
+            "end": 0.08000000000000002,
+            "from": 0.0,
+            "to": 0.2,
+            "peak_frame": 2,
+            "peak_bend_deg": 47.24289754555379,
+            "apex_frame": 2,
+            "apex_swing_bend_deg": 47.24289754555379,
+            "apex_stance_bend_deg": 15.383313721793822
+          },
+          {
+            "side": "far",
+            "start": 0.12,
+            "end": 0.28,
+            "from": 0.0,
+            "to": 0.4,
+            "peak_frame": 10,
+            "peak_bend_deg": 45.29278668339143,
+            "apex_frame": 10,
+            "apex_swing_bend_deg": 45.29278668339143,
+            "apex_stance_bend_deg": 26.187540396874812
+          },
+          {
+            "side": "near",
+            "start": 0.32,
+            "end": 0.48,
+            "from": 0.2,
+            "to": 0.6,
+            "peak_frame": 20,
+            "peak_bend_deg": 48.83592585592985,
+            "apex_frame": 20,
+            "apex_swing_bend_deg": 48.83592585592985,
+            "apex_stance_bend_deg": 18.87943173493746
+          },
+          {
+            "side": "far",
+            "start": 0.52,
+            "end": 0.68,
+            "from": 0.4,
+            "to": 0.8,
+            "peak_frame": 30,
+            "peak_bend_deg": 42.18590227459975,
+            "apex_frame": 30,
+            "apex_swing_bend_deg": 42.18590227459975,
+            "apex_stance_bend_deg": 25.466787855225643
+          },
+          {
+            "side": "near",
+            "start": 0.72,
+            "end": 0.88,
+            "from": 0.6,
+            "to": 1.0,
+            "peak_frame": 40,
+            "peak_bend_deg": 48.100942085937945,
+            "apex_frame": 40,
+            "apex_swing_bend_deg": 48.100942085937945,
+            "apex_stance_bend_deg": 15.657265980518721
+          },
+          {
+            "side": "far",
+            "start": 0.92,
+            "end": 1.0,
+            "from": 0.8,
+            "to": 1.0,
+            "peak_frame": 48,
+            "peak_bend_deg": 40.346419316660146,
+            "apex_frame": 48,
+            "apex_swing_bend_deg": 40.346419316660146,
+            "apex_stance_bend_deg": 22.43101476738998
+          }
+        ],
+        "minimum_peak_bend_deg": 40.346419316660146,
+        "maximum_fit_px": 0.5903844426438667,
+        "maximum_total_pelvis_drop_px": 3.0000000000000098,
+        "maximum_rigid_air_px": 0.0,
+        "maximum_stance_frame_change_px": 0.0,
+        "maximum_stance_target_error_px": 0.6419893257603376,
+        "maximum_jab_frame_change_px": 0.0,
+        "maximum_jab_target_error_px": 3.3569335982974735e-05,
+        "maximum_target_error_px": 0.6419893257603376,
+        "maximum_frame_change_px": 0.0,
+        "sample_counts": {
+          "frames": 133,
+          "stance": 173,
+          "rigid_air": 0,
+          "jab": 646
+        },
+        "rigid_air_failures": []
+      },
+      "chain_errors": [],
+      "facing_errors": [],
+      "knee_policy": {
+        "ok": true,
+        "errors": [],
+        "near_straight_deg": 6,
+        "by_view": {
+          "front": {
+            "near": {
+              "near_straight_deg": 6,
+              "crouched_stance_deg": 15.665069117265379
+            },
+            "far": {
+              "near_straight_deg": 6,
+              "crouched_stance_deg": 5.388678964844272
+            }
+          },
+          "rear": {
+            "near": {
+              "near_straight_deg": 6,
+              "crouched_stance_deg": 17.39906965783266
+            },
+            "far": {
+              "near_straight_deg": 6,
+              "crouched_stance_deg": 6.884121842769397
+            }
+          }
+        },
+        "legs": {
+          "near": {
+            "rest_bend_deg": 17.399069657832648,
+            "rest_side": -1,
+            "near_straight": false,
+            "expected_side": -1,
+            "declared_side": -1
+          },
+          "far": {
+            "rest_bend_deg": 6.884121842769387,
+            "rest_side": 1,
+            "near_straight": false,
+            "expected_side": 1,
+            "declared_side": 1
+          }
+        }
+      },
+      "draw_order_errors": [],
+      "ownership_errors": [],
+      "bone_error_count": 0
+    }
+  },
+  "design_placeholders": {},
+  "floating_pieces": null,
+  "rr38_native_defects": null,
+  "native_pixels": false,
+  "production_ready": false,
+  "reach_policy": "1000 intervals; overreach reported, minimum reach fails",
+  "error_count": 0,
+  "full_diagnostics": "logs/gates.json"
+}

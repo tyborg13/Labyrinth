@@ -47,8 +47,18 @@ static func canceled_case(boss_id: String) -> Dictionary:
 		declare(state,"crownfire")
 	else:
 		action = "terrain_burst"
-		state["terrain"] = [{"id":"canceled_spire_1","kind":"dragon_spire","pos":Vector2i(3,4),"hp":4,"max_hp":4,"surface_on_destroy":"rubble"},{"id":"canceled_spire_2","kind":"dragon_spire","pos":Vector2i(6,5),"hp":4,"max_hp":4,"surface_on_destroy":"rubble"}]
+		state["terrain"] = [{"id":"canceled_spire_1","kind":"crag_outcrop","owner_kind":"enemy","owner_id":int(state["enemies"][0]["id"]),"pos":Vector2i(3,4),"hp":4,"max_hp":4,"surface_on_destroy":"rubble"},{"id":"canceled_spire_2","kind":"crag_outcrop","owner_kind":"enemy","owner_id":int(state["enemies"][0]["id"]),"pos":Vector2i(6,5),"hp":4,"max_hp":4,"surface_on_destroy":"rubble"}]
 		declare(state,"faultline")
+	# Crownfire and Faultline now also carry ordinary melee/ranged follow-ups.
+	# This fixture isolates the cancelable area action; the full authored intent
+	# and its follow-ups remain covered by dragon_committed_patterns_test.
+	var area_intent: Dictionary = state["enemies"][0]["intent"].duplicate(true)
+	var area_actions: Array[Dictionary]
+	for authored: Dictionary in area_intent.get("actions", []):
+		if str(authored.get("type", "")) == action: area_actions.append(authored)
+	area_intent["actions"] = area_actions
+	area_intent.erase("committed_plan")
+	state["enemies"][0]["intent"] = area_intent
 	var before_counterplay: Array = combat.enemy_threat_tiles(state,0)["attack"].duplicate()
 	if boss_id == "vyraketh":
 		for tile: Vector2i in Surface.tiles(state,"fire"): Surface.place(state,tile,"ice",{"actor_kind":"player"})

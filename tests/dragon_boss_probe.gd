@@ -7,6 +7,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const HealthBar = preload("res://scripts/segmented_health_bar.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
 const OUTPUT_ROOT: String = "user://dragon_boss_probe_v4"
@@ -72,6 +73,11 @@ func _capture_bosses() -> void:
 		if boss_index < 0:
 			_fail("%s proof should find a boss actor" % boss_id)
 			continue
+		if boss_id == "tharokh":
+			# The terrain witness now comes from its real player-turn rule.
+			var rules = preload("res://scripts/battlefield_rules/dispatcher.gd")
+			for turn: int in range(int(combat_state["battlefield_rule"]["cadence"]["every"])):
+				combat_state = rules.after_player_turn(CombatEngine.new(), combat_state, turn + 1)
 		combat_state = CombatEngine.new().resolve_enemy_turn_with_steps(combat_state, boss_index, false).get("state", combat_state) as Dictionary
 		state["combat_state"] = combat_state
 		state["current_room_layout"] = _layout_from_combat(combat_state)
@@ -272,7 +278,7 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 	var boss_name_label: Label = instance.get("_boss_health_name") as Label
 	var boss_frame: TextureRect = instance.get("_boss_health_frame") as TextureRect
 	var boss_health_host: Control = instance.get("_boss_health_host") as Control
-	var boss_health_bar: SegmentedHealthBar = instance.get("_boss_health_bar") as SegmentedHealthBar
+	var boss_health_bar: HealthBar = instance.get("_boss_health_bar") as HealthBar
 	var boss_hp_label: Label = instance.get("_boss_health_hp_label") as Label
 	if instance.find_child("BossDossier", true, false) != null:
 		_fail("%s should not retain the obsolete turn-clock boss widget" % boss_id)
@@ -338,12 +344,12 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 		_fail("%s dedicated boss overlay should keep the boss name readable" % boss_id)
 	if boss_hp_label == null or boss_hp_label.text != "%d/%d" % [int(boss.get("hp", 0)), int(boss.get("max_hp", 1))]:
 		_fail("%s dedicated boss overlay should show exact health" % boss_id)
-	if after_gimmick and boss_id != "zekarion" and not bool(boss.get("boss_mechanic_opened", false)):
+	if after_gimmick and boss_id not in ["zekarion", "tharokh"] and not bool(boss.get("boss_mechanic_opened", false)):
 		_fail("%s opening gimmick should mark itself active" % boss_id)
 	match boss_id:
 		"tharokh":
-			if after_gimmick and not _state_has_terrain_kind(combat_state, "dragon_spire"):
-				_fail("Tharokh gimmick proof should render Worldspines")
+			if after_gimmick and not _state_has_terrain_kind(combat_state, "crag_outcrop"):
+				_fail("Tharokh gimmick proof should render its Outcrops")
 		"vyraketh":
 			if after_gimmick and not _state_has_trap_kind(combat_state, "cinder_mark"):
 				_fail("Vyraketh gimmick proof should render cinder marks")

@@ -1,0 +1,12 @@
+00:00.310  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/cold/maquette.blend"
+00:03.985  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/rear_0/rear_parts.png'
+00:06.304  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/rear_0/rear_silhouette.png'
+00:08.460  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/rear_0/rear_silhouette.png'
+00:10.620  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/rear_0/rear_silhouette.png'
+00:12.774  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/rear_0/rear_silhouette.png'
+00:14.991  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/rear_0/rear_silhouette.png'
+00:17.406  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/rear_0/rear_silhouette.png'
+MQ12_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=rear; solos=['head', 'torso', 'belt', 'tabard', 'cape_near']
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit

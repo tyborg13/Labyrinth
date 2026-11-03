@@ -1,0 +1,9 @@
+{
+  "headless_import_exit_code": 0,
+  "initial_import_timeout_seconds": 300,
+  "completed_import_timeout_seconds": 900,
+  "generated_test_directory": "experiments/cutouts/briar_weaver/mq9/proof/logs",
+  "created_directory": true,
+  "source_files_changed": false,
+  "reason": "Existing rr21 review fixtures use TemporaryDirectory(dir=CASE/proof/logs); initialize the known worktree output-folder gap before full-suite execution."
+}

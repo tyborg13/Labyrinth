@@ -1,0 +1,105 @@
+{
+  "authority": "Exact source-texel ownership corrections from the director native round 0",
+  "transfers": [
+    {
+      "view": "front",
+      "from": "torso",
+      "to": "arm_far",
+      "texels": [
+        [
+          97,
+          90
+        ],
+        [
+          97,
+          91
+        ],
+        [
+          96,
+          93
+        ],
+        [
+          96,
+          94
+        ],
+        [
+          95,
+          97
+        ]
+      ],
+      "reason": "Native death fragments map to the outer sleeve edge; director body underlay is transparent at all five texels."
+    },
+    {
+      "view": "front",
+      "from": "pelvis",
+      "to": "torso",
+      "texels": [
+        [
+          112,
+          124
+        ]
+      ],
+      "reason": "Native press fragment is the isolated dark cowl-edge texel surrounded by torso paint, two columns from the belt."
+    },
+    {
+      "view": "front",
+      "from": "torso",
+      "to": "head",
+      "texels": [
+        [
+          118,
+          70
+        ],
+        [
+          118,
+          71
+        ]
+      ],
+      "reason": "Calibrated death 10 seam: helmet outline belongs to the rigid helm, not the cowl."
+    },
+    {
+      "view": "front",
+      "from": "head",
+      "to": "torso",
+      "texels": [
+        [
+          123,
+          87
+        ],
+        [
+          124,
+          87
+        ]
+      ],
+      "reason": "Calibrated death 16 seam: grey cowl texels belong to the torso, not the rotating helm."
+    },
+    {
+      "view": "front",
+      "from": "torso",
+      "to": "arm_far",
+      "texels": [
+        [
+          93,
+          102
+        ]
+      ],
+      "reason": "Calibrated hit/walk/guard fragment is the same outer sleeve ink as the five death witnesses; supplied underlay is clear at this source coordinate."
+    },
+    {
+      "view": "front",
+      "from": "foot_far",
+      "to": "tabard",
+      "texels": [
+        [
+          145,
+          204
+        ],
+        [
+          143,
+          205
+        ]
+      ],
+      "reason": "Restored black tabard hem tips touch only the tabard above/left. Historical foot ownership makes them float with the planted boot during walk/death; keep exact source RGBA on the cloth."
+    }
+  ]
+}

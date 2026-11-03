@@ -1,0 +1,50 @@
+[
+	{
+		"context": "scavenger_offer",
+		"height": 318.0,
+		"position": [
+			717.0,
+			146.0
+		],
+		"row": "",
+		"safe_area": true,
+		"todo": "",
+		"width": 716.0
+	},
+	{
+		"context": "graftwright",
+		"height": 308.351989746094,
+		"position": [
+			480.5,
+			474.0
+		],
+		"row": "SourceCard",
+		"safe_area": true,
+		"todo": "",
+		"width": 669.0
+	},
+	{
+		"context": "graftwright",
+		"height": 308.351989746094,
+		"position": [
+			1185.5,
+			474.0
+		],
+		"row": "TargetCard",
+		"safe_area": true,
+		"todo": "",
+		"width": 669.0
+	},
+	{
+		"context": "upgrade_preview",
+		"height": 620.0,
+		"position": [
+			400.0,
+			230.0
+		],
+		"row": "",
+		"safe_area": true,
+		"todo": "",
+		"width": 1120.0
+	}
+]

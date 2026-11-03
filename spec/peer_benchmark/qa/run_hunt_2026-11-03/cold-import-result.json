@@ -1,0 +1,9 @@
+{
+  "returncode": 0,
+  "log": "/private/tmp/labyrinth-godot-home/qa-23-1793675016051757000-85671/godot.log",
+  "result_line": "[ DONE ] loading_editor_layout",
+  "diagnostics": [
+    "macOS get_system_ca_certificates ret != noErr",
+    "duplicate Reaver placeholder UID"
+  ]
+}

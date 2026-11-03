@@ -41,14 +41,14 @@
     }
    },
    "move": {
-    "seconds": 0.85,
+    "seconds": 0.3333333333333333,
     "intents": [
      "brace:move_away"
     ],
     "note": "a heavy plod on the protagonist's model: both legs step, six stomping steps per tile rest to rest, the near foot leading; 5 px lift; the pelvis settles 3.5 px after each landing and the torso jolts 1 px on the four full-step landings; the crucible rides the torso; the fists swing 2 px; the loincloth flap trails 2 px",
     "gait": {
      "model": "protagonist_walk",
-     "steps_per_tile": 6,
+     "steps_per_tile": 4,
      "lead": "near",
      "stance_fraction": 0.6,
      "lift_px": 5,
@@ -103,55 +103,29 @@
        0
       ],
       [
-       0.28,
+       0.4666666666666667,
        0
       ],
       [
-       0.3,
+       0.5176666666666666,
        -1,
        "linear"
       ],
       [
-       0.34,
+       0.6196666666666667,
        0
       ],
       [
-       0.48,
+       0.8,
        0
       ],
       [
-       0.5,
+       0.851,
        -1,
        "linear"
       ],
       [
-       0.54,
-       0
-      ],
-      [
-       0.68,
-       0
-      ],
-      [
-       0.7,
-       -1,
-       "linear"
-      ],
-      [
-       0.74,
-       0
-      ],
-      [
-       0.88,
-       0
-      ],
-      [
-       0.9,
-       -1,
-       "linear"
-      ],
-      [
-       0.94,
+       0.9530000000000001,
        0
       ],
       [

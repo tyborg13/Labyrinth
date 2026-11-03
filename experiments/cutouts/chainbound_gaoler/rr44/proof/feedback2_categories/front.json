@@ -1,0 +1,103 @@
+{
+  "native_pixels": true,
+  "fixture_sha256": "1ba4c6511c9ac48dafb38408b5f80b600d3eb25a82baba20b03877429ebba2ad",
+  "view": "front",
+  "clip": "idle",
+  "frame": 15,
+  "categories": [
+    {
+      "category": "missing",
+      "measures": "required-domain reference over transparent paint",
+      "pixels": 1,
+      "bbox": [
+        293,
+        309,
+        318,
+        334
+      ],
+      "crop": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_categories/front_missing_idle15_native_4x.png",
+      "locations": [
+        [
+          305,
+          321
+        ]
+      ],
+      "native_composite_sha256": "a1e83b6828faf812a1d7716b785d38c3ce05b2719b82caa73304347900871f1b"
+    },
+    {
+      "category": "foreign",
+      "measures": "part-interior donor palette test",
+      "pixels": 0,
+      "bbox": [
+        252,
+        212,
+        420,
+        450
+      ],
+      "crop": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_categories/front_foreign_idle15_native_4x.png",
+      "locations": [],
+      "native_composite_sha256": "a1e83b6828faf812a1d7716b785d38c3ce05b2719b82caa73304347900871f1b"
+    },
+    {
+      "category": "uncovered_outline",
+      "measures": "ink in exposed underlap",
+      "pixels": 0,
+      "bbox": [
+        252,
+        212,
+        420,
+        450
+      ],
+      "crop": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_categories/front_uncovered_outline_idle15_native_4x.png",
+      "locations": [],
+      "native_composite_sha256": "a1e83b6828faf812a1d7716b785d38c3ce05b2719b82caa73304347900871f1b"
+    },
+    {
+      "category": "outline",
+      "measures": "dark hidden-layer continuation ink",
+      "pixels": 0,
+      "bbox": [
+        252,
+        212,
+        420,
+        450
+      ],
+      "crop": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_categories/front_outline_idle15_native_4x.png",
+      "locations": [],
+      "native_composite_sha256": "a1e83b6828faf812a1d7716b785d38c3ce05b2719b82caa73304347900871f1b"
+    }
+  ],
+  "checks_reconstructed_cpu": true,
+  "raw_metrics": {
+    "uncovered_missing_pixels": 1,
+    "uncovered_foreign_texels": 0,
+    "uncovered_outline_pixels": 0,
+    "uncovered_tiny_components": 0,
+    "uncovered_outside_surface_pixels": 0
+  },
+  "raw_clean": {
+    "outside_pixels": 0,
+    "exposed_continuation_pixels": 26,
+    "exposed_outline_pixels": 0,
+    "dark_slab_blocks": 0,
+    "outline_outside_pixels": 0,
+    "stray_components": 0,
+    "stray_pixels": 0,
+    "exempt_outline_components": 0,
+    "interior_hole_sizes": [
+      10,
+      9,
+      8,
+      4,
+      2
+    ]
+  },
+  "source_authority_metrics": {
+    "uncovered_missing_pixels": 0,
+    "uncovered_foreign_texels": 0,
+    "uncovered_outline_pixels": 0,
+    "uncovered_tiny_components": 0,
+    "uncovered_outside_surface_pixels": 0
+  },
+  "note": "Exact accepted paint has explicit authority. Demand support is frozen source alpha, independent of current texture alpha; joins and detached components remain separate strict gates."
+}

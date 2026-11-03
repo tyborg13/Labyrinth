@@ -25,7 +25,7 @@ func _run_material_proof(settings: Dictionary) -> void:
 
 	var router: Node = root.get_node("InputRouter")
 	router.call("set_forced_state_for_test", "pointer", "xbox")
-	for source_name: String in ["PreBattleEquipmentChip", "PreBattleAttunedBadge", "PreBattleDeckBadge"]:
+	for source_name: String in ["PreBattleEquipmentChip", "PreBattleDeckBadge"]:
 		var source := panel.find_child(source_name, true, false) as Control
 		var tooltip := source.call("_make_custom_tooltip", source.tooltip_text) as Control
 		_expect(tooltip != null, "%s retains precise hover inspection" % source_name)
@@ -100,10 +100,10 @@ func _check_objects(panel: Control, state: Dictionary, variant: String) -> void:
 	_expect(equipment.get_child_count() == GameData.equipment_slots().size(), "Every equipment slot remains represented")
 	for chip: Control in equipment.get_children():
 		_expect(equipment.get_global_rect().grow(1).encloses(chip.get_global_rect()), "Equipment stays fully visible")
-	for source_kind: String in ["attuned", "deck"]:
-		var expected: Array = state.get("attuned_magic_cards" if source_kind == "attuned" else "deck_cards", []) as Array
+	for source_kind: String in ["deck"]:
+		var expected: Array = state.get("deck_cards", []) as Array
 		_assert_cards(panel, expected, source_kind)
-		var source := panel.find_child("PreBattleAttunedRow" if source_kind == "attuned" else "PreBattleDeckFlow", true, false) as Control
+		var source := panel.find_child("PreBattleDeckFlow", true, false) as Control
 		var bounds: Rect2 = (panel.find_child("PreBattleDeckSection", true, false) as Control).get_global_rect()
 		for strip: Control in source.get_children():
 			var art := strip.get_node("Art") as TextureRect

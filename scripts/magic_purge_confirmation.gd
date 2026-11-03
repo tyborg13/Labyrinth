@@ -1,5 +1,7 @@
 extends Control
 
+const CardDisplay = preload("res://scripts/card_display_overrides.gd")
+
 signal accepted
 signal cancelled
 
@@ -88,6 +90,7 @@ func present(card_id: String, price: int, paid: bool, affordable: bool, held: in
 		_present_legacy(card_id, price, paid, affordable)
 		return
 	card.configure(card_id, false, false, true, false, false)
+	CardDisplay.bind(card, _host.call("_card_display_state"))
 	_glow.configure(card.get_theme_stylebox("normal") as StyleBoxTexture, Vector2i(CARD_SIZE))
 	_card_slot.show()
 	confirm_button.text = "Purge for %d Embers" % price if paid else "Purge"

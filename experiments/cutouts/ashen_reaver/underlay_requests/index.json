@@ -1,0 +1,216 @@
+{
+  "native_pixels": false,
+  "scope": "every presented frame of every clip in both views; source painting coordinates, no synthetic fills",
+  "regions": [
+    {
+      "view": "front",
+      "region": "arm_near",
+      "mask": "front_arm_near.png",
+      "full_motion_footprint": "front_arm_near_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 625,
+      "footprint_pixels": 1510,
+      "painting_must_continue": "torso flank/belly beneath the near arm; proximal arm cap",
+      "status": "TODO_DESIGN_underlay_front_arm_near"
+    },
+    {
+      "view": "front",
+      "region": "arm_far",
+      "mask": "front_arm_far.png",
+      "full_motion_footprint": "front_arm_far_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 855,
+      "footprint_pixels": 2217,
+      "painting_must_continue": "torso flank and far thigh beneath the sword arm; proximal arm cap",
+      "status": "TODO_DESIGN_underlay_front_arm_far"
+    },
+    {
+      "view": "front",
+      "region": "hand_near",
+      "mask": "front_hand_near.png",
+      "full_motion_footprint": "front_hand_near_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 667,
+      "footprint_pixels": 1910,
+      "painting_must_continue": "front loincloth and thighs beneath the near gauntlet; sleeve cuff",
+      "status": "TODO_DESIGN_underlay_front_hand_near"
+    },
+    {
+      "view": "front",
+      "region": "hand_far",
+      "mask": "front_hand_far.png",
+      "full_motion_footprint": "front_hand_far_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 648,
+      "footprint_pixels": 2519,
+      "painting_must_continue": "far thigh/flank beneath the sword gauntlet; sleeve cuff",
+      "status": "TODO_DESIGN_underlay_front_hand_far"
+    },
+    {
+      "view": "front",
+      "region": "falchion",
+      "mask": "front_falchion.png",
+      "full_motion_footprint": "front_falchion_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 2061,
+      "footprint_pixels": 12426,
+      "painting_must_continue": "far thigh/flank and floor/air revealed by the single rigid falchion",
+      "status": "TODO_DESIGN_underlay_front_falchion"
+    },
+    {
+      "view": "front",
+      "region": "loincloth",
+      "mask": "front_loincloth.png",
+      "full_motion_footprint": "front_loincloth_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 170,
+      "footprint_pixels": 1508,
+      "painting_must_continue": "pelvis and thighs beneath the front loincloth",
+      "status": "TODO_DESIGN_underlay_front_loincloth"
+    },
+    {
+      "view": "front",
+      "region": "loincloth_back",
+      "mask": "front_loincloth_back.png",
+      "full_motion_footprint": "front_loincloth_back_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 100,
+      "footprint_pixels": 616,
+      "painting_must_continue": "pelvis and thighs beneath the back loincloth",
+      "status": "TODO_DESIGN_underlay_front_loincloth_back"
+    },
+    {
+      "view": "rear",
+      "region": "arm_near",
+      "mask": "rear_arm_near.png",
+      "full_motion_footprint": "rear_arm_near_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 285,
+      "footprint_pixels": 798,
+      "painting_must_continue": "torso flank/belly beneath the near arm; proximal arm cap",
+      "status": "TODO_DESIGN_underlay_rear_arm_near"
+    },
+    {
+      "view": "rear",
+      "region": "arm_far",
+      "mask": "rear_arm_far.png",
+      "full_motion_footprint": "rear_arm_far_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 857,
+      "footprint_pixels": 2330,
+      "painting_must_continue": "torso flank and far thigh beneath the sword arm; proximal arm cap",
+      "status": "TODO_DESIGN_underlay_rear_arm_far"
+    },
+    {
+      "view": "rear",
+      "region": "hand_near",
+      "mask": "rear_hand_near.png",
+      "full_motion_footprint": "rear_hand_near_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 181,
+      "footprint_pixels": 516,
+      "painting_must_continue": "front loincloth and thighs beneath the near gauntlet; sleeve cuff",
+      "status": "TODO_DESIGN_underlay_rear_hand_near"
+    },
+    {
+      "view": "rear",
+      "region": "hand_far",
+      "mask": "rear_hand_far.png",
+      "full_motion_footprint": "rear_hand_far_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 594,
+      "footprint_pixels": 2525,
+      "painting_must_continue": "far thigh/flank beneath the sword gauntlet; sleeve cuff",
+      "status": "TODO_DESIGN_underlay_rear_hand_far"
+    },
+    {
+      "view": "rear",
+      "region": "falchion",
+      "mask": "rear_falchion.png",
+      "full_motion_footprint": "rear_falchion_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 1194,
+      "footprint_pixels": 9456,
+      "painting_must_continue": "far thigh/flank and floor/air revealed by the single rigid falchion",
+      "status": "TODO_DESIGN_underlay_rear_falchion"
+    },
+    {
+      "view": "rear",
+      "region": "loincloth",
+      "mask": "rear_loincloth.png",
+      "full_motion_footprint": "rear_loincloth_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 82,
+      "footprint_pixels": 463,
+      "painting_must_continue": "pelvis and thighs beneath the front loincloth",
+      "status": "TODO_DESIGN_underlay_rear_loincloth"
+    },
+    {
+      "view": "rear",
+      "region": "loincloth_back",
+      "mask": "rear_loincloth_back.png",
+      "full_motion_footprint": "rear_loincloth_back_full_footprint.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "sampled_frames": 422,
+      "uncovered_pixels": 116,
+      "footprint_pixels": 1314,
+      "painting_must_continue": "pelvis and thighs beneath the back loincloth",
+      "status": "TODO_DESIGN_underlay_rear_loincloth_back"
+    }
+  ]
+}

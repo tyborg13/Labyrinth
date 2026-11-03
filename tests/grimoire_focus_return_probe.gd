@@ -71,15 +71,15 @@ func _run_probe() -> void:
 	# Controller return and controller-to-pointer dismissal remain distinct.
 	router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_XBOX)
 	await _settle()
-	opener.grab_focus()
-	scene.call("_open_grimoire_overlay")
+	await _open_with_controller(scene, opener)
 	await _settle()
 	await _joypad_button(JOY_BUTTON_B)
 	_expect(not scrim.visible, "Controller cancel should dismiss Grimoire")
-	_expect(opener.has_focus() or not (scene.get("_controller_focus_candidate") as Dictionary).is_empty(), "Controller close should restore a navigable return point")
+	var returned_candidate: Dictionary = scene.get("_controller_focus_candidate") as Dictionary
+	_expect(opener.has_focus() and returned_candidate.get("control") == opener, "Controller close should restore the same Grimoire opener and cursor endpoint")
+	_expect((scene.get("_controller_virtual_board_position") as Vector2).is_equal_approx(opener.get_global_rect().get_center()), "Controller close should retain the opener's cursor position")
 	await _capture("grimoire_focus_v1_controller_return.png")
-	opener.grab_focus()
-	scene.call("_open_grimoire_overlay")
+	await _open_with_controller(scene, opener)
 	await _settle()
 	router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_XBOX)
 	await _click(close_button.get_global_rect().get_center())
@@ -98,6 +98,18 @@ func _run_probe() -> void:
 	_capture_viewport.queue_free()
 	router.call("clear_forced_state_for_test")
 	await process_frame
+
+func _open_with_controller(scene: Node, opener: Button) -> void:
+	# Live room navigation owns both GUI focus and an analog-cursor endpoint.
+	# grab_focus alone leaves the cursor elsewhere, so resuming navigation can
+	# legitimately release that synthetic focus. Start at the native endpoint
+	# and activate it with A, as the player does.
+	var candidate: Dictionary = scene.call("_controller_candidate_for_control", opener)
+	_expect(not candidate.is_empty(), "Grimoire opener should be a controller navigation endpoint")
+	scene.set("_controller_region", "board")
+	scene.call("_controller_set_focus_candidate", candidate, true)
+	await _joypad_button(JOY_BUTTON_A)
+	_expect((scene.get("_grimoire_scrim") as Control).visible, "Controller A on the opener should open Grimoire")
 
 func _point(point: Vector2) -> void:
 	var motion := InputEventMouseMotion.new()

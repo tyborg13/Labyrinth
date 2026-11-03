@@ -1,0 +1,218 @@
+{
+  "min_images": 42,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*ordinary-overlay-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*ordinary-overlay-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*ordinary-hud-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*ordinary-hud-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*air-overlay-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*air-overlay-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*air-hud-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*air-hud-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*lightning-overlay-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*lightning-overlay-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*lightning-hud-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*lightning-hud-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*ordinary-foreground-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*ordinary-foreground-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*air-foreground-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*air-foreground-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*lightning-foreground-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*lightning-foreground-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-0-overlay-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-0-overlay-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-0-foreground-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-0-foreground-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-1-overlay-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-1-overlay-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-1-foreground-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-1-foreground-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-2-overlay-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-2-overlay-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-2-foreground-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-2-foreground-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-3-overlay-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-3-overlay-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-3-foreground-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*selectors-3-foreground-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*obstacle-hover-hud-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*obstacle-hover-hud-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*obstacle-controller-hud-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*obstacle-controller-hud-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*pose-front-hud-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*pose-front-hud-reference.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*pose-rear-hud-candidate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*pose-rear-hud-reference.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

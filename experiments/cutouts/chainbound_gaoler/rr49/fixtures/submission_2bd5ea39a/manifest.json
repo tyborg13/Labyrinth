@@ -1,0 +1,27 @@
+{
+  "head": "2bd5ea39a0a42eff5f768016406d02ac3510fc54",
+  "poses": 8364,
+  "polygon_buffers": 304685,
+  "files": {
+    ".gdignore": "661d722296ed36d23f55e1581dd18046984f09e55d0c2a79f4003f3f14e487c2",
+    "buffers.json.gz": "0586bbd1c75d70f6fc139500ff8666347369d74bcc6e6422939d8067a1bb1347",
+    "cases.json": "479169b036fb49663f07bdc2c75b0382ddf3d2b20504ac4fdd31859e431c0f7b",
+    "legacy_paint.gd": "67265c4f22d0fb648129d05be30bfaff79af21281fa2120368296d700439f502",
+    "legacy_production.gd": "761896e053ee590d12042bcf997c15359ca306e07955565a5e7441fb45f9dd9c",
+    "legacy_rig.gd": "ebde2a4af32fe52642de24a937a0cc7f320454831e51b1283893d590602c1e46",
+    "other_rigs/arc_thrall_cutout/rig.gd": "b72c0717d114e9407a2570819377986b24a5b94fff76259be24476418b7c653b",
+    "other_rigs/briar_weaver_cutout/rig.gd": "93c92ff8c7c16ebc739bc04dcb31b4c8d6f530294d7054a01f47bd33fabc77e1",
+    "other_rigs/burrow_grub_cutout/rig.gd": "9324c6c2575fb376ae6013b6195618e939941ef67cf017c2c31d3c30c7bc0cf5",
+    "other_rigs/ember_tick_cutout/rig.gd": "db12e09ccb5a5a41f438701d0dc845c6285d383abe4a2514fc54dbec4454484e",
+    "other_rigs/frostglass_lancer_cutout/rig.gd": "fb75006d3f76dd0d08f2b609c51dd0afa060745ed4614b985f15e0be7063742d",
+    "other_rigs/gale_herald_cutout/rig.gd": "aa74ca5bd920e8a37bae0d87117a52b70f0c4b2234a666a0fbb7276e45fcd3ab",
+    "other_rigs/glacial_mirror_cutout/rig.gd": "00307b791cb7bca7d8a4220542110799ee73eb88cabc0c9a0ba0bb15e3914a30",
+    "other_rigs/gloam_stalker_cutout/rig.gd": "e1284c71b3f16a42132d90c73f432a3c82135d66a29627658b17efa185964299",
+    "other_rigs/hoarfrost_seer_cutout/rig.gd": "227ebc6dc61d59990505df801cf5827ad584d1d67c972beab3b4437265621c97",
+    "other_rigs/hollow_mimic_cutout/rig.gd": "864d22cd8c65b6a7ae311c71121b73a0dc94b06acf798a4338c6a90412ff47b6",
+    "other_rigs/slag_mortar_cutout/rig.gd": "434bdfe4c66c19b5c29f3c8bad372aa273eed5f0ad05c140643032115b3b0e7a",
+    "other_rigs/storm_capacitor_cutout/rig.gd": "f962a63fa8434ef13e4b19eb6d3cf0c3b2118108b35105d8ef0eea6a2cc54dc4",
+    "other_source_bindings.json": "3e50217b4c21470902b01dd55e4a203ff83ba626518c3b8369911685639d3fc4",
+    "source_bindings.json": "a1301cde5031204082f1de53c523134501f74bdbb2eb160d165e4f181cde4de5"
+  }
+}

@@ -7,6 +7,13 @@ const META_FILE_NAME: String = "meta.json"
 
 static var _storage_dir: String = DEFAULT_STORAGE_DIR
 static var _storage_generation: int = 0
+static var _write_failure_generation: int = 0
+static var _writer := preload("res://scripts/ordered_background_writer.gd").new()
+static var _writers_by_directory: Dictionary = {}
+static var _open_batch: Dictionary = {}
+static var _pending_batches: Array[Dictionary]
+static var _append_ready_paths: Dictionary = {}
+var deferred_writes: bool = false
 
 var _install_id: String = ""
 var _session_id: String = ""
@@ -15,15 +22,22 @@ var _known_idempotency_keys: Dictionary = {}
 var _known_idempotency_generation: int = -1
 
 static func set_storage_dir(path: String) -> void:
+	flush_pending_events()
+	_writers_by_directory[ProjectSettings.globalize_path(_storage_dir).simplify_path()] = _writer
 	var next_storage_dir: String = path if not path.is_empty() else DEFAULT_STORAGE_DIR
 	if next_storage_dir != _storage_dir:
 		_storage_dir = next_storage_dir
+		var directory: String = ProjectSettings.globalize_path(_storage_dir).simplify_path()
+		if not _writers_by_directory.has(directory):
+			_writers_by_directory[directory] = preload("res://scripts/ordered_background_writer.gd").new()
+		_writer = _writers_by_directory[directory]
 		_storage_generation += 1
 
 static func storage_dir() -> String:
 	return _storage_dir
 
 static func clear_storage() -> void:
+	if not flush_pending_events(): return
 	var absolute_dir: String = ProjectSettings.globalize_path(_storage_dir)
 	if DirAccess.dir_exists_absolute(absolute_dir):
 		_remove_dir_contents_recursive(absolute_dir)
@@ -31,6 +45,10 @@ static func clear_storage() -> void:
 	_storage_generation += 1
 
 static func load_all_events() -> Array[Dictionary]:
+	flush_pending_events()
+	return _read_all_events()
+
+static func _read_all_events() -> Array[Dictionary]:
 	var events: Array[Dictionary] = []
 	var absolute_dir: String = ProjectSettings.globalize_path(_storage_dir)
 	if not DirAccess.dir_exists_absolute(absolute_dir):
@@ -59,14 +77,15 @@ static func load_all_events() -> Array[Dictionary]:
 			var line: String = file.get_line()
 			if line.strip_edges().is_empty():
 				continue
-			var parsed: Variant = JSON.parse_string(line)
-			if typeof(parsed) == TYPE_DICTIONARY:
-				events.append((parsed as Dictionary).duplicate(true))
+			var parser := JSON.new()
+			if parser.parse(line) == OK and parser.data is Dictionary:
+				events.append((parser.data as Dictionary).duplicate(true))
 	return events
 
 func _init() -> void:
 	_install_id = _ensure_installation_id()
 	_session_id = _random_id("session")
+	flush_pending_events()
 	_reload_known_idempotency_keys()
 
 func write_event(event_type: String, context: Dictionary = {}, payload: Dictionary = {}, idempotency_key: String = "") -> bool:
@@ -74,9 +93,9 @@ func write_event(event_type: String, context: Dictionary = {}, payload: Dictiona
 		return false
 	_ensure_known_idempotency_keys_current()
 	if not idempotency_key.is_empty() and _known_idempotency_keys.has(idempotency_key):
-		return true
+		return true if deferred_writes else flush_pending_events()
 	_sequence += 1
-	var wrote_event: bool = _append_jsonl(_event_record(event_type, context, payload, idempotency_key))
+	var wrote_event: bool = _append_records([_event_record(event_type, context, payload, idempotency_key)])
 	if wrote_event and not idempotency_key.is_empty():
 		_storage_generation += 1
 		_known_idempotency_keys[idempotency_key] = true
@@ -116,7 +135,7 @@ func write_events(events: Array) -> bool:
 		if not idempotency_key.is_empty():
 			existing_idempotency_keys[idempotency_key] = true
 			appended_idempotency_keys.append(idempotency_key)
-	var wrote_events: bool = _append_jsonl_records(records)
+	var wrote_events: bool = _append_records(records)
 	if wrote_events:
 		if not appended_idempotency_keys.is_empty():
 			_storage_generation += 1
@@ -128,16 +147,46 @@ func write_events(events: Array) -> bool:
 		_reload_known_idempotency_keys()
 	return wrote_events
 
+# Replay-safe outboxes acknowledge only completed appends. These barriers are
+# used by their existing deferred protocol and terminal/explicit checkpoints.
+func write_event_durable(event_type: String, context: Dictionary = {}, payload: Dictionary = {}, idempotency_key: String = "") -> bool:
+	return write_event(event_type, context, payload, idempotency_key) and flush_pending_events()
+
+func write_events_durable(events: Array) -> bool:
+	return write_events(events) and flush_pending_events()
+
+func has_idempotency_key(key: String) -> bool:
+	_ensure_known_idempotency_keys_current()
+	# Receipt owners may acknowledge only completed appends. Queue reservations
+	# deduplicate emitters, but must never impersonate a durable receipt.
+	for batch: Dictionary in _pending_batches:
+		if str(batch["path"]).get_base_dir() != ProjectSettings.globalize_path(_storage_dir): continue
+		for record: Dictionary in batch["records"]:
+			if str(record.get("idempotency_key", "")) == key: return false
+	return _known_idempotency_keys.has(key)
+
+static func write_failure_generation() -> int:
+	return _write_failure_generation
+
 func _ensure_known_idempotency_keys_current() -> void:
 	if _known_idempotency_generation != _storage_generation:
 		_reload_known_idempotency_keys()
 
 func _reload_known_idempotency_keys() -> void:
 	_known_idempotency_keys.clear()
-	for existing_event: Dictionary in load_all_events():
+	# Refreshing deduplication during an emitter is not a write barrier. In
+	# particular, failure invalidation must not force an append on a commit frame.
+	for existing_event: Dictionary in _read_all_events():
 		var existing_key: String = str(existing_event.get("idempotency_key", ""))
 		if not existing_key.is_empty():
 			_known_idempotency_keys[existing_key] = true
+	# Failed batches still own their reservations. A replay cannot manufacture a
+	# second record while the original queued append is waiting to retry.
+	for batch: Dictionary in _pending_batches:
+		if str(batch["path"]).get_base_dir() != ProjectSettings.globalize_path(_storage_dir): continue
+		for record: Dictionary in batch["records"]:
+			var key: String = str(record.get("idempotency_key", ""))
+			if not key.is_empty(): _known_idempotency_keys[key] = true
 	_known_idempotency_generation = _storage_generation
 
 func _event_record(event_type: String, context: Dictionary, payload: Dictionary, idempotency_key: String) -> Dictionary:
@@ -188,26 +237,95 @@ func _event_record(event_type: String, context: Dictionary, payload: Dictionary,
 func session_id() -> String:
 	return _session_id
 
-static func _append_jsonl(record: Dictionary) -> bool:
-	return _append_jsonl_records([record])
+func _append_records(records: Array) -> bool:
+	if not deferred_writes: return _append_jsonl_records(records)
+	if records.is_empty(): return true
+	_ensure_storage_dir()
+	var path: String = _event_file_path()
+	if bool(_open_batch.get("pending", false)) and str(_open_batch["path"]) == path:
+		(_open_batch["records"] as Array).append_array(records.duplicate(true))
+	else:
+		_open_batch = {"pending": true, "path": path, "records": records.duplicate(true)}
+		_pending_batches.append(_open_batch)
+		_writer.submit(_append_queued_batch.bind(_open_batch))
+	return true
+
+static func _append_queued_batch(batch: Dictionary) -> bool:
+	var succeeded: bool = _append_jsonl_at(str(batch["path"]), batch["records"])
+	if succeeded:
+		batch["pending"] = false
+		_pending_batches.erase(batch)
+	return succeeded
+
+static func poll_pending_events(idle: bool = true) -> void:
+	_writer.poll(idle)
+	if _writer.take_failure():
+		_write_failure_generation += 1
+		_storage_generation += 1
+		push_error("Failed to append queued analytics events.")
+
+static func flush_pending_events(all_directories: bool = false) -> bool:
+	var writers: Array[RefCounted]
+	writers.append(_writer)
+	if all_directories:
+		for writer: RefCounted in _writers_by_directory.values():
+			if not writers.has(writer): writers.append(writer)
+	var succeeded: bool = true
+	for writer: RefCounted in writers:
+		if not writer.flush(): succeeded = false
+		writer.take_failure()
+	if not succeeded:
+		_write_failure_generation += 1
+		_storage_generation += 1
+		push_error("Failed to flush queued analytics events.")
+	return succeeded
 
 static func _append_jsonl_records(records: Array) -> bool:
+	if not flush_pending_events(): return false
+	_ensure_storage_dir()
+	return _append_jsonl_at(_event_file_path(), records)
+
+static func _append_jsonl_at(path: String, records: Array) -> bool:
 	if records.is_empty():
 		return true
-	_ensure_storage_dir()
-	var file: FileAccess = FileAccess.open(_event_file_path(), FileAccess.READ_WRITE)
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ_WRITE)
 	if file == null:
-		file = FileAccess.open(_event_file_path(), FileAccess.WRITE_READ)
+		file = FileAccess.open(path, FileAccess.WRITE_READ)
 	if file == null:
-		return false
+		return _append_failed(path)
+	var recovered: Dictionary = {}
+	if not _append_ready_paths.has(path):
+		# Preserve every byte, including an interrupted tail, but put the next
+		# record on its own line. Complete records from a failed batch are skipped
+		# on retry using their original event IDs (even without idempotency keys).
+		while file.get_position() < file.get_length():
+			var parser := JSON.new()
+			if parser.parse(file.get_line()) == OK and parser.data is Dictionary:
+				var event: Dictionary = parser.data
+				if not str(event.get("event_id", "")).is_empty(): recovered["event:" + str(event["event_id"])] = true
+				if not str(event.get("idempotency_key", "")).is_empty(): recovered["key:" + str(event["idempotency_key"])] = true
+		if file.get_length() > 0:
+			file.seek(file.get_length() - 1)
+			if file.get_8() != 10:
+				file.seek_end()
+				file.store_8(10)
+		_append_ready_paths[path] = true
 	file.seek_end()
 	for record_var: Variant in records:
 		if typeof(record_var) == TYPE_DICTIONARY:
-			file.store_line(JSON.stringify(record_var as Dictionary))
+			var record: Dictionary = record_var
+			if recovered.has("event:" + str(record.get("event_id", ""))) or recovered.has("key:" + str(record.get("idempotency_key", ""))): continue
+			file.store_line(JSON.stringify(record))
+			if not str(record.get("event_id", "")).is_empty(): recovered["event:" + str(record["event_id"])] = true
+			if not str(record.get("idempotency_key", "")).is_empty(): recovered["key:" + str(record["idempotency_key"])] = true
 	file.flush()
 	var write_succeeded: bool = file.get_error() == OK
 	file.close()
-	return write_succeeded
+	return true if write_succeeded else _append_failed(path)
+
+static func _append_failed(path: String) -> bool:
+	_append_ready_paths.erase(path)
+	return false
 
 static func _idempotency_key_exists(idempotency_key: String) -> bool:
 	for event: Dictionary in load_all_events():

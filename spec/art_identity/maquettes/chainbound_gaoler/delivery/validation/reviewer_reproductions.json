@@ -1,0 +1,53 @@
+{
+  "native_hash": {
+    "caught": true,
+    "script_sha256": "4e35d2bba7957b92205c72b33321fb9f00a924aff2676b0c0445c17963599ea4",
+    "observed": {
+      "baseline_passed": false,
+      "mutated_passed": false,
+      "hash_before": "c0844ec8c095fc740abc3b3662c6287ac7e924704f2357e33794daebccd37a0e",
+      "hash_after": "3ab898e3f9e706c78899fa5d17f5e27fdc49a68e8522fbf274eba8f1068bd959",
+      "head_bounds_changed": true
+    }
+  },
+  "grip": {
+    "caught": true,
+    "script_sha256": "dc65f50f2cb07dff6b3c6b3a97b4eb66a96fda6348437d39f3a4be2f3020ca78",
+    "fixture_correction": "Include omitted native chain_link_1 point cloud; no recipe paths or mutant actions changed. Original incomplete baseline now fails closed.",
+    "observed": {
+      "flatten_native_fingers": {
+        "caught": true,
+        "checks": {
+          "complete_gloved_grip": true,
+          "four_wrapped_fingers": false,
+          "knuckles_forward_of_palm": true,
+          "thumb_over_fingers": false,
+          "top_link_in_grip_envelope": true,
+          "correct_hand_ownership": true
+        }
+      },
+      "detach_native_top_link": {
+        "caught": true,
+        "checks": {
+          "complete_gloved_grip": true,
+          "four_wrapped_fingers": true,
+          "knuckles_forward_of_palm": true,
+          "thumb_over_fingers": true,
+          "top_link_in_grip_envelope": false,
+          "correct_hand_ownership": true
+        }
+      },
+      "detach_native_thumb": {
+        "caught": true,
+        "checks": {
+          "complete_gloved_grip": true,
+          "four_wrapped_fingers": true,
+          "knuckles_forward_of_palm": true,
+          "thumb_over_fingers": false,
+          "top_link_in_grip_envelope": true,
+          "correct_hand_ownership": true
+        }
+      }
+    }
+  }
+}

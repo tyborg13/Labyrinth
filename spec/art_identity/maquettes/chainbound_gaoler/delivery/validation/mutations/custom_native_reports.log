@@ -1,0 +1,14 @@
+test_extra_native_report_is_required_before_sealing (tests.test_mq15_maquette.DeliveryTests) ... FAIL
+
+======================================================================
+FAIL: test_extra_native_report_is_required_before_sealing (tests.test_mq15_maquette.DeliveryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 164, in test_extra_native_report_is_required_before_sealing
+    validate_delivery(self.spec, self.folder, require_binding=False)
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.158s
+
+FAILED (failures=1)

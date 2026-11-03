@@ -1,0 +1,76 @@
+{
+  "min_images": 4,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*shadow_tier2/pre_battle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*shadow_tier2/encounter.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*fire_tier1/pre_battle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*fire_tier1/encounter.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "errors": [],
+  "protected_files_checked": 5698,
+  "other_rigs_byte_identical": true,
+  "foreign_records_unchanged": {
+    "spec/art_identity/registry.json": true,
+    "spec/assets/board_pixel_density/registry.json": true,
+    "spec/assets/board_pixel_density/outputs.json": true
+  },
+  "generic_changes": [
+    "tools/humanoid_cutout/anatomy.schema.json",
+    "tools/humanoid_cutout/source_view.py"
+  ]
+}

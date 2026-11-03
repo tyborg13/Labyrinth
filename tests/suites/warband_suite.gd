@@ -404,25 +404,18 @@ static func _command_composite_movement(expect: Callable) -> void:
 	# Each authored composite crosses the aura boundary inside one action.
 	# Compare against the exact same geometry without Command, then assert the
 	# independent final-position range and the resolved preview damage.
-	for mechanic: String in ["tether_beam", "dive_line", "erupt", "ambush"]:
+	for mechanic: String in ["swept_path", "erupt", "ambush"]:
 		for enters: bool in [false, true]:
 			var state: Dictionary = arena()
 			var enemy: Dictionary = state["enemies"][1]
 			var action: Dictionary = {}
-			if mechanic == "tether_beam":
-				enemy["type"] = "arc_thrall"
-				enemy["pos"] = Vector2i(2, 2)
-				state["enemies"][2]["pos"] = Vector2i(6, 4)
-				state["enemies"][2]["type"] = "arc_thrall"
-				state["enemies"][0]["pos"] = Vector2i(2, 6) if enters else Vector2i(2, 1)
-				action = {"type": mechanic, "damage": 3, "align_move": 3, "max_length": 6}
-				enemy["intent"] = {"actions": [action], "tether_plan": {"partner_id": 3, "path": [Vector2i(2, 2), Vector2i(2, 3), Vector2i(2, 4)]}}
-			elif mechanic == "dive_line":
+			if mechanic == "swept_path":
 				enemy["type"] = "gust_shrike"
-				enemy["pos"] = Vector2i(4, 1)
+				enemy["pos"] = Vector2i(4, 4)
 				state["player"]["pos"] = Vector2i(4, 5)
 				state["enemies"][0]["pos"] = Vector2i(2, 4) if enters else Vector2i(2, 1)
-				action = {"type": mechanic, "damage": 3, "max_length": 5}
+				action = {"type": "aoe", "committed_shape": "swept_path", "damage": 3}
+				action["_resolved_path"] = engine._vector2i_values([Vector2i(4, 1), Vector2i(4, 2), Vector2i(4, 3), Vector2i(4, 4)])
 				enemy["intent"] = {"actions": [action]}
 			elif mechanic == "erupt":
 				enemy["type"] = "burrow_grub"
@@ -437,7 +430,7 @@ static func _command_composite_movement(expect: Callable) -> void:
 				enemy["pos"] = Vector2i(2, 2)
 				enemy["veiled"] = true
 				state["enemies"][0]["pos"] = Vector2i(5, 3) if enters else Vector2i(2, 1)
-				action = {"type": "melee", "damage": 3, "ends_veil": true}
+				action = {"type": "melee", "damage": 3, "ambush": true}
 				enemy["intent"] = {"actions": [action]}
 			var baseline: Dictionary = state.duplicate(true)
 			baseline["objective"].erase("special_type")
@@ -450,7 +443,7 @@ static func _command_composite_movement(expect: Callable) -> void:
 			expect.call(damage == base_damage + expected, "Composite Command at hit position (%s enters=%s): %d vs %d" % [mechanic, enters, damage, base_damage + expected])
 			var plan: Dictionary = engine.enemy_intent_plan(state, 1)
 			expect.call(int(plan.get("attack_action", {}).get("damage", plan.get("projected_attack_action", {}).get("damage", 0))) == int(action["damage"]) + expected, "Composite preview shows resolved Command: " + mechanic)
-	print("Warband composite Command: Tether, Dive, Erupt and Ambush enter/leave aura checked")
+	print("Warband composite Command: Dive, Erupt and Ambush enter/leave aura checked")
 
 static func _native_fixture_semantics(expect: Callable) -> void:
 	for biome: String in Library.definition("warband")["variants"]:

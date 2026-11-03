@@ -1,0 +1,416 @@
+{
+  "native_pixels": false,
+  "ok": false,
+  "frames": 892,
+  "full_samples_sha256": "a5e4c60084d96e1dc6fb1f748954b334f4ebcca6ef49f61d69615886a7a12231",
+  "errors": [
+    "front/move/9: joint tears=1",
+    "front/move/10: joint tears=1",
+    "front/move/11: joint tears=1",
+    "front/move/30: joint tears=1",
+    "front/move/39: joint tears=1",
+    "front/move/48: joint tears=1",
+    "front/reel/29: uncovered_tiny_components=1",
+    "front/reel/30: uncovered_tiny_components=1",
+    "front/reel/30: joint tears=1",
+    "front/reel/31: joint tears=1",
+    "front/reel/32: uncovered_tiny_components=1",
+    "front/reel/33: uncovered_tiny_components=1",
+    "front/reel/34: uncovered_tiny_components=1",
+    "front/reel/35: uncovered_tiny_components=1",
+    "front/reel/36: joint tears=1",
+    "front/reel/37: joint tears=1",
+    "front/reel/38: joint tears=1",
+    "front/reel/39: joint tears=1",
+    "front/reel/40: joint tears=1",
+    "front/reel/41: joint tears=1"
+  ],
+  "flat_regions": [
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 12,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0012/flat/front_idle_0012_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 13,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0012/flat/front_idle_0013_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 14,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0012/flat/front_idle_0014_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 15,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0012/flat/front_idle_0015_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 16,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0016/flat/front_idle_0016_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 17,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0016/flat/front_idle_0017_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 18,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0016/flat/front_idle_0018_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 19,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0016/flat/front_idle_0019_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 20,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0020/flat/front_idle_0020_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 21,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0020/flat/front_idle_0021_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 22,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0020/flat/front_idle_0022_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 23,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0020/flat/front_idle_0023_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 24,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0024/flat/front_idle_0024_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 25,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0024/flat/front_idle_0025_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 26,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0024/flat/front_idle_0026_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 27,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0024/flat/front_idle_0027_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 28,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0028/flat/front_idle_0028_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 29,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0028/flat/front_idle_0029_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 30,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0028/flat/front_idle_0030_hidden_leg_near_17.png"
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 31,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        348,
+        355,
+        351,
+        361
+      ],
+      "variance": 1.5740740740740742,
+      "source_variance": 347.7314559442591,
+      "ratio": 0.0045266945143047285,
+      "reference_texture": "measured",
+      "decision": "director underlay judgment pending",
+      "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_idle_0028/flat/front_idle_0031_hidden_leg_near_17.png"
+    }
+  ],
+  "max_shard_seconds": 6.366521333000037,
+  "shards": [],
+  "error_count": 74,
+  "flat_region_count": 5871,
+  "full_log": "logs/cpu_sweep.json",
+  "full_log_sha256": "87c14f7ebb6c1c608ecb47e7eea3d1dfc598c2c4204f85ac82f6fd4113a6b692"
+}

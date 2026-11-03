@@ -1,0 +1,16 @@
+{
+  "feedback": 1,
+  "status": "director_accepted",
+  "resolved_decisions": {
+    "hunch_back_profile": "Keep r3 exactly as built. The rear camera looks down from behind and above; forward head bend projects higher in this view. Rear hood height is report-only."
+  },
+  "TODO_DESIGN": [],
+  "approved_native_mesh_hash": "1e311a282c7bd71755065bfe5aab1285c397e9e36ac7f32843231ba4a960d9ba",
+  "approved_visible_rgba_sha256": {
+    "front_clay.png": "06b88ca6e426f472ea73a9ba9e36d54ea922a3d6de9c0cf297674ea51b8f668d",
+    "front_parts.png": "290d6971f3e82fdd404dca5acb035e08eb3e7b1028c93d286e4404745074f1e6",
+    "rear_clay.png": "c20527e2a4ff6fba25b165462847876025382d69155317371bd5ef4f0f0a7298",
+    "rear_parts.png": "898b520aa8d69c19ace0d37ebe793ec6ccae2affb6a6d37d3f8ff2c7035f9821"
+  },
+  "rear_hood_above_back_px_report_only": 122.31101044510251
+}

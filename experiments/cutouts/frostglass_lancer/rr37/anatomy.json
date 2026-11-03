@@ -1,0 +1,627 @@
+{
+  "schema_version": 1,
+  "required_parents": {
+    "root": null,
+    "pelvis": "root",
+    "torso": "pelvis",
+    "head": "torso",
+    "spear": "hand_far",
+    "tabard_mid": "pelvis",
+    "tabard_tip": "tabard_mid",
+    "cape_near_mid": "torso",
+    "cape_near_tip": "cape_near_mid",
+    "upper_near": "torso",
+    "fore_near": "upper_near",
+    "hand_near": "fore_near",
+    "thigh_near": "pelvis",
+    "shin_near": "thigh_near",
+    "foot_near": "shin_near",
+    "cape_far_mid": "torso",
+    "cape_far_tip": "cape_far_mid",
+    "upper_far": "torso",
+    "fore_far": "upper_far",
+    "hand_far": "fore_far",
+    "thigh_far": "pelvis",
+    "shin_far": "thigh_far",
+    "foot_far": "shin_far"
+  },
+  "forbidden_joints": [
+    "pauldron_near",
+    "pauldron_far",
+    "belt",
+    "visor",
+    "chest_crystal"
+  ],
+  "meshes": {
+    "tabard": {
+      "kind": "chain",
+      "bones": [
+        "pelvis",
+        "tabard_mid",
+        "tabard_tip"
+      ]
+    },
+    "cape_near": {
+      "kind": "chain",
+      "bones": [
+        "torso",
+        "cape_near_mid",
+        "cape_near_tip"
+      ]
+    },
+    "arm_near": {
+      "kind": "two_segment",
+      "joints": [
+        "upper_near",
+        "fore_near",
+        "hand_near"
+      ],
+      "bones": [
+        "upper_near",
+        "fore_near"
+      ],
+      "cuff_rows_px": 4,
+      "blend_half_width_px": 4
+    },
+    "leg_near": {
+      "kind": "two_segment",
+      "joints": [
+        "thigh_near",
+        "shin_near",
+        "foot_near"
+      ],
+      "bones": [
+        "thigh_near",
+        "shin_near"
+      ],
+      "cuff_rows_px": 4,
+      "blend_half_width_px": 4
+    },
+    "cape_far": {
+      "kind": "chain",
+      "bones": [
+        "torso",
+        "cape_far_mid",
+        "cape_far_tip"
+      ]
+    },
+    "arm_far": {
+      "kind": "two_segment",
+      "joints": [
+        "upper_far",
+        "fore_far",
+        "hand_far"
+      ],
+      "bones": [
+        "upper_far",
+        "fore_far"
+      ],
+      "cuff_rows_px": 4,
+      "blend_half_width_px": 4
+    },
+    "leg_far": {
+      "kind": "two_segment",
+      "joints": [
+        "thigh_far",
+        "shin_far",
+        "foot_far"
+      ],
+      "bones": [
+        "thigh_far",
+        "shin_far"
+      ],
+      "cuff_rows_px": 4,
+      "blend_half_width_px": 4
+    }
+  },
+  "idle_groups": {
+    "upper_body": {
+      "bones": [
+        "torso",
+        "head",
+        "upper_near",
+        "fore_near",
+        "hand_near",
+        "cape_near_mid",
+        "cape_near_tip",
+        "cape_far_mid",
+        "cape_far_tip"
+      ],
+      "stationary": false
+    },
+    "weapon_arm": {
+      "bones": [
+        "upper_far",
+        "fore_far",
+        "hand_far",
+        "spear"
+      ],
+      "stationary": true
+    },
+    "lower_body": {
+      "bones": [
+        "root",
+        "pelvis",
+        "tabard_mid",
+        "tabard_tip",
+        "thigh_near",
+        "shin_near",
+        "foot_near",
+        "thigh_far",
+        "shin_far",
+        "foot_far"
+      ],
+      "stationary": true
+    }
+  },
+  "knee_policy": {
+    "near_straight_deg": 6,
+    "by_view": {
+      "front": {
+        "near": {
+          "near_straight_deg": 6,
+          "crouched_stance_deg": 2.937947339814771
+        },
+        "far": {
+          "near_straight_deg": 6,
+          "crouched_stance_deg": 7.612613810007675
+        }
+      },
+      "rear": {
+        "near": {
+          "near_straight_deg": 6,
+          "crouched_stance_deg": 2.2648015495422147
+        },
+        "far": {
+          "near_straight_deg": 6,
+          "crouched_stance_deg": 9.347591338223049
+        }
+      }
+    }
+  },
+  "legs": {
+    "near": {
+      "front": {
+        "bend_side": 1
+      },
+      "rear": {
+        "bend_side": -1
+      }
+    },
+    "far": {
+      "front": {
+        "bend_side": 1
+      },
+      "rear": {
+        "bend_side": -1
+      }
+    }
+  },
+  "planted_bones": [
+    "foot_near",
+    "foot_far"
+  ],
+  "planted_tolerance_px": 0.5,
+  "held_depth_roles": {},
+  "ownership": {
+    "names": [
+      "head",
+      "torso",
+      "pelvis",
+      "tabard",
+      "spear",
+      "cape_near",
+      "arm_near",
+      "hand_near",
+      "leg_near",
+      "foot_near",
+      "cape_far",
+      "arm_far",
+      "hand_far",
+      "leg_far",
+      "foot_far",
+      "upper_near",
+      "fore_near",
+      "thigh_near",
+      "shin_near",
+      "upper_far",
+      "fore_far",
+      "thigh_far",
+      "shin_far"
+    ],
+    "segments": {
+      "arm_near": {
+        "joints": [
+          "upper_near",
+          "fore_near",
+          "hand_near"
+        ],
+        "owners": [
+          "upper_near",
+          "fore_near"
+        ]
+      },
+      "leg_near": {
+        "joints": [
+          "thigh_near",
+          "shin_near",
+          "foot_near"
+        ],
+        "owners": [
+          "thigh_near",
+          "shin_near"
+        ]
+      },
+      "arm_far": {
+        "joints": [
+          "upper_far",
+          "fore_far",
+          "hand_far"
+        ],
+        "owners": [
+          "upper_far",
+          "fore_far"
+        ]
+      },
+      "leg_far": {
+        "joints": [
+          "thigh_far",
+          "shin_far",
+          "foot_far"
+        ],
+        "owners": [
+          "thigh_far",
+          "shin_far"
+        ]
+      }
+    },
+    "joint_pairs": [
+      [
+        "head",
+        "torso"
+      ],
+      [
+        "torso",
+        "pelvis"
+      ],
+      [
+        "tabard",
+        "pelvis"
+      ],
+      [
+        "spear",
+        "hand_far"
+      ],
+      [
+        "cape_near",
+        "torso"
+      ],
+      [
+        "cape_near",
+        "pelvis"
+      ],
+      [
+        "arm_near",
+        "torso"
+      ],
+      [
+        "hand_near",
+        "arm_near"
+      ],
+      [
+        "leg_near",
+        "pelvis"
+      ],
+      [
+        "leg_near",
+        "cape_near"
+      ],
+      [
+        "foot_near",
+        "leg_near"
+      ],
+      [
+        "cape_far",
+        "torso"
+      ],
+      [
+        "cape_far",
+        "pelvis"
+      ],
+      [
+        "arm_far",
+        "torso"
+      ],
+      [
+        "hand_far",
+        "arm_far"
+      ],
+      [
+        "leg_far",
+        "pelvis"
+      ],
+      [
+        "leg_far",
+        "cape_far"
+      ],
+      [
+        "foot_far",
+        "leg_far"
+      ],
+      [
+        "upper_near",
+        "fore_near"
+      ],
+      [
+        "thigh_near",
+        "shin_near"
+      ],
+      [
+        "upper_far",
+        "fore_far"
+      ],
+      [
+        "thigh_far",
+        "shin_far"
+      ]
+    ],
+    "free_space_owners": []
+  },
+  "seam_joins": [
+    [
+      "head",
+      "torso"
+    ],
+    [
+      "torso",
+      "pelvis"
+    ],
+    [
+      "tabard",
+      "pelvis"
+    ],
+    [
+      "spear",
+      "hand_far"
+    ],
+    [
+      "cape_near",
+      "torso"
+    ],
+    [
+      "cape_near",
+      "pelvis"
+    ],
+    [
+      "arm_near",
+      "torso"
+    ],
+    [
+      "hand_near",
+      "arm_near"
+    ],
+    [
+      "leg_near",
+      "pelvis"
+    ],
+    [
+      "leg_near",
+      "cape_near"
+    ],
+    [
+      "foot_near",
+      "leg_near"
+    ],
+    [
+      "cape_far",
+      "torso"
+    ],
+    [
+      "cape_far",
+      "pelvis"
+    ],
+    [
+      "arm_far",
+      "torso"
+    ],
+    [
+      "hand_far",
+      "arm_far"
+    ],
+    [
+      "leg_far",
+      "pelvis"
+    ],
+    [
+      "leg_far",
+      "cape_far"
+    ],
+    [
+      "foot_far",
+      "leg_far"
+    ]
+  ],
+  "covered_surfaces": {},
+  "intentionally_empty": {
+    "rear": {
+      "hand_near": "covered by the cloak in the approved rear painting (director, rr-37 feedback 1)",
+      "belt": "covered by the cloak in the approved rear painting (director, rr-37 feedback 1)",
+      "pelvis": "covered by the cloak in the approved rear painting (director, rr-37 feedback 1)",
+      "tabard": "covered by the cloak in the approved rear painting (director, rr-37 feedback 1)"
+    }
+  },
+  "joint_continuations": {
+    "depth_px": 3,
+    "bounded_pieces": []
+  },
+  "tucks": {
+    "base_px": 3,
+    "pieces": {
+      "head": {
+        "depth_px": 3,
+        "covers": [
+          "torso"
+        ],
+        "mode": "radial"
+      },
+      "torso": {
+        "depth_px": 3,
+        "covers": [
+          "arm_far",
+          "arm_near",
+          "cape_far",
+          "cape_near",
+          "head",
+          "pelvis"
+        ],
+        "mode": "radial"
+      },
+      "pelvis": {
+        "depth_px": 3,
+        "covers": [
+          "cape_far",
+          "cape_near",
+          "leg_far",
+          "leg_near",
+          "tabard",
+          "torso"
+        ],
+        "mode": "radial"
+      },
+      "tabard": {
+        "depth_px": 3,
+        "covers": [
+          "pelvis"
+        ],
+        "mode": "radial"
+      },
+      "spear": {
+        "depth_px": 3,
+        "covers": [
+          "hand_far"
+        ],
+        "mode": "radial"
+      },
+      "cape_near": {
+        "depth_px": 3,
+        "covers": [
+          "leg_near",
+          "pelvis",
+          "torso"
+        ],
+        "mode": "radial"
+      },
+      "arm_near": {
+        "depth_px": 3,
+        "covers": [
+          "hand_near",
+          "torso"
+        ],
+        "mode": "radial"
+      },
+      "hand_near": {
+        "depth_px": 3,
+        "covers": [
+          "arm_near"
+        ],
+        "mode": "radial"
+      },
+      "leg_near": {
+        "depth_px": 3,
+        "covers": [
+          "cape_near",
+          "foot_near",
+          "pelvis"
+        ],
+        "mode": "radial"
+      },
+      "foot_near": {
+        "depth_px": 3,
+        "covers": [
+          "leg_near"
+        ],
+        "mode": "radial"
+      },
+      "cape_far": {
+        "depth_px": 3,
+        "covers": [
+          "leg_far",
+          "pelvis",
+          "torso"
+        ],
+        "mode": "radial"
+      },
+      "arm_far": {
+        "depth_px": 3,
+        "covers": [
+          "hand_far",
+          "torso"
+        ],
+        "mode": "radial"
+      },
+      "hand_far": {
+        "depth_px": 3,
+        "covers": [
+          "arm_far",
+          "spear"
+        ],
+        "mode": "radial"
+      },
+      "leg_far": {
+        "depth_px": 3,
+        "covers": [
+          "cape_far",
+          "foot_far",
+          "pelvis"
+        ],
+        "mode": "radial"
+      },
+      "foot_far": {
+        "depth_px": 3,
+        "covers": [
+          "leg_far"
+        ],
+        "mode": "radial"
+      }
+    }
+  },
+  "integration": {
+    "production_root": "assets/units/frostglass_lancer_cutout",
+    "rig_directory": "humanoid_v2",
+    "production_files": [
+      "rig.gd",
+      "renderer.gd",
+      "front.json",
+      "rear.json"
+    ],
+    "binding_files": [
+      "rig.gd",
+      "renderer.gd"
+    ],
+    "binding_folders": [
+      "tools/humanoid_cutout",
+      "scripts/maquette_cutout_runtime",
+      "tests/rr10",
+      "tests/rr37"
+    ],
+    "scale": {
+      "file": "data/enemies.json",
+      "key": "frostglass_lancer",
+      "field": "art_scale",
+      "default": 1.0
+    },
+    "identity_registry": "spec/art_identity/registry.json",
+    "identity_id": "frostglass_lancer",
+    "density_id": "frostglass_lancer_cutout",
+    "owner_approval": "rr-37 supplied identity-gated mq14 paintings; native proof pending director.",
+    "identity_kind": "creature",
+    "identity_entry_kind": "legacy",
+    "identity_boss": false
+  },
+  "held_item_release_exemptions": [
+    {
+      "item": "spear",
+      "clip": "death"
+    }
+  ]
+}

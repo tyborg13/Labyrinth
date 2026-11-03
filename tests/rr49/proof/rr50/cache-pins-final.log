@@ -1,0 +1,10 @@
+test_cache_payload_and_capacity_mutation (tests.test_rr49_submission.SubmissionTests) ... RR50 CACHE PAYLOAD: PASS {"errors":[],"ok":true,"views":[{"idle_full_bytes":3273856,"maximum_bytes":4194304,"mixed_full_bytes":3293248,"motion_full_bytes":3312640,"view":"front"},{"idle_full_bytes":2884352,"maximum_bytes":4194304,"mixed_full_bytes":2902272,"motion_full_bytes":2920192,"view":"rear"}]}
+RR50 CAPACITY MUTATION: PASS (128 exceeds 4 MiB in both views)
+ok
+test_rr50_runtime_pins_are_exact_and_reject_mutations (tests.test_rr49_submission.SubmissionTests) ... RR50 PIN AUDIT: PASS (only stable_paint.gd and stable_skin.gd; both unapproved-byte mutations rejected)
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.765s
+
+OK

@@ -85,6 +85,8 @@ func _capture(name: String, _settle_frames: int = 8) -> void:
 		var layer: Node = (board.get("_scene_render_layers_by_tile") as Dictionary)[Vector2i(3, 3)]
 		assert((layer.get("_surface_rubble_layer") as CanvasItem).visible)
 		assert((layer.get("_surface_ice_layer") as CanvasItem).visible)
+		assert((layer.get("_surface_rubble_floor_layer") as Node).get_index() < (layer.get("_surface_ice_layer") as Node).get_index())
+		assert((layer.get("_surface_ice_layer") as Node).get_index() < (layer.get("_surface_rubble_layer") as Node).get_index(), "Rubble chunks show through retained Ice")
 		changed = changed.duplicate(true)
 		Ground.remove(changed, Vector2i(3, 3), "rubble", "proof_consumption")
 		Ground.place(changed, Vector2i(3, 3), "fire")
@@ -115,7 +117,7 @@ func _capture(name: String, _settle_frames: int = 8) -> void:
 		next_room["enemies"] = []
 		await _show(board, next_room, shown)
 		for candidate: Node in (board.get("_scene_render_layers_by_tile") as Dictionary).values():
-			for field: String in ["_surface_rubble_layer", "_surface_ice_layer", "_surface_fire_layer", "_surface_electric_layer"]:
+			for field: String in ["_surface_rubble_floor_layer", "_surface_rubble_layer", "_surface_ice_layer", "_surface_fire_layer", "_surface_electric_layer"]:
 				var cached_layer: CanvasItem = candidate.get(field) as CanvasItem
 				assert(cached_layer == null or not cached_layer.visible, "A new room must not retain old visible ground")
 		await _show(board, original, shown)

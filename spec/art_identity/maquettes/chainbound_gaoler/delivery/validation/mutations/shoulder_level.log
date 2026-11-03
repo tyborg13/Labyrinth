@@ -1,0 +1,14 @@
+test_measured_native_shoulder_level_is_required (tests.test_mq15_maquette.DeliveryTests) ... FAIL
+
+======================================================================
+FAIL: test_measured_native_shoulder_level_is_required (tests.test_mq15_maquette.DeliveryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 204, in test_measured_native_shoulder_level_is_required
+    self.assertFalse(pose_gates(wrong, recorded, native)['passed'])
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.172s
+
+FAILED (failures=1)

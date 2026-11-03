@@ -1227,7 +1227,7 @@ func _draw_recovery_marker_badge(center: Vector2, node_size: float) -> void:
 
 func _recovery_marker_icon_texture() -> Texture2D:
 	if _recovery_marker_texture == null:
-		_recovery_marker_texture = AssetLoader.load_texture(RECOVERY_MARKER_ICON_PATH)
+		_recovery_marker_texture = AssetLoader.load_original_texture(RECOVERY_MARKER_ICON_PATH)
 	return _recovery_marker_texture
 
 func _room_icon_texture_for_room(room: Dictionary) -> Texture2D:

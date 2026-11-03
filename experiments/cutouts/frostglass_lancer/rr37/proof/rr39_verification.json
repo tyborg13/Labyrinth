@@ -1,0 +1,103 @@
+{
+  "task": "rr-39",
+  "uncommitted": true,
+  "base_head": "ce6c9291247c829fd66ada63c9e459a0a55158c5",
+  "full_suite_run": false,
+  "windowed_run": false,
+  "peer_review_run": false,
+  "acceptance": {
+    "0_source": "exact underlay and negative space; both rests 0px; outside source hashes preserved; 1px rear hem ownership repaired",
+    "0_production": "INCOMPLETE: density cleanup changes 280 texels outside footprint; shared hook scope question pending; proposed patch unapplied",
+    "1": "PASS: one v2 renderer and posed sockets/trail within 2 board px at cast/pin/jab/lunge contact in four orientations",
+    "2": "PASS: generic complete-footprint gate; reviewer outside-cloak mutation rejected; 17 historical failures rejected and 2 controls clean",
+    "3": "PASS: density stage command list completes twice, including rest records/shadow/check/seal"
+  },
+  "tests": {
+    "focused": {
+      "tests": 40,
+      "result": "OK",
+      "seconds": 657.511
+    },
+    "references": {
+      "tests": 168,
+      "result": "OK",
+      "seconds": 281.321
+    },
+    "art_identity": {
+      "tests": 111,
+      "result": "OK",
+      "seconds": 38.144
+    },
+    "runtime": {
+      "checks": 265,
+      "result": "PASS"
+    },
+    "raster": {
+      "front_frames": 512,
+      "rear_frames": 512,
+      "failures": 0,
+      "native_pixels": false
+    },
+    "sfx_observations": [
+      4243,
+      3516,
+      1688
+    ],
+    "sfx_failures": 0,
+    "native_rebakes_pending": 2
+  },
+  "logs": {
+    "focused": {
+      "path": "/private/tmp/labyrinth_codex/rr39-complete-focused.log",
+      "sha256": "9f1b98cf3b2e2e251d0edb560e0cc8f52f19b8b8abce338b9d1822ea407b23cd"
+    },
+    "references": {
+      "path": "/private/tmp/labyrinth_codex/rr39-references-complete.log",
+      "sha256": "ce8858cb4f81e2b54ae25e04a88ce6ac38066a224e45927e6c9e145feff12be8"
+    },
+    "runtime": {
+      "path": "/private/tmp/labyrinth_codex/rr39-lifecycle.log",
+      "sha256": "6bc77e814d184989b21c26ec0124c66e4167cb47dce522c0670cc2e918fe782a"
+    },
+    "art_identity": {
+      "path": "/private/tmp/labyrinth_codex/rr39-art-identity-complete.log",
+      "sha256": "aa9c9a660bc41673154795e23e4ce6a31e4db50fc619b95c85708a35663db82b"
+    },
+    "registration": {
+      "path": "/private/tmp/labyrinth_codex/rr39-registration-complete.log",
+      "sha256": "2b1a7adb25e1c29054be6051a329e30b280c01af8e708ba178f7711401f174ba"
+    },
+    "source_gates": {
+      "path": "/private/tmp/labyrinth_codex/rr39-gates-source-complete.log",
+      "sha256": "5a5d5a1d1a0999f815d768b706b8cf85d9a97aba909b9fab50ff9934735e6ce4"
+    },
+    "production_gates": {
+      "path": "/private/tmp/labyrinth_codex/rr39-gates-production-complete.log",
+      "sha256": "5a5d5a1d1a0999f815d768b706b8cf85d9a97aba909b9fab50ff9934735e6ce4"
+    },
+    "shadow": {
+      "path": "/private/tmp/labyrinth_codex/rr39-shadow.log",
+      "sha256": "41f33cde44d4472e3ecdb6cbdf6ca5f1b7256e0e81c5d9d4c43baf831e575e00"
+    },
+    "density_check": {
+      "path": "/private/tmp/labyrinth_codex/rr39-density-check-complete.log",
+      "sha256": "71f83b077560231620e6b373085e1502db1521bd45a5d4f67401254af6505604"
+    },
+    "preservation": {
+      "path": "/private/tmp/labyrinth_codex/rr39-preservation.log",
+      "sha256": "41adc67bfce23320cf69188016c36333bff6294e23a41bf11dbb7937f3178e36"
+    },
+    "sfx_0": {
+      "path": "/private/tmp/labyrinth_codex/rr39-sfx-final-0.log",
+      "sha256": "3dc42e77ef75687cfb8b1c8e2c5f8ff59a9fe09fb2b0dd0ff23cdfbed6deb20d"
+    },
+    "sfx_1": {
+      "path": "/private/tmp/labyrinth_codex/rr39-sfx-final-1.log",
+      "sha256": "bcacf870f35000766accb1124907a6d5295e5a198e3ed883f8911cec776cbe74"
+    },
+    "sfx_2": {
+      "path": "/private/tmp/labyrinth_codex/rr39-sfx-final-2.log",
+      "sha256": "efcf36afbad198cf916e2af7abd3b29ae3e7a61045fd1afaaef886506a6b1ad1"
+    }
+  }
+}

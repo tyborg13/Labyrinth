@@ -1,0 +1,19 @@
+Running task-local command:
+  task: rr-50-1793277827591310000-83979-hero_facing_test
+  run: rr-50-1793277827591310000-83979-hero_fac-1793278599071687000-86457
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979-hero_fac-1793278599071687000-86457
+  Steam: disabled
+  command: /Applications/Godot.app/Contents/MacOS/Godot --log-file '/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/259/godot.log' --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-50 --script '/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/259/hero_facing_test.gd'
+  timeout: 133.398s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+PROGRAM SUITE PATHS: {"log_file":"/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/259/godot.log","user_data":"/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979-hero_fac-1793278599071687000-86457/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979-hero_fac-1793278599071687000-86457","user_file":"/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979-hero_fac-1793278599071687000-86457/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979-hero_fac-1793278599071687000-86457/program-suite-isolation.json"}
+ERROR: Frostbite fixture really deals damage
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+HERO FACING TEST: FAIL (76 checks)
+       [0] _initialize (res://tests/hero_facing_test.gd:40)
+       [1] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/259/hero_facing_test.gd:7)

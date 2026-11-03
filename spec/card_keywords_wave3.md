@@ -1,5 +1,7 @@
 # Card keywords, wave 3: Retaliate, Quicken, next-attack buffs, Rites
 
+Flurry is dormant (flu-01): no shipped card uses it. References below preserve engine compatibility and synthetic-test contracts; Crown of Surplus only lists Rites and items as player-facing exclusions, with the dormant Flurry guard retained internally.
+
 Owning spec for the wave-3 mechanics of the [card pool overhaul](card_pool_overhaul/README.md).
 Rules code: `scripts/retaliate_rules.gd`, `scripts/tempo_rules.gd`, `scripts/rite_rules.gd`,
 with small hooks in `CombatEngine`, `GameData`, `SurfaceRelicRules` and `GuardianRelicRules`.

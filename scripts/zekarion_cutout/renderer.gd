@@ -97,10 +97,15 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 		# dissolves the same frozen art without resetting its current pose.
 		_apply_pose()
 		return
+	if str(motion.get("clip", "idle")) == "roar":
+		facing = "front"
 	var previous_clip: String = clip
 	clip = str(motion.get("clip", "idle"))
 	phase = float(motion.get("phase", 0.0))
-	if clip == "walk":
+	if clip == "roar":
+		clip = "roar"
+		phase = clampf(phase, 0.0, 1.0)
+	elif clip == "walk":
 		phase = fposmod(phase, 1.0)
 	elif clip == "attack":
 		if phase >= 1.0:
@@ -126,9 +131,9 @@ func _process(delta: float) -> void:
 func _apply_pose() -> void:
 	if rigs.is_empty():
 		return
-	var shown_clip: String = "death" if clip == "death" else "rest" if reduced_motion else action if clip == "attack" else clip
-	var shown_phase: float = 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase
-	var signature: Array = [facing, mirrored, shown_clip, shown_phase]
+	var shown_clip: String = "death" if clip == "death" else "rest" if reduced_motion and clip != "roar" else action if clip == "attack" else clip
+	var shown_phase: float = 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion and clip != "roar" else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase
+	var signature: Array = [facing, mirrored, shown_clip, shown_phase, reduced_motion]
 	if signature == _pose_signature:
 		return
 	_pose_signature = signature
@@ -138,7 +143,10 @@ func _apply_pose() -> void:
 		if rig.visible:
 			rig.position = Vector2(383, 128) if mirrored else SOURCE_OFFSET
 			rig.scale = Vector2(-1, 1) if mirrored else Vector2.ONE
-			ReactionPlayback.apply_pose(rig, shown_clip, shown_phase, reduced_motion)
+			if shown_clip == "roar":
+				rig.call("_apply_sampled_pose", Motion.sample_pose("roar", shown_phase, rig.get("layout"), facing, reduced_motion), true)
+			else:
+				ReactionPlayback.apply_pose(rig, shown_clip, shown_phase, reduced_motion)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 func texture() -> Texture2D:
@@ -146,8 +154,8 @@ func texture() -> Texture2D:
 
 func snapshot() -> Dictionary:
 	return {"art": "zekarion_cutout_v01", "facing": facing, "mirrored": mirrored,
-		"clip": "death" if clip == "death" else "rest" if reduced_motion else clip, "action": action,
-		"phase": 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
+		"clip": "death" if clip == "death" else "rest" if reduced_motion and clip != "roar" else clip, "action": action,
+		"phase": 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion and clip != "roar" else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
 		"active": active, "rig_count": rigs.size(),
 		"texture_id": texture().get_instance_id() if texture() != null else 0}
 

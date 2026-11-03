@@ -35,7 +35,6 @@ static func fixture(seed_value: int = 91526) -> Dictionary:
 static func run(check: Callable) -> void:
 	var engine := RunEngineScript.new()
 	var state: Dictionary = fixture()
-	check.call(Rules.completed_combats(state) == 3, "Graft fixture has three completed combats")
 	var before: Array = Data.equipment_cards("undertaker_plate")
 	var grafted: Dictionary = engine.graft_equipment(state, "undertaker_plate", "patched_cloak", 1, 1)
 	check.call(Data.equipment_cards("undertaker_plate", grafted) == ["undertaker_stand", "shadow_step"], "Selected source replaces exactly one target card")
@@ -65,21 +64,14 @@ static func run(check: Callable) -> void:
 	var early: Dictionary = state.duplicate(true)
 	for room: Dictionary in (early["rooms"] as Dictionary).values():
 		if str(room.get("type", "")) == "combat": room["cleared"] = false
-	check.call(not Rules.error(early, "undertaker_plate", "patched_cloak", 1, 1).is_empty(), "Runtime rejects grafts before three completed combats")
-	# Guardians replace standard fights on section routes and must satisfy the
-	# same three-combat gate used when placing the Graftwright encounter.
-	var guardian_route: Dictionary = state.duplicate(true)
-	var replaced_combat: Dictionary = {}
-	for room: Dictionary in (guardian_route["rooms"] as Dictionary).values():
-		if str(room.get("type", "")) == "combat" and bool(room.get("cleared", false)):
-			room["type"] = "guardian"
-			replaced_combat = room
-			break
-	var after_guardian: Dictionary = engine.graft_equipment(guardian_route, "undertaker_plate", "patched_cloak", 1, 1)
-	check.call(not Rules.owned(after_guardian).has("patched_cloak"), "Two standard combats and a defeated Guardian unlock the encountered Graftwright")
-	replaced_combat["cleared"] = false
-	var before_guardian: Dictionary = engine.graft_equipment(guardian_route, "undertaker_plate", "patched_cloak", 1, 1)
-	check.call(Rules.owned(before_guardian).has("patched_cloak") and not before_guardian.has("equipment_grafts"), "An undefeated Guardian does not grant early graft access")
+	var cleared_fights: int = 0
+	for room: Dictionary in (early["rooms"] as Dictionary).values():
+		if str(room.get("type", "")) in ["combat", "guardian", "boss"] and bool(room.get("cleared", false)): cleared_fights += 1
+	check.call(cleared_fights == 0, "Early Graftwright fixture has zero completed fights of any kind")
+	check.call(Rules.room_error(early).is_empty(), "An unused Graftwright room is usable with zero completed fights")
+	var early_graft: Dictionary = engine.graft_equipment(early, "undertaker_plate", "patched_cloak", 1, 1)
+	check.call(not Rules.owned(early_graft).has("patched_cloak") and Data.equipment_cards("undertaker_plate", early_graft) == ["undertaker_stand", "shadow_step"], "A graft commits with zero completed fights")
+	check.call(bool(Graph.room(early_graft, early_graft["current_room"]).get("graft_used", false)), "A zero-fight graft still spends the encounter")
 	var closed: Dictionary = Rules.leave(state)
 	check.call(closed["mode"] == "room" and Rules.owned(closed) == Rules.owned(state), "Leaving without grafting consumes nothing")
 	var later: Dictionary = grafted.duplicate(true)

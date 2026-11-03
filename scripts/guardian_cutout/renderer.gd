@@ -62,7 +62,7 @@ static func direction_for_delta(delta: Vector2i) -> Dictionary:
 	return EnemyFacing.direction_for_delta(delta)
 
 static func handles(actor_type: String) -> bool:
-	return ACTOR_IDS.has(actor_type)
+	return ACTOR_IDS.has(actor_type) and not preload("res://scripts/maquette_cutout_runtime/presentation.gd").handles(actor_type)
 
 static func rest_path(actor_type: String) -> String:
 	return "res://assets/units/guardians/%s/front/rest.png" % actor_type

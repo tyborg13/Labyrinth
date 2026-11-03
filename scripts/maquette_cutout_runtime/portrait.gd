@@ -16,7 +16,8 @@ static func source_texture(renderer: Node, type: String, crop_to_paint: bool = f
 	var used: Rect2i = Assets.texture_used_rect(rest)
 	var atlas := AtlasTexture.new()
 	atlas.atlas = renderer.texture()
-	atlas.region = Rect2(Renderer.SOURCE_OFFSET + Vector2(used.position), Vector2(used.size)) if crop_to_paint else Rect2(Renderer.SOURCE_OFFSET, Renderer.SOURCE_SIZE)
+	var offset: Vector2 = renderer.canvas_geometry()["offset"]
+	atlas.region = Rect2(offset + Vector2(used.position), Vector2(used.size)) if crop_to_paint else Rect2(offset, Renderer.SOURCE_SIZE)
 	atlas.set_meta("asset_source_path", rest_path(type))
 	Assets.cache_texture_used_rect(atlas, Rect2i(Vector2i.ZERO, used.size) if crop_to_paint else used)
 	return atlas
@@ -28,14 +29,6 @@ static func bind(portrait: TextureRect, type: String, reduced: bool, crop_to_pai
 	var install: Callable = func() -> void:
 		var atlas: AtlasTexture = source_texture(renderer, type, crop_to_paint)
 		portrait.texture = atlas
-		# Slots are often built outside the tree. Their deferred child ready
-		# must also update the retained defeat shader source to the live atlas.
-		var host: Node = portrait.get_parent()
-		while host != null:
-			if host.has_meta("turn_order_portrait_texture"):
-				host.set_meta("turn_order_portrait_texture", atlas)
-				break
-			host = host.get_parent()
 		renderer.present({}, reduced)
 	renderer.ready.connect(install, CONNECT_ONE_SHOT)
 	portrait.add_child(renderer)

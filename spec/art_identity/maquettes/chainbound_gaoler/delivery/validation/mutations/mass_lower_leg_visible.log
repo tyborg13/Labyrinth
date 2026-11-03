@@ -1,0 +1,14 @@
+test_far_shin_and_boot_must_both_show_below_tabard (tests.test_mq15_maquette.MassGuardTests) ... FAIL
+
+======================================================================
+FAIL: test_far_shin_and_boot_must_both_show_below_tabard (tests.test_mq15_maquette.MassGuardTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 286, in test_far_shin_and_boot_must_both_show_below_tabard
+    self.assertFalse(lower_leg_visible(wrong,8)['passed'])
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

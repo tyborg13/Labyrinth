@@ -11,10 +11,12 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-from encounter_sweep import COHORTS, CURRENT_REVISION, ROOT, cell, distribution, output_for_revision, run_engine
+from encounter_sweep import AVAILABLE_COHORTS, COHORTS, CURRENT_REVISION, SUPPORTED_REVISIONS, ROOT, cell, distribution, output_for_revision, run_engine
 
 DEFAULT_WORKERS = 6
 DEFAULT_RUNS = 200
+DEFAULT_BOSS_RUNS = 50
+BOSS_IDS = ("tharokh", "vyraketh", "vaeloryx", "iskaldra", "zekarion", "noctyrax")
 DEFAULT_LOG_ROOT = Path("/private/tmp/spx-01-measurement-logs")
 OBJECTIVES = ("kill_all", "kill_leader", "reach_exit")
 
@@ -58,13 +60,17 @@ def calibration_note(report: dict) -> str:
 
 
 def write_baseline(report: dict, output: Path, report_path: Path | None = None) -> None:
+    if report["revision"] == 7:
+        from encounter_revision7_report import write_report
+        write_report(report, output, report_path)
+        return
     runs, revision, workers = report["runs_per_group"], report["revision"], report["workers"]
     summaries = report["groups"]
     example = read_report(output / summaries[0]["file"])
     composition = (output / "composition.md").read_text()
-    cohort_description = "standard Defeat All and Warband" if revision == CURRENT_REVISION else "legacy standard objective"
+    cohort_description = "standard Defeat All and Warband" if revision >= 6 else "legacy standard objective"
     data_link = f"measurements/revision{revision}"
-    replay_selection = "--cohort COHORT" if revision == CURRENT_REVISION else "--objective OBJECTIVE"
+    replay_selection = "--cohort COHORT" if revision >= 6 else "--objective OBJECTIVE"
     lines = ["# Encounter measurement baseline (spx-01)", "",
              f'Revision {revision}, policy version {report["policy_version"]}, integration HEAD `{report["source_head"]}`. {runs} natural rooms per {cohort_description} cohort per tier; all outcomes are included in percentiles. The exact tooling hash is in `{data_link}/baseline.json`. This bounded greedy bot measures current production rules. No gameplay or policy tuning changed in this integration update.', "",
              f'Run `python3 tools/encounter_sweep.py --revision {revision}` then `python3 tools/encounter_bot.py --baseline --revision {revision}`. Gzipped raw records, summary JSON and composition tables are in `{data_link}/`. Per-process logs and uncompressed working records stay under `/private/tmp/spx-01-measurement-logs/`. Replay with `python3 tools/encounter_bot.py --revision {revision} {replay_selection} --seed SEED --tier TIER --coord=X,Y --runs 1 --output-dir /private/tmp/spx-01-replay`.', "",
@@ -87,17 +93,37 @@ def write_baseline(report: dict, output: Path, report_path: Path | None = None) 
     if report["policy_version"] == 2 and calibration_path.exists():
         lines += ["", calibration_note(json.loads(calibration_path.read_text()))]
     lines += ["", f"Tier-1 Defeat All target (≥70% wins, median HP lost ≤8): {'PASS' if target_met else 'NOT MET'}. The earlier revision-5 policy v2 baseline measured 64% wins and 15 median HP lost; policy v1 measured 12.5% and 24. Those historical rooms differ from this revision-6 cohort. A failed target leaves the policy unqualified for encounter-band calibration.", "", "## Chosen defaults", "", "These affect measurement only. Tier 1 uses GameData.starting_deck(), default equipment, no relics, 24 HP. Tier 2 appends three common reward rolls; tier 3 appends those commons and two rares. Rewards come from the actual coordinate-based reward offer stream on the fixed seed below (coordinates `(roll + 1, 0)`, with each room’s natural element); accepted duplicates are retained. No skills, consumables, omens or Defiance; no Empower. All otherwise equal ties use explicit generation order. Before each card, search the current tile and up to five free-move origins, prioritizing retained movement and then distance to the objective. Multiaction cards use sequential engine resolution with bounded target branches. Rank the shortlist by actual HP removed + 5 per kill + objective progress + potential defense and healing, preferring retained free movement on ties. For each of the top six candidates, search every legal remaining free-movement destination and staying put. Destinations are ordered by objective distance; a surviving zero-damage preview reaches the exact lower bound, so the remaining previews can be pruned. Choose the dodge with the least predicted HP damage (including damage on the path); ties approach the nearest living enemy or designated leader by Manhattan distance, or the nearest exit by grid-only path distance. Evaluate the card against passing with its own best dodge: damage/kills/objective progress + healing + 1.5 × (pass damage − candidate damage). Thus Block and Stoneskin earn only the HP damage the live preview says they prevent this phase; no flat defense bonus is paid. Free exit progress already available when passing is subtracted. A pass or evaluated candidate whose preview survives always displaces a lethal preview, regardless of raw score. The live preview stops at unrevealed follow-up intents; the policy does not inspect those future actions. Commit the card and its approach, then replan; commit the dodge after the final card. Highest positive score wins; otherwise pass and dodge. Search limits deliberately constrain the policy and must be held fixed for future comparisons.", "", "```json", json.dumps(example["defaults"], indent=2), "```", "", "Reward presets:", "", "```json", json.dumps(example["decks"], indent=2), "```", "", f"The sweep starts at seed 1 and accepts 2,000 seeds per cohort/tier/biome. Golden seeds are 1, 19 and 421 at revision 5. Seed scanning is bounded at 100,000 seeds per process; an unfilled cohort fails explicitly. Baselines start at seed 1; the Python driver uses {workers} concurrent isolated Godot processes. The offline measurement timeout is 7,200 seconds per process; ordinary tests retain the project caps. New test-only defaults are `SMALL_SWEEP_MAX_SEED=100` and `POLICY_FIXTURE.determinism_enemy_hp=8`; they affect fixture coverage only. Completed bot rooms checkpoint after each room. Interrupted JSONL sweep output retains complete rows and trims the incomplete final row. Rebuild Markdown from finished measurements with `--baseline --report-only`.", "", "## Composition sweep", "", composition]
-    default_report = "baseline.md" if revision == CURRENT_REVISION else "baseline_revision5.md"
+    default_report = "baseline.md" if revision >= 6 else "baseline_revision5.md"
     report_path = report_path or ROOT / "spec/peer_benchmark/encounter_redesign" / default_report
     report_path.write_text("\n".join(lines))
     print(f"ENCOUNTER BASELINE: PASS ({len(summaries) * runs} runs; {runs} per cohort/tier; revision {revision}); {report_path}")
 
 
+def measurement_groups(revision: int, runs: int, boss_runs: int) -> list[dict]:
+    standard = [(tier, cohort, "kill_leader" if cohort == "warband" else "kill_all")
+                for tier in (1, 2, 3) for cohort in COHORTS] if revision >= 6 else [
+                    (tier, "standard", objective) for tier in (1, 2, 3) for objective in OBJECTIVES]
+    groups = [{"tier": tier, "cohort": cohort, "objective": objective, "runs": runs, "boss_id": ""}
+              for tier, cohort, objective in standard]
+    groups += [{"tier": tier, "cohort": "guardian", "objective": "", "runs": runs, "boss_id": ""}
+               for tier in (1, 2, 3)]
+    groups += [{"tier": 3, "cohort": "boss", "objective": "", "runs": boss_runs, "boss_id": boss_id}
+               for boss_id in BOSS_IDS]
+    return groups
+
+
+def group_stem(group: dict, revision: int) -> str:
+    label = group["objective"] if revision == 5 and group["cohort"] == "standard" else group["cohort"]
+    return f'bot-t{group["tier"]}-{label}' + (f'-{group["boss_id"]}' if group["boss_id"] else "")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--baseline", action="store_true", help="run every tier/cohort group (legacy: tier/objective)")
-    parser.add_argument("--revision", type=int, choices=(5, 6), default=CURRENT_REVISION)
-    parser.add_argument("--cohort", choices=COHORTS, default="standard")
+    parser.add_argument("--revision", type=int, choices=SUPPORTED_REVISIONS, default=CURRENT_REVISION)
+    parser.add_argument("--cohort", choices=AVAILABLE_COHORTS, default="standard")
+    parser.add_argument("--boss-id", choices=BOSS_IDS, help="select a dragon within the boss cohort")
+    parser.add_argument("--boss-runs", type=int, default=DEFAULT_BOSS_RUNS, help="baseline runs per dragon")
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--tier", type=int, choices=(1, 2, 3), default=1)
     parser.add_argument("--objective", choices=OBJECTIVES, help="revision 5 only; revision 6 derives this from --cohort")
@@ -111,15 +137,21 @@ def main() -> None:
     parser.add_argument("--log-root", type=Path, default=DEFAULT_LOG_ROOT, help="temporary per-process logs and uncompressed working records")
     args = parser.parse_args()
     runs = args.runs if args.runs is not None else DEFAULT_RUNS if args.baseline else 1
-    if runs <= 0 or args.workers <= 0 or args.seed < 0:
+    if runs <= 0 or args.boss_runs <= 0 or args.workers <= 0 or args.seed < 0:
         parser.error("runs/workers must be positive and seed nonnegative")
     if args.coord and (args.baseline or runs != 1):
         parser.error("--coord requires a single-room run")
-    if args.revision == 5 and args.cohort != "standard":
+    if args.revision == 5 and args.cohort == "warband":
         parser.error("revision 5 has no Warband cohort")
     expected_objective = "kill_leader" if args.cohort == "warband" else "kill_all"
-    if args.revision == CURRENT_REVISION and args.objective and args.objective != expected_objective:
-        parser.error("revision 6 objectives follow --cohort; use --revision 5 for legacy objective cohorts")
+    if args.revision >= 6 and args.cohort in COHORTS and args.objective and args.objective != expected_objective:
+        parser.error(f"revision {args.revision} objectives follow --cohort; use --revision 5 for legacy objective cohorts")
+    if args.cohort in ("guardian", "boss") and args.objective:
+        parser.error("Guardian and boss cohorts retain their own objective; omit --objective")
+    if args.boss_id and (args.baseline or args.cohort != "boss"):
+        parser.error("--boss-id requires a single boss cohort")
+    if not args.baseline and args.cohort == "boss" and args.tier != 3:
+        parser.error("boss measurements require --tier 3 (tier-3 deck preset)")
     output = (args.output_dir or output_for_revision(args.revision)).resolve()
     output.mkdir(parents=True, exist_ok=True)
     if args.report_only:
@@ -132,26 +164,35 @@ def main() -> None:
         return
     args.log_root.mkdir(parents=True, exist_ok=True)
     log_dir = Path(tempfile.mkdtemp(prefix="bot-", dir=args.log_root))
-    if args.revision == CURRENT_REVISION:
-        groups = [(tier, cohort, "kill_leader" if cohort == "warband" else "kill_all")
-                  for tier in (1, 2, 3) for cohort in COHORTS] if args.baseline else [(args.tier, args.cohort, expected_objective)]
-    else:
-        groups = [(tier, "standard", obj) for tier in (1, 2, 3) for obj in OBJECTIVES] if args.baseline else [(args.tier, "standard", args.objective or "kill_all")]
+    groups = measurement_groups(args.revision, runs, args.boss_runs) if args.baseline else [
+        {"tier": args.tier, "cohort": args.cohort, "runs": runs,
+         "objective": (args.objective or expected_objective) if args.cohort == "standard" else
+                      "kill_leader" if args.cohort == "warband" else "",
+         "boss_id": args.boss_id or ""}]
 
-    def measure(group: tuple[int, str, str]) -> dict:
-        tier, cohort, objective = group
-        stem = f"bot-t{tier}-{cohort if args.revision == CURRENT_REVISION else objective}"
+    def measure(group: dict) -> dict:
+        tier, cohort, count = group["tier"], group["cohort"], group["runs"]
+        objective, boss_id = group["objective"], group["boss_id"]
+        stem = group_stem(group, args.revision)
         path = log_dir / f"{stem}.json"
         resume = args.resume_dir / f"{stem}.json" if args.resume_dir else None
-        elapsed = run_engine("tools/encounter_bot.gd", ["--revision", str(args.revision), "--cohort", cohort, "--seed", str(args.seed), "--tier", str(tier), "--objective", objective,
-                            "--runs", str(runs), "--output", str(path), *(["--coord", args.coord] if args.coord else []),
+        elapsed = run_engine("tools/encounter_measurement_bot.gd", ["--revision", str(args.revision), "--cohort", cohort,
+                            "--seed", str(args.seed), "--tier", str(tier), "--runs", str(count), "--output", str(path),
+                            *(["--objective", objective] if objective else []),
+                            *(["--boss-id", boss_id] if boss_id else []),
+                            *(["--coord", args.coord] if args.coord else []),
                             *(["--resume-report", str(resume)] if resume and resume.exists() else [])], log_dir / f"{stem}.log")
         report = json.loads(path.read_text())
-        if len(report["results"]) != runs:
+        records = report["results"]
+        if len(records) != count:
             raise RuntimeError(f"Incomplete baseline {stem}")
+        objectives = {r["objective"] for r in records}
+        if len(objectives) != 1 or (objective and objectives != {objective}):
+            raise RuntimeError(f"Unexpected objectives in {stem}: {objectives}")
         compressed = output / f"{stem}.json.gz"
         compress_report(path, compressed)
-        return {"revision": args.revision, "cohort": cohort, "tier": tier, "objective": objective, **summarize(report["results"]),
+        return {"revision": args.revision, "cohort": cohort, "tier": tier, "objective": next(iter(objectives)),
+                **({"boss_id": boss_id} if boss_id else {}), **summarize(records),
                 "file": compressed.name, "sha256": hashlib.sha256(compressed.read_bytes()).hexdigest(), "elapsed_seconds": round(elapsed, 3)}
 
     with ThreadPoolExecutor(max_workers=args.workers) as executor:
@@ -160,12 +201,14 @@ def main() -> None:
     if args.baseline:
         report = {"schema_version": 3, "revision": args.revision, "policy_version": example["defaults"]["policy_version"],
                   "policy_sha256": hashlib.sha256((ROOT / "tools/encounter_bot.gd").read_bytes()).hexdigest(), "source_head": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
-                  "runs_per_group": runs, "first_seed": args.seed, "workers": args.workers, "groups": summaries}
+                  "runs_per_group": runs, "runs_per_dragon": args.boss_runs, "first_seed": args.seed, "workers": args.workers, "groups": summaries,
+                  "tool_sha256": {name: hashlib.sha256((ROOT / "tools" / name).read_bytes()).hexdigest()
+                                  for name in ("encounter_sweep.gd", "encounter_sweep.py", "encounter_measurement_bot.gd", "encounter_bot.py", "encounter_revision7_report.py")}}
         (output / "baseline.json").write_text(json.dumps(report, indent=2) + "\n")
         if (output / "composition.md").exists():
             write_baseline(report, output, args.report_path)
         else:
-            print(f"ENCOUNTER BASELINE RECORDS: PASS ({len(groups) * runs} runs); render with --baseline --report-only after the composition sweep")
+            print(f"ENCOUNTER BASELINE RECORDS: PASS ({sum(g['n'] for g in summaries)} runs); render with --baseline --report-only after the composition sweep")
 
 
 if __name__ == "__main__":

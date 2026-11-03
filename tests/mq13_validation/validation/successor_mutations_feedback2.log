@@ -1,0 +1,12 @@
+test_exact_receipts_replace_only_the_complete_gloam_delivery (tests.test_mq12_successor.GloamSuccessorTests) ... ok
+test_missing_or_byte_mutated_receipts_fail_closed (tests.test_mq12_successor.GloamSuccessorTests) ... ok
+test_mutation_of_either_bound_hash_fails_closed (tests.test_mq12_successor.GloamSuccessorTests) ... ok
+test_preparation_binds_both_gloam_receipts (tests.test_mq12_successor.GloamSuccessorTests) ... ok
+test_r2_cannot_be_restored_after_r3_is_authorized (tests.test_mq12_successor.GloamSuccessorTests) ... ok
+test_rebound_predecessor_must_match_the_exact_mq12_tree (tests.test_mq12_successor.GloamSuccessorTests) ... ok
+test_rebound_successor_cannot_change_scope_or_predecessor (tests.test_mq12_successor.GloamSuccessorTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.358s
+
+OK

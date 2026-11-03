@@ -1,0 +1,255 @@
+MODULE test_boot_splash: 0.105s
+MODULE test_button_system_inventory: 0.106s
+CAPTURE PRODUCTION GATES: FAIL (38 errors; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-iozta563/production_failure)
+RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-u77jzgf_/old_review.mp4)
+RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-u77jzgf_/new_review.mp4)
+RR10 IDLE: PASS (30 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-u77jzgf_/old_idle.mp4)
+RR10 IDLE: PASS (30 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-u77jzgf_/new_idle.mp4)
+RR10 SHEETS: PASS (4 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-u77jzgf_/old_sheets)
+RR10 SHEETS: PASS (4 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-u77jzgf_/new_sheets)
+RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-5alm4jv6/proof/seer/review.mp4)
+MODULE test_capture_director: 10.603s
+MODULE test_card_completion_stall: 0.024s
+MODULE test_card_heuristic_keywords: 0.000s
+MODULE test_card_heuristic_wave4_surfaces: 0.000s
+MODULE test_card_time_watch_asset: 0.002s
+MODULE test_combat_feel_measurements: 0.025s
+test_empower_sfx.EmpowerSfxTests.test_hash_bound_samples_meet_input_onset_and_duration ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_empower_sfx.EmpowerSfxTests.test_mix_targets_and_six_db_difference ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+MODULE test_empower_sfx: 0.001s
+MODULE test_en05_assets: 0.052s
+ENC03 BEFORE SOURCE RESTORATION: PASS
+ENCOUNTER BASELINE: PASS (2100 runs; revision 7; 15 groups); /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpgbhdbp0p/baseline.md
+MODULE test_encounter_measurement: 1.685s
+MODULE test_fix_11_labels: 0.070s
+MODULE test_gear_visual_assets: 102.519s
+MQ08_BRIDGE: receipt; exit=0
+MQ08_BRIDGE: receipt; exit=0
+MODULE test_glacial_mirror_regeneration: 1.843s
+MODULE test_glacial_mirror_registration: 0.019s
+MODULE test_icon_identity_policy: 0.084s
+MODULE test_inspection_fixture: 17.071s
+MODULE test_item_card_art_quality: 0.647s
+MODULE test_labyrinth_font_family: 0.347s
+MODULE test_labyrinth_queue_board: 0.005s
+MODULE test_labyrinth_task_queue: 0.583s
+MODULE test_main_menu_steam_branding: 0.004s
+MODULE test_main_menu_umbra_assets: 0.002s
+test_maquette_blender.NativeContractTests.test_real_blender_build_and_geometry_gates ... skipped: Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge
+test_maquette_blender.NativeContractTests.test_real_lancer_cloth_cache_replay_has_identical_raw_hashes ... skipped: Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge
+MODULE test_maquette_blender: 0.264s
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+BUILD_STAGE: append anatomy
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+MQ07_REVIEW_MUTATION_REJECTED: procedural_chain
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+MQ07_REVIEW_MUTATION_REJECTED: repose
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+MQ07_REVIEW_MUTATION_REJECTED: append_tucks
+MQ07_REVIEW_MUTATION_REJECTED: socket_contract
+MQ07_REVIEW_MUTATION_REJECTED: foot_exception
+MODULE test_maquette_builder_wiring: 0.337s
+CERTIFICATE VERDICT MUTATION: features CAUGHT
+CERTIFICATE VERDICT MUTATION: silhouette CAUGHT
+CERTIFICATE VERDICT MUTATION: joint_seams CAUGHT
+CERTIFICATE VERDICT MUTATION: seam_pose CAUGHT
+MAQUETTE CERTIFICATE MUTATION: stale support rejected before copying; fresh material gate: ["rear/shell/0014: exposed derived dark slab (1239px; {'hidden_trunk': 375, 'hidden_core': 189, 'hidden_petal_near_l': 113, 'hidden_petal_near_r': 132, 'hidden_petal_far_l': 15, 'hidden_petal_far_r': 243, 'hidden_tendril_high_r': 22, 'hidden_tendril_low_r': 37, 'root_stem_c': 17, 'hidden_root_tip_c': 96})"]
+MODULE test_maquette_certificates: 24.789s
+MODULE test_maquette_geometry: 11.591s
+MAQUETTE FADED REFERENCE: PASS (zero/cull alpha empty; one half-visible part compared; tampered transforms rejected)
+MAQUETTE SEAM MUTATION: CPU/native gap reported; independent native reference rejected
+MODULE test_maquette_joint_seams: 3.412s
+MODULE test_maquette_native_raster: 1.368s
+MODULE test_maquette_native_ties: 0.016s
+MAQUETTE PIXEL MUTATION: split_feature rejected in both views
+MAQUETTE CROP ANCHOR: PASS (504 front poses; maximum source-affine residual 0.000027135)
+MAQUETTE CONTINUITY SEARCH: {'margin': 0, 'errors': 0, 'max_detached_pixels': 0, 'max_new_hole_pixels': 5}
+MAQUETTE FEATURE DERIVATION: PASS (isolated one-pixel fixture; both approved views reconstruct exactly)
+MAQUETTE SHIMMER CPU: shale_bloomer: {'before': {'held_unexplained_pixels': 693731, 'boundary_unexplained_pixels': 64585}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 0}}
+MAQUETTE PIXEL MUTATION: shale_bloomer/unstepped_paint rejected
+MAQUETTE SHIMMER CPU: lightning_wisp: {'before': {'held_unexplained_pixels': 952496, 'boundary_unexplained_pixels': 41126}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 0}}
+MAQUETTE PIXEL MUTATION: lightning_wisp/unstepped_paint rejected
+MAQUETTE PIXEL MUTATION: independent core-crop snapping rejected in both views
+MODULE test_maquette_pixel_polish: 203.534s
+MODULE test_mq13_pose: 0.677s
+MQ16_BRIDGE_SUBMITTED: deadline; pending
+MODULE test_mq16_maquette: 17.738s
+MQ17_PRESERVATION_PACKING: PASS; original_bytes=353657; packed_bytes=94852
+MODULE test_mq17_maquette: 57.372s
+MQ20_CONTACT_SHEET: PASS; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/mq20_sheet__3d5mko2/contact_sheet.webp
+MQ20_SOURCE_GEOMETRY: FAIL; rows=89; clearance_over_H=0.0; unresolved=[]
+MODULE test_mq20_maquette: 30.664s
+MQ16_BRIDGE_SUBMITTED: missing; synthetic_no_answer
+MQ21_PROTECTED_DIRECTOR_FILES: PASS; files=2
+MQ16_CURATED_INVENTORY: PASS; files=1; bytes=20
+MQ21_CURATED_INVENTORY: PASS; {'active_revision_bytes': 43, 'historical_and_current_bytes': 6000044, 'files': 2}
+MQ21_CONTACT_SHEET: PASS; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/mq21_delivery_xide1gx0/capture/mq21_contact_sheet.webp
+MQ21_CONTACT_SHEET: PASS; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/mq21_delivery_yvpo3zmt/capture/mq21_contact_sheet.webp
+MQ21_CONTACT_SHEET: PASS; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/mq21_delivery_yvpo3zmt/capture/mq21_contact_sheet.webp
+MODULE test_mq21_delivery: 19.742s
+MODULE test_mq24_maquette: 30.096s
+MODULE test_native_frames: 7.713s
+test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests.test_v07_builder_keeps_every_prior_version_immutable ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests.test_v07_is_strictly_verified_and_promoted_without_byte_drift ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests.test_v07_preserves_the_approved_v06_music_byte_for_byte ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_every_base_event_is_an_exact_v02_crop ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_high_strings_are_sparse_exact_octave_doublings ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_midi_tracks_channels_counts_tempo_and_loop_markers ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_normalized_score_and_config_are_audition_only ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_percussion_is_quiet_regular_six_eight_background ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_prior_audition_trees_remain_byte_for_byte_unchanged ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_selection_is_the_requested_contiguous_measure_span ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+MODULE test_old_castle_main_menu_arrangement: 0.000s
+MODULE test_output_gdignore: 0.024s
+MODULE test_pace_round_capture: 0.002s
+MODULE test_parallel_task: 5.229s
+MODULE test_player_ui_scrollbars: 0.030s
+MODULE test_process_biome_art: 17.285s
+CANDIDATE PT14 MAIN THREAD: initialization max=0.180 ms calls=2 events={ "rig": 0, "image": 0, "thread": 0 }
+CANDIDATE PT14 MAIN THREAD: new_run max=0.000 ms calls=0 events={ "rig": 0, "image": 0, "thread": 0 }
+CANDIDATE PT14 MAIN THREAD: equip max=0.000 ms calls=0 events={ "rig": 0, "image": 0, "thread": 0 }
+CANDIDATE PT14 MAIN THREAD: continue max=0.050 ms calls=2 events={ "rig": 0, "image": 0, "thread": 0 }
+BASELINE PT14 MAIN THREAD: initialization max=0.187 ms calls=2 events={ "rig": 0, "image": 0, "thread": 0 }
+BASELINE PT14 MAIN THREAD: new_run max=0.000 ms calls=0 events={ "rig": 0, "image": 0, "thread": 0 }
+BASELINE PT14 MAIN THREAD: equip max=0.000 ms calls=0 events={ "rig": 0, "image": 0, "thread": 0 }
+BASELINE PT14 MAIN THREAD: continue max=0.001 ms calls=1 events={ "rig": 0, "image": 0, "thread": 0 }
+PT14-04 MAIN THREAD RESULT: PASS (New Run/Continue/equip added <= 0.5 ms)
+PT14-04 DILATION MUTATION: KILLED (offline parity control passes)
+FAIL: test_pt14_04_coverage.HeroCoverage.test_runtime_boundary_and_reverts
+PT14-04 STALENESS: PASS (66 sources; exact inventory)
+PT14-04 STALENESS MUTATION recorded_hash: KILLED
+PT14-04 STALENESS MUTATION rig_art: KILLED
+PT14-04 STALENESS MUTATION rig_data: KILLED
+PT14-04 ZERO-RUNTIME MUTATION rig: KILLED
+PT14-04 ZERO-RUNTIME MUTATION image: KILLED
+PT14-04 ZERO-RUNTIME MUTATION thread: KILLED
+PT14-04 ZERO-RUNTIME RESULT: PASS (rig=0 image=0 thread=0; 3/3 mutants killed)
+MODULE test_pt14_04_coverage: 82.149s
+PT15 SILHOUETTE CHANGES: []
+PT15 SOLE SWEEP RESULT: PASS (43 types; 172 facings; 0 moved; 0 flipped; 0 slid; 0 unchanged; 0 fallbacks; 387 assertions; 0 failures)
+PT15 SILHOUETTE CHANGES: []
+PT15 SOLE SWEEP RESULT: PASS (43 types; 172 facings; 113 moved; 6 flipped; 107 slid; 56 unchanged; 3 fallbacks; 808 assertions; 0 failures)
+PT15 OWNER FEET RESULT: PASS (55 assertions; 0 failures)
+PT15 OWNER FEET RESULT: FAIL (55 assertions; 3 failures)
+PT15 BOARD SILHOUETTE CACHE MUTATION: KILLED (warm alpha rescans and sole clips detected)
+PT15 OWNER FEET RESULT: PASS (55 assertions; 0 failures)
+PT15 OWNER FEET RESULT: FAIL (55 assertions; 9 failures)
+PT15 MUTATION owner_obstacle_removed: KILLED
+PT15 OWNER FEET RESULT: FAIL (55 assertions; 8 failures)
+PT15 MUTATION sole_padding_removed: KILLED
+PT15 OWNER FEET RESULT: FAIL (55 assertions; 3 failures)
+PT15 MUTATION search_both_sides_too_early: KILLED
+PT15 OWNER FEET RESULT: FAIL (55 assertions; 13 failures)
+PT15 MUTATION zero_band: KILLED
+PT15 MUTATION RESULT: PASS (4/4 killed; control passes; production untouched)
+MODULE test_pt15_01_owner_feet: 66.583s
+MODULE test_relic_pt13_01: 0.008s
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+MODULE test_rr12_delivery: 4.655s
+MODULE test_rr12_production: 67.964s
+MODULE test_rr12_stray: 0.003s
+RR32 CPU CLIP: front/gust_bolt
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+RR32 CPU COVERAGE: PASS (1 frames; 0 error frames; NOT native proof)
+RR32 CPU SEAMS: PASS (1 frames; 0 joint tears; 0 stray components; NOT native proof)
+Counter()
+MODULE test_rr32_herald: 101.246s
+MAQUETTE PRODUCTION LOGIC: PASS (1054 frames)
+Saved /Users/borgerding/workspace/Labyrinth.worktrees/rr-50/experiments/cutouts/gale_herald/mq12/proof/logs/production_front
+MAQUETTE PRODUCTION LOGIC: PASS (1055 frames)
+Saved /Users/borgerding/workspace/Labyrinth.worktrees/rr-50/experiments/cutouts/gale_herald/mq12/proof/logs/production_rear
+RR32 FRONT PRODUCTION WALK/SUPPORTS: PASS
+RR32 REAR PRODUCTION WALK/SUPPORTS: PASS
+RR32 FRONT PRODUCTION CONTACTS/POSES: PASS
+RR32 REAR PRODUCTION CONTACTS/POSES: PASS
+MODULE test_rr32_production: 82.721s
+MODULE test_rr34_layering: 0.548s
+RR46 gale_herald PRESERVATION: PASS (135 protected files)
+MODULE test_rr46_preserve_gale_herald: 0.070s
+RR47 FINAL STILL SAVE: PASS (software fixture; native pixels=false)
+RR47 COMPOSITE FIXTURE: PASS (visible and terminal; software pixels)
+RR47 EXACT VERIFIER BRIDGE: PASS (visible/terminal maps; transparent-RGB corruption rejected)
+RR47 NATIVE FAILURE FIXTURE: PASS (16 SHA-256-bound files; Seer frames 0, 36, 40, 53; historical failing evidence)
+RR47 RETAINED ROUTING: PASS (6402 samples; 0 missing callbacks; 562 pillar-front samples; native pixels=false)
+RR47 RETAINED ROUTING: PASS (582 samples; 0 missing callbacks; 0 pillar-front samples; native pixels=false)
+RR47 RETAINED ROUTING: FAIL (582 samples; 110 missing callbacks; 0 pillar-front samples; native pixels=false)
+RR47 BASE COMPARISON: PASS (a420283fa draws; rr-46 missing-host mutation rejected; same route and callback probe)
+MODULE test_rr47_depth: 52.645s
+RR47 DIAGONAL DEPTH: PASS (2 boards; 2240 routes; 6720 samples; 25260 prop comparisons; native pixels=false)
+RR47 MIDPOINT SAMPLING: PASS (GDScript/Python agree for 120 lengths; frame 23/48 required)
+RR47 DEPTH COST MEASURED: {"after": {"calls": 2400, "position_ms_per_submission": 0.09003125, "submissions": 480, "total_ms_per_submission": 2.1672208333333334}, "before": {"calls": 2400, "position_ms_per_submission": 0.22404374999999999, "submissions": 480, "total_ms_per_submission": 2.71331875}}
+ERROR: test_rr47_feedback2.FeedbackTwoTests.test_omitting_native_midpoint_and_corner_route_fails
+RR47 REVIEW REGRESSION: PASS (21119ff68 rejected on both boards at Mimic frame 23/48)
+MODULE test_rr47_feedback2: 65.298s
+MODULE test_section_transition_clip: 0.005s
+test_sfx_lab.LayeredDesignTests.test_bytes_peak_provenance_source_preservation_and_no_deletions ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_designed_multi_root_cli_pipeline_and_relocation ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_excluded_recipe_paths_and_ambiguous_take ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_layer_without_trim_renders_full_take ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_licence_derivation_and_missing_or_invalid_sidecar_before_index ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_master_order_filters_peak_fade_length_and_errors ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_sample_exact_offset_mono_stereo_sum_and_default_length ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_trim_pitch_reverse_filters_and_layer_fades ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LimiterTests.test_ceiling_linked_channels_boundary_peaks_and_input_gain ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LimiterTests.test_determinism_silence_and_short_file ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LimiterTests.test_invalid_limiter_settings_fail ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LimiterTests.test_lookahead_attack_starts_early_and_is_linear ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LimiterTests.test_release_is_one_pole_exponential ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_approved_defaults_and_invalid_inputs ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_attack_decay_and_antiphase_spectrum ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_audition_two_cues_html_audio_and_provenance ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_build_deterministic_bytes_loudness_manifest ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_capped_take_passes_below_loudness_target ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_cli_index_slice_features_query_audition_build ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_equal_power_fades_linear_fade_in_and_crossfade ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_features_sine_noise_bands_and_short_rms ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_index_all_formats_license_hash_and_skips ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_index_and_analysis_deterministic_across_workers ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_limiter_build_stage_manifest_encoded_ceiling_and_determinism ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_lowpass_before_normalization_and_short_boundary ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_multichannel_front_pair_in_audition_and_build ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_normalize_no_clip_cap_is_recorded ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_page_javascript_offline_export_play_and_shortcuts ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_query_all_ranges_and_sort ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_refuse_excluded_paths_symlinks_and_forged_provenance ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_short_peak_caps_and_processing_parameters ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_slice_boundaries_and_identity ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_slice_silence_tiny_take_tail_floor_and_cap ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_stereo_policy_and_loop_seam ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_uncapped_take_outside_tolerance_fails_even_near_ceiling ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_unknown_ambiguous_modified_take_and_unsafe_cue ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.WindowMeasureTests.test_cli_default_explicit_and_short_windows_preserve_cue_gain_and_inheritance ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.WindowMeasureTests.test_default_400ms_matches_director_measure_and_100ms_uses_25ms_hops ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.WindowMeasureTests.test_short_padding_and_window_validation ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+MODULE test_sfx_lab: 0.000s
+MODULE test_skybolt_measurement: 29.457s
+MODULE test_transition_differential: 0.038s
+MODULE test_ui_identity_lint: 2.935s
+Visual proof result manifest: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpy3vjdp_k/report.json
+MODULE test_visual_probe_runner: 0.289s

@@ -1,0 +1,176 @@
+[
+  {
+    "file": "scripts/graftwright_view.gd",
+    "line": 17,
+    "function": "top-level",
+    "source": "const CardScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "scripts/item_preview_builders.gd",
+    "line": 114,
+    "function": "card_preview",
+    "source": "var widget: Control = load(\"res://scenes/card_widget.tscn\").instantiate()"
+  },
+  {
+    "file": "scripts/magic_purge_confirmation.gd",
+    "line": 10,
+    "function": "top-level",
+    "source": "const CardScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "scripts/opening_boon_card.gd",
+    "line": 194,
+    "function": "_glyph",
+    "source": "var presentation: Control = load(\"res://scenes/card_widget.tscn\").instantiate()"
+  },
+  {
+    "file": "scripts/opening_boon_overlay.gd",
+    "line": 18,
+    "function": "top-level",
+    "source": "const CardScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "scripts/pile_dialog_view.gd",
+    "line": 10,
+    "function": "top-level",
+    "source": "const CardScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "scripts/run_scene.gd",
+    "line": 108,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "scripts/scavenger_shop_view.gd",
+    "line": 16,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/card_pool_overhaul_contact_probe.gd",
+    "line": 6,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/card_pool_polish_probe.gd",
+    "line": 18,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/card_rarity_polish_probe.gd",
+    "line": 6,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/card_role_emblem_probe.gd",
+    "line": 6,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/card_targeting_rework_probe.gd",
+    "line": 6,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/card_time_badge_probe.gd",
+    "line": 5,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/flurry_card_pack_probe.gd",
+    "line": 7,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/glossary_tooltip_probe.gd",
+    "line": 435,
+    "function": "_card_identity",
+    "source": "var card: CardWidget = load(\"res://scenes/card_widget.tscn\").instantiate()"
+  },
+  {
+    "file": "tests/helpers/card_legibility_audit.gd",
+    "line": 11,
+    "function": "top-level",
+    "source": "const CardScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/item_card_art_probe.gd",
+    "line": 6,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/maneuver_cards_probe.gd",
+    "line": 6,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/premium_card_material_probe.gd",
+    "line": 3,
+    "function": "top-level",
+    "source": "const CardScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/run_tests.gd",
+    "line": 10396,
+    "function": "_test_card_widget_removes_meter_glow_and_preserves_clock",
+    "source": "var card_scene: PackedScene = load(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/run_tests.gd",
+    "line": 10447,
+    "function": "_test_card_widget_flurry_icon_uses_wide_slot",
+    "source": "var card_scene: PackedScene = load(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/run_tests.gd",
+    "line": 10499,
+    "function": "_test_card_widget_debossed_role_emblems",
+    "source": "var card_scene: PackedScene = load(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/suites/card_drag_play_suite.gd",
+    "line": 7,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/suites/card_keywords_suite.gd",
+    "line": 16,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/surface_feedback_ui_test.gd",
+    "line": 9,
+    "function": "top-level",
+    "source": "const Widget = preload(\"res://scenes/card_widget.tscn\")"
+  },
+  {
+    "file": "tests/text_rewrite_probe.gd",
+    "line": 121,
+    "function": "_duration_card",
+    "source": "var card: Control = load(\"res://scenes/card_widget.tscn\").instantiate()"
+  },
+  {
+    "file": "tests/text_rewrite_probe.gd",
+    "line": 194,
+    "function": "_token_styles",
+    "source": "var card: Control = load(\"res://scenes/card_widget.tscn\").instantiate()"
+  },
+  {
+    "file": "tests/umbra_visual_probe.gd",
+    "line": 9,
+    "function": "top-level",
+    "source": "const CardWidgetScene = preload(\"res://scenes/card_widget.tscn\")"
+  }
+]

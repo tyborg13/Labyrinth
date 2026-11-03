@@ -63,6 +63,10 @@ static func run(expect: Callable) -> void:
 	var approved: Dictionary = {}
 	for row: Dictionary in JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/text/relic_rewrite.json")):
 		approved[str(row["id"])] = row
+	# flu-01 retirement supersedes Crown's historical Flurry exclusion only.
+	var retirement: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/flurry_retirement_copy.json"))
+	for relic_id: String in retirement["relic_descriptions"]:
+		approved[relic_id]["description"] = retirement["relic_descriptions"][relic_id]
 	var relic_icon_count: int = 0
 	for relic_id: String in GameData.relic_ids():
 		var description: String = str(GameData.relic_def(relic_id).get("description", ""))

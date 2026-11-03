@@ -1,0 +1,2269 @@
+{
+  "task": "rr-44",
+  "round": "feedback 2 / 2b final",
+  "base_head": "c1adc9360c67281c29f686cff7e99ec707ab35c2",
+  "branch": "codex/rr-44",
+  "recorded_utc": "2026-10-28T19:40:51.037144+00:00",
+  "implementation_status": "Feedback2 implemented; all unit headless acceptance gates passed; whole-project failures retained and diagnosed; fresh native acceptance pending.",
+  "changes_uncommitted": true,
+  "native_pixels_current_round": false,
+  "windowed_commands_attempted": [],
+  "headless_checks": [
+    {
+      "check": "focused",
+      "log": "/private/tmp/rr44-f2-focused-final8.log",
+      "log_sha256": "3f1d66b1c23f2db084debd9e2875f2ed0fbfd0e7335c831b80cdecba087b55ae",
+      "result_lines": [
+        "Ran 20 tests in 19.812s",
+        "OK",
+        "RR44 F2 EFFECTIVE PAINT: PASS (168 frozen r1 RGBA values at existing approved UVs; recolour, clear and wrong clip rejected)",
+        "RR44 F2 FLAT RATCHET: PASS (4202 regions; +2 allowed; +3 and new region fail)",
+        "RR44 F2 NATIVE REPLAY FIXTURE: PASS (892 poses; 14 exact native-origin anchors)",
+        "RR44 F2 PAINT AUTHORITY: PASS (20 exact source regions; recolour and clear rejected)",
+        "RR44 F2 NATIVE RGBA: PASS (both hash-bound idle frames; single painted-pixel recolour fails)",
+        "RR44 F2 NATIVE BOOT FIXTURE: PASS (rear guard 42, move 21 and reel 28 reject detached 20\u201339px slivers)",
+        "RR44 F2 NATIVE GRIP FIXTURE: PASS (rear hit 15 and front reel 63 reject; full native RGBA/hash bound)",
+        "RR44 F2 NATIVE RELEASE JOINT: PASS (hash-bound rear death 31; 6px released grip opening; body-joint mutation still fails)",
+        "RR44 F2 PRESENTED GRIP: PASS (fresh poses; detached painted-grip mutation fails)",
+        "RR44 F2 CAP ALIGNMENT: PASS (fresh move 13 and released death; shifted helper and missing alignment rejected)",
+        "RR44 F2 NATIVE RIGID TRANSFORMS: PASS (front/rear native released death RGBA; no inferred second origin snap)",
+        "RR44 F2 JOINT/OWNERSHIP: PASS (exact own-paint caps; boot/belt ownership; cap recolour fails)",
+        "RR44 F2 FAR SLEEVE: PASS (both visible skinned contours byte-identical to hash-bound approved r1 geometry)",
+        "RR44 DIRECTOR INPUTS: PASS (both paintings/raws/recipes byte exact; replay certified)",
+        "RR44 BASE ELBOW MUTATION: PASS (hash-bound d7ed719d9 press/hit fail in both views; four CPU crops)",
+        "RR44 MAQUETTE STRUCTURE: PASS (unscaled limbs; level shoulders; proper rear half-turn; native acceptance checked separately)",
+        "RR44 DEATH: PASS (approved choreography retained; lowered hand target and measured floor drop)",
+        "RR44 SOURCE CUTS: PASS (front=0px rear=0px; masks rederived; exact painted backing)"
+      ],
+      "entrypoints": [
+        "tests/test_rr44_feedback2.py",
+        "tests/test_rr44_gaoler.py"
+      ]
+    },
+    {
+      "check": "motion",
+      "log": "/private/tmp/rr44-f2-motion-final8.log",
+      "log_sha256": "1bed2b22f2863c3db94ccf05af27a682b68a6281b0f7710a2f257aea8544a2ae",
+      "result_lines": [
+        "Ran 6 tests in 54.380s",
+        "OK",
+        "RR44 BODY FOLLOW: PASS (generated angle active; root/pelvis/body motion alone cannot move hook)",
+        "RR44 MOTION: PASS (both elbows, both pendulums, rigid attached chain; every authored/presented frame)",
+        "RR44 TWO-LEG WALK MUTATION: PASS (both views; displaced planted foot fails)",
+        "RR44 FOREIGN COMPILATION: PASS (all nine reference sets unchanged)",
+        "RR44 HELD FOLLOW: PASS (world/moving-root implementations; zero gain, zero lag and locked chain rejected)",
+        "RR44 ELBOW/PENDULUM MUTATIONS: PASS (inverted elbow, missing policy, static far arm rejected)"
+      ],
+      "entrypoints": [
+        "tests/test_rr44_motion.py"
+      ]
+    },
+    {
+      "check": "feedback1",
+      "log": "/private/tmp/rr44-f2-feedback1-final8.log",
+      "log_sha256": "222dd1b8662670f5a829649f67d8ab10afd126fea3651f2dbd4d2eeb26642201",
+      "result_lines": [
+        "Ran 9 tests in 23.159s",
+        "OK",
+        "RR44 NATIVE RELEASE: PASS (4 hash-bound native layers; no recoloured pixel can earn an exemption)",
+        "RR44 ADOPTED CAPS: PASS (visible sleeve and hidden cap retain the same approved RGBA after density)",
+        "RR44 PRESS/FOLLOW: PASS (22px authored lift retained; body frame decision resolved)",
+        "RR44 HELD SOURCE: PASS (boot ink removed from held item; isolated held item, detached grip and recolour rejected)",
+        "MQ15_ACCEPTANCE: PASS; {\"heights\": {\"front\": {\"head_to_sole_px\": 828, \"head_top_px\": 181, \"helm_to_sole_px\": 817.6923951132571, \"helm_top_px\": 191.30760488674287, \"sole_bottom_px\": 1009}, \"rear\": {\"head_to_sole_px\": 841, \"head_top_px\": 127, \"helm_to_sole_px\": 830.7375068832291, \"helm_top_px\": 137.26249311677083, \"sole_bottom_px\": 968}}, \"mass\": {\"barrel_chest\": true, \"closed_native_forms\": true, \"cloth\": true, \"gloved_grip\": true, \"mass\": true, \"no_part_holes\": true, \"no_see_through\": true, \"open_front\": true}, \"pose\": {\"feet_planted\": true, \"front_chain_side\": true, \"level_shoulders_3d\": true, \"native_endpoints\": true, \"native_joint_inventory\": true, \"native_projection\": true, \"rear_chain_side\": true, \"shoulder_rule\": true}, \"proportions\": {\"helm_height\": true, \"knee_to_sole\": true, \"pelvis_to_knee\": true, \"shoulder_width\": true, \"torso_height\": true, \"total_height\": true}, \"turn\": {\"front_lower_foot_right\": true, \"front_proper_rotation\": true, \"rear_is_half_turn\": true, \"rear_lower_foot_right\": true, \"rear_not_mirror\": true, \"rear_proper_rotation\": true}}",
+        "MQ15_COMMIT_CURATION: PASS; bytes=5939586; files=204",
+        "RR44 MAQUETTE LEGACY: PASS (every historical mq-15 row and capture hash unchanged)",
+        "RR44 PAINTED ELBOW/OWNERSHIP: PASS (exact source boundary ownership; registered paint; RGBA/depth/weight mutations fail)",
+        "RR44 PACKED FOOTPRINTS: PASS (16 overlapping masks; both skin families, source/native origins and every UV choice identical)",
+        "RR44 REAR OWNERSHIP: PASS (158 exact arm/glove/chain edge texels; director-opaque body cannot be claimed)",
+        "RR44 RELEASE SOURCE: PASS (every rigid link certified; recolour, scale and pre-release mutations fail)"
+      ],
+      "entrypoints": [
+        "tests/test_rr44_feedback1.py"
+      ]
+    },
+    {
+      "check": "calibration",
+      "log": "/private/tmp/rr44-f2-calibration-final8.log",
+      "log_sha256": "42e598dd43c73e39efd48a7cb6079e29f158370b714fe60288bb2f972c31d413",
+      "result_lines": [
+        "RR44 CPU/NATIVE CALIBRATION: PASS (1336/1336 native signatures; 892 fresh frames; max shard 6.219s)"
+      ],
+      "entrypoints": [
+        "experiments/cutouts/chainbound_gaoler/rr44_calibration.py"
+      ]
+    },
+    {
+      "check": "source_rest_reproducibility",
+      "log": "/private/tmp/rr44-f2-reproducibility-final8.log",
+      "log_sha256": "c947e63de54d4ab61659eb99f4a4b6ff5bc1094bd1fe6e301c66056e64bc5cc1",
+      "result_lines": [
+        "RR44 BUILD REPRODUCIBILITY: PASS 546 files; changed=[]"
+      ]
+    },
+    {
+      "check": "rest",
+      "log": "/private/tmp/rr44-f2-rests-final8.log",
+      "log_sha256": "bf3d916818f929aa79711dec22b09b06a82f70e80a3b9c3d84b142a5bfa0b27d",
+      "result_lines": [
+        "RR38 BONE SAMPLES: PASS (2 poses; headless transforms only)",
+        "RR42 REST EQUIVALENCE: PASS (front=0px rear=0px; native_pixels=False)"
+      ]
+    },
+    {
+      "check": "samples",
+      "log": "/private/tmp/rr44-f2-samples-final8.log",
+      "log_sha256": "1119464b833b41b88907fd8124e6f802dad8ccb0fc2b1993556e205c22f37e09",
+      "result_lines": [
+        "RR38 BONE SAMPLES: PASS (1344 poses; headless transforms only)",
+        "RR42 NATIVE-ORIGIN SAMPLES: PASS (892 poses; headless Bone2D)",
+        "RR38 COMPACT SAMPLES: PASS (1344 poses; full transforms in ignored logs)",
+        "RR44 SAMPLE ORIGINS: PASS (892 presented frames; canonical + native-origin; no renderer claim)"
+      ]
+    },
+    {
+      "check": "surface_precheck",
+      "log": "/private/tmp/rr44-f2-surface-final8.log",
+      "log_sha256": "e50d254a8cffa17aea33872dc4728dcafaf82e11f3b5c1e984add593bf34f893",
+      "result_lines": [
+        "RR44 SHARD EXECUTION: 228 shards; 0 process failures",
+        "RR44 SURFACE PRECHECK: PASS (892 frames; 0 findings)"
+      ]
+    },
+    {
+      "check": "full_uv_sweep",
+      "log": "/private/tmp/rr44-f2-sweep-final8.log",
+      "log_sha256": "b2cc6f7c0245243450524305d626a0157c20b4e7366217abc4279a0eec9e9894",
+      "result_lines": [
+        "RR44 SHARD EXECUTION: 448 shards; 0 process failures",
+        "RR44 CPU SWEEP: PASS (892 frames; 0 findings; native_calibrated=True)"
+      ]
+    },
+    {
+      "check": "all_gates",
+      "log": "/private/tmp/rr44-f2-gates-final8.log",
+      "log_sha256": "9c3e1fef57730d250b3be64525f64f9b3e85cf1e047f3836bb0727ee207d139e",
+      "result_lines": [
+        "RR44 ALL GATES: PASS (0 errors; native=False)"
+      ]
+    },
+    {
+      "check": "walk",
+      "log": "/private/tmp/rr44-f2-walk-final8.log",
+      "log_sha256": "e5eef23d32cd864a0fc77ed3be3a78c06b02f67c7fa7c38edb142bd6892c82cb",
+      "result_lines": [
+        "RR44 TWO-LEG WALK: PASS (254 poses; 0 errors)"
+      ]
+    },
+    {
+      "check": "production_front",
+      "log": "/private/tmp/rr44-f2-production-front-final8.log",
+      "log_sha256": "f7345374d52112a74ee9a8f261083433582371824bf1e21202b6f28954fa2cda",
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1440 frames)",
+        "RR38 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+      ]
+    },
+    {
+      "check": "production_rear",
+      "log": "/private/tmp/rr44-f2-production-rear-final8.log",
+      "log_sha256": "9821a7578418bf6e52fa4a7a0706a46f940e4e1a0745d065f01195cc43bce86c",
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1440 frames)",
+        "RR38 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+      ]
+    },
+    {
+      "check": "geometry",
+      "log": "/private/tmp/rr44-f2-geometry-final8.log",
+      "log_sha256": "70a90b64f6134bb265b5cf315aa48ec31bf46a0fd92d087bc390c38bd299acf9",
+      "result_lines": [
+        "V2 BOARD SPRITE GEOMETRY: {\"cases\":8,\"errors\":[],\"native\":false,\"orientation_mutations_rejected\":0,\"placement_mutations_rejected\":0}"
+      ]
+    },
+    {
+      "check": "shadow",
+      "log": "/private/tmp/rr44-f2-shadow-final8.log",
+      "log_sha256": "aa5972c47257138af153945f0a3b16bfa911e912500c7956a4ed78de8d78cfa5",
+      "result_lines": [
+        "RR38 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ]
+    },
+    {
+      "check": "density",
+      "log": "/private/tmp/rr44-f2-density-final8.log",
+      "log_sha256": "fc0805f5b885ebfa08b1ef349d1c7530594734c814cbaf6d4a218eda454d3c77",
+      "result_lines": [
+        "CHECK-OK"
+      ],
+      "command": "python3 tools/process_board_density.py --check --only chainbound_gaoler_cutout"
+    },
+    {
+      "check": "art_identity",
+      "log": "/private/tmp/rr44-f2-art-final8.log",
+      "log_sha256": "d2ea042adb2bf7a6b6b15cbfce5f8a2e3dafe432bd0f70e734e623dfbf10d7af",
+      "result_lines": [
+        "ART IDENTITY CHECK: PASS (0 failures, 0 pending_reart warnings, 0 skipped replays)"
+      ],
+      "command": "python3 tools/art_identity_gate.py check --id chainbound_gaoler"
+    },
+    {
+      "check": "registration",
+      "log": "/private/tmp/rr44-f2-registration-final8.log",
+      "log_sha256": "c4004be03a376e4cc4f78b923a3d65552c85ce955664604d62f631002416b19b",
+      "result_lines": [
+        "MQ15_ACCEPTANCE: PASS; {\"heights\": {\"front\": {\"head_to_sole_px\": 828, \"head_top_px\": 181, \"helm_to_sole_px\": 817.6923951132571, \"helm_top_px\": 191.30760488674287, \"sole_bottom_px\": 1009}, \"rear\": {\"head_to_sole_px\": 841, \"head_top_px\": 127, \"helm_to_sole_px\": 830.7375068832291, \"helm_top_px\": 137.26249311677083, \"sole_bottom_px\": 968}}, \"mass\": {\"barrel_chest\": true, \"closed_native_forms\": true, \"cloth\": true, \"gloved_grip\": true, \"mass\": true, \"no_part_holes\": true, \"no_see_through\": true, \"open_front\": true}, \"pose\": {\"feet_planted\": true, \"front_chain_side\": true, \"level_shoulders_3d\": true, \"native_endpoints\": true, \"native_joint_inventory\": true, \"native_projection\": true, \"rear_chain_side\": true, \"shoulder_rule\": true}, \"proportions\": {\"helm_height\": true, \"knee_to_sole\": true, \"pelvis_to_knee\": true, \"shoulder_width\": true, \"torso_height\": true, \"total_height\": true}, \"turn\": {\"front_lower_foot_right\": true, \"front_proper_rotation\": true, \"rear_is_half_turn\": true, \"rear_lower_foot_right\": true, \"rear_not_mirror\": true, \"rear_proper_rotation\": true}}",
+        "RR44 REGISTRATION AUDIT: PASS (all mq-15 rows; new native far-arm projection; unchanged certified body/feet)"
+      ],
+      "command": "python3 -B tests/rr44/registration.py --output experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_registration.json"
+    },
+    {
+      "check": "preservation",
+      "log": "/private/tmp/rr44-f2-preservation-final8.log",
+      "log_sha256": "60cba8f6078c45976658986b151de5b62f949b44d8168b0d31ee2e32542e121d",
+      "result_lines": [
+        "RR44 UNRELATED RECORDS: PASS {\"foreign_rig_files_changed\": [], \"native_pixels\": false, \"protected_director_inputs_byte_exact\": true, \"unrelated_art_identity_records\": 147, \"unrelated_density_entries\": 112, \"unrelated_density_outputs\": 2187}"
+      ],
+      "command": "python3 -B tests/rr44/preservation.py --output experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_preservation.json"
+    },
+    {
+      "check": "other_elbow_crops",
+      "log": "/private/tmp/rr44-f2-other-elbow-crops-final.log",
+      "log_sha256": "48c87716ae56980a8e3032692113dd22b88062129a78bc7a0a3ed558ca10ff64",
+      "result_lines": [
+        "RR44 EXACT ELBOW CROPS: PASS (2351 failing elbow records; 2350 exact-frame crops; nine unchanged rigs)"
+      ]
+    },
+    {
+      "check": "idle_categories",
+      "log": "/private/tmp/rr44-f2-idle-categories-final8.log",
+      "log_sha256": "09628fe1ca19854c85ceaaf90a380942db19345296faf5f46c0679c299910e8b",
+      "result_lines": [
+        "RR44 IDLE CATEGORY PROOF: front 4 categories; {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0}",
+        "RR44 IDLE CATEGORY PROOF: rear 4 categories; {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0}"
+      ]
+    },
+    {
+      "check": "python_resource_audit",
+      "log": "/private/tmp/rr44-f2-audit-final8.log",
+      "log_sha256": "15600e52202dcaf1117324b9eb17c76811b166df25cda80b0653109f839f2431",
+      "result_lines": [
+        "ISOLATION AUDIT: 229 modules; /private/tmp/labyrinth_codex/rr44-f2-audit-final8/isolation-audit.md"
+      ]
+    },
+    {
+      "check": "density_oracle_regression",
+      "log": "/private/tmp/rr44-f2-density-oracle-final.log",
+      "log_sha256": "db8f9c80337723764f1de4855b42ff2bcf5a80f4486c28c1cc8a297ca5145c9a",
+      "result_lines": [
+        "Ran 2 tests in 4.066s",
+        "OK",
+        "RR44 F2 DENSITY ORACLE: PASS (13 cap crops reconstructed from their own garments; no cap PNG or production source input)"
+      ]
+    },
+    {
+      "check": "previous_failure_cases",
+      "log": "/private/tmp/rr44-f2-prior-failures-focused-final.log",
+      "log_sha256": "8abb23294062247077e946f50193c65bef71d5d9232a7eaf43a3e2a4be1aca14",
+      "result_lines": [
+        "Ran 1 test in 0.100s",
+        "OK",
+        "RR42 TRACKED-ONLY MOTION TEST: PASS (5165 tracked files; ignored production_case absent)",
+        "Ran 10 tests in 38.849s",
+        "OK"
+      ]
+    },
+    {
+      "check": "python_resource_audit_after_fix",
+      "log": "/private/tmp/rr44-f2-audit-after-density-oracle.log",
+      "log_sha256": "114022c26be8ec44589f5cba0c87d7b5c6e42c050800e3740ac55c8f48ceace3",
+      "result_lines": [
+        "ISOLATION AUDIT: 229 modules; /private/tmp/labyrinth_codex/rr44-f2-audit-after-density-oracle/isolation-audit.md"
+      ]
+    },
+    {
+      "check": "sidecar_guard_proposed_inventory",
+      "log": "/private/tmp/rr44-f2-proposed-sidecars.log",
+      "log_sha256": "20a18ca3be1419700a604a9dc28be301972300f09abb3c9566f793581b2ea0fb",
+      "result_lines": [
+        "Ran 1 test in 4.803s",
+        "OK",
+        "GODOT SIDECARS: gitignored exemptions = 2151"
+      ]
+    },
+    {
+      "check": "proof_marker_loader",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-44 --timeout 85 --stream -- godot --headless --path . --script tests/rr38/samples.gd -- --case experiments/cutouts/chainbound_gaoler/rr44/proof/production_case --rest-only --output /private/tmp/rr44-f2-proof-marker-samples.json",
+      "log": "/private/tmp/rr44-f2-proof-marker-loader.log",
+      "log_sha256": "cebc4f2c9efe28248328e11f2f077b1fb7ac5e72d18a343c21ea3118476983c7",
+      "result_lines": [
+        "RR38 BONE SAMPLES: PASS (2 poses; headless transforms only)"
+      ]
+    },
+    {
+      "check": "post_suite_preservation",
+      "log": "/private/tmp/rr44-f2-preservation-handoff.log",
+      "log_sha256": "60cba8f6078c45976658986b151de5b62f949b44d8168b0d31ee2e32542e121d",
+      "result_lines": [
+        "RR44 UNRELATED RECORDS: PASS {\"foreign_rig_files_changed\": [], \"native_pixels\": false, \"protected_director_inputs_byte_exact\": true, \"unrelated_art_identity_records\": 147, \"unrelated_density_entries\": 112, \"unrelated_density_outputs\": 2187}"
+      ]
+    },
+    {
+      "check": "post_suite_density",
+      "command": "python3 tools/process_board_density.py --check --only chainbound_gaoler_cutout",
+      "log": "/private/tmp/rr44-f2-density-handoff.log",
+      "log_sha256": "fc0805f5b885ebfa08b1ef349d1c7530594734c814cbaf6d4a218eda454d3c77",
+      "result_lines": [
+        "CHECK-OK"
+      ]
+    }
+  ],
+  "full_suites": {
+    "python": {
+      "status": "complete",
+      "command": "python3 tools/run_python_suite.py --shards 4 --shard-timeout 4200 --output-dir /private/tmp/labyrinth_codex/rr44-f2-python-final",
+      "log": "/private/tmp/rr44-f2-python-final.log",
+      "exit_code": 1,
+      "tests": 2137,
+      "elapsed_s": 2341.730972208,
+      "failures": [
+        {
+          "test": "test_tracked_sources_have_sidecars_and_sidecars_have_sources (test_godot_sidecars.GodotSidecarRepositoryTests)",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_godot_sidecars.py\", line 92, in test_tracked_sources_have_sidecars_and_sidecars_have_sources\n    assert_sidecars_versioned(git_files(ROOT), root=ROOT)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_godot_sidecars.py\", line 87, in assert_sidecars_versioned\n    raise AssertionError(\"\\n\\n\".join(problems + [REPAIR_HINT]))\nAssertionError: Missing tracked Godot sidecars (254):\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_death_010_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_death_011_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_death_012_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_death_013_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_death_016_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_death_017_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_death_018_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_death_019_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_death_020_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_death_021_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_death_022_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_death_031_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_press_013_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_press_014_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/front_press_015_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/rear_death_010_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r0/rear_death_031_native_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/rr42_front_hit_011_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/rr42_front_press_015_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/rr42_rear_hit_003_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/fixtures/rr42_rear_press_016_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/maquette/delivery/cloth_landmarks.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/maquette/delivery/contact_sheet.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/maquette/delivery/front_fit_overlay.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/maquette/delivery/proportion_overlay.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/maquette/delivery/source_mass_landmarks.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/art_identity_review.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/guard/front_guard_014_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/guard/front_guard_032_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/guard/rear_guard_014_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/guard/rear_guard_032_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/move/front_move_032_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/move/front_move_033_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/move/rear_move_032_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/move/rear_move_033_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/pin/front_pin_012_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/pin/front_pin_030_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/pin/rear_pin_012_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/pin/rear_pin_030_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/press/front_press_011_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/press/front_press_014_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/press/rear_press_011_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/press/rear_press_014_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/reel/front_reel_024_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/reel/front_reel_047_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/reel/rear_reel_024_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/floors/reel/rear_reel_047_floor_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_front_ambush_009_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_front_death_004_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_front_fade_023_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_front_hit_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_front_idle_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_front_move_034_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_front_slash_013_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_rear_ambush_010_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_rear_death_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_rear_fade_021_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_rear_hit_002_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_rear_idle_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_rear_move_034_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/gloam_rear_slash_012_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/herald_front_death_025_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/herald_rear_death_026_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/herald_rear_gust_bolt_013_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_front_cast_018_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_front_death_030_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_front_guard_015_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_front_hit_003_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_front_jab_006_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_front_lunge_017_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_front_move_022_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_front_pin_062_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_rear_cast_018_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_rear_death_024_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_rear_guard_013_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_rear_jab_006_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_rear_lunge_018_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_rear_move_042_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/lancer_rear_pin_055_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mimic_front_bolt_027_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mimic_front_death_032_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mimic_front_mirror_044_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mimic_front_move_022_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mimic_rear_bolt_039_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mimic_rear_death_047_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mimic_rear_move_040_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mirror_front_death_071_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mirror_front_move_042_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mirror_rear_death_053_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_front_brace_016_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_front_death_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_front_hit_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_front_idle_006_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_front_land_006_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_front_lob_041_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_front_move_014_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_front_scatter_024_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_rear_brace_017_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_rear_death_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_rear_hit_011_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_rear_idle_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_rear_land_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_rear_lob_043_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_rear_move_040_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/mortar_rear_scatter_005_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/seer_front_death_081_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/seer_rear_death_082_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/thrall_front_jab_019_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/thrall_front_move_015_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/thrall_front_tether_030_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/thrall_rear_death_006_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/thrall_rear_hit_011_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/thrall_rear_jab_032_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/thrall_rear_move_009_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/thrall_rear_tether_032_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_front_death_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_front_hit_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_front_idle_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_front_lash_020_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_front_mend_021_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_front_move_014_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_front_thornwall_019_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_rear_death_004_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_rear_hit_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_rear_idle_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_rear_lash_019_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_rear_mend_021_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_rear_move_037_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/foreign_elbows/weaver_rear_thornwall_019_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_front_ambush_009_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_front_death_004_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_front_fade_023_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_front_hit_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_front_idle_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_front_move_034_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_front_slash_013_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_rear_ambush_010_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_rear_death_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_rear_fade_021_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_rear_hit_002_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_rear_idle_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_rear_move_034_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/gloam_rear_slash_012_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/herald_front_death_025_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/herald_rear_death_026_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/herald_rear_gust_bolt_013_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_front_cast_018_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_front_death_030_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_front_guard_015_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_front_hit_003_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_front_jab_006_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_front_lunge_017_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_front_move_022_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_front_pin_062_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_rear_cast_018_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_rear_death_024_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_rear_guard_013_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_rear_jab_006_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_rear_lunge_018_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_rear_move_042_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/lancer_rear_pin_055_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mimic_front_bolt_027_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mimic_front_death_032_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mimic_front_mirror_044_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mimic_front_move_022_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mimic_rear_bolt_039_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mimic_rear_death_047_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mimic_rear_move_040_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mirror_front_death_071_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mirror_front_move_042_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mirror_rear_death_053_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_front_brace_016_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_front_death_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_front_hit_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_front_idle_006_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_front_land_006_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_front_lob_041_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_front_move_014_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_front_scatter_024_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_rear_brace_017_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_rear_death_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_rear_hit_011_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_rear_idle_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_rear_land_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_rear_lob_043_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_rear_move_040_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/mortar_rear_scatter_005_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/seer_front_death_081_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/seer_rear_death_082_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/thrall_front_jab_019_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/thrall_front_move_015_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/thrall_front_tether_030_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/thrall_rear_death_006_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/thrall_rear_hit_011_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/thrall_rear_jab_032_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/thrall_rear_move_009_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/thrall_rear_tether_032_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_front_death_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_front_hit_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_front_idle_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_front_lash_020_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_front_mend_021_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_front_move_014_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_front_thornwall_019_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_rear_death_004_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_rear_hit_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_rear_idle_000_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_rear_lash_019_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_rear_mend_021_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_rear_move_037_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/weaver_rear_thornwall_019_cpu_4x.webp.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/front_hidden_arm_near_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/front_hidden_coat_far_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/front_hidden_coat_near_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/front_hidden_foot_far_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/front_hidden_foot_near_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/front_hidden_hand_near_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/front_hidden_head_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/front_hidden_leg_far_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/front_hidden_leg_near_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/front_hidden_pelvis_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/front_hidden_torso_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/rear_hidden_coat_far_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/rear_hidden_coat_near_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/rear_hidden_foot_far_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/rear_hidden_foot_near_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/rear_hidden_head_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/rear_hidden_leg_far_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/rear_hidden_leg_near_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/rear_hidden_pelvis_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/paint_requests/rear_hidden_torso_source_4x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/painted_exposure_witnesses/rear_cowl_boundary_arm_8x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/painted_exposure_witnesses/rear_cowl_boundary_source_8x.png.import\nexperiments/cutouts/chainbound_gaoler/rr44/proof/painted_exposure_witnesses/rear_idle_006_striped_panel_cpu_4x.webp.import\nscripts/maquette_cutout_runtime/humanoid_elbows.gd.uid\nscripts/maquette_cutout_runtime/humanoid_held_follow.gd.uid\nspec/art_identity/jobs/chainbound_gaoler/mq3_front_v5/processed.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_front_v5/refs/01_approved_gaoler_mq_front_v3_materials.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_front_v5/refs/02_maquette_r3_front_clay.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_front_v5/refs/03_maquette_r3_front_parts.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_front_v5/refs/04_hero_front.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_front_v5/refs/05_slag_mortar_front.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_front_v5/refs/approved.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_front_v5/refs/old_arm_mask.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_front_v5/refs/raw_approved.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_rear_v4/processed.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_rear_v4/refs/01_maquette_rear_parts.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_rear_v4/refs/02_maquette_rear_clay.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_rear_v4/refs/03_approved_gaoler_mq3_front_v3.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_rear_v4/refs/04_slag_mortar_rear.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_rear_v4/refs/05_hero_rear.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_rear_v4/refs/approved.png.import\nspec/art_identity/jobs/chainbound_gaoler/mq3_rear_v4/refs/raw_approved.png.import\ntests/rr44/samples.gd.uid\n\nRun godot --headless --import (through tools/godot_task_runner.py), commit the .import/.uid sidecars with their sources, and remove stale sidecars.\n"
+        }
+      ],
+      "errors": [],
+      "skipped": 66,
+      "result_lines": [
+        "Ran 2137 tests in 2341.731s",
+        "FAILED (failures=1, skipped=66)",
+        "PYTHON SUITE WALL: 2341.731s; results: /private/tmp/labyrinth_codex/rr44-f2-python-final"
+      ],
+      "summary": "/private/tmp/labyrinth_codex/rr44-f2-python-final/summary.json",
+      "summary_sha256": "5f65fe9a87ab19bbe1ca888b6defeb3117376662a8b40cdc570abe2eea6e604c",
+      "log_sha256": "2ca69764d7ff03801eb90f87f0a503853effb7ab3c82e3a97d5d5998c6937dcc",
+      "failure_resolution": "Only cached-index sidecar assertion fails on the real unstaged index. All missing metadata and report-only markers supplied; unchanged test passes on temporary complete proposed index (1 test4.803s OK). Actual index unchanged.",
+      "timing_cache_note": "Runner could not update learned timing cache in the shared Git directory; test results and summary were written."
+    },
+    "godot": {
+      "status": "complete",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-44 --timeout 1200 --stream -- godot --headless --path . --script tests/run_tests.gd",
+      "log": "/private/tmp/rr44-f2-godot-final.log",
+      "exit_code": 1,
+      "programs": 230,
+      "program_failures": [
+        {
+          "name": "suites/sfx_sync_0_program",
+          "returncode": 124,
+          "seconds": 180.344,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/19-suites-sfx_sync_0_program.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/19/godot.log",
+          "reason": ""
+        },
+        {
+          "name": "suites/sfx_sync_1_program",
+          "returncode": 124,
+          "seconds": 180.289,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/20-suites-sfx_sync_1_program.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/20/godot.log",
+          "reason": ""
+        },
+        {
+          "name": "main_menu_input_test",
+          "returncode": 1,
+          "seconds": 34.929,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/116-main_menu_input_test.log",
+          "timed_out": false,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/116/godot.log",
+          "reason": ""
+        },
+        {
+          "name": "prepared_other_character_view_test",
+          "returncode": 124,
+          "seconds": 86.55,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/169-prepared_other_character_view_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/169/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "retained_character_inventory_equivalence_test",
+          "returncode": 124,
+          "seconds": 86.101,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/170-retained_character_inventory_equivalence_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/170/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "encounter_measurement_test",
+          "returncode": 124,
+          "seconds": 31.468,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/176-encounter_measurement_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/176/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "rr17/runtime_test",
+          "returncode": 124,
+          "seconds": 2.736,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/179-rr17-runtime_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/179/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "rr18/runtime_test",
+          "returncode": 124,
+          "seconds": 1.732,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/180-rr18-runtime_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/180/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "special_encounter_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/181-special_encounter_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/181/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "special_encounter_legend_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/182-special_encounter_legend_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/182/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "warband_orders_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/183-warband_orders_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/183/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "warband_wind_lock_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/184-warband_wind_lock_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/184/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "wbv_markers_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/185-wbv_markers_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/185/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "warband_orders_probe",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/186-warband_orders_probe.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/186/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "warband_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/187-warband_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/187/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "warband_ui_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/188-warband_ui_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/188/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "snare_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/189-snare_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/189/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "snare_ui_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/190-snare_ui_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/190/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "pass_preview_prewarm_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/191-pass_preview_prewarm_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/191/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "petrify_tooltip_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/192-petrify_tooltip_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/192/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "perf/analytics_restart_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/193-perf-analytics_restart_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/193/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "perf/background_persistence_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/194-perf-background_persistence_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/194/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "perf/deferred_deadline_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/195-perf-deferred_deadline_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/195/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "perf/transition_failure_0_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/196-perf-transition_failure_0_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/196/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "perf/transition_failure_1_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/197-perf-transition_failure_1_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/197/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "perf/transition_failure_2_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/198-perf-transition_failure_2_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/198/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "perf/transition_failure_3_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/199-perf-transition_failure_3_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/199/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "perf/combat_frame_scenarios",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/200-perf-combat_frame_scenarios.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/200/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "cache_switch_regression_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/201-cache_switch_regression_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/201/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "engine_cache_directories_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/202-engine_cache_directories_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/202/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "battlefield_rules_probe",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/203-battlefield_rules_probe.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/203/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "el02_evidence",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/204-el02_evidence.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/204/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "element_retrofit_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/205-element_retrofit_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/205/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "element_retrofit_probe",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/206-element_retrofit_probe.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/206/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "en03_enemies_probe",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/207-en03_enemies_probe.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/207/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "en05_enemies_probe",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/208-en05_enemies_probe.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/208/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "en06_enemies_probe",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/209-en06_enemies_probe.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/209/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "el04_rule_views_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/210-el04_rule_views_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/210/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "enemy_no_action_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/211-enemy_no_action_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/211/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "fix_11_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/212-fix_11_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/212/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "fix_11_probe",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/213-fix_11_probe.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/213/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "fix_12_probe",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/214-fix_12_probe.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/214/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "fix_14_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/215-fix_14_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/215/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "fix_14_matrix_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/216-fix_14_matrix_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/216/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "fix_12_arrival_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/217-fix_12_arrival_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/217/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "fix_12_reactions_0_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/218-fix_12_reactions_0_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/218/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "fix_12_reactions_1_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/219-fix_12_reactions_1_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/219/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "fix_12_cascades_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/220-fix_12_cascades_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/220/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "fix_12_feedback_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/221-fix_12_feedback_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/221/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "fix_12_bleed_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/222-fix_12_bleed_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/222/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "short_card_tooltips_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/223-short_card_tooltips_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/223/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "card_panel_text_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/224-card_panel_text_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/224/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "board_status_plates_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/225-board_status_plates_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/225/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "status_capture_probe",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/226-status_capture_probe.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/226/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "status_plates_performance_probe",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/227-status_plates_performance_probe.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/227/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "rr38/runtime_checks",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/228-rr38-runtime_checks.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/228/godot.log",
+          "reason": "full suite budget exhausted"
+        },
+        {
+          "name": "heirloom_notification_test",
+          "returncode": 124,
+          "seconds": 0.0,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/229-heirloom_notification_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.logs/229/godot.log",
+          "reason": "full suite budget exhausted"
+        }
+      ],
+      "failures": [
+        "Program sub-suite failed: suites/sfx_sync_0_program (exit 124) (timed out)",
+        "Program sub-suite failed: suites/sfx_sync_1_program (exit 124) (timed out)",
+        "Program sub-suite failed: main_menu_input_test (exit 1)",
+        "Program sub-suite failed: prepared_other_character_view_test (exit 124) (timed out)",
+        "Program sub-suite failed: retained_character_inventory_equivalence_test (exit 124) (timed out)",
+        "Program sub-suite failed: encounter_measurement_test (exit 124) (timed out)",
+        "Program sub-suite failed: rr17/runtime_test (exit 124) (timed out)",
+        "Program sub-suite failed: rr18/runtime_test (exit 124) (timed out)",
+        "Program sub-suite failed: special_encounter_test (exit 124) (timed out)",
+        "Program sub-suite failed: special_encounter_legend_test (exit 124) (timed out)",
+        "Program sub-suite failed: warband_orders_test (exit 124) (timed out)",
+        "Program sub-suite failed: warband_wind_lock_test (exit 124) (timed out)",
+        "Program sub-suite failed: wbv_markers_test (exit 124) (timed out)",
+        "Program sub-suite failed: warband_orders_probe (exit 124) (timed out)",
+        "Program sub-suite failed: warband_test (exit 124) (timed out)",
+        "Program sub-suite failed: warband_ui_test (exit 124) (timed out)",
+        "Program sub-suite failed: snare_test (exit 124) (timed out)",
+        "Program sub-suite failed: snare_ui_test (exit 124) (timed out)",
+        "Program sub-suite failed: pass_preview_prewarm_test (exit 124) (timed out)",
+        "Program sub-suite failed: petrify_tooltip_test (exit 124) (timed out)",
+        "Program sub-suite failed: perf/analytics_restart_test (exit 124) (timed out)",
+        "Program sub-suite failed: perf/background_persistence_test (exit 124) (timed out)",
+        "Program sub-suite failed: perf/deferred_deadline_test (exit 124) (timed out)",
+        "Program sub-suite failed: perf/transition_failure_0_test (exit 124) (timed out)",
+        "Program sub-suite failed: perf/transition_failure_1_test (exit 124) (timed out)",
+        "Program sub-suite failed: perf/transition_failure_2_test (exit 124) (timed out)",
+        "Program sub-suite failed: perf/transition_failure_3_test (exit 124) (timed out)",
+        "Program sub-suite failed: perf/combat_frame_scenarios (exit 124) (timed out)",
+        "Program sub-suite failed: cache_switch_regression_test (exit 124) (timed out)",
+        "Program sub-suite failed: engine_cache_directories_test (exit 124) (timed out)",
+        "Program sub-suite failed: battlefield_rules_probe (exit 124) (timed out)",
+        "Program sub-suite failed: el02_evidence (exit 124) (timed out)",
+        "Program sub-suite failed: element_retrofit_test (exit 124) (timed out)",
+        "Program sub-suite failed: element_retrofit_probe (exit 124) (timed out)",
+        "Program sub-suite failed: en03_enemies_probe (exit 124) (timed out)",
+        "Program sub-suite failed: en05_enemies_probe (exit 124) (timed out)",
+        "Program sub-suite failed: en06_enemies_probe (exit 124) (timed out)",
+        "Program sub-suite failed: el04_rule_views_test (exit 124) (timed out)",
+        "Program sub-suite failed: enemy_no_action_test (exit 124) (timed out)",
+        "Program sub-suite failed: fix_11_test (exit 124) (timed out)",
+        "Program sub-suite failed: fix_11_probe (exit 124) (timed out)",
+        "Program sub-suite failed: fix_12_probe (exit 124) (timed out)",
+        "Program sub-suite failed: fix_14_test (exit 124) (timed out)",
+        "Program sub-suite failed: fix_14_matrix_test (exit 124) (timed out)",
+        "Program sub-suite failed: fix_12_arrival_test (exit 124) (timed out)",
+        "Program sub-suite failed: fix_12_reactions_0_test (exit 124) (timed out)",
+        "Program sub-suite failed: fix_12_reactions_1_test (exit 124) (timed out)",
+        "Program sub-suite failed: fix_12_cascades_test (exit 124) (timed out)",
+        "Program sub-suite failed: fix_12_feedback_test (exit 124) (timed out)",
+        "Program sub-suite failed: fix_12_bleed_test (exit 124) (timed out)",
+        "Program sub-suite failed: short_card_tooltips_test (exit 124) (timed out)",
+        "Program sub-suite failed: card_panel_text_test (exit 124) (timed out)",
+        "Program sub-suite failed: board_status_plates_test (exit 124) (timed out)",
+        "Program sub-suite failed: status_capture_probe (exit 124) (timed out)",
+        "Program sub-suite failed: status_plates_performance_probe (exit 124) (timed out)",
+        "Program sub-suite failed: rr38/runtime_checks (exit 124) (timed out)",
+        "Program sub-suite failed: heirloom_notification_test (exit 124) (timed out)",
+        "Full suite stays under 15 minutes"
+      ],
+      "program_timeouts": 56,
+      "budget_exhausted": 54,
+      "main_body_runtime_s": 537.214,
+      "main_body_assertions": 495687,
+      "full_suite_runtime_s": 901.609,
+      "result_lines": [
+        "MAIN BODY RUNTIME: 537.214 seconds",
+        "MAIN BODY ASSERTIONS: 495687",
+        "FULL SUITE RUNTIME: 901.609 seconds (budget 900 seconds)",
+        "TEST RESULT: FAIL (58 failure(s))"
+      ],
+      "program_report": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_godot_programs.json",
+      "program_report_sha256": "15cad223b55e3fb5d499c9da2beab2ad730016425eeb19d82cba2a90a6aa3822",
+      "source_report": "/private/tmp/labyrinth-godot-home/rr-44-1793219352400192000-83873/Library/Application Support/Escape the Umbra Parallel rr-44-1793219352400192000-83873/program-suites.json",
+      "log_sha256": "afad46cc1a005e659fc470254fd50dceb5abdfaa1c90afeefeba13e085d8e575",
+      "failed_program_followup": "Three completed/individual-timeout failures rerun sequentially with original180s caps; 54 shared-budget failures queued as focused subset with original180s child/900s parent budgets and3workers."
+    }
+  },
+  "active_TODO_DESIGN": [],
+  "chosen_defaults": {
+    "crop_context_px": 12,
+    "crop_zoom": 4,
+    "sample_timeout_s": 85,
+    "sweep_shard_frames": 2,
+    "sweep_shard_timeout_s": 85,
+    "sweep_workers": 8,
+    "matrix_tolerance": 0.0001,
+    "presentation_angle_tolerance_deg": 0.751,
+    "calibration_shard_frames": 4,
+    "calibration_workers": 8,
+    "surface_shard_frames": 4,
+    "elbow_crop_shard_frames": 4,
+    "mutation_displacement_px": 4,
+    "mutation_rgba": [
+      254,
+      7,
+      199,
+      255
+    ],
+    "mutation_new_region_bbox": [
+      0,
+      0,
+      1,
+      1
+    ],
+    "rebuild_python_hash_seed": 29,
+    "release_phase_epsilon": 1e-06,
+    "category_montage": {
+      "size_px": [
+        1600,
+        900
+      ],
+      "columns": 4,
+      "rows": 2,
+      "tile_px": [
+        400,
+        450
+      ],
+      "background": "#555555"
+    },
+    "other_elbow_montage": {
+      "size_px": [
+        1600,
+        900
+      ],
+      "columns": 3,
+      "rows": 3,
+      "tile_px": [
+        533,
+        300
+      ],
+      "thumbnail_max_px": [
+        510,
+        270
+      ],
+      "background": "#555555"
+    },
+    "full_python_shard_timeout_s": 4200,
+    "full_python_timeout_basis": "Audit estimates longest serialized resource shard at 3105.080s, above default2400s; Godot launch limits unchanged.",
+    "metadata_import_project_name": "rr44_metadata_import",
+    "metadata_import_renderer": "gl_compatibility",
+    "metadata_import_timeout_s": 85,
+    "metadata_png_import_settings": "Godot default lossless PNG metadata; no existing settings changed",
+    "metadata_script_uids": "engine-generated; values in feedback2_metadata.json",
+    "failed_assertion_rerun_workers": 1,
+    "budget_aborted_rerun_workers": 3,
+    "focused_godot_child_timeout_s": 180,
+    "focused_godot_parent_budget_s": 900,
+    "pinned_pre_rr44_base": "e7913f0df5632595aa0a00566b3e06c3882ceba0",
+    "baseline_workers": 1,
+    "menu_diagnostic_timeout_s": 85,
+    "full_godot_outer_timeout_s": 1200
+  },
+  "retained_motion_clamps": [
+    {
+      "channel": "death.coat_near_tip.lift_px",
+      "view": "both",
+      "director_target": 4,
+      "retained_value": 2.5
+    }
+  ],
+  "press_lift_px": 22,
+  "other_rigs": {
+    "runtime_poses_byte_identical": 10294,
+    "report_only_failing_elbow_records": 2351,
+    "exact_frame_crops": 2350,
+    "report": "experiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/all_frames/report.json"
+  },
+  "windowed_commands": [
+    "bash experiments/cutouts/chainbound_gaoler/rr44_proof.sh density",
+    "bash experiments/cutouts/chainbound_gaoler/rr44_proof.sh rest",
+    "bash experiments/cutouts/chainbound_gaoler/rr44_proof.sh native",
+    "bash experiments/cutouts/chainbound_gaoler/rr44_proof.sh sheets",
+    "bash experiments/cutouts/chainbound_gaoler/rr44_proof.sh idle",
+    "bash experiments/cutouts/chainbound_gaoler/rr44_proof.sh production",
+    "bash experiments/cutouts/chainbound_gaoler/rr44_proof.sh review"
+  ],
+  "windowed_capture_paths": [
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/native",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/native_rest",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/contact_sheets",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/idle_native",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/production_native",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/chainbound_gaoler_review.mp4",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/chainbound_gaoler_protagonist_idle.mp4"
+  ],
+  "open_issues": [
+    "Fresh native renders, native gate output and director judgment at3\u20134x pending; no WindowServer in this sandbox.",
+    "Full Python recorded1cached-index sidecar failure. All34sidecars and3report-only markers supplied; unchanged guard passes the proposed inventory; actual index remains unchanged.",
+    "Full Godot recorded58failures:2individual SFX deadlines,1menu child,54shared-budget children and1runtime-budget assertion. Follow-up/baseline reports retain every result; current rr38/runtime has239passing checks.",
+    "SFX deadlines and standalone fix11 GameData compile errors also reproduce with the pinned pre-rr44 runtime. Menu was intermittent (19full,7sequential,1pre-rr44,then0current diagnostic).",
+    "Some unrelated programs remained canceled by the shared900s budget in the focused follow-up; no assertion/budget was rewritten.",
+    "Other-rig elbow findings remain report-only;2351records/2350exact-frame crops;10294runtime poses byte-identical."
+  ],
+  "artifact_sha256": {
+    "spec/peer_benchmark/staged/rr-44/feedback2_domain_calibration.json": "c5dd60c091b653a8c6fb43f52bf30732f72f9c64bee5b75f1f5dd3277b711ef6",
+    "spec/peer_benchmark/staged/rr-44/feedback2_continuation_acceptance.json": "880a1a089604305b5b4f41f3a9e4b17a281864253aafd8bf3ab74c51c6b57c79",
+    "spec/peer_benchmark/staged/rr-44/feedback2_backing_acceptance.json": "49c23f88cc7203a2bc431e9edabdb2497ff4cf4d4832de9c5ca5b89b73e341b6",
+    "spec/peer_benchmark/staged/rr-44/feedback2_native_flat_baseline.json": "9e4bbe462255ec5f47d3fc0142745227418b073665b7187ea4a13b03e9d07add",
+    "spec/peer_benchmark/staged/rr-44/feedback2_flat_baseline.json": "69ffeead027bcaf8f3defd9290095d6913d898ea50f3a29be388bd17929fbdc8",
+    "experiments/cutouts/chainbound_gaoler/rr44_feedback2_decisions.json": "43549b5d20bef8687f30ef4d2d84bf645f6a12bec15b3179572ff7f7628ae66d",
+    "experiments/cutouts/chainbound_gaoler/rr44_feedback2_ownership.json": "83847b1c75290c4f2c8cc02b6eb01e79a68b888c7e3618ae33f252bee6b62e0c",
+    "experiments/cutouts/chainbound_gaoler/rr44/layouts/front.json": "acb30cd9033e42cd9f39e06dfb4ca5a300487fde90e1f81a5829ce37123c7786",
+    "experiments/cutouts/chainbound_gaoler/rr44/layouts/rear.json": "31ee6b847468a54f248af418aa9d3bf894e78899993b6fd08a0b091e20bffaa5",
+    "experiments/cutouts/chainbound_gaoler/rr44/compiled_motion.json": "2c0c59e7c2faa324c739bd5971eb60a290bba3f395328d6009013f47de9090fd",
+    "experiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r1/manifest.json": "1ba4c6511c9ac48dafb38408b5f80b600d3eb25a82baba20b03877429ebba2ad",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback1_calibration.json": "008e2d077f53601441231ac9afb622f7695ca0cb6f2e3f1423f98faa07f9da20",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/sweep_summary.json": "b78653e02db01077b160f614e2081f5166ce6ee9e921febcadc85077061f0f38",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/gates_summary.json": "cf61f5a82395b41f06cea1099bb081e0bc1ec63ae1c0e9edfbbae18d7d795896",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/production_binding.json": "6c0c332ab590d0499f1c524c1fdda08454ed48d2b9072b6ab9846368f1c47474",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_build_reproducibility.json": "2ba15a8bf9b5c0c8985d63de78e07147361e058406aeec6cb7c4a92f96d21057",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/other_elbows/all_frames/report.json": "91514d1af7fb87f45bf6d00146ccf87bc1411b7a35c44122d6a39bf8549e26a0",
+    "experiments/cutouts/chainbound_gaoler/rr44/fixtures/native_r1_all_poses_manifest.json": "7addd63476fab834a8fb6677da84a3582b7278716b2a06e4ebf54c63660d5908",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_failure_lists.md": "bab169727ad16813929b8ffac97a47326c60f57f13ce454a6f44e1ff008f4975",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_metadata.json": "afe377b6e4b62d9f9ad1bfceb87ed0044ad5fb634e6b9c3bbd5a0ebee7519239",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_godot_pre_rr44.json": "e6ebb06ba93a176ba54ceb97a0f03e814e63c1ea115da43eb73f163cbd484598",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_pre_rr44_runtime.json": "fdabe59542306810d0199a9fb1d79a658f05006eba5f123ddb24174ca5b9444c",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_godot_budget_reruns.json": "e95a0db668b19532054430259069de5d9837f7341f47e169d6977edf69d7e9e0",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_godot_rr38_runtime.json": "85d25fc967de2da09a94b78aabd54fa28613b42f3eb7a59f136f0739f652a983",
+    "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_files.txt": "eb9dd4645ec85306eddcce6937a2e56e8f88aae45e809a7a6f0825c9dcb89b84",
+    "experiments/cutouts/chainbound_gaoler/rr44_FEEDBACK2.md": "2f6d2c00aec854a1d5764e6403706f6f099bd08baf640b0029895bd8d0a7f86b"
+  },
+  "interrupted_suite_attempt": {
+    "log": "/private/tmp/rr44-f2-python-interrupted-density-oracle.log",
+    "output": "/private/tmp/labyrinth_codex/rr44-f2-python-interrupted-density-oracle",
+    "complete": false,
+    "reason": "Stopped at caused density helper error; new joint-cap node absent in prior-production rig. Independent own-garment oracle added; original density assertion retained and passes."
+  },
+  "metadata_fix": {
+    "receipt": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_metadata.json",
+    "sidecars": 34,
+    "report_only_markers": [
+      "experiments/cutouts/chainbound_gaoler/rr44/proof/.gdignore",
+      "experiments/cutouts/chainbound_gaoler/rr44/fixtures/.gdignore",
+      "experiments/cutouts/chainbound_gaoler/rr44/maquette/.gdignore"
+    ],
+    "proposed_inventory_guard": "Ran 1 test in 4.803s / OK",
+    "actual_git_index_unchanged": true,
+    "validation": "RR44 SIDECAR CONTENTS: PASS (30 exact relative source paths; 4 distinct engine UIDs; 34 hashes)"
+  },
+  "focused_godot_sequential": {
+    "command": "python3 tools/program_suite_runner.py --task-id rr-44 --jobs 1 --result-file /private/tmp/rr44-f2-godot-failed-reruns.json --suite suites/sfx_sync_0_program --suite suites/sfx_sync_1_program --suite main_menu_input_test",
+    "exit_code": 1,
+    "report": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_godot_sequential.json",
+    "report_sha256": "32bf6eafd1e2609bdf59b5e1486889ab10a4cabf4b86e7fb710b17179e9f6ba9",
+    "failures": [
+      {
+        "name": "suites/sfx_sync_0_program",
+        "returncode": 124,
+        "seconds": 180.236,
+        "log_path": "/private/tmp/rr44-f2-godot-failed-reruns.logs/00-suites-sfx_sync_0_program.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-failed-reruns.logs/00/godot.log",
+        "reason": ""
+      },
+      {
+        "name": "suites/sfx_sync_1_program",
+        "returncode": 124,
+        "seconds": 180.177,
+        "log_path": "/private/tmp/rr44-f2-godot-failed-reruns.logs/01-suites-sfx_sync_1_program.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-failed-reruns.logs/01/godot.log",
+        "reason": ""
+      },
+      {
+        "name": "main_menu_input_test",
+        "returncode": 1,
+        "seconds": 32.735,
+        "log_path": "/private/tmp/rr44-f2-godot-failed-reruns.logs/02-main_menu_input_test.log",
+        "timed_out": false,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-failed-reruns.logs/02/godot.log",
+        "reason": ""
+      }
+    ]
+  },
+  "focused_godot_budget_reruns": {
+    "report": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_godot_budget_reruns.json",
+    "report_sha256": "e95a0db668b19532054430259069de5d9837f7341f47e169d6977edf69d7e9e0",
+    "programs": 54,
+    "failures": [
+      {
+        "name": "prepared_other_character_view_test",
+        "returncode": 124,
+        "seconds": 180.317,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/00-prepared_other_character_view_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/00/godot.log",
+        "reason": ""
+      },
+      {
+        "name": "retained_character_inventory_equivalence_test",
+        "returncode": 124,
+        "seconds": 180.237,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/01-retained_character_inventory_equivalence_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/01/godot.log",
+        "reason": ""
+      },
+      {
+        "name": "special_encounter_test",
+        "returncode": 124,
+        "seconds": 180.108,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/05-special_encounter_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/05/godot.log",
+        "reason": ""
+      },
+      {
+        "name": "enemy_no_action_test",
+        "returncode": 124,
+        "seconds": 176.747,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/35-enemy_no_action_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/35/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_11_test",
+        "returncode": 1,
+        "seconds": 34.419,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/36-fix_11_test.log",
+        "timed_out": false,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/36/godot.log",
+        "reason": ""
+      },
+      {
+        "name": "fix_11_probe",
+        "returncode": 1,
+        "seconds": 15.497,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/37-fix_11_probe.log",
+        "timed_out": false,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/37/godot.log",
+        "reason": ""
+      },
+      {
+        "name": "fix_14_test",
+        "returncode": 124,
+        "seconds": 125.512,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/39-fix_14_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/39/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_12_reactions_0_test",
+        "returncode": 124,
+        "seconds": 4.523,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/42-fix_12_reactions_0_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/42/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_12_reactions_1_test",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/43-fix_12_reactions_1_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/43/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_12_cascades_test",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/44-fix_12_cascades_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/44/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_12_feedback_test",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/45-fix_12_feedback_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/45/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_12_bleed_test",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/46-fix_12_bleed_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/46/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "short_card_tooltips_test",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/47-short_card_tooltips_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/47/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "card_panel_text_test",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/48-card_panel_text_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/48/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "board_status_plates_test",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/49-board_status_plates_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/49/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "status_capture_probe",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/50-status_capture_probe.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/50/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "status_plates_performance_probe",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/51-status_plates_performance_probe.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/51/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "rr38/runtime_checks",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/52-rr38-runtime_checks.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/52/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "heirloom_notification_test",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/53-heirloom_notification_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/53/godot.log",
+        "reason": "full suite budget exhausted"
+      }
+    ],
+    "passed": 35,
+    "seconds": 900.194
+  },
+  "focused_godot_rr38_runtime": {
+    "report": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_godot_rr38_runtime.json",
+    "report_sha256": "85d25fc967de2da09a94b78aabd54fa28613b42f3eb7a59f136f0739f652a983",
+    "programs": 1,
+    "failures": [],
+    "passed": 1,
+    "seconds": 8.496
+  },
+  "baseline_comparison": {
+    "status": "complete",
+    "fixture": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_pre_rr44_runtime.json",
+    "report": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_godot_pre_rr44.json",
+    "source_changes_in_actual_worktree": false,
+    "base_ref": "e7913f0df5632595aa0a00566b3e06c3882ceba0",
+    "report_sha256": "e6ebb06ba93a176ba54ceb97a0f03e814e63c1ea115da43eb73f163cbd484598",
+    "results": [
+      {
+        "name": "main_menu_input_test",
+        "returncode": 1,
+        "seconds": 33.178,
+        "log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/00-main_menu_input_test.log",
+        "timed_out": false,
+        "engine_log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/00/godot.log",
+        "reason": "",
+        "result_lines": [
+          "TEST RESULT: FAIL \u2014 1 main menu first-click input failure(s)"
+        ]
+      },
+      {
+        "name": "fix_11_test",
+        "returncode": 1,
+        "seconds": 21.183,
+        "log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/01-fix_11_test.log",
+        "timed_out": false,
+        "engine_log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/01/godot.log",
+        "reason": "",
+        "result_lines": [
+          "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+          "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+          "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+          "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+          "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'entries' in base 'GDScript'."
+        ]
+      },
+      {
+        "name": "fix_11_probe",
+        "returncode": 1,
+        "seconds": 7.969,
+        "log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/02-fix_11_probe.log",
+        "timed_out": false,
+        "engine_log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/02/godot.log",
+        "reason": "",
+        "result_lines": [
+          "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+          "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+          "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+          "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+          "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'entries' in base 'GDScript'."
+        ]
+      },
+      {
+        "name": "suites/sfx_sync_0_program",
+        "returncode": 124,
+        "seconds": 180.213,
+        "log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/03-suites-sfx_sync_0_program.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/03/godot.log",
+        "reason": "",
+        "result_lines": [
+          "error: command timed out after 180 seconds."
+        ]
+      },
+      {
+        "name": "suites/sfx_sync_1_program",
+        "returncode": 124,
+        "seconds": 180.17,
+        "log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/04-suites-sfx_sync_1_program.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/04/godot.log",
+        "reason": "",
+        "result_lines": [
+          "error: command timed out after 180 seconds."
+        ]
+      }
+    ],
+    "conclusion": "Both SFX180s deadlines and both GameData compile errors reproduce with the pre-rr44 runtime/assets. Baseline menu has one startup assertion; current menu later passed all unchanged assertions under the diagnostic wrapper. Earlier menu failures remain recorded."
+  },
+  "menu_loading_diagnostic": {
+    "command": "python3 tools/godot_task_runner.py --task-id rr-44 --timeout 85 --stream -- godot --headless --path . --script experiments/cutouts/chainbound_gaoler/rr44/proof/logs/menu_loading_diagnostic.gd",
+    "exit_code": 0,
+    "result_lines": [
+      "TEST RESULT: PASS \u2014 main menu input and startup transitions"
+    ],
+    "log": "/private/tmp/rr44-f2-menu-loading-diagnostic.log",
+    "log_sha256": "489d1fd16e04e5cc5df8feb52fcdec6729483da9cd07f1438dbb85f46306e338",
+    "source_sha256": "6222b58817401af065b6c70d9e7de46f9a521008273c3a1a23091abcc6625368",
+    "source": "extends \"res://tests/main_menu_input_test.gd\"\n\nfunc _initialize() -> void:\n    preload(\"res://scripts/parallel_runtime.gd\").apply_from_environment()\n    await super._initialize()\n\nfunc _expect(condition: bool, message: String) -> void:\n    if not condition and message.ends_with(\"loading should finish\"):\n        var transition: Node = root.get_node_or_null(\"MenuRunTransition\")\n        var report: Dictionary = {\"assertion\": message, \"transition_valid\": is_instance_valid(transition)}\n        if is_instance_valid(transition):\n            report[\"phase\"] = transition.get(\"phase\")\n            report[\"path\"] = transition.get(\"_path\")\n            var progress: Array = []\n            report[\"loader_status\"] = ResourceLoader.load_threaded_get_status(str(transition.get(\"_path\")), progress)\n            report[\"loader_progress\"] = progress\n            report[\"timings\"] = transition.get(\"_performance_timings\")\n            var room: Node = transition.get(\"destination\")\n            report[\"destination_valid\"] = is_instance_valid(room)\n            if is_instance_valid(room):\n                var fields: Dictionary = {}\n                for property: Dictionary in room.get_property_list():\n                    var field: String = str(property[\"name\"])\n                    if not field.begins_with(\"_initial_\"): continue\n                    var value: Variant = room.get(field)\n                    if value is bool or value is int or value is float or value is String: fields[field] = value\n                    elif value is Array or value is Dictionary: fields[field + \"_size\"] = value.size()\n                report[\"initial_fields\"] = fields\n        print(\"RR44 MENU LOADING DIAGNOSTIC: \" + JSON.stringify(report))\n    super._expect(condition, message)\n",
+    "original_assertions_and_deadlines_unchanged": true,
+    "implementation_changed": false
+  },
+  "updated_utc": "2026-10-28T21:48:44.322240+00:00",
+  "artifact_recheck": {
+    "previously_bound_artifacts_changed": [],
+    "actual_index_unchanged": true,
+    "head_unchanged": true,
+    "protected_inputs_byte_exact": true
+  },
+  "godot_failure_diagnostics": [
+    {
+      "origin": "full",
+      "program": "suites/sfx_sync_0_program",
+      "returncode": 124,
+      "reason": "",
+      "log_sha256": "5b3b3789a78d774f1a4c790e25ab20cf876b69250d9d53e02eb5d4d774742b4f",
+      "observed_failure_lines": [
+        "error: command timed out after 180 seconds."
+      ]
+    },
+    {
+      "origin": "full",
+      "program": "suites/sfx_sync_1_program",
+      "returncode": 124,
+      "reason": "",
+      "log_sha256": "5c3abadb896f8efb597e662135984feea72fbf29eabdae468a069a90d6a705ae",
+      "observed_failure_lines": [
+        "error: command timed out after 180 seconds."
+      ]
+    },
+    {
+      "origin": "full",
+      "program": "main_menu_input_test",
+      "returncode": 1,
+      "reason": "",
+      "log_sha256": "e72489601e1ea5db6dc3aeb1547eaf818da7bd25907f461ba2d0cb3821e00e41",
+      "observed_failure_lines": [
+        "ERROR: Normal startup should fade the seal in",
+        "ERROR: new loading should finish",
+        "ERROR: Loading must block GUI, keyboard and controller input",
+        "ERROR: Loading must also guard repeated semantic button activation",
+        "ERROR: Repeated activation and cancel must neither reopen the menu nor create another run",
+        "ERROR: Menu fade-out must not delay room activation",
+        "ERROR: Visual completion must free the menu/helper without waiting for audio",
+        "ERROR: Menu and room tracks must never play simultaneously",
+        "ERROR: Menu audio must fade down over a fraction of a second after room activation",
+        "ERROR: A short intentional gap must separate the tracks",
+        "ERROR: Continue must load the same saved run",
+        "TEST RESULT: FAIL \u2014 19 main menu first-click input failure(s)",
+        "ERROR: New Run with a save must still require confirmation",
+        "ERROR: Opening confirmation must not start loading",
+        "ERROR: replace should enter the shared loading flow",
+        "ERROR: new should enter the shared loading flow",
+        "ERROR: continue should enter the shared loading flow",
+        "ERROR: A failed load must restore input and processing",
+        "ERROR: Transition teardown must release viewport input",
+        "ERROR: Transition teardown must release viewport input"
+      ]
+    },
+    {
+      "origin": "full",
+      "program": "prepared_other_character_view_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "85842a4139dab6ed724a645e026f7488d24fe50edc2eb854c9d78eef140cb2c0",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "retained_character_inventory_equivalence_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "90b9523a79bb134fbcbff3ffed51ec6606cb33c336371d1b62f35553a5f328fa",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "encounter_measurement_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "25092b895511204c04863cf737787210c88292b3adae33d10517002d2f539dff",
+      "observed_failure_lines": [
+        "error: command timed out after 31.192 seconds."
+      ]
+    },
+    {
+      "origin": "full",
+      "program": "rr17/runtime_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "9e20b5e3a2081f09dc14461d77aa516d3e49936cce993782bc06599f1f8e7e4e",
+      "observed_failure_lines": [
+        "error: command timed out after 2.46 seconds."
+      ]
+    },
+    {
+      "origin": "full",
+      "program": "rr18/runtime_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "addd521195ad087b9a91b8925099b70a0bdf377c4e30e99745cd080729b89a65",
+      "observed_failure_lines": [
+        "error: command timed out after 1.456 seconds."
+      ]
+    },
+    {
+      "origin": "full",
+      "program": "special_encounter_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "843c748adbc12665d5eb7c4925eac5203062cdfcb2c83579fffef7dd73010ea7",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "special_encounter_legend_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "9335b2d03a56b9f98adce082e556c50009dd5ce348d0e96398d48b20ef265050",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "warband_orders_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "23548e94c71b3bf788aa7fed48a2d820e9ac996dee7b5753d5b4a8e672b6a10d",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "warband_wind_lock_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "e9b240b66730826cae24509aa0dfd1f9c81ec35964834970c3e333e04385b4b2",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "wbv_markers_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "b19e28ecd478938311549d4c129bc95a6ee8adc8f7ccdcdfca4f4fee390f0b34",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "warband_orders_probe",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "575295468bbaeb442bc928423af7f131847edb6e52ff306533d59056b2a50806",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "warband_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "4f19561e741564178b1ea73c3aad276bc9082ebcc1bc6da109f8375d76d6fe5b",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "warband_ui_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "c5444da7b2536af991a49369d35252d6e8794a9143e4f04bc5bc1c753479215f",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "snare_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "6457e42b97929b7fbda69b1c6cab819c2c05d2cafb26dcb85c050bcc47176197",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "snare_ui_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "a40db84e0096ab5d790bf48fc3f1bd541414e3418ff0c8f6858d8298ae48eaa0",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "pass_preview_prewarm_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "c4e477e0798c7f356a757f981f9569cfa0f18caa270457730de9155c80843002",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "petrify_tooltip_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "bd70e3abe1e6c92b3199f1f0ff76ed86b4a22ae1f9041c1c8861078bc545adcd",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "perf/analytics_restart_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "3ae086845ef8250f08aee4e6d3f90beb7810f772e723f9425790cb2bd4f96446",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "perf/background_persistence_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "5da0526aaadd9016ccc7eec5d32e060089fc7c79df7ec98cdbbd91aef5b074ee",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "perf/deferred_deadline_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "f14b43d884aab32f3844adc3c7e87979aece09eba42ed6c28b2c0d7bc3812762",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "perf/transition_failure_0_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "94d293ffa20ef2eef6b752ab20d71259cd6e3509ac7e473be35137ce7dd33b17",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "perf/transition_failure_1_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "918966c0983753193233ef869d7cc79297ae7a43fd4a31ffd41f4f725d96cfe9",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "perf/transition_failure_2_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "2bf308e3ff15fdb9fe33db4c7c9154d2ee94708428b3aeadeb09af33ffd45500",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "perf/transition_failure_3_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "96377ed894c08c22db175e9651088c5e20675178b8bb2d9093bcf38a29be47a0",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "perf/combat_frame_scenarios",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "13997247615f5ed57b45f817321e922e7100e9c1987cfab36d92dec8dc9b9423",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "cache_switch_regression_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "092707d719adf13b7d9e68fd2889962ebc4653c383d29376c5da8a23de674c8c",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "engine_cache_directories_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "8a3d0be77c52a627b613a8f3d8a93f9e108b4eb8fb8a4a7a710f0e14d90192d7",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "battlefield_rules_probe",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "7fe8c962b4fe7a90a919ee537e98c4ea53af013e50a55e4a06338205b643ecef",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "el02_evidence",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "421cf3ed8f5390815711efec6f86b407855a7900e408e8399d73aca7dd6dad25",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "element_retrofit_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "6f38ad692eecbe80bc893bd1a66ba4885ae9582c291814b2a2f16a7a54e73c90",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "element_retrofit_probe",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "2bbd003f95acf131ff2c220cd754f2ef34669ed0f15d5175cc73143b84aa81db",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "en03_enemies_probe",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "5d317ded365a69cce4a61e7275ff7e057589a8df02dc0e69cd2390820adb336d",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "en05_enemies_probe",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "88088307e93ae0668c67071165b3d02ec78fe65b5d5d5a35fd028b4418495d0a",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "en06_enemies_probe",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "3e73575f8b7773c847d00ccb35aabcf9a79b4a1acf2a76d357dcb3491a65b387",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "el04_rule_views_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "710f871eea8454d82b5ca46519c8ef77cf38006812fb5766b06d9031efdc6a16",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "enemy_no_action_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "5c57995e8671eabe14f06f480cf85a1b9879c6213ce51b403510daa3917d0ffd",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "fix_11_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "0b3285bc055995a94f4b2848d4bfc75db036866e7ea66e5e04cf2ee806d8a7c4",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "fix_11_probe",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "c76877cb2c6d4ca062d012a8c93a8d17aee365fc96dec98aa47f23831c640698",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "fix_12_probe",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "dfd0576dc17c311a822cb5f86c2da83e5093c3da8473afc4d8a2d5f18925a491",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "fix_14_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "3f68050799fd68a91c8b1ea6a687c180b03b2f42954ae9a37a34c85c254ff777",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "fix_14_matrix_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "ae2a2efc606ece04953d1a93334767763b5620ab00cbc174a8777233f91224ef",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "fix_12_arrival_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "1229e033b59819173ab870a53566fa16518ffb755a4bc1f8fd892a3993370d9f",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "fix_12_reactions_0_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "fb9fc0ca6bd7f6e1e818837aeae1434dc532b49447f6a58e59cedea4b2355238",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "fix_12_reactions_1_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "87bf82967e0d6eb8ebc3d1cb22a951606e487ef36f9b521114c6b499f36fe93d",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "fix_12_cascades_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "1290d549ddf0093d11b4fc2a834b485f273945471a6512939f6e444f328dc5c6",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "fix_12_feedback_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "72b0320024dd5b25d6ae7b5856f3626a9d0f4791b42a42f71c8cba97e9592089",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "fix_12_bleed_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "a710172cf7c2f7484ad44efac2114626f425d03e83cd8c5a4eab7414002894d3",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "short_card_tooltips_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "35cba46f50beb914874276f877e265f4db271d7c26e2b11432ec2e07a8518bce",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "card_panel_text_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "9b10904c1c024e86cbca0b09f746e25fb9ad21e3bd176b398666b06feb86e1c7",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "board_status_plates_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "73d5abb47d667bef91ed9c337c9d09095d573fea8f942220c0361173bc7ef774",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "status_capture_probe",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "e63273a85b28922ba1e017c4979915750317a4f6583700980b3a061be8f41da2",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "status_plates_performance_probe",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "62b09aa1358a0a78e608c96bf0e6e309cc5ca400c3c8bd8cfa38ca0f8d3badec",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "rr38/runtime_checks",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "654d49b3a3f63d208bac54ed6c8a5ffee0451e80dad7d7f4dd05a2f836f60bda",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "full",
+      "program": "heirloom_notification_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "d18f5d608c2127aaad8e1f1cb6cff8c285c76d4a377dc28d0dae940630c78274",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "sequential",
+      "program": "suites/sfx_sync_0_program",
+      "returncode": 124,
+      "reason": "",
+      "log_sha256": "a6ed720676850bbe1567cfd6ec5016ef4439cee6447061ed451b9f877df17121",
+      "observed_failure_lines": [
+        "error: command timed out after 180 seconds."
+      ]
+    },
+    {
+      "origin": "sequential",
+      "program": "suites/sfx_sync_1_program",
+      "returncode": 124,
+      "reason": "",
+      "log_sha256": "ce3bba614abefebf0fa08081aa474eb5a77683935bb40fdd653487e29983cb78",
+      "observed_failure_lines": [
+        "error: command timed out after 180 seconds."
+      ]
+    },
+    {
+      "origin": "sequential",
+      "program": "main_menu_input_test",
+      "returncode": 1,
+      "reason": "",
+      "log_sha256": "9e27fdcbbb160c0b81a4a9363c8a6fb74760a39fca6b4009add520cb3eb165e0",
+      "observed_failure_lines": [
+        "ERROR: Normal startup should fade the seal in",
+        "TEST RESULT: FAIL \u2014 7 main menu first-click input failure(s)",
+        "ERROR: new loading should finish",
+        "ERROR: continue should enter the shared loading flow",
+        "ERROR: New Run with a save must still require confirmation",
+        "ERROR: replace should enter the shared loading flow",
+        "ERROR: new should enter the shared loading flow",
+        "ERROR: continue should enter the shared loading flow"
+      ]
+    },
+    {
+      "origin": "budget_followup",
+      "program": "prepared_other_character_view_test",
+      "returncode": 124,
+      "reason": "",
+      "log_sha256": "b6c2029f1b23d40154d630a5a76ba0b509a5a4470071299a3977ee14093b39eb",
+      "observed_failure_lines": [
+        "error: command timed out after 180 seconds."
+      ]
+    },
+    {
+      "origin": "budget_followup",
+      "program": "retained_character_inventory_equivalence_test",
+      "returncode": 124,
+      "reason": "",
+      "log_sha256": "9c944a6b7df1489767f9b40dcdf5070376cafa9acac64ca21f24f5bacc9570a7",
+      "observed_failure_lines": [
+        "error: command timed out after 180 seconds."
+      ]
+    },
+    {
+      "origin": "budget_followup",
+      "program": "special_encounter_test",
+      "returncode": 124,
+      "reason": "",
+      "log_sha256": "f3c896341c5427eff96e23686e6ad69dfabb37be7ff84a9e89c9c7b439f5e827",
+      "observed_failure_lines": [
+        "error: command timed out after 180 seconds."
+      ]
+    },
+    {
+      "origin": "budget_followup",
+      "program": "enemy_no_action_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "17a72af6360e75a08d5ea2d8777bcc2751741dd1d71dd0b92a1807b81353d545",
+      "observed_failure_lines": [
+        "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+        "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "ERROR: Failed to load script \"/private/tmp/rr44-f2-godot-budget-reruns.logs/35/enemy_no_action_test.gd\" with error \"Compilation failed\".",
+        "SCRIPT ERROR: Invalid call. Nonexistent function 'run' in base 'GDScript'."
+      ]
+    },
+    {
+      "origin": "budget_followup",
+      "program": "fix_11_test",
+      "returncode": 1,
+      "reason": "",
+      "log_sha256": "ebfe6a93dd3269dd6a6adeacf7bfacd09dbcefb306aadbe70fd32accab97b0ba",
+      "observed_failure_lines": [
+        "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+        "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "ERROR: Failed to load script \"/private/tmp/rr44-f2-godot-budget-reruns.logs/36/fix_11_test.gd\" with error \"Compilation failed\".",
+        "SCRIPT ERROR: Invalid call. Nonexistent function 'entries' in base 'GDScript'.",
+        "error: Godot reported script or test failures despite exit code 0."
+      ]
+    },
+    {
+      "origin": "budget_followup",
+      "program": "fix_11_probe",
+      "returncode": 1,
+      "reason": "",
+      "log_sha256": "6eb825dc60f852095191efa2b13854993be32618e24e7ed9bd575aa0387f1d33",
+      "observed_failure_lines": [
+        "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+        "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "ERROR: Failed to load script \"/private/tmp/rr44-f2-godot-budget-reruns.logs/37/fix_11_probe.gd\" with error \"Compilation failed\".",
+        "SCRIPT ERROR: Invalid call. Nonexistent function 'entries' in base 'GDScript'.",
+        "error: Godot reported script or test failures despite exit code 0."
+      ]
+    },
+    {
+      "origin": "budget_followup",
+      "program": "fix_14_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "66b91047f79f8f9a189e176c1b0318ddf296e464cb18775f93b30c59ae3dcf24",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "budget_followup",
+      "program": "fix_12_reactions_0_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "f75712031610fd233601a0fe239a65b0471ce8b9c1e153c8c3c172ba3104c086",
+      "observed_failure_lines": [
+        "error: command timed out after 4.332 seconds."
+      ]
+    },
+    {
+      "origin": "budget_followup",
+      "program": "fix_12_reactions_1_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "87bf82967e0d6eb8ebc3d1cb22a951606e487ef36f9b521114c6b499f36fe93d",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "budget_followup",
+      "program": "fix_12_cascades_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "1290d549ddf0093d11b4fc2a834b485f273945471a6512939f6e444f328dc5c6",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "budget_followup",
+      "program": "fix_12_feedback_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "72b0320024dd5b25d6ae7b5856f3626a9d0f4791b42a42f71c8cba97e9592089",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "budget_followup",
+      "program": "fix_12_bleed_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "a710172cf7c2f7484ad44efac2114626f425d03e83cd8c5a4eab7414002894d3",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "budget_followup",
+      "program": "short_card_tooltips_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "35cba46f50beb914874276f877e265f4db271d7c26e2b11432ec2e07a8518bce",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "budget_followup",
+      "program": "card_panel_text_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "9b10904c1c024e86cbca0b09f746e25fb9ad21e3bd176b398666b06feb86e1c7",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "budget_followup",
+      "program": "board_status_plates_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "73d5abb47d667bef91ed9c337c9d09095d573fea8f942220c0361173bc7ef774",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "budget_followup",
+      "program": "status_capture_probe",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "e63273a85b28922ba1e017c4979915750317a4f6583700980b3a061be8f41da2",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "budget_followup",
+      "program": "status_plates_performance_probe",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "62b09aa1358a0a78e608c96bf0e6e309cc5ca400c3c8bd8cfa38ca0f8d3badec",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "budget_followup",
+      "program": "rr38/runtime_checks",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "654d49b3a3f63d208bac54ed6c8a5ffee0451e80dad7d7f4dd05a2f836f60bda",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "budget_followup",
+      "program": "heirloom_notification_test",
+      "returncode": 124,
+      "reason": "full suite budget exhausted",
+      "log_sha256": "d18f5d608c2127aaad8e1f1cb6cff8c285c76d4a377dc28d0dae940630c78274",
+      "observed_failure_lines": []
+    },
+    {
+      "origin": "pre_rr44",
+      "program": "main_menu_input_test",
+      "returncode": 1,
+      "reason": "",
+      "log_sha256": "a1cc212bc5766adf5dc4164d477dd5e18400618725beb39904a06b87ee23977f",
+      "observed_failure_lines": [
+        "ERROR: Normal startup should fade the seal in",
+        "TEST RESULT: FAIL \u2014 1 main menu first-click input failure(s)"
+      ]
+    },
+    {
+      "origin": "pre_rr44",
+      "program": "fix_11_test",
+      "returncode": 1,
+      "reason": "",
+      "log_sha256": "35e91be17081252df3550dbf8086e1b22eff4c3844753acd1d69089e775fab4b",
+      "observed_failure_lines": [
+        "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+        "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "ERROR: Failed to load script \"/private/tmp/rr44-f2-pre-rr44-baseline.logs/01/fix_11_test.gd\" with error \"Compilation failed\".",
+        "SCRIPT ERROR: Invalid call. Nonexistent function 'entries' in base 'GDScript'.",
+        "error: Godot reported script or test failures despite exit code 0."
+      ]
+    },
+    {
+      "origin": "pre_rr44",
+      "program": "fix_11_probe",
+      "returncode": 1,
+      "reason": "",
+      "log_sha256": "d6dfdd4765c0ea5a4b789ced00860084c2f78769a118f73fb9f17603814012b6",
+      "observed_failure_lines": [
+        "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+        "SCRIPT ERROR: Parse Error: Identifier \"GameData\" not declared in the current scope.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "ERROR: Failed to load script \"/private/tmp/rr44-f2-pre-rr44-baseline.logs/02/fix_11_probe.gd\" with error \"Compilation failed\".",
+        "SCRIPT ERROR: Invalid call. Nonexistent function 'entries' in base 'GDScript'.",
+        "error: Godot reported script or test failures despite exit code 0."
+      ]
+    },
+    {
+      "origin": "pre_rr44",
+      "program": "suites/sfx_sync_0_program",
+      "returncode": 124,
+      "reason": "",
+      "log_sha256": "2206c243fc78ad1de8b4cb23ad25a7a27072b23ddb86176e00dba407de62948b",
+      "observed_failure_lines": [
+        "error: command timed out after 180 seconds."
+      ]
+    },
+    {
+      "origin": "pre_rr44",
+      "program": "suites/sfx_sync_1_program",
+      "returncode": 124,
+      "reason": "",
+      "log_sha256": "af173a97c9bef1432c9a2cdb6684b68511401d7d5600b74e55a9459e70d8cca3",
+      "observed_failure_lines": [
+        "error: command timed out after 180 seconds."
+      ]
+    }
+  ],
+  "failure_lists": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_failure_lists.md",
+  "production_file_bindings_recheck": {
+    "passed": true,
+    "changed": [],
+    "scope": "Every production part PNG in both production_binding.json views"
+  },
+  "file_inventory": {
+    "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/feedback2_files.txt",
+    "files": 3216,
+    "modified_tracked": 194,
+    "new_untracked": 3022,
+    "out_of_scope_changed": []
+  },
+  "acceptance_criteria": [
+    {
+      "number": 1,
+      "status": "pass",
+      "evidence": "v5/v4 protected-source replay and art identity check pass; supplied paintings remain byte exact."
+    },
+    {
+      "number": 2,
+      "status": "retained_native_certificate_pass",
+      "evidence": "All mq15 rows pass; frontIoU0.8489029631; maximum centroid4.9718029895px; proper rear half-turn; joint table in implementation report."
+    },
+    {
+      "number": 3,
+      "status": "headless_pass_native_pending",
+      "evidence": "Both source rests0px; rigid attached grip, boot fragment ownership and exact own-paint joint caps; original visible far-sleeve geometry unchanged."
+    },
+    {
+      "number": 4,
+      "status": "headless_pass_native_pending",
+      "evidence": "Exact underlays,20accepted source regions,168effectiveR1values at authorizedUVs, frozenCPU/native flat inventories;892frames clean under calibrated fullUV sweep."
+    },
+    {
+      "number": 5,
+      "status": "pass",
+      "evidence": "Body-frame delayed held_follow, both shoulder pendulums, facing elbow policy and approved death retained; all authored/presented frames and mutations pass."
+    },
+    {
+      "number": 6,
+      "status": "headless_verified_native_pending",
+      "evidence": "Press22px retained; no new clamp. Only inherited death.coat_near_tip.lift_px4to2.5bothviews. No floor crossed."
+    },
+    {
+      "number": 7,
+      "status": "pass",
+      "evidence": "Elbow gate/mutations and hash-bound rr42 negative fixture pass. Nineother rigs10294posesbyte-identical;2351report-onlyfailures/2350exactframecrops."
+    },
+    {
+      "number": 8,
+      "status": "headless_pass_native_pending",
+      "evidence": "892frames0findings; allgates0errors;walk254poses0errors;production1440eachview0errors;geometry8cases0errors; rr38runtime239checksPASS. Fresh native gates await director."
+    },
+    {
+      "number": 9,
+      "status": "headless_pass_native_seal_pending",
+      "evidence": "546sourcefiles deterministic; scoped density/rest/shadow rebuilt;147otherartrecords,112densityentries,2187outputsretained. Routing unchanged. Fullsuites executed and failure lists retained; unit-specific acceptance gates pass."
+    }
+  ],
+  "implementation_report": "experiments/cutouts/chainbound_gaoler/rr44_FEEDBACK2.md"
+}

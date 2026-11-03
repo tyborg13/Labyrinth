@@ -1,0 +1,5609 @@
+{
+  "rig": "thrall",
+  "case": "arc_thrall/rr11",
+  "runtime_byte_identical": true,
+  "samples": 1050,
+  "native_pixels": false,
+  "report_only": true,
+  "threshold_deg": 2,
+  "failures": [
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 8,
+      "kind": "presented",
+      "phase": 0.16,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -6.268486824064887,
+      "points": [
+        [
+          61.4999923706055,
+          92.5749893188477
+        ],
+        [
+          46.3249893188477,
+          130.204986572266
+        ],
+        [
+          35.2649917602539,
+          169.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 9,
+      "kind": "presented",
+      "phase": 0.18,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -15.096726313124284,
+      "points": [
+        [
+          59.5,
+          92.5749969482422
+        ],
+        [
+          41.3249931335449,
+          129.205001831055
+        ],
+        [
+          33.2649917602539,
+          169.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 10,
+      "kind": "presented",
+      "phase": 0.2,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -19.092504455034707,
+      "points": [
+        [
+          56.5,
+          93.5749969482422
+        ],
+        [
+          37.3249969482422,
+          130.205001831055
+        ],
+        [
+          31.2650032043457,
+          170.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 11,
+      "kind": "presented",
+      "phase": 0.22,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -25.70030375103982,
+      "points": [
+        [
+          54.5000038146973,
+          95.5750045776367
+        ],
+        [
+          33.3250045776367,
+          130.205017089844
+        ],
+        [
+          29.2650032043457,
+          170.567520141602
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 12,
+      "kind": "presented",
+      "phase": 0.24,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -28.522594127719163,
+      "points": [
+        [
+          51.5000076293945,
+          96.5750045776367
+        ],
+        [
+          30.3250026702881,
+          131.205017089844
+        ],
+        [
+          28.265007019043,
+          171.567535400391
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 13,
+      "kind": "presented",
+      "phase": 0.26,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -31.165118243523747,
+      "points": [
+        [
+          49.5,
+          97.5749893188477
+        ],
+        [
+          27.3249893188477,
+          132.204986572266
+        ],
+        [
+          26.2649993896484,
+          173.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 14,
+      "kind": "presented",
+      "phase": 0.28,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -31.932121700419927,
+      "points": [
+        [
+          46.5000076293945,
+          100.574989318848
+        ],
+        [
+          24.325008392334,
+          134.204986572266
+        ],
+        [
+          23.2650108337402,
+          175.567474365234
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 15,
+      "kind": "presented",
+      "phase": 0.3,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -31.93213441283135,
+      "points": [
+        [
+          44.5000038146973,
+          102.574996948242
+        ],
+        [
+          22.3250064849854,
+          136.204986572266
+        ],
+        [
+          21.2650146484375,
+          177.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 16,
+      "kind": "presented",
+      "phase": 0.32,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -28.593110660688886,
+      "points": [
+        [
+          41.5000038146973,
+          103.574996948242
+        ],
+        [
+          20.3250045776367,
+          138.204986572266
+        ],
+        [
+          18.2650012969971,
+          179.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 17,
+      "kind": "presented",
+      "phase": 0.34,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -22.374576113252523,
+      "points": [
+        [
+          39.5000076293945,
+          104.574996948242
+        ],
+        [
+          19.3250026702881,
+          140.205001831055
+        ],
+        [
+          14.26500415802,
+          180.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 18,
+      "kind": "presented",
+      "phase": 0.36,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -17.462695541498704,
+      "points": [
+        [
+          37.5000038146973,
+          104.575004577637
+        ],
+        [
+          18.3250007629395,
+          141.205017089844
+        ],
+        [
+          11.2650003433228,
+          180.567520141602
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 30,
+      "kind": "presented",
+      "phase": 0.6,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -17.70955690005395,
+      "points": [
+        [
+          7.50000381469727,
+          118.574996948242
+        ],
+        [
+          -11.6749992370605,
+          155.205017089844
+        ],
+        [
+          -18.7349967956543,
+          195.567535400391
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 31,
+      "kind": "presented",
+      "phase": 0.62,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -23.77614972880786,
+      "points": [
+        [
+          4.5,
+          119.574989318848
+        ],
+        [
+          -15.6750049591064,
+          155.205001831055
+        ],
+        [
+          -19.7350006103516,
+          195.567520141602
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 32,
+      "kind": "presented",
+      "phase": 0.64,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -26.387675780587124,
+      "points": [
+        [
+          2.5,
+          120.574996948242
+        ],
+        [
+          -18.6750030517578,
+          156.204986572266
+        ],
+        [
+          -21.7349967956543,
+          196.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 33,
+      "kind": "presented",
+      "phase": 0.66,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -31.128744564219733,
+      "points": [
+        [
+          -0.499996185302734,
+          122.574996948242
+        ],
+        [
+          -22.6749973297119,
+          157.204986572266
+        ],
+        [
+          -23.7349967956543,
+          197.567474365234
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 34,
+      "kind": "presented",
+      "phase": 0.68,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -31.128726899216062,
+      "points": [
+        [
+          -2.49999618530273,
+          124.575004577637
+        ],
+        [
+          -24.6749992370605,
+          159.205017089844
+        ],
+        [
+          -25.7350006103516,
+          199.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 35,
+      "kind": "presented",
+      "phase": 0.7,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -28.522593242070908,
+      "points": [
+        [
+          -5.49999618530273,
+          126.574996948242
+        ],
+        [
+          -26.6750011444092,
+          161.205001831055
+        ],
+        [
+          -28.7350006103516,
+          201.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 36,
+      "kind": "presented",
+      "phase": 0.72,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -27.108822553999893,
+      "points": [
+        [
+          -7.49999237060547,
+          128.574996948242
+        ],
+        [
+          -28.6749935150146,
+          163.205001831055
+        ],
+        [
+          -31.7349891662598,
+          203.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 37,
+      "kind": "presented",
+      "phase": 0.74,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -23.776152989178296,
+      "points": [
+        [
+          -10.4999961853027,
+          128.574996948242
+        ],
+        [
+          -30.6749992370605,
+          164.204986572266
+        ],
+        [
+          -34.7350006103516,
+          204.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 38,
+      "kind": "presented",
+      "phase": 0.76,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -17.462694544335335,
+      "points": [
+        [
+          -12.5000038146973,
+          129.574981689453
+        ],
+        [
+          -31.6750106811523,
+          166.204986572266
+        ],
+        [
+          -38.7350158691406,
+          205.567474365234
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 1,
+      "kind": "presented",
+      "phase": 0.0140845070422535,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.5795263811579825,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          67.3249969482422,
+          115.205009460449
+        ],
+        [
+          52.2649993896484,
+          152.567520141602
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 2,
+      "kind": "presented",
+      "phase": 0.028169014084507,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -6.261527634468166,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          66.3249969482422,
+          114.20499420166
+        ],
+        [
+          52.2649993896484,
+          152.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 3,
+      "kind": "presented",
+      "phase": 0.0422535211267606,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -6.261527634468166,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          66.3249969482422,
+          114.20499420166
+        ],
+        [
+          52.2649993896484,
+          152.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 4,
+      "kind": "presented",
+      "phase": 0.0563380281690141,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -9.932595300759772,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          65.3249969482422,
+          113.205001831055
+        ],
+        [
+          52.2649993896484,
+          152.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 5,
+      "kind": "presented",
+      "phase": 0.0704225352112676,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -12.068553884146384,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          64.3249969482422,
+          113.205009460449
+        ],
+        [
+          52.2649993896484,
+          151.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 6,
+      "kind": "presented",
+      "phase": 0.0845070422535211,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -13.190358434892337,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          64.3249969482422,
+          112.205001831055
+        ],
+        [
+          52.2649917602539,
+          151.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 7,
+      "kind": "presented",
+      "phase": 0.0985915492957746,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -15.750091706916807,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          63.3249969482422,
+          112.205001831055
+        ],
+        [
+          52.2649993896484,
+          151.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 8,
+      "kind": "presented",
+      "phase": 0.112676056338028,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -16.550692905163324,
+      "points": [
+        [
+          85.5,
+          77.5749969482422
+        ],
+        [
+          63.3249969482422,
+          112.205017089844
+        ],
+        [
+          52.2649993896484,
+          150.567535400391
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 9,
+      "kind": "presented",
+      "phase": 0.126760563380282,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -20.23500350372666,
+      "points": [
+        [
+          85.5,
+          77.5749969482422
+        ],
+        [
+          62.3249893188477,
+          111.205017089844
+        ],
+        [
+          52.2649917602539,
+          150.567535400391
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 10,
+      "kind": "presented",
+      "phase": 0.140845070422535,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -20.829213250674908,
+      "points": [
+        [
+          85.5,
+          76.5749969482422
+        ],
+        [
+          62.3249893188477,
+          111.205001831055
+        ],
+        [
+          53.2649917602539,
+          150.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 11,
+      "kind": "presented",
+      "phase": 0.154929577464789,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -24.138458714826072,
+      "points": [
+        [
+          85.5,
+          76.5749969482422
+        ],
+        [
+          61.3249893188477,
+          110.205001831055
+        ],
+        [
+          53.2649993896484,
+          149.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 12,
+      "kind": "presented",
+      "phase": 0.169014084507042,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -24.138439566575403,
+      "points": [
+        [
+          85.5,
+          76.5749969482422
+        ],
+        [
+          61.3250007629395,
+          110.205001831055
+        ],
+        [
+          53.2650032043457,
+          149.567520141602
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 13,
+      "kind": "presented",
+      "phase": 0.183098591549296,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -25.241228308903548,
+      "points": [
+        [
+          85.5,
+          76.5749969482422
+        ],
+        [
+          61.3250007629395,
+          109.205001831055
+        ],
+        [
+          53.2649993896484,
+          149.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 14,
+      "kind": "presented",
+      "phase": 0.197183098591549,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -27.482879805635957,
+      "points": [
+        [
+          85.4999923706055,
+          76.5749969482422
+        ],
+        [
+          60.3249816894531,
+          109.205001831055
+        ],
+        [
+          53.2649841308594,
+          148.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 15,
+      "kind": "presented",
+      "phase": 0.211267605633803,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -29.6875035448901,
+      "points": [
+        [
+          86.5,
+          76.5749969482422
+        ],
+        [
+          60.3249969482422,
+          108.205009460449
+        ],
+        [
+          53.2649993896484,
+          148.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 16,
+      "kind": "presented",
+      "phase": 0.225352112676056,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -29.68749829056938,
+      "points": [
+        [
+          86.5,
+          76.5749969482422
+        ],
+        [
+          60.3249969482422,
+          108.205009460449
+        ],
+        [
+          53.2649955749512,
+          148.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 17,
+      "kind": "presented",
+      "phase": 0.23943661971831,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -30.594162654843664,
+      "points": [
+        [
+          86.5,
+          76.5749969482422
+        ],
+        [
+          60.3250007629395,
+          107.205009460449
+        ],
+        [
+          53.2649993896484,
+          147.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 18,
+      "kind": "presented",
+      "phase": 0.253521126760563,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -33.040932148372946,
+      "points": [
+        [
+          86.5,
+          76.5749969482422
+        ],
+        [
+          59.3249931335449,
+          107.205001831055
+        ],
+        [
+          53.2649917602539,
+          147.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 19,
+      "kind": "presented",
+      "phase": 0.267605633802817,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -34.43396261845489,
+      "points": [
+        [
+          86.5,
+          76.5749969482422
+        ],
+        [
+          59.3249931335449,
+          107.205001831055
+        ],
+        [
+          54.2649917602539,
+          147.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 20,
+      "kind": "presented",
+      "phase": 0.28169014084507,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.379786546760805,
+      "points": [
+        [
+          86.5,
+          76.5749969482422
+        ],
+        [
+          59.3249931335449,
+          106.205001831055
+        ],
+        [
+          54.2649917602539,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 21,
+      "kind": "presented",
+      "phase": 0.295774647887324,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.37978254030161,
+      "points": [
+        [
+          86.5000152587891,
+          76.5749969482422
+        ],
+        [
+          59.3250122070312,
+          106.205001831055
+        ],
+        [
+          54.2650108337402,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 22,
+      "kind": "presented",
+      "phase": 0.309859154929577,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -34.43397194256746,
+      "points": [
+        [
+          86.5000152587891,
+          75.5749969482422
+        ],
+        [
+          59.3250045776367,
+          106.205001831055
+        ],
+        [
+          54.265007019043,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 23,
+      "kind": "presented",
+      "phase": 0.323943661971831,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.463861589465786,
+      "points": [
+        [
+          87.5000076293945,
+          75.5749969482422
+        ],
+        [
+          59.3249969482422,
+          106.205001831055
+        ],
+        [
+          54.2649993896484,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 24,
+      "kind": "presented",
+      "phase": 0.338028169014085,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.463861589465786,
+      "points": [
+        [
+          87.5000076293945,
+          75.5749969482422
+        ],
+        [
+          59.3249969482422,
+          106.205001831055
+        ],
+        [
+          54.2649993896484,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 25,
+      "kind": "presented",
+      "phase": 0.352112676056338,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.463861589465786,
+      "points": [
+        [
+          87.5000076293945,
+          75.5749969482422
+        ],
+        [
+          59.3249969482422,
+          106.205001831055
+        ],
+        [
+          54.2649993896484,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 26,
+      "kind": "presented",
+      "phase": 0.366197183098592,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.463861589465786,
+      "points": [
+        [
+          87.5000076293945,
+          75.5749969482422
+        ],
+        [
+          59.3249969482422,
+          106.205001831055
+        ],
+        [
+          54.2649993896484,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 27,
+      "kind": "presented",
+      "phase": 0.380281690140845,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -34.43397194256746,
+      "points": [
+        [
+          86.5000152587891,
+          75.5749969482422
+        ],
+        [
+          59.3250045776367,
+          106.205001831055
+        ],
+        [
+          54.265007019043,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 28,
+      "kind": "presented",
+      "phase": 0.394366197183099,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.37978787159137,
+      "points": [
+        [
+          86.5000152587891,
+          76.5749969482422
+        ],
+        [
+          59.3250122070312,
+          106.205001831055
+        ],
+        [
+          54.2650146484375,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 29,
+      "kind": "presented",
+      "phase": 0.408450704225352,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.37978787159137,
+      "points": [
+        [
+          86.5000152587891,
+          76.5749969482422
+        ],
+        [
+          59.3250122070312,
+          106.205001831055
+        ],
+        [
+          54.2650146484375,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 30,
+      "kind": "presented",
+      "phase": 0.422535211267606,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 31,
+      "kind": "presented",
+      "phase": 0.436619718309859,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 32,
+      "kind": "presented",
+      "phase": 0.450704225352113,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 33,
+      "kind": "presented",
+      "phase": 0.464788732394366,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 34,
+      "kind": "presented",
+      "phase": 0.47887323943662,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 35,
+      "kind": "presented",
+      "phase": 0.492957746478873,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 36,
+      "kind": "presented",
+      "phase": 0.507042253521127,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 37,
+      "kind": "presented",
+      "phase": 0.52112676056338,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 38,
+      "kind": "presented",
+      "phase": 0.535211267605634,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.37978787159137,
+      "points": [
+        [
+          86.5000152587891,
+          76.5749969482422
+        ],
+        [
+          59.3250122070312,
+          106.205001831055
+        ],
+        [
+          54.2650146484375,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 39,
+      "kind": "presented",
+      "phase": 0.549295774647887,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.463861589465786,
+      "points": [
+        [
+          87.5000076293945,
+          75.5749969482422
+        ],
+        [
+          59.3249969482422,
+          106.205001831055
+        ],
+        [
+          54.2649993896484,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 40,
+      "kind": "presented",
+      "phase": 0.563380281690141,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.37978787159137,
+      "points": [
+        [
+          86.5000152587891,
+          76.5749969482422
+        ],
+        [
+          59.3250122070312,
+          106.205001831055
+        ],
+        [
+          54.2650146484375,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 41,
+      "kind": "presented",
+      "phase": 0.577464788732394,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 42,
+      "kind": "presented",
+      "phase": 0.591549295774648,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 43,
+      "kind": "presented",
+      "phase": 0.605633802816901,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 44,
+      "kind": "presented",
+      "phase": 0.619718309859155,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 45,
+      "kind": "presented",
+      "phase": 0.633802816901408,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.37978787159137,
+      "points": [
+        [
+          86.5000152587891,
+          76.5749969482422
+        ],
+        [
+          59.3250122070312,
+          106.205001831055
+        ],
+        [
+          54.2650146484375,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 46,
+      "kind": "presented",
+      "phase": 0.647887323943662,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.463861589465786,
+      "points": [
+        [
+          87.5000076293945,
+          75.5749969482422
+        ],
+        [
+          59.3249969482422,
+          106.205001831055
+        ],
+        [
+          54.2649993896484,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 47,
+      "kind": "presented",
+      "phase": 0.661971830985915,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -34.43397194256746,
+      "points": [
+        [
+          86.5000152587891,
+          75.5749969482422
+        ],
+        [
+          59.3250045776367,
+          106.205001831055
+        ],
+        [
+          54.265007019043,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 48,
+      "kind": "presented",
+      "phase": 0.676056338028169,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 49,
+      "kind": "presented",
+      "phase": 0.690140845070423,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 50,
+      "kind": "presented",
+      "phase": 0.704225352112676,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 51,
+      "kind": "presented",
+      "phase": 0.71830985915493,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 52,
+      "kind": "presented",
+      "phase": 0.732394366197183,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.37978787159137,
+      "points": [
+        [
+          86.5000152587891,
+          76.5749969482422
+        ],
+        [
+          59.3250122070312,
+          106.205001831055
+        ],
+        [
+          54.2650146484375,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 53,
+      "kind": "presented",
+      "phase": 0.746478873239437,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.463861589465786,
+      "points": [
+        [
+          87.5000076293945,
+          75.5749969482422
+        ],
+        [
+          59.3249969482422,
+          106.205001831055
+        ],
+        [
+          54.2649993896484,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 54,
+      "kind": "presented",
+      "phase": 0.76056338028169,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.463861589465786,
+      "points": [
+        [
+          87.5000076293945,
+          75.5749969482422
+        ],
+        [
+          59.3249969482422,
+          106.205001831055
+        ],
+        [
+          54.2649993896484,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 55,
+      "kind": "presented",
+      "phase": 0.774647887323944,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.463861589465786,
+      "points": [
+        [
+          87.5000076293945,
+          75.5749969482422
+        ],
+        [
+          59.3249969482422,
+          106.205001831055
+        ],
+        [
+          54.2649993896484,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 56,
+      "kind": "presented",
+      "phase": 0.788732394366197,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.463861589465786,
+      "points": [
+        [
+          87.5000076293945,
+          75.5749969482422
+        ],
+        [
+          59.3249969482422,
+          106.205001831055
+        ],
+        [
+          54.2649993896484,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 57,
+      "kind": "presented",
+      "phase": 0.802816901408451,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.463861589465786,
+      "points": [
+        [
+          87.5000076293945,
+          75.5749969482422
+        ],
+        [
+          59.3249969482422,
+          106.205001831055
+        ],
+        [
+          54.2649993896484,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 58,
+      "kind": "presented",
+      "phase": 0.816901408450704,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -34.43397194256746,
+      "points": [
+        [
+          86.5000152587891,
+          75.5749969482422
+        ],
+        [
+          59.3250045776367,
+          106.205001831055
+        ],
+        [
+          54.265007019043,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 59,
+      "kind": "presented",
+      "phase": 0.830985915492958,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.37978254030161,
+      "points": [
+        [
+          86.5000152587891,
+          76.5749969482422
+        ],
+        [
+          59.3250122070312,
+          106.205001831055
+        ],
+        [
+          54.2650108337402,
+          146.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 60,
+      "kind": "presented",
+      "phase": 0.845070422535211,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -34.43396261845489,
+      "points": [
+        [
+          86.5,
+          76.5749969482422
+        ],
+        [
+          59.3249931335449,
+          107.205001831055
+        ],
+        [
+          54.2649917602539,
+          147.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 61,
+      "kind": "presented",
+      "phase": 0.859154929577465,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -30.594162654843664,
+      "points": [
+        [
+          86.5,
+          76.5749969482422
+        ],
+        [
+          60.3250007629395,
+          107.205009460449
+        ],
+        [
+          53.2649993896484,
+          147.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 62,
+      "kind": "presented",
+      "phase": 0.873239436619718,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -29.68749829056938,
+      "points": [
+        [
+          86.5,
+          76.5749969482422
+        ],
+        [
+          60.3249969482422,
+          108.205009460449
+        ],
+        [
+          53.2649955749512,
+          148.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 63,
+      "kind": "presented",
+      "phase": 0.887323943661972,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -27.482879805635957,
+      "points": [
+        [
+          85.4999923706055,
+          76.5749969482422
+        ],
+        [
+          60.3249816894531,
+          109.205001831055
+        ],
+        [
+          53.2649841308594,
+          148.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 64,
+      "kind": "presented",
+      "phase": 0.901408450704225,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -25.241228308903548,
+      "points": [
+        [
+          85.5,
+          76.5749969482422
+        ],
+        [
+          61.3250007629395,
+          109.205001831055
+        ],
+        [
+          53.2649993896484,
+          149.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 65,
+      "kind": "presented",
+      "phase": 0.915492957746479,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -21.92014410087976,
+      "points": [
+        [
+          85.5,
+          76.5749969482422
+        ],
+        [
+          62.3249931335449,
+          110.205001831055
+        ],
+        [
+          53.2649993896484,
+          150.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 66,
+      "kind": "presented",
+      "phase": 0.929577464788732,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -20.23500350372666,
+      "points": [
+        [
+          85.5,
+          77.5749969482422
+        ],
+        [
+          62.3249893188477,
+          111.205017089844
+        ],
+        [
+          52.2649917602539,
+          150.567535400391
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 67,
+      "kind": "presented",
+      "phase": 0.943661971830986,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -15.750091706916807,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          63.3249969482422,
+          112.205001831055
+        ],
+        [
+          52.2649993896484,
+          151.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 68,
+      "kind": "presented",
+      "phase": 0.957746478873239,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -12.068553884146384,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          64.3249969482422,
+          113.205009460449
+        ],
+        [
+          52.2649993896484,
+          151.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 69,
+      "kind": "presented",
+      "phase": 0.971830985915493,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -8.83063048681827,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          65.3249893188477,
+          114.20499420166
+        ],
+        [
+          52.2649917602539,
+          152.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 70,
+      "kind": "presented",
+      "phase": 0.985915492957746,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -3.6873258031878127,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          67.3249969482422,
+          114.205001831055
+        ],
+        [
+          52.2649993896484,
+          152.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 16,
+      "kind": "presented",
+      "phase": 0.390243902439024,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -20.151421052537277,
+      "points": [
+        [
+          81.5,
+          82.5749969482422
+        ],
+        [
+          60.3249969482422,
+          117.205001831055
+        ],
+        [
+          52.2649993896484,
+          157.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 17,
+      "kind": "presented",
+      "phase": 0.414634146341463,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -28.297640854992682,
+      "points": [
+        [
+          78.5,
+          84.5750122070312
+        ],
+        [
+          56.3249893188477,
+          119.205017089844
+        ],
+        [
+          53.2649955749512,
+          159.567520141602
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 18,
+      "kind": "presented",
+      "phase": 0.439024390243902,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -29.781921492452188,
+      "points": [
+        [
+          77.5,
+          85.5749969482422
+        ],
+        [
+          55.3249969482422,
+          120.20499420166
+        ],
+        [
+          53.2649993896484,
+          161.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 19,
+      "kind": "presented",
+      "phase": 0.463414634146341,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -30.548934825908354,
+      "points": [
+        [
+          77.5000076293945,
+          86.5749969482422
+        ],
+        [
+          55.325008392334,
+          120.205001831055
+        ],
+        [
+          53.265007019043,
+          161.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 20,
+      "kind": "presented",
+      "phase": 0.48780487804878,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -30.548934825908354,
+      "points": [
+        [
+          77.5000076293945,
+          86.5749969482422
+        ],
+        [
+          55.325008392334,
+          120.205001831055
+        ],
+        [
+          53.265007019043,
+          161.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 21,
+      "kind": "presented",
+      "phase": 0.51219512195122,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -30.548934825908354,
+      "points": [
+        [
+          77.5000076293945,
+          86.5749969482422
+        ],
+        [
+          55.325008392334,
+          120.205001831055
+        ],
+        [
+          53.265007019043,
+          161.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 22,
+      "kind": "presented",
+      "phase": 0.536585365853659,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -28.9751483888117,
+      "points": [
+        [
+          77.5,
+          85.5749969482422
+        ],
+        [
+          55.3250045776367,
+          121.20499420166
+        ],
+        [
+          53.265007019043,
+          161.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 23,
+      "kind": "presented",
+      "phase": 0.560975609756098,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -26.38765594182094,
+      "points": [
+        [
+          77.5,
+          85.5750045776367
+        ],
+        [
+          56.3250045776367,
+          121.205001831055
+        ],
+        [
+          53.265007019043,
+          161.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 24,
+      "kind": "presented",
+      "phase": 0.585365853658537,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -26.387661325951886,
+      "points": [
+        [
+          77.5,
+          85.5750045776367
+        ],
+        [
+          56.3250045776367,
+          121.205001831055
+        ],
+        [
+          53.2650108337402,
+          161.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 25,
+      "kind": "presented",
+      "phase": 0.609756097560976,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -23.776137460770048,
+      "points": [
+        [
+          77.5,
+          85.5750045776367
+        ],
+        [
+          57.3250045776367,
+          121.205009460449
+        ],
+        [
+          53.265007019043,
+          161.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 26,
+      "kind": "presented",
+      "phase": 0.634146341463415,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -23.776137460770048,
+      "points": [
+        [
+          77.5,
+          85.5750045776367
+        ],
+        [
+          57.3250045776367,
+          121.205009460449
+        ],
+        [
+          53.265007019043,
+          161.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 27,
+      "kind": "presented",
+      "phase": 0.658536585365854,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -24.979141279155,
+      "points": [
+        [
+          78.5,
+          85.5750045776367
+        ],
+        [
+          57.3250045776367,
+          121.205009460449
+        ],
+        [
+          53.2650032043457,
+          161.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 28,
+      "kind": "presented",
+      "phase": 0.682926829268293,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -22.37455524187116,
+      "points": [
+        [
+          78.5,
+          85.5750045776367
+        ],
+        [
+          58.3250045776367,
+          121.205017089844
+        ],
+        [
+          53.2650032043457,
+          161.567520141602
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 29,
+      "kind": "presented",
+      "phase": 0.707317073170732,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -22.37454991058152,
+      "points": [
+        [
+          78.5,
+          85.5750045776367
+        ],
+        [
+          58.3250045776367,
+          121.205017089844
+        ],
+        [
+          53.2649993896484,
+          161.567520141602
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 30,
+      "kind": "presented",
+      "phase": 0.731707317073171,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -22.374548573878062,
+      "points": [
+        [
+          78.5,
+          84.5750122070312
+        ],
+        [
+          58.3250045776367,
+          120.205024719238
+        ],
+        [
+          53.2649993896484,
+          160.567520141602
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 31,
+      "kind": "presented",
+      "phase": 0.75609756097561,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -20.981527175943384,
+      "points": [
+        [
+          79.5,
+          83.5749969482422
+        ],
+        [
+          59.3249969482422,
+          119.205009460449
+        ],
+        [
+          53.2649917602539,
+          159.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 32,
+      "kind": "presented",
+      "phase": 0.780487804878049,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -21.970950232732925,
+      "points": [
+        [
+          80.5,
+          83.5749969482422
+        ],
+        [
+          59.3249969482422,
+          119.205001831055
+        ],
+        [
+          53.2649993896484,
+          158.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 33,
+      "kind": "presented",
+      "phase": 0.804878048780488,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -19.35174660751145,
+      "points": [
+        [
+          80.5,
+          82.5749969482422
+        ],
+        [
+          60.3249969482422,
+          118.205009460449
+        ],
+        [
+          53.2649993896484,
+          157.567520141602
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 34,
+      "kind": "presented",
+      "phase": 0.829268292682927,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -16.55819655952979,
+      "points": [
+        [
+          81.5,
+          81.5749969482422
+        ],
+        [
+          61.3249969482422,
+          117.205001831055
+        ],
+        [
+          52.2649993896484,
+          156.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 35,
+      "kind": "presented",
+      "phase": 0.853658536585366,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -15.18374586000568,
+      "points": [
+        [
+          82.5,
+          80.5749969482422
+        ],
+        [
+          62.3249969482422,
+          116.205001831055
+        ],
+        [
+          52.2650032043457,
+          155.567520141602
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 36,
+      "kind": "presented",
+      "phase": 0.878048780487805,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -11.936884120835842,
+      "points": [
+        [
+          82.5,
+          79.5749969482422
+        ],
+        [
+          63.3249893188477,
+          116.205001831055
+        ],
+        [
+          52.2649917602539,
+          155.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 37,
+      "kind": "presented",
+      "phase": 0.902439024390244,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -11.253650090233059,
+      "points": [
+        [
+          83.5,
+          79.5749969482422
+        ],
+        [
+          64.3249893188477,
+          115.205001831055
+        ],
+        [
+          52.2649917602539,
+          154.567504882812
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 38,
+      "kind": "presented",
+      "phase": 0.926829268292683,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -7.58914776042885,
+      "points": [
+        [
+          83.5,
+          78.5749969482422
+        ],
+        [
+          65.3249969482422,
+          115.20499420166
+        ],
+        [
+          52.2649993896484,
+          153.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 39,
+      "kind": "presented",
+      "phase": 0.951219512195122,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -5.158202856047044,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          66.3250045776367,
+          115.20499420166
+        ],
+        [
+          52.265007019043,
+          152.567489624023
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 40,
+      "kind": "presented",
+      "phase": 0.975609756097561,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.5795263811579825,
+      "points": [
+        [
+          84.5,
+          77.5749969482422
+        ],
+        [
+          67.3249969482422,
+          115.205009460449
+        ],
+        [
+          52.2649993896484,
+          152.567520141602
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "kind": "presented",
+      "phase": 0.18,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -5.264502638112646,
+      "points": [
+        [
+          193.5,
+          75.1750030517578
+        ],
+        [
+          208.675003051758,
+          106.480010986328
+        ],
+        [
+          220.735015869141,
+          138.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 10,
+      "kind": "presented",
+      "phase": 0.2,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -3.764048103099071,
+      "points": [
+        [
+          196.5,
+          74.1750030517578
+        ],
+        [
+          210.675018310547,
+          105.480010986328
+        ],
+        [
+          222.73503112793,
+          137.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 11,
+      "kind": "presented",
+      "phase": 0.22,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.4896457324077286,
+      "points": [
+        [
+          198.5,
+          72.1750030517578
+        ],
+        [
+          212.675003051758,
+          104.480010986328
+        ],
+        [
+          224.735000610352,
+          135.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 12,
+      "kind": "presented",
+      "phase": 0.24,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.60460621668581,
+      "points": [
+        [
+          201.5,
+          71.1750030517578
+        ],
+        [
+          214.674987792969,
+          103.479995727539
+        ],
+        [
+          225.734985351562,
+          134.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 16,
+      "kind": "presented",
+      "phase": 0.32,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.227154024089488,
+      "points": [
+        [
+          211.5,
+          69.1750030517578
+        ],
+        [
+          224.675003051758,
+          100.480003356934
+        ],
+        [
+          236.734985351562,
+          132.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 17,
+      "kind": "presented",
+      "phase": 0.34,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -3.76407343348454,
+      "points": [
+        [
+          213.5,
+          67.1750030517578
+        ],
+        [
+          227.675003051758,
+          98.4800033569336
+        ],
+        [
+          239.734985351562,
+          130.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "kind": "presented",
+      "phase": 0.36,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -3.764059293898617,
+      "points": [
+        [
+          216.5,
+          64.1750030517578
+        ],
+        [
+          230.675003051758,
+          95.4799957275391
+        ],
+        [
+          242.735000610352,
+          127.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "kind": "presented",
+      "phase": 0.5,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.2451573113127883,
+      "points": [
+        [
+          233.5,
+          57.1750030517578
+        ],
+        [
+          249.675003051758,
+          87.4800109863281
+        ],
+        [
+          264.734954833984,
+          118.570014953613
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 30,
+      "kind": "presented",
+      "phase": 0.6,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.2157953865969637,
+      "points": [
+        [
+          245.5,
+          49.1750068664551
+        ],
+        [
+          259.674987792969,
+          80.4800033569336
+        ],
+        [
+          272.734985351562,
+          112.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 31,
+      "kind": "presented",
+      "phase": 0.62,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.227154171450488,
+      "points": [
+        [
+          248.5,
+          48.1750030517578
+        ],
+        [
+          261.674987792969,
+          79.4800033569336
+        ],
+        [
+          273.734954833984,
+          111.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 36,
+      "kind": "presented",
+      "phase": 0.72,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.227061472685762,
+      "points": [
+        [
+          260.5,
+          44.1749992370605
+        ],
+        [
+          273.674957275391,
+          75.4799957275391
+        ],
+        [
+          285.734954833984,
+          107.569999694824
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 37,
+      "kind": "presented",
+      "phase": 0.74,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.227067948139159,
+      "points": [
+        [
+          263.5,
+          42.1750030517578
+        ],
+        [
+          276.674957275391,
+          73.4800033569336
+        ],
+        [
+          288.734954833984,
+          105.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 40,
+      "kind": "presented",
+      "phase": 0.8,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.264894310111006,
+      "points": [
+        [
+          270.5,
+          37.1750068664551
+        ],
+        [
+          285.674987792969,
+          67.4800033569336
+        ],
+        [
+          299.734985351562,
+          98.5700073242188
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 1,
+      "kind": "presented",
+      "phase": 0.0140845070422535,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.953987145242319,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          187.674987792969,
+          113.480003356934
+        ],
+        [
+          202.734985351562,
+          143.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 2,
+      "kind": "presented",
+      "phase": 0.028169014084507,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -4.528097221091072,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          187.675018310547,
+          112.480003356934
+        ],
+        [
+          202.735000610352,
+          143.56999206543
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 3,
+      "kind": "presented",
+      "phase": 0.0422535211267606,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -7.473051185432395,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          188.674987792969,
+          112.480018615723
+        ],
+        [
+          202.734985351562,
+          143.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 4,
+      "kind": "presented",
+      "phase": 0.0563380281690141,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -11.969998939788162,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          189.674987792969,
+          111.480003356934
+        ],
+        [
+          202.734985351562,
+          143.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 5,
+      "kind": "presented",
+      "phase": 0.0704225352112676,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -11.329515278644893,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          189.674987792969,
+          111.480003356934
+        ],
+        [
+          202.734985351562,
+          142.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 6,
+      "kind": "presented",
+      "phase": 0.0845070422535211,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -15.862711545745224,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          190.675018310547,
+          110.479995727539
+        ],
+        [
+          202.735015869141,
+          142.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 7,
+      "kind": "presented",
+      "phase": 0.0985915492957746,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -15.862711545745224,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          190.675018310547,
+          110.479995727539
+        ],
+        [
+          202.735015869141,
+          142.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 8,
+      "kind": "presented",
+      "phase": 0.112676056338028,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -20.351709709626576,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          191.675018310547,
+          109.480010986328
+        ],
+        [
+          202.735015869141,
+          142.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 9,
+      "kind": "presented",
+      "phase": 0.126760563380282,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -19.816571461639032,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          191.674987792969,
+          109.479995727539
+        ],
+        [
+          202.734985351562,
+          141.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 10,
+      "kind": "presented",
+      "phase": 0.140845070422535,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -22.72487817679234,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          192.674987792969,
+          109.479995727539
+        ],
+        [
+          202.734985351562,
+          141.56999206543
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 11,
+      "kind": "presented",
+      "phase": 0.154929577464789,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -24.3181314658571,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          192.675018310547,
+          108.479995727539
+        ],
+        [
+          202.735015869141,
+          141.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 12,
+      "kind": "presented",
+      "phase": 0.169014084507042,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -29.5925306585027,
+      "points": [
+        [
+          169.500015258789,
+          83.1750030517578
+        ],
+        [
+          193.675033569336,
+          108.479995727539
+        ],
+        [
+          201.73503112793,
+          140.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 13,
+      "kind": "presented",
+      "phase": 0.183098591549296,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -31.157003720219084,
+      "points": [
+        [
+          169.500015258789,
+          83.1750030517578
+        ],
+        [
+          193.675048828125,
+          107.480010986328
+        ],
+        [
+          201.73503112793,
+          140.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 14,
+      "kind": "presented",
+      "phase": 0.197183098591549,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -31.156967556786714,
+      "points": [
+        [
+          169.500015258789,
+          83.1750030517578
+        ],
+        [
+          193.675018310547,
+          107.480010986328
+        ],
+        [
+          201.735000610352,
+          140.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 15,
+      "kind": "presented",
+      "phase": 0.211267605633803,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -32.36031745592938,
+      "points": [
+        [
+          169.500015258789,
+          83.1750030517578
+        ],
+        [
+          193.675018310547,
+          106.480010986328
+        ],
+        [
+          201.735015869141,
+          139.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 16,
+      "kind": "presented",
+      "phase": 0.225352112676056,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -33.963457515873245,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          194.675018310547,
+          106.479995727539
+        ],
+        [
+          201.735015869141,
+          139.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 17,
+      "kind": "presented",
+      "phase": 0.23943661971831,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -33.96343224543181,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          194.675018310547,
+          106.479995727539
+        ],
+        [
+          201.73503112793,
+          139.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 18,
+      "kind": "presented",
+      "phase": 0.253521126760563,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.50848865030144,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          194.675003051758,
+          105.479995727539
+        ],
+        [
+          201.735000610352,
+          139.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 19,
+      "kind": "presented",
+      "phase": 0.267605633802817,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.165098309655406,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          194.675003051758,
+          105.479995727539
+        ],
+        [
+          201.734985351562,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 20,
+      "kind": "presented",
+      "phase": 0.28169014084507,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.16509035134482,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          194.675018310547,
+          105.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 21,
+      "kind": "presented",
+      "phase": 0.295774647887324,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -37.94171447779639,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          105.479995727539
+        ],
+        [
+          201.735000610352,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 22,
+      "kind": "presented",
+      "phase": 0.309859154929577,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 23,
+      "kind": "presented",
+      "phase": 0.323943661971831,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 24,
+      "kind": "presented",
+      "phase": 0.338028169014085,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 25,
+      "kind": "presented",
+      "phase": 0.352112676056338,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 26,
+      "kind": "presented",
+      "phase": 0.366197183098592,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 27,
+      "kind": "presented",
+      "phase": 0.380281690140845,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 28,
+      "kind": "presented",
+      "phase": 0.394366197183099,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 29,
+      "kind": "presented",
+      "phase": 0.408450704225352,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 30,
+      "kind": "presented",
+      "phase": 0.422535211267606,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18611055040105,
+      "points": [
+        [
+          169.5,
+          82.1750106811523
+        ],
+        [
+          195.675018310547,
+          104.480010986328
+        ],
+        [
+          201.735015869141,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 31,
+      "kind": "presented",
+      "phase": 0.436619718309859,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18611055040105,
+      "points": [
+        [
+          169.5,
+          82.1750106811523
+        ],
+        [
+          195.675018310547,
+          104.480010986328
+        ],
+        [
+          201.735015869141,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 32,
+      "kind": "presented",
+      "phase": 0.450704225352113,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -41.92706498271134,
+      "points": [
+        [
+          169.5,
+          82.1750106811523
+        ],
+        [
+          196.675018310547,
+          104.480010986328
+        ],
+        [
+          201.735015869141,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 33,
+      "kind": "presented",
+      "phase": 0.464788732394366,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18607083891628,
+      "points": [
+        [
+          170.499984741211,
+          82.1750030517578
+        ],
+        [
+          196.674987792969,
+          104.480003356934
+        ],
+        [
+          202.735000610352,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 34,
+      "kind": "presented",
+      "phase": 0.47887323943662,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18607083891628,
+      "points": [
+        [
+          170.499984741211,
+          82.1750030517578
+        ],
+        [
+          196.674987792969,
+          104.480003356934
+        ],
+        [
+          202.735000610352,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 35,
+      "kind": "presented",
+      "phase": 0.492957746478873,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18607083891628,
+      "points": [
+        [
+          170.499984741211,
+          82.1750030517578
+        ],
+        [
+          196.674987792969,
+          104.480003356934
+        ],
+        [
+          202.735000610352,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 36,
+      "kind": "presented",
+      "phase": 0.507042253521127,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18607083891628,
+      "points": [
+        [
+          170.499984741211,
+          82.1750030517578
+        ],
+        [
+          196.674987792969,
+          104.480003356934
+        ],
+        [
+          202.735000610352,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 37,
+      "kind": "presented",
+      "phase": 0.52112676056338,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18611055040105,
+      "points": [
+        [
+          169.5,
+          82.1750106811523
+        ],
+        [
+          195.675018310547,
+          104.480010986328
+        ],
+        [
+          201.735015869141,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 38,
+      "kind": "presented",
+      "phase": 0.535211267605634,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 39,
+      "kind": "presented",
+      "phase": 0.549295774647887,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 40,
+      "kind": "presented",
+      "phase": 0.563380281690141,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 41,
+      "kind": "presented",
+      "phase": 0.577464788732394,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18611055040105,
+      "points": [
+        [
+          169.5,
+          82.1750106811523
+        ],
+        [
+          195.675018310547,
+          104.480010986328
+        ],
+        [
+          201.735015869141,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 42,
+      "kind": "presented",
+      "phase": 0.591549295774648,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18607083891628,
+      "points": [
+        [
+          170.499984741211,
+          82.1750030517578
+        ],
+        [
+          196.674987792969,
+          104.480003356934
+        ],
+        [
+          202.735000610352,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 43,
+      "kind": "presented",
+      "phase": 0.605633802816901,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18607083891628,
+      "points": [
+        [
+          170.499984741211,
+          82.1750030517578
+        ],
+        [
+          196.674987792969,
+          104.480003356934
+        ],
+        [
+          202.735000610352,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 44,
+      "kind": "presented",
+      "phase": 0.619718309859155,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18611055040105,
+      "points": [
+        [
+          169.5,
+          82.1750106811523
+        ],
+        [
+          195.675018310547,
+          104.480010986328
+        ],
+        [
+          201.735015869141,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 45,
+      "kind": "presented",
+      "phase": 0.633802816901408,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 46,
+      "kind": "presented",
+      "phase": 0.647887323943662,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 47,
+      "kind": "presented",
+      "phase": 0.661971830985915,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 48,
+      "kind": "presented",
+      "phase": 0.676056338028169,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18611055040105,
+      "points": [
+        [
+          169.5,
+          82.1750106811523
+        ],
+        [
+          195.675018310547,
+          104.480010986328
+        ],
+        [
+          201.735015869141,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 49,
+      "kind": "presented",
+      "phase": 0.690140845070423,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18607083891628,
+      "points": [
+        [
+          170.499984741211,
+          82.1750030517578
+        ],
+        [
+          196.674987792969,
+          104.480003356934
+        ],
+        [
+          202.735000610352,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 50,
+      "kind": "presented",
+      "phase": 0.704225352112676,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18607083891628,
+      "points": [
+        [
+          170.499984741211,
+          82.1750030517578
+        ],
+        [
+          196.674987792969,
+          104.480003356934
+        ],
+        [
+          202.735000610352,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 51,
+      "kind": "presented",
+      "phase": 0.71830985915493,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.18611055040105,
+      "points": [
+        [
+          169.5,
+          82.1750106811523
+        ],
+        [
+          195.675018310547,
+          104.480010986328
+        ],
+        [
+          201.735015869141,
+          137.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 52,
+      "kind": "presented",
+      "phase": 0.732394366197183,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 53,
+      "kind": "presented",
+      "phase": 0.746478873239437,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 54,
+      "kind": "presented",
+      "phase": 0.76056338028169,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 55,
+      "kind": "presented",
+      "phase": 0.774647887323944,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 56,
+      "kind": "presented",
+      "phase": 0.788732394366197,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 57,
+      "kind": "presented",
+      "phase": 0.802816901408451,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 58,
+      "kind": "presented",
+      "phase": 0.816901408450704,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -39.48421929625122,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          104.479995727539
+        ],
+        [
+          201.735015869141,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 59,
+      "kind": "presented",
+      "phase": 0.830985915492958,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -37.94171447779639,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          195.675018310547,
+          105.479995727539
+        ],
+        [
+          201.735000610352,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 60,
+      "kind": "presented",
+      "phase": 0.845070422535211,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -35.165098309655406,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          194.675003051758,
+          105.479995727539
+        ],
+        [
+          201.734985351562,
+          138.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 61,
+      "kind": "presented",
+      "phase": 0.859154929577465,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -33.96338585652181,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          194.674987792969,
+          106.480003356934
+        ],
+        [
+          201.735000610352,
+          139.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 62,
+      "kind": "presented",
+      "phase": 0.873239436619718,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -33.963457515873245,
+      "points": [
+        [
+          169.5,
+          82.1750030517578
+        ],
+        [
+          194.675018310547,
+          106.479995727539
+        ],
+        [
+          201.735015869141,
+          139.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 63,
+      "kind": "presented",
+      "phase": 0.887323943661972,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -31.156967556786714,
+      "points": [
+        [
+          169.500015258789,
+          83.1750030517578
+        ],
+        [
+          193.675018310547,
+          107.480010986328
+        ],
+        [
+          201.735000610352,
+          140.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 64,
+      "kind": "presented",
+      "phase": 0.901408450704225,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -29.592556285908703,
+      "points": [
+        [
+          169.500015258789,
+          83.1750030517578
+        ],
+        [
+          193.675033569336,
+          108.479995727539
+        ],
+        [
+          201.735015869141,
+          140.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 65,
+      "kind": "presented",
+      "phase": 0.915492957746479,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -24.3181314658571,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          192.675018310547,
+          108.479995727539
+        ],
+        [
+          202.735015869141,
+          141.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 66,
+      "kind": "presented",
+      "phase": 0.929577464788732,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -19.816595562031008,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          191.675018310547,
+          109.480010986328
+        ],
+        [
+          202.735015869141,
+          141.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 67,
+      "kind": "presented",
+      "phase": 0.943661971830986,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -15.862711545745224,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          190.675018310547,
+          110.479995727539
+        ],
+        [
+          202.735015869141,
+          142.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 68,
+      "kind": "presented",
+      "phase": 0.957746478873239,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -11.329559771817825,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          189.675018310547,
+          111.479995727539
+        ],
+        [
+          202.735015869141,
+          142.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 69,
+      "kind": "presented",
+      "phase": 0.971830985915493,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -7.473051185432395,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          188.674987792969,
+          112.480018615723
+        ],
+        [
+          202.734985351562,
+          143.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 70,
+      "kind": "presented",
+      "phase": 0.985915492957746,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -4.528097221091072,
+      "points": [
+        [
+          170.5,
+          83.1750030517578
+        ],
+        [
+          187.675018310547,
+          112.480003356934
+        ],
+        [
+          202.735000610352,
+          143.56999206543
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 17,
+      "kind": "presented",
+      "phase": 0.414634146341463,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -3.764025688659444,
+      "points": [
+        [
+          174.5,
+          86.1750030517578
+        ],
+        [
+          188.675003051758,
+          117.480003356934
+        ],
+        [
+          200.735015869141,
+          149.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 24,
+      "kind": "presented",
+      "phase": 0.585365853658537,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.2270968009651115,
+      "points": [
+        [
+          175.5,
+          87.1750030517578
+        ],
+        [
+          188.675003051758,
+          118.480010986328
+        ],
+        [
+          200.735015869141,
+          150.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 25,
+      "kind": "presented",
+      "phase": 0.609756097560976,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.2270968009651115,
+      "points": [
+        [
+          175.5,
+          87.1750030517578
+        ],
+        [
+          188.675003051758,
+          118.480010986328
+        ],
+        [
+          200.735015869141,
+          150.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 26,
+      "kind": "presented",
+      "phase": 0.634146341463415,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.2271017934206925,
+      "points": [
+        [
+          175.5,
+          87.1750106811523
+        ],
+        [
+          188.675003051758,
+          118.480010986328
+        ],
+        [
+          200.735015869141,
+          150.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 27,
+      "kind": "presented",
+      "phase": 0.658536585365854,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.2271017934206925,
+      "points": [
+        [
+          175.5,
+          87.1750106811523
+        ],
+        [
+          188.675003051758,
+          118.480010986328
+        ],
+        [
+          200.735015869141,
+          150.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 29,
+      "kind": "presented",
+      "phase": 0.707317073170732,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.2157925658825812,
+      "points": [
+        [
+          174.5,
+          86.1750030517578
+        ],
+        [
+          188.675003051758,
+          117.480003356934
+        ],
+        [
+          201.735015869141,
+          149.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 30,
+      "kind": "presented",
+      "phase": 0.731707317073171,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.215779393414442,
+      "points": [
+        [
+          174.5,
+          86.1750030517578
+        ],
+        [
+          188.674987792969,
+          117.479995727539
+        ],
+        [
+          201.735000610352,
+          149.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 32,
+      "kind": "presented",
+      "phase": 0.780487804878049,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -4.453706378396704,
+      "points": [
+        [
+          173.5,
+          86.1749954223633
+        ],
+        [
+          188.675003051758,
+          116.479995727539
+        ],
+        [
+          201.735015869141,
+          148.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 33,
+      "kind": "presented",
+      "phase": 0.804878048780488,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -3.0757758181969814,
+      "points": [
+        [
+          173.5,
+          85.1750030517578
+        ],
+        [
+          188.675003051758,
+          116.480010986328
+        ],
+        [
+          201.735015869141,
+          147.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 34,
+      "kind": "presented",
+      "phase": 0.829268292682927,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.264913711569926,
+      "points": [
+        [
+          172.5,
+          85.1750030517578
+        ],
+        [
+          187.675018310547,
+          115.480010986328
+        ],
+        [
+          201.73503112793,
+          146.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 36,
+      "kind": "presented",
+      "phase": 0.878048780487805,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -3.756487231921092,
+      "points": [
+        [
+          171.5,
+          84.1749954223633
+        ],
+        [
+          187.675003051758,
+          114.479995727539
+        ],
+        [
+          201.734985351562,
+          145.569976806641
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 38,
+      "kind": "presented",
+      "phase": 0.926829268292683,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.245083941957626,
+      "points": [
+        [
+          171.5,
+          83.1750030517578
+        ],
+        [
+          187.675003051758,
+          113.480003356934
+        ],
+        [
+          202.735000610352,
+          144.56999206543
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 11,
+      "kind": "presented",
+      "phase": 0.379310344827586,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.255509034521849,
+      "points": [
+        [
+          168.5,
+          83.1749954223633
+        ],
+        [
+          186.675003051758,
+          112.479995727539
+        ],
+        [
+          203.735000610352,
+          142.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 6,
+      "kind": "presented",
+      "phase": 0.0674157303370786,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.2832988040321966,
+      "points": [
+        [
+          170.5,
+          81.1750030517578
+        ],
+        [
+          187.674987792969,
+          110.480003356934
+        ],
+        [
+          203.735000610352,
+          140.570007324219
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 7,
+      "kind": "presented",
+      "phase": 0.0786516853932584,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.2554717346033,
+      "points": [
+        [
+          169.5,
+          80.1750030517578
+        ],
+        [
+          187.674987792969,
+          109.480003356934
+        ],
+        [
+          204.735000610352,
+          139.570022583008
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 56,
+      "kind": "presented",
+      "phase": 0.629213483146067,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.1713215695359924,
+      "points": [
+        [
+          177.5,
+          105.175003051758
+        ],
+        [
+          188.675003051758,
+          137.480010986328
+        ],
+        [
+          198.735000610352,
+          170.56999206543
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 65,
+      "kind": "presented",
+      "phase": 0.730337078651685,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.0777535706439383,
+      "points": [
+        [
+          178.499984741211,
+          113.175003051758
+        ],
+        [
+          185.674987792969,
+          146.480010986328
+        ],
+        [
+          191.734970092773,
+          180.570007324219
+        ]
+      ],
+      "passed": false
+    }
+  ],
+  "witnesses": [
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 15,
+      "kind": "presented",
+      "phase": 0.3,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -31.93213441283135,
+      "points": [
+        [
+          44.5000038146973,
+          102.574996948242
+        ],
+        [
+          22.3250064849854,
+          136.204986572266
+        ],
+        [
+          21.2650146484375,
+          177.567504882812
+        ]
+      ],
+      "passed": false,
+      "crop": "thrall_front_move_015_cpu_4x.webp",
+      "sha256": "ce0857b17e086f8720613c9e89328e711e6c14fcdf418355770a9bfbcd9dde2b"
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 30,
+      "kind": "presented",
+      "phase": 0.422535211267606,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -36.41257494617626,
+      "points": [
+        [
+          86.5000076293945,
+          76.5749969482422
+        ],
+        [
+          58.3250045776367,
+          106.205001831055
+        ],
+        [
+          53.2650032043457,
+          146.567504882812
+        ]
+      ],
+      "passed": false,
+      "crop": "thrall_front_tether_030_cpu_4x.webp",
+      "sha256": "4b024d2b20c78abf387b0f0b8559ffd632cc5369290ccaba91f43647564ae47e"
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 19,
+      "kind": "presented",
+      "phase": 0.463414634146341,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -30.548934825908354,
+      "points": [
+        [
+          77.5000076293945,
+          86.5749969482422
+        ],
+        [
+          55.325008392334,
+          120.205001831055
+        ],
+        [
+          53.265007019043,
+          161.567504882812
+        ]
+      ],
+      "passed": false,
+      "crop": "thrall_front_jab_019_cpu_4x.webp",
+      "sha256": "e4ad65b123238a73bb5e03e70856303e099a0964413e142fbdaa62f67cfce350"
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "kind": "presented",
+      "phase": 0.18,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -5.264502638112646,
+      "points": [
+        [
+          193.5,
+          75.1750030517578
+        ],
+        [
+          208.675003051758,
+          106.480010986328
+        ],
+        [
+          220.735015869141,
+          138.570022583008
+        ]
+      ],
+      "passed": false,
+      "crop": "thrall_rear_move_009_cpu_4x.webp",
+      "sha256": "46a401cb72ac82f30f1a4c574a031d95b98b42384ed3ee29405c92a52d703752"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 32,
+      "kind": "presented",
+      "phase": 0.450704225352113,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -41.92706498271134,
+      "points": [
+        [
+          169.5,
+          82.1750106811523
+        ],
+        [
+          196.675018310547,
+          104.480010986328
+        ],
+        [
+          201.735015869141,
+          137.570007324219
+        ]
+      ],
+      "passed": false,
+      "crop": "thrall_rear_tether_032_cpu_4x.webp",
+      "sha256": "56d0fdecdc13e3d2e7511fa804dde9fdcaf2683d56bdd85ef0c1db9bbd774bd5"
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 32,
+      "kind": "presented",
+      "phase": 0.780487804878049,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -4.453706378396704,
+      "points": [
+        [
+          173.5,
+          86.1749954223633
+        ],
+        [
+          188.675003051758,
+          116.479995727539
+        ],
+        [
+          201.735015869141,
+          148.570007324219
+        ]
+      ],
+      "passed": false,
+      "crop": "thrall_rear_jab_032_cpu_4x.webp",
+      "sha256": "35d064c8128a71a0b887c6f6b03550003267da7121c542553d52065018e829e7"
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 11,
+      "kind": "presented",
+      "phase": 0.379310344827586,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.255509034521849,
+      "points": [
+        [
+          168.5,
+          83.1749954223633
+        ],
+        [
+          186.675003051758,
+          112.479995727539
+        ],
+        [
+          203.735000610352,
+          142.570007324219
+        ]
+      ],
+      "passed": false,
+      "crop": "thrall_rear_hit_011_cpu_4x.webp",
+      "sha256": "40c9fa424f4a452f2e8359baf8c55e384fd0b7ba94454504661beb88d5500319"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 6,
+      "kind": "presented",
+      "phase": 0.0674157303370786,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.2832988040321966,
+      "points": [
+        [
+          170.5,
+          81.1750030517578
+        ],
+        [
+          187.674987792969,
+          110.480003356934
+        ],
+        [
+          203.735000610352,
+          140.570007324219
+        ]
+      ],
+      "passed": false,
+      "crop": "thrall_rear_death_006_cpu_4x.webp",
+      "sha256": "801ad025470787dd502215bd7307cf25d8f5730cedb5b3523ab8d00de5cf4dc4"
+    }
+  ],
+  "unchanged_files": {
+    "experiments/cutouts/arc_thrall/rr11/compiled_motion.json": "7f85847a7dfcfda9047eae2ba075374b315c3756b047e9551b99275080b7df5e",
+    "experiments/cutouts/arc_thrall/rr11/layouts/front.json": "06da40b875b4ff2044b779c6789c901709f80d0c144746097ce7e0861922f092",
+    "experiments/cutouts/arc_thrall/rr11/layouts/rear.json": "48f32a54c3b8939dbee0b1576275da01bafc470d2d79b765e8ad21dbeeaef241"
+  }
+}

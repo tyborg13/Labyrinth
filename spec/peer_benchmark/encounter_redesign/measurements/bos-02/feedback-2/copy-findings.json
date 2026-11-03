@@ -1,0 +1,11 @@
+{
+  "resolved": [
+    "TODO_DESIGN_HOLLOW_GALE_GLOSSARY_COPY"
+  ],
+  "remaining_todo_design": [],
+  "id": "gale_force",
+  "verbatim": "Strikes everywhere within 2 tiles of Vaeloryx and Pushes struck actors 1 tile.",
+  "registry_new_words": 14,
+  "decision": "bos-02 director feedback 2",
+  "grimoire_unchanged": true
+}

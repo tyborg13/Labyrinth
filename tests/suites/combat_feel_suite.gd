@@ -1,5 +1,6 @@
 extends RefCounted
 
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const HitStop = preload("res://scripts/combat_hit_stop.gd")
 const Pacing = preload("res://scripts/combat_pacing.gd")
 const Settings = preload("res://scripts/settings_store.gd")
@@ -10,7 +11,6 @@ const Regressions = preload("res://tests/suites/combat_pacing_regression_suite.g
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const PROOF_DIR: String = "res://output/feel-01"
 const REAL_WAIT_TOLERANCE_MS: int = 80
-const REAL_WAIT_TIMEOUT_MS: int = 2000
 const HEAVY_INTEGRATION_DAMAGE: int = 12
 const HEAVY_OBSERVATION_MS: int = 125
 const CARD_RESOLUTION_TIMEOUT_MS: int = 6000
@@ -42,9 +42,12 @@ class FixtureOwner:
 	var render_count: int = 0
 	var rendered_presentation: Dictionary = {}
 	var planning: Dictionary = {"planning": true}
+	func _surface_events_between(_before: Dictionary, _after: Dictionary) -> Array: return []
+	func _play_outcome_sounds(_events: Array) -> void: pass
+	func _reduced_motion_enabled() -> bool: return false
 	func _controller_modal_visible() -> bool:
 		return modal
-	func _render_board_state(state: Dictionary, presentation: Dictionary, _stable: bool) -> void:
+	func _render_board_state(state: Dictionary, presentation: Dictionary, _stable: bool = false) -> void:
 		rendered = state
 		render_count += 1
 		if pacing != null: pacing.decorate(state, presentation)
@@ -55,11 +58,17 @@ class FixtureOwner:
 		return state.get(key, {}) as Dictionary
 
 static func run(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _run_scoped(scope, tree, expect)
+	)
+
+static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	_test_tables(expect)
 	_test_merge_and_restore(expect)
 	_test_settings(expect)
 	FloatingSuite.run(expect)
 	await _test_real_stop(tree, expect)
+	_test_feedback_lifetimes(tree, expect)
 	_test_late_stop_peak(tree, expect)
 	await _test_scope_less_stop(tree, expect)
 	await _test_overlay_refresh(tree, expect)
@@ -92,6 +101,11 @@ static func _test_tables(expect: Callable) -> void:
 	print("COMBAT FEEL TABLES: duration/shake/block/kill/hero/reduced/flash checked")
 
 static func _test_merge_and_restore(expect: Callable) -> void:
+	await TestClock.run_scoped(null, func(scope: TestClock.GlobalScope) -> void:
+		await _test_merge_and_restore_scoped(scope, expect)
+	)
+
+static func _test_merge_and_restore_scoped(_globals: TestClock.GlobalScope, expect: Callable) -> void:
 	var stop: Node = HitStop.new()
 	Engine.time_scale = 0.5
 	stop.request(1,false,false,false,true,1000000)
@@ -138,20 +152,74 @@ static func _test_settings(expect: Callable) -> void:
 	print("COMBAT FEEL SETTINGS: Normal=1/Fast=1.5/Fastest=2 persistence checked")
 
 static func _test_real_stop(tree: SceneTree, expect: Callable) -> void:
-	var stop: Node = HitStop.new()
+	# Standalone programs call run() in _initialize(), before root enters.
+	# Clock injection removed the old timer await. Retain the lifecycle boundary:
+	# free() must exercise the real _exit_tree cancellation, and later checks
+	# require a live tree for same-frame overlay submissions.
+	if not tree.root.is_inside_tree(): await tree.process_frame
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _test_real_stop_scoped(scope, tree, expect)
+	)
+
+static func _test_real_stop_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
+	var stop: Node = TestClock.clocked_script(HitStop).new()
 	tree.root.add_child(stop)
-	var started: int = Time.get_ticks_msec()
-	stop.request(12,false,true)
-	while stop.active and Time.get_ticks_msec() - started < REAL_WAIT_TIMEOUT_MS:
-		await tree.process_frame
-	var elapsed: int = Time.get_ticks_msec() - started
-	expect.call(not stop.active and elapsed >= 130 and elapsed <= 130+REAL_WAIT_TOLERANCE_MS, "Stop lasts 130 real ms at a zero Engine scale")
-	stop.request(12)
+	const FIXTURE_START_USEC: int = 1000000
+	stop.set_process(false)
+	stop.request(12,false,true,false,true,FIXTURE_START_USEC)
+	expect.call(stop.duration_usec == 130000 and stop.active and Engine.time_scale == 0.0, "Stop schedules 130 ms at a zero Engine scale")
+	TestClock.now_usec = FIXTURE_START_USEC + 129999
+	stop._process(0.129999)
+	expect.call(stop.active and Engine.time_scale == 0.0, "Stop retains the freeze until the complete 130 ms")
+	TestClock.now_usec = FIXTURE_START_USEC + 130000
+	stop._process(0.000001)
+	expect.call(not stop.active and Engine.time_scale == 1.0, "Stop ends at 130 ms on its injected clock")
+	stop.request(12,false,false,false,true,FIXTURE_START_USEC + 200000)
 	stop.free()
 	expect.call(Engine.time_scale == 1.0, "Scene exit during a stop restores time")
-	print("COMBAT FEEL REAL STOP: observed=%dms expected=130ms restored=%s" % [elapsed,Engine.time_scale])
+	print("COMBAT FEEL REAL STOP: injected=130ms expected=130ms restored=%s" % Engine.time_scale)
+
+static func _test_feedback_lifetimes(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _test_feedback_lifetimes_scoped(scope, tree, expect)
+	)
+
+static func _test_feedback_lifetimes_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
+	var owner := FixtureOwner.new()
+	tree.root.add_child(owner)
+	TestClock.now_usec = TestClock.FIXTURE_START_USEC
+	var pacing: Node = TestClock.clocked_script(Pacing).new()
+	pacing.install(owner)
+	pacing.set_process(false)
+	owner.pacing = pacing
+	pacing.begin_enemies()
+	var started: int = TestClock.now_usec
+	var events: Array = [{"kind":"surface_created","surface":"ice","tile":Vector2i(3,4)}]
+	expect.call(pacing.overlap_surface({}, {}, {"surface_feedback_events":events}), "Surface lifetime fixture starts actual overlapping feedback")
+	TestClock.now_usec = started + 359999
+	owner._render_board_state({}, {}, true)
+	expect.call(not pacing.get("_surfaces").is_empty() and not owner.rendered_presentation.get("surface_feedback_events", []).is_empty(), "Surface feedback remains visible until the full 360 ms")
+	TestClock.now_usec = started + 400000
+	owner._render_board_state({}, {}, true)
+	expect.call(pacing.get("_surfaces").is_empty(), "Surface feedback ends by the existing 400 ms sample")
+	var popup: Dictionary = FloatingText.damage_entry(Vector2i(3,4), "-3", Color.WHITE)
+	owner._render_board_state({}, {"floating_texts":FloatingText.animate_entries([popup],0.0,false)}, true)
+	started = TestClock.now_usec
+	TestClock.now_usec = started + 479999
+	owner._render_board_state({}, {}, true)
+	expect.call(not pacing.get("_popups").is_empty(), "Damage numbers remain until the full 480 ms")
+	TestClock.now_usec = started + (HEAVY_OBSERVATION_MS + 500) * 1000
+	owner._render_board_state({}, {}, true)
+	expect.call(pacing.get("_popups").is_empty(), "Damage numbers end by the existing post-hit retirement sample")
+	pacing.end_scope()
+	owner.free()
 
 static func _test_late_stop_peak(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _test_late_stop_peak_scoped(scope, tree, expect)
+	)
+
+static func _test_late_stop_peak_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	var owner := FixtureOwner.new()
 	tree.root.add_child(owner)
 	var pacing: Node = Pacing.new()
@@ -182,15 +250,19 @@ static func _test_late_stop_peak(tree: SceneTree, expect: Callable) -> void:
 	print("COMBAT FEEL LATE STOP PEAK: native-order release/overlay guard/modal cancellation checked")
 
 static func _test_scope_less_stop(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _test_scope_less_stop_scoped(scope, tree, expect)
+	)
+
+static func _test_scope_less_stop_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	var owner := FixtureOwner.new()
 	tree.root.add_child(owner)
-	var pacing: Node = Pacing.new()
-	pacing.install(owner)
+	var pacing: Node = TestClock.install_pacing(owner, Pacing)
 	owner._settings["combat_speed"] = "fastest"
 	pacing.hit_stop.request(12, false, true)
 	expect.call(pacing.hit_stop.active and Engine.time_scale == 0.0, "Scope-less hit-stop starts at zero")
 	pacing.begin_card()
-	await _wait_real(tree, HEAVY_OBSERVATION_MS + REAL_WAIT_TOLERANCE_MS)
+	await _wait_injected(tree, HEAVY_OBSERVATION_MS + REAL_WAIT_TOLERANCE_MS)
 	expect.call(not pacing.hit_stop.active and Engine.time_scale == 2.0, "Card begun inside scope-less stop restores selected combat speed")
 	pacing.end_scope()
 	expect.call(Engine.time_scale == 1.0, "Scope-less stop/card overlap ends at 1.0")
@@ -206,10 +278,14 @@ static func _test_scope_less_stop(tree: SceneTree, expect: Callable) -> void:
 	Engine.time_scale = 1.0
 
 static func _test_overlay_refresh(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _test_overlay_refresh_scoped(scope, tree, expect)
+	)
+
+static func _test_overlay_refresh_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	var owner := FixtureOwner.new()
 	tree.root.add_child(owner)
-	var pacing: Node = Pacing.new()
-	pacing.install(owner)
+	var pacing: Node = TestClock.install_pacing(owner, Pacing)
 	owner.pacing = pacing
 	pacing.begin_enemies()
 	var shown: Dictionary = {"animation": true}
@@ -222,16 +298,20 @@ static func _test_overlay_refresh(tree: SceneTree, expect: Callable) -> void:
 	expect.call(owner.render_count == renders, "Overlay refresh skips a frame already submitted by the scene")
 	await pacing.finish_enemies()
 	owner._refresh_stage_view()
-	await _wait_real(tree, int(FloatingText.ANIMATION_DURATION_SECONDS * 1000.0) + REAL_WAIT_TOLERANCE_MS)
+	await _wait_injected(tree, int(FloatingText.ANIMATION_DURATION_SECONDS * 1000.0) + REAL_WAIT_TOLERANCE_MS)
 	expect.call(owner.rendered == owner.planning, "Finished enemy overlays cannot overwrite or retain an animation over planning")
 	expect.call((pacing.get("_popups") as Dictionary).is_empty(), "Scope end clears retained overlays")
 	owner.free()
 
 static func _test_scopes(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _test_scopes_scoped(scope, tree, expect)
+	)
+
+static func _test_scopes_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	var owner: Node = FixtureOwner.new()
 	tree.root.add_child(owner)
-	var pacing: Node = Pacing.new()
-	pacing.install(owner)
+	var pacing: Node = TestClock.install_pacing(owner, Pacing)
 	var caption: String = "Tunnel Crawler: Skitter Strike"
 	owner._settings["combat_speed"] = "fast"
 	pacing.begin_enemies()
@@ -242,12 +322,14 @@ static func _test_scopes(tree: SceneTree, expect: Callable) -> void:
 	expect.call(pacing.caption_text("SURVIVE: REINFORCEMENTS") == "SURVIVE: REINFORCEMENTS","Global feedback keeps its own existing copy")
 	var start: int = pacing.presentation_usec()
 	pacing.hit_stop.request(12)
-	await _wait_real(tree,120)
+	# Wait on the same injected unscaled clock as hit-stop's _process. A wall
+	# timer can resume before that process callback when CI is under load.
+	await _wait_injected(tree,120)
 	expect.call(not pacing.hit_stop.active and Engine.time_scale == 1.5, "Hit-stop restores Fast")
 	expect.call(pacing.presentation_usec()-start < 45000, "The presentation clock freezes during a stop")
 	owner._settings["combat_speed"] = "fastest"
 	pacing.hit_stop.request(12)
-	await _wait_real(tree,135)
+	await _wait_injected(tree,135)
 	expect.call(Engine.time_scale == 2.0, "A changed setting during stop restores the current speed")
 	owner.modal = true
 	await tree.process_frame
@@ -304,6 +386,7 @@ static func _test_run_scene(tree: SceneTree, expect: Callable) -> void:
 	tree.root.add_child(instance)
 	await tree.process_frame
 	MotionSuite._install_fixture(instance,false)
+	instance.call("_sync_combat_state_from_run") # Initialize the same additive save fields as a live load.
 	var settings: Dictionary = instance.get("_settings") as Dictionary
 	settings["combat_speed"] = "fastest"
 	var before: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
@@ -338,13 +421,13 @@ static func _test_run_scene(tree: SceneTree, expect: Callable) -> void:
 	instance.call("_render_board_state",damaged,{"impact_actor_keys":["enemy_1"],"floating_texts":preload("res://scripts/floating_combat_text.gd").animate_entries([popup],0.0,false)})
 	expect.call(pacing.hit_stop.active,"Floating damage spawns trigger the owned hit-stop")
 	expect.call(float((instance.get("board_view") as Node).call("_unit_impact_strength",{"key":"enemy_1"})) == 0.0,"White flash remains absent during freeze")
-	await _wait_real(tree,HEAVY_OBSERVATION_MS)
+	await _wait_presentation(tree,pacing,HEAVY_OBSERVATION_MS)
 	expect.call(is_equal_approx(float(observed_peak["opacity"]),0.85),"The first submitted frame after stop has 85% enemy white flash")
 	expect.call(Engine.time_scale == 1.0,"Production stop restores Normal")
 	# Retained popups keep the library base and expire across actor hand-offs.
 	var retained: Dictionary = (pacing.get("_popups") as Dictionary).values()[0]
 	expect.call(int((retained["entry"] as Dictionary)["font_size"]) == preload("res://scripts/floating_combat_text.gd").DAMAGE_BASE_FONT_SIZE,"Retained numbers do not reanimate the already peak-sized glyph")
-	await _wait_real(tree,500)
+	await _wait_presentation(tree,pacing,500)
 	expect.call((pacing.get("_popups") as Dictionary).is_empty(),"Damage numbers retire at their original lifetime")
 	pacing.begin_enemies()
 	var ground_before: Dictionary = damaged.duplicate(true)
@@ -355,13 +438,17 @@ static func _test_run_scene(tree: SceneTree, expect: Callable) -> void:
 	expect.call(ground_shown.get("surfaces",{}) == ground_after.get("surfaces",{}),"Overlapping ground is committed on its first displayed frame")
 	expect.call(not pacing._surface_dependency({"to":Vector2i(5,4)}),"An unrelated next actor need not wait for a surface spawn")
 	expect.call(pacing._surface_dependency({"to":Vector2i(3,4)}),"A target on the spawning surface retains its dependency")
-	await _wait_real(tree,400)
+	await _wait_presentation(tree,pacing,400)
 	expect.call((pacing.get("_surfaces") as Array).is_empty(),"Normal ground keeps its existing 0.36 s duration")
 	var lethal: Dictionary = ground_after.duplicate(true)
 	(lethal["enemies"] as Array)[0]["hp"] = 0
+	instance.call("_render_board_state",lethal,instance.call("_death_hold_presentation",ground_after,lethal,{}))
 	expect.call(pacing.overlap_defeats(ground_after,lethal,true),"Enemy death dissolve overlaps the next pre-action")
 	expect.call(not pacing._death_dependency({"actor_key":"enemy_2","to":Vector2i(2,4)}),"An independent actor does not wait for a dissolve")
 	expect.call(pacing._death_dependency({"actor_key":"enemy_1"}),"The dying actor retains its dissolve dependency")
+	await _wait_presentation(tree,pacing,200)
+	var dissolving: Array = ((instance.get("board_view") as Node).get("presentation") as Dictionary).get("death_animation_units",[])
+	expect.call(dissolving.size() == 1 and float(dissolving[0]["death_progress"]) > 0.0,"The dissolve replaces the body held at the hit, so it never stands to the end")
 	await pacing.finish_enemies()
 	pacing.end_scope()
 	instance.set("_animation_lock",false)
@@ -408,7 +495,10 @@ static func _test_run_scene(tree: SceneTree, expect: Callable) -> void:
 	await tree.process_frame
 	print("COMBAT FEEL INTEGRATION: committed card/state/RNG/settings row checked")
 
-static func _wait_real(tree: SceneTree, milliseconds: int) -> void:
-	var deadline: int = Time.get_ticks_msec()+milliseconds
-	while Time.get_ticks_msec()<deadline:
-		await tree.process_frame
+static func _wait_presentation(tree: SceneTree, pacing: Node, milliseconds: int) -> void:
+	var deadline: int = pacing.presentation_usec() + milliseconds * 1000
+	while pacing.presentation_usec() < deadline: await tree.process_frame
+
+static func _wait_injected(tree: SceneTree, milliseconds: int) -> void:
+	var deadline: int = TestClock.now_usec + milliseconds * 1000
+	while TestClock.now_usec < deadline: await tree.process_frame

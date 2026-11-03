@@ -1,6 +1,8 @@
 extends RefCounted
 class_name AssetLoader
 
+const CelLook = preload("res://scripts/cel_look.gd")
+
 const TEXTURE_EXTENSIONS: PackedStringArray = ["svg", "png", "webp", "jpg"]
 const PNG_FIRST_TEXTURE_EXTENSIONS: PackedStringArray = ["png", "svg", "webp", "jpg"]
 const AUDIO_EXTENSIONS: PackedStringArray = ["wav", "ogg"]
@@ -69,7 +71,7 @@ static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame
 	for path: String in manifest:
 		if _texture_cache.has(path): continue
 		var source_first: bool = bool(manifest[path])
-		if FileAccess.file_exists(path) and (source_first or _should_prefer_source_file(path, TEXTURE_EXTENSIONS) or not ResourceLoader.exists(path)):
+		if FileAccess.file_exists(path) and (source_first or (CelLook.mode != "off" and not CelLook.variant_path(path).is_empty()) or _should_prefer_source_file(path, TEXTURE_EXTENSIONS) or not ResourceLoader.exists(path)):
 			source_paths[path] = drain.result.paths.size()
 			drain.result.paths.append(path)
 	if not drain.result.paths.is_empty():
@@ -198,7 +200,7 @@ static func load_texture(path: String) -> Texture2D:
 		return null
 	if _texture_cache.has(path):
 		return _tag_texture_source(_texture_cache.get(path, null) as Texture2D, path)
-	if _should_prefer_source_file(path, TEXTURE_EXTENSIONS):
+	if (CelLook.mode != "off" and not CelLook.variant_path(path).is_empty()) or _should_prefer_source_file(path, TEXTURE_EXTENSIONS):
 		var source_texture: Texture2D = _load_texture_from_file(path)
 		if source_texture != null:
 			_tag_texture_source(source_texture, path)
@@ -261,7 +263,33 @@ static func _load_texture_from_file(path: String) -> Texture2D:
 	var image: Image = _load_source_image(path)
 	return ImageTexture.create_from_image(image) if image != null else null
 
-static func _load_source_image(path: String) -> Image:
+static var _original_texture_cache: Dictionary = {}
+
+static func load_original_texture(path: String, source_first: bool = false) -> Texture2D:
+	# Off keeps exactly the existing import/source policy and cache identities.
+	if CelLook.mode == "off":
+		return load_texture_source_first(path) if source_first else load_texture(path)
+	if path.is_empty(): return null
+	var key: String = path + ("|source" if source_first else "|import")
+	if _original_texture_cache.has(key): return _original_texture_cache[key]
+	var texture: Texture2D
+	if source_first or _should_prefer_source_file(path, TEXTURE_EXTENSIONS):
+		var source: Image = _load_source_image(path, false)
+		if source != null: texture = ImageTexture.create_from_image(source)
+	if texture == null and ResourceLoader.exists(path): texture = load(path) as Texture2D
+	if texture == null:
+		var source: Image = _load_source_image(path, false)
+		if source != null: texture = ImageTexture.create_from_image(source)
+	_original_texture_cache[key] = _tag_texture_source(texture, path)
+	return texture
+
+static func _load_source_image(path: String, allow_cel: bool = true) -> Image:
+	if allow_cel and CelLook.mode != "off":
+		var variant: String = CelLook.variant_path(path)
+		if not variant.is_empty():
+			var cel := Image.new()
+			if cel.load_png_from_buffer(FileAccess.get_file_as_bytes(variant)) == OK and not cel.is_empty(): return cel
+			CelLook.warn_missing(path)
 	if not FileAccess.file_exists(path):
 		return null
 	var image := Image.new()

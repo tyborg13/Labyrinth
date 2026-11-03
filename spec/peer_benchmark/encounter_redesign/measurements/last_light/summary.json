@@ -1,0 +1,361 @@
+{
+  "revision": 7,
+  "policy_version": 2,
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "source_head": "28e738838b4928fc21873a02c27835b54489c18a",
+  "runs_per_group": 150,
+  "first_seed": 1,
+  "workers": 2,
+  "groups": [
+    {
+      "cohort": "warband",
+      "tier": 1,
+      "objective": "kill_leader",
+      "n": 150,
+      "win_rate": 0.7666666666666667,
+      "turns": {
+        "n": 150,
+        "median": 7.0,
+        "p10": 4,
+        "p90": 30
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 10.0,
+        "p10": 1,
+        "p90": 24
+      },
+      "turn_cap_reached": 16,
+      "biomes": {
+        "air": 20,
+        "earth": 14,
+        "fire": 29,
+        "ice": 24,
+        "lightning": 34,
+        "shadow": 29
+      },
+      "file": "bot-t1-warband.json.gz",
+      "sha256": "39ad7f640f7595ef9c66e561790f9b45b7e724cd24ce87635c57641e9d64037b",
+      "elapsed_seconds": 833.345
+    },
+    {
+      "cohort": "snare",
+      "tier": 1,
+      "objective": "reach_exit",
+      "n": 150,
+      "win_rate": 0.8266666666666667,
+      "turns": {
+        "n": 150,
+        "median": 3.0,
+        "p10": 1,
+        "p90": 4
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 2.5,
+        "p10": 0,
+        "p90": 24
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 31,
+        "earth": 21,
+        "fire": 22,
+        "ice": 25,
+        "lightning": 23,
+        "shadow": 28
+      },
+      "file": "bot-t1-snare.json.gz",
+      "sha256": "bda3f6e228617911953dec50e552735565f66ac5a7f49960a42d956fd5377d28",
+      "elapsed_seconds": 334.873
+    },
+    {
+      "cohort": "last_light",
+      "tier": 1,
+      "objective": "survive",
+      "n": 150,
+      "win_rate": 0.98,
+      "turns": {
+        "n": 150,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 6.5,
+        "p10": 0,
+        "p90": 18
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 33,
+        "earth": 25,
+        "fire": 19,
+        "ice": 28,
+        "lightning": 23,
+        "shadow": 22
+      },
+      "braziers_lit_at_dawn": {
+        "n": 147,
+        "median": 2,
+        "p10": 1,
+        "p90": 3
+      },
+      "braziers_lit_at_dawn_counts": {
+        "0": 12,
+        "1": 30,
+        "2": 54,
+        "3": 51
+      },
+      "brazier_snuffs": {
+        "n": 150,
+        "median": 1.0,
+        "p10": 0,
+        "p90": 3
+      },
+      "mean_brazier_snuffs": 1.24,
+      "file": "bot-t1-last_light.json.gz",
+      "sha256": "b16cb4726eb6b05013cad2676f94132b01338b90a7236d06401991e05e938c62",
+      "elapsed_seconds": 607.839
+    },
+    {
+      "cohort": "warband",
+      "tier": 2,
+      "objective": "kill_leader",
+      "n": 150,
+      "win_rate": 0.6133333333333333,
+      "turns": {
+        "n": 150,
+        "median": 9.0,
+        "p10": 4,
+        "p90": 30
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 10.0,
+        "p10": 0,
+        "p90": 24
+      },
+      "turn_cap_reached": 33,
+      "biomes": {
+        "air": 26,
+        "earth": 37,
+        "fire": 19,
+        "ice": 22,
+        "lightning": 21,
+        "shadow": 25
+      },
+      "file": "bot-t2-warband.json.gz",
+      "sha256": "53141a65ddbd1ca52803882fc95fed4a060dc33e13ada302a53b3d431e2356b6",
+      "elapsed_seconds": 1113.039
+    },
+    {
+      "cohort": "snare",
+      "tier": 2,
+      "objective": "reach_exit",
+      "n": 150,
+      "win_rate": 0.7866666666666666,
+      "turns": {
+        "n": 150,
+        "median": 3.0,
+        "p10": 2,
+        "p90": 5
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 4.0,
+        "p10": 0,
+        "p90": 24
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 20,
+        "earth": 24,
+        "fire": 27,
+        "ice": 22,
+        "lightning": 26,
+        "shadow": 31
+      },
+      "file": "bot-t2-snare.json.gz",
+      "sha256": "131d580e2bb18f1bda92018634cc7f2c7be773f2a21a379f707492e0933273c3",
+      "elapsed_seconds": 295.159
+    },
+    {
+      "cohort": "last_light",
+      "tier": 2,
+      "objective": "survive",
+      "n": 150,
+      "win_rate": 0.9733333333333334,
+      "turns": {
+        "n": 150,
+        "median": 4.0,
+        "p10": 4,
+        "p90": 4
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 0,
+        "p90": 16
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 13,
+        "ice": 25,
+        "lightning": 21,
+        "shadow": 41
+      },
+      "braziers_lit_at_dawn": {
+        "n": 146,
+        "median": 2.0,
+        "p10": 1,
+        "p90": 3
+      },
+      "braziers_lit_at_dawn_counts": {
+        "0": 13,
+        "1": 28,
+        "2": 42,
+        "3": 63
+      },
+      "brazier_snuffs": {
+        "n": 150,
+        "median": 1.0,
+        "p10": 0,
+        "p90": 3
+      },
+      "mean_brazier_snuffs": 1.2266666666666666,
+      "file": "bot-t2-last_light.json.gz",
+      "sha256": "e4d8f3e61903e9fc1d2675e636d3c25d481e97df97142b65f7287b68e6ca8ac4",
+      "elapsed_seconds": 503.57
+    },
+    {
+      "cohort": "warband",
+      "tier": 3,
+      "objective": "kill_leader",
+      "n": 150,
+      "win_rate": 0.44666666666666666,
+      "turns": {
+        "n": 150,
+        "median": 9.0,
+        "p10": 3,
+        "p90": 30
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 22.0,
+        "p10": 6,
+        "p90": 26
+      },
+      "turn_cap_reached": 16,
+      "biomes": {
+        "air": 17,
+        "earth": 25,
+        "fire": 32,
+        "ice": 26,
+        "lightning": 33,
+        "shadow": 17
+      },
+      "file": "bot-t3-warband.json.gz",
+      "sha256": "50fd0839d72722f64f753c51e0195f6b42778faca087475ccdb6b1d27a6c4f9a",
+      "elapsed_seconds": 1292.067
+    },
+    {
+      "cohort": "snare",
+      "tier": 3,
+      "objective": "reach_exit",
+      "n": 150,
+      "win_rate": 0.8066666666666666,
+      "turns": {
+        "n": 150,
+        "median": 3.0,
+        "p10": 2,
+        "p90": 5
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 4.0,
+        "p10": 0,
+        "p90": 24
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "air": 24,
+        "earth": 23,
+        "fire": 25,
+        "ice": 22,
+        "lightning": 35,
+        "shadow": 21
+      },
+      "file": "bot-t3-snare.json.gz",
+      "sha256": "f566fec1845c12c69675bfb1669e7e4d8bd7debb9bf89ea2ef0d365cc6e1a403",
+      "elapsed_seconds": 295.534
+    },
+    {
+      "cohort": "last_light",
+      "tier": 3,
+      "objective": "survive",
+      "n": 150,
+      "win_rate": 0.88,
+      "turns": {
+        "n": 150,
+        "median": 4.0,
+        "p10": 4,
+        "p90": 5
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 8.0,
+        "p10": 0,
+        "p90": 24
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 29,
+        "earth": 28,
+        "fire": 26,
+        "ice": 25,
+        "lightning": 21,
+        "shadow": 21
+      },
+      "braziers_lit_at_dawn": {
+        "n": 132,
+        "median": 2.0,
+        "p10": 1,
+        "p90": 3
+      },
+      "braziers_lit_at_dawn_counts": {
+        "0": 12,
+        "1": 22,
+        "2": 46,
+        "3": 52
+      },
+      "brazier_snuffs": {
+        "n": 150,
+        "median": 1.0,
+        "p10": 0,
+        "p90": 3
+      },
+      "mean_brazier_snuffs": 1.1733333333333333,
+      "file": "bot-t3-last_light.json.gz",
+      "sha256": "3e670b4e22dd6dfad8fae13d8477e99b5db4dab12087c946898b16cc498780e0",
+      "elapsed_seconds": 564.22
+    }
+  ],
+  "tool_sha256": {
+    "encounter_bot.gd": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+    "encounter_measurement_bot.gd": "c37e77b36de9616f1b968ee1863330c2c1a8a26299685084c5ec2ba1e3b56fdc",
+    "encounter_sweep.gd": "9e81a6dba7a8a2b99c23bf1943255f9ddcc518d5b798053ef1f522c1bc2b4d10",
+    "last_light_measurement_engine.gd": "5ef592f4d81e2891992da724e1e561f83a23455394a2fc203c1e491fe1d278aa",
+    "last_light_measurement.py": "1420d7655ddfa80172dec86ec06423f9d75057dec7b218293280f814542af720"
+  },
+  "data_sha256": {
+    "special_encounters.json": "df3edec4f241edf3adc6c2a2bee7e278d1ebab9b04e71d21ae98d48d5210371e",
+    "enemies.json": "2db9144c93de36edf15ff53f3ce108ee9902d60526a97ef7fc0867266c0c4b6c",
+    "battlefield_rules.json": "412ab5b6163c1ffbe8defe752469e82b0560613f6ee63001eeb3131898ec6840"
+  },
+  "report_render_sha256": "33c7c2e8fe34dc63f81b19ae734a0d4359e515fbdc9f4d1c3e14d8da1b7609e9",
+  "report_render_note": "int-09: report-only correction of historical revision-gate wording after measurement. tool_sha256 retains the exact driver bytes executed; simulation inputs and runner code are unchanged."
+}

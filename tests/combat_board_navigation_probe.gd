@@ -8,6 +8,7 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 const OUTPUT_DIR: String = "user://combat_board_navigation_probe"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
 const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
+const PROOF_ANCHOR_ZOOM: float = 1.30
 
 var _errors: Array[String] = []
 
@@ -18,6 +19,7 @@ func _initialize() -> void:
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	root.content_scale_size = VIEWPORT_SIZE
+	root.content_scale_factor = 1.0
 	root.size = VIEWPORT_SIZE
 	ProgressionStore.set_storage_path("user://labyrinth_progression_board_navigation_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_board_navigation_probe.save")
@@ -124,9 +126,16 @@ func _capture_navigation_states() -> void:
 	await _settle_ui()
 	await _save_root_screenshot("%s/01_default_fit.png" % OUTPUT_DIR)
 	var default_snapshot: Dictionary = board.call("navigation_snapshot")
-	_expect(is_equal_approx(float(default_snapshot.get("zoom", 0.0)), 1.04), "Board should begin at the complete-view default combat zoom")
+	_expect(is_equal_approx(float(default_snapshot.get("zoom", 0.0)), 1.0), "Board should begin at the complete-view default combat zoom")
 
 	var focus_tile := Vector2i(10, 2)
+	var focus_before: Vector2 = board.call("world_position_for_tile", focus_tile)
+	board.call("set_navigation_zoom", PROOF_ANCHOR_ZOOM, focus_before)
+	var focus_after: Vector2 = board.call("world_position_for_tile", focus_tile)
+	_expect(focus_after.distance_to(focus_before) <= 1.0, "Zoom preserves the focused tile within one pixel")
+	await _settle_ui()
+	await _save_root_screenshot("%s/01_pointer_anchor.png" % OUTPUT_DIR)
+	board.call("reset_navigation")
 	for _step: int in range(4):
 		var wheel := InputEventMouseButton.new()
 		wheel.button_index = MOUSE_BUTTON_WHEEL_UP

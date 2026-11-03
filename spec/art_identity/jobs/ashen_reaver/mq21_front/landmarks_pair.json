@@ -1,0 +1,8 @@
+{
+ "front": {
+  "far": [108, 202],
+  "near": [177, 245],
+  "kind": "feet",
+  "note": "Sole contacts annotated directly on the painting (lowest opaque pixel of each boot). The paint-over is about 25% bulkier than the mq-23 maquette, so bounding-box mapping of the maquette joints is not used; the rig unit must register joints on the painting."
+ }
+}

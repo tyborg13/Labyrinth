@@ -1,0 +1,7 @@
+00:00.559  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/mq16-fresh/native/maquette.blend"
+00:04.855  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/mq16-fresh/rear_solo_4/rear_silhouette.png'
+00:09.213  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/mq16-fresh/rear_solo_4/rear_silhouette.png'
+00:13.703  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/mq16-fresh/rear_solo_4/rear_silhouette.png'
+00:17.851  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/mq16-fresh/rear_solo_4/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+MQ16_BOUNDED_CAPTURE: PASS; rear; fore_near,hand_near,thigh_near,shin_near

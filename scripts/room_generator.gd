@@ -4,6 +4,7 @@ class_name RoomGenerator
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const SnareRooms = preload("res://scripts/snare_room_rules.gd")
 const WarbandRooms = preload("res://scripts/warband_room_rules.gd")
+const LastLightRooms = preload("res://scripts/last_light_rules.gd")
 
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const ElementData = preload("res://scripts/element_data.gd")
@@ -127,6 +128,8 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var encounter: Dictionary = {}
 	var snare: bool = SnareRooms.is_room(room)
 	var warband: bool = Specials.is_warband(room)
+	var last_light: bool = LastLightRooms.is_room(room)
+	var hoarder: bool = preload("res://scripts/hoarder_room_rules.gd").is_room(room)
 	var table_encounter: bool = _uses_encounter_tables(room)
 	var enemy_types: Array = []
 	if table_encounter:
@@ -139,17 +142,23 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		enemy_types = SnareRooms.roster(room, objective["exits"].size())
 	elif warband:
 		enemy_types = WarbandRooms.roster(room, clampi(encounter_depth, 1, 3))
+	elif last_light:
+		enemy_types = LastLightRooms.roster(room)
+	elif hoarder:
+		enemy_types = preload("res://scripts/hoarder_room_rules.gd").roster(clampi(encounter_depth, 1, 3))
 	elif not table_encounter and npc_specs.is_empty():
 		enemy_types = _encounter_enemy_types(room_type, encounter_depth, rng, room_element, boss_id)
-	if not warband and not snare:
+	if not warband and not snare and not last_light:
 		enemy_types = _objective_adjusted_enemy_types(enemy_types, objective, encounter_depth, rng)
-		enemy_types = _apply_spawn_groups(enemy_types, int(room.get("max_units", -1)))
 	if str(objective.get("type", "")) == CombatObjectiveRules.SURVIVE:
 		objective["reinforcement_pool"] = _unique_enemy_types(enemy_types)
 	objective["initial_enemy_count"] = enemy_types.size()
 	var objective_exit_tiles: Array[Vector2i] = CombatObjectiveRules.exit_target_tiles(objective)
-	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(grid, player_start, enemy_types.size(), rng, objective_exit_tiles, table_encounter)
-	if warband:
+	var braziers: Array[Vector2i] = _last_light_braziers(grid, room, player_start, rng) if last_light else _empty_tiles()
+	if last_light: moss = _generate_moss_overlays(grid, run_seed, coord, room_type)
+	var placement_grid: Array = _grid_without_tiles(grid, braziers) if last_light else grid
+	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(placement_grid, player_start, enemy_types.size(), rng, objective_exit_tiles, table_encounter)
+	if warband or hoarder:
 		for attempt: int in range(WarbandRooms.MAX_PLACEMENT_ATTEMPTS):
 			enemy_positions = WarbandRooms.positions(grid, player_start, enemy_types.size(), ENEMY_SPAWN_SAFE_RADIUS, rng, enemy_types[0] == "storm_capacitor")
 			if enemy_positions.size() == enemy_types.size(): break
@@ -208,6 +217,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	for enemy: Dictionary in enemies:
 		for tile: Vector2i in _enemy_footprint_tiles(enemy):
 			occupied[tile] = true
+	for tile: Vector2i in braziers: occupied[tile] = true
 	var npcs: Array[Dictionary] = _build_room_npcs(grid, player_start, npc_specs, rng, occupied)
 	for npc: Dictionary in npcs:
 		occupied[npc.get("pos", Vector2i(-1, -1))] = true
@@ -244,6 +254,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		layout["special_type"] = "warband"
 		layout["special_variant"] = room["special_variant"]
 		assert(WarbandRooms.validate(layout, ENEMY_SPAWN_SAFE_RADIUS), "Illegal Warband placement")
+	if hoarder: preload("res://scripts/hoarder_room_rules.gd").mark_layout(layout, ENEMY_SPAWN_SAFE_RADIUS)
 	if table_encounter:
 		layout["encounter_id"] = encounter["id"]
 		layout["biome"] = room["encounter_biome"]
@@ -256,8 +267,41 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		preload("res://scripts/guardian_library.gd").stage_loot(layout)
 	if not snare: _add_omen_enemies(layout, room, run_seed)
 	_apply_umbra_depth(layout, room)
+	if hoarder: preload("res://scripts/hoarder_room_rules.gd").configure(layout)
 	if snare: SnareRooms.configure(layout, clampi(encounter_depth, 1, 3))
+	if last_light: LastLightRooms.configure(layout, braziers)
 	return layout
+
+# Retry the room's own template with the same seeded RNG, as Warband and Snare
+# formations do; the last resort keeps floor and doors but clears blockers.
+func _last_light_braziers(grid: Array, room: Dictionary, player_start: Vector2i, rng: RandomNumberGenerator) -> Array[Vector2i]:
+	var count: int = int(LastLightRooms.definition()["braziers"]["count"])
+	var tiles: Array[Vector2i] = LastLightRooms.brazier_tiles(grid, player_start)
+	var attempt: int = 0
+	while tiles.size() != count and attempt < LastLightRooms.MAX_PLACEMENT_ATTEMPTS:
+		_replace_grid(grid, _base_grid(rng))
+		_apply_available_doors(grid, room)
+		_apply_template(grid, rng)
+		tiles = LastLightRooms.brazier_tiles(grid, player_start)
+		attempt += 1
+	if tiles.size() != count:
+		for y: int in range(1, ROOM_HEIGHT - 1):
+			for x: int in range(1, ROOM_WIDTH - 1): grid[y][x] = TILE_STONE
+		tiles = LastLightRooms.brazier_tiles(grid, player_start)
+	assert(tiles.size() == count, "No legal Last Light brazier placement")
+	return tiles
+
+func _replace_grid(grid: Array, source: Array) -> void:
+	for y: int in range(grid.size()): grid[y] = source[y]
+
+func _grid_without_tiles(grid: Array, tiles: Array[Vector2i]) -> Array:
+	var result: Array = grid.duplicate(true)
+	for tile: Vector2i in tiles: result[tile.y][tile.x] = TILE_PILLAR
+	return result
+
+func _empty_tiles() -> Array[Vector2i]:
+	var tiles: Array[Vector2i]
+	return tiles
 
 func _snare_formation(grid: Array, entry: Vector2i, objective: Dictionary) -> Dictionary:
 	return SnareRooms.formation(grid, entry, objective)
@@ -300,6 +344,7 @@ func _section_encounter(room: Dictionary, tier: int, rng: RandomNumberGenerator)
 func _add_omen_enemies(layout: Dictionary, room: Dictionary, run_seed: int) -> void:
 	var count: int = int(room.get("omen_extra_enemies", 0))
 	if count <= 0 or str(room.get("type", "")) != "combat": return
+	var before_count: int = (layout["enemies"] as Array).size()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = _room_seed(run_seed, room.get("coord", Vector2i.ZERO), OMEN_ROSTER_SEED_SALT)
 	var depth: int = int(room.get("depth", 1))
@@ -323,6 +368,8 @@ func _add_omen_enemies(layout: Dictionary, room: Dictionary, run_seed: int) -> v
 		var hp: int = _scaled_enemy_max_hp(type, depth)
 		layout["enemies"].append({"id": (layout["enemies"] as Array).size() + 1, "type": type, "element": room.get("element", "none"), "pos": pos, "hp": hp, "max_hp": hp, "block": 0, "stoneskin": 0})
 		layout["objective"]["initial_enemy_count"] = int(layout["objective"].get("initial_enemy_count", 0)) + 1
+	var added: int = (layout["enemies"] as Array).size() - before_count
+	if added > 0: layout["omen_extra_enemies_added"] = added
 
 func _base_grid(rng: RandomNumberGenerator) -> Array:
 	# Preserve the old theme roll so later room RNG stays aligned.
@@ -624,7 +671,7 @@ func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGene
 			return [resolved_boss_id, "lightning_wisp", "lightning_wisp"]
 		if resolved_boss_id == DragonBossLibrary.SHADOW_BOSS_ID:
 			return [resolved_boss_id, "veilbound_acolyte", "veilbound_acolyte"]
-		return [resolved_boss_id]
+		return [resolved_boss_id] + GameData.enemy_def(resolved_boss_id).get("dragon_helpers", [])
 	var pool: Array = _base_encounter_enemy_type_pool(depth)
 	_add_element_locked_enemy_type_pools(pool, depth, room_element)
 	return pool[rng.randi_range(0, pool.size() - 1)].duplicate()
@@ -660,7 +707,7 @@ func _apply_leader_objective(enemies: Array[Dictionary], objective: Dictionary) 
 	var leader_index: int = 0
 	var highest_hp: int = -1
 	for index: int in range(enemies.size()):
-		if str(objective.get("special_type", "")) == "warband": break
+		if str(objective.get("special_type", "")) in ["warband", "ember_hoarder"]: break
 		var max_hp: int = int(enemies[index].get("max_hp", 0))
 		if max_hp > highest_hp:
 			highest_hp = max_hp
@@ -1276,29 +1323,3 @@ static func door_tile_for_direction(dir: Vector2i) -> Vector2i:
 
 static func entry_tile_for_direction(dir: Vector2i) -> Vector2i:
 	return ENTRANCE_BY_TRAVEL_DIR.get(dir, ENTRANCE_BY_TRAVEL_DIR[Vector2i.ZERO])
-
-# Composition only: summons and splits never enter this helper.
-func _apply_spawn_groups(composition: Array, max_units: int = -1) -> Array:
-	var result: Array = composition.duplicate()
-	for type_var: Variant in composition:
-		var enemy_type: String = str(type_var)
-		var group: int = int(GameData.enemy_def(enemy_type).get("spawn_group", 1))
-		if group <= 1: continue
-		var missing: int = posmod(-result.count(enemy_type), group)
-		while missing > 0:
-			if max_units >= 0 and result.size() >= max_units:
-				var replacement: int = -1
-				for index: int in range(result.size() - 1, -1, -1):
-					if str(result[index]) != enemy_type:
-						replacement = index
-						break
-				if replacement < 0:
-					# An all-thrall odd roster at its hard cap cannot fit a mate.
-					# Keep both the hard cap and the even-count invariant.
-					for remainder: int in range(result.count(enemy_type) % group): result.erase(enemy_type)
-					break
-				result[replacement] = enemy_type
-			else:
-				result.append(enemy_type)
-			missing -= 1
-	return result

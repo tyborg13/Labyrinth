@@ -1,0 +1,22 @@
+{
+  "result": "TEST RESULT: FAIL (15 failure(s))",
+  "failures": [
+    "Program sub-suite failed: special_encounter_test (exit 1)",
+    "Program sub-suite failed: enemy_no_action_test (exit 124) (timed out)",
+    "Program sub-suite failed: fix_11_test (exit 1)",
+    "Program sub-suite failed: fix_11_probe (exit 1)",
+    "Program sub-suite failed: fix_14_test (exit 124) (timed out)",
+    "Program sub-suite failed: fix_12_feedback_test (exit 124) (timed out)",
+    "Program sub-suite failed: fix_12_bleed_test (exit 124) (timed out)",
+    "Program sub-suite failed: short_card_tooltips_test (exit 124) (timed out)",
+    "Program sub-suite failed: card_panel_text_test (exit 124) (timed out)",
+    "Program sub-suite failed: board_status_plates_test (exit 124) (timed out)",
+    "Program sub-suite failed: status_capture_probe (exit 124) (timed out)",
+    "Program sub-suite failed: status_plates_performance_probe (exit 124) (timed out)",
+    "Program sub-suite failed: rr38/runtime_checks (exit 124) (timed out)",
+    "Program sub-suite failed: heirloom_notification_test (exit 124) (timed out)",
+    "Full suite stays under 15 minutes"
+  ],
+  "log": "/private/tmp/rr44-godot-verified.log",
+  "status": "earlier completed round; final result is godot_final_result.json"
+}

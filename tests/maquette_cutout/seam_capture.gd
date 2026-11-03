@@ -5,6 +5,7 @@ const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
 ## Native, independent layers for the interior-tear/underlay-protrusion gates in every pose.
 ## These surfaces never appear in the review composition.
 const Samples = preload("pixel_samples.gd")
+const RenderSettings = preload("render_settings.gd")
 const SIZE := Vector2i(512, 512)
 const ORIGIN := Vector2(128, 128)
 var surfaces: Dictionary = {}
@@ -24,6 +25,7 @@ func setup(tree: SceneTree, rigs: Dictionary, directory: String) -> void:
 		surfaces[view] = {}
 		for kind: String in ["parts", "seams", "rest", "interior"]:
 			var viewport := SubViewport.new()
+			RenderSettings.apply(viewport)
 			viewport.size = SIZE
 			viewport.transparent_bg = true
 			viewport.disable_3d = true

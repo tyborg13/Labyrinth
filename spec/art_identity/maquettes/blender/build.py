@@ -29,6 +29,11 @@ def build(spec, output, bundle, cache):
     input_spec = spec
     from spec.art_identity.maquettes.blender.facing import board_spec
     spec = board_spec(spec)
+    corrected_surface_spec = None
+    if spec.get('deferred_surface_pose'):
+        from spec.art_identity.maquettes.blender.deferred_pose import construction_spec
+        corrected_surface_spec = spec
+        spec = construction_spec(spec)
     target_joints = deepcopy(spec['joints'])
     if spec.get('floor_contact_correction'):
         spec['joints'] = deepcopy(spec['floor_contact_correction']['fitted_joints'])
@@ -70,6 +75,7 @@ def build(spec, output, bundle, cache):
     rear_pose = None
     context_key = digest({'spec': spec, 'bundle_sha256': hashlib.sha256(Path(bundle).read_bytes()).hexdigest()})
     objects = []
+    pose_surfaces = []
     cloth_reports = {}
     simulation_reports = {}
     for piece in spec['pieces']:
@@ -137,6 +143,13 @@ def build(spec, output, bundle, cache):
             frozen.data.materials.clear()
             frozen['owner_index'] = list(spec['labels']).index(piece['part'])
             objects.append(frozen)
+            if piece['id'] in spec.get('deferred_surface_pose', {}):
+                bone = spec['deferred_surface_pose'][piece['id']]
+                pose_surfaces.extend(((obj, bone), (frozen, bone)))
+    if corrected_surface_spec is not None:
+        from spec.art_identity.maquettes.blender.deferred_pose import apply as apply_surface_pose
+        spec = corrected_surface_spec
+        apply_surface_pose(spec, body, rig, posed, pose_surfaces, cloth_reports)
     # Split posed body into true unoccluded semantic solos using weight owners.
     for region in sorted(set(owners)):
         if region in spec['base'].get('covered_regions', []):
@@ -207,6 +220,9 @@ def build(spec, output, bundle, cache):
                 bpy.data.objects[cloth_id + '_render'], bpy.data.objects[obstacle_id + '_render'], garment['collision_margin'])
         details['rigid_clearance'] = {o.name: json.loads(o['rigid_clearance_report']) for o in objects if 'rigid_clearance_report' in o}
     checks = geometry_report(spec, objects, cloth_reports, details)
+    if spec.get('shoulder_garment_motion'):
+        details['shoulder_garment_motion'] = json.loads(posed['shoulder_garment_motion'])
+        checks['native_shoulder_attachment_motion'] = all(r['passed'] for r in details['shoulder_garment_motion'].values())
     if spec['base'].get('socket_tucks'):
         from spec.art_identity.maquettes.blender.socket_proof import collect
         details['socket_tucks'] = collect(spec, objects)

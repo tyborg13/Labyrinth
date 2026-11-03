@@ -1,0 +1,16 @@
+{
+  "completed_per_policy": {
+    "best": 97,
+    "random": 96,
+    "none": 78
+  },
+  "common_n": 78,
+  "elapsed_seconds": 3664.586105108261,
+  "truncated_runs": {
+    "best": 19,
+    "random": 18,
+    "none": 0
+  },
+  "raw_bytes": 47710,
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+}

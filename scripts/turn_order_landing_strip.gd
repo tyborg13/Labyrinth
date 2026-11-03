@@ -6,6 +6,7 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const CardFocusTooltipStack = preload("res://scripts/card_focus_tooltip_stack.gd")
+const TurnOrderSlots = preload("res://scripts/turn_order_slots.gd")
 
 const SLOT_SIZE := Vector2(86, 64)
 const MINI_SCALE := 0.74
@@ -16,13 +17,13 @@ const SLOT_STEP := SLOT_SIZE.x + LEFT_BLEED
 const CHEVRON_GAP := 20.0
 const AGAIN_GLOW_SIZE := Vector2(150, 110)
 var _roles: Dictionary = {}
-var _maquette_reduced_motion: bool = false
 var _signature: String = ""
 var _target: Control
 var _tooltip_stack: Control
 var _tutorial_callout: Control
 var _allowed: Callable
 var _fade: Tween
+var _slot_reuse := preload("res://scripts/landing_strip_slot_reuse.gd").new()
 
 func _init() -> void:
 	name = "TurnOrderLandingStrip"
@@ -45,7 +46,10 @@ static func roles_for(entries: Array[Dictionary]) -> Dictionary:
 	for index: int in range(active_index + 1, entries.size()):
 		var entry: Dictionary = entries[index]
 		if str(entry.get("kind", "")) == "player" and bool(entry.get("projected", false)):
-			return {"before": before, "hero": entry, "after": entries[index + 1] if index + 1 < entries.size() else {}, "overflow": maxi(0, before.size() - 4), "act_again": before.is_empty()}
+			var actors: int = before.filter(func(item: Dictionary) -> bool: return str(item.get("kind", "")) != "beat").size()
+			return {"before": before, "hero": entry, "after": entries[index + 1] if index + 1 < entries.size() else {}, "overflow": maxi(0, before.size() - 4), "act_again": actors == 0}
+		# A battlefield beat lands before you do, so it shows as its rule token. It is an event, not an
+		# actor: with only beats ahead of you, you still act again.
 		before.append(entry)
 	return {}
 
@@ -105,7 +109,6 @@ static func _intersects_blockers(rect: Rect2, blockers: Array[Rect2]) -> bool:
 	return false
 
 func present(entries: Array[Dictionary], focused_index: int, target: Control, tooltip_stack: Control, portrait_path: Callable, allowed: Callable, reduced_motion: bool, tutorial_callout: Control = null) -> void:
-	_maquette_reduced_motion = reduced_motion
 	var roles: Dictionary = roles_for(entries)
 	if roles.is_empty() or target == null:
 		hide_strip()
@@ -165,9 +168,7 @@ func _follow_target() -> void:
 		global_position = rect.position
 
 func _rebuild(portrait_path: Callable) -> void:
-	for child: Node in get_children():
-		remove_child(child)
-		child.queue_free()
+	_slot_reuse.begin(self)
 	var before: Array = _roles.get("before", [])
 	# The cursor marks the next numeral's bleed, not its portrait. Only the
 	# strokes may extend under a neighbour's numeral or portrait.
@@ -196,6 +197,7 @@ func _rebuild(portrait_path: Callable) -> void:
 	if not (_roles.get("after", {}) as Dictionary).is_empty():
 		_add_slot(_roles["after"], "LandingStripAfter", "after", x + LEFT_BLEED, portrait_path)
 		x += SLOT_STEP
+	_slot_reuse.finish(self)
 	size = Vector2(x + 8.0, SLOT_SIZE.y)
 	queue_redraw()
 
@@ -223,7 +225,14 @@ func _add_again_glow(hero_position: Vector2) -> void:
 	add_child(glow)
 
 func _add_slot(entry: Dictionary, node_name: String, role: String, x: float, portrait_path: Callable) -> void:
-	var slot := Control.new()
+	if str(entry.get("kind", "")) == "beat":
+		_add_beat_slot(entry, node_name, x)
+		return
+	var path: String = "res://assets/art/icons/umbra_presence.png" if bool(entry.get("hidden_by_umbra", false)) else str(portrait_path.call(entry))
+	var source: Array = [str(entry.get("type", "")), bool(entry.get("hidden_by_umbra", false)), path]
+	var slot: Control = _slot_reuse.take(source)
+	var reused: bool = slot != null
+	if not reused: slot = Control.new()
 	slot.name = node_name
 	slot.position = Vector2(x, 0)
 	slot.size = SLOT_SIZE
@@ -231,8 +240,58 @@ func _add_slot(entry: Dictionary, node_name: String, role: String, x: float, por
 	slot.set_meta("landing_strip_role", role)
 	slot.set_meta("turn_order_actor_key", actor_key(entry))
 	slot.set_meta("turn_order_entry", entry.duplicate(true))
-	if role == "after":
-		slot.modulate = DIM_AFTER
+	slot.set_meta("landing_strip_portrait_source", source)
+	slot.modulate = DIM_AFTER if role == "after" else Color.WHITE
+	if not reused: add_child(slot)
+	var brush: Texture2D = TurnOrderInk.brush_texture(false, actor_key(entry))
+	var rect: Rect2 = TurnOrderInk.brush_rect(SLOT_SIZE / MINI_SCALE, brush)
+	var backing: TextureRect = slot.get_node("LandingStripBrush") as TextureRect if reused else TextureRect.new()
+	backing.name = "LandingStripBrush"
+	backing.position = rect.position * MINI_SCALE
+	backing.size = rect.size * MINI_SCALE
+	backing.pivot_offset = backing.size * 0.5
+	backing.rotation_degrees = TurnOrderInk.brush_tilt_degrees(actor_key(entry), false)
+	backing.flip_h = TurnOrderInk.brush_flipped(actor_key(entry), false)
+	backing.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backing.stretch_mode = TextureRect.STRETCH_SCALE
+	backing.texture = brush
+	backing.modulate = TurnOrderInk.ink_color("enemy" if bool(entry.get("hidden_by_umbra", false)) else str(entry.get("team", "enemy")), false, role == "hero" or int(entry.get("stagger_preview", 0)) > 0)
+	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backing.z_index = 0
+	if not reused: slot.add_child(backing)
+	var mask: Control = slot.get_node("LandingStripPortraitCrop") as Control if reused else TurnOrderInk.PortraitMask.new()
+	mask.name = "LandingStripPortraitCrop"
+	mask.skew = 0.14
+	mask.size = SLOT_SIZE
+	mask.z_index = 1
+	if not reused: slot.add_child(mask)
+	var portrait: TextureRect = mask.get_node("LandingStripPortrait") as TextureRect if reused else TextureRect.new()
+	portrait.name = "LandingStripPortrait"
+	portrait.position = -SLOT_SIZE * 0.02
+	portrait.size = SLOT_SIZE * 1.04
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	if not reused: portrait.texture = AssetLoader.load_texture(path)
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if not reused: mask.add_child(portrait)
+	var eta_color: Color = Color("f4c968") if role == "hero" else UiPalette.TEXT
+	var eta: Label = slot.get_node("LandingStripTimeNumeral") as Label if reused else _label("LandingStripTimeNumeral", str(entry.get("eta", 0)), 17, eta_color, Vector2(LEFT_BLEED, SLOT_SIZE.y), slot)
+	eta.text = str(entry.get("eta", 0))
+	eta.add_theme_color_override("font_color", eta_color)
+	eta.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	eta.position = Vector2(-LEFT_BLEED + 2.0 * MINI_SCALE, SLOT_SIZE.y * (TurnOrderInk.BAND_CENTER_RATIO - 0.5))
+	eta.z_index = 8
+
+# The rail's beat row at strip scale: the faded stroke, the gold-rimmed rule token and its time numeral.
+func _add_beat_slot(entry: Dictionary, node_name: String, x: float) -> void:
+	var slot := Control.new()
+	slot.name = node_name
+	slot.position = Vector2(x, 0)
+	slot.size = SLOT_SIZE
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.set_meta("landing_strip_role", "beat")
+	slot.set_meta("turn_order_actor_key", actor_key(entry))
+	slot.set_meta("turn_order_entry", entry.duplicate(true))
 	add_child(slot)
 	var brush: Texture2D = TurnOrderInk.brush_texture(false, actor_key(entry))
 	var rect: Rect2 = TurnOrderInk.brush_rect(SLOT_SIZE / MINI_SCALE, brush)
@@ -246,29 +305,28 @@ func _add_slot(entry: Dictionary, node_name: String, role: String, x: float, por
 	backing.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	backing.stretch_mode = TextureRect.STRETCH_SCALE
 	backing.texture = brush
-	backing.modulate = TurnOrderInk.ink_color("enemy" if bool(entry.get("hidden_by_umbra", false)) else str(entry.get("team", "enemy")), false, role == "hero" or int(entry.get("stagger_preview", 0)) > 0)
+	backing.modulate = TurnOrderInk.ink_color("enemy", false, true)
 	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	backing.z_index = 0
 	slot.add_child(backing)
-	var mask := TurnOrderInk.PortraitMask.new()
-	mask.name = "LandingStripPortraitCrop"
-	mask.skew = 0.14
-	mask.size = SLOT_SIZE
-	mask.z_index = 1
-	slot.add_child(mask)
-	var portrait := TextureRect.new()
-	portrait.name = "LandingStripPortrait"
-	portrait.position = -SLOT_SIZE * 0.02
-	portrait.size = SLOT_SIZE * 1.04
-	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	var path: String = "res://assets/art/icons/umbra_presence.png" if bool(entry.get("hidden_by_umbra", false)) else str(portrait_path.call(entry))
-	portrait.texture = AssetLoader.load_texture(path)
-	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	mask.add_child(portrait)
-	if not bool(entry.get("hidden_by_umbra", false)):
-		preload("res://scripts/maquette_cutout_runtime/portrait.gd").bind(portrait, str(entry.get("type", "")), _maquette_reduced_motion, true)
-	var eta: Label = _label("LandingStripTimeNumeral", str(entry.get("eta", 0)), 17, Color("f4c968") if role == "hero" else UiPalette.TEXT, Vector2(LEFT_BLEED, SLOT_SIZE.y), slot)
+	var diameter: float = roundf(SLOT_SIZE.y * TurnOrderSlots.BEAT_TOKEN_RATIO)
+	var token: Control = TurnOrderSlots.BeatToken.new()
+	token.name = "LandingStripBeatToken"
+	token.size = Vector2.ONE * diameter
+	token.position = Vector2(SLOT_SIZE.x - diameter, SLOT_SIZE.y - diameter) * Vector2(0.62, 0.5)
+	token.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	token.z_index = 1
+	slot.add_child(token)
+	var icon := TextureRect.new()
+	icon.name = "LandingStripBeatIcon"
+	var inset: float = diameter * TurnOrderSlots.BEAT_ICON_INSET_RATIO
+	icon.position = Vector2.ONE * inset
+	icon.size = Vector2.ONE * (diameter - inset * 2.0)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = preload("res://scripts/action_icon_library.gd").icon_texture(str(entry.get("icon", "")))
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	token.add_child(icon)
+	var eta: Label = _label("LandingStripTimeNumeral", str(entry.get("eta", 0)), 17, UiPalette.TEXT, Vector2(LEFT_BLEED, SLOT_SIZE.y), slot)
 	eta.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	eta.position = Vector2(-LEFT_BLEED + 2.0 * MINI_SCALE, SLOT_SIZE.y * (TurnOrderInk.BAND_CENTER_RATIO - 0.5))
 	eta.z_index = 8

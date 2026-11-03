@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""Consolidate completed qa-23 evidence without running another engine."""
+from collections import Counter
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import subprocess
+import sys
+
+PROJECT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-23')
+EVIDENCE = Path('/private/tmp/labyrinth_codex/qa-23')
+REPORT = PROJECT/'spec/peer_benchmark/qa/run_hunt_2026-11-03'
+REPLAYS = {
+    'default': ['replay-default-seed-1','replay-default-seed-2','replay-default-seed-5','replay-default-seed-12','replay-default-seed-2-original'],
+    'no-embrace': ['replay-no-embrace-seed-1','replay-no-embrace-seed-2','replay-no-embrace-seed-3','replay-no-embrace-seed-4','replay-no-embrace-seed-3-polygon-confirm','replay-no-embrace-seed-3-fixed','replay-no-embrace-seed-4-fixed'],
+}
+
+def read(path):
+    return json.loads(path.read_text())
+
+def category(error):
+    if 'ret != noErr' in error: return 'platform certificate diagnostic'
+    if "'actor_key'" in error: return 'protected contact payload'
+    if 'native Godot exit 0; runner detected script errors' in error: return 'protected contact runner status'
+    if 'Invalid polygon data, triangulation failed.' in error: return 'fixed polygon rejection'
+    if 'Fight exploration budget reached 400 decisions' in error: return 'hunt exploration budget'
+    if 'tree_nodes grew more than 25%' in error: return 'aggregate tree-growth flag'
+    raise RuntimeError('Untriaged finding: '+error)
+
+def load_replays():
+    rows=[]
+    for campaign,names in REPLAYS.items():
+        for name in names:
+            paths=list((EVIDENCE/name).glob('seed-*/evidence.json'))
+            if len(paths)!=1: raise RuntimeError('Incomplete or ambiguous replay: '+name)
+            e=read(paths[0])
+            if not e.get('finish'): raise RuntimeError('Replay lacks finish evidence: '+name)
+            for finding in e['findings']: category(finding['error'])
+            row=dict(campaign=campaign,name=name,evidence=str(paths[0]),child_returncode=e['returncode'],
+                outcome=e['finish']['outcome'],decisions=e['finish']['decisions'],sections=e['finish']['sections'],
+                findings=[dict(category=category(f['error']),error=f['error'],location=f['location']) for f in e['findings']])
+            if name.endswith('-fixed') and any(f['category']=='fixed polygon rejection' for f in row['findings']):
+                raise RuntimeError('Fixed replay still has polygon error: '+name)
+            rows.append(row)
+    return rows
+
+def census_rows():
+    rows=[]
+    for names in REPLAYS.values():
+        for name in names:
+            paths=list((EVIDENCE/name).glob('seed-*/trace.jsonl'))
+            samples=[]
+            for line in paths[0].read_text().splitlines():
+                e=json.loads(line)
+                if e['event']=='qa23_census': samples.append(e['data'])
+            a=next((s for s in samples if s['context']['section']==0),None)
+            b=next((s for s in samples if s['context']['section']==5),None)
+            if a and b:
+                hosts={k:b['hosts'].get(k,0)-a['hosts'].get(k,0) for k in set(a['hosts'])|set(b['hosts'])}
+                rows.append(dict(replay=name,baseline=a['context'],section_5=b['context'],
+                    pools_before=a['pools'],pools_after=b['pools'],
+                    largest_host_deltas=sorted(hosts.items(),key=lambda x:x[1],reverse=True)[:8]))
+    return rows
+
+def main():
+    read(EVIDENCE/'postfix-replay-results.json')
+    rows=load_replays()
+    coverage=read(REPORT/'coverage.json')
+    fix=read(EVIDENCE/'polygon-fix-proof.json')
+    if hashlib.sha256((PROJECT/fix['source']).read_bytes()).hexdigest()!=fix['fixed_sha256']:
+        raise RuntimeError('Product source changed after passing regression')
+    receipts=[]
+    for campaign,names in REPLAYS.items():
+        command=[sys.executable,str(EVIDENCE/'run_hunt_task.py'),'--report-only','--output-dir',str(EVIDENCE/('campaign-'+campaign))]
+        for row in rows:
+            if row['campaign']==campaign: command+=['--include-evidence',row['evidence']]
+        result=subprocess.run(command,cwd=PROJECT,text=True,capture_output=True,check=True)
+        receipts.append(dict(campaign=campaign,argv=command,returncode=result.returncode,stdout=result.stdout))
+        for item,destination in [('report.md',campaign+'-report.md'),('findings.json',campaign+'-findings.json')]:
+            shutil.copyfile(EVIDENCE/('campaign-'+campaign)/item,REPORT/destination)
+        print(result.stdout.strip())
+    (REPORT/'report-rebuilds.json').write_text(json.dumps(receipts,indent=2)+'\n')
+    (REPORT/'replay-results.json').write_text(json.dumps(rows,indent=2)+'\n')
+    (REPORT/'node-census-triage.json').write_text(json.dumps(census_rows(),indent=2)+'\n')
+    for name in ['polygon-fix-proof.json','polygon-finding.json','polygon-confirm-execution.json','protected-contact-confirmation.json','snare-budget-triage.json','replay-divergence-default-2.json','cold-import-result.json','postfix-replay-results.json']:
+        shutil.copyfile(EVIDENCE/name,REPORT/name)
+    fixed=[r for r in rows if r['name'].endswith('-fixed')]
+    replay_summary='; '.join('seed %s: %s, %d decisions, %d polygon errors, child status %d' % (read(Path(r['evidence']))['seed'],r['outcome'],r['decisions'],sum(f['category']=='fixed polygon rejection' for f in r['findings']),r['child_returncode']) for r in fixed)
+    text=['# qa-23 release-candidate hunt result','',
+        'One owned renderer defect is fixed. One confirmed contact-animation script error remains in the explicitly protected walk-01 runtime. All changes are uncommitted on `codex/qa-23`, base `65b9d0d43636c1d5bd72944c38518c5a8540e5cb`.','',
+        '| Finding | Seed / evidence | Root cause | Fix or reason not fixed | Regression / confirmation |',
+        '|---|---|---|---|---|',
+        '| Native polygon triangulation error | Supplemental no-Embrace 3, decision 1616, section 3, room `(14, -5)` | A positive narrow rectangle can lose its float orientation at board coordinates. A `0.011 × 0.35` quad at `(600, 300)` deterministically produces the same native error. | Four-line guard in `scripts/combat_art_treatment.gd` omits only rectangles native triangulation rejects. Successful geometry, UVs, tint, atlas clipping and all tuning are retained. | Unmodified baseline: `ART TREATMENT SLIVER REGRESSION: FAIL (6 checks, 1 failures)`. Fixed: `ART TREATMENT SLIVER REGRESSION: PASS (6 checks, 0 failures)`. Full fixed follow-ups: '+replay_summary+'. |',
+        '| Missing `actor_key` in Gloam Ambush contact playback | Default 5, decision 2475; same replay decision/room; final no-Embrace 4 also recurs at decision 2756 | Effectless strike contains only `enemy_after`; Gloam adapter adds `intent_id` and forwards it to contact playback, which indexes missing `actor_key`. | Not fixed: `scripts/maquette_cutout_runtime/contact_actions.gd:18` is explicitly hands off. No caller workaround or protected test edit. | Seed 5 reproduced exactly. `QA23 NO-EFFECT AMBUSH PAYLOAD: DEFECT OBSERVED; outer actor_key=enemy_1; nested keys=["enemy_after"]`. Owning unit must add the corrected no-effect Ambush regression. |',
+        '| Runner exit 1 after native exit 0 | Default 5 and confirmation replay | Runner finds the same protected script error after the run finishes through Embrace. | Same protected defect. This is not a native process crash. | Raw command/log/evidence retain both statuses. No fixed replay is claimed. |',
+        '| Fight exploration budget 400 | Default 12, decision 1217, section 2 Snare | Reach the Exit objective remains active: all enemies dead, hero `(3, 1)`, open target `(4, 7)`. Clear grid route exists. Bot spends its budget without reaching the exit. | Hunt coverage limitation; no product softlock shown. No policy or tuning changes. | Reproduced at decision 1217 / turn 92. Terminal snapshot and route in `snare-budget-triage.json`. |',
+        '| Section-5 tree-node growth flags | Default 2/5; no-Embrace 1/2/3/4 | Cold start compared with populated board/UI, cached cards and retained views. Census exposes parent-owned growth; aggregate metric does not establish a leak. | No leak fix justified. Every original campaign room census has zero orphans. No heap plateau proof is claimed. | Seed-specific replay details below and in `node-census-triage.json`. Default 2 original-driver follow-up reproduces 1542→6765 exactly. |',
+        '| macOS certificate lookup | Every fresh profile, before driver startup | Godot system-CA retrieval returns a non-`noErr` status at `platform/macos/os_macos.mm:1014`. | External startup diagnostic; no application change. | Reproduced across independent fresh profiles and cold import. |','',
+        '## Coverage and acceptance','',
+        '| Campaign | Runs ended / started | Completions | Outcomes | Rooms | Decisions | Sections 0–5 (runs) | Final dragons | Wall time |',
+        '|---|---:|---:|---|---:|---:|---|---:|---|']
+    for name,c in coverage.items():
+        text.append('| %s | %d / %d | %d | %s | %d | %d | %s | %d | %.2f min |' % (name,c['processes_ended'],c['runs_started'],c['completions'],str(c['outcomes']),c['room_entries'],c['decisions'],', '.join(str(c['section_runs'][str(i)]) for i in range(6)),len(c['final_dragon_runs']),c['wall_seconds']/60))
+    text+=['','1. Both fresh campaigns used `--minutes 45 --processes 2`. Campaigns ran sequentially and drained children after the launch cutoff. Total campaign coverage is 611 room entries; supplemental replays do not inflate it.',
+        '2. Every deduplicated original finding group received a fresh `--runs 1 --processes 1` attempt. The owned polygon defect has a native fail-before/pass-after regression and full fixed follow-ups. Protected contact-runtime work is reported with its replay command instead of modified.',
+        '3. Both reports were rebuilt using `--report-only` and `--include-evidence`; exact commands and result lines are in `report-rebuilds.json`. All raw histories remain intact.','',
+        'Required/observed room-kind counts and explicit NEVER VISITED rows are in `default-report.md` and `no-embrace-report.md`. Blacksmith/arcanist remain legacy ungenerated rooms; no fixtures manufactured visits. Every original room census records zero orphans.','',
+        '## Replay outcomes','',
+        '| Replay | Outcome | Decisions | Sections | Relevant evidence |','|---|---|---:|---|---|']
+    for r in rows:
+        findings=[f['error'] for f in r['findings'] if f['category']!='platform certificate diagnostic']
+        text.append('| `%s` | %s | %d | %s | %s |' % (r['name'],r['outcome'],r['decisions'],', '.join(r['sections']),'; '.join(findings) if findings else 'Only platform startup diagnostic'))
+    text+=['','The first census replay of default seed 2 ended through Embrace at decision 964 in section 2. Its first meaningful input divergence was a campfire modal at decision 563 after 562 matching inputs. The original-driver follow-up then reached section 5 and reproduced the original growth measurement exactly. The bounded seed-4 census replay stopped in section 4; its full fixed-renderer follow-up is recorded above. Read-only diagnostic timing can affect sampled UI offers; these are seeded fuzz runs, not recorded-input playback. No core driver/input policy was changed.',
+        '','The fresh diagnostic seed-3 replay did not repeat the transient polygon error. The deterministic native canvas fixture confirms the same failure path on the unmodified baseline for both ordinary and atlas textures. Temporary diagnostic logging was restored before applying the final guard.','',
+        '## Verification','',
+        '- Cold import: exit 0, `[ DONE ] loading_editor_layout`; retained `cold-import-result.json` points to the exact engine log. Known certificate and duplicate Reaver-placeholder UID diagnostics were emitted.',
+        '- Output setup: `OUTPUT GDIGNORE: PASS (23 folders; 5 referenced roots)`.',
+        '- Python isolation audit: `ISOLATION AUDIT: 54 modules`. No new Python test modules or shared write resources were introduced.',
+        '- Final Python default group: `Ran 178 tests in 28.004s`, `OK`; `INPUT GROUP TIME default: 19 modules; 68.787 module-seconds; 27.868s maximum attributed shard work`. Suite exit 0. Optional timing-cache update was denied by the read-only Git sandbox after tests passed.',
+        '- Focused program, both affected files: `python3 tools/program_suite_runner.py --task-id qa-23 --suite combat_art_treatment_probe --jobs 1 --result-file <fresh-json>`; baseline failed once on the actual native error, fixed result passed six checks, zero failures, zero retries.',
+        '- Census driver parser: `--headless --check-only`, exit 0. Contact-payload diagnostic: exit 0 with the malformed payload observed. Native quad search found the positive failing rectangle without creating art.',
+        '- Report-helper compile initially could not write the default macOS cache: `PermissionError: [Errno 1] Operation not permitted: /Users/borgerding/Library/Caches/com.apple.python/private/tmp/labyrinth_codex`. With task-local `PYTHONPYCACHEPREFIX=/private/tmp/labyrinth_codex/qa-23/pycache`, compilation exited 0.',
+        '- No full Python or full Godot suite was run. Existing assertions were retained. No approved asset, icon, font, audio, tuning, save format or analytics field was changed.','',
+        'Logs/results: `/private/tmp/labyrinth_codex/qa-23/python-final/`, `quad-regression-baseline.json`, `quad-regression-after.json`, `contact-payload.log`, and all replay `command.json`, `godot.log`, `trace.jsonl`, `summary.json`, `evidence.json` files.','',
+        '## Proof for the design owner','',
+        'No windowed command or capture was attempted: this worker has no window-server access. The existing native probe retains its pixel assertions for UV regions, atlas margins, tint, alpha, cached/direct art, motion and Umbra clipping. Run the prepared proof at 1920×1080, 100% UI scale:',
+        '','```sh','cd '+str(PROJECT)+' && python3 tools/visual_probe_runner.py --task-id qa-23 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract spec/peer_benchmark/qa/run_hunt_2026-11-03/polygon-proof-contract.json --result-manifest /private/tmp/labyrinth_codex/qa-23/polygon-native-proof.json tests/combat_art_treatment_probe.gd','```','',
+        'The eight target PNGs live under the runner-isolated `user://pillar_torch_lighting_probe/`; the result manifest records their exact absolute paths. No PNG or pixel-parity success is claimed here. Use fresh output/manifest paths. Inspection-fixture preparation remains assigned to the owner; this brief requests no worker `inspection_fixture.py` invocation.','',
+        '## TODO_DESIGN placeholders','', 'None. Product visuals, wording, timings, tuning and assets were not redesigned.','',
+        '## Chosen defaults','',
+        '- `CAMPAIGN_SEED = 1`: inherited coordinator default, fresh for each campaign. `TASK_ID = "qa-23"`: required namespace; evidence paths are task-local.',
+        '- Test-only `SLIVER_RECT = Rect2(600, 300, 0.011, 0.35)`, `NORMAL_RECT = Rect2(600, 320, 32, 32)`, `SLIVER_SETTLE_FRAMES = 8`, `SLIVER_TEXTURE_ID = "gloam_stalker"` (existing approved production texture).',
+        '- Diagnostic matrix: `FIXTURE_ORIGINS = [(300,200),(600,300),(900,400),(1200,600),(1500,700)]`; `FIXTURE_WIDTHS = [0.01001,0.011,0.015,0.02,0.03,0.05,0.1]`; `FIXTURE_HEIGHTS = [0.35,1,3,4,5,10]`. Search-only geometry, no generated art.',
+        '- Diagnostic child cleanup `CLEANUP_SECONDS = 10`. Replays use the prescribed one process each, at most two active. Proof resolution/scale is the required 1920×1080 / 100%. All health, clock, sampling and watchdog values are inherited unchanged from the existing hunt.','',
+        '## Open issues and balance observations','',
+        '- The confirmed Gloam contact-payload error remains unfixed because its runtime is explicitly protected. See `protected-contact-finding.md` for exact commands and source.',
+        '- Native pixel proof remains with the design owner. The guard preserves the old successful drawing path and omits exactly the quads the engine already rejected, but no native-renderer capture was available here.',
+        '- The qa-22 protected-test list was requested twice and was absent from this worktree/shared task metadata. The directly related existing art-treatment probe was selected as a narrow scope assumption; its existing assertions were not rewritten.',
+        '- Aggregate tree growth is retained for follow-up, not asserted to be a leak. Cached UI/board populations and zero orphans explain why this cold/warm metric alone is insufficient.',
+        '- Report only, no tuning: the default sampler chose Embrace in 11 of 12 runs. Seed 12 spent 400 decisions / 92 turns in a Snare with an available exit, ending at 9716/9999 health after killing the roster. The inherited 9999-health override and sampled actions make these coverage observations, not normal-player balance measurements.','',
+        '## Files changed','',
+        '- `scripts/combat_art_treatment.gd`: four-line native-validity guard.',
+        '- `tests/combat_art_treatment_probe.gd`: additive headless native regression; windowed assertions retained.',
+        '- `spec/peer_benchmark/qa/run_hunt_2026-11-03/`: this report, rebuilt campaign reports/findings, coverage, replay/proof metadata, native proof contract and exact diagnostic-source snapshots. `evidence-index.json` inventories the durable report artifacts.','']
+    content='\n'.join(text)
+    (EVIDENCE/'result.md').write_text(content)
+    (REPORT/'result.md').write_text(content)
+    for name in ['finalize_report.py','find_quad_fixture.gd','confirm_polygon.py','postfix_replays.py']:
+        shutil.copyfile(EVIDENCE/name,REPORT/'proof-sources'/(name+'.txt'))
+    index={'base_head':'65b9d0d43636c1d5bd72944c38518c5a8540e5cb','files':[],'replay_count':len(rows),'native_proof':'Not run by this worker; prepared command/contract only'}
+    for p in sorted(REPORT.rglob('*')):
+        if p.is_file() and p.name!='evidence-index.json':
+            index['files'].append(dict(path=str(p.relative_to(REPORT)),bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
+    (REPORT/'evidence-index.json').write_text(json.dumps(index,indent=2)+'\n')
+    print('QA23 FINAL REPORT: '+str(EVIDENCE/'result.md'))
+    print('QA23 FINAL REPORT CHECK: campaigns=2 campaign_runs=16 campaign_rooms=611 replay_runs='+str(len(rows))+' owned_fix=1 protected_open=1')
+    return 0
+
+if __name__=='__main__':
+    sys.exit(main())

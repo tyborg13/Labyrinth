@@ -1,0 +1,6 @@
+NATIVE_CAPTURE_PACKING: PASS; raw_bytes=14517994; packed_bytes=2609944
+MQ17_ACCEPTANCE: PASS; unexplained_parts=[]
+DELIVERY_STAGE: PASS; storm_cantor
+MQ17_ACCEPTANCE: PASS; unexplained_parts=[]
+MQ17_CONTACT_SHEET: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/delivery/contact_sheet.webp
+MQ17_STAGE: PASS

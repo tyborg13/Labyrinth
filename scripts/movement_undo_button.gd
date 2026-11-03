@@ -127,6 +127,7 @@ func request_undo() -> void:
 	var restored: Dictionary = result["state"]
 	_host.set("_combat_state", restored)
 	_host.set("_run_state", _host.get("_run_engine").set_combat_state(_host.get("_run_state"), restored))
+	_host.get("_hero_facing").reset(restored, _host.get("_hero_facing").enabled)
 	_host.get("_board_presentation").clear()
 	_host.call("_mark_combat_preview_state_changed")
 	_host.call("_persist_committed_boundary", "player_move_undone")

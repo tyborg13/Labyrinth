@@ -1,11 +1,12 @@
 extends SceneTree
 
+const CommittedBattlefieldRules = preload("res://scripts/battlefield_rules/committed.gd")
 const GraftwrightRules = preload("res://scripts/graftwright_rules.gd")
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
-const CombatEngine = preload("res://scripts/combat_engine.gd")
+const CombatEngine = preload("res://scripts/hero_facing_combat.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
@@ -39,10 +40,14 @@ var _running: bool = true
 
 func _initialize() -> void:
 	_options = _parse_args()
+	if bool(_options.get("invalid_hero_facing", false)):
+		quit(1)
+		return
 	if bool(_options.get("show_help", false)):
 		_print_help()
 		quit(0)
 		return
+	_combat_engine.persist_hero_facing = str(_options["hero_facing"]) == "persist"
 	_setup_paths()
 	ProgressionStore.set_storage_path(str(_options.get("output_dir", DEFAULT_OUTPUT_DIR)).path_join("manual_progression.json"))
 	ProgressionStore.set_run_storage_path(str(_options.get("output_dir", DEFAULT_OUTPUT_DIR)).path_join("manual_run.save"))
@@ -63,6 +68,7 @@ func _initialize() -> void:
 func _parse_args() -> Dictionary:
 	var parsed: Dictionary = {
 		"seed": DEFAULT_SEED_BASE,
+		"hero_facing": "persist",
 		"output_dir": DEFAULT_OUTPUT_DIR,
 		"analytics_dir": DEFAULT_OUTPUT_DIR.path_join("analytics"),
 		"notes_path": DEFAULT_OUTPUT_DIR.path_join("manual_playtest_notes.md"),
@@ -76,6 +82,13 @@ func _parse_args() -> Dictionary:
 	while index < args.size():
 		var arg: String = args[index]
 		match arg:
+			"--hero-facing":
+				index += 1
+				if index >= args.size() or args[index] not in ["persist", "snap"]:
+					push_error("--hero-facing requires persist or snap")
+					parsed["invalid_hero_facing"] = true
+					return parsed
+				parsed["hero_facing"] = args[index]
 			"--seed":
 				index += 1
 				parsed["seed"] = int(args[index])
@@ -106,8 +119,8 @@ func _parse_args() -> Dictionary:
 
 func _print_help() -> void:
 	print("Manual headless playtest console")
-	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume]")
-	print("Commands: snare BIOME TIER [seed], warband BIOME TIER [seed], state, map, moves, move N, scout N, event [choice_id|continue], graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, force up|right|down|left, pass, continue, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
+	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume] [--hero-facing persist|snap]")
+	print("Commands: snare BIOME TIER [seed] [case], warband BIOME TIER [seed], state, map, moves, move N, scout N, event [choice_id|continue], graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, force up|right|down|left, pass, continue, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
 	print("Card flow: `card N`/`click N` starts printed text; target prompts commit after `target`. Re-run `cards` after each resolved play because hand indexes can shift.")
 	print("Combat movement: `walk x,y` spends the independent movement pool; it may be used before, between, or after card plays.")
 	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, # wall/pillar, D door")
@@ -146,6 +159,7 @@ func _notes_command_text() -> String:
 		"--output-dir",
 		str(_options.get("output_dir", DEFAULT_OUTPUT_DIR))
 	]
+	parts.append_array(["--hero-facing", str(_options["hero_facing"])])
 	var output_dir: String = str(_options.get("output_dir", DEFAULT_OUTPUT_DIR))
 	var analytics_dir: String = str(_options.get("analytics_dir", output_dir.path_join("analytics")))
 	if analytics_dir != output_dir.path_join("analytics"):
@@ -216,7 +230,9 @@ func _handle_command(command: String) -> void:
 			else:
 				_print_scout_options()
 		"event":
+			var before_event: Dictionary = _run_state
 			_run_state = _run_engine.resolve_map_event(_run_state, str(parts[1]) if parts.size() > 1 else "")
+			preload("res://scripts/recent_event_store.gd").record_resolution(before_event, _run_state)
 			_progression = (_run_state.get("progression", _progression) as Dictionary).duplicate(true)
 			_print_state()
 		"graft":
@@ -492,7 +508,7 @@ func _command_walk(raw: String) -> void:
 		print("Movement produced no effect.")
 		_print_player_movement()
 		return
-	_combat_state = transition_state.duplicate(true)
+	_combat_state = CommittedBattlefieldRules.accept(_combat_engine, transition_state.duplicate(true))
 	_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
 	_log_item_pickups(before_combat_state, _combat_state)
 	_log_card_draws(before_combat_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "player_movement")
@@ -514,6 +530,12 @@ func _command_walk(raw: String) -> void:
 	_print_state()
 
 func _print_combat_state() -> void:
+	if _combat_engine.SnareRules.active(_combat_state):
+		var pressure: Dictionary = _combat_engine.SnareRules.Pressure.definition(_combat_state)
+		print("Snare pressure [%s]: %s" % [pressure["id"], pressure["text"]])
+		var preview: Dictionary = _combat_engine.SnareRules.Pressure.preview(_combat_engine, _combat_state)
+		if preview.has("wind_preview"): preview["wind_preview"].erase("state")
+		print("Pressure preview: " + str(preview))
 	var player: Dictionary = _combat_state.get("player", {})
 	var plays_remaining: int = _combat_engine.cards_remaining_this_turn(_combat_state)
 	var player_status: String = _status_text(player)
@@ -1480,7 +1502,7 @@ func _commit_pending() -> void:
 	var instance_id: String = _analytics_hand_instance_id(hand_index)
 	var actions: Array = (_pending.get("actions", []) as Array).duplicate(true)
 	var targets: Array[Vector2i] = _vector2i_array(_pending.get("targets", []))
-	_combat_state = _combat_engine.finish_player_card(resolved_state, hand_index, _combat_engine.card_plays_spent_for_actions(actions), {"play_mode": "play"})
+	_combat_state = CommittedBattlefieldRules.player_card(_combat_engine, before_combat_state, resolved_state, hand_index, actions, targets, {"play_mode": "play"})
 	_log_item_pickups(before_combat_state, _combat_state)
 	_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
 	_log_card_draws(before_combat_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "card_effect")
@@ -1510,8 +1532,8 @@ func _resolve_enemy_round(reason: String) -> void:
 	var before_run_state: Dictionary = _run_state.duplicate(true)
 	var before_combat_state: Dictionary = _combat_state.duplicate(true)
 	var before_tracker: Dictionary = _analytics_snapshot_combat_tracker()
-	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state)
-	var phase: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
+	var scheduled_state: Dictionary = CommittedBattlefieldRules.finish_player_activation(_combat_engine, _combat_state)
+	var phase: Dictionary = CommittedBattlefieldRules.advance_to_player(_combat_engine, scheduled_state)
 	var after_phase_state: Dictionary = (phase.get("state", {}) as Dictionary).duplicate(true)
 	_log_item_pickups(before_combat_state, after_phase_state)
 	_log_enemy_status_ticks(phase, after_phase_state)
@@ -1806,6 +1828,7 @@ func _sync_combat_state_from_run() -> void:
 	_combat_state = (_run_state.get("combat_state", {}) as Dictionary).duplicate(true)
 	if not _combat_state.is_empty():
 		_combat_state = _combat_engine.normalize_player_movement_pool(_combat_state)
+		if _combat_engine.persist_hero_facing: preload("res://scripts/hero_facing_state.gd").ensure(_combat_state)
 		_run_state["combat_state"] = _combat_state.duplicate(true)
 
 func _ensure_run_analytics_metadata(run_state: Dictionary, run_number: int) -> Dictionary:
@@ -1826,6 +1849,8 @@ func _attach_new_combat_analytics(previous_run_state: Dictionary, reason: String
 	_run_state["combat_state"] = _combat_state.duplicate(true)
 	_analytics_initialize_combat_tracker(_combat_state)
 	_log_combat_started(reason)
+	_analytics_store.write_events(preload("res://scripts/snare_pressure_analytics.gd").records(_combat_state, _analytics_context(_combat_state)))
+	_analytics_store.write_events(preload("res://scripts/battlefield_rules/analytics.gd").records(_combat_state, _analytics_context(_combat_state)))
 	_log_card_draws({}, _combat_state, {}, _analytics_snapshot_combat_tracker(), "opening_hand")
 	_log_playable_cards()
 
@@ -1911,6 +1936,8 @@ func _log_combat_started(reason: String) -> void:
 	})
 
 func _log_combat_transition(previous_run_state: Dictionary, reason: String, transition_combat_state: Dictionary) -> void:
+	_analytics_store.write_events(preload("res://scripts/snare_pressure_analytics.gd").records(transition_combat_state, _analytics_context(transition_combat_state)))
+	_analytics_store.write_events(preload("res://scripts/battlefield_rules/analytics.gd").records(transition_combat_state, _analytics_context(transition_combat_state)))
 	var previous_mode: String = str(previous_run_state.get("mode", "room"))
 	var next_mode: String = str(_run_state.get("mode", "room"))
 	if previous_mode == "combat" and next_mode != "combat" and not transition_combat_state.is_empty():
@@ -1919,7 +1946,12 @@ func _log_combat_transition(previous_run_state: Dictionary, reason: String, tran
 			"outcome": _combat_engine.combat_outcome(transition_combat_state),
 			"doors_open_at_escape": int(_combat_engine.snare_escape_context(transition_combat_state).get("doors_open_at_escape", 0)),
 			"sealbinders_killed": int(_combat_engine.snare_escape_context(transition_combat_state).get("sealbinders_killed", 0)),
+			"snare_pressure": _combat_engine.SnareRules.Pressure.id(transition_combat_state),
+			"braziers_lit_at_dawn": int(_combat_engine.last_light_context(transition_combat_state).get("braziers_lit_at_dawn", 0)),
+			"brazier_snuffs": int(_combat_engine.last_light_context(transition_combat_state).get("brazier_snuffs", 0)),
 			"turn": int(transition_combat_state.get("turn", 0)),
+			"hoarder_result": str(preload("res://scripts/hoarder_room_rules.gd").analytics(transition_combat_state)["hoarder_result"]),
+			"hoarder_caught_turn": int(preload("res://scripts/hoarder_room_rules.gd").analytics(transition_combat_state)["hoarder_caught_turn"]),
 			"room_embers": int(transition_combat_state.get("room_embers", 0)),
 			"remaining_player_hp": int((transition_combat_state.get("player", {}) as Dictionary).get("hp", 0))
 		})
@@ -2012,6 +2044,9 @@ func _analytics_hand_instance_id(hand_index: int) -> String:
 	return str(hand_ids[hand_index])
 
 func _analytics_reconcile_combat_tracker(before_state: Dictionary, after_state: Dictionary) -> void:
+	CommittedBattlefieldRules.accept(_combat_engine, after_state)
+	_analytics_store.write_events(preload("res://scripts/snare_pressure_analytics.gd").records(after_state, _analytics_context(after_state)))
+	_analytics_store.write_events(preload("res://scripts/battlefield_rules/analytics.gd").records(after_state, _analytics_context(after_state)))
 	if _analytics_tracker.is_empty():
 		_analytics_initialize_combat_tracker(after_state)
 		return
@@ -2558,6 +2593,7 @@ func _load_session() -> bool:
 	var session: Dictionary = data
 	_run_state = (session.get("run_state", {}) as Dictionary).duplicate(true)
 	_combat_state = (session.get("combat_state", {}) as Dictionary).duplicate(true)
+	if _combat_engine.persist_hero_facing and not _combat_state.is_empty(): preload("res://scripts/hero_facing_state.gd").ensure(_combat_state)
 	_progression = (session.get("progression", {}) as Dictionary).duplicate(true)
 	_pending = (session.get("pending", {}) as Dictionary).duplicate(true)
 	_analytics_tracker = (session.get("analytics_tracker", {}) as Dictionary).duplicate(true)
@@ -3300,10 +3336,11 @@ func _command_warband(parts: PackedStringArray) -> void:
 
 func _command_snare(parts: PackedStringArray) -> void:
 	if parts.size() < 3:
-		print("Usage: snare <biome> <tier> [seed]")
+		print("Usage: snare <biome> <tier> [seed] [case: encounter|first_turn|first_seal|kept_open|escape|pressure_turn3]")
 		return
 	var fixture = preload("res://tools/snare_inspection.gd")
 	var options: Dictionary = {"snare_biome": parts[1], "snare_tier": int(parts[2])}
+	if parts.size() > 4: options["snare_case"] = parts[4]
 	var error: String = fixture.validate(options)
 	if not error.is_empty():
 		print(error)

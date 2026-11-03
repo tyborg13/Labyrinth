@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "sealed_revision": "eb6e164dde5fe5799b7cc92cb59e592d423f39fc",
+  "purpose": "Exact live validation-only changes; native production source hashes stay bound to sealed Git bytes.",
+  "sealed_sha256": {
+    "proof.py": "6a5f676d521dcaf24e03f1c8206d96b328ff2d437b5f9398c5f3d35cbcf683d3",
+    "source_inventory.py": "18945c02a2a4655e9d3e2056ccce78ba36c0914bfc90908048ed2a8d53afed6e",
+    "mq21_proof/mq21_mq16_regeneration.py": "7322098eece950bdb910350cecbf396aee9fb567e2eebe31165d6f831cef74a7",
+    "mq21_proof/workflow.py": "32a8cef8f152d567c8247a5b2acda4a8b38cfa079da12b5bb598cd6b762d5561",
+    "mq21_proof/mq21_sources.py": "91d1bf923d16f3d49da3d066821c8382b6745ceb22b6223457204dcff1d5a05c"
+  },
+  "current_sha256": {
+    "proof.py": "8b26f19f4599b777ca92d72919f254555fc9ed69386a194484aadf9bdc75ff1a",
+    "source_inventory.py": "a90b6143010fa4af0ef8b6d367c08cb89fffab08ad3183280d97c6bc4a094bc8",
+    "mq21_proof/mq21_mq16_regeneration.py": "c949d76dc38f00a279c86851bbe940d228ea26b3902616ec289725c8d87fd0f8",
+    "mq21_proof/workflow.py": "920a314514aafd9d82c99c7cfd3a8ed11b283a738a800b0a19a7420b636d3c71",
+    "mq21_proof/mq21_sources.py": "2ee317c9ae3ed878414beb0098fd3248a4b0fcf40833c610c93caeb71e4ee757"
+  },
+  "proof_versions": {
+    "mq16_sealed": {
+      "revision": "07d541d9fa47bcf32ca1aca86ccabaed7fe5c968",
+      "sha256": "6a5f676d521dcaf24e03f1c8206d96b328ff2d437b5f9398c5f3d35cbcf683d3"
+    },
+    "mq23_inventory_scoping": {
+      "revision": "0241c7dc08792971702d86902f1e97d2ba21db5e",
+      "sha256": "8b26f19f4599b777ca92d72919f254555fc9ed69386a194484aadf9bdc75ff1a"
+    }
+  }
+}

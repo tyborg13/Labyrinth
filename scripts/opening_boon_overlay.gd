@@ -1,5 +1,7 @@
 extends Control
 
+const CardDisplay = preload("res://scripts/card_display_overrides.gd")
+
 signal chosen(boon: String, choices: Array)
 signal purge_selection_ready
 
@@ -179,6 +181,7 @@ func _spell_choice(row: Control, id: String, index: int, card_size: Vector2, gap
 	var widget: Control = CardScene.instantiate()
 	widget.name = "BoonSpellChoice_%d_%s" % [index, id]
 	widget.configure(id, false, false, true, false, true, true, Data.card_def(id))
+	CardDisplay.bind(widget, _state)
 	var constants: Dictionary = _host.get_script().get_script_constant_map()
 	widget.set_hover_pose(constants["REWARD_CARD_HOVER_LIFT"], constants["REWARD_CARD_HOVER_SCALE"])
 	var slot: Control = _host.call("_reward_card_choice_slot", widget, id, card_size, _state)
@@ -195,7 +198,7 @@ func _spell_choice(row: Control, id: String, index: int, card_size: Vector2, gap
 	)
 	widget.focus_entered.connect(_spell_highlight.bind(widget, index))
 	widget.focus_exited.connect(_spell_highlight.bind(widget, index))
-	_inspection.bind_card(widget, id)
+	_inspection.bind_card(widget)
 	_controls.append(widget)
 
 func _spell_highlight(widget: Control, index: int) -> void:

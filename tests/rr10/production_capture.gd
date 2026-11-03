@@ -61,6 +61,7 @@ func _run() -> void:
 	await _prepare_production_crop()
 	await _run_clips()
 	_failures.append_array(preload("capture_contract.gd").errors(_frames, _data, _scene.proof_completions, not _logic))
+	_failures.append_array(preload("res://tests/fix10_capture_contract.gd").errors(_frames, _type))
 	for error: String in _failures: push_error(error)
 	var bindings: Dictionary = preload("bindings.gd").for_case("res://experiments/cutouts/hoarfrost_seer/rr10")
 	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": false, "production_promoted": true,
@@ -137,6 +138,7 @@ func _run_clips() -> void:
 			continue
 		var selector: String = str(_data["clips"][clip]["intents"][0])
 		var fields: PackedStringArray = selector.split(":")
+		if _type == "arc_thrall" and clip == "tether": fields = PackedStringArray(["arc_bolt", "ranged"])
 		state = fixture(fields[0])
 		if clip == "jab": state["enemies"][0]["pos"] = Vector2i(5, 4)
 		await install(state)
@@ -147,7 +149,17 @@ func _run_clips() -> void:
 		var context: Dictionary = engine.enemy_intent_plan(state, 0)
 		var after: Dictionary = engine._resolve_enemy_action(state.duplicate(true), 0, action, null, {}, engine._dictionary_values([]), context)
 		var step: Dictionary = engine._enemy_action_step(state, after, 0, action, context)
-		await _scene.record_action(clip, func() -> void: await _scene._animate_enemy_phase_steps(state.duplicate(true), [step]))
+		var arc_bolt_cast: bool = _type == "arc_thrall" and clip == "tether"
+		var steps: Array[Dictionary] = engine._dictionary_values([step])
+		var previous_lock: bool = _scene._animation_lock
+		if arc_bolt_cast:
+			steps.assign(engine.resolve_enemy_turn_with_steps(state, 0, false)["steps"])
+			_scene._animation_lock = true
+			_scene._combat_pacing.begin_enemies()
+		await _scene.record_action(clip, func() -> void: await _scene._animate_enemy_phase_steps(state.duplicate(true), steps))
+		if arc_bolt_cast:
+			_scene._combat_pacing.end_scope()
+			_scene._animation_lock = previous_lock
 
 func _capture() -> void:
 	await process_frame
@@ -172,6 +184,8 @@ func _capture() -> void:
 		var node: Bone2D = rig.bones[bone]
 		pose.append([bone, str(node.transform), node.modulate.a])
 	var row: Dictionary = {"stage": _stage, "snapshot": snapshot, "pose_sha256": JSON.stringify(pose).sha256_text(), "seconds": _scene.proof_elapsed_seconds}
+	row["banner"] = _scene.action_banner.text
+	row["banner_visible"] = _scene.action_banner.visible
 	var shown: Dictionary = _scene.board_view.presentation
 	row["effect"] = shown.get("effect", {})
 	row["player_hp"] = int(_scene.board_view.combat_state["player"]["hp"])
@@ -199,9 +213,10 @@ func _capture() -> void:
 	_frames.append(row)
 
 func fixture(intent: String) -> Dictionary:
+	if _type == "arc_thrall" and intent == "tether": intent = "arc_bolt"
 	var actors: Array[Dictionary]
 	actors.assign([Fixtures.enemy(_type, 1, Vector2i(2, 4), intent)])
-	if _type == "arc_thrall": actors.append(Fixtures.enemy(_type, 2, Vector2i(6, 4), "tether"))
+	if _type == "arc_thrall": actors.append(Fixtures.enemy(_type, 2, Vector2i(6, 4), "arc_jab"))
 	var state: Dictionary = Fixtures.state(actors)
 	if intent == "icefall_land":
 		# Generate the marked tiles with the real resolver before installing land.

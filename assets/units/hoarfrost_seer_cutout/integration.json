@@ -2,7 +2,7 @@
   "ready": false,
   "rig": "humanoid_v2",
   "case": "experiments/cutouts/hoarfrost_seer/rr10",
-  "director_sha256": "3936cc0fb6028fe2eb858e7f753efe7aab712d92b8158ea9f74ea4dd91e25f42",
+  "director_sha256": "30cf0240b1f1850daa474548824771a5e5d688bbc5b120eb3b367c49b73c706b",
   "design_placeholders": {},
   "native_proof": "pending director rest/native/production/idle/review",
   "rest_identity": {
@@ -18,8 +18,8 @@
   "files": {
     "actions.gd": "5fb5be41dade5aed30c593f6ae8fda84d8cc74f9b8099af802da9eb6f1499267",
     "front.json": "f5fa38ad3b9389b51c9a0c625b0716fab1841cf8f5f49de74e3ec38b653d32ce",
-    "humanoid_v2/compiled_motion.json": "1d1b8579fe6189732b404ee0e266b9f006661997cafad140139ffa05d19a8736",
-    "humanoid_v2/director_motion.json": "3936cc0fb6028fe2eb858e7f753efe7aab712d92b8158ea9f74ea4dd91e25f42",
+    "humanoid_v2/compiled_motion.json": "5cb02c8f8b8b3d74f96273f165ff4449898a12d883234a08f7b1e7fc0b891fad",
+    "humanoid_v2/director_motion.json": "30cf0240b1f1850daa474548824771a5e5d688bbc5b120eb3b367c49b73c706b",
     "humanoid_v2/front/foot_far.png": "11d546cb71560b4279216802f4de6390a5705e0edbe98a0427206362d5045216",
     "humanoid_v2/front/foot_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/foot_near.png": "79108696fa4574882e51c9f4bf52620e757c6d5ac4144d90120472c6a957e75d",

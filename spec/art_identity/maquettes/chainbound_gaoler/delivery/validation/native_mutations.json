@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "recipe_unchanged": true,
+  "mutations": {
+    "flatten_native_fingers": {
+      "caught": true,
+      "checks": {
+        "complete_gloved_grip": true,
+        "four_wrapped_fingers": false,
+        "knuckles_forward_of_palm": true,
+        "thumb_over_fingers": false,
+        "top_link_in_grip_envelope": true,
+        "correct_hand_ownership": true
+      }
+    },
+    "detach_native_top_link": {
+      "caught": true,
+      "checks": {
+        "complete_gloved_grip": true,
+        "four_wrapped_fingers": true,
+        "knuckles_forward_of_palm": true,
+        "thumb_over_fingers": true,
+        "top_link_in_grip_envelope": false,
+        "correct_hand_ownership": true
+      }
+    },
+    "detach_native_thumb_sideways": {
+      "caught": true,
+      "checks": {
+        "complete_gloved_grip": true,
+        "four_wrapped_fingers": true,
+        "knuckles_forward_of_palm": true,
+        "thumb_over_fingers": false,
+        "top_link_in_grip_envelope": true,
+        "correct_hand_ownership": true
+      }
+    },
+    "detach_native_thumb_forward": {
+      "caught": true,
+      "checks": {
+        "complete_gloved_grip": true,
+        "four_wrapped_fingers": true,
+        "knuckles_forward_of_palm": true,
+        "thumb_over_fingers": false,
+        "top_link_in_grip_envelope": true,
+        "correct_hand_ownership": true
+      }
+    },
+    "changed_helm_old_hash": {
+      "caught": true,
+      "native_hash_changed": true
+    }
+  }
+}

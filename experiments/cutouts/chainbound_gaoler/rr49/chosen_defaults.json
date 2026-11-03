@@ -1,0 +1,47 @@
+{
+  "submitted_vertex_cache_capacity": 128,
+  "purpose": "Internal bounded per-mesh reuse; no player-visible value",
+  "inherited_values": {
+    "subpixel_scale": 256,
+    "sample_timeout_s": 85,
+    "full_godot_runner_timeout_s": 1800
+  },
+  "mutation_submission_translation_px": 1,
+  "diagnostic_sheet_overview": {
+    "canvas_size": [
+      1600,
+      1600
+    ],
+    "columns": 4,
+    "cell_size": 400,
+    "thumbnail_max_size": [
+      390,
+      370
+    ],
+    "label_y_in_cell": 375
+  },
+  "diagnostic_input_overview": {
+    "canvas_size": [
+      1200,
+      800
+    ],
+    "columns": 3,
+    "cell_size": 400,
+    "thumbnail_max_size": [
+      390,
+      360
+    ],
+    "label_y_in_cell": 370
+  },
+  "diagnostic_overview_colours": {
+    "background": "#202024",
+    "labels": "white"
+  },
+  "headless_submission_benchmark_calls": 100,
+  "feedback2_headless_ancestor_translation_px": [7, 11],
+  "feedback3_cache_scope": "128 motion entries and 128 idle offsets per rig mesh; LRU eviction",
+  "feedback3_random_phase_seed": 4903,
+  "feedback3_timing_test_headroom_factor": 2.0,
+  "feedback3_fixture_runner_timeout_s": 120,
+  "feedback3_other_rig_phases": [0.0, 0.26, 0.5, 1.0]
+}

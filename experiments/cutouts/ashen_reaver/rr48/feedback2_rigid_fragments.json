@@ -1,0 +1,49 @@
+{
+  "fragments": [
+    {
+      "view": "front",
+      "source": "hidden_falchion",
+      "target": "hand_far",
+      "texels": [
+        [
+          109,
+          142
+        ]
+      ],
+      "source_pixels": 1,
+      "decision": "re-own",
+      "rule": "measured rigid raster sliver; exact source mapping; rest-contact owner or clear"
+    },
+    {
+      "view": "rear",
+      "source": "hidden_falchion",
+      "target": "hand_far",
+      "texels": [
+        [
+          166,
+          142
+        ],
+        [
+          166,
+          143
+        ],
+        [
+          166,
+          144
+        ],
+        [
+          166,
+          145
+        ],
+        [
+          166,
+          146
+        ]
+      ],
+      "source_pixels": 5,
+      "decision": "re-own",
+      "rule": "measured rigid raster sliver; exact source mapping; rest-contact owner or clear"
+    }
+  ],
+  "native_pixels": false
+}

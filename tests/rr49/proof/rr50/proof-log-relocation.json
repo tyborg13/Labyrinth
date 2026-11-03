@@ -1,0 +1,9 @@
+{
+  "reason": "Generated peer program bootstrap .gd files inside tests/ were discovered by the registration guard. Moved all generated peer logs outside the test tree; no assertion/source changed.",
+  "before": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr49/proof/rr50/peer-godot.logs",
+  "after": "/private/tmp/labyrinth_codex/rr50-peer-godot.logs",
+  "result_file_path_fields_updated": [
+    "log_path",
+    "engine_log_path"
+  ]
+}

@@ -11,12 +11,28 @@
       "output_sha256": "20cdfc4762af57f873915d405f25d957bd6a0d91976711f21953179b8d62957e"
     },
     {
+      "id": "ash_confessional",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/ash_confessional.png",
+      "raw_sha256": "2a642c4e5c4472c46f7b1fb1bd1311b61e99e32175c564030794ffb5afefbbf7",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/ash_confessional.md",
+      "output": "assets/art/events/ash_confessional.png",
+      "output_sha256": "bd2c32ec212bac34b5a07c82e1e233e685c53fd709619b9c3e9a4b67291d992b"
+    },
+    {
       "id": "bell_of_the_gale",
       "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/bell_of_the_gale.png",
       "raw_sha256": "22a84f9ae49cd9a423140928a31ec3759c1af0a71a5b3f0590fcbb5a7bf20ad3",
       "prompt": "spec/peer_benchmark/staged/event_art/prompts/bell_of_the_gale.md",
       "output": "assets/art/events/bell_of_the_gale.png",
       "output_sha256": "be6ca97c77632f7649b54201b6a9e915895ca36d357beca23ba5a56f25a589d1"
+    },
+    {
+      "id": "blind_scribe",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/blind_scribe.png",
+      "raw_sha256": "8657e3f05aba21a65c56396060ea82e94af1506cb9e7dedd8be7f33ea499947b",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/blind_scribe.md",
+      "output": "assets/art/events/blind_scribe.png",
+      "output_sha256": "182c4f3492e7bacac373d557867e8887b0f3d76c34610b994a8713fdbc91c739"
     },
     {
       "id": "bloodletters_basin",
@@ -27,6 +43,14 @@
       "output_sha256": "dde7cb3ee9753889e7ed35eff76fdad009db3880a3492ad87fc7082aeb51ecae"
     },
     {
+      "id": "candle_auction",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/candle_auction.png",
+      "raw_sha256": "85d5646feda8214a35a0d4776dab9aa01e7430c83ed4814c530e231dd690d152",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/candle_auction.md",
+      "output": "assets/art/events/candle_auction.png",
+      "output_sha256": "00cf36ea5ec7ccb863b63fb6b48ede95825a302b5aec7fe98c602d37c4a14119"
+    },
+    {
       "id": "cinder_supplicant",
       "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/cinder_supplicant.png",
       "raw_sha256": "cdc525b29be10efeef9248e8670e6b6a30926d24ed05bb08ca27facd1b718c22",
@@ -35,12 +59,36 @@
       "output_sha256": "4192eecd4ad5d75997de675ea1dd2daf3c9e518ed2f2dbc055b38651c1c8f3c6"
     },
     {
+      "id": "copper_saint",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/copper_saint.png",
+      "raw_sha256": "0a8adc1df3c9e66f1d29656d611105f5abacb41f934a6be7011640db5bb8513b",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/copper_saint.md",
+      "output": "assets/art/events/copper_saint.png",
+      "output_sha256": "2d2eb72d761069b1cd2e024ff240191919a40e5aaa346935bf9b3d7d555c3ab0"
+    },
+    {
+      "id": "drowned_chapel",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/drowned_chapel.png",
+      "raw_sha256": "7aa3c1c2e3596b14c873033509f3a46d1dc3fde6040026708f3f2c1c50b52d30",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/drowned_chapel.md",
+      "output": "assets/art/events/drowned_chapel.png",
+      "output_sha256": "09a6483f811be38eadeeebf6c8f4c52143a2c2499276d3f907a366bc8390f853"
+    },
+    {
       "id": "ember_font",
       "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/ember_font.png",
       "raw_sha256": "67021801c0aaccd08d6a8ef8230ebc85d6c843c9f5bb4987c01037d794ab9a9b",
       "prompt": "spec/peer_benchmark/staged/event_art/prompts/ember_font.md",
       "output": "assets/art/events/ember_font.png",
       "output_sha256": "51bf6062c2ca2240f52da3bd7083a1ea4b38ceb60690054feb8a1f6475d1480d"
+    },
+    {
+      "id": "ember_shaft",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/ember_shaft.png",
+      "raw_sha256": "d3b60a52dae75a049e7944acc61614f7d1374603173e97ed0646a34b94857033",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/ember_shaft.md",
+      "output": "assets/art/events/ember_shaft.png",
+      "output_sha256": "df46b49a36061ffe5bed62f6adb34f85eee7fd4891449bc89a90ca663f973599"
     },
     {
       "id": "ember_usurer",
@@ -67,6 +115,14 @@
       "output_sha256": "4a7ebd15d56665f9bfd4f448792a0b5504942329e5b78b8a2736fd313c7237e2"
     },
     {
+      "id": "glass_lake",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/glass_lake.png",
+      "raw_sha256": "c25ae905dd60350ccd43f92c80774ee0292d488d6be607c2e47a03c97d240d65",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/glass_lake.md",
+      "output": "assets/art/events/glass_lake.png",
+      "output_sha256": "340b7a09d5f6168818b58cad14cd86e7c702d182cc5bc587fb181119e130994b"
+    },
+    {
       "id": "hanged_knight",
       "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/hanged_knight.png",
       "raw_sha256": "2c803c291412206cf8e3c0ead161866a03bd63a157dc1aebdea9c3db2003f258",
@@ -81,6 +137,46 @@
       "prompt": "spec/peer_benchmark/staged/event_art/prompts/hoarfrost_spring.md",
       "output": "assets/art/events/hoarfrost_spring.png",
       "output_sha256": "e0d564d8b985199ff666cd63a80c5e63977ad51ce87102f133627c03f1d83352"
+    },
+    {
+      "id": "howling_gallery",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/howling_gallery.png",
+      "raw_sha256": "a8b9175c163be0530393e079f1a8682c340bb827471a94ed471a4eea6f126915",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/howling_gallery.md",
+      "output": "assets/art/events/howling_gallery.png",
+      "output_sha256": "622cd9f89e32a7d9519aedddf38479258d2392a0efb1aa8b21240845a59c6393"
+    },
+    {
+      "id": "hungry_door",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/hungry_door.png",
+      "raw_sha256": "3d0cda8d4adb2bea662fb2ff04d1c31dfc97e48e99a7f4e1d7c5769330708b99",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/hungry_door.md",
+      "output": "assets/art/events/hungry_door.png",
+      "output_sha256": "47e2232ced3552e1191dfed40450d56d454ca49d7fd5f6535603b5f105afa72e"
+    },
+    {
+      "id": "kiln_of_names",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/kiln_of_names.png",
+      "raw_sha256": "03650319dea50315d915fe162e636ddb1b7bfe7b8b3f3178654db4cc96a91fa2",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/kiln_of_names.md",
+      "output": "assets/art/events/kiln_of_names.png",
+      "output_sha256": "c849c2f7c3b18b39d4652c4b123455b3c382bf80ba6be0fe9535913a88f76026"
+    },
+    {
+      "id": "last_expedition",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/last_expedition.png",
+      "raw_sha256": "d1b5a369120e241e5c1299419e9d505c63dac09af3cc6698b11440a01ca2c06f",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/last_expedition.md",
+      "output": "assets/art/events/last_expedition.png",
+      "output_sha256": "3ae1763dd0de3d5036a778543bad9da3a54c3a27f989f79dc3c57682058430c9"
+    },
+    {
+      "id": "last_hearth",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/last_hearth.png",
+      "raw_sha256": "2b201696943c4c3e8ca0a5b1a9d04de4fd96d26b9b764242c6970115e73b4f07",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/last_hearth.md",
+      "output": "assets/art/events/last_hearth.png",
+      "output_sha256": "28b1bf3d2b11a41ab5c701436c2a49f5763e17ba71ea47604744700748bf60db"
     },
     {
       "id": "lost_cartographer",
@@ -123,12 +219,28 @@
       "output_sha256": "f9cae175a550cdecad42675650e1232c29969509d4dbeb144178dbab016f6f6c"
     },
     {
+      "id": "patient_surgeon",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/patient_surgeon.png",
+      "raw_sha256": "6516cb13c48b4ab946d1bdd6e1abb0eaea49e8a135105dd10d5c9054631b3188",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/patient_surgeon.md",
+      "output": "assets/art/events/patient_surgeon.png",
+      "output_sha256": "cfbe9a797000ea7d223b10d3ef3426d584c598f1a7b0c8974cdab2f876f0bde3"
+    },
+    {
       "id": "petrified_pilgrims",
       "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/petrified_pilgrims.png",
       "raw_sha256": "05a8cfbaf01f411243d0a2d7d9a692877c87a1ded1e20e7efad7aa763e1741cf",
       "prompt": "spec/peer_benchmark/staged/event_art/prompts/petrified_pilgrims.md",
       "output": "assets/art/events/petrified_pilgrims.png",
       "output_sha256": "56d7f3dc6eb11eb5d825dfe4429d177ca1649b5ef599f310632c5f69f826e0b7"
+    },
+    {
+      "id": "quarry_mouth",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/quarry_mouth.png",
+      "raw_sha256": "9446cb48c41f70f7be2a4eec952e0835c37b1bb87bbdc238945d0389f89efdc9",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/quarry_mouth.md",
+      "output": "assets/art/events/quarry_mouth.png",
+      "output_sha256": "17cf16955c72b23b580cd4582da0ea529125c1084b366ed85b291bb8471a2d7b"
     },
     {
       "id": "root_choked_vault",
@@ -177,6 +289,38 @@
       "prompt": "spec/peer_benchmark/staged/event_art/prompts/tempest_choir.md",
       "output": "assets/art/events/tempest_choir.png",
       "output_sha256": "720a66367bc303d9d92754629dc57b021db7be0af5d2a3f346c2f59961a4faf2"
+    },
+    {
+      "id": "the_sleeper",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/the_sleeper.png",
+      "raw_sha256": "3a24fceea4648355d3302c67fd7bbb77a9939f81f6f14fef932ebcdd68373763",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/the_sleeper.md",
+      "output": "assets/art/events/the_sleeper.png",
+      "output_sha256": "dba728658c341de77c9b5d74bad367ade51cdc7ad8a6c68a2669b6cddbe1f52d"
+    },
+    {
+      "id": "tinkers_cart",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/tinkers_cart.png",
+      "raw_sha256": "1aa6275dd8002f35ba24aceda992865a5d679c5adea9be2d51929acbf8f8ed58",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/tinkers_cart.md",
+      "output": "assets/art/events/tinkers_cart.png",
+      "output_sha256": "04c47be2a0512ed7c61376582e4b1b83508d519b864e92b67ab7572a52ce5416"
+    },
+    {
+      "id": "toll_collector",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/toll_collector.png",
+      "raw_sha256": "064c953db287010e4ba8b8d253d6c469f9d7ff0f62c7380c34c5f8af5a06d9a2",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/toll_collector.md",
+      "output": "assets/art/events/toll_collector.png",
+      "output_sha256": "4243db371314574003cbe12563dafe23ba344f3c03bd861a8007f704be2aa75d"
+    },
+    {
+      "id": "twin_doors",
+      "raw": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/event_art/twin_doors.png",
+      "raw_sha256": "0c82bae33399055a4f8ee3c2360fca9c201582255bedf167b2710428aab5a7dc",
+      "prompt": "spec/peer_benchmark/staged/event_art/prompts/twin_doors.md",
+      "output": "assets/art/events/twin_doors.png",
+      "output_sha256": "01992112efe878083d16b8c92cfaa8d84271ee2e0d2a4c4df8c8cb49cb609d80"
     },
     {
       "id": "umbral_bargain",

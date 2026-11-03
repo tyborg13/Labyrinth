@@ -560,12 +560,13 @@ relic("storm_crown", "Storm Crown", L, "rework", "Transform", ["lightning"], 0, 
       "The rebound doesn't conduct and doesn't count as new hops for Resonant Clapper.", impl=2,
       was="The first Chain attack each turn that hits 3+ different enemies draws 2 and grants 1 card play.")
 relic("black_sun_dial", "Black Sun Dial", L, "rework", "Engine", ["fire", "ice", "lightning", "earth"], 0, 3,
-      "Consuming a surface stores it (max 3). Your next attack deals 2 more damage per stored surface, and its target gets each one's effect: Fire beneath it, Chilled, Shock, Stagger 2.",
+      "Each ground tile you Expend gives your next attack +3 damage (up to +9).",
       "Nothing without surfaces to spend.",
-      "Spend three schools' ground, then unload it in one hit.",
+      "Each ground tile you Expend gives your next attack +3 damage (up to +9).",
       ["relic:flint_edge", "relic:overflow_censer", "card:magma_vent"],
-      "Shown on the badge as up to three stored elements.", impl=2,
+      "one-sentence rework after owner playtest 13; the riders were cut and the bonus rose to +3 per tile", impl=2,
       was="Once per combat, your first elemental consume on Rubble deals 6 to everyone in a cross and grants 6 Stoneskin.")
+RELICS[-1]["effects"] = [{"type": "expend_next_attack_damage", "damage": 3, "max": 9}]
 relic("fivefold_knot", "Fivefold Knot", L, "rework", "Engine", ["gear"], 0, 3,
       "Each element you play ties its knot for this combat. With 3 of the 5 knots, your attacks Pierce; with 4, they also gain Chain 1; with all 5, every card you play also grants 3 Block.",
       "Nothing in a one-school deck.",

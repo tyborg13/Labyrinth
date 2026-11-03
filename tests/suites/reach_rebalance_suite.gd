@@ -13,7 +13,8 @@ const Ground = preload("res://scripts/board_surface_rules.gd")
 # and Hurl Spear (wave 2). Headlong (wave 3) is a move-4 dash; wave 4 adds
 # Joust's straight-line charge and Sunpath Stride's lit walk, and Skybolt and
 # Thunderstone, which strike any visible enemy (ignore_los, unlimited range).
-const LONG_SHOT_CARD_IDS: Array[String] = ["stormstring_shot", "hush_of_winter", "shiver_shot", "pinning_quarrel", "yank", "skybreak_current", "sunlance", "hurl_spear"]
+# pol-42 (1abde7ccc) also grants Updraft its explicit range-4 identity.
+const LONG_SHOT_CARD_IDS: Array[String] = ["stormstring_shot", "hush_of_winter", "shiver_shot", "pinning_quarrel", "yank", "skybreak_current", "sunlance", "hurl_spear", "updraft"]
 const UNLIMITED_SHOT_CARD_IDS: Array[String] = ["skybolt", "thunderstone"]
 const LONG_MOVE_CARD_IDS: Array[String] = ["headlong", "joust", "sunpath_stride"]
 

@@ -116,13 +116,15 @@ static func _test_worldspine_denial(combat: Combat, expect: Callable) -> void:
 		for x: int in range(1, 9):
 			Ground.place(state, Vector2i(x, y), "fire")
 			Ground.place(state, Vector2i(x, y), "rubble")
-	state = combat._resolve_enemy_action(state, 0, _intent(combat, "tharokh", "stonewake")["actions"][0])
+	var dispatcher: GDScript = preload("res://scripts/battlefield_rules/dispatcher.gd")
+	dispatcher.install(combat, state, dispatcher.instance_for("tharokh", int(state["enemies"][0]["id"])))
+	state = dispatcher.fire(combat, state)
 	for terrain: Dictionary in state["terrain"]:
-		expect.call(Ground.surface_at(state, terrain["pos"]).is_empty(), "Raising a Worldspine removes both obscured ground layers")
+		expect.call(Ground.surface_at(state, terrain["pos"]).is_empty(), "Raising an Outcrop removes both obscured ground layers")
 	state = _state(combat, "tharokh")
 	state["enemies"][0]["pos"] = Vector2i(6, 1)
 	state["player"]["pos"] = Vector2i(3, 3)
-	state["terrain"] = [{"id":"denied_spine","kind":"dragon_spire","pos":Vector2i(4,3),"hp":5,"max_hp":5,"surface_on_destroy":"rubble"}, {"id":"surviving_spine","kind":"dragon_spire","pos":Vector2i(7,5),"hp":5,"max_hp":5,"surface_on_destroy":"rubble"}]
+	state["terrain"] = [{"id":"denied_spine","kind":"crag_outcrop","owner_kind":"enemy","owner_id":int(state["enemies"][0]["id"]),"pos":Vector2i(4,3),"hp":5,"max_hp":5,"surface_on_destroy":"rubble"}, {"id":"surviving_spine","kind":"crag_outcrop","owner_kind":"enemy","owner_id":int(state["enemies"][0]["id"]),"pos":Vector2i(7,5),"hp":5,"max_hp":5,"surface_on_destroy":"rubble"}]
 	expect.call(combat._terrain_burst_tiles(state, 1).has(Vector2i(3, 3)), "Live selected Worldspine initially threatens the adjacent player")
 	state = combat.apply_player_action(state, {"type":"ranged","range":5,"damage":5,"element":"none"}, Vector2i(4,3))
 	expect.call(not combat._terrain_burst_tiles(state, 1).has(Vector2i(3, 3)) and Ground.has_rubble(state, Vector2i(4,3)), "Destroying the nearby Worldspine removes its Faultline coverage and leaves only local Rubble")

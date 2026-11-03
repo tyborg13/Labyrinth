@@ -2,6 +2,7 @@ extends "res://tests/pre_battle_fixture.gd"
 
 ## Fault injection stays focused: no extra scene startups/waits in the full suite.
 const Boons = preload("res://scripts/opening_boon_rules.gd")
+const HeirloomFixture = preload("res://tests/helpers/heirloom_fixture.gd")
 const Fixture = preload("res://tests/helpers/opening_boon_fixture.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
 const Recovery = preload("res://scripts/opening_boon_recovery.gd")
@@ -102,7 +103,7 @@ func _failed_terminal_profile(scene: Node) -> void:
 		for presented: bool in [false, true]:
 			var living: Dictionary = Fixture.force_boon("vitality")
 			_prepare(scene, living)
-			var terminal: Dictionary = living.duplicate(true)
+			var terminal: Dictionary = HeirloomFixture.equip(living)
 			terminal["mode"] = outcome
 			terminal["held_embers"] = SETTLED_WALLET
 			terminal["unbanked_embers"] = SETTLED_WALLET
@@ -125,13 +126,14 @@ func _failed_terminal_profile(scene: Node) -> void:
 func _resumed_victory_wallet(scene: Node) -> Node:
 	var living: Dictionary = Fixture.force_boon("vitality")
 	_prepare(scene, living)
-	var terminal: Dictionary = living.duplicate(true)
+	var terminal: Dictionary = HeirloomFixture.equip(living)
 	terminal["mode"] = "victory"
 	terminal["held_embers"] = SETTLED_WALLET
 	terminal["unbanked_embers"] = SETTLED_WALLET
 	_block_profile_writes()
 	scene.call("_load_run_state", terminal)
 	scene.get("_opening_boon_flow").leave_heirloom(scene, "")
+	if scene.get("_opening_boon_flow").active(): scene.get("_opening_boon_flow").overlay.ceremony.skip()
 	var fallback: Dictionary = ProgressionStore.load_saved_run()
 	_restore_profile_writes()
 	_expect(int(fallback["progression"]["embers"]) == SETTLED_WALLET and fallback.has("heirloom_terminal_wallet"), "Failed settlement and Leave nothing save the settled victory wallet")
@@ -155,11 +157,13 @@ func _terminal_receipts(scene: Node, quit_first: bool) -> void:
 	Analytics.clear_storage()
 	Analytics.set_storage_dir(WRITE_BLOCKER)
 	var state: Dictionary = Boons.choose(RunEngine.new(), Boons.offer(Fixture.force_boon("vitality")), "vitality")
+	state = HeirloomFixture.equip(state)
 	state["mode"] = "defeat"
 	state["player_hp"] = 0
 	_prepare(scene, state)
 	scene.call("_persist_committed_boundary", "boon_recovery_terminal")
 	scene.get("_opening_boon_flow").leave_heirloom(scene, "")
+	if scene.get("_opening_boon_flow").active(): scene.get("_opening_boon_flow").overlay.ceremony.skip()
 	_expect(ProgressionStore.load_saved_run().get(Boons.EVENTS_KEY, []).size() == 3, "Failed appends retain all three terminal boon receipts")
 	var receipt_state: Dictionary = ProgressionStore.load_saved_run()
 	if quit_first:
@@ -206,7 +210,7 @@ func _failed_choices(scene: Node) -> void:
 		for leave_item: bool in [false, true]:
 			var living: Dictionary = Fixture.force_boon("heirloom")
 			_prepare(scene, living)
-			var terminal: Dictionary = living.duplicate(true)
+			var terminal: Dictionary = HeirloomFixture.equip(living)
 			terminal["mode"] = outcome
 			terminal["held_embers"] = SETTLED_WALLET
 			terminal["unbanked_embers"] = SETTLED_WALLET

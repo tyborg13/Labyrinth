@@ -1,0 +1,194 @@
+{
+  "min_images": 8,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*flu_01_cards_*.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            160,
+            120,
+            250,
+            352
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        },
+        {
+          "rect": [
+            760,
+            120,
+            250,
+            352
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        },
+        {
+          "rect": [
+            1360,
+            120,
+            250,
+            352
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        },
+        {
+          "rect": [
+            160,
+            600,
+            250,
+            352
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        },
+        {
+          "rect": [
+            760,
+            600,
+            250,
+            352
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        },
+        {
+          "rect": [
+            1360,
+            600,
+            250,
+            352
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*flu_01_badges_*.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            120,
+            100,
+            1680,
+            900
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*flu_01_focus_storm_salvo_*.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            120,
+            100,
+            1680,
+            900
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*flu_01_focus_cinder_fusillade_*.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            120,
+            100,
+            1680,
+            900
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*flu_01_focus_razor_gale_*.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            120,
+            100,
+            1680,
+            900
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*flu_01_focus_blade_dance_*.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            120,
+            100,
+            1680,
+            900
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*flu_01_focus_windlass_volley_*.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            120,
+            100,
+            1680,
+            900
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*flu_01_focus_sawtooth_flurry_*.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            120,
+            100,
+            1680,
+            900
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}

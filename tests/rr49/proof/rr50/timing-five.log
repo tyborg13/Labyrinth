@@ -1,0 +1,27 @@
+test_all_clip_costs_and_three_interleaved_rigs (tests.test_rr49_submission.SubmissionTests) ... RR50 PAIRED RUN 1: {"fallback_median_us": 5544, "fast_median_us": 2560, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.165625, "view": "front"}
+RR50 PAIRED RUN 1: {"fallback_median_us": 5150, "fast_median_us": 2415, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.13250517598344, "view": "rear"}
+RR50 ABSOLUTE RUN 1: median=1524 us; max=3304 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 PAIRED RUN 2: {"fallback_median_us": 5599, "fast_median_us": 2747, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.03822351656352, "view": "front"}
+RR50 PAIRED RUN 2: {"fallback_median_us": 4950, "fast_median_us": 2445, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.02453987730061, "view": "rear"}
+RR50 ABSOLUTE RUN 2: median=1901 us; max=3172 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 PAIRED RUN 3: {"fallback_median_us": 5523, "fast_median_us": 2714, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.03500368459838, "view": "front"}
+RR50 PAIRED RUN 3: {"fallback_median_us": 4767, "fast_median_us": 2306, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.06721595836947, "view": "rear"}
+RR50 ABSOLUTE RUN 3: median=1657 us; max=3117 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 PAIRED RUN 4: {"fallback_median_us": 4940, "fast_median_us": 2265, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.18101545253863, "view": "front"}
+RR50 PAIRED RUN 4: {"fallback_median_us": 4448, "fast_median_us": 2078, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.14051973051011, "view": "rear"}
+RR50 ABSOLUTE RUN 4: median=1466 us; max=2475 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 PAIRED RUN 5: {"fallback_median_us": 4977, "fast_median_us": 2459, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.02399349328996, "view": "front"}
+RR50 PAIRED RUN 5: {"fallback_median_us": 4512, "fast_median_us": 2251, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.00444247001333, "view": "rear"}
+RR50 ABSOLUTE RUN 5: median=1677 us; max=2622 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 CLEAN TIMING: PASS (5/5 paired and absolute guards under task runner)
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 105.853s
+
+OK

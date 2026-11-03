@@ -1,0 +1,35 @@
+{
+ "schema": 1,
+ "unit": "rr-44",
+ "what": "director art for the Gaoler owner fixes: the chain arm repainted hanging low at his side (hook pointing away from his body) in both views, and body underlays behind the arms and chain (front also behind the legs, as rr-42)",
+ "image_jobs": {
+  "front_arm": "img-rr44-gaoler-front-arm-r1 (edit of mq3_front_v4 processed x4)",
+  "rear_arm": "img-rr44-gaoler-rear-arm-r1 (edit of mq3_rear_v3 processed x4, with the new front as the second reference)",
+  "front_underlay": "img-rr44-gaoler-front-underlay-r1 (edit of front_r1_processed x4; the tool returned 1254 px)",
+  "rear_underlay": "img-rr44-gaoler-rear-underlay-r1 (edit of rear_r1_processed x4)"
+ },
+ "processing": {
+  "paintings": "compose_arm.py <raw> <approved> <old arm mask|-> <left|right> <out> <region> (front: ../rr-42/front_far_arm_footprint_mask.png, left; rear: -, right)",
+  "underlays": "reduce_underlay.py <raw> <painting> <out>"
+ },
+ "approved_by": "owner, inbox gaoler-pose 2026-10-27 (the pose and hook); director, 2026-10-27 (underlays at 3x; used only inside vacated footprints; the rear underlay's lighter striped back panel lies outside the arm's footprint)",
+ "files": {
+  "front_r1_raw_1024.png": "7d7af2a7333fc2cd35aa9a1073faafb21481b5000bffb92ef470925229ca15ea",
+  "rear_r1_raw_1024.png": "ccca0929214ff5e01381457503ebdc2578fe39e12e31e87d7c0cbc6ea12acd1c",
+  "front_r1_processed.png": "0956c7a7263e9b16744c2c51dfd18c8eaad2265d2fddc96929708bc5a9405d8c",
+  "rear_r1_processed.png": "d2320f8f6e22d7786a10f527e53dbe7266ff555516fc53f50b22e1140de90dcc",
+  "front_r1_region.png": "921b44d17d092bc600f6e1a6c42471c44aef2932db740b51661dcda274d0f6f1",
+  "rear_r1_region.png": "276d25318ff8de6206595b494b4d102b766185facdf9c811c924c5cc78a145e2",
+  "front_underlay_raw.png": "e3eeef17dace9635ece1e9530741e7f5c446f4875921c7b9cda39d25d5367989",
+  "rear_underlay_raw.png": "b403df8289491d1250a485ff8a5258b4252fb9d041efab5377712bad094167d5",
+  "front_body_underlay.png": "9383f58648b65dfa1cccdb353b07727448c6c9d856bd984459a02735d30b8a7f",
+  "rear_body_underlay.png": "aae23544114d935d2f475ad97d4a4e5fc8c576a4cebf7a2fbb50802551e381f0",
+  "prompt_front_chain_arm_r1.md": "64532d5206d5defb08afb77cbc7cc63d4a94f2b8a0bea4906b401c0929f7e3f5",
+  "prompt_rear_chain_arm_r1.md": "855580641a8971ead3f4ad1da56ab3858e475d8e22949d9e7dbdffa1ddfaa59b",
+  "prompt_front_body_underlay_r1.md": "344564de72bc9910e88469f219fd434a64c5ef0d0f0efb6c547a1d95069781e2",
+  "prompt_rear_body_underlay_r1.md": "d32b627c9a541d247c0b2ced880515f5b2dab4479ddb38048c56bac1ed199408",
+  "compose_arm.py": "8025cd27b0bf1193bc7dae546c6b4a08396309757cef186ff895dfc3f09d1942",
+  "reduce_underlay.py": "a240b087935f38657057d69b731379887e57f43326e06113fd81da8d42e39523",
+  "motion_tracks.json": "6b941618b9c407a975607f2ae8f627f616e22263915e915b12d07f4de146401e"
+ }
+}

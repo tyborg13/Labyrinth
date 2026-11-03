@@ -1,0 +1,321 @@
+{
+  "command": "python3 tools/run_python_suite.py --shards 4 --output-dir /private/tmp/bos-02-feedback2-python-final",
+  "exit_code": 1,
+  "tests": 2250,
+  "wall_seconds": 2112.712,
+  "failures": [
+    [
+      "test_tracked_sources_have_sidecars_and_sidecars_have_sources (test_godot_sidecars.GodotSidecarRepositoryTests)",
+      "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_godot_sidecars.py\", line 92, in test_tracked_sources_have_sidecars_and_sidecars_have_sources\n    assert_sidecars_versioned(git_files(ROOT), root=ROOT)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_godot_sidecars.py\", line 87, in assert_sidecars_versioned\n    raise AssertionError(\"\\n\\n\".join(problems + [REPAIR_HINT]))\nAssertionError: Missing tracked Godot sidecars (5):\ntests/dragon_element_rules_probe.gd.uid\ntests/suites/dragon_element_rules_suite.gd.uid\ntests/suites/dragon_feedback1_suite.gd.uid\ntools/dragon_rule_measurement.gd.uid\ntools/dragon_rule_measurement_engine.gd.uid\n\nRun godot --headless --import (through tools/godot_task_runner.py), commit the .import/.uid sidecars with their sources, and remove stale sidecars.\n"
+    ]
+  ],
+  "errors": [],
+  "skipped": [
+    [
+      "test_feedback_gate_rejects_changed_candidate_motion_before_rendering (test_rr27_thrall.ThrallStrictProvenanceTests)",
+      "rr-27 Tether study not adopted (feedback 3; decision 2026-10-19): its feedback-1 evidence binds tool hashes that later units change, and its evaluate() requires fresh evidence first."
+    ],
+    [
+      "test_bank_generator_is_deterministic (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests)",
+      "requires pinned Python 3.12 audio environment"
+    ],
+    [
+      "test_normalizer_writes_full_score_and_separate_parts (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests)",
+      "requires pinned Python 3.12 audio environment"
+    ],
+    [
+      "test_provenance_gate_rejects_mismatches_and_placeholder_licenses (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests)",
+      "requires pinned Python 3.12 audio environment"
+    ],
+    [
+      "test_reference_render_and_verifier_match_approved_outputs (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests)",
+      "requires pinned Python 3.12 audio environment"
+    ],
+    [
+      "test_scaffold_is_rights_locked_and_non_overwriting (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests)",
+      "requires pinned Python 3.12 audio environment"
+    ],
+    [
+      "test_string_track_can_request_a_slow_attack_without_changing_the_default (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests)",
+      "requires pinned Python 3.12 audio environment"
+    ],
+    [
+      "test_hash_bound_samples_meet_input_onset_and_duration (test_empower_sfx.EmpowerSfxTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_mix_targets_and_six_db_difference (test_empower_sfx.EmpowerSfxTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_real_blender_build_and_geometry_gates (test_maquette_blender.NativeContractTests)",
+      "Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge"
+    ],
+    [
+      "test_real_lancer_cloth_cache_replay_has_identical_raw_hashes (test_maquette_blender.NativeContractTests)",
+      "Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge"
+    ],
+    [
+      "test_complete_movement_boundaries_and_source_counts (test_old_castle_full_arrangement.OldCastleFullArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_config_uses_cc0_symbolic_source_and_no_omr_inputs (test_old_castle_full_arrangement.OldCastleFullArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_every_printed_system_and_opening_lament_are_anchored (test_old_castle_full_arrangement.OldCastleFullArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_five_voice_reduction_counts_and_range (test_old_castle_full_arrangement.OldCastleFullArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_generated_musicxml_has_stable_unique_part_ids_and_107_measures (test_old_castle_full_arrangement.OldCastleFullArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_v01_audition_is_byte_for_byte_unchanged (test_old_castle_full_arrangement.OldCastleFullArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_v07_builder_keeps_every_prior_version_immutable (test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_v07_is_strictly_verified_and_promoted_without_byte_drift (test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_v07_preserves_the_approved_v06_music_byte_for_byte (test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_every_base_event_is_an_exact_v02_crop (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_high_strings_are_sparse_exact_octave_doublings (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_midi_tracks_channels_counts_tempo_and_loop_markers (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_normalized_score_and_config_are_audition_only (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_percussion_is_quiet_regular_six_eight_background (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_prior_audition_trees_remain_byte_for_byte_unchanged (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_selection_is_the_requested_contiguous_measure_span (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+      "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+    ],
+    [
+      "test_bytes_peak_provenance_source_preservation_and_no_deletions (test_sfx_lab.LayeredDesignTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_designed_multi_root_cli_pipeline_and_relocation (test_sfx_lab.LayeredDesignTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_excluded_recipe_paths_and_ambiguous_take (test_sfx_lab.LayeredDesignTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_layer_without_trim_renders_full_take (test_sfx_lab.LayeredDesignTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_licence_derivation_and_missing_or_invalid_sidecar_before_index (test_sfx_lab.LayeredDesignTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_master_order_filters_peak_fade_length_and_errors (test_sfx_lab.LayeredDesignTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_sample_exact_offset_mono_stereo_sum_and_default_length (test_sfx_lab.LayeredDesignTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_trim_pitch_reverse_filters_and_layer_fades (test_sfx_lab.LayeredDesignTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_ceiling_linked_channels_boundary_peaks_and_input_gain (test_sfx_lab.LimiterTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_determinism_silence_and_short_file (test_sfx_lab.LimiterTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_invalid_limiter_settings_fail (test_sfx_lab.LimiterTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_lookahead_attack_starts_early_and_is_linear (test_sfx_lab.LimiterTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_release_is_one_pole_exponential (test_sfx_lab.LimiterTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_approved_defaults_and_invalid_inputs (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_attack_decay_and_antiphase_spectrum (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_audition_two_cues_html_audio_and_provenance (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_build_deterministic_bytes_loudness_manifest (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_capped_take_passes_below_loudness_target (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_cli_index_slice_features_query_audition_build (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_equal_power_fades_linear_fade_in_and_crossfade (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_features_sine_noise_bands_and_short_rms (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_index_all_formats_license_hash_and_skips (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_index_and_analysis_deterministic_across_workers (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_limiter_build_stage_manifest_encoded_ceiling_and_determinism (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_lowpass_before_normalization_and_short_boundary (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_multichannel_front_pair_in_audition_and_build (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_normalize_no_clip_cap_is_recorded (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_page_javascript_offline_export_play_and_shortcuts (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_query_all_ranges_and_sort (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_refuse_excluded_paths_symlinks_and_forged_provenance (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_short_peak_caps_and_processing_parameters (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_slice_boundaries_and_identity (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_slice_silence_tiny_take_tail_floor_and_cap (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_stereo_policy_and_loop_seam (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_uncapped_take_outside_tolerance_fails_even_near_ceiling (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_unknown_ambiguous_modified_take_and_unsafe_cue (test_sfx_lab.SfxLabTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_cli_default_explicit_and_short_windows_preserve_cue_gain_and_inheritance (test_sfx_lab.WindowMeasureTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_default_400ms_matches_director_measure_and_100ms_uses_25ms_hops (test_sfx_lab.WindowMeasureTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ],
+    [
+      "test_short_padding_and_window_validation (test_sfx_lab.WindowMeasureTests)",
+      "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+    ]
+  ],
+  "expected_failures": 0,
+  "unexpected_successes": [],
+  "import_guard_violations": 0,
+  "modules": 234,
+  "shards": [
+    {
+      "shard": 1,
+      "tests": 927,
+      "seconds": 2107.604537584,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "shard": 2,
+      "tests": 209,
+      "seconds": 1914.829433,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "shard": 3,
+      "tests": 575,
+      "seconds": 1402.318507208,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 26
+    },
+    {
+      "shard": 4,
+      "tests": 539,
+      "seconds": 1481.1016955,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 39
+    }
+  ],
+  "sidecar_resolution": "Five UID sidecars are generated and untracked; unchanged tracked-inventory guard requires director staging. Prospective committed inventory passes.",
+  "timing_cache_warning": "Cannot update untracked Git timing cache: Operation not permitted (nonfatal; suite completed).",
+  "full_log": "/private/tmp/bos-02-feedback2-python-final.log",
+  "output_directory": "/private/tmp/bos-02-feedback2-python-final"
+}

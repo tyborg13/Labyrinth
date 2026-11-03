@@ -1,0 +1,10 @@
+MQ15_BRIDGE_SUBMITTED: build; mq03-ec9dafa20b1d4c60b07d5a684a6f405b
+MQ15_BRIDGE_RESULT: build; exit=0; seconds=1.5
+MQ15_BRIDGE_SUBMITTED: front_capture; mq03-ab9dbb59207d4e81b27b007366c03e20
+MQ15_BRIDGE_RESULT: front_capture; exit=0; seconds=62.7
+MQ15_BRIDGE_SUBMITTED: rear_capture; mq03-5cd8fe56260045568864d2e4df2ac779
+MQ15_BRIDGE_RESULT: rear_capture; exit=0; seconds=70.4
+MQ15_BRIDGE_SUBMITTED: fresh_native_probe; mq03-623acd63aa4c4739bf1c251745dce650
+MQ15_BRIDGE_RESULT: fresh_native_probe; exit=0; seconds=1.1
+MQ15_ACCEPTANCE: PASS; {"heights": {"front": {"head_to_sole_px": 828, "head_top_px": 181, "helm_to_sole_px": 817.6923951132571, "helm_top_px": 191.30760488674287, "sole_bottom_px": 1009}, "rear": {"head_to_sole_px": 841, "head_top_px": 127, "helm_to_sole_px": 830.7375068832291, "helm_top_px": 137.26249311677083, "sole_bottom_px": 968}}, "mass": {"barrel_chest": true, "closed_native_forms": true, "cloth": true, "gloved_grip": true, "mass": true, "no_part_holes": true, "no_see_through": true, "open_front": true}, "pose": {"feet_planted": true, "front_chain_side": true, "level_shoulders_3d": true, "native_endpoints": true, "native_joint_inventory": true, "native_projection": true, "rear_chain_side": true, "shoulder_rule": true}, "proportions": {"helm_height": true, "knee_to_sole": true, "pelvis_to_knee": true, "shoulder_width": true, "torso_height": true, "total_height": true}, "turn": {"front_lower_foot_right": true, "front_proper_rotation": true, "rear_is_half_turn": true, "rear_lower_foot_right": true, "rear_not_mirror": true, "rear_proper_rotation": true}}
+MQ15_CLEAN_REGENERATION: PASS; clays=2/2; part_maps=2/2; cache_reused=false

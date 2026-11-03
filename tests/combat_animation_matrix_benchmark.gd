@@ -5,7 +5,8 @@ const MATRIX_OUTPUT := "user://performance/combat_animation_matrix"
 const MATRIX_FRAMES: int = 96
 const GuardianRenderer = preload("res://scripts/guardian_cutout/renderer.gd")
 const TYPES = ["crawler", "warden", "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "frostglass_lancer", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
-const MOTION_KEYS = {"warden":"warden_motion", "chainbound_gaoler":"gaoler_motion", "frostglass_lancer":"frostglass_motion"}
+const MOTION_KEYS = {"warden":"warden_motion", "frostglass_lancer":"frostglass_motion"}
+const CLIP_ADAPTERS := {"chainbound_gaoler":{"walk":"move","attack":"press"}}
 var _viewports: Array[SubViewport] = []
 var _viewport_cpu: Array[float] = []
 var _viewport_gpu: Array[float] = []
@@ -147,6 +148,7 @@ func _matrix_presentation(state: Dictionary, phase_name: String, frame: int) -> 
 		var key: String = "guardian_motion" if GuardianRenderer.handles(actor) else str(MOTION_KEYS.get(actor, actor+"_motion"))
 		if not result.has(key): result[key] = {}
 		var clip: String = "claw" if actor == "noctyrax" and phase_name == "attack" else phase_name
+		clip = str(CLIP_ADAPTERS.get(actor, {}).get(phase_name, clip))
 		var motion: Dictionary = {"clip":clip, "phase":float(frame % 48)/48.0, "direction":direction, "contact":0.42}
 		if GuardianRenderer.handles(actor): motion["action"] = "strike"
 		if actor == "iskaldra": motion["action"] = "talon"
@@ -179,10 +181,11 @@ func _measure_matrix_phase(board: Control, sampler: FrameSampler, state: Diction
 				_expect(renderer != null, actor_key + " must have a live cutout")
 				if renderer == null: continue
 				var snapshot: Dictionary = renderer.call("snapshot")
-				var observed: String = str(snapshot["clip"])
+				var observed: String = str(snapshot.get("shown_clip", snapshot["clip"]))
 				observed_clips[str(unit["type"])] = observed
 				_expect(bool(snapshot["active"]), actor_key + " must be active")
-				_expect(observed == "rest" if phase_name == "reduced_motion" else observed == "idle" if phase_name == "idle" else observed == "walk" if phase_name == "walk" else observed not in ["idle", "walk", "rest"], str(unit["type"]) + ": intended " + phase_name + ", observed " + observed)
+				var move_clip: String = str(CLIP_ADAPTERS.get(str(unit["type"]), {}).get("walk", "walk"))
+				_expect(observed == "rest" if phase_name == "reduced_motion" else observed == "idle" if phase_name == "idle" else observed == move_clip if phase_name == "walk" else observed not in ["idle", "walk", "rest"], str(unit["type"]) + ": intended " + phase_name + ", observed " + observed)
 				var pose: Array = _visible_pose(renderer)
 				if frame == 0: starting_poses[actor_key] = pose
 				else: _expect((pose == starting_poses[actor_key]) if phase_name == "reduced_motion" else (pose != starting_poses[actor_key]), actor_key + " obeys motion setting during " + phase_name)
@@ -240,7 +243,7 @@ func _pose_microbenchmark(board: Control, state: Dictionary) -> Dictionary:
 			var rig: Node = rigs[facing]
 			for sample: int in range(48):
 				var start: int = Time.get_ticks_usec()
-				rig.call("apply_pose","walk",float(sample)/48.0)
+				rig.call("apply_pose",str(CLIP_ADAPTERS.get(str(unit["type"]), {}).get("walk", "walk")),float(sample)/48.0)
 				times.append(float(Time.get_ticks_usec()-start))
 		results[str(unit["type"])] = _stats(times)
 	return results

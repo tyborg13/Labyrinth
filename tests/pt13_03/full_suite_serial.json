@@ -1,0 +1,1596 @@
+{
+  "complete": true,
+  "seconds": 785.763,
+  "failed": true,
+  "results": [
+    {
+      "name": "en04_enemies_test",
+      "returncode": 0,
+      "seconds": 5.128,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "en05_enemies_test",
+      "returncode": 0,
+      "seconds": 5.271,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "en06_enemies_test",
+      "returncode": 0,
+      "seconds": 11.075,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "static_facing_test",
+      "returncode": 0,
+      "seconds": 3.518,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "combat_feel_test",
+      "returncode": 0,
+      "seconds": 105.502,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "combat_pacing_mutation_test",
+      "returncode": 0,
+      "seconds": 32.896,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "event_view_test",
+      "returncode": 0,
+      "seconds": 46.582,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "event_rules_test",
+      "returncode": 0,
+      "seconds": 26.348,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "biome_test",
+      "returncode": 0,
+      "seconds": 3.327,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "health_ghost_test",
+      "returncode": 0,
+      "seconds": 7.864,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "movement_undo_test",
+      "returncode": 0,
+      "seconds": 17.066,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "threats_at_rest_test",
+      "returncode": 0,
+      "seconds": 11.842,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/encounter_rules_program",
+      "returncode": 0,
+      "seconds": 29.415,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/encounter_placement_0_program",
+      "returncode": 0,
+      "seconds": 52.228,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/encounter_placement_1_program",
+      "returncode": 0,
+      "seconds": 50.191,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/encounter_placement_summary_program",
+      "returncode": 0,
+      "seconds": 41.966,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "run_score_test",
+      "returncode": 0,
+      "seconds": 10.432,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "sfx_bank_test",
+      "returncode": 0,
+      "seconds": 11.781,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "sfx_sync_bank_test",
+      "returncode": 0,
+      "seconds": 1.139,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/sfx_sync_0_program",
+      "returncode": 0,
+      "seconds": 94.241,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/sfx_sync_1_program",
+      "returncode": 0,
+      "seconds": 94.891,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/sfx_sync_2_program",
+      "returncode": 0,
+      "seconds": 52.076,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "section_map_v2_test",
+      "returncode": 0,
+      "seconds": 49.184,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "en01_enemies_test",
+      "returncode": 0,
+      "seconds": 6.437,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "en02_enemies_test",
+      "returncode": 0,
+      "seconds": 5.235,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "en03_enemies_test",
+      "returncode": 0,
+      "seconds": 8.631,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "magic_deck_input_test",
+      "returncode": 0,
+      "seconds": 32.857,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "magic_deck_guard_mutation_test",
+      "returncode": 0,
+      "seconds": 2.618,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "opening_boon_test",
+      "returncode": 0,
+      "seconds": 17.413,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "run_end_recap_tests",
+      "returncode": 0,
+      "seconds": 10.141,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "main_menu_resume_test",
+      "returncode": 0,
+      "seconds": 8.105,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "section_transition_test",
+      "returncode": 0,
+      "seconds": 58.985,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/full_scene_presentation_program",
+      "returncode": 0,
+      "seconds": 30.233,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/full_scene_cutouts_program",
+      "returncode": 0,
+      "seconds": 38.995,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/full_scene_creature_cutouts_program",
+      "returncode": 0,
+      "seconds": 26.325,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/full_scene_audio_program",
+      "returncode": 0,
+      "seconds": 20.425,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/full_scene_navigation_program",
+      "returncode": 0,
+      "seconds": 20.525,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/full_scene_card_drag_program",
+      "returncode": 0,
+      "seconds": 46.233,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/full_scene_controls_program",
+      "returncode": 0,
+      "seconds": 75.161,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/full_scene_clock_program",
+      "returncode": 0,
+      "seconds": 34.473,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/full_scene_choices_program",
+      "returncode": 0,
+      "seconds": 40.831,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/full_scene_interaction_program",
+      "returncode": 0,
+      "seconds": 74.056,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "opening_boon_recovery_test",
+      "returncode": 0,
+      "seconds": 13.569,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/section_map_v5_program",
+      "returncode": 0,
+      "seconds": 16.561,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/section_map_legacy_hashes_0_program",
+      "returncode": 0,
+      "seconds": 35.539,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/section_map_legacy_hashes_1_program",
+      "returncode": 0,
+      "seconds": 32.828,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "section_map_v5_layout_test",
+      "returncode": 0,
+      "seconds": 40.516,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/section_map_performance_program",
+      "returncode": 0,
+      "seconds": 23.584,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "acolyte_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.36,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "bile_bloomer_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.432,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "board_hover_coalescing_test",
+      "returncode": 0,
+      "seconds": 5.854,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "board_surface_content_smoke_test",
+      "returncode": 0,
+      "seconds": 3.26,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "board_surface_data_test",
+      "returncode": 0,
+      "seconds": 1.373,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "board_surface_presentation_test",
+      "returncode": 0,
+      "seconds": 8.614,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "board_surface_probe_migration_test",
+      "returncode": 0,
+      "seconds": 6.873,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "card_draw_hand_flow_test",
+      "returncode": 0,
+      "seconds": 13.05,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "card_legibility_test",
+      "returncode": 0,
+      "seconds": 8.619,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "card_presentation_cache_test",
+      "returncode": 0,
+      "seconds": 3.606,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "card_proxy_pool_test",
+      "returncode": 0,
+      "seconds": 4.825,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "chainbound_gaoler_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.45,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "chainbound_gaoler_motion_test",
+      "returncode": 0,
+      "seconds": 0.613,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "chronicle_test",
+      "returncode": 0,
+      "seconds": 9.35,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "cinder_droplet_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.358,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "cinder_ooze_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.351,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "combat_analytics_context_equivalence_test",
+      "returncode": 0,
+      "seconds": 8.572,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "combat_hud_buttons_test",
+      "returncode": 0,
+      "seconds": 13.075,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "combat_hud_dialogue_input_test",
+      "returncode": 0,
+      "seconds": 8.463,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "combat_motion_timing_test",
+      "returncode": 0,
+      "seconds": 11.711,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "combat_music_integration_test",
+      "returncode": 0,
+      "seconds": 8.918,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "contextual_combat_tutorial_test",
+      "returncode": 0,
+      "seconds": 0.695,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "crawler_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.286,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "cutout_pose_application_test",
+      "returncode": 0,
+      "seconds": 4.289,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "cutout_submission_equivalence_test",
+      "returncode": 0,
+      "seconds": 5.035,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "demo_capture_settings_test",
+      "returncode": 0,
+      "seconds": 0.745,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "demo_clip_clock_test",
+      "returncode": 0,
+      "seconds": 0.821,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "demo_probe_viewport_test",
+      "returncode": 0,
+      "seconds": 4.934,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "departed_run_cleanup_test",
+      "returncode": 0,
+      "seconds": 10.36,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "dragon_committed_patterns_test",
+      "returncode": 0,
+      "seconds": 10.92,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "dragon_exchange_presentation_test",
+      "returncode": 0,
+      "seconds": 14.732,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "dragon_feedback_mechanics_test",
+      "returncode": 0,
+      "seconds": 9.956,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "dragon_pressure_mechanics_test",
+      "returncode": 0,
+      "seconds": 5.953,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "dragon_reward_feedback_test",
+      "returncode": 0,
+      "seconds": 2.013,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "dragon_spire_routes_test",
+      "returncode": 0,
+      "seconds": 1.51,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "dragon_trophy_feedback_test",
+      "returncode": 0,
+      "seconds": 1.548,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "dragon_wallet_ack_test",
+      "returncode": 0,
+      "seconds": 10.644,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "elemental_fx_hash_equivalence_test",
+      "returncode": 0,
+      "seconds": 0.744,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "elemental_spell_fx_test",
+      "returncode": 0,
+      "seconds": 3.065,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "en05_elemental_test",
+      "returncode": 0,
+      "seconds": 4.853,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "en05_live_integration_test",
+      "returncode": 0,
+      "seconds": 8.149,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "en05_probe_contract_test",
+      "returncode": 0,
+      "seconds": 5.685,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "enemy_cutout_roster_pack_test",
+      "returncode": 0,
+      "seconds": 2.937,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "enemy_route_allocation_equivalence_test",
+      "returncode": 0,
+      "seconds": 16.656,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/forced_movement_query_open_program",
+      "returncode": 0,
+      "seconds": 6.362,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/forced_movement_query_dense_program",
+      "returncode": 0,
+      "seconds": 26.155,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/forced_movement_query_heart_program",
+      "returncode": 0,
+      "seconds": 6.143,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/forced_movement_query_surface_ready_program",
+      "returncode": 0,
+      "seconds": 8.152,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "suites/forced_movement_query_blocked_program",
+      "returncode": 0,
+      "seconds": 5.032,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "frostglass_lancer_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.631,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "frostglass_lancer_motion_test",
+      "returncode": 0,
+      "seconds": 0.699,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "glossary_test",
+      "returncode": 0,
+      "seconds": 10.447,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "graftwright_console_test",
+      "returncode": 0,
+      "seconds": 2.349,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "graftwright_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 0.96,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "grave_surgeon_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.363,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "grimoire_performance_test",
+      "returncode": 0,
+      "seconds": 0.815,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "grimoire_search_rows_equivalence_test",
+      "returncode": 0,
+      "seconds": 14.056,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "guardian_cutout_motion_probe",
+      "returncode": 0,
+      "seconds": 1.7,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "guardian_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.18,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "guided_combat_tutorial_integration_test",
+      "returncode": 0,
+      "seconds": 9.146,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "gust_shrike_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.433,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "gust_shrike_cutout_test",
+      "returncode": 0,
+      "seconds": 5.358,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "harrier_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.341,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "headless_playtest_progression_test",
+      "returncode": 0,
+      "seconds": 2.199,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "humanoid_cutout_reaction_motion_probe",
+      "returncode": 0,
+      "seconds": 1.594,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "iskaldra_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.344,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "magic_deck_test",
+      "returncode": 0,
+      "seconds": 6.929,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "main_menu_input_test",
+      "returncode": 1,
+      "seconds": 22.768,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "merchant_stock_equivalence_probe",
+      "returncode": 0,
+      "seconds": 8.155,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "music_continuity_test",
+      "returncode": 0,
+      "seconds": 37.229,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "noctyrax_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.414,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "objective_glyph_equivalence_test",
+      "returncode": 0,
+      "seconds": 12.929,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "original_music_test",
+      "returncode": 0,
+      "seconds": 12.241,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "performance_phase_fast_path_test",
+      "returncode": 0,
+      "seconds": 3.074,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "performance_telemetry_test",
+      "returncode": 0,
+      "seconds": 0.595,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "pixel_fx_test",
+      "returncode": 0,
+      "seconds": 6.438,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "player_defeat_continuity_test",
+      "returncode": 0,
+      "seconds": 28.585,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "player_movement_outcome_test",
+      "returncode": 0,
+      "seconds": 13.786,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "pre_battle_deck_fit_test",
+      "returncode": 0,
+      "seconds": 9.479,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "pre_battle_pinned_hover_test",
+      "returncode": 0,
+      "seconds": 5.787,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "pre_battle_review_fixes_test",
+      "returncode": 0,
+      "seconds": 5.593,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "pre_battle_semantics_test",
+      "returncode": 0,
+      "seconds": 16.43,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "pre_battle_true_scale_test",
+      "returncode": 0,
+      "seconds": 7.294,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "pre_battle_view_test",
+      "returncode": 0,
+      "seconds": 21.878,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "prepared_card_preview_queries_test",
+      "returncode": 0,
+      "seconds": 10.244,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "prepared_pre_battle_view_equivalence_test",
+      "returncode": 0,
+      "seconds": 9.58,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "prepared_shop_equivalence_test",
+      "returncode": 0,
+      "seconds": 2.869,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "prepared_unit_canvas_equivalence_test",
+      "returncode": 0,
+      "seconds": 92.241,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "profile_read_equivalence_test",
+      "returncode": 0,
+      "seconds": 2.987,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "protagonist_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.684,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "protagonist_gear_motion_gameplay_test",
+      "returncode": 0,
+      "seconds": 53.257,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "relic_u5_test",
+      "returncode": 0,
+      "seconds": 5.521,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "relic_u6_test",
+      "returncode": 0,
+      "seconds": 5.904,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "relic_u8_test",
+      "returncode": 0,
+      "seconds": 5.078,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "retained_character_header_equivalence_test",
+      "returncode": 0,
+      "seconds": 12.653,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "retained_character_loadout_equivalence_test",
+      "returncode": 0,
+      "seconds": 9.773,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "save_pipeline_performance_test",
+      "returncode": 0,
+      "seconds": 1.227,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "save_resume_boundary_test",
+      "returncode": 0,
+      "seconds": 12.962,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "scavenger_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 0.844,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "scavenger_resource_cache_test",
+      "returncode": 0,
+      "seconds": 0.917,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "shadow_triangulation_equivalence_test",
+      "returncode": 0,
+      "seconds": 6.443,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "skill_link_geometry_equivalence_test",
+      "returncode": 0,
+      "seconds": 1.003,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "skill_progression_analytics_test",
+      "returncode": 0,
+      "seconds": 7.96,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "skill_tree_view_test",
+      "returncode": 0,
+      "seconds": 1.294,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "staged_reward_choices_equivalence_test",
+      "returncode": 0,
+      "seconds": 13.552,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "start_room_map_test",
+      "returncode": 0,
+      "seconds": 24.132,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "stone_warden_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.746,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "structural_route_equivalence_test",
+      "returncode": 0,
+      "seconds": 10.72,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "surface_analytics_batch_test",
+      "returncode": 0,
+      "seconds": 7.096,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "surface_parent_review_test",
+      "returncode": 0,
+      "seconds": 6.138,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "surface_preview_equivalence_test",
+      "returncode": 0,
+      "seconds": 27.943,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "surface_relic_test",
+      "returncode": 0,
+      "seconds": 1.857,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "surface_save_migration_test",
+      "returncode": 0,
+      "seconds": 2.063,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "tharokh_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.762,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "ui_components_gallery_fixture_test",
+      "returncode": 0,
+      "seconds": 0.918,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "ui_skin_performance_test",
+      "returncode": 0,
+      "seconds": 1.022,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "vaeloryx_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.895,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "veilbound_acolyte_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.67,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "vyraketh_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.786,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "zekarion_cutout_pack_test",
+      "returncode": 0,
+      "seconds": 1.883,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "prepared_other_character_view_test",
+      "returncode": 0,
+      "seconds": 78.313,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "retained_character_inventory_equivalence_test",
+      "returncode": 0,
+      "seconds": 117.313,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "shop_retained_content_test",
+      "returncode": 0,
+      "seconds": 3.906,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "static_floor_cache_equivalence_test",
+      "returncode": 0,
+      "seconds": 18.878,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "maquette_cutout_test",
+      "returncode": 0,
+      "seconds": 22.353,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "owned_cpu_asset_preparation_test",
+      "returncode": 0,
+      "seconds": 2.175,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "encounter_analytics_test",
+      "returncode": 0,
+      "seconds": 8.09,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "encounter_measurement_test",
+      "returncode": 0,
+      "seconds": 31.574,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "rr07/runtime_test",
+      "returncode": 0,
+      "seconds": 7.783,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "rr12/runtime_test",
+      "returncode": 0,
+      "seconds": 8.284,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "rr17/runtime_test",
+      "returncode": 0,
+      "seconds": 7.04,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "rr18/runtime_test",
+      "returncode": 0,
+      "seconds": 5.726,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "special_encounter_test",
+      "returncode": 1,
+      "seconds": 70.132,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "special_encounter_legend_test",
+      "returncode": 0,
+      "seconds": 1.853,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "warband_orders_test",
+      "returncode": 0,
+      "seconds": 26.583,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "warband_wind_lock_test",
+      "returncode": 0,
+      "seconds": 7.977,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "wbv_markers_test",
+      "returncode": 0,
+      "seconds": 8.277,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "warband_orders_probe",
+      "returncode": 0,
+      "seconds": 9.238,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "warband_test",
+      "returncode": 0,
+      "seconds": 54.947,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "warband_ui_test",
+      "returncode": 0,
+      "seconds": 21.503,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "snare_test",
+      "returncode": 0,
+      "seconds": 27.166,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "snare_ui_test",
+      "returncode": 0,
+      "seconds": 6.525,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "pass_preview_prewarm_test",
+      "returncode": 0,
+      "seconds": 35.689,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "petrify_tooltip_test",
+      "returncode": 0,
+      "seconds": 5.318,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "perf/analytics_restart_test",
+      "returncode": 0,
+      "seconds": 1.813,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "perf/background_persistence_test",
+      "returncode": 0,
+      "seconds": 0.771,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "perf/deferred_deadline_test",
+      "returncode": 0,
+      "seconds": 2.797,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "perf/transition_failure_0_test",
+      "returncode": 0,
+      "seconds": 50.998,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "perf/transition_failure_1_test",
+      "returncode": 0,
+      "seconds": 50.721,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "perf/transition_failure_2_test",
+      "returncode": 0,
+      "seconds": 50.581,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "perf/transition_failure_3_test",
+      "returncode": 0,
+      "seconds": 29.014,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "perf/combat_frame_scenarios",
+      "returncode": 0,
+      "seconds": 21.905,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "cache_switch_regression_test",
+      "returncode": 0,
+      "seconds": 8.877,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "engine_cache_directories_test",
+      "returncode": 0,
+      "seconds": 0.619,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "battlefield_rules_probe",
+      "returncode": 0,
+      "seconds": 5.03,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "el02_evidence",
+      "returncode": 0,
+      "seconds": 1.837,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "element_retrofit_test",
+      "returncode": 0,
+      "seconds": 15.985,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "element_retrofit_probe",
+      "returncode": 0,
+      "seconds": 9.413,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "en03_enemies_probe",
+      "returncode": 0,
+      "seconds": 4.825,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "en05_enemies_probe",
+      "returncode": 0,
+      "seconds": 4.816,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "en06_enemies_probe",
+      "returncode": 0,
+      "seconds": 4.889,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "el04_rule_views_test",
+      "returncode": 0,
+      "seconds": 19.311,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "enemy_no_action_test",
+      "returncode": 0,
+      "seconds": 25.397,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "fix_11_test",
+      "returncode": 0,
+      "seconds": 18.335,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "fix_11_probe",
+      "returncode": 0,
+      "seconds": 5.636,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "fix_12_probe",
+      "returncode": 0,
+      "seconds": 14.597,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "fix_14_test",
+      "returncode": 0,
+      "seconds": 124.34,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "fix_14_matrix_test",
+      "returncode": 0,
+      "seconds": 13.489,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "fix_12_arrival_test",
+      "returncode": 0,
+      "seconds": 30.008,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "fix_12_reactions_0_test",
+      "returncode": 0,
+      "seconds": 43.283,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "fix_12_reactions_1_test",
+      "returncode": 0,
+      "seconds": 41.247,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "fix_12_cascades_test",
+      "returncode": 0,
+      "seconds": 37.66,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "fix_12_feedback_test",
+      "returncode": 0,
+      "seconds": 53.241,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "fix_12_bleed_test",
+      "returncode": 0,
+      "seconds": 39.589,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "short_card_tooltips_test",
+      "returncode": 0,
+      "seconds": 20.023,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "card_panel_text_test",
+      "returncode": 0,
+      "seconds": 2.85,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "board_status_plates_test",
+      "returncode": 0,
+      "seconds": 16.847,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "status_capture_probe",
+      "returncode": 0,
+      "seconds": 10.417,
+      "timed_out": false,
+      "reason": ""
+    },
+    {
+      "name": "status_plates_performance_probe",
+      "returncode": 0,
+      "seconds": 11.3,
+      "timed_out": false,
+      "reason": ""
+    }
+  ]
+}

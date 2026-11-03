@@ -1,0 +1,24 @@
+{
+ "schema": 1,
+ "unit": "rr-52",
+ "what": "director data for the Last Lamplighter rig (humanoid v2): motion tracks and body underlays behind the arms, claw, fist and lantern (front and rear), from the owner-approved take-three paintings (inbox lamplighter-paint-3, APPROVED 2026-10-29)",
+ "image_jobs": {
+  "front_underlay": "img-rr52-lamplighter-front-underlay-r1 (edit of mq24_front processed x4; the tool returned 1254 px)",
+  "rear_underlay": "img-rr52-lamplighter-rear-underlay-r1 (edit of mq24_rear processed x4; 1254 px)"
+ },
+ "processing": {
+  "underlays": "../rr-44/reduce_underlay.py <raw> <painting> <out> (LANCZOS to 1024, crop [2:1022], 4x4 block median, chroma key, the painting's palette, registration (0,0))"
+ },
+ "approved_by": "director, 2026-10-29 (underlay pixels outside the painting: 185 front / 265 rear, all edge texels; arms, claw, fist and lantern removed; robe sides and the near greave painted in)",
+ "files": {
+  "motion_tracks.json": "98616c397c84ebd00054498c2d6c166ddcf3c442ba18dc54840846f4a007b97a",
+  "ref_front_approved_x4.png": "827bf9b4efc28a54c34da90c017e66f6c9996a833a8103d5f4b56caa1007fde9",
+  "ref_rear_approved_x4.png": "3a35b837c3fe70dfa27691f776dbebd64c8d9870881275baa73719d6ff6b39e0",
+  "prompt_front_body_underlay_r1.md": "5b5a8cee383445d2908deb189b568baad0391f7cba4c7c4c2a7a94c6ed5b233f",
+  "prompt_rear_body_underlay_r1.md": "530825a0131bda96cf84d352afa66606782ce977a9b26231fd08e28cbbdb4012",
+  "front_underlay_raw.png": "4076f43ddd97fdbde78f421481d868027593880483fdd3af969d3391b40b7491",
+  "rear_underlay_raw.png": "1cccfbcf948d72b29c4fc19382696755f89f07bba7145eb05e883ea83380323a",
+  "front_body_underlay.png": "66811ce523a63a9bfa4435c8de37ec329c0944ed307c2bdeb04f721262ffe262",
+  "rear_body_underlay.png": "d21116316def3844d94c1294a69f9b26870facedbbae50ca57226171faaae2e5"
+ }
+}

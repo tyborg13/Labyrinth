@@ -1,0 +1,24 @@
+{
+  "native_pixels_captured_by_worker": false,
+  "ui_scale": 1.0,
+  "resolution": [
+    1920,
+    1080
+  ],
+  "commands": {
+    "density": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-48 && sh experiments/cutouts/ashen_reaver/rr48_proof.sh density",
+    "rest": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-48 && sh experiments/cutouts/ashen_reaver/rr48_proof.sh rest",
+    "native": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-48 && sh experiments/cutouts/ashen_reaver/rr48_proof.sh native",
+    "sheets": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-48 && sh experiments/cutouts/ashen_reaver/rr48_proof.sh sheets",
+    "idle": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-48 && sh experiments/cutouts/ashen_reaver/rr48_proof.sh idle",
+    "production": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-48 && sh experiments/cutouts/ashen_reaver/rr48_proof.sh production",
+    "review": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-48 && sh experiments/cutouts/ashen_reaver/rr48_proof.sh review",
+    "depth": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-48 && sh experiments/cutouts/ashen_reaver/rr48_proof.sh depth",
+    "inspection": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-48 && python3 tools/inspection_fixture.py --task-id rr-48 --scenario guardian --guardian-id ashen_reaver --guardian-case encounter --seed 83 --manifest /private/tmp/labyrinth-inspection-manifests/rr48-guardian.json --summary 'rr-48 Ashen Reaver action inspection' --launch",
+    "depth_jobs": [
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-48 && python3 tools/visual_probe_runner.py --task-id rr-48 --no-headless --display-driver macos --audio-driver Dummy --timeout 330 --expect-size 1920x1080 --proof-contract tests/rr46/depth_proof_contract.json --result-manifest experiments/cutouts/ashen_reaver/rr48/proof/logs/fire_t1_r6-depth-result.json tests/rr48/depth_probe.gd -- --board fire_t1_r6 --actor ashen_reaver --output experiments/cutouts/ashen_reaver/rr48/proof/native/depth/fire_t1_r6/ashen_reaver",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-48 && python3 tools/visual_probe_runner.py --task-id rr-48 --no-headless --display-driver macos --audio-driver Dummy --timeout 330 --expect-size 1920x1080 --proof-contract tests/rr46/depth_proof_contract.json --result-manifest experiments/cutouts/ashen_reaver/rr48/proof/logs/earth_t3_r7-depth-result.json tests/rr48/depth_probe.gd -- --board earth_t3_r7 --actor ashen_reaver --output experiments/cutouts/ashen_reaver/rr48/proof/native/depth/earth_t3_r7/ashen_reaver"
+    ],
+    "seams": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-48 && sh experiments/cutouts/ashen_reaver/rr48_proof.sh seams"
+  }
+}

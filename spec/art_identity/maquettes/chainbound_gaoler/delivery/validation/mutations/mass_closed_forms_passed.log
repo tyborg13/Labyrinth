@@ -1,0 +1,14 @@
+test_closed_topology_guard_rejects_a_torn_collar (tests.test_mq15_maquette.MassGuardTests) ... FAIL
+
+======================================================================
+FAIL: test_closed_topology_guard_rejects_a_torn_collar (tests.test_mq15_maquette.MassGuardTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 291, in test_closed_topology_guard_rejects_a_torn_collar
+    self.assertFalse(closed_forms_passed({'scarf':{'passed':False}}))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

@@ -1,0 +1,37 @@
+[
+  {
+    "name": "rear_cape_far_violet_49",
+    "piece": "cape_far",
+    "mask": "features/rear_cape_far_49.png",
+    "sha256": "525e8f90af9890299495d61d559339c955add78d38accfb5eed980daeec9f98f",
+    "pixels": 30
+  },
+  {
+    "name": "rear_cape_far_violet_18",
+    "piece": "cape_far",
+    "mask": "features/rear_cape_far_18.png",
+    "sha256": "6dcc690d62f59cdc07dd1c822f0108fc835823e1c9b3c2c97f2dd5ffef1bf43f",
+    "pixels": 28
+  },
+  {
+    "name": "rear_cape_far_violet_36",
+    "piece": "cape_far",
+    "mask": "features/rear_cape_far_36.png",
+    "sha256": "e0cf6a376312fee974b4067cdf910c9e985cb2fcf85d7d7c3a03dcae6480b179",
+    "pixels": 26
+  },
+  {
+    "name": "rear_cape_far_violet_26",
+    "piece": "cape_far",
+    "mask": "features/rear_cape_far_26.png",
+    "sha256": "cb67d41610fccd55fa9e2dcf91e44284208cbd1958987e7c38f3bfa0f69f1127",
+    "pixels": 20
+  },
+  {
+    "name": "rear_cape_near_violet_6",
+    "piece": "cape_near",
+    "mask": "features/rear_cape_near_6.png",
+    "sha256": "d24aa07040d42ad646318b11bebd51be150c33918f41d3c2aff97e929b01ee30",
+    "pixels": 16
+  }
+]

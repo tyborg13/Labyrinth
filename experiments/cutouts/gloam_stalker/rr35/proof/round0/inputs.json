@@ -1,0 +1,12 @@
+{
+  "front_job": "spec/art_identity/jobs/gloam_stalker/mq13_front",
+  "rear_job": "spec/art_identity/jobs/gloam_stalker/mq13_rear",
+  "front_delivery": "spec/art_identity/maquettes/gloam_stalker/delivery",
+  "rear_delivery": "spec/art_identity/maquettes/gloam_stalker/delivery",
+  "fused_occlusion": true,
+  "design_placeholders": {
+    "TODO_DESIGN_front_slash_reach": "Protected slash on the r3 leading blade does not reach 18 source px at contact.",
+    "TODO_DESIGN_slash_torso_lean_limit": "Protected slash reaches 6 degrees; binding spec caps actions at 4.",
+    "TODO_DESIGN_rear_move_foot_near_reach": "Protected gait on r3 crouch violates abs(L1-L2)+4 minimum reach."
+  }
+}

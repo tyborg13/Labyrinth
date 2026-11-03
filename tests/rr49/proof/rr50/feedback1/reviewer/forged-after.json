@@ -1,0 +1,12 @@
+{
+  "mutation": "stable_paint.gd comment + manifest after_sha256 updated",
+  "caught": false,
+  "forged_after_sha256": "e68f6b0436ff79786eb8872db28037d1308fcbe6d1833ad995da1ada414472f7",
+  "normalized_inputs": {
+    "runtime:scripts/maquette_cutout_runtime/stable_paint.gd": "0dd3ae07438f562b1b8380a107c2ff5cbe9b7efd14c8f27ddb0dcc8dceb31ba0",
+    "runtime:scripts/maquette_cutout_runtime/stable_skin.gd": "47162ee31add0bba8839ca9e856988695162a6b097aa1e0fa9aea7f79c222038"
+  },
+  "report_rebound": {
+    "pose_sha256": "c22c5c84e55cb40de451505c6cf60857e98689680a79559665de691d92e42277"
+  }
+}

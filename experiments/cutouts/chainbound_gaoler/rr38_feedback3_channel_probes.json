@@ -1,0 +1,16 @@
+{
+  "scope": "Proof copies only. Independent channel experiments, not approved production clamps or maximum budgets.",
+  "press": {
+    "pelvis.lift_px": 0,
+    "hand_near.lift_px": 0.45454545454545453,
+    "hand_near.forward_px": 0.6666666666666666
+  },
+  "death": {
+    "pelvis.lift_px": 0.6666666666666666,
+    "pelvis.forward_px": 0,
+    "torso.lean_deg": 0,
+    "torso.forward_px": 0,
+    "head.lean_deg": 0,
+    "hand_far.lift_px": 0.6666666666666666
+  }
+}

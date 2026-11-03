@@ -1,0 +1,119 @@
+{
+  "authority": "mq-21 feedback 3; director leg and stance corrections with accepted round-2 upper body",
+  "arms": {
+    "diameter_multiplier": 1.25,
+    "gauntlet_multiplier": 1.2,
+    "chest_shoulder_width_multiplier": 1.08
+  },
+  "grip": {
+    "finger_count": 4,
+    "guard_gap_over_H": 0.01
+  },
+  "pauldrons": {
+    "outward_tilt_up_degrees": 25,
+    "max_forward_of_chest_over_H": 0.03,
+    "centroid_toward_viewer_over_H": 0.02
+  },
+  "helm": {
+    "cross_section_sides": 8,
+    "top_width_over_base": 0.85,
+    "crest_thickness_over_H": 0.008,
+    "dome_height_over_H": 0.015,
+    "crest_front_height_over_H": 0.025,
+    "crest_rear_height_over_H": 0.032
+  },
+  "legs": {
+    "hip_size_over_H": 0.11,
+    "knee_size_over_H": 0.085,
+    "calf_size_over_H": 0.085,
+    "ankle_size_over_H": 0.065,
+    "size_is_radius": false,
+    "calf_bulge_fraction_from_knee": 0.35,
+    "depth_over_width": 0.9,
+    "knee_wing": {
+      "height_over_H": 0.035,
+      "width_over_H": 0.025,
+      "outward_projection_over_H": 0.012,
+      "raised_ridges": 2
+    },
+    "knee_cop_diameter_over_H": 0.09,
+    "sabaton_minimum_width_over_H": 0.07
+  },
+  "back_tabard": {
+    "width_over_hip_width": 0.7,
+    "torn_points": 4,
+    "tear_depth_range_over_H": [
+      0.02,
+      0.04
+    ],
+    "knee_clearance_over_H": 0.03,
+    "tear_depths_over_H": [
+      0.03,
+      0.02,
+      0.04,
+      0.025
+    ],
+    "hem_reference": "tear_roots_above_mean_knee_joint_height",
+    "tear_positions_across_width": [
+      0.15,
+      0.4,
+      0.6,
+      0.85
+    ],
+    "accepted_hem_height_m": 0.7431928514795667
+  },
+  "blade_clearance": {
+    "down_degrees": 55,
+    "outward_degrees": 30,
+    "maximum_clearance_over_H": 0.12,
+    "desired_fist_lowering_over_H": 0.05,
+    "minimum_far_elbow_bend_degrees": 10,
+    "maximum_far_shoulder_hunch_reduction_over_H": 0.01,
+    "preserve_limb_lengths": true,
+    "preserve_blade_shape_and_length": true
+  },
+  "preservation": {
+    "accepted_round2_commit": "565d170a38464415b98e4935f7a8fc34e521c364",
+    "native_mesh_hashes": {
+      "back_tabard_render": "ef7021ff812d2520033259eb1de461dd76edaf9eb1a485f027de1bff681298d8",
+      "belt_render": "9edd8a8bd23d49e50abb86f1753adf1d0578d0a550458209c62e23859720e1df",
+      "cross_visor_render": "b2b6bc05f584a99b8dfa3d41a6d0b6ee6ddac6ce9af4c0f9fb6dcdede399521b",
+      "cuirass_render": "8c2c9e7de5cc413860a3276dfcd40aa01ed737019bed4deaf2b021cb68a37b6c",
+      "elbow_articulation_far_render": "af50ad702dcd91ae06793bb63bac8f5da5176569bfc171e3467b6270b8608bed",
+      "elbow_articulation_near_render": "fba1ae422b932081a752cf55f5ca2380a43567d7e9099c8e829eae5525e56da3",
+      "falchion_render": "5a07f728876e46b94f085dce28c4593d632170b036e48cfdbc05d8e84a021fcd",
+      "finger_far_0_render": "952bd48957c5ef428da8cdce677c568f7e6e603634fb91a588d69b4e3b7ab738",
+      "finger_far_1_render": "29db249fdbfc63d677503d45409b95d0136a7d9ad007bb67eb8b8e2ad511ba94",
+      "finger_far_2_render": "b898f9a420871d250c9329ad57d36577913df1a347ed98bce8957d409e188e9d",
+      "finger_far_3_render": "c613d01b78ae56482b6f62b933e3262ea0e474dc042468ab7e6cc44c0f45b40a",
+      "finger_near_0_render": "91b749dba388aaac88e3f4d5c0f47d90faf1cb3f2d9712e2be255f67f414d9d1",
+      "finger_near_1_render": "dfffeee5070749fdc97db07711bf14477b6cfb64597995daae045e7e1278c137",
+      "finger_near_2_render": "4a14a4774950bf0d535b95e41d7ecaf94894902fd1d42a5228dc39a43efd63d6",
+      "finger_near_3_render": "1e4ef7d1e5d65cfb7b6c0444ba658ec9ee051beb4c1412453961de1bcf4a4804",
+      "fore_plate_far_render": "904bb83d0e9e617b1a36a5b30c378be6bf3a8b64954ee2307cb5403a5273f459",
+      "fore_plate_near_render": "b10b20f7d17bfa8afda1ca0a13e2b511f07ccbb00a0d532997ed262a97f83c99",
+      "gauntlet_far_render": "926bf53a2d21a34370f051c6d067ddc5a37b3f710827d2d1c54f31a80b21cdc8",
+      "gauntlet_near_render": "98110d09eaad96303aaf95893125cc71f99f4785265daaca2238f7de4a3d17f7",
+      "glowing_edge_render": "645727b765f68ee561bb67b9339ac943ae03cf2ff3e0f5b97056ab9c06667c41",
+      "great_helm_render": "a5b858dcdd2b75bf5233d83bcd3077870a9e5ec42c97e06577256c21f47bf430",
+      "helm_crest_render": "57979083a6e2eddbd2b0ca80acda456d6b4a52cbf12ce7d99e0f187af4ab9382",
+      "pauldron_far_0_render": "bddcc97e38f74a08509fc55e22c9a77ad3d1b56155e69342752f53cd9b0d056b",
+      "pauldron_far_1_render": "5825774e161267f8fe84fe3425ce3704aea5f1f6d85a2c70df68876885742955",
+      "pauldron_far_2_render": "527bbf512abf840a956f4523eca19f299e8373317d7acc12528b5e80236c0dfa",
+      "pauldron_near_0_render": "4215e0743ccf4ce6e364918f6ac70885dea87d2622a016ebf62a9e77f7752190",
+      "pauldron_near_1_render": "ce2142aae51eec13edd064ec9ae176bea8441ac6050027e3ba676c2656102244",
+      "pauldron_near_2_render": "9ee128ef93ea49d9bb68b53f179f8152e0d27fb34b080bff1520dd9d60d80a91",
+      "pelvis_plate_render": "dbf8f27de6e7d02179d3cb335f902ba7a9925371feb279f0bc898234fc541965",
+      "round_strap_buckle_render": "32bf59cb128c6c0fb15720586b5e17a2c8028e5b407c929cb969769d1453bf4c",
+      "scarf_cowl_render": "0230e3c253f1879c8c04032582624e35a404bc949bd3bad22919981788b8ddfe",
+      "square_belt_buckle_render": "7f9df0cda2647b4c3f6267391cd32d79b636bb2029d9c28b4a739293fb6c0b84",
+      "strap_a_render": "a4225fa5bf25e54692ba3ef962c23152dfca1124f1b76b2dbb8425b7e6f0a4b4",
+      "strap_b_render": "6983bd20a1fdc03607466059274fd49c652519ae045d530aed76958d400c876a",
+      "tabard_render": "66dc28b0dcb554fdb9c75ef37e7521349e4057a80c04029655931303ed9e1f8b",
+      "thumb_far_render": "f2c9035e1835c19be6dece3493fae6754a7f4874618f6a7d43ecbef518cc4e58",
+      "thumb_near_render": "4cda8b9f0a3493d2c0897245b68060d514af6c9fb442d15cef847fb299a26a75",
+      "upper_plate_far_render": "e2e6cbfae95b8fba51fa832209f228ef3176e43dfd80af27f5ecebc9ade00ba9",
+      "upper_plate_near_render": "1500df51ab79d7be639eaaa21dded7f9ecb6be28080e18ebb4d76977a072f362"
+    }
+  }
+}

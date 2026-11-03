@@ -1,0 +1,1 @@
+Subject: a rough circular shaft dropping away into the floor of a chamber, seen from its rim. Far below, a bed of glowing orange embers pulses at the bottom. A frayed rope tied to an iron ring hangs down into it. Warm air and sparks rise from the shaft. Mood: vertiginous, tempting.

@@ -1,0 +1,11 @@
+{
+  "front_job": "spec/art_identity/jobs/storm_cantor/mq26_front",
+  "rear_job": "spec/art_identity/jobs/storm_cantor/mq26_rear",
+  "design_placeholders": {},
+  "registration": "Independent source painting landmarks; maquette labels only",
+  "protected": {
+    "motion_tracks.json": "da9f862e264d981bcae9fd98b4ef45be98beda097f8178222803830f89616b4b",
+    "front_body_underlay.png": "330a8a9326a21116c5ac3b5c8246645b0ccc42cb8faed390513503357cff6e18",
+    "rear_body_underlay.png": "9adad26883f7b08cff7aa16a4c40f24e679da4ec757cdfe44f5d2df6ad017e4f"
+  }
+}

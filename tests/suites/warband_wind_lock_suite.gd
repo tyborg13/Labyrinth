@@ -14,7 +14,12 @@ class ForecastBoard extends Control:
 static func run(expect: Callable) -> void:
 	for ordinary: bool in [true, false]:
 		var engine := Combat.new()
-		var state: Dictionary = Orders.battle("air", ordinary)
+		var state: Dictionary = Orders.battle("air")
+		if ordinary:
+			state["objective"] = {"type": "kill_all"}
+			state.erase("battlefield_rule")
+			state.erase("wind")
+			for unit: Dictionary in state["enemies"]: unit["is_leader"] = false
 		var enemy: Dictionary = state["enemies"][0]
 		var intent: Dictionary = engine._surface_prepare_enemy_intent(state, enemy, Orders.authored(state, "call_the_wind"))
 		expect.call(not intent.is_empty(), "Wind fixture has authored Call")

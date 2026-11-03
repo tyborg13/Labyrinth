@@ -1,0 +1,27 @@
+{
+  "front_lower_ring_projected_bbox_xyxy": [
+    720,
+    579,
+    750,
+    606
+  ],
+  "front_fist_bbox_xyxy": [
+    720,
+    576,
+    769,
+    625
+  ],
+  "lower_ring_entirely_above_lowest_fist_pixel": true,
+  "scope": "Bounding-box necessary witness only; complete native ownership pixel test is retained_capture_gate.json",
+  "front_lower_ring_visible_pixels_below_same_column_hand_edge": 8,
+  "interpretation_note": "Local-column and whole-fist-bottom observations are both retained; no change to native geometry or gate thresholds.",
+  "top_bar_pixel_xy": [
+    735,
+    570
+  ],
+  "top_bar_nearest_native_fist_pixel_xy": [
+    736,
+    576
+  ],
+  "top_bar_distance_to_native_fist_mask_px": 6.082762530298219
+}

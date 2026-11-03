@@ -1,0 +1,727 @@
+{
+  "native_pixels": true,
+  "retained": true,
+  "new_windowed_run": false,
+  "source_native_manifest_sha256": "3180050c54f6702a805238e97da70c3435b1d74ede47fc21f8bf7f6904caae71",
+  "fixture_sha256": "3d0b1241dad17952f9f91e5996fa58b5b9bdeec853fc1048a893d8123123f2cf",
+  "calibration": {
+    "ok": true,
+    "native_pixels": true,
+    "retained": true,
+    "fixture_sha256": "3d0b1241dad17952f9f91e5996fa58b5b9bdeec853fc1048a893d8123123f2cf",
+    "frames": [
+      {
+        "clip": "death",
+        "frame": 65,
+        "part": "head",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 6,
+        "native_sha256": "c0365ef94a0098838ffdd91d651c1f4b0cf33cc042160c07089f79989328492d"
+      },
+      {
+        "clip": "death",
+        "frame": 66,
+        "part": "head",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 6,
+        "native_sha256": "c0365ef94a0098838ffdd91d651c1f4b0cf33cc042160c07089f79989328492d"
+      },
+      {
+        "clip": "death",
+        "frame": 67,
+        "part": "head",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 6,
+        "native_sha256": "c0365ef94a0098838ffdd91d651c1f4b0cf33cc042160c07089f79989328492d"
+      },
+      {
+        "clip": "death",
+        "frame": 68,
+        "part": "head",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 6,
+        "native_sha256": "c0365ef94a0098838ffdd91d651c1f4b0cf33cc042160c07089f79989328492d"
+      },
+      {
+        "clip": "death",
+        "frame": 69,
+        "part": "head",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 6,
+        "native_sha256": "c0365ef94a0098838ffdd91d651c1f4b0cf33cc042160c07089f79989328492d"
+      },
+      {
+        "clip": "death",
+        "frame": 70,
+        "part": "head",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 6,
+        "native_sha256": "24ffa37584a9bceaa4609870337bc07e59f0eea5281fde67603b2501624efdef"
+      },
+      {
+        "clip": "death",
+        "frame": 86,
+        "part": "chain",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 0,
+        "native_sha256": "4faf663b7508157653d224a9bbce15e79965b8bfa65e08cd87274591ca40d1f5"
+      },
+      {
+        "clip": "death",
+        "frame": 94,
+        "part": "coat_near",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 0,
+        "native_sha256": "bec96af733c3372b5fda585a004688ad652eb22f2ce62f2bd70e0a1b33a0a74c"
+      },
+      {
+        "clip": "death",
+        "frame": 95,
+        "part": "coat_near",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 0,
+        "native_sha256": "bec96af733c3372b5fda585a004688ad652eb22f2ce62f2bd70e0a1b33a0a74c"
+      },
+      {
+        "clip": "death",
+        "frame": 95,
+        "part": "hidden_coat_near",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 0,
+        "native_sha256": "b791fe503da960abafb9ef719a1c75f9d95ce17fde2e85927f96b9a73ec0fa72"
+      },
+      {
+        "clip": "reel",
+        "frame": 41,
+        "part": "arm_near",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 1,
+        "native_sha256": "0720c289c6d2e130cf6c1fc533567081ca587178bbeb980c503174002b16b726"
+      },
+      {
+        "clip": "press",
+        "frame": 1,
+        "part": "arm_near",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 1,
+        "native_sha256": "188bc90e8729445327d5c5cb1e9b2ce9746d436690ce58c416d7d7f2a511c28d"
+      },
+      {
+        "clip": "guard",
+        "frame": 7,
+        "part": "hidden_arm_far",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 1,
+        "native_sha256": "6381bbe70ea52b9daf0367829492e80eb198d0b7c3d395f6a80c3261ee56424f"
+      },
+      {
+        "clip": "guard",
+        "frame": 51,
+        "part": "arm_near",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 1,
+        "native_sha256": "188bc90e8729445327d5c5cb1e9b2ce9746d436690ce58c416d7d7f2a511c28d"
+      },
+      {
+        "clip": "death",
+        "frame": 45,
+        "part": "hidden_arm_far",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 1,
+        "native_sha256": "a134a830b6cc5820810496efd540b6d17be0e46a60566868b1970f7eb6a6d88d"
+      },
+      {
+        "clip": "death",
+        "frame": 50,
+        "part": "arm_near",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 1,
+        "native_sha256": "5a1e5da27b1c311638bbbc7aa9bf5689c93f75b9de73cd723f2b317406909f15"
+      },
+      {
+        "clip": "death",
+        "frame": 51,
+        "part": "arm_near",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 1,
+        "native_sha256": "8e18ff2bd862785bd3fad5ffb6f0c88f044372656cbe6d06c9c5a68dbfaa1ede"
+      },
+      {
+        "clip": "death",
+        "frame": 52,
+        "part": "arm_near",
+        "unexplained_pixels": 0,
+        "default_pixel_differences": 1,
+        "native_sha256": "2c995e7ea369cde14ca9cd58bff5e1d26ef8340b5ae612219654a37fb6f2dd30"
+      }
+    ],
+    "rule": "exact source RGBA or real adjacent nearest-UV texel; no pixel-count allowance"
+  },
+  "sweep": {
+    "frames": 892,
+    "findings": 0,
+    "painted_exposure": true,
+    "sha256": "8d0ff71a43214c9d6d0cc23b8aba2adc17d3447c83faa18249346a388b5aa614"
+  },
+  "native_gates": {
+    "ok": true,
+    "errors": [],
+    "views": {
+      "front": {
+        "errors": []
+      },
+      "rear": {
+        "errors": []
+      }
+    },
+    "native_pixels": true,
+    "production_ready": true,
+    "source_authority": {
+      "ok": true,
+      "errors": [],
+      "views": {
+        "front": {
+          "rest_mismatch_pixels": 0,
+          "approved_rest_mismatch_pixels": 8
+        },
+        "rear": {
+          "rest_mismatch_pixels": 0,
+          "approved_rest_mismatch_pixels": 13
+        }
+      },
+      "native_pixels": false,
+      "footprint_pixels": {
+        "near_arm": 2915,
+        "far_arm": 2823,
+        "legs": 2744
+      },
+      "painted_pixels": {
+        "torso": 611,
+        "pelvis": 1235,
+        "tabard": 80,
+        "coat_near": 1575,
+        "coat_far": 392
+      },
+      "justified_clear_pixels": 4589
+    },
+    "sweep_sha256": "8d0ff71a43214c9d6d0cc23b8aba2adc17d3447c83faa18249346a388b5aa614",
+    "retained_analysis_only_deltas": {
+      "runtime:tools/humanoid_cutout/gates.py": {
+        "before": "b65829c44e7890dbdd5c3f0f0823d66abf93230255ae3ec06dbd5d13c401f271",
+        "after": "5a8db977b6ea94adf6c044139e5790e6a0874fe5840c08262d741a2714060931"
+      },
+      "runtime:tools/humanoid_cutout/proof.py": {
+        "before": "b81859994b35b660df6899b8b7e35efa304ebcd7e3b265eedba97cf949a38481",
+        "after": "f98e8ffbe95d0a1ae32e74269e25b230760bee6b8f664210b8f541dc3479d5d0"
+      }
+    },
+    "error_count": 0
+  },
+  "tuck_texels": 219,
+  "tuck_receipt_sha256": "276ca3398c8ca6f2787a12c4f21b8dfaafe4d639419735046f151806df687258",
+  "tuck_counts": {
+    "torso": 153,
+    "pelvis": 21,
+    "chain": 43,
+    "arm_far": 2
+  },
+  "motion_changes": [],
+  "art_changes": [],
+  "unresolved_design_questions": [],
+  "chosen_defaults": {
+    "cold_import_timeout_seconds": 900,
+    "full_godot_timeout_seconds": 1800,
+    "invalid_native_rgba": [
+      254,
+      7,
+      199,
+      255
+    ],
+    "analysis_mutation_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "render_mutation_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "cache_fixture_model": "constructed cache validation only"
+  },
+  "logs": {
+    "import_initial": {
+      "file": "proof/logs/feedback2_final/import_initial.log",
+      "sha256": "13f2e0f685925c66e6e6fa81f3d134837ad880c403743db39685d2d804097ccc",
+      "result_lines": []
+    },
+    "import": {
+      "file": "proof/logs/feedback2_final/import.log",
+      "sha256": "4217ed3f370063a0edd58ac38aa1d067ac9d7b8f339d426b4da5c57803364f36",
+      "result_lines": []
+    },
+    "calibration": {
+      "file": "proof/logs/feedback2_final/calibration.log",
+      "sha256": "d6f02419d07a6c264a78d90701404c64846c6c8ba4e5c93a295fc8899dc423b1",
+      "result_lines": [
+        "RR42 NATIVE CALIBRATION: PASS (18 retained layers; 0 unexplained required; frame95 exact=True)"
+      ]
+    },
+    "unit": {
+      "file": "proof/logs/feedback2_final/unit.log",
+      "sha256": "5df4e7251036f8e73e335f66faf38389505fcfd98d48bebedf6ba985002d25da",
+      "result_lines": [
+        "Ran 8 tests in 4.600s",
+        "OK"
+      ]
+    },
+    "compatibility": {
+      "file": "proof/logs/feedback2_final/compatibility.log",
+      "sha256": "36504fe46647614d51ac947520321c862fdd70b281cd9105a691d7029d2e0801",
+      "result_lines": [
+        "Ran 35 tests in 51.562s",
+        "OK",
+        "RR10 SHEETS: PASS (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr10-sheet-fixture-3l3uiojc/sheets)",
+        "RR10 SHEETS: FAIL; diagnostic saved (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr38-diagnostic-jflb2eo5/sheets)"
+      ]
+    },
+    "godot_full": {
+      "file": "proof/logs/feedback2_final/godot_full.log",
+      "sha256": "70a5d9acb374ec1bea93159f46afbc005d07ee12dce50d00ba5acb71723f26da",
+      "result_lines": [
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "FULL SUITE RUNTIME: 822.731 seconds (budget 900 seconds)"
+      ]
+    },
+    "godot_initial_pass": {
+      "file": "proof/logs/feedback2_final/godot_initial_pass.log",
+      "sha256": "bc5d39db35f7e00b412e3c3c0c82062cfb74e77e66b41b8da4ec34660f243b2e",
+      "result_lines": [
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "FULL SUITE RUNTIME: 755.511 seconds (budget 900 seconds)",
+        "TEST RESULT: PASS"
+      ]
+    },
+    "godot_concurrent_load": {
+      "file": "proof/logs/feedback2_final/godot_concurrent_load.log",
+      "sha256": "2e1b14e299a0332c2ce7edfe32a55d98add44b4523c527cd13dba7164eb69a6d",
+      "result_lines": [
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "FULL SUITE RUNTIME: 901.712 seconds (budget 900 seconds)"
+      ]
+    },
+    "transition_suite_timeout": {
+      "file": "proof/logs/feedback2_final/transition_suite_timeout.log",
+      "sha256": "c69ae0138449461dac9f47a446d9e031c59d655d356ffd512fa4c498238dbe84",
+      "result_lines": []
+    },
+    "transition_focused": {
+      "file": "proof/logs/feedback2_final/transition_focused.log",
+      "sha256": "ed51912318ef5857624d4480b74fc53fd43437a234f39a2e23bacd4655c8d45f",
+      "result_lines": []
+    },
+    "python_full": {
+      "file": "proof/logs/feedback2_final/python_full.log",
+      "sha256": "50be2b01c91492cb46d367d06cb56f3fe8b94578e53f703be37d32e816e51538",
+      "result_lines": [
+        "RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-gt1pdo86/old_review.mp4)",
+        "RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-gt1pdo86/new_review.mp4)",
+        "RR10 SHEETS: PASS (4 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-gt1pdo86/old_sheets)",
+        "RR10 SHEETS: PASS (4 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-gt1pdo86/new_sheets)",
+        "RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-xqqr9n5i/proof/seer/review.mp4)",
+        "RR10 SHEETS: PASS (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr10-sheet-fixture-bgh5wo4a/sheets)",
+        "RR10 SHEETS: FAIL; diagnostic saved (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr38-diagnostic-53qk5zpv/sheets)",
+        "Ran 31 tests in 219.587s",
+        "OK",
+        "Ran 2004 tests in 5056.186s",
+        "FAILED (failures=1, skipped=66)"
+      ]
+    },
+    "python_before_default_fix": {
+      "file": "proof/logs/feedback2_final/python_before_default_fix.log",
+      "sha256": "765f3afc0625dd87315e70f9ff525d9d5462a7cd74287349766817ced7e6b292",
+      "result_lines": [
+        "RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-foe5mav6/old_review.mp4)",
+        "RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-foe5mav6/new_review.mp4)",
+        "RR10 SHEETS: PASS (4 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-foe5mav6/old_sheets)",
+        "RR10 SHEETS: PASS (4 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-foe5mav6/new_sheets)",
+        "RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-4qrkb7g9/proof/seer/review.mp4)",
+        "RR10 SHEETS: PASS (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr10-sheet-fixture-xpmsb4pm/sheets)",
+        "RR10 SHEETS: FAIL; diagnostic saved (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr38-diagnostic-mdqq_tbl/sheets)",
+        "Ran 31 tests in 225.042s",
+        "OK",
+        "Ran 2004 tests in 6063.733s",
+        "FAILED (failures=3, skipped=66)"
+      ]
+    },
+    "raster_regression": {
+      "file": "proof/logs/feedback2_final/raster_regression.log",
+      "sha256": "815d5ee72bac6d6211d10a7e69b177b6fbbb203d25228912d297bb7d8f248c00",
+      "result_lines": [
+        "Ran 16 tests in 6.164s",
+        "OK"
+      ]
+    },
+    "historical_motion": {
+      "file": "proof/logs/feedback2_final/historical_motion.log",
+      "sha256": "4c2ac67d92a4cd79e5530fa143dfa5ad2dafdcda41ee24a0fd9efa1ee3cd2c34",
+      "result_lines": [
+        "Ran 1 test in 8.605s",
+        "FAILED (failures=1)"
+      ]
+    },
+    "sweep": {
+      "file": "proof/logs/feedback2_final/sweep.log",
+      "sha256": "65c71bbc9a794526f789fdb96fc7f8a955f454cda696b5ee9874e336d5880dd7",
+      "result_lines": [
+        "RR42 SWEEP SHARDS: 21/228",
+        "RR42 SWEEP SHARDS: 41/228",
+        "RR42 SWEEP SHARDS: 61/228",
+        "RR42 SWEEP SHARDS: 81/228",
+        "RR42 SWEEP SHARDS: 101/228",
+        "RR42 SWEEP SHARDS: 121/228",
+        "RR42 SWEEP SHARDS: 141/228",
+        "RR42 SWEEP SHARDS: 161/228",
+        "RR42 SWEEP SHARDS: 181/228",
+        "RR42 SWEEP SHARDS: 201/228",
+        "RR42 SWEEP SHARDS: 221/228",
+        "RR42 CALIBRATED SWEEP: PASS (892 frames; 0 findings; painted_exposure=True; native_pixels=False)"
+      ]
+    },
+    "native_gates": {
+      "file": "proof/logs/feedback2_final/native_gates.log",
+      "sha256": "fcfae4ea967d52bbcd3fd321fdf41c995088a1a7db3aefca5b254651488055fc",
+      "result_lines": [
+        "RR42 ALL GATES: PASS (0 errors; native=True)"
+      ]
+    },
+    "source_gates": {
+      "file": "proof/logs/feedback2_final/source_gates.log",
+      "sha256": "b40892dd86f887aed07e8553f5554d8e8843e424dc9d2b1612476341586ee846",
+      "result_lines": [
+        "RR42 SOURCE AUTHORITY: PASS (0 errors; 4589 justified clear texels)"
+      ]
+    },
+    "native_cache_reuse": {
+      "file": "proof/logs/feedback2_final/native_cache_reuse.log",
+      "sha256": "c3ed96544f763f86a613a0ce87b53a48200df3ff76765ad39d7289ad75854701",
+      "result_lines": [
+        "RR42 NATIVE PAINTED EXPOSURE: PASS (0 errors)"
+      ]
+    },
+    "sheets": {
+      "file": "proof/logs/feedback2_final/sheets.log",
+      "sha256": "3748102d8349f6f1594eef2efe09d34d3921290dd23c20c04dc3a3ce5f170b57",
+      "result_lines": [
+        "RR10 SHEETS: PASS (16 frames; experiments/cutouts/chainbound_gaoler/rr42/proof/contact_sheets)"
+      ]
+    },
+    "review": {
+      "file": "proof/logs/feedback2_final/review.log",
+      "sha256": "82ec5f7b7b39877644f10fa06b584d6e3bda3fe96bf9f31f4b4628a132b463c6",
+      "result_lines": [
+        "RR10 REVIEW: PASS (957 frames; experiments/cutouts/chainbound_gaoler/rr42/proof/chainbound_gaoler_review.mp4)"
+      ]
+    },
+    "registration": {
+      "file": "proof/logs/feedback2_final/registration.log",
+      "sha256": "472ce837ab453dbcd4456a560e4d18854356b14492457052a53cd31f304b5cfb",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (841 scripts; full suite=487, quarantined=29, windowed probe=325)"
+      ]
+    }
+  },
+  "godot_summary": "FULL SUITE RUNTIME: 822.731 seconds (budget 900 seconds)",
+  "godot_result": "TEST RESULT: FAIL (1 failure(s))",
+  "python_summary": "Ran 2004 tests in 5056.186s",
+  "python_failure_headers": [
+    "FAIL: test_row_fill_pixels_are_own_painted_values_and_rest_is_exact (test_rr38_feedback2.Feedback2Tests)"
+  ],
+  "python_skipped_tests": [
+    "test_bank_generator_is_deterministic (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... skipped 'requires pinned Python 3.12 audio environment'",
+    "test_normalizer_writes_full_score_and_separate_parts (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... skipped 'requires pinned Python 3.12 audio environment'",
+    "test_provenance_gate_rejects_mismatches_and_placeholder_licenses (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... skipped 'requires pinned Python 3.12 audio environment'",
+    "test_reference_render_and_verifier_match_approved_outputs (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... skipped 'requires pinned Python 3.12 audio environment'",
+    "test_scaffold_is_rights_locked_and_non_overwriting (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... skipped 'requires pinned Python 3.12 audio environment'",
+    "test_string_track_can_request_a_slow_attack_without_changing_the_default (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... skipped 'requires pinned Python 3.12 audio environment'",
+    "test_hash_bound_samples_meet_input_onset_and_duration (test_empower_sfx.EmpowerSfxTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_mix_targets_and_six_db_difference (test_empower_sfx.EmpowerSfxTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_real_blender_build_and_geometry_gates (test_maquette_blender.NativeContractTests) ... skipped 'Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge'",
+    "test_real_lancer_cloth_cache_replay_has_identical_raw_hashes (test_maquette_blender.NativeContractTests) ... skipped 'Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge'",
+    "test_complete_movement_boundaries_and_source_counts (test_old_castle_full_arrangement.OldCastleFullArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_config_uses_cc0_symbolic_source_and_no_omr_inputs (test_old_castle_full_arrangement.OldCastleFullArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_every_printed_system_and_opening_lament_are_anchored (test_old_castle_full_arrangement.OldCastleFullArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_five_voice_reduction_counts_and_range (test_old_castle_full_arrangement.OldCastleFullArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_generated_musicxml_has_stable_unique_part_ids_and_107_measures (test_old_castle_full_arrangement.OldCastleFullArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_v01_audition_is_byte_for_byte_unchanged (test_old_castle_full_arrangement.OldCastleFullArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_v07_builder_keeps_every_prior_version_immutable (test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_v07_is_strictly_verified_and_promoted_without_byte_drift (test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_v07_preserves_the_approved_v06_music_byte_for_byte (test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_every_base_event_is_an_exact_v02_crop (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_high_strings_are_sparse_exact_octave_doublings (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_midi_tracks_channels_counts_tempo_and_loop_markers (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_normalized_score_and_config_are_audition_only (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_percussion_is_quiet_regular_six_eight_background (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_prior_audition_trees_remain_byte_for_byte_unchanged (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_selection_is_the_requested_contiguous_measure_span (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'",
+    "test_feedback_gate_rejects_changed_candidate_motion_before_rendering (test_rr27_thrall.ThrallStrictProvenanceTests) ... skipped 'rr-27 Tether study not adopted (feedback 3; decision 2026-10-19): its feedback-1 evidence binds tool hashes that later units change, and its evaluate() requires fresh evidence first.'",
+    "test_bytes_peak_provenance_source_preservation_and_no_deletions (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_designed_multi_root_cli_pipeline_and_relocation (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_excluded_recipe_paths_and_ambiguous_take (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_layer_without_trim_renders_full_take (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_licence_derivation_and_missing_or_invalid_sidecar_before_index (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_master_order_filters_peak_fade_length_and_errors (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_sample_exact_offset_mono_stereo_sum_and_default_length (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_trim_pitch_reverse_filters_and_layer_fades (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_ceiling_linked_channels_boundary_peaks_and_input_gain (test_sfx_lab.LimiterTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_determinism_silence_and_short_file (test_sfx_lab.LimiterTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_invalid_limiter_settings_fail (test_sfx_lab.LimiterTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_lookahead_attack_starts_early_and_is_linear (test_sfx_lab.LimiterTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_release_is_one_pole_exponential (test_sfx_lab.LimiterTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_approved_defaults_and_invalid_inputs (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_attack_decay_and_antiphase_spectrum (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_audition_two_cues_html_audio_and_provenance (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_build_deterministic_bytes_loudness_manifest (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_capped_take_passes_below_loudness_target (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_cli_index_slice_features_query_audition_build (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_equal_power_fades_linear_fade_in_and_crossfade (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_features_sine_noise_bands_and_short_rms (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_index_all_formats_license_hash_and_skips (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_index_and_analysis_deterministic_across_workers (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_limiter_build_stage_manifest_encoded_ceiling_and_determinism (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_lowpass_before_normalization_and_short_boundary (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_multichannel_front_pair_in_audition_and_build (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_normalize_no_clip_cap_is_recorded (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_page_javascript_offline_export_play_and_shortcuts (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_query_all_ranges_and_sort (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_refuse_excluded_paths_symlinks_and_forged_provenance (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_short_peak_caps_and_processing_parameters (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_slice_boundaries_and_identity (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_slice_silence_tiny_take_tail_floor_and_cap (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_stereo_policy_and_loop_seam (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_uncapped_take_outside_tolerance_fails_even_near_ceiling (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_unknown_ambiguous_modified_take_and_unsafe_cue (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_cli_default_explicit_and_short_windows_preserve_cue_gain_and_inheritance (test_sfx_lab.WindowMeasureTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_default_400ms_matches_director_measure_and_100ms_uses_25ms_hops (test_sfx_lab.WindowMeasureTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'",
+    "test_short_padding_and_window_validation (test_sfx_lab.WindowMeasureTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'"
+  ],
+  "python_skipped_count": 66,
+  "known_bootstrap": {
+    "headless_import_exit_code": 0,
+    "initial_import_timeout_seconds": 300,
+    "completed_import_timeout_seconds": 900,
+    "generated_test_directory": "experiments/cutouts/briar_weaver/mq9/proof/logs",
+    "created_directory": true,
+    "source_files_changed": false,
+    "reason": "Existing rr21 review fixtures use TemporaryDirectory(dir=CASE/proof/logs); initialize the known worktree output-folder gap before full-suite execution."
+  },
+  "baseline_failures": {
+    "starting_head": "f6603b5a272a0c3249f7239b8a1c41d0d63916e9",
+    "tests": [
+      {
+        "test": "test_rr38_feedback2.Feedback2Tests.test_row_fill_pixels_are_own_painted_values_and_rest_is_exact",
+        "cause": "Historical rr-38 director_motion.json retains the kneel; protected staged/rr-38/motion_tracks.json was edited by the director to the rr-42 planted-feet slump.",
+        "files": [
+          {
+            "file": "tests/test_rr38_feedback2.py",
+            "starting_sha256": "1f2b7458e1480998344b25064019f8e5ed65534783fb64b6fbc833dcd4163489",
+            "current_sha256": "1f2b7458e1480998344b25064019f8e5ed65534783fb64b6fbc833dcd4163489",
+            "unchanged_from_starting_head": true
+          },
+          {
+            "file": "experiments/cutouts/chainbound_gaoler/rr38/director_motion.json",
+            "starting_sha256": "2d2aef18cd5f6bb213285253955073d398b9c6eb183b851b9fcfc8de3578ba98",
+            "current_sha256": "2d2aef18cd5f6bb213285253955073d398b9c6eb183b851b9fcfc8de3578ba98",
+            "unchanged_from_starting_head": true
+          },
+          {
+            "file": "spec/peer_benchmark/staged/rr-38/motion_tracks.json",
+            "starting_sha256": "d193048ceb6643707a874a66baf0f4a94a118581477fc792f6ffcccb63cf3dcd",
+            "current_sha256": "d193048ceb6643707a874a66baf0f4a94a118581477fc792f6ffcccb63cf3dcd",
+            "unchanged_from_starting_head": true
+          }
+        ]
+      }
+    ],
+    "assertions_modified": false
+  },
+  "concurrent_godot": {
+    "full_suite_result": "TEST RESULT: FAIL (12 failure(s))",
+    "runtime_line": "FULL SUITE RUNTIME: 901.712 seconds (budget 900 seconds)",
+    "concurrent_checks": [
+      "full Python suite",
+      "2-worker CPU exposure sweep",
+      "native exact-pixel check"
+    ],
+    "program_failures": [
+      {
+        "name": "retained_character_inventory_equivalence_test",
+        "returncode": 124,
+        "seconds": 180.336,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/168-retained_character_inventory_equivalence_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/168/godot.log",
+        "reason": ""
+      },
+      {
+        "name": "perf/transition_failure_case",
+        "returncode": 124,
+        "seconds": 109.593,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/194-perf-transition_failure_case.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/194/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_14_test",
+        "returncode": 124,
+        "seconds": 38.629,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/210-fix_14_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/210/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_12_arrival_test",
+        "returncode": 124,
+        "seconds": 34.691,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/212-fix_12_arrival_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/212/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_12_reactions_0_test",
+        "returncode": 124,
+        "seconds": 26.495,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/213-fix_12_reactions_0_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/213/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_12_reactions_1_test",
+        "returncode": 124,
+        "seconds": 17.17,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/214-fix_12_reactions_1_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/214/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_12_cascades_test",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/215-fix_12_cascades_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/215/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_12_feedback_test",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/216-fix_12_feedback_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/216/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "fix_12_bleed_test",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/217-fix_12_bleed_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/217/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "short_card_tooltips_test",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/218-short_card_tooltips_test.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/218/godot.log",
+        "reason": "full suite budget exhausted"
+      },
+      {
+        "name": "rr38/runtime_checks",
+        "returncode": 124,
+        "seconds": 0.0,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/219-rr38-runtime_checks.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/219/godot.log",
+        "reason": "full suite budget exhausted"
+      }
+    ],
+    "limits_changed": false,
+    "isolated_rerun_pending": false,
+    "report_sha256": "83fb310d192895451475efedd77e86887d053768e7bbe7638440da057a18a21f",
+    "isolated_rerun": {
+      "exit_code": 1,
+      "passed_programs": 219,
+      "program_failures": [
+        {
+          "name": "perf/transition_failure_case",
+          "returncode": 124,
+          "seconds": 180.243,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793048410275244000-64591/Library/Application Support/Escape the Umbra Parallel rr-42-1793048410275244000-64591/program-suites.logs/194-perf-transition_failure_case.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793048410275244000-64591/Library/Application Support/Escape the Umbra Parallel rr-42-1793048410275244000-64591/program-suites.logs/194/godot.log",
+          "reason": ""
+        }
+      ],
+      "runtime_line": "FULL SUITE RUNTIME: 822.731 seconds (budget 900 seconds)",
+      "result_line": "TEST RESULT: FAIL (1 failure(s))",
+      "log_sha256": "70a5d9acb374ec1bea93159f46afbc005d07ee12dce50d00ba5acb71723f26da",
+      "retained_inventory": {
+        "name": "retained_character_inventory_equivalence_test",
+        "returncode": 0,
+        "seconds": 114.548,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793048410275244000-64591/Library/Application Support/Escape the Umbra Parallel rr-42-1793048410275244000-64591/program-suites.logs/168-retained_character_inventory_equivalence_test.log",
+        "timed_out": false,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793048410275244000-64591/Library/Application Support/Escape the Umbra Parallel rr-42-1793048410275244000-64591/program-suites.logs/168/godot.log",
+        "reason": ""
+      },
+      "focused_transition_recheck_pending": false,
+      "focused_transition_recheck": {
+        "exit_code": 0,
+        "timeout_seconds": 180,
+        "result_line": "PERF03 TRANSITION DIFFERENTIAL RESULT: PASS",
+        "comparisons": 7,
+        "log_sha256": "ed51912318ef5857624d4480b74fc53fd43437a234f39a2e23bacd4655c8d45f"
+      }
+    }
+  },
+  "sheets": {
+    "manifest": "experiments/cutouts/chainbound_gaoler/rr42/proof/contact_sheets/manifest.json",
+    "sha256": "9cb78333a3dfe2764b835cd50c103a5876243a182244e4237a75df63c66cac92",
+    "frames": 16
+  },
+  "review": {
+    "manifest": "experiments/cutouts/chainbound_gaoler/rr42/proof/chainbound_gaoler_review.json",
+    "sha256": "6b4c981d80cac934c3dd1331a0550cdad869929001a59e13f32fc8091ccd3e95",
+    "frames": 957
+  }
+}

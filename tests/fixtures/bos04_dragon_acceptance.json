@@ -1,0 +1,108 @@
+{
+  "vyraketh": {
+    "rule": "wildfire",
+    "cadence": {
+      "anchor": "on_intent",
+      "intent": "cinderfall"
+    },
+    "dials": {
+      "spread": "all"
+    },
+    "sentence": "When Vyraketh breathes, every Fire tile spreads 1 tile in all four directions.",
+    "at_half_health": {
+      "cadence": {
+        "anchor": "after_source_turn",
+        "every": 2
+      },
+      "sentence": "After every second Vyraketh turn, every Fire tile spreads 1 tile in all four directions."
+    }
+  },
+  "tharokh": {
+    "rule": "upheaval",
+    "cadence": {
+      "anchor": "after_player_turn",
+      "every": 2
+    },
+    "dials": {
+      "pattern": "line_between",
+      "length": 5,
+      "health": 4
+    },
+    "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops.",
+    "at_half_health": {
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 1
+      },
+      "sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops."
+    }
+  },
+  "iskaldra": {
+    "rule": "frostbite",
+    "cadence": {
+      "anchor": "on_intent",
+      "intent": "rime_talon"
+    },
+    "dials": {
+      "damage": 3
+    },
+    "sentence": "When Iskaldra uses Rime Talon, Frostbite hits everyone on Ice for 3 and Freezes them.",
+    "at_half_health": {
+      "cadence": {
+        "anchor": "after_source_turn",
+        "every": 2
+      },
+      "sentence": "After every second Iskaldra turn, Frostbite hits everyone on Ice for 3 and Freezes them."
+    }
+  },
+  "vaeloryx": {
+    "rule": "gust",
+    "cadence": {
+      "anchor": "after_source_turn",
+      "every": 1
+    },
+    "dials": {
+      "tiles": 1,
+      "direction": "turn_clockwise"
+    },
+    "sentence": "After each Vaeloryx turn, its wind Pushes everyone 1 tile, then turns a quarter clockwise.",
+    "at_half_health": {
+      "dials": {
+        "tiles": 2
+      },
+      "sentence": "After each Vaeloryx turn, its wind Pushes everyone 2 tiles, then turns a quarter clockwise."
+    }
+  },
+  "zekarion": {
+    "rule": "lightning_storm",
+    "cadence": {
+      "anchor": "on_intent",
+      "intent": "tempest_breath"
+    },
+    "dials": {
+      "damage": 5,
+      "chain": 1
+    },
+    "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 1.",
+    "at_half_health": {
+      "dials": {
+        "chain": 2
+      },
+      "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 2."
+    }
+  },
+  "noctyrax": {
+    "rule": "shadowstep",
+    "cadence": {
+      "anchor": "on_intent",
+      "intent": "void_claw"
+    },
+    "dials": {
+      "blink": 3,
+      "who": [
+        "veilbound_acolyte"
+      ]
+    },
+    "sentence": "When Noctyrax uses Void Claw, hidden Veilbound Acolytes Blink 3 tiles toward you."
+  }
+}

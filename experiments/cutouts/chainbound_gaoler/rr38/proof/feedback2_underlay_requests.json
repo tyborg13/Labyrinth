@@ -1,0 +1,1147 @@
+{
+  "native_manifest_sha256": "0d672b7f4246e08945d98b0731ad3ac5d58a2cd318a4c24ac44c2a7414d76d8a",
+  "triage_log_sha256": "783bf0d580a37d380a3cc0936b0537b24f2486f09003030cbcefbf6beaa25a89",
+  "requests": [
+    {
+      "view": "front",
+      "piece": "arm_far",
+      "clip": "move",
+      "frame": 10,
+      "native_xy": [
+        244,
+        271
+      ],
+      "source_xy": [
+        81,
+        61
+      ],
+      "native_rgba": [
+        124,
+        64,
+        44,
+        255
+      ],
+      "source_rgba": [
+        120,
+        62,
+        41,
+        255
+      ],
+      "native_frame_sha256": "0072ade3a2737a9691ba7a16612b091f6f64f856e15816a5e9c9eb857c153cf6",
+      "native_piece_sha256": "7d761e12ad460472373a9e65ae363df4b6f3c187be005c6288974f7754e38bc9",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 275,
+      "crop": "proof/logs/feedback2/underlay_crops/front_arm_far.png",
+      "decision": "TODO_DESIGN_front_arm_far_row_paint",
+      "unresolved_native_joint_pockets": [
+        {
+          "clip": "reel",
+          "frame": 30,
+          "bbox": [
+            287,
+            254,
+            291,
+            255
+          ],
+          "pixel_count": 4,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0028/front_reel_0030_gate_22_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 31,
+          "bbox": [
+            288,
+            255,
+            290,
+            256
+          ],
+          "pixel_count": 2,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0028/front_reel_0031_gate_33_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 36,
+          "bbox": [
+            288,
+            255,
+            290,
+            256
+          ],
+          "pixel_count": 2,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0036/front_reel_0036_gate_0_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 37,
+          "bbox": [
+            288,
+            255,
+            290,
+            256
+          ],
+          "pixel_count": 2,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0036/front_reel_0037_gate_9_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 38,
+          "bbox": [
+            288,
+            255,
+            290,
+            256
+          ],
+          "pixel_count": 2,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0036/front_reel_0038_gate_18_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 39,
+          "bbox": [
+            290,
+            256,
+            294,
+            258
+          ],
+          "pixel_count": 5,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0036/front_reel_0039_gate_28_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 40,
+          "bbox": [
+            287,
+            255,
+            289,
+            256
+          ],
+          "pixel_count": 2,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0040/front_reel_0040_gate_0_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 41,
+          "bbox": [
+            287,
+            255,
+            289,
+            256
+          ],
+          "pixel_count": 2,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0040/front_reel_0041_gate_10_0.png"
+          ]
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "arm_near",
+      "clip": "move",
+      "frame": 5,
+      "native_xy": [
+        354,
+        278
+      ],
+      "source_xy": [
+        176,
+        78
+      ],
+      "native_rgba": [
+        82,
+        63,
+        58,
+        255
+      ],
+      "source_rgba": [
+        82,
+        63,
+        58,
+        255
+      ],
+      "native_frame_sha256": "9481c7b7792dcd1b4c35b8700b22432170a71244042202ea743d0da06af0bbeb",
+      "native_piece_sha256": "4451ba28eece07ce0afc7a94bf7df163fc5e829893c38071fd6a68140b363c95",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 109,
+      "crop": "proof/logs/feedback2/underlay_crops/front_arm_near.png",
+      "decision": "TODO_DESIGN_front_arm_near_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "front",
+      "piece": "chain",
+      "clip": "reel",
+      "frame": 12,
+      "native_xy": [
+        265,
+        265
+      ],
+      "source_xy": [
+        61,
+        77
+      ],
+      "native_rgba": [
+        54,
+        46,
+        46,
+        255
+      ],
+      "source_rgba": [
+        54,
+        46,
+        46,
+        255
+      ],
+      "native_frame_sha256": "cc5974fab1fb13a5416cc36e8e06a3fa098041f7dc2a96d7859e200f7eb2c5b2",
+      "native_piece_sha256": "d677c5c92ce7250514f9ac38c9a1d1d82444f57faf925b11a97f82d08ed010df",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 2,
+      "crop": "proof/logs/feedback2/underlay_crops/front_chain.png",
+      "decision": "TODO_DESIGN_front_chain_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "front",
+      "piece": "coat_far",
+      "clip": "move",
+      "frame": 6,
+      "native_xy": [
+        290,
+        378
+      ],
+      "source_xy": [
+        113,
+        176
+      ],
+      "native_rgba": [
+        110,
+        80,
+        68,
+        255
+      ],
+      "source_rgba": [
+        110,
+        80,
+        68,
+        255
+      ],
+      "native_frame_sha256": "e2233d9a4100ff892252b3cc4d2ed03a7456da43df4d6c1461a97f4ac4bdc4c4",
+      "native_piece_sha256": "2f28d2b44c78c47b655c0818967c3b8e31a4ba39b6962bf2273b613d9039b517",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 45,
+      "crop": "proof/logs/feedback2/underlay_crops/front_coat_far.png",
+      "decision": "TODO_DESIGN_front_coat_far_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "front",
+      "piece": "coat_near",
+      "clip": "move",
+      "frame": 2,
+      "native_xy": [
+        375,
+        313
+      ],
+      "source_xy": [
+        189,
+        118
+      ],
+      "native_rgba": [
+        65,
+        49,
+        49,
+        255
+      ],
+      "source_rgba": [
+        65,
+        49,
+        49,
+        255
+      ],
+      "native_frame_sha256": "b8c9ba230abd5518b4898dfa9318f463fef88f3ef21f46181f17367072e52bd9",
+      "native_piece_sha256": "3d610f9151ec37bf606a3c14d27c88346793fba26a87c64a7558b72fcbe8c702",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 228,
+      "crop": "proof/logs/feedback2/underlay_crops/front_coat_near.png",
+      "decision": "TODO_DESIGN_front_coat_near_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "front",
+      "piece": "foot_far",
+      "clip": "move",
+      "frame": 11,
+      "native_xy": [
+        287,
+        404
+      ],
+      "source_xy": [
+        132,
+        197
+      ],
+      "native_rgba": [
+        33,
+        21,
+        18,
+        255
+      ],
+      "source_rgba": [
+        33,
+        21,
+        18,
+        255
+      ],
+      "native_frame_sha256": "870e6d30bdfdbf7ef4f0a392eb29ad060b07e010802eedb12cb10f19b0c05f8f",
+      "native_piece_sha256": "69edf430a9b036f3249c553346beabf93283e03df723fab95d92d322f7ad9f7d",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 16,
+      "crop": "proof/logs/feedback2/underlay_crops/front_foot_far.png",
+      "decision": "TODO_DESIGN_front_foot_far_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "front",
+      "piece": "foot_near",
+      "clip": "move",
+      "frame": 10,
+      "native_xy": [
+        338,
+        409
+      ],
+      "source_xy": [
+        178,
+        203
+      ],
+      "native_rgba": [
+        83,
+        65,
+        61,
+        255
+      ],
+      "source_rgba": [
+        83,
+        65,
+        61,
+        255
+      ],
+      "native_frame_sha256": "0072ade3a2737a9691ba7a16612b091f6f64f856e15816a5e9c9eb857c153cf6",
+      "native_piece_sha256": "fcb6b42240cc597e93c73c4cb80ac2aef35a14bf637604f622a2799289e6cf50",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 3,
+      "crop": "proof/logs/feedback2/underlay_crops/front_foot_near.png",
+      "decision": "TODO_DESIGN_front_foot_near_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "front",
+      "piece": "hand_far",
+      "clip": "move",
+      "frame": 11,
+      "native_xy": [
+        233,
+        293
+      ],
+      "source_xy": [
+        73,
+        81
+      ],
+      "native_rgba": [
+        55,
+        32,
+        25,
+        255
+      ],
+      "source_rgba": [
+        55,
+        32,
+        25,
+        255
+      ],
+      "native_frame_sha256": "870e6d30bdfdbf7ef4f0a392eb29ad060b07e010802eedb12cb10f19b0c05f8f",
+      "native_piece_sha256": "f095d35fc79ab18d19cc6a3e52702484c879d92e1fd59f27f81154018f8f0784",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 32,
+      "crop": "proof/logs/feedback2/underlay_crops/front_hand_far.png",
+      "decision": "TODO_DESIGN_front_hand_far_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "front",
+      "piece": "leg_far",
+      "clip": "move",
+      "frame": 0,
+      "native_xy": [
+        307,
+        360
+      ],
+      "source_xy": [
+        118,
+        169
+      ],
+      "native_rgba": [
+        52,
+        29,
+        31,
+        255
+      ],
+      "source_rgba": [
+        52,
+        29,
+        31,
+        255
+      ],
+      "native_frame_sha256": "d18c6e68870380c397fd6f52f495b613bbd9e6c45a8a97640a24dd044baf5b83",
+      "native_piece_sha256": "3d9caa7a1cf7b2eef3b69775b7eede2af13eabf5e9056153dcfd4b0e7ec59eb4",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 498,
+      "crop": "proof/logs/feedback2/underlay_crops/front_leg_far.png",
+      "decision": "TODO_DESIGN_front_leg_far_row_paint",
+      "unresolved_native_joint_pockets": [
+        {
+          "clip": "guard",
+          "frame": 9,
+          "bbox": [
+            298,
+            371,
+            301,
+            378
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_guard_0008/front_guard_0009_gate_15_0.png"
+          ]
+        },
+        {
+          "clip": "guard",
+          "frame": 10,
+          "bbox": [
+            297,
+            371,
+            300,
+            377
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_guard_0008/front_guard_0010_gate_31_0.png"
+          ]
+        },
+        {
+          "clip": "guard",
+          "frame": 44,
+          "bbox": [
+            297,
+            371,
+            300,
+            377
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_guard_0044/front_guard_0044_gate_0_0.png"
+          ]
+        },
+        {
+          "clip": "guard",
+          "frame": 45,
+          "bbox": [
+            298,
+            371,
+            301,
+            377
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_guard_0044/front_guard_0045_gate_13_0.png"
+          ]
+        },
+        {
+          "clip": "guard",
+          "frame": 46,
+          "bbox": [
+            298,
+            371,
+            301,
+            378
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_guard_0044/front_guard_0046_gate_28_0.png"
+          ]
+        },
+        {
+          "clip": "move",
+          "frame": 9,
+          "bbox": [
+            276,
+            382,
+            277,
+            384
+          ],
+          "pixel_count": 2,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_move_0008/front_move_0009_gate_5_0.png"
+          ]
+        },
+        {
+          "clip": "move",
+          "frame": 10,
+          "bbox": [
+            267,
+            383,
+            270,
+            389
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_move_0008/front_move_0010_gate_12_0.png"
+          ]
+        },
+        {
+          "clip": "move",
+          "frame": 11,
+          "bbox": [
+            261,
+            385,
+            264,
+            397
+          ],
+          "pixel_count": 16,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_move_0008/front_move_0011_gate_20_0.png"
+          ]
+        },
+        {
+          "clip": "move",
+          "frame": 30,
+          "bbox": [
+            212,
+            411,
+            215,
+            417
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_move_0028/front_move_0030_gate_13_0.png"
+          ]
+        },
+        {
+          "clip": "move",
+          "frame": 39,
+          "bbox": [
+            193,
+            424,
+            195,
+            431
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_move_0036/front_move_0039_gate_42_0.png"
+          ]
+        },
+        {
+          "clip": "move",
+          "frame": 48,
+          "bbox": [
+            170,
+            435,
+            171,
+            437
+          ],
+          "pixel_count": 2,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_move_0048/front_move_0048_gate_0_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 48,
+          "bbox": [
+            298,
+            371,
+            301,
+            378
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0048/front_reel_0048_gate_0_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 49,
+          "bbox": [
+            298,
+            371,
+            300,
+            378
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0048/front_reel_0049_gate_10_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 50,
+          "bbox": [
+            297,
+            371,
+            300,
+            377
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0048/front_reel_0050_gate_22_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 51,
+          "bbox": [
+            297,
+            371,
+            300,
+            377
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0048/front_reel_0051_gate_35_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 52,
+          "bbox": [
+            298,
+            371,
+            301,
+            377
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0052/front_reel_0052_gate_0_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 53,
+          "bbox": [
+            298,
+            371,
+            300,
+            378
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0052/front_reel_0053_gate_11_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 54,
+          "bbox": [
+            298,
+            371,
+            301,
+            378
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0052/front_reel_0054_gate_21_0.png"
+          ]
+        },
+        {
+          "clip": "reel",
+          "frame": 55,
+          "bbox": [
+            298,
+            371,
+            301,
+            378
+          ],
+          "pixel_count": 9,
+          "unresolved": "No transparent same-row sample in the existing own-piece skin; requires native follow-up",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/front_reel_0052/front_reel_0055_gate_34_0.png"
+          ]
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "leg_near",
+      "clip": "idle",
+      "frame": 12,
+      "native_xy": [
+        349,
+        358
+      ],
+      "source_xy": [
+        157,
+        166
+      ],
+      "native_rgba": [
+        72,
+        56,
+        52,
+        255
+      ],
+      "source_rgba": [
+        72,
+        56,
+        52,
+        255
+      ],
+      "native_frame_sha256": "af814a926eba34d9fe7096c8ec8541777a1275864f491a40aec17542322c8940",
+      "native_piece_sha256": "b1b018f67a296d0c5d15f9ddcf9364197dcd92b38e7eba294433c39067b0e8e7",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 233,
+      "crop": "proof/logs/feedback2/underlay_crops/front_leg_near.png",
+      "decision": "TODO_DESIGN_front_leg_near_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "front",
+      "piece": "pelvis",
+      "clip": "move",
+      "frame": 1,
+      "native_xy": [
+        377,
+        305
+      ],
+      "source_xy": [
+        188,
+        110
+      ],
+      "native_rgba": [
+        31,
+        11,
+        10,
+        255
+      ],
+      "source_rgba": [
+        31,
+        11,
+        10,
+        255
+      ],
+      "native_frame_sha256": "89ffb92610c5e72d8b466f1d71fbcf804873dfc92d1cf0594415e230ade27bfc",
+      "native_piece_sha256": "645fa9bd21dc05b04f305eb839da22e50847b6738907d4f31eae75e5f0fe916b",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 152,
+      "crop": "proof/logs/feedback2/underlay_crops/front_pelvis.png",
+      "decision": "TODO_DESIGN_front_pelvis_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "rear",
+      "piece": "arm_far",
+      "clip": "move",
+      "frame": 7,
+      "native_xy": [
+        361,
+        269
+      ],
+      "source_xy": [
+        148,
+        83
+      ],
+      "native_rgba": [
+        51,
+        40,
+        38,
+        255
+      ],
+      "source_rgba": [
+        51,
+        40,
+        38,
+        255
+      ],
+      "native_frame_sha256": "aa8945de6ca6b81810bb1122a8a69fa79c2a405338bc6e907dbf75cbb80b8097",
+      "native_piece_sha256": "0b768bf26fa00b5edcad6cf39563416dd71684e053c9304554f9d323101e6e8a",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 302,
+      "crop": "proof/logs/feedback2/underlay_crops/rear_arm_far.png",
+      "decision": "TODO_DESIGN_rear_arm_far_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "rear",
+      "piece": "chain",
+      "clip": "pin",
+      "frame": 18,
+      "native_xy": [
+        386,
+        303
+      ],
+      "source_xy": [
+        192,
+        114
+      ],
+      "native_rgba": [
+        60,
+        41,
+        37,
+        255
+      ],
+      "source_rgba": [
+        60,
+        41,
+        37,
+        255
+      ],
+      "native_frame_sha256": "7b0b941b29a62d5212c99d03f027e5befbda364ff20467200884c7276f69c0cb",
+      "native_piece_sha256": "e30e1adf7e28eba1449b5ab00b4df264488fd9277fe4b9b7893c63e10f37bc7e",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 3,
+      "crop": "proof/logs/feedback2/underlay_crops/rear_chain.png",
+      "decision": "TODO_DESIGN_rear_chain_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "rear",
+      "piece": "coat_near",
+      "clip": "move",
+      "frame": 4,
+      "native_xy": [
+        276,
+        316
+      ],
+      "source_xy": [
+        73,
+        128
+      ],
+      "native_rgba": [
+        121,
+        96,
+        89,
+        255
+      ],
+      "source_rgba": [
+        121,
+        96,
+        89,
+        255
+      ],
+      "native_frame_sha256": "24f0988190171a791885a4de0a735f246a6cccc7169bdc440b4d624dce6be05e",
+      "native_piece_sha256": "39b3303a2ef259e4e254177274425621707328a211441ae073d6f4a03854145b",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 225,
+      "crop": "proof/logs/feedback2/underlay_crops/rear_coat_near.png",
+      "decision": "TODO_DESIGN_rear_coat_near_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "rear",
+      "piece": "foot_far",
+      "clip": "move",
+      "frame": 16,
+      "native_xy": [
+        386,
+        373
+      ],
+      "source_xy": [
+        141,
+        209
+      ],
+      "native_rgba": [
+        5,
+        2,
+        8,
+        255
+      ],
+      "source_rgba": [
+        5,
+        2,
+        8,
+        255
+      ],
+      "native_frame_sha256": "48d96b8aabad6adb0fbd912f37d5b538d825059c3783ab152c8493214812c5c9",
+      "native_piece_sha256": "e025e9768d07ea2fc889d6b94e43d67495d4f7187a683dc4b34fdc2d29e8608b",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 5,
+      "crop": "proof/logs/feedback2/underlay_crops/rear_foot_far.png",
+      "decision": "TODO_DESIGN_rear_foot_far_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "rear",
+      "piece": "foot_near",
+      "clip": "move",
+      "frame": 1,
+      "native_xy": [
+        269,
+        380
+      ],
+      "source_xy": [
+        72,
+        193
+      ],
+      "native_rgba": [
+        106,
+        68,
+        54,
+        255
+      ],
+      "source_rgba": [
+        106,
+        68,
+        54,
+        255
+      ],
+      "native_frame_sha256": "092df5434dd1ff962783ca5b8de84c4df013a988667976d8df6efc92e0fbb98a",
+      "native_piece_sha256": "9d05d74b9d825619c04c8778c4aca1e1659f2bdb4db979d4d7521905da903eda",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 48,
+      "crop": "proof/logs/feedback2/underlay_crops/rear_foot_near.png",
+      "decision": "TODO_DESIGN_rear_foot_near_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "rear",
+      "piece": "hand_far",
+      "clip": "move",
+      "frame": 2,
+      "native_xy": [
+        382,
+        311
+      ],
+      "source_xy": [
+        185,
+        120
+      ],
+      "native_rgba": [
+        153,
+        116,
+        109,
+        255
+      ],
+      "source_rgba": [
+        153,
+        116,
+        109,
+        255
+      ],
+      "native_frame_sha256": "55541cc26a971dbb453b73d7bdf54cbade2d78e56193d8de372d10d7af301e2f",
+      "native_piece_sha256": "c1915acbb6abc7828af3e96bb0c2e4e5c47dfb91d12689bbcce71b9018da1e72",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 101,
+      "crop": "proof/logs/feedback2/underlay_crops/rear_hand_far.png",
+      "decision": "TODO_DESIGN_rear_hand_far_row_paint",
+      "unresolved_native_joint_pockets": [
+        {
+          "clip": "pin",
+          "frame": 39,
+          "bbox": [
+            389,
+            314,
+            391,
+            316
+          ],
+          "pixel_count": 3,
+          "unresolved": "No same-row glove continuation at the captured grip opening",
+          "crops": [
+            "proof/logs/feedback2/triage_source_final/rear_pin_0036/rear_pin_0039_gate_13_0.png"
+          ]
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "leg_far",
+      "clip": "move",
+      "frame": 1,
+      "native_xy": [
+        337,
+        409
+      ],
+      "source_xy": [
+        147,
+        220
+      ],
+      "native_rgba": [
+        100,
+        69,
+        59,
+        255
+      ],
+      "source_rgba": [
+        100,
+        69,
+        59,
+        255
+      ],
+      "native_frame_sha256": "092df5434dd1ff962783ca5b8de84c4df013a988667976d8df6efc92e0fbb98a",
+      "native_piece_sha256": "492b56e700bb404f7f5b94f835e0b58d817d2f137f72148c9baa988e0b028808",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 209,
+      "crop": "proof/logs/feedback2/underlay_crops/rear_leg_far.png",
+      "decision": "TODO_DESIGN_rear_leg_far_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "rear",
+      "piece": "leg_near",
+      "clip": "move",
+      "frame": 1,
+      "native_xy": [
+        269,
+        387
+      ],
+      "source_xy": [
+        70,
+        202
+      ],
+      "native_rgba": [
+        54,
+        33,
+        27,
+        255
+      ],
+      "source_rgba": [
+        54,
+        33,
+        27,
+        255
+      ],
+      "native_frame_sha256": "092df5434dd1ff962783ca5b8de84c4df013a988667976d8df6efc92e0fbb98a",
+      "native_piece_sha256": "4f97086d37bc6ff00b3663dccef8814d53eb222f084e20c134b2b37ec4f569af",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 101,
+      "crop": "proof/logs/feedback2/underlay_crops/rear_leg_near.png",
+      "decision": "TODO_DESIGN_rear_leg_near_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "rear",
+      "piece": "pelvis",
+      "clip": "move",
+      "frame": 3,
+      "native_xy": [
+        284,
+        348
+      ],
+      "source_xy": [
+        84,
+        160
+      ],
+      "native_rgba": [
+        29,
+        21,
+        21,
+        255
+      ],
+      "source_rgba": [
+        29,
+        21,
+        21,
+        255
+      ],
+      "native_frame_sha256": "c4479d3286437f13af3bd72950330255bf7d4a0e6f775d9cbd7f83f8888795f0",
+      "native_piece_sha256": "e1c34a17c2df0a853a8b1e9fd6c161792e1cf4a83fb17f743b021c510aab2b52",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 34,
+      "crop": "proof/logs/feedback2/underlay_crops/rear_pelvis.png",
+      "decision": "TODO_DESIGN_rear_pelvis_row_paint",
+      "unresolved_native_joint_pockets": []
+    },
+    {
+      "view": "rear",
+      "piece": "torso",
+      "clip": "reel",
+      "frame": 26,
+      "native_xy": [
+        336,
+        322
+      ],
+      "source_xy": [
+        144,
+        130
+      ],
+      "native_rgba": [
+        4,
+        1,
+        7,
+        255
+      ],
+      "source_rgba": [
+        4,
+        1,
+        7,
+        255
+      ],
+      "native_frame_sha256": "b553d1d5527437e138414c1a2aa81b49693e7f8777cab90f8e89cd5dcb4365f3",
+      "native_piece_sha256": "87be2ef2ac1f2ffe343dd25c8fdd8c0bf60b58529efe3134b13b7d903673b949",
+      "own_row_interior_donors": 0,
+      "native_flagged_regions": 59,
+      "crop": "proof/logs/feedback2/underlay_crops/rear_torso.png",
+      "decision": "TODO_DESIGN_rear_torso_row_paint",
+      "unresolved_native_joint_pockets": []
+    }
+  ],
+  "elapsed_seconds": 4.660701958,
+  "design_placeholders": {
+    "TODO_DESIGN_front_arm_far_row_paint": "Retained native texture flag has no own same-row interior donor at source [81, 61]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_front_arm_near_row_paint": "Retained native texture flag has no own same-row interior donor at source [176, 78]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_front_chain_row_paint": "Retained native texture flag has no own same-row interior donor at source [61, 77]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_front_coat_far_row_paint": "Retained native texture flag has no own same-row interior donor at source [113, 176]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_front_coat_near_row_paint": "Retained native texture flag has no own same-row interior donor at source [189, 118]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_front_foot_far_row_paint": "Retained native texture flag has no own same-row interior donor at source [132, 197]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_front_foot_near_row_paint": "Retained native texture flag has no own same-row interior donor at source [178, 203]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_front_hand_far_row_paint": "Retained native texture flag has no own same-row interior donor at source [73, 81]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_front_leg_far_row_paint": "Retained native texture flag has no own same-row interior donor at source [118, 169]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_front_leg_near_row_paint": "Retained native texture flag has no own same-row interior donor at source [157, 166]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_front_pelvis_row_paint": "Retained native texture flag has no own same-row interior donor at source [188, 110]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_rear_arm_far_row_paint": "Retained native texture flag has no own same-row interior donor at source [148, 83]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_rear_chain_row_paint": "Retained native texture flag has no own same-row interior donor at source [192, 114]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_rear_coat_near_row_paint": "Retained native texture flag has no own same-row interior donor at source [73, 128]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_rear_foot_far_row_paint": "Retained native texture flag has no own same-row interior donor at source [141, 209]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_rear_foot_near_row_paint": "Retained native texture flag has no own same-row interior donor at source [72, 193]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_rear_hand_far_row_paint": "Retained native texture flag has no own same-row interior donor at source [185, 120]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_rear_leg_far_row_paint": "Retained native texture flag has no own same-row interior donor at source [147, 220]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_rear_leg_near_row_paint": "Retained native texture flag has no own same-row interior donor at source [70, 202]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_rear_pelvis_row_paint": "Retained native texture flag has no own same-row interior donor at source [84, 160]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets.",
+    "TODO_DESIGN_rear_torso_row_paint": "Retained native texture flag has no own same-row interior donor at source [144, 130]; existing own-piece fill retained. Director decides whether to approve this texture or provide paint. See crop and any unresolved joint pockets."
+  },
+  "note": "Native texture flags are diagnostic candidates, not automatic art rejection. These21 source-row gaps need director judgment; no new paint or colours have been invented."
+}

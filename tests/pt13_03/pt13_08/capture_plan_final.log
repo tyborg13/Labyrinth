@@ -1,0 +1,18 @@
+Running task-local command:
+  task: pt13-08
+  run: pt13-08-1793084371969271000-40635
+  HOME: /private/tmp/labyrinth-godot-home/pt13-08-1793084371969271000-40635
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-08-1793084371969271000-40635/godot.log --headless --path . --script tests/card_legibility_test.gd -- --coverage-capture-plan
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+LIVE AUDIT: combat fixture mode=combat
+LIVE AUDIT OPEN: chronicle_card
+LIVE AUDIT OPEN: chronicle_equipment
+LIVE AUDIT OPEN: graftwright_inspection
+/Users/borgerding/workspace/Labyrinth.worktrees/pt13-08/tests/pt13_03/pt13_08/captures
+CARD LEGIBILITY COVERAGE CAPTURE PLAN: PASS (18 checks, 0 failures)

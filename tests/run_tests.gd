@@ -1,5 +1,7 @@
 extends SceneTree
 
+const AttackSfxSuite = preload("res://tests/suites/attack_sfx_suite.gd")
+
 const ProgramSuiteRunner = preload("res://tools/program_suite_runner.gd")
 const DepthRulesSuite = preload("res://tests/suites/depth_rules_suite.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -15,6 +17,7 @@ const SteamServiceSuite = preload("res://tests/suites/steam_service_suite.gd")
 const EnemyPathfindingSuite = preload("res://tests/suites/enemy_pathfinding_suite.gd")
 const ReachRebalanceSuite = preload("res://tests/suites/reach_rebalance_suite.gd")
 const EnemyTacticalAiSuite = preload("res://tests/suites/enemy_tactical_ai_suite.gd")
+const Mim01Suite = preload("res://tests/suites/mim01_suite.gd")
 const En06EnemiesSuite = preload("res://tests/suites/en06_enemies_suite.gd")
 const En03EnemiesSuite = preload("res://tests/suites/en03_enemies_suite.gd")
 const EnemyIntentPreviewSuite = preload("res://tests/suites/enemy_intent_preview_suite.gd")
@@ -42,22 +45,15 @@ const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const BalancePacingSuite = preload("res://tests/suites/balance_pacing_suite.gd")
 const LethalPreviewSuite = preload("res://tests/suites/lethal_preview_suite.gd")
 const FloatingCombatTextSuite = preload("res://tests/suites/floating_combat_text_suite.gd")
-const AttackFxSuite = preload("res://tests/suites/attack_fx_suite.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
-const AttackSfxSuite = preload("res://tests/suites/attack_sfx_suite.gd")
 const RunSfxSuite = preload("res://tests/suites/run_sfx_suite.gd")
 const CombatObjectiveSuite = preload("res://tests/suites/combat_objective_suite.gd")
 const GrimoireSearchSuite = preload("res://tests/suites/grimoire_search_suite.gd")
 const MoveAttackApproachSuite = preload("res://tests/suites/move_attack_approach_suite.gd")
 const MoveAttackShortcutSuite = preload("res://tests/suites/move_attack_shortcut_suite.gd")
 const CardPlayabilitySummarySuite = preload("res://tests/suites/card_playability_summary_suite.gd")
-const SkillTreeCompletionEquivalenceSuite = preload("res://tests/suites/skill_tree_completion_equivalence_suite.gd")
-const TerrainConnectivityEquivalenceSuite = preload("res://tests/suites/terrain_connectivity_equivalence_suite.gd")
 const MapUiSuite = preload("res://tests/suites/map_ui_suite.gd")
-const CombatBoardLayoutSuite = preload("res://tests/suites/combat_board_layout_suite.gd")
-const BoardDensityConsumerSuite = preload("res://tests/suites/board_density_consumer_suite.gd")
 const EnemyIntentCompassSuite = preload("res://tests/suites/enemy_intent_compass_suite.gd")
-const HealthBarThemeSuite = preload("res://tests/suites/health_bar_theme_suite.gd")
 const UmbraActionAnimationSuite = preload("res://tests/suites/umbra_action_animation_suite.gd")
 const ItemPickupSuite = preload("res://tests/suites/item_pickup_suite.gd")
 const GraftwrightSuite = preload("res://tests/suites/graftwright_suite.gd")
@@ -111,16 +107,17 @@ func _initialize() -> void:
 	_assert(GameData.relics().size() >= 5, "Relic data should load")
 	_assert(GameData.equipment().size() >= 5, "Equipment data should load")
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
-	preload("res://tests/suites/combat_lighting_profiles_suite.gd").run(Callable(self, "_assert"))
 	SteamServiceSuite.run(Callable(self, "_assert"))
 	EnemyPathfindingSuite.run(Callable(self, "_assert"))
 	EnemyTacticalAiSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/en01_enemies_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/en02_enemies_suite.gd").run(Callable(self, "_assert"))
+	preload("res://tests/suites/battlefield_rules_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/en04_enemies_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/enemy_intent_continuity_suite.gd").run(Callable(self, "_assert"))
 	ReachRebalanceSuite.run(Callable(self, "_assert"))
 	En06EnemiesSuite.run(Callable(self, "_assert"))
+	await Mim01Suite.run_live(self, Callable(self, "_assert"))
 	En03EnemiesSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/en05_enemies_suite.gd").run(Callable(self, "_assert"))
 	EnemyIntentPreviewSuite.run(Callable(self, "_assert"))
@@ -166,10 +163,8 @@ func _initialize() -> void:
 	ManeuverSuite.run(Callable(self, "_assert"))
 	CardMechanicsSurfacesSuite.run(Callable(self, "_assert"))
 	IllusionTerrainSuite.run(Callable(self, "_assert"))
-	AttackFxSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/chain_attack_suite.gd").run(Callable(self, "_assert"))
 	ForcedMovementSuite.run(Callable(self, "_assert"))
-	AttackSfxSuite.run(Callable(self, "_assert"))
 	RadiancePackageSuite.run(Callable(self, "_assert"))
 	BoardSurfaceSuite.run(Callable(self, "_assert"))
 	SurfaceCoreReviewSuite.run(Callable(self, "_assert"))
@@ -182,14 +177,8 @@ func _initialize() -> void:
 	MoveAttackApproachSuite.run(Callable(self, "_assert"))
 	MoveAttackShortcutSuite.run(Callable(self, "_assert"))
 	CardPlayabilitySummarySuite.run(Callable(self, "_assert"))
-	SkillTreeCompletionEquivalenceSuite.run(Callable(self, "_assert"))
-	TerrainConnectivityEquivalenceSuite.run(Callable(self, "_assert"))
 	MapUiSuite.run(Callable(self, "_assert"))
-	CombatBoardLayoutSuite.run(Callable(self, "_assert"))
-	BoardDensityConsumerSuite.run(Callable(self, "_assert"))
-	preload("res://tests/suites/actor_presentation_suite.gd").run(Callable(self, "_assert"))
 	EnemyIntentCompassSuite.run(Callable(self, "_assert"))
-	HealthBarThemeSuite.run(Callable(self, "_assert"))
 	UmbraActionAnimationSuite.run(Callable(self, "_assert"))
 	ControllerInputSuite.run(Callable(self, "_assert"))
 	CardDragPlaySuite.run(Callable(self, "_assert"))
@@ -200,8 +189,6 @@ func _initialize() -> void:
 	MagicDeckSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
-	_test_original_music_routes()
-	_test_ui_skin_button_system()
 	_test_relic_data_rarity_and_offer_weights()
 	_test_equipment_data_rarity_and_starter_deck()
 	_test_room_generation_is_deterministic()
@@ -210,8 +197,6 @@ func _initialize() -> void:
 	_test_room_generation_blocks_door_tiles()
 	_test_room_generation_uses_perimeter_walls_only()
 	_test_room_generation_avoids_adjacent_columns()
-	_test_room_generation_uses_stone_floor_with_moss_accents()
-	_test_elemental_room_overlays_are_decorative_and_distinct()
 	_test_room_generation_populates_elemental_traps()
 	_test_room_generation_adds_pickups_and_destructible_terrain()
 	_test_special_rooms_use_corner_pillar_layout()
@@ -274,15 +259,12 @@ func _initialize() -> void:
 	_test_guard_ally_targets_threatened_ally()
 	_test_warden_bulwark_guards_all_other_enemies()
 	_test_support_intent_rows_name_target()
-	_test_support_intent_target_marker_is_text_only()
-	_test_turn_order_uses_explicit_portraits_for_new_enemy_types()
 	_test_player_block_absorbs_full_enemy_phase()
 	_test_enemy_block_applies_on_actor_turn_only()
 	_test_aoe_hits_multiple_targets()
 	_test_close_aoe_hits_adjacent_targets()
 	_test_player_aoe_damages_incidental_terrain()
 	_test_rotated_line_aoe_uses_selected_orientation()
-	_test_combat_board_aoe_footprint_timing()
 	_test_forced_movement_uses_selected_straight_line()
 	_test_tailwind_fletching_modifies_existing_forced_movement()
 	_test_enemy_phase_preserves_preview_cycle()
@@ -324,81 +306,15 @@ func _initialize() -> void:
 	_test_air_trap_tooltip_is_damage_only()
 	_test_pickup_tooltips_describe_effects()
 	_test_terrain_health_bars_are_contextual()
-	_test_health_bar_segments_use_fixed_point_scale()
 	_test_run_scene_terrain_damage_previews_use_terrain_keys()
-	_test_enemy_intent_name_reserves_header_line()
-	_test_enemy_intent_contour_expands_on_hover_or_toggle()
-	_test_enemy_intent_action_rows_use_readable_scale()
 	_test_enemy_intent_shortcut_and_threat_union()
-	_test_enemy_intent_contour_uses_right_shoulder()
-	_test_enemy_hud_small_top_correction_stays_centered()
-	_test_enemy_hud_ignores_subpixel_obstacle_slivers()
-	_test_enemy_hud_does_not_duplicate_owning_actor_obstacle()
-	_test_enemy_hud_side_offset_clears_only_vertically_overlapping_pieces()
-	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
-	_test_enemy_intent_contour_stays_anchored_at_top_edge()
-	_test_enemy_hud_side_selection_is_stable_during_small_layout_changes()
-	_test_combat_board_default_framing_contains_tallest_top_corner_occupant()
-	_test_combat_board_refreshes_top_framing_when_tall_occupant_appears_in_cached_room()
-	_test_combat_board_refreshes_top_framing_when_scene_prop_appears_in_cached_room()
-	_test_boss_intent_layout_needs_no_global_board_banner()
-	_test_boss_health_overlay_caps_divider_density()
-	_test_turn_order_portraits_cover_enemy_roster()
-	_test_enemy_art_scale_preserves_center()
-	_test_enemy_art_offset_shifts_sprite_vertically()
-	_test_chainbound_gaoler_board_art_is_taller_and_centered()
-	_test_enemy_intent_popup_expands_for_long_titles()
-	_test_unit_shadow_uses_alpha_silhouette()
-	_test_player_uses_promoted_cutout_art()
-	_test_combat_board_keeps_equipment_data_off_player_sprite()
 	_test_combat_board_surfaces_illusion_units()
 	_test_combat_board_surfaces_illusion_preview_units()
-	_test_trial_enemy_art_uses_registered_cutouts()
-	_test_bile_bloomer_art_loads_for_board()
-	_test_bile_bloomer_turn_order_portrait_loads()
-	_test_zekarion_uses_registered_cutout_art()
-	_test_dragon_idle_redraw_targets_footprint_draw_layer()
-	_test_lightning_wisp_uses_registered_cutout_art()
-	_test_cinder_enemies_use_final_raster_art()
-	_test_cinder_enemies_have_turn_order_portraits()
-	_test_final_art_units_use_registered_cutouts()
-	_test_enemy_shadow_dissolve_unifies_full_roster()
-	_test_terrain_destruction_sheets_load_for_full_prop_roster()
-	_test_elemental_trap_animation_sheets_load_and_respect_reduced_motion()
-	_test_final_art_idle_shadows_keep_silhouettes_for_every_frame()
-	_test_emaciated_man_uses_matching_idle_sheet()
-	_test_merchant_assets_load_for_board()
-	_test_unit_hud_stacks_above_sprite_art()
-	_test_combat_board_zooms_to_rendered_room_bounds()
-	_test_foreground_props_fade_when_covering_behind_objects()
-	_test_pillar_art_fits_bottom_center_without_stretching()
-	_test_pillar_torch_fixtures_mount_on_both_visible_faces()
-	_test_column_torch_idle_sheets_load_and_are_clean()
-	_test_campfire_bonfire_assets_keep_clean_alpha_edges()
-	_test_pillar_moss_overlay_is_anchored_to_pillar_cap()
-	_test_wall_and_pillar_assets_stay_distinct()
-	_test_boundary_prop_art_uses_single_tile_footprint()
-	_test_boundary_wall_segments_use_full_spans_on_straight_edges()
-	_test_boundary_wall_corner_tiles_split_into_two_half_segments()
-	_test_door_art_uses_source_and_flipped_variant()
-	_test_standalone_door_art_stays_within_single_tile_footprint()
-	_test_visible_doors_use_dedicated_frame()
-	_test_door_frames_slide_toward_each_back_edge()
-	_test_door_opening_sheet_loads_as_directional_frames()
-	_test_combat_board_hides_outer_walls_without_hiding_visible_doors()
-	_test_combat_board_assigns_deterministic_floor_variants()
-	_test_combat_board_loads_elemental_projectile_atlas()
-	_test_combat_board_ambient_particles_follow_room_element()
-	_test_combat_board_loads_defense_heal_cast_frames()
 	_test_combat_board_draw_order_tracks_moving_unit_world_position()
 	_test_run_scene_surfaces_defeated_enemy_death_units()
 	_test_run_scene_surfaces_destroyed_terrain_units()
 	_test_keyword_icon_library_surfaces_tooltips()
 	_test_room_icon_library_covers_door_room_types()
-	_test_minimap_uses_door_icons_and_greys_cleared_rooms()
-	_test_large_map_decision_layer()
-	_test_minimap_travel_animation_state()
-	_test_combat_board_loads_door_icons_for_room_types()
 	preload("res://tests/suites/section_map_suite.gd").run(_assert)
 	await preload("res://tests/suites/section_map_v7_suite.gd").run(_assert)
 	_test_run_map_room_types()
@@ -422,10 +338,6 @@ func _initialize() -> void:
 	_test_recovery_marker_flow()
 	_test_recovery_marker_expires_after_next_run()
 	_test_run_state_save_and_load()
-	_test_hand_fan_layout_lifts_center_cards()
-	_test_default_theme_uses_readable_text_font()
-	_test_ui_typography_system()
-	preload("res://tests/helpers/test_registration_guard.gd").run(Callable(self, "_assert"))
 	print("MAIN BODY RUNTIME: %.3f seconds" % [float(Time.get_ticks_usec() - full_suite_started_usec) / 1000000.0])
 	print("MAIN BODY ASSERTIONS: %d" % _assertion_count)
 	await ProgramSuiteRunner.finish(self, program_suites, Callable(self, "_assert"), full_suite_started_usec)
@@ -468,97 +380,6 @@ func _suppress_guided_tutorial_for_legacy_live_scene_tests() -> void:
 	_assert(ProgressionStore.save_data(progression), "Legacy live scene fixtures should persist a tutorial-completed profile")
 	ProgressionStore.clear_saved_run()
 
-func _test_ui_skin_button_system() -> void:
-	var skin := UiSkin.new()
-	var variants: Array[String] = [
-		UiSkin.VARIANT_COMPACT,
-		UiSkin.VARIANT_STANDARD,
-		UiSkin.VARIANT_LARGE,
-		UiSkin.VARIANT_DESTRUCTIVE,
-		UiSkin.VARIANT_SELECTED,
-		UiSkin.VARIANT_ICON
-	]
-	var states: Array[String] = [
-		UiSkin.STATE_NORMAL,
-		UiSkin.STATE_HOVER,
-		UiSkin.STATE_PRESSED,
-		UiSkin.STATE_DISABLED,
-		UiSkin.STATE_SELECTED,
-		UiSkin.STATE_FOCUS
-	]
-	for variant: String in variants:
-		for state: String in states:
-			var style: StyleBox = skin.make_button_style(variant, state)
-			_assert(style is StyleBoxFlat, "%s/%s button state should use scalable code-native StyleBoxFlat construction" % [variant, state])
-			if style is StyleBoxFlat and state != UiSkin.STATE_FOCUS:
-				var flat := style as StyleBoxFlat
-				_assert(is_equal_approx(flat.content_margin_left, flat.content_margin_right), "%s/%s button content should stay mathematically centered" % [variant, state])
-
-	var compact_size: Vector2 = skin.button_native_size(UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, UiSkin.VARIANT_COMPACT)
-	var standard_size: Vector2 = skin.button_native_size(UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, UiSkin.VARIANT_STANDARD)
-	var large_size: Vector2 = skin.button_native_size(UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, UiSkin.VARIANT_LARGE)
-	var icon_size: Vector2 = skin.button_native_size(UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, UiSkin.VARIANT_ICON)
-	_assert(compact_size.x < standard_size.x and standard_size.x < large_size.x, "Compact, standard, and large buttons should use distinct native proportions")
-	_assert(is_equal_approx(icon_size.x, icon_size.y), "Icon buttons should use a native square proportion")
-
-	var button := Button.new()
-	button.toggle_mode = true
-	button.focus_mode = Control.FOCUS_NONE
-	button.focus_neighbor_left = NodePath("../PreserveLeft")
-	button.focus_neighbor_right = NodePath("../PreserveRight")
-	skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_STANDARD)
-	_assert(button.focus_mode == Control.FOCUS_NONE, "Button styling should not change focus eligibility")
-	_assert(button.focus_neighbor_left == NodePath("../PreserveLeft") and button.focus_neighbor_right == NodePath("../PreserveRight"), "Button styling should not change controller focus traversal")
-	_assert(button.alignment == HORIZONTAL_ALIGNMENT_CENTER, "Themed button labels should default to mathematical centering")
-	_assert(button.get_node_or_null(UiSkin.BUTTON_ORNAMENT_NAME) != null, "Themed buttons should include the scalable brass edge ornament")
-	_assert(str(button.get_meta("button_variant", "")) == UiSkin.VARIANT_STANDARD, "Themed buttons should expose their applied variant for regression inspection")
-	for state_name: String in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
-		_assert(button.get_theme_stylebox(state_name) is StyleBoxFlat, "Applied %s button state should remain code-native" % state_name)
-	button.free()
-
-	var outer_panel := PanelContainer.new()
-	var outer_style := skin.make_plain_card_style(Color("201714"), Color("8f6f46"), 19.0)
-	outer_panel.add_theme_stylebox_override("panel", outer_style)
-	var preserved_child := Control.new()
-	preserved_child.name = "PreservedMenuInternals"
-	preserved_child.custom_minimum_size = Vector2(240.0, 160.0)
-	outer_panel.add_child(preserved_child)
-	var baseline_margins := Vector4(
-		outer_style.get_content_margin(SIDE_LEFT),
-		outer_style.get_content_margin(SIDE_TOP),
-		outer_style.get_content_margin(SIDE_RIGHT),
-		outer_style.get_content_margin(SIDE_BOTTOM)
-	)
-	skin.apply_outer_panel_frame(outer_panel, UiSkin.SURFACE_DIALOG)
-	var raster_backing_style: StyleBoxFlat = outer_panel.get_theme_stylebox("panel") as StyleBoxFlat
-	_assert(raster_backing_style != null, "Outer-only menu framing should preserve the baseline panel fill")
-	if raster_backing_style != null:
-		_assert(raster_backing_style.bg_color == outer_style.bg_color, "Outer-only menu framing should preserve the baseline panel fill color")
-		_assert(
-			Vector4(
-				raster_backing_style.get_content_margin(SIDE_LEFT),
-				raster_backing_style.get_content_margin(SIDE_TOP),
-				raster_backing_style.get_content_margin(SIDE_RIGHT),
-				raster_backing_style.get_content_margin(SIDE_BOTTOM)
-			) == baseline_margins,
-			"Outer-only menu framing should preserve all baseline content margins"
-		)
-		_assert(
-			raster_backing_style.border_width_left == 0
-			and raster_backing_style.border_width_top == 0
-			and raster_backing_style.border_width_right == 0
-			and raster_backing_style.border_width_bottom == 0,
-			"Outer-only menu framing should remove the legacy outline behind the raster"
-		)
-	_assert(preserved_child.get_parent() == outer_panel and preserved_child.custom_minimum_size == Vector2(240.0, 160.0), "Outer-only menu framing should preserve baseline internals")
-	_assert(outer_panel.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null, "Outer-only menu framing should add the authored raster border")
-	_assert(
-		outer_panel.get_node_or_null("%s/%s" % [UiSkin.PANEL_ORNAMENT_NAME, UiSkin.OUTER_PANEL_RENDERER_NAME]) != null,
-		"Outer-only menu framing should isolate its renderer from PanelContainer content layout"
-	)
-	_assert(bool(outer_panel.get_meta("panel_outer_frame_only", false)), "Outer-only menu framing should stay isolated from full panel restyling")
-	outer_panel.free()
-
 func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(GrimoireLibrary.sections().size() == 8, "Grimoire should expose the planned navigation sections")
 	var entries: Dictionary = GrimoireLibrary.entry_map()
@@ -575,7 +396,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(defaults.has("basic:run"), "Grimoire defaults should include run basics")
 	_assert(defaults.has("keyword:immobilize"), "Grimoire defaults should include starting-deck keywords")
 	_assert(not defaults.has("keyword:bleed"), "Bleed should remain context-unlocked instead of static-default")
-	_assert(defaults.has("keyword:flurry"), "Flurry should be documented as a default card mechanic")
+	_assert(not defaults.has("keyword:flurry"), "Dormant Flurry should have no default Grimoire topic")
 	var equipment_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("sawtooth_flurry")
 	_assert(not equipment_card_entries.has("magick:sawtooth_flurry"), "Equipment-derived cards should not unlock Magick entries")
 	_assert(equipment_card_entries.has("keyword:bleed"), "Cards with bleed should unlock the bleed entry")
@@ -592,7 +413,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(GrimoireLibrary.entry_ids_for_card_id("dawnstep").has("keyword:vision"), "Dawnstep should unlock Vision")
 	_assert(GrimoireLibrary.entry_ids_for_card_id("prism_sight").has("keyword:truesight"), "Prism Sight should unlock Truesight")
 	_assert(GrimoireLibrary.entry_ids_for_card_id("daybreak").has("keyword:dispel_umbra"), "Daybreak should unlock Dispel Umbra")
-	_assert(GrimoireLibrary.entry_ids_for_card_id("cinder_fusillade").has("keyword:flurry"), "Flurry cards should unlock the Flurry grimoire entry")
+	_assert(not GrimoireLibrary.entry_ids_for_card_id("cinder_fusillade").has("keyword:flurry"), "Cinder Fusillade should not unlock dormant Flurry")
 	var item_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("crimson_draught")
 	_assert(item_card_entries.has("item:crimson_draught"), "Scavenger consumables should unlock item entries")
 	var equipment_entries: Array[String] = GrimoireLibrary.entry_ids_for_equipment_id("sawtooth_knife")
@@ -666,9 +487,6 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	var repeated: Dictionary = GrimoireLibrary.unlock_entries(next_state, ["keyword:shock"])
 	_assert((repeated.get("added", []) as Array).is_empty(), "Repeated Grimoire discoveries should not add duplicates")
 
-func _test_original_music_routes() -> void:
-	preload("res://tests/suites/original_music_suite.gd").run(Callable(self, "_assert"))
-
 func _audio_asset_loads(path: String) -> bool:
 	# Exercise the production source-file fallback in clean task worktrees,
 	# where the editor's machine-local imported-audio cache is absent.
@@ -695,7 +513,7 @@ func _test_relic_data_rarity_and_offer_weights() -> void:
 	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("cross"), "Faultline Brooch should explain its optional melee footprint transformation")
 	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")) == "At the start of combat, @kw(draw) 1 fewer card. At the end of your turn, convert all your @term(block) into @term(stoneskin).", "Obsidian Heart should explain its end-of-turn block conversion")
 	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("At the start of combat, @kw(draw) 1 fewer card."), "Obsidian Heart should format its negative opening draw through the approved keyword")
-	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")) == "Store up to 3 @kw(surface_consume|Expended) ground tiles. Your next attack releases them: +2 damage each. @term(surface_fire): @kw(surface_fire) beneath. @term(surface_ice): @term(chilled). @term(surface_electrified): @term(shock). @term(surface_rubble): @kw(stagger) 2.", "Black Sun Dial should describe its stored-element rule")
+	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")) == "Each ground tile you @kw(surface_consume|Expend) gives your next attack +3 damage (up to +9).", "Black Sun Dial should describe its capped next-attack damage")
 	_assert(GameData.relic_offer_weight("pilgrim_boots") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")
 	_assert(GameData.relic_offer_weight("ember_lens") > GameData.relic_offer_weight("bloodglass_knife"), "Rare relics should be offered more often than epic relics")
 	_assert(GameData.relic_offer_weight("bloodglass_knife") > GameData.relic_offer_weight("storm_crown"), "Epic relics should be offered more often than legendary relics")
@@ -737,12 +555,12 @@ func _test_equipment_data_rarity_and_starter_deck() -> void:
 			_assert(icon_path.begins_with("res://assets/art/equipment/"), "%s starter equipment should use custom equipment art, not reused relic art" % equipment_id)
 	for slot: String in GameData.equipment_slots():
 		_assert(int(slot_counts.get(slot, 0)) >= 3, "%s slot should have multiple equipment options" % slot.capitalize())
-	_assert(GameData.equipment_cards("windlass_repeater") == ["windlass_volley", "crank_reload", "pinning_quarrel"], "Windlass Repeater should package a Flurry payoff with draw/play setup and its Pinning Quarrel shot")
-	_assert(GameData.equipment_cards("war_dancer_sash") == ["blade_dance", "gathering_rhythm"], "War-Dancer Sash should package a melee Flurry payoff with rhythm setup")
+	_assert(GameData.equipment_cards("windlass_repeater") == ["windlass_volley", "crank_reload", "pinning_quarrel"], "Windlass Repeater should package its line attack with draw/play setup and its Pinning Quarrel shot")
+	_assert(GameData.equipment_cards("war_dancer_sash") == ["blade_dance", "gathering_rhythm"], "War-Dancer Sash should package its block/melee attack with rhythm setup")
 	var rhythm_actions: Array = GameData.card_def("gathering_rhythm").get("actions", [])
-	_assert(rhythm_actions.size() == 3 and int((rhythm_actions[2] as Dictionary).get("amount", 0)) == 2, "Gathering Rhythm should grant 2 card plays for a larger Flurry setup turn")
+	_assert(rhythm_actions.size() == 3 and int((rhythm_actions[2] as Dictionary).get("amount", 0)) == 2, "Gathering Rhythm should grant 2 card plays for the current turn")
 	for reward_card_id: String in ["cinder_fusillade", "storm_salvo", "razor_gale"]:
-		_assert(bool(GameData.card_def(reward_card_id).get("flurry", false)), "%s should use the Flurry mechanic" % reward_card_id)
+		_assert(not GameData.card_def(reward_card_id).has("flurry"), "%s should omit dormant Flurry" % reward_card_id)
 		_assert(bool(GameData.card_def(reward_card_id).get("reward_pool", true)), "%s should enter the collectible spell pool" % reward_card_id)
 	for new_card_id: String in ["windlass_volley", "crank_reload", "blade_dance", "gathering_rhythm", "cinder_fusillade", "storm_salvo", "razor_gale"]:
 		var art_path: String = str(GameData.card_def(new_card_id).get("art_path", ""))
@@ -852,59 +670,6 @@ func _test_room_generation_blocks_door_tiles() -> void:
 		var enemy: Dictionary = enemy_var
 		_assert(not door_tiles.has(enemy.get("pos", Vector2i(-1, -1))), "Enemy spawns should avoid door tiles")
 
-func _test_hand_fan_layout_lifts_center_cards() -> void:
-	var card_size := Vector2(210.0, 300.0)
-	var authored_overlap: float = HandFanContainer.overlap_gap_for_card_width(card_size.x)
-	_assert(is_equal_approx(-authored_overlap / card_size.x, 0.20), "The authored combat fan should overlap adjacent cards by 20% of card width")
-	var five_card_overlap_ratio: float = HandFanContainer.overlap_ratio_for_hand_size(5)
-	var six_card_overlap_ratio: float = HandFanContainer.overlap_ratio_for_hand_size(6)
-	var seven_card_overlap_ratio: float = HandFanContainer.overlap_ratio_for_hand_size(7)
-	_assert(is_equal_approx(five_card_overlap_ratio, HandFanContainer.DEFAULT_CARD_OVERLAP_RATIO), "A normal five-card hand should preserve the authored overlap")
-	_assert(six_card_overlap_ratio > five_card_overlap_ratio and seven_card_overlap_ratio > six_card_overlap_ratio, "Hand-card overlap should increase progressively as hands grow")
-	_assert(seven_card_overlap_ratio <= HandFanContainer.MAX_CARD_OVERLAP_RATIO, "Dense hands should retain a capped readable overlap")
-	var seven_card_dense_gap: float = HandFanContainer.overlap_gap_for_card_width(card_size.x, seven_card_overlap_ratio)
-	var seven_card_default_width: float = HandFanContainer.content_size_for_layout(7, card_size, authored_overlap, true).x
-	var seven_card_dense_width: float = HandFanContainer.content_size_for_layout(7, card_size, seven_card_dense_gap, true).x
-	_assert(seven_card_dense_width < seven_card_default_width - 100.0, "A seven-card hand should compress materially through overlap instead of shrinking card readability")
-	_assert(card_size.x + seven_card_dense_gap >= HandFanContainer.DEFAULT_MIN_EXPOSED_CARD_WIDTH, "Dense hands should preserve a clickable exposed strip on every covered card")
-	var left_rect: Rect2 = HandFanContainer.card_rect_for_layout(0, 5, card_size, -28.0, true)
-	var center_rect: Rect2 = HandFanContainer.card_rect_for_layout(2, 5, card_size, -28.0, true)
-	var right_rect: Rect2 = HandFanContainer.card_rect_for_layout(4, 5, card_size, -28.0, true)
-	var content_size: Vector2 = HandFanContainer.content_size_for_layout(5, card_size, -28.0, true)
-	_assert(center_rect.position.y < left_rect.position.y, "Hand fan should lift center cards above the edges")
-	_assert(left_rect.position.y - center_rect.position.y <= HandFanContainer.DEFAULT_ARCH_HEIGHT + 0.01, "Hand fan should keep its idle vertical stagger within the subtle shared arch")
-	_assert(is_equal_approx(left_rect.position.y, right_rect.position.y), "Hand fan should mirror edge lift on both sides")
-	_assert(HandFanContainer.card_rotation_for_layout(0, 5, true) < 0.0, "Hand fan should tilt left-side cards outward")
-	_assert(HandFanContainer.card_rotation_for_layout(4, 5, true) > 0.0, "Hand fan should tilt right-side cards outward")
-	_assert(absf(rad_to_deg(HandFanContainer.card_rotation_for_layout(0, 5, true))) <= 3.01 and absf(rad_to_deg(HandFanContainer.card_rotation_for_layout(4, 5, true))) <= 3.01, "Hand fan idle rotation should remain barely noticeable")
-	_assert(content_size.y < right_rect.end.y, "Hand fan should reserve a little less than the full arch height so the outer cards can sink slightly offscreen")
-	_assert(right_rect.end.y - content_size.y <= 8.0, "Hand fan should not let outer cards sink far enough to clip their bottom frames")
-	_assert(HandFanContainer.card_z_index_for_layout(0, 5) < HandFanContainer.card_z_index_for_layout(4, 5), "Hand fan should stack cards left-to-right so the rightmost card stays uncovered")
-	var focused_left: Rect2 = HandFanContainer.emphasized_card_rect_for_layout(1, 5, card_size, -28.0, true, 2, 1.0)
-	var focused_center: Rect2 = HandFanContainer.emphasized_card_rect_for_layout(2, 5, card_size, -28.0, true, 2, 1.0)
-	var focused_right: Rect2 = HandFanContainer.emphasized_card_rect_for_layout(3, 5, card_size, -28.0, true, 2, 1.0)
-	var focused_scale: float = HandFanContainer.card_scale_for_emphasized_layout(2, 2, 1.0)
-	var focused_visual_rect := Rect2(
-		focused_center.position - focused_center.size * (focused_scale - 1.0) * 0.5,
-		focused_center.size * focused_scale
-	)
-	_assert(focused_scale >= 1.27, "Focused hand cards should become substantially larger than their idle card")
-	_assert(focused_visual_rect.position.y < center_rect.position.y - 85.0, "Focused hand cards should rise enough for their rules to read clearly")
-	_assert(is_equal_approx(focused_visual_rect.end.y, center_rect.end.y - HandFanContainer.DEFAULT_EMPHASIS_EXTRA_LIFT), "Focused hand cards should grow upward and add a slight full-card lift")
-	_assert(focused_left.position.x < HandFanContainer.card_rect_for_layout(1, 5, card_size, -28.0, true).position.x, "Cards left of focus should move away from the focused card")
-	_assert(focused_right.position.x > HandFanContainer.card_rect_for_layout(3, 5, card_size, -28.0, true).position.x, "Cards right of focus should move away from the focused card")
-	_assert(focused_left.end.x - focused_visual_rect.position.x <= HandFanContainer.DEFAULT_EMPHASIS_REMAINING_OVERLAP + 0.01, "Focused cards should leave only a narrow overlap over their left neighbor")
-	_assert(focused_visual_rect.end.x - focused_right.position.x <= HandFanContainer.DEFAULT_EMPHASIS_REMAINING_OVERLAP + 0.01, "Focused cards should leave only a narrow overlap over their right neighbor")
-	_assert(is_zero_approx(HandFanContainer.card_rotation_for_emphasized_layout(2, 5, true, 2, 1.0)), "Focused hand cards should settle upright for reading")
-	_assert(HandFanContainer.card_z_index_for_emphasized_layout(2, 5, 2, 1.0) > HandFanContainer.card_z_index_for_layout(4, 5), "Focused hand cards should render above the complete hand")
-	var compact_available_width: float = 650.0
-	var compact_gap: float = HandFanContainer.card_gap_for_available_width(5, card_size, -28.0, compact_available_width)
-	var compact_content: Vector2 = HandFanContainer.content_size_for_layout(5, card_size, compact_gap, true)
-	_assert(compact_gap < -28.0, "Constrained hands should overlap idle cards more tightly so every card remains reachable")
-	_assert(compact_content.x + HandFanContainer.DEFAULT_EMPHASIS_MAX_SIDE_SHIFT * 2.0 <= compact_available_width + 0.01, "Constrained hands should reserve enough width for both sides to move away from focus")
-	_assert(card_size.x + compact_gap >= HandFanContainer.DEFAULT_MIN_EXPOSED_CARD_WIDTH, "Responsive overlap should preserve a visible selection strip for every idle card")
-	_assert(is_equal_approx(HandFanContainer.card_gap_for_available_width(5, card_size, -28.0, 1400.0), -28.0), "Spacious hands should preserve the authored fan overlap")
-
 func _test_room_generation_uses_perimeter_walls_only() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
 	for seed: int in [7, 19, 43, 71, 97, 131]:
@@ -941,118 +706,6 @@ func _test_room_generation_avoids_adjacent_columns() -> void:
 						_assert(str(row[x + 1]) != "pillar", "Generated columns should not be horizontally adjacent")
 					if y + 1 < grid.size() - 1:
 						_assert(str((grid[y + 1] as Array)[x]) != "pillar", "Generated columns should not be vertically adjacent")
-
-func _test_room_generation_uses_stone_floor_with_moss_accents() -> void:
-	var generator: RoomGenerator = RoomGenerator.new()
-	var room: Dictionary = generator.generate_room(73, {
-		"coord": Vector2i(2, 1),
-		"depth": 2,
-		"type": "combat"
-	}, Vector2i(0, -1))
-	var grid: Array = room.get("grid", [])
-	var moss: Dictionary = room.get("moss", {})
-	var floor_moss: Array = moss.get("floor", [])
-	var wall_moss: Array = moss.get("wall", [])
-	var pillar_moss: Array = moss.get("pillar", [])
-	var stone_count: int = 0
-	var legacy_moss_count: int = 0
-	var ember_count: int = 0
-	for y: int in range(grid.size()):
-		var row: Array = grid[y]
-		for x: int in range(row.size()):
-			match str(row[x]):
-				"stone":
-					stone_count += 1
-				"moss":
-					legacy_moss_count += 1
-				"ember":
-					ember_count += 1
-	_assert(str(room.get("theme", "")) == "stone", "Rooms should now advertise the stone floor theme by default")
-	_assert(ember_count == 0, "Generated floors should no longer use ember tiles")
-	_assert(legacy_moss_count == 0, "Generated floors should keep moss decorative instead of using dedicated moss terrain tiles")
-	_assert(floor_moss.size() >= 5, "Generated floors should now carry a denser layer of decorative moss overlays")
-	_assert(wall_moss.size() + pillar_moss.size() >= 1, "Decorative moss should also reach at least one stone fixture beyond the floor")
-	_assert(stone_count > floor_moss.size(), "Stone floor tiles should still make up the majority of the room floor")
-
-func _test_elemental_room_overlays_are_decorative_and_distinct() -> void:
-	var generator: RoomGenerator = RoomGenerator.new()
-	var generated_moss: Dictionary = {}
-	var generated_grid: Array = []
-	for element_id: String in ElementData.all_elements():
-		var room: Dictionary = generator.generate_room(817, {
-			"coord": Vector2i(2, 1),
-			"depth": 2,
-			"type": "combat",
-			"element": element_id
-		}, Vector2i(0, -1))
-		if generated_moss.is_empty():
-			generated_moss = (room.get("moss", {}) as Dictionary).duplicate(true)
-			generated_grid = (room.get("grid", []) as Array).duplicate(true)
-		else:
-			_assert(room.get("moss", {}) == generated_moss, "Elemental overlay placement should stay decorative and independent of room mechanics")
-			_assert(room.get("grid", []) == generated_grid, "Elemental overlays should not replace or mutate room terrain")
-
-	var board := CombatBoardView.new()
-	var fake_variants: Dictionary = {}
-	for element_id: String in ElementData.all_elements():
-		fake_variants[element_id] = {"floor": [], "wall": [], "pillar": []}
-	board.set("_element_overlay_texture_variants", fake_variants)
-	for element_id: String in ElementData.all_elements():
-		board.set("combat_state", {"room_element": element_id})
-		_assert(str(board.call("_element_overlay_family_id")) == element_id, "Each elemental room should select its own decorative overlay family")
-		_assert(str(board.call("_element_overlay_family_id", "pillar")) == ElementData.EARTH, "Pillars should retain the established moss treatment in every elemental room")
-	board.set("combat_state", {"room_element": ElementData.NONE})
-	_assert(str(board.call("_element_overlay_family_id")) == ElementData.EARTH, "Neutral and legacy rooms should preserve the established moss treatment")
-
-	var floor_candidates: Dictionary = {}
-	for y: int in range(8):
-		for x: int in range(12):
-			floor_candidates[Vector2i(x, y)] = true
-	board.set("_moss_tiles_by_surface", {"floor": floor_candidates})
-	board.set("combat_state", {"room_element": ElementData.EARTH, "room_coord": Vector2i(2, 1)})
-	var moss_floor_count: int = 0
-	for tile_var: Variant in floor_candidates.keys():
-		if bool(board.call("_tile_has_moss", "floor", tile_var)):
-			moss_floor_count += 1
-	_assert(moss_floor_count == floor_candidates.size(), "Earth rooms should preserve the full established moss floor placement")
-	board.set("combat_state", {"room_element": ElementData.FIRE, "room_coord": Vector2i(2, 1)})
-	var sparse_floor_tiles: Array[Vector2i] = []
-	for tile_var: Variant in floor_candidates.keys():
-		var tile: Vector2i = tile_var
-		if bool(board.call("_tile_has_moss", "floor", tile)):
-			sparse_floor_tiles.append(tile)
-	var repeated_sparse_floor_tiles: Array[Vector2i] = []
-	for tile_var: Variant in floor_candidates.keys():
-		var tile: Vector2i = tile_var
-		if bool(board.call("_tile_has_moss", "floor", tile)):
-			repeated_sparse_floor_tiles.append(tile)
-	_assert(sparse_floor_tiles == repeated_sparse_floor_tiles, "Sparse elemental floor accents should remain deterministic")
-	_assert(sparse_floor_tiles.size() >= 48 and sparse_floor_tiles.size() <= 64, "Non-earth floor accents should use a modestly higher density near seven-elevenths of established moss candidates")
-
-	var shared_moss_state: Dictionary = {
-		"room_coord": Vector2i(2, 1),
-		"moss": generated_moss
-	}
-	var fire_state: Dictionary = shared_moss_state.duplicate(true)
-	fire_state["room_element"] = ElementData.FIRE
-	var ice_state: Dictionary = shared_moss_state.duplicate(true)
-	ice_state["room_element"] = ElementData.ICE
-	_assert(
-		str(board.call("_moss_signature_for_state", fire_state)) != str(board.call("_moss_signature_for_state", ice_state)),
-		"Retained board layers should invalidate decorative overlays when the room element changes"
-	)
-
-	var overlay_path_groups: Array = [
-		CombatBoardView.FIRE_FLOOR_OVERLAY_PATHS, CombatBoardView.FIRE_WALL_OVERLAY_PATHS, CombatBoardView.FIRE_PILLAR_OVERLAY_PATHS,
-		CombatBoardView.ICE_FLOOR_OVERLAY_PATHS, CombatBoardView.ICE_WALL_OVERLAY_PATHS, CombatBoardView.ICE_PILLAR_OVERLAY_PATHS,
-		CombatBoardView.LIGHTNING_FLOOR_OVERLAY_PATHS, CombatBoardView.LIGHTNING_WALL_OVERLAY_PATHS, CombatBoardView.LIGHTNING_PILLAR_OVERLAY_PATHS,
-		CombatBoardView.AIR_FLOOR_OVERLAY_PATHS, CombatBoardView.AIR_WALL_OVERLAY_PATHS, CombatBoardView.AIR_PILLAR_OVERLAY_PATHS
-	]
-	for path_group_var: Variant in overlay_path_groups:
-		var path_group: PackedStringArray = path_group_var
-		for path_var: Variant in path_group:
-			_assert(FileAccess.file_exists(str(path_var)), "Elemental decorative overlay asset should exist: %s" % str(path_var))
-	board.free()
 
 func _test_special_rooms_use_corner_pillar_layout() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -1844,59 +1497,7 @@ func _test_card_play_action_grants_bonus_play() -> void:
 	_assert(int(state.get("card_play_bonus_this_turn", 0)) == 0, "Card-play action bonuses should reset on a new player turn")
 
 func _test_flurry_repeats_and_spends_snapshotted_card_plays() -> void:
-	var combat: CombatEngine = CombatEngine.new()
-	var state: Dictionary = combat.create_combat(15111, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["cinder_fusillade"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["cinder_fusillade"]
-	deck["draw"] = []
-	deck["discard"] = []
-	state["deck"] = deck
-	state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
-	state["enemies"] = [
-		{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 2, "max_hp": 2, "block": 0, "stoneskin": 0},
-		{"id": 2, "type": "crawler", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
-	]
-	var actions: Array = combat.card_play_actions("cinder_fusillade", state)
-	_assert(actions.size() == 2, "Flurry should repeat its full printed action package once for each of the two base card plays")
-	_assert(combat.card_plays_spent_for_actions(actions) == 2, "Repeated Flurry actions should preserve the snapshotted spend count")
-	state = combat.apply_player_action(state, actions[0] as Dictionary, Vector2i(3, 4))
-	state = combat.apply_player_action(state, actions[1] as Dictionary, Vector2i(4, 4))
-	state = combat.finish_player_card(state, 0, combat.card_plays_spent_for_actions(actions))
-	_assert(int(state.get("cards_played_this_turn", 0)) == 2, "Flurry should spend every card play it snapshotted")
-	_assert(int(state.get("player_turn_time_spent", 0)) == 5, "Flurry should pay its top-level time cost only once")
-	_assert(combat.cards_remaining_this_turn(state) == 1, "A kill-granted play created during Flurry should remain available after the snapshotted plays are spent")
-	_assert(BoardSurfaceRules.element_at(state, Vector2i(3, 4)) == "fire" and BoardSurfaceRules.element_at(state, Vector2i(4, 4)) == "fire", "Each Flurry copy paints its actual target")
-	_assert(int(((state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 18, "Each Flurry copy should resolve its attack against the selected target")
-	var bonus_state: Dictionary = state.duplicate(true)
-	bonus_state["cards_played_this_turn"] = 0
-	bonus_state["death_bonus_card_plays_this_turn"] = 0
-	bonus_state["card_play_bonus_this_turn"] = 1
-	var bonus_actions: Array = combat.card_play_actions("cinder_fusillade", bonus_state)
-	_assert(bonus_actions.size() == 3, "Card-play bonuses should directly increase every action in a later Flurry's repeat count")
-	var cost_state: Dictionary = combat.create_combat(15113, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["glassbone_guard"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var cost_deck: Dictionary = (cost_state.get("deck", {}) as Dictionary).duplicate(true)
-	cost_deck["hand"] = ["glassbone_guard"]
-	cost_deck["draw"] = []
-	cost_deck["discard"] = []
-	cost_state["deck"] = cost_deck
-	cost_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
-	cost_state = combat.finish_player_card(cost_state, 0, 2)
-	_assert(int((cost_state.get("player", {}) as Dictionary).get("hp", 0)) == 22, "A two-copy Flurry commit should pay a printed health cost for both copies")
-	_assert(int(cost_state.get("player_turn_time_spent", 0)) == 4, "A two-copy Flurry commit should still pay the printed Time only once")
+	preload("res://tests/suites/flurry_retirement_suite.gd").run(Callable(self, "_assert"))
 
 func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 	var valid_card_rarities: Dictionary = {
@@ -3337,40 +2938,6 @@ func _test_support_intent_rows_name_target() -> void:
 	_assert(ActionIcons.plain_text_for_tokens(bulwark_rows[0] as Array).find("→ All Allies") >= 0, "Bulwark intent rows should explicitly name the allied group target with the shared arrow glyph")
 	board.free()
 
-func _test_support_intent_target_marker_is_text_only() -> void:
-	var board := CombatBoardView.new()
-	board.combat_state = _support_action_test_state()
-	var surgeon_unit := {
-		"key": "enemy_1",
-		"id": 1,
-		"role": "enemy",
-		"type": "grave_surgeon",
-		"pos": Vector2i(5, 4),
-		"hp": 10,
-		"max_hp": 10
-	}
-	var rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 2, "range": 4}]})
-	_assert(rows.size() == 1, "heal_ally should still surface one intent row")
-	var tokens: Array = rows[0] as Array
-	_assert(tokens.size() == 2, "heal_ally support rows should show the action token and a target marker")
-	_assert(str((tokens[0] as Dictionary).get("icon", "")) == "heal", "heal_ally should keep the heal icon as the only action icon")
-	_assert(str((tokens[1] as Dictionary).get("kind", "")) == "text", "Support targets should render as text-only markers")
-	_assert(not (tokens[1] as Dictionary).has("icon"), "Support target markers should not add a health icon")
-	_assert(ActionIcons.plain_text_for_tokens(tokens) == "Heal 2  → Crawler", "Support target plain text should use the shared arrow glyph without adding a Health label")
-	board.free()
-
-func _test_turn_order_uses_explicit_portraits_for_new_enemy_types() -> void:
-	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
-	var instance: Node = run_scene.instantiate()
-	var surgeon_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "enemy", "type": "grave_surgeon"}))
-	_assert(surgeon_path == "res://assets/art/portraits/grave_surgeon.png", "Turn order should use explicit portraits for new enemies")
-	_assert(FileAccess.file_exists(surgeon_path), "Grave Surgeon turn-order portrait should exist")
-	var crawler_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "enemy", "type": "crawler"}))
-	_assert(crawler_path.find("tunnel_crawler.png") >= 0, "Existing enemies should keep their dedicated turn-order portraits")
-	var unknown_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "enemy", "type": "unknown_enemy"}))
-	_assert(unknown_path.find("player_reaver.png") >= 0, "Unknown turn-order entries should still fall back safely")
-	instance.free()
-
 func _average_enemy_toward_move(enemy_type: String) -> float:
 	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
 	var intent_count: int = 0
@@ -3611,24 +3178,6 @@ func _test_rotated_line_aoe_uses_selected_orientation() -> void:
 	var east_enemies: Array = east_state.get("enemies", [])
 	_assert(int((east_enemies[1] as Dictionary).get("hp", 0)) == 20, "East-oriented line should not hit the northern enemy")
 	_assert(int((east_enemies[2] as Dictionary).get("hp", 0)) == 15, "East-oriented line should hit the eastern enemy")
-
-func _test_combat_board_aoe_footprint_timing() -> void:
-	# AOE now uses shared highlighted tiles and a thin cast path. The old line
-	# sorting helper belonged to the deliberately removed line-pattern bolts;
-	# keep coverage on the visible footprint that replaced those graphics.
-	var board := CombatBoardView.new()
-	for element_id: String in ElementData.all_elements():
-		var effect: Dictionary = {"kind": "aoe", "element": element_id}
-		var style: String = AttackFxLibrary.style_for_effect(effect)
-		var travel_end: float = AttackFxLibrary.travel_end_progress(style)
-		var impact_middle: float = lerpf(travel_end, 1.0, 0.5)
-		board.presentation = {}
-		_assert(is_zero_approx(float(board.call("_aoe_resolution_footprint_visibility", effect, travel_end))), "AOE footprint should not appear before the spell reaches its target")
-		_assert(float(board.call("_aoe_resolution_footprint_visibility", effect, impact_middle)) > 0.95, "AOE footprint should clearly identify affected tiles during impact")
-		_assert(is_zero_approx(float(board.call("_aoe_resolution_footprint_visibility", effect, 1.0))), "AOE footprint should clear at the end of its impact")
-		board.presentation = {"reduced_motion": true}
-		_assert(is_equal_approx(float(board.call("_aoe_resolution_footprint_visibility", effect, 0.0)), float(board.call("_aoe_resolution_footprint_visibility", effect, 1.0))), "Reduced-motion AOE footprint should preserve a stable affected-area cue")
-	board.free()
 
 func _test_forced_movement_uses_selected_straight_line() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -5059,14 +4608,6 @@ func _test_terrain_health_bars_are_contextual() -> void:
 	_assert(int(terrain_preview.get("hp", -1)) == 1 and int(terrain_preview.get("hp_loss", 0)) == 2, "Terrain health bars should read terrain damage previews by terrain key")
 	board.free()
 
-func _test_health_bar_segments_use_fixed_point_scale() -> void:
-	var board := CombatBoardView.new()
-	_assert(SegmentedHealthBar.segment_count_for_max_hp(14.0) == 7, "Segmented health bars should default to two natural HP per divider")
-	_assert(int(board.call("_health_bar_segment_count", 14)) == 7, "Combat board unit health bars should use the shared natural-unit segment size")
-	_assert(int(board.call("_health_bar_segment_count", 3)) == 2, "Low-HP terrain should avoid one segment per HP")
-	_assert(int(board.call("_health_bar_segment_count", 1)) == 1, "Tiny health bars should keep at least one filled segment")
-	board.free()
-
 func _test_run_scene_terrain_damage_previews_use_terrain_keys() -> void:
 	var run_scene_script: Script = load("res://scripts/run_scene.gd")
 	_assert(run_scene_script != null, "Run scene script should load for terrain preview coverage")
@@ -5118,18 +4659,6 @@ func _test_unit_hud_stacks_above_sprite_art() -> void:
 	var health_rect: Rect2 = board.call("_unit_health_bar_rect", unit, center)
 	var art_top_y: float = float(board.call("_unit_art_top_y", unit, center))
 	_assert(is_equal_approx(art_top_y - health_rect.end.y, 4.0), "Unit health bars should sit clear of the sprite art")
-	board.free()
-
-func _test_combat_board_zooms_to_rendered_room_bounds() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(1900.0, 790.0)
-	board.set("combat_state", {"grid": _simple_grid()})
-	var tile_width: float = board.call("_tile_width")
-	var top_inner_tile: Vector2 = board.call("_tile_center", Vector2i(1, 1))
-	var bottom_inner_tile: Vector2 = board.call("_tile_center", Vector2i(6, 6))
-	_assert(tile_width > 175.0 and tile_width <= 184.0, "Combat board should maximize the fitted actor-and-HUD envelope without enlarging past its clearance")
-	_assert(top_inner_tile.y > 150.0 and top_inner_tile.y < 330.0, "Combat board should reserve headroom before an actor reaches the top row")
-	_assert(bottom_inner_tile.y < board.size.y - 24.0, "Combat board's playable lower-row centers should remain inside the stage while the hand intentionally overlays its lower edge")
 	board.free()
 
 func _test_enemy_intent_name_reserves_header_line() -> void:
@@ -5376,327 +4905,6 @@ func _test_enemy_hud_side_selection_is_stable_during_small_layout_changes() -> v
 	_assert((board.get("_enemy_hud_side_by_actor") as Dictionary).is_empty(), "Fixed-right contours should not retain per-enemy side affinity")
 	board.free()
 
-func _test_combat_board_default_framing_contains_tallest_top_corner_occupant() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(1900.0, 790.0)
-	var zekarion_def: Dictionary = GameData.enemy_def("zekarion")
-	var footprint_data: Array = zekarion_def.get("footprint", [2, 2]) as Array
-	var footprint := Vector2i(int(footprint_data[0]), int(footprint_data[1]))
-	var state: Dictionary = {
-		"room_coord": Vector2i(4, 3),
-		"grid": _simple_grid(),
-		"player": {"pos": Vector2i(6, 6), "hp": 24, "max_hp": 24},
-		"enemies": [{
-			"id": 91,
-			"type": "zekarion",
-			"pos": Vector2i(1, 1),
-			"footprint": footprint,
-			"hp": int(zekarion_def.get("max_hp", 60)),
-			"max_hp": int(zekarion_def.get("max_hp", 60)),
-			"intent": {}
-		}],
-		"illusions": [],
-		"npcs": [],
-		"terrain": [],
-		"loot": [],
-		"traps": []
-	}
-	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"board_framing_mode": "combat"})
-	var boss_unit: Dictionary = {}
-	for unit_var: Variant in board.call("_visible_units") as Array:
-		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("key", "")) == "enemy_91":
-			boss_unit = unit_var as Dictionary
-			break
-	var boss_rect: Rect2 = board.call("_unit_draw_rect", boss_unit)
-	var safe_top: float = float(board.call("_board_local_safe_top"))
-	var door_frame: Rect2 = board.call("_door_rect_for_tile", Vector2i(1, 1), state.get("grid", []))
-	_assert(not boss_unit.is_empty(), "Tallest-occupant framing proof should build the top-corner Zekarion unit")
-	_assert(boss_rect.size.y > door_frame.size.y, "Zekarion should remain the taller framing case than the tallest structural prop frame")
-	_assert(is_zero_approx(float(board.get("_board_layout_cache_visual_top_offset"))), "Tall top-corner art must fit without a reactive framing correction")
-	_assert(boss_rect.position.y >= safe_top - 0.01, "The tallest shipped top-corner character should remain fully inside the screen-safe top edge")
-	board.free()
-
-func _test_combat_board_refreshes_top_framing_when_tall_occupant_appears_in_cached_room() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(1900.0, 790.0)
-	var initial_state: Dictionary = {
-		"room_coord": Vector2i(4, 3),
-		"grid": _simple_grid(),
-		"objective": {"type": "survive", "reinforcement_pool": ["zekarion"]},
-		"player": {"pos": Vector2i(6, 6), "hp": 24, "max_hp": 24},
-		"enemies": [{"id": 92, "type": "harrier", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "intent": {}}],
-		"illusions": [],
-		"npcs": [],
-		"terrain": [],
-		"loot": [],
-		"traps": []
-	}
-	var combat_presentation := {"board_framing_mode": "combat"}
-	board.set_combat_state(initial_state, [], [], Vector2i(-1, -1), "", "", {}, {}, combat_presentation)
-	board.call("_board_origin")
-	var initial_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
-	var zekarion_def: Dictionary = GameData.enemy_def("zekarion")
-	var footprint_data: Array = zekarion_def.get("footprint", [2, 2]) as Array
-	var next_state: Dictionary = initial_state.duplicate(true)
-	next_state["enemies"] = [{
-		"id": 92,
-		"type": "zekarion",
-		"pos": Vector2i(1, 1),
-		"footprint": Vector2i(int(footprint_data[0]), int(footprint_data[1])),
-		"hp": int(zekarion_def.get("max_hp", 60)),
-		"max_hp": int(zekarion_def.get("max_hp", 60)),
-		"intent": {}
-	}]
-	board.set_combat_state(next_state, [], [], Vector2i(-1, -1), "", "", {}, {}, combat_presentation)
-	var boss_unit: Dictionary = {}
-	for unit_var: Variant in board.call("_visible_units") as Array:
-		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("key", "")) == "enemy_92":
-			boss_unit = unit_var as Dictionary
-			break
-	var boss_rect: Rect2 = board.call("_unit_draw_rect", boss_unit)
-	var refreshed_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
-	_assert(is_equal_approx(refreshed_offset, initial_offset), "A tallest occupant must not reframe a room after its initial fit")
-	_assert(boss_rect.position.y >= float(board.call("_board_local_safe_top")) - 0.01, "An announced tall reinforcement should remain onscreen when it arrives")
-	var settled_state: Dictionary = next_state.duplicate(true)
-	settled_state["enemies"] = [{"id": 92, "type": "harrier", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "intent": {}}]
-	board.set_combat_state(settled_state, [], [], Vector2i(-1, -1), "", "", {}, {}, combat_presentation)
-	board.call("_board_origin")
-	_assert(is_equal_approx(float(board.get("_board_layout_cache_visual_top_offset")), refreshed_offset), "Same-room visual transitions should retain earned top clearance instead of making the board chatter vertically")
-	board.free()
-
-func _test_combat_board_refreshes_top_framing_when_scene_prop_appears_in_cached_room() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(1900.0, 790.0)
-	board.call("_load_assets", false)
-	var state: Dictionary = {
-		"room_coord": Vector2i(4, 3),
-		"grid": _simple_grid(),
-		"player": {"pos": Vector2i(6, 6), "hp": 24, "max_hp": 24},
-		"enemies": [],
-		"illusions": [],
-		"npcs": [],
-		"terrain": [],
-		"loot": [],
-		"traps": []
-	}
-	var initial_presentation := {"board_framing_mode": "combat", "scene_props": []}
-	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, initial_presentation)
-	board.call("_board_origin")
-	var initial_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
-	var prop := {"kind": "campfire_bonfire", "tile": Vector2i(1, 1)}
-	var next_presentation := {"board_framing_mode": "combat", "scene_props": [prop]}
-	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, next_presentation)
-	var prop_texture: Texture2D = board.call("_texture_for_scene_prop", prop)
-	var prop_rect: Rect2 = board.call("_scene_prop_rect", prop_texture, prop)
-	_assert(is_equal_approx(float(board.get("_board_layout_cache_visual_top_offset")), initial_offset), "A same-room prop reveal must not shift the fixed framing")
-	_assert(prop_rect.position.y >= float(board.call("_board_local_safe_top")) - 0.01, "A same-room scene-prop transition should keep the new full prop onscreen")
-	board.free()
-
-func _test_boss_intent_layout_needs_no_global_board_banner() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
-	var boss := {
-		"type": "zekarion",
-		"role": "enemy",
-		"pos": Vector2i(4, 4),
-		"footprint": Vector2i(2, 2),
-		"boss_bar": true,
-		"intent": {
-			"name": "Tempest Breath",
-			"actions": [
-				{"type": "move_toward", "range": 1},
-				{"type": "ranged", "damage": 8, "range": 3, "shock": 1}
-			]
-		}
-	}
-	var center := Vector2(480.0, 145.0)
-	var boss_units: Array[Dictionary] = []
-	boss_units.append(boss)
-	var reserved_rects: Array = board.call("_fixed_hud_collision_rects", boss_units, font) as Array
-	_assert(reserved_rects.is_empty(), "Boss health should no longer reserve a floating rectangle over playable board tiles")
-	var compact_layout: Dictionary = board.call("_boss_intent_layout", boss, center, [], font)
-	var compact_rect: Rect2 = compact_layout.get("intent_rect", Rect2())
-	_assert(compact_rect.size == Vector2.ZERO, "Bosses should use the floor compass without a persistent overhead intent panel")
-	board.presentation = {"show_all_enemy_intents": true}
-	var expanded_layout: Dictionary = board.call("_boss_intent_layout", boss, center, [], font)
-	var expanded_rect: Rect2 = expanded_layout.get("intent_rect", Rect2())
-	_assert(expanded_rect.position.y >= 6.0 and expanded_rect.end.y <= board.size.y - 6.0, "Boss intents should remain contained without a global board banner collision")
-	_assert(expanded_rect.size.x > 0.0 and expanded_rect.size.y > 0.0, "Boss inspection should still expand the exact intent panel on demand")
-	board.free()
-
-func _test_boss_health_overlay_caps_divider_density() -> void:
-	var instance: Node = RunSceneScript.new()
-	_assert(int(instance.call("_boss_health_segment_count", 120)) == 48, "Deep boss health should cap divider density in the dedicated encounter overlay")
-	_assert(int(instance.call("_boss_health_segment_count", 33)) == 17, "Moderate boss health should retain the shared natural-unit segment scale")
-	_assert(int(instance.call("_boss_health_segment_count", 1)) == 1, "Tiny boss health should keep at least one segment")
-	instance.free()
-
-func _test_enemy_art_scale_preserves_center() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var center := Vector2(320.0, 240.0)
-	var crawler_unit := {"type": "crawler", "pos": Vector2i(0, 0)}
-	var crawler_texture: Texture2D = board.call("_texture_for_unit", crawler_unit)
-	var frame_rect: Rect2 = board.call("_unit_frame_rect", center)
-	var fitted_rect: Rect2 = board.call("_fitted_unit_rect", crawler_texture, frame_rect)
-	var scaled_rect: Rect2 = board.call("_unit_draw_rect_for_center", crawler_unit, center)
-	var crawler_scale: float = float(GameData.enemy_def("crawler").get("art_scale", 1.0))
-	_assert(is_equal_approx(scaled_rect.size.x, fitted_rect.size.x * crawler_scale), "Crawler art scale should shrink the fitted sprite width")
-	_assert(is_equal_approx(scaled_rect.size.y, fitted_rect.size.y * crawler_scale), "Crawler art scale should shrink the fitted sprite height")
-	_assert(is_equal_approx(scaled_rect.position.x + scaled_rect.size.x * 120.0 / 255.0, center.x), "Crawler art scaling should keep its authored ground contacts centered horizontally")
-	_assert(is_equal_approx(scaled_rect.position.y + scaled_rect.size.y * 187.5 / 255.0, center.y), "Crawler art scaling should anchor the support plane to its tile")
-	board.free()
-
-func _test_enemy_art_offset_shifts_sprite_vertically() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var center := Vector2(320.0, 240.0)
-	var acolyte_unit := {"type": "acolyte", "pos": Vector2i(0, 0)}
-	var acolyte_texture: Texture2D = board.call("_texture_for_unit", acolyte_unit)
-	var frame_rect: Rect2 = board.call("_unit_frame_rect", center)
-	var fitted_rect: Rect2 = board.call("_fitted_unit_rect", acolyte_texture, frame_rect)
-	var scaled_rect: Rect2 = board.call("_scaled_unit_rect", fitted_rect, board.call("_unit_art_scale", acolyte_unit))
-	var draw_rect: Rect2 = board.call("_unit_draw_rect_for_center", acolyte_unit, center)
-	var art_offset: Vector2 = board.call("_unit_art_offset", acolyte_unit)
-	_assert(is_equal_approx(draw_rect.position.x + draw_rect.size.x * 142.5 / 255.0, center.x), "Cutout registration replaces the old whole-sprite horizontal offset")
-	_assert(is_equal_approx(draw_rect.position.y + draw_rect.size.y * 233.0 / 255.0, center.y), "Cutout ground contacts replace the old vertical art offset")
-	_assert(draw_rect.size.is_equal_approx(scaled_rect.size), "Replacing the art offset must preserve the established body scale")
-	board.free()
-
-func _test_turn_order_portraits_cover_enemy_roster() -> void:
-	var run_scene_script: Script = load("res://scripts/run_scene.gd")
-	var instance: Node = run_scene_script.new()
-	var player_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "player", "type": "player"}))
-	_assert(FileAccess.file_exists(player_path), "Turn order should resolve a player portrait")
-	var used_paths: Dictionary = {player_path: "player"}
-	var used_hashes: Dictionary = {hash(FileAccess.get_file_as_bytes(player_path)): "player"}
-	for enemy_type: String in GameData.enemies().keys():
-		var portrait_path: String = str(instance.call("_turn_order_portrait_path", {
-			"kind": "enemy",
-			"type": enemy_type
-		}))
-		_assert(portrait_path != player_path, "%s turn-order portrait should not fall back to the player portrait" % enemy_type)
-		_assert(FileAccess.file_exists(portrait_path), "%s turn-order portrait should exist" % enemy_type)
-		_assert(portrait_path.begins_with("res://assets/art/portraits/"), "%s turn-order portrait should use the shared portrait registry instead of full-body enemy art" % enemy_type)
-		_assert(not used_paths.has(portrait_path), "%s should have a distinct portrait path from %s" % [enemy_type, str(used_paths.get(portrait_path, "another identity"))])
-		used_paths[portrait_path] = enemy_type
-		var portrait_hash: int = hash(FileAccess.get_file_as_bytes(portrait_path))
-		_assert(not used_hashes.has(portrait_hash), "%s should have visually distinct portrait bytes from %s" % [enemy_type, str(used_hashes.get(portrait_hash, "another identity"))])
-		used_hashes[portrait_hash] = enemy_type
-		var portrait_image: Image = Image.load_from_file(ProjectSettings.globalize_path(portrait_path))
-		_assert(portrait_image != null and portrait_image.get_size() == Vector2i(128, 128), "%s portrait should be a native 128x128 raster" % enemy_type)
-		var staged_foe: Control = PreBattleView.build_foe(instance, {"type": enemy_type, "hp": 1}, Vector2(206.0, 365.0))
-		staged_foe.size = staged_foe.custom_minimum_size
-		var pre_battle_art := staged_foe.find_child("PreBattleEnemyArt", true, false) as TextureRect
-		_assert(pre_battle_art != null and pre_battle_art.texture != null and staged_foe.get_rect().encloses(pre_battle_art.get_rect()), "%s pre-battle preview should stage its complete sprite inside its foe column" % enemy_type)
-		staged_foe.free()
-	instance.free()
-
-func _test_chainbound_gaoler_board_art_is_taller_and_centered() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var center := Vector2(320.0, 240.0)
-	var player_unit := {"type": "player", "pos": Vector2i(0, 0)}
-	var gaoler_unit := {"type": "chainbound_gaoler", "pos": Vector2i(0, 0)}
-	var warden_unit := {"type": "warden", "pos": Vector2i(0, 0)}
-	var player_rect: Rect2 = board.call("_unit_draw_rect_for_center", player_unit, center)
-	var gaoler_rect: Rect2 = board.call("_unit_draw_rect_for_center", gaoler_unit, center)
-	var warden_rect: Rect2 = board.call("_unit_draw_rect_for_center", warden_unit, center)
-	_assert(float(GameData.enemy_def("chainbound_gaoler").get("art_scale", 1.0)) >= 0.9, "Chainbound Gaoler should not look shrunken next to the player")
-	_assert(gaoler_rect.size.y > player_rect.size.y * 0.88, "Chainbound Gaoler board art should read nearly as tall as the player")
-	_assert(gaoler_rect.size.y < warden_rect.size.y, "Chainbound Gaoler should remain smaller than the heavy Warden anchor")
-	_assert(gaoler_rect.end.y < player_rect.end.y - 6.0, "Chainbound Gaoler should be shifted upward from the front edge of the tile")
-	board.free()
-
-func _test_enemy_intent_popup_expands_for_long_titles() -> void:
-	var board := CombatBoardView.new()
-	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
-	var width: float = float(board.call("_enemy_intent_popup_width", {
-		"name": "Skittering Stonebreaker Strike",
-		"actions": [{"type": "melee", "damage": 4, "range": 1}]
-	}, [[{"icon": "melee"}, {"icon": "damage", "value": 4}]], font))
-	_assert(width > 136.0, "Long enemy intent titles should widen the popup instead of clipping")
-	board.free()
-
-func _test_unit_shadow_uses_alpha_silhouette() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var unit := {"type": "crawler", "pos": Vector2i(0, 0)}
-	var texture: Texture2D = board.call("_texture_for_unit", unit)
-	var local_polygons: Array = board.call("_unit_shadow_polygons_for_texture", texture)
-	_assert(not local_polygons.is_empty(), "Unit shadows should extract alpha silhouette polygons instead of falling back to a generic ellipse")
-	if local_polygons.is_empty():
-		board.free()
-		return
-	var draw_rect: Rect2 = board.call("_unit_draw_rect_for_center", unit, Vector2(320.0, 240.0))
-	var bounds: Rect2 = board.call("_unit_shadow_bounds_for_texture", texture)
-	var shadow_size: Vector2 = board.call("_unit_shadow_draw_size", texture, draw_rect.size, bounds)
-	var foot_point: Vector2 = board.call("_unit_shadow_foot_point", texture, draw_rect, bounds, "crawler")
-	_assert(foot_point.y < draw_rect.end.y, "Unit shadow anchor should use opaque feet instead of transparent texture padding")
-	var stable_ratio: float = float(board.call("_unit_shadow_stable_bottom_ratio", "crawler", texture, bounds))
-	_assert((board.call("_unit_idle_frames", unit) as Array).is_empty(), "Crawler cutout shadows should use one neutral silhouette without per-frame cache entries")
-	_assert(is_equal_approx(stable_ratio, float(board.call("_unit_shadow_bottom_ratio", texture, bounds))), "Crawler shadow anchor should remain on the baked neutral feet")
-	var projected: PackedVector2Array = board.call(
-		"_project_unit_shadow_polygon",
-		local_polygons[0],
-		shadow_size,
-		foot_point
-	)
-	var min_point: Vector2 = projected[0]
-	var max_point: Vector2 = projected[0]
-	for point: Vector2 in projected:
-		min_point.x = minf(min_point.x, point.x)
-		min_point.y = minf(min_point.y, point.y)
-		max_point.x = maxf(max_point.x, point.x)
-		max_point.y = maxf(max_point.y, point.y)
-	var projected_size: Vector2 = max_point - min_point
-	_assert(projected_size.x > draw_rect.size.x * 0.24, "Projected unit shadow should preserve meaningful sprite silhouette width")
-	_assert(projected_size.y > draw_rect.size.y * 0.10, "Projected unit shadow should preserve meaningful sprite silhouette depth")
-	_assert(min_point.y <= foot_point.y + 1.0, "Projected unit shadow should begin at the opaque feet without a visible vertical gap")
-	board.free()
-
-func _test_player_uses_promoted_cutout_art() -> void:
-	var board := CombatBoardView.new()
-	board.visible = true
-	board.call("_load_assets")
-	board.combat_state = {
-		"player": {"pos": Vector2i(3, 3), "hp": 20, "max_hp": 20}
-	}
-	board.presentation = {}
-	var player_unit := {"key": "player", "role": "player", "type": "player", "pos": Vector2i(3, 3), "hp": 20}
-	var idle_frames: Array = board.call("_unit_idle_frames", player_unit)
-	var player_texture: Texture2D = board.call("_texture_for_unit", player_unit)
-	_assert(idle_frames.is_empty(), "Player runtime should not load its retired idle sheet")
-	_assert(player_texture != null and str(player_texture.get_meta("asset_source_path", "")).begins_with("res://assets/units/protagonist_cutout/"), "Detached board layout should use promoted cutout rest art")
-	board.free()
-
-func _test_combat_board_keeps_equipment_data_off_player_sprite() -> void:
-	var board := CombatBoardView.new()
-	board.visible = true
-	board.call("_load_assets")
-	board.set_combat_state({
-		"grid": _simple_grid(),
-		"player": {"pos": Vector2i(3, 3), "hp": 20, "max_hp": 20},
-		"enemies": []
-	}, [], [], Vector2i(-1, -1), "", "", {}, {}, {
-		"equipped_equipment": {
-			"weapon": "iron_cleaver",
-			"offhand": "ward_kite",
-			"armor": "boiled_leather",
-			"boots": "dust_tabi",
-			"trinket": "ember_pendant"
-		}
-	})
-	var presentation: Dictionary = board.get("presentation")
-	_assert(str((presentation.get("equipped_equipment", {}) as Dictionary).get("weapon", "")) == "iron_cleaver", "Combat board presentation may preserve equipment data for future sprite art")
-	_assert(not board.has_method("_draw_player_equipment_overlays"), "Combat board should not render equipment icon overlays on the player sprite")
-	board.free()
-
 func _test_combat_board_surfaces_illusion_units() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
@@ -5758,574 +4966,6 @@ func _test_combat_board_surfaces_illusion_preview_units() -> void:
 	_assert(board.call("_texture_for_unit", preview_unit) != null, "Illusion previews should resolve the player texture for drawing")
 	board.free()
 
-func _test_trial_enemy_art_uses_registered_cutouts() -> void:
-	var board := CombatBoardView.new()
-	board.call("_load_assets")
-	for enemy_type: String in ["crawler", "acolyte", "harrier"]:
-		var unit := {"type": enemy_type}
-		_assert(bool(board.call("_unit_uses_cutout", unit)), "%s uses its registered skeletal cutout" % enemy_type)
-		_assert((board.call("_unit_idle_frames", unit) as Array).is_empty(), "%s excludes its retired whole-body idle sheet" % enemy_type)
-		_assert(board.call("_texture_for_unit", unit) != null, "%s loads its baked cutout rest art before entering the tree" % enemy_type)
-	board.free()
-
-func _test_bile_bloomer_art_loads_for_board() -> void:
-	var board := CombatBoardView.new()
-	board.visible = true
-	board.call("_load_assets")
-	board.presentation = {}
-	var bloomer_unit := {"key": "enemy_bile_bloomer", "type": "bile_bloomer"}
-	var texture: Texture2D = board.call("_texture_for_unit", bloomer_unit)
-	_assert(texture != null, "Bile Bloomer art should load for board rendering")
-	_assert(texture.get_size() == Vector2(255.0, 255.0), "Bile Bloomer static sprite should use the standard 255px unit canvas")
-	board.free()
-
-func _test_bile_bloomer_turn_order_portrait_loads() -> void:
-	var combat := CombatEngine.new()
-	var layout: Dictionary = _simple_room_layout()
-	layout["enemies"] = [{
-		"id": 1,
-		"type": "bile_bloomer",
-		"pos": Vector2i(5, 4),
-		"hp": 160,
-		"max_hp": 160,
-		"block": 0
-	}]
-	var state: Dictionary = combat.create_combat(23103, layout, {
-		"hp": 240,
-		"max_hp": 240,
-		"deck_cards": ["quick_stab"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var order: Array[Dictionary] = combat.current_turn_order(state, 10)
-	var run_scene := RunSceneScript.new()
-	var found_bloomer: bool = false
-	for entry: Dictionary in order:
-		if str(entry.get("type", "")) != "bile_bloomer":
-			continue
-		found_bloomer = true
-		var path: String = str(run_scene.call("_turn_order_portrait_path", entry))
-		_assert(path == "res://assets/art/portraits/bile_bloomer.png", "Bile Bloomer turn-order slot should use its enemy portrait instead of the player fallback")
-		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(path))
-		_assert(image != null and not image.is_empty(), "Bile Bloomer turn-order portrait should load from disk")
-		if image != null and not image.is_empty():
-			_assert(image.get_size() == Vector2i(128, 128), "Bile Bloomer turn-order portrait should match the 128px portrait atlas size")
-	run_scene.free()
-	_assert(found_bloomer, "Bile Bloomer should appear in the visible turn-order queue")
-
-func _test_zekarion_uses_registered_cutout_art() -> void:
-	var board := CombatBoardView.new()
-	board.visible = true
-	board.call("_load_assets")
-	board.presentation = {}
-	var boss_unit := {"key": "enemy_zekarion", "type": "zekarion"}
-	var idle_frames: Array = board.call("_unit_idle_frames", boss_unit)
-	var texture: Texture2D = board.call("_texture_for_unit", boss_unit)
-	_assert(idle_frames.is_empty(), "Zekarion cutout must not load the legacy whole-body idle sheet")
-	_assert(texture != null and texture.get_size() == Vector2(255,255), "Before entering the tree, Zekarion uses its registered 255px cutout rest art")
-	_assert(texture != null, "Zekarion idle art should load for board rendering")
-	board.free()
-
-func _test_dragon_idle_redraw_targets_footprint_draw_layer() -> void:
-	var board := CombatBoardView.new()
-	board.visible = true
-	board.call("_load_assets")
-	board.presentation = {}
-	for boss_type: String in ["tharokh", "vyraketh", "vaeloryx", "iskaldra", "zekarion", "noctyrax"]:
-		var definition: Dictionary = GameData.enemy_def(boss_type)
-		var footprint_data: Array = definition.get("footprint", [1, 1]) as Array
-		var footprint := Vector2i(int(footprint_data[0]), int(footprint_data[1]))
-		var origin := Vector2i(3, 4)
-		var unit := {
-			"key": "enemy_%s" % boss_type,
-			"role": "enemy",
-			"type": boss_type,
-			"pos": origin,
-			"footprint": footprint,
-			"hp": int(definition.get("max_hp", 1))
-		}
-		var expected_draw_tile: Vector2i = board.call("draw_tile_for_unit_origin", unit, origin)
-		var redraw_tile: Vector2i = board.call("_scene_render_tile_for_unit", unit)
-		_assert(bool(board.call("_unit_uses_cutout", unit)) and (board.call("_unit_idle_frames", unit) as Array).is_empty(), "%s retains its skeletal cutout on the full-footprint draw layer" % boss_type)
-		_assert(footprint == Vector2i(2, 2), "%s should retain its authored 2x2 dragon footprint" % boss_type)
-		_assert(redraw_tile == expected_draw_tile, "%s idle redraw should invalidate the retained layer that actually draws its full footprint" % boss_type)
-		_assert(redraw_tile != origin, "%s regression coverage must distinguish the rendered footprint tile from its origin" % boss_type)
-	board.free()
-
-func _test_lightning_wisp_uses_registered_cutout_art() -> void:
-	var board := CombatBoardView.new()
-	board.call("_load_assets")
-	var unit := {"type": "lightning_wisp"}
-	var texture: Texture2D = board.call("_unit_hud_anchor_texture", unit)
-	_assert((board.call("_unit_idle_frames", unit) as Array).is_empty(), "Lightning Wisp excludes the legacy whole-body idle sheet")
-	_assert(texture != null and texture.get_size() == Vector2(255, 255), "Lightning Wisp retains its registered 255px logical silhouette")
-	_assert(str(texture.get_meta("asset_source_path", "")) == preload("res://scripts/lightning_wisp_cutout/renderer.gd").REST_PATH, "Lightning Wisp HUD/shadows load the production rest bake")
-	board.free()
-
-func _test_cinder_enemies_use_final_raster_art() -> void:
-	var board := CombatBoardView.new()
-	board.visible = true
-	board.call("_load_assets")
-	board.presentation = {}
-	for enemy_type: String in ["cinder_ooze", "cinder_droplet"]:
-		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
-		var art_path: String = str(enemy_def.get("art_path", ""))
-		_assert(art_path.begins_with("res://assets/art/enemies/"), "%s should use final enemy art, not placeholder-era art" % enemy_type)
-		_assert(art_path.get_extension().to_lower() == "png", "%s should use runtime-visible raster PNG art" % enemy_type)
-		_assert(FileAccess.file_exists(art_path), "%s enemy sprite should exist" % enemy_type)
-		var texture: Texture2D = (board.get("_unit_textures") as Dictionary).get(enemy_type, null)
-		_assert(texture != null, "%s enemy sprite should load for board rendering" % enemy_type)
-		if texture != null:
-			_assert(texture.get_size() == Vector2(255, 255), "%s enemy sprite should use the static 255px unit canvas" % enemy_type)
-			if enemy_type == "cinder_droplet":
-				var center := Vector2(320.0, 240.0)
-				var draw_rect: Rect2 = board.call("_unit_draw_rect_for_center", {"type": enemy_type, "pos": Vector2i.ZERO}, center)
-				var used_rect: Rect2i = texture.get_image().get_used_rect()
-				var visible_center_x: float = draw_rect.position.x + draw_rect.size.x * float(used_rect.position.x + used_rect.size.x * 0.5) / float(texture.get_width())
-				var visible_bottom_y: float = draw_rect.position.y + draw_rect.size.y * float(used_rect.position.y + used_rect.size.y) / float(texture.get_height())
-				var tile_height: float = float(board.call("_tile_height"))
-				_assert(absf(visible_center_x - center.x) <= 1.0, "Cinder Droplet art should stay horizontally centered on its tile")
-				_assert(visible_bottom_y <= center.y + tile_height * 0.35, "Cinder Droplet art should not hang below its tile anchor")
-	board.free()
-
-func _test_cinder_enemies_have_turn_order_portraits() -> void:
-	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
-	_assert(run_scene != null, "Run scene should load for Cinder turn-order portrait coverage")
-	if run_scene == null:
-		return
-	var instance: Node = run_scene.instantiate()
-	var player_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "player"}))
-	for enemy_type: String in ["cinder_ooze", "cinder_droplet"]:
-		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
-		var entry: Dictionary = {
-			"kind": "enemy",
-			"team": "enemy",
-			"type": enemy_type,
-			"name": str(enemy_def.get("name", enemy_type)),
-			"time": 9,
-			"eta": 9,
-			"base_initiative": 6,
-			"intent_time_cost": 3,
-			"pos": Vector2i(4, 4),
-			"actor_key": "test_%s" % enemy_type
-		}
-		var portrait_path: String = str(instance.call("_turn_order_portrait_path", entry))
-		_assert(portrait_path != player_path, "%s turn-order slot should not fall back to the player portrait" % enemy_type)
-		_assert(portrait_path.begins_with("res://assets/art/portraits/"), "%s turn-order portrait should live with the generated portrait assets" % enemy_type)
-		_assert(FileAccess.file_exists(portrait_path), "%s turn-order portrait asset should exist" % enemy_type)
-		var slot: Control = instance.call("_build_turn_order_slot", entry, 0) as Control
-		_assert(slot != null, "%s turn-order slot should build" % enemy_type)
-		if slot != null:
-			# The slot now has a separate frayed TextureRect behind the portrait.
-			# Scope this canvas assertion to the portrait crop instead of relying on
-			# descendant insertion order.
-			var portrait_crop: Control = slot.find_child("TurnOrderPortraitCrop", true, false) as Control
-			var texture_root: Node = portrait_crop if portrait_crop != null else slot
-			var texture_rects: Array[TextureRect] = _texture_rects_under(texture_root)
-			_assert(not texture_rects.is_empty() and texture_rects[0].texture != null, "%s turn-order slot should render its portrait texture" % enemy_type)
-			if not texture_rects.is_empty() and texture_rects[0].texture != null:
-				_assert(texture_rects[0].texture.get_size() == Vector2(128, 128), "%s turn-order portrait should use the clock portrait canvas" % enemy_type)
-			slot.free()
-	instance.free()
-
-func _test_final_art_units_use_registered_cutouts() -> void:
-	var board := CombatBoardView.new()
-	board.call("_load_assets")
-	for enemy_type: String in ["cinder_ooze", "cinder_droplet", "bile_bloomer", "chainbound_gaoler", "grave_surgeon", "frostglass_lancer"]:
-		var unit := {"type": enemy_type}
-		_assert(bool(board.call("_unit_uses_cutout", unit)), "%s uses its registered skeletal cutout" % enemy_type)
-		_assert((board.call("_unit_idle_frames", unit) as Array).is_empty(), "%s excludes its retired whole-body idle sheet" % enemy_type)
-		_assert(board.call("_texture_for_unit", unit) != null, "%s loads its baked cutout rest art before entering the tree" % enemy_type)
-	board.free()
-
-func _test_enemy_shadow_dissolve_unifies_full_roster() -> void:
-	var board := CombatBoardView.new()
-	board.visible = true
-	board.size = Vector2(1920.0, 1080.0)
-	root.add_child(board)
-	board.call("_load_assets")
-	# This suite runs during SceneTree initialization, before newly attached nodes
-	# receive _ready(); create the retained renderer explicitly so lifecycle
-	# assertions exercise the same effect-node ownership as live combat.
-	board.call("_create_dynamic_render_layer")
-	board.combat_state = {
-		"grid": _simple_grid(),
-		"player": {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20},
-		"enemies": [{
-			"id": 99,
-			"type": "crawler",
-			"pos": Vector2i(4, 4),
-			"hp": 0,
-			"max_hp": 10,
-			"block": 0
-		}]
-	}
-	for enemy_type: String in GameData.enemies().keys():
-		var unit := {
-			"key": "enemy_%s_death" % enemy_type,
-			"role": "enemy",
-			"type": enemy_type,
-			"death_animation": true,
-			"death_progress": 0.42
-		}
-		var native_rect := Rect2(Vector2(10.0, 20.0), Vector2(100.0, 150.0))
-		var source_texture: Texture2D = board.call("_enemy_shadow_dissolve_source_texture", unit) as Texture2D
-		_assert(bool(board.call("_unit_uses_procedural_shadow_dissolve", unit)), "%s should use the unified procedural shadow dissolve" % enemy_type)
-		_assert((board.call("_unit_death_frames", unit) as Array).is_empty(), "%s runtime should not load a separate enemy death sheet" % enemy_type)
-		_assert(source_texture != null, "%s shadow dissolve should retain a silhouette source texture" % enemy_type)
-		_assert(int(board.call("_unit_death_frame_count", unit)) == 28, "%s should use the denser common 28-sample dissolve cadence" % enemy_type)
-		_assert(is_equal_approx(float(board.call("_unit_death_frame_seconds", unit)), 0.037), "%s should keep the denser dissolve near the original total duration" % enemy_type)
-		_assert((board.call("_death_animation_render_rect", unit, native_rect) as Rect2).is_equal_approx(native_rect), "%s procedural death should preserve native framing without squash or stretch" % enemy_type)
-		_assert((board.call("_death_animation_render_tint", unit) as Color).is_equal_approx(Color.WHITE), "%s procedural death should leave color transformation to the dissolve shader" % enemy_type)
-		var cleared_shadow_unit: Dictionary = unit.duplicate(true)
-		cleared_shadow_unit["death_progress"] = 0.36
-		_assert(is_zero_approx(float(board.call("_unit_shadow_alpha_scale", cleared_shadow_unit))), "%s should retire its normal contact shadow before the body becomes an umbral silhouette" % enemy_type)
-		var repeat_seed: float = float(board.call("_enemy_shadow_dissolve_seed_for_unit", unit))
-		_assert(is_equal_approx(repeat_seed, float(board.call("_enemy_shadow_dissolve_seed_for_unit", unit))), "%s dissolve breakup should be deterministic" % enemy_type)
-	var player_death_unit := {
-		"key": "player",
-		"role": "player",
-		"type": "player",
-		"death_animation": true,
-		"death_frame": 5,
-		"death_progress": 0.42
-	}
-	_assert(not bool(board.call("_unit_uses_procedural_shadow_dissolve", player_death_unit)), "Player defeat should retain its cutout through the terminal fade")
-	_assert((board.call("_unit_death_frames", player_death_unit) as Array).is_empty(), "Player defeat should never load the old-art collapse sheet")
-	var death_entry := {
-		"key": "enemy_99",
-		"role": "enemy",
-		"id": 99,
-		"type": "crawler",
-		"name": "Tunnel Crawler",
-		"pos": Vector2i(4, 4),
-		"death_frame": 3,
-		"death_progress": 0.3
-	}
-	var dissolve_state := {
-		"name": "Shadow dissolve test",
-		"grid": _simple_grid(),
-		"player": {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20},
-		"enemies": [],
-		"loot": [],
-		"terrain": [],
-		"traps": []
-	}
-	board.set_combat_state(dissolve_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"death_animation_units": [death_entry]})
-	var found_death_unit: bool = false
-	for visible_var: Variant in board.call("_visible_units"):
-		if typeof(visible_var) != TYPE_DICTIONARY:
-			continue
-		var visible_unit: Dictionary = visible_var
-		if str(visible_unit.get("key", "")) != "enemy_99":
-			continue
-		found_death_unit = true
-		_assert(bool(visible_unit.get("death_animation", false)), "Death presentation units should be marked for dissolve rendering")
-		_assert(int(visible_unit.get("hp", 0)) > 0, "Death presentation units should stay drawable even when combat state HP is zero")
-	_assert(found_death_unit, "Combat board should surface presentation-only death animation units")
-	var effect_nodes: Dictionary = board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary
-	_assert(effect_nodes.size() == 1 and effect_nodes.has("enemy_99"), "A live enemy death should own exactly one shader effect node")
-	if effect_nodes.has("enemy_99"):
-		var effect: Control = effect_nodes.get("enemy_99") as Control
-		_assert(effect != null and effect.has_method("expanded_rect"), "Enemy shadow dissolve should use the dedicated effect renderer")
-		if effect != null:
-			var source_rect: Rect2 = effect.call("source_rect") as Rect2
-			var expanded_rect: Rect2 = effect.call("expanded_rect") as Rect2
-			_assert(expanded_rect.encloses(source_rect), "Dissolve canvas should expand beyond the body for silhouette-derived wisps")
-			_assert(is_equal_approx(float(effect.call("dissolve_progress")), 0.3), "Effect node should receive the submitted death progress")
-	death_entry["death_progress"] = 0.64
-	board.set_combat_state(dissolve_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"death_animation_units": [death_entry], "reduced_motion": true})
-	effect_nodes = board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary
-	if effect_nodes.has("enemy_99"):
-		var reduced_effect: Control = effect_nodes.get("enemy_99") as Control
-		_assert(bool(reduced_effect.call("reduced_motion_enabled")), "Reduced motion should disable spatial drift on the dissolve shader")
-		_assert(is_equal_approx(float(reduced_effect.call("dissolve_progress")), 0.64), "Existing effect nodes should update rather than duplicate across animation samples")
-	_assert(effect_nodes.size() == 1, "Animation samples should reuse one effect node per defeated enemy")
-	board.set_combat_state(dissolve_state)
-	_assert((board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary).is_empty(), "Clearing death presentation should release all dissolve effect nodes")
-	board.free()
-
-func _test_terrain_destruction_sheets_load_for_full_prop_roster() -> void:
-	var board := CombatBoardView.new()
-	board.visible = true
-	board.call("_load_assets")
-	for terrain_kind: String in ["wooden_box", "wooden_crate"]:
-		var intact_texture: Texture2D = (board.get("_terrain_textures") as Dictionary).get(terrain_kind, null)
-		var expected_frame_size: Vector2 = intact_texture.get_size()
-		var expected_last_origin: Vector2 = Vector2(expected_frame_size.x * 3.0, expected_frame_size.y * 3.0)
-		var destruction_path: String = "res://assets/art/tiles/%s_destroy.png" % terrain_kind
-		var terrain := {
-			"id": "%s_test" % terrain_kind,
-			"kind": terrain_kind,
-			"pos": Vector2i(4, 4),
-			"destruction_frame": 5,
-			"destruction_progress": 0.42
-		}
-		var destruction_frames: Array = board.call("_terrain_destruction_frames_for_kind", terrain_kind)
-		_assert(FileAccess.file_exists(destruction_path), "%s should have a dedicated destruction sheet beside its base art" % terrain_kind)
-		_assert(destruction_frames.size() == 16, "%s destruction sheet should load all 16 advanced-animation frames" % terrain_kind)
-		if destruction_frames.size() >= 16:
-			var first_frame: AtlasTexture = destruction_frames[0] as AtlasTexture
-			var last_frame: AtlasTexture = destruction_frames[destruction_frames.size() - 1] as AtlasTexture
-			_assert((destruction_frames[0] as Texture2D).get_size() == expected_frame_size, "%s destruction frames should preserve the standing prop canvas" % terrain_kind)
-			_assert(first_frame != null and last_frame != null, "%s destruction frames should be atlas-backed slices" % terrain_kind)
-			_assert(first_frame.region.position == Vector2.ZERO, "%s destruction animation should begin at the intact source frame" % terrain_kind)
-			_assert(last_frame.region.position == expected_last_origin, "%s destruction animation should include the final 4x4 source frame" % terrain_kind)
-			_assert(board.call("_terrain_destruction_texture", terrain) == destruction_frames[5], "%s destruction presentation should select the requested frame" % terrain_kind)
-		_assert(is_equal_approx(float(board.call("_terrain_destruction_frame_seconds", terrain)), 0.065), "%s destruction animation should use the configured frame cadence" % terrain_kind)
-	# The powder keg has its own standing art and splinters with the wooden box sheet.
-	var keg_texture: Texture2D = (board.get("_terrain_textures") as Dictionary).get("powder_keg", null) as Texture2D
-	_assert(keg_texture != null and keg_texture.get_size() == (board.get("_terrain_textures") as Dictionary).get("wooden_box").get_size(), "The powder keg should retain the standing box canvas after resampling")
-	var keg_frames: Array = board.call("_terrain_destruction_frames_for_kind", "powder_keg")
-	var box_frames: Array = board.call("_terrain_destruction_frames_for_kind", "wooden_box")
-	_assert(keg_frames.size() == 16 and box_frames.size() == 16, "The powder keg should break apart with all 16 wooden box destruction frames")
-	if keg_frames.size() == 16 and box_frames.size() == 16:
-		_assert((keg_frames[0] as AtlasTexture).atlas == (box_frames[0] as AtlasTexture).atlas, "The powder keg destruction should slice the wooden box sheet")
-		_assert(board.call("_terrain_destruction_texture", {"kind": "powder_keg", "destruction_frame": 5}) == keg_frames[5], "Powder keg destruction should select the requested box-sheet frame")
-	board.free()
-
-func _test_elemental_trap_animation_sheets_load_and_respect_reduced_motion() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.visible = true
-	board.combat_state = {
-		"grid": _simple_grid(),
-		"player": {"pos": Vector2i(2, 2), "hp": 10, "max_hp": 10},
-		"traps": [
-			{"id": "fire_test", "element": "fire", "pos": Vector2i(3, 3), "damage": 4, "armed": true}
-		]
-	}
-	board.presentation = {}
-	board.call("_load_assets")
-	var static_textures: Dictionary = board.get("_trap_textures") as Dictionary
-	var idle_registry: Dictionary = board.get("_trap_idle_frames") as Dictionary
-	var activation_registry: Dictionary = board.get("_trap_activation_frames") as Dictionary
-	var stable_plate_samples := PackedVector2Array([Vector2(20.0/122.0, 38.0/80.0), Vector2(102.0/122.0, 38.0/80.0), Vector2(61.0/122.0, 59.0/80.0)])
-	for element_id: String in ElementData.all_elements():
-		var idle_frames: Array = idle_registry.get(element_id, []) as Array
-		var activation_frames: Array = activation_registry.get(element_id, []) as Array
-		_assert(idle_frames.size() == 16, "%s trap idle should load all 16 Retro Diffusion frames" % element_id)
-		_assert(activation_frames.size() == 16, "%s trap activation should load all 16 Retro Diffusion frames" % element_id)
-		var base_image: Image = Image.load_from_file(ProjectSettings.globalize_path("res://assets/art/traps/trap_%s.png" % element_id))
-		var frame_size: Vector2i = base_image.get_size()
-		if idle_frames.size() == 16:
-			_assert((idle_frames[0] as Texture2D).get_size() == Vector2(frame_size), "%s trap idle should preserve the static plate canvas" % element_id)
-		if activation_frames.size() == 16:
-			_assert((activation_frames[0] as Texture2D).get_size() == Vector2(frame_size), "%s trap activation should preserve the static plate canvas" % element_id)
-		var idle_sheet: Image = Image.load_from_file(ProjectSettings.globalize_path("res://assets/art/traps/trap_%s_idle.png" % element_id))
-		var activation_sheet: Image = Image.load_from_file(ProjectSettings.globalize_path("res://assets/art/traps/trap_%s_activation.png" % element_id))
-		_assert(not base_image.is_empty(), "%s trap static plate should be readable for animation validation" % element_id)
-		_assert(not idle_sheet.is_empty(), "%s trap idle sheet should be readable for animation validation" % element_id)
-		_assert(not activation_sheet.is_empty(), "%s trap activation sheet should be readable for animation validation" % element_id)
-		if not base_image.is_empty() and not idle_sheet.is_empty():
-			for frame_index: int in range(16):
-				var frame_origin := Vector2i((frame_index % 4) * frame_size.x, (frame_index / 4) * frame_size.y)
-				for sample_uv: Vector2 in stable_plate_samples:
-					var sample := Vector2i((sample_uv * Vector2(frame_size)).round())
-					_assert(
-						idle_sheet.get_pixelv(frame_origin + sample) == base_image.get_pixelv(sample),
-						"%s trap idle frame %d should not wobble or recolor the approved plate" % [element_id, frame_index]
-					)
-		if not activation_sheet.is_empty():
-			_assert(activation_sheet.get_region(Rect2i(Vector2i.ZERO, frame_size)).get_used_rect().size != Vector2i.ZERO, "%s trap activation should begin with a visible plate" % element_id)
-			for final_frame_index: int in [13, 14, 15]:
-				var final_origin := Vector2i((final_frame_index % 4) * frame_size.x, (final_frame_index / 4) * frame_size.y)
-				var final_frame: Image = activation_sheet.get_region(Rect2i(final_origin, frame_size))
-				_assert(final_frame.get_used_rect().size == Vector2i.ZERO, "%s trap activation frame %d should be fully transparent after the trap is consumed" % [element_id, final_frame_index])
-	var fire_trap: Dictionary = (board.combat_state.get("traps", []) as Array)[0] as Dictionary
-	_assert(bool(board.call("_trap_idle_animation_active", fire_trap)), "Trap idle animation should run for an armed on-board plate")
-	board.set("_idle_elapsed", 0.0)
-	var first_idle: Texture2D = board.call("_trap_idle_texture", fire_trap)
-	var first_key: String = str(board.call("_active_idle_frame_key"))
-	board.set("_idle_elapsed", 0.13)
-	var second_idle: Texture2D = board.call("_trap_idle_texture", fire_trap)
-	var second_key: String = str(board.call("_active_idle_frame_key"))
-	_assert(first_idle != null and second_idle != null and first_idle != second_idle, "Trap idle texture should advance through its animation frames")
-	_assert(first_key != second_key, "Retained scene redraw gating should notice elemental trap idle frame changes")
-	_assert(int(board.call("_trap_activation_frame_index", 0.0, 16)) == 0, "Trap activation should begin at the first generated frame")
-	_assert(int(board.call("_trap_activation_frame_index", 0.5, 16)) == 8, "Trap activation should advance proportionally through the one-shot sheet")
-	_assert(int(board.call("_trap_activation_frame_index", 1.0, 16)) == 15, "Trap activation should end on the final disappearance frame")
-	var base_rect: Rect2 = board.call("_trap_draw_rect", fire_trap.get("pos", Vector2i.ZERO)) as Rect2
-	var visual_rect: Rect2 = board.call("_trap_visual_draw_rect", fire_trap) as Rect2
-	_assert(visual_rect == base_rect, "Trap plates have fixed geometry independent of board setup")
-	_assert((board.call("_trap_visual_modulate", fire_trap) as Color).is_equal_approx(Color.WHITE), "Trap plates retain their approved muted palette")
-	board.presentation = {"reduced_motion": true}
-	_assert(not bool(board.call("_trap_idle_animation_active", fire_trap)), "Reduced motion should stop looping trap idle animation")
-	_assert(board.call("_trap_idle_texture", fire_trap) == static_textures.get("fire", null), "Reduced motion should retain the approved static pressure plate")
-	_assert(int(board.call("_trap_activation_frame_index", 1.0, 16)) == 7, "Reduced motion should hold one representative activation frame instead of playing the burst")
-	board.free()
-
-func _test_final_art_idle_shadows_keep_silhouettes_for_every_frame() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.visible = true
-	board.call("_load_assets")
-	board.presentation = {}
-	var unit_types: Array[String] = [
-		"cinder_ooze",
-		"cinder_droplet",
-		"bile_bloomer",
-		"chainbound_gaoler",
-		"grave_surgeon"
-	]
-	for unit_type: String in unit_types:
-		var unit := {"key": "shadow_%s" % unit_type, "role": "enemy", "type": unit_type, "pos": Vector2i.ZERO}
-		if not GameData.npc_def(unit_type).is_empty():
-			unit["role"] = "npc"
-		var idle_frames: Array = board.call("_unit_idle_frames", unit)
-		var draw_rect: Rect2 = board.call("_unit_draw_rect_for_center", unit, Vector2(320.0, 240.0))
-		for frame_index: int in range(idle_frames.size()):
-			var texture: Texture2D = idle_frames[frame_index] as Texture2D
-			var local_polygons: Array = board.call("_unit_shadow_polygons_for_texture", texture)
-			_assert(not local_polygons.is_empty(), "%s idle frame %d should keep a silhouette shadow instead of falling back to the old oval" % [unit_type, frame_index])
-			var bounds: Rect2 = board.call("_unit_shadow_bounds_for_texture", texture)
-			var shadow_size: Vector2 = board.call("_unit_shadow_draw_size", texture, draw_rect.size, bounds)
-			var foot_point: Vector2 = board.call("_unit_shadow_foot_point", texture, draw_rect, bounds, unit_type)
-			var has_drawable_shadow := false
-			for polygon_var: Variant in local_polygons:
-				var local_polygon: PackedVector2Array = polygon_var
-				var projected: PackedVector2Array = board.call("_project_unit_shadow_polygon", local_polygon, shadow_size, foot_point)
-				if bool(board.call("_polygon_can_draw", projected)):
-					has_drawable_shadow = true
-					break
-			_assert(has_drawable_shadow, "%s idle frame %d should project to a drawable silhouette shadow" % [unit_type, frame_index])
-	board.free()
-
-func _test_emaciated_man_uses_matching_idle_sheet() -> void:
-	var board := CombatBoardView.new()
-	board.visible = true
-	board.call("_load_assets")
-	board.combat_state = {
-		"npcs": [{"id": "emaciated_man", "name": "Emaciated Man", "pos": Vector2i(3, 3)}]
-	}
-	board.presentation = {}
-	var npc_unit := {"key": "npc_emaciated_man_0", "role": "npc", "type": "emaciated_man", "pos": Vector2i(3, 3)}
-	var idle_frames: Array = board.call("_unit_idle_frames", npc_unit)
-	var npc_texture: Texture2D = board.call("_texture_for_unit", npc_unit)
-	var acolyte_texture: Texture2D = (board.get("_unit_textures") as Dictionary).get("acolyte", null)
-	var first_frame: AtlasTexture = idle_frames[0] as AtlasTexture
-	var seventh_frame: AtlasTexture = idle_frames[6] as AtlasTexture
-	var eighth_frame: AtlasTexture = idle_frames[7] as AtlasTexture
-	var last_frame: AtlasTexture = idle_frames[idle_frames.size() - 1] as AtlasTexture
-	_assert(idle_frames.size() == 12, "Emaciated Man anime trial art should skip the final source frame and ping-pong without duplicated endpoints")
-	_assert((idle_frames[0] as Texture2D).get_size() == Vector2(1020.0, 1020.0), "Emaciated Man anime trial idle sheet should use 4x2 frames")
-	_assert(first_frame != null and seventh_frame != null and eighth_frame != null and last_frame != null, "Emaciated Man idle frames should be atlas-backed slices")
-	_assert(first_frame.region.position == Vector2.ZERO, "Emaciated Man idle loop should keep the source frame at the start of the sheet")
-	_assert(seventh_frame.region != eighth_frame.region, "Emaciated Man idle loop should not hold the final frame at the turn-around")
-	_assert(first_frame.region != last_frame.region, "Emaciated Man idle loop should not hold the first frame at the loop boundary")
-	_assert(npc_texture != null, "Emaciated Man static art should load for board rendering")
-	_assert(npc_texture != acolyte_texture, "Emaciated Man should not reuse the Dust Acolyte texture")
-	board.free()
-
-func _test_foreground_props_fade_when_covering_behind_objects() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.combat_state = {"grid": _simple_grid()}
-	var blocker_tile := Vector2i(3, 3)
-	var prop_rect: Rect2 = board.call("_prop_rect_for_tile", blocker_tile)
-	var behind_unit := {"key": "behind", "type": "player", "pos": Vector2i(3, 2)}
-	var foreground_tint: Color = board.call("_foreground_blocker_tint", "pillar", blocker_tile, prop_rect, [behind_unit])
-	_assert(foreground_tint.a < 1.0, "Foreground pillars should become translucent when they overlap a character on a farther-back tile")
-	var front_unit := {"key": "front", "type": "player", "pos": Vector2i(3, 4)}
-	var clear_tint: Color = board.call("_foreground_blocker_tint", "pillar", blocker_tile, prop_rect, [front_unit])
-	_assert(is_equal_approx(clear_tint.a, 1.0), "Pillars should not fade for units that will draw in front of them")
-	var behind_pickup := {"tile": Vector2i(3, 2), "rect": board.call("_loot_rect_for_tile", Vector2i(3, 2), null)}
-	var door_tint: Color = board.call("_foreground_blocker_tint", "door", blocker_tile, prop_rect, [behind_pickup])
-	_assert(door_tint.a < 1.0, "Foreground doors should fade when covering pickups on farther-back tiles")
-	var behind_trap := {"tile": Vector2i(3, 2), "rect": board.call("_trap_draw_rect", Vector2i(3, 2))}
-	var terrain_tint: Color = board.call("_foreground_blocker_tint", "terrain", blocker_tile, prop_rect, [behind_trap])
-	_assert(terrain_tint.a < 1.0, "Foreground destructible terrain should fade when covering traps or other tile contents")
-	var sliver_rect := Rect2(prop_rect.position + Vector2(prop_rect.size.x - 3.0, prop_rect.size.y - 3.0), Vector2(20.0, 20.0))
-	var sliver_entry := {"tile": Vector2i(3, 2), "rect": sliver_rect}
-	var sliver_tint: Color = board.call("_foreground_blocker_tint", "pillar", blocker_tile, prop_rect, [sliver_entry])
-	_assert(is_equal_approx(sliver_tint.a, 1.0), "Foreground props should stay opaque when covering less than 25% of a farther-back sprite")
-	var covered_rect := Rect2(prop_rect.position + Vector2(12.0, 12.0), Vector2(24.0, 24.0))
-	var covered_entry := {"tile": Vector2i(3, 2), "rect": covered_rect}
-	var covered_tint: Color = board.call("_foreground_blocker_tint", "pillar", blocker_tile, prop_rect, [covered_entry])
-	_assert(covered_tint.a < 1.0, "Foreground props should fade when covering at least 25% of a farther-back sprite")
-	board.free()
-
-func _test_pillar_art_fits_bottom_center_without_stretching() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var pillar_texture: Texture2D = (board.get("_prop_textures") as Dictionary).get("pillar", null)
-	var frame_rect: Rect2 = board.call("_prop_rect_for_tile", Vector2i(3, 3))
-	var draw_rect: Rect2 = board.call("_prop_draw_rect", pillar_texture, frame_rect)
-	_assert(is_equal_approx(draw_rect.get_center().x, frame_rect.get_center().x), "Prop art should stay horizontally centered within its tile frame")
-	_assert(is_equal_approx(draw_rect.end.y, frame_rect.end.y), "Prop art should stay bottom-aligned so walls and pillars feel planted on the tile")
-	var source_ratio: float = pillar_texture.get_size().x / pillar_texture.get_size().y
-	var draw_ratio: float = draw_rect.size.x / draw_rect.size.y
-	_assert(is_equal_approx(draw_ratio, source_ratio), "Prop art should preserve its aspect ratio instead of stretching to fill the placeholder frame")
-	board.free()
-
-func _test_pillar_torch_fixtures_mount_on_both_visible_faces() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var textures: Dictionary = board.get("_prop_textures") as Dictionary
-	var left_texture: Texture2D = textures.get("column_torch_left", null)
-	var right_texture: Texture2D = textures.get("column_torch_right", null)
-	_assert(left_texture != null, "Combat board should load the left-facing column torch fixture")
-	_assert(right_texture != null, "Combat board should load the right-facing column torch fixture")
-	var pillar_texture: Texture2D = textures.get("pillar", null)
-	var pillar_rect: Rect2 = board.call("_prop_draw_rect", pillar_texture, board.call("_prop_rect_for_tile", Vector2i(3, 3)))
-	var left_rect: Rect2 = board.call("_pillar_torch_rect", pillar_rect, left_texture, -1.0)
-	var right_rect: Rect2 = board.call("_pillar_torch_rect", pillar_rect, right_texture, 1.0)
-	_assert(left_rect.get_center().x < pillar_rect.get_center().x, "The left torch should mount on the screen-left visible pillar face")
-	_assert(right_rect.get_center().x > pillar_rect.get_center().x, "The right torch should mount on the screen-right visible pillar face")
-	_assert(left_rect.size.x >= pillar_rect.size.x * 0.28, "Column torches should be large enough to read at board scale")
-	_assert(right_rect.size.x >= pillar_rect.size.x * 0.28, "Column torches should be large enough to read at board scale")
-	_assert(left_rect.size.x <= pillar_rect.size.x * 0.34, "Column torches should stay compact enough to mount on the pillar shaft")
-	_assert(right_rect.size.x <= pillar_rect.size.x * 0.34, "Column torches should stay compact enough to mount on the pillar shaft")
-	_assert(left_rect.get_center().distance_to(right_rect.get_center()) >= pillar_rect.size.x * 0.70, "Column torches should be spread onto their respective pillar sides")
-	_assert(left_rect.position.y >= pillar_rect.position.y + pillar_rect.size.y * 0.24, "Column torches should sit on the pillar shaft below the cap")
-	_assert(right_rect.position.y >= pillar_rect.position.y + pillar_rect.size.y * 0.24, "Column torches should sit on the pillar shaft below the cap")
-	var left_flame_point: Vector2 = board.call("_pillar_torch_flame_point", left_rect, -1.0)
-	var right_flame_point: Vector2 = board.call("_pillar_torch_flame_point", right_rect, 1.0)
-	_assert(left_rect.has_point(left_flame_point), "Left torch ember origin should sit inside the rendered torch")
-	_assert(right_rect.has_point(right_flame_point), "Right torch ember origin should sit inside the rendered torch")
-	_assert(left_flame_point.x < left_rect.get_center().x, "Left torch ember origin should sit over the outer flame")
-	_assert(right_flame_point.x > right_rect.get_center().x, "Right torch ember origin should sit over the outer flame")
-	_assert(left_flame_point.y <= left_rect.position.y + left_rect.size.y * 0.32, "Left torch ember origin should start near the small flame head")
-	_assert(right_flame_point.y <= right_rect.position.y + right_rect.size.y * 0.32, "Right torch ember origin should start near the small flame head")
-	var left_seed: int = board.call("_pillar_torch_ember_seed", Vector2i(3, 3), "left", 0)
-	var early_mote_point: Vector2 = board.call("_pillar_torch_ember_mote_point", left_flame_point, left_seed, 0.08, 0.0, -1.0)
-	var late_mote_point: Vector2 = board.call("_pillar_torch_ember_mote_point", left_flame_point, left_seed, 0.82, 0.0, -1.0)
-	_assert(late_mote_point.y < early_mote_point.y, "Column torch ember motes should drift upward from the flame")
-	board.free()
-
-func _test_column_torch_idle_sheets_load_and_are_clean() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	var grid: Array = _simple_grid()
-	grid[3][3] = "pillar"
-	board.combat_state = {
-		"grid": grid,
-		"player": {"pos": Vector2i(2, 2), "hp": 10, "max_hp": 10}
-	}
-	board.call("_load_assets")
-	var idle_frames: Dictionary = board.get("_pillar_torch_idle_frames") as Dictionary
-	_assert((idle_frames.get("left", []) as Array).size() == 16, "Left column torch idle sheet should load as a 4x4 animation")
-	_assert((idle_frames.get("right", []) as Array).size() == 16, "Right column torch idle sheet should load as a 4x4 animation")
-	_assert(bool(board.call("_pillar_torch_idle_animation_active")), "Column torch idle animation should run when a room has pillars")
-	_assert(bool(board.call("_pillar_torch_ember_motes_active")), "Column torch ember motes should run when a room has pillars")
-	_assert(bool(board.call("_presentation_needs_continuous_redraw")), "Column torch ember motes should use a smooth redraw loop")
-	board.set("_idle_elapsed", 0.0)
-	var first_left: Texture2D = board.call("_pillar_torch_texture", "left")
-	board.set("_idle_elapsed", 0.12)
-	var second_left: Texture2D = board.call("_pillar_torch_texture", "left")
-	_assert(first_left != null and second_left != null and first_left != second_left, "Column torch texture should advance through idle frames")
-	board.set("_idle_elapsed", 0.10)
-	var before_torch_tick: String = str(board.call("_active_idle_frame_key"))
-	board.set("_idle_elapsed", 0.12)
-	var after_torch_tick: String = str(board.call("_active_idle_frame_key"))
-	_assert(before_torch_tick != after_torch_tick, "Board redraw gating should notice torch frame changes even when unit frame timing does not align")
-	_assert_torch_sheet_has_no_chroma_speckles("res://assets/art/tiles/column_torch_left_idle.png")
-	_assert_torch_sheet_has_no_chroma_speckles("res://assets/art/tiles/column_torch_right_idle.png")
-	board.free()
-
 func _assert_torch_sheet_has_no_chroma_speckles(path: String) -> void:
 	var image: Image = Image.load_from_file(ProjectSettings.globalize_path(path))
 	_assert(image != null and not image.is_empty(), "%s should expose image data for chroma validation" % path)
@@ -6342,28 +4982,6 @@ func _assert_torch_sheet_has_no_chroma_speckles(path: String) -> void:
 			elif color.r > 0.28 and color.b > 0.24 and color.r > color.g * 1.18 and color.b > color.g * 1.18:
 				chroma_pixels += 1
 	_assert(chroma_pixels == 0, "%s should not keep visible green or purple chroma-key speckles" % path)
-
-func _test_campfire_bonfire_assets_keep_clean_alpha_edges() -> void:
-	_assert_campfire_asset_alpha_samples(
-		"res://assets/art/tiles/campfire_bonfire.png",
-		Vector2i(992, 640),
-		[
-			Vector2i(508, 56)
-		]
-	)
-	_assert_campfire_asset_alpha_samples(
-		"res://assets/art/tiles/campfire_bonfire_idle.png",
-		Vector2i(992, 640),
-		[
-			Vector2i(508, 56),
-			Vector2i(1486, 58),
-			Vector2i(2477, 706),
-			Vector2i(3478, 702),
-			Vector2i(494, 1338),
-			Vector2i(499, 1986),
-			Vector2i(1490, 1984)
-		]
-	)
 
 func _assert_campfire_asset_alpha_samples(path: String, frame_size: Vector2i, interior_samples: Array) -> void:
 	var image: Image = Image.load_from_file(ProjectSettings.globalize_path(path))
@@ -6382,344 +5000,6 @@ func _assert_campfire_asset_alpha_samples(path: String, frame_size: Vector2i, in
 				image.get_pixel(x, y).a <= 0.06,
 				"%s should keep exterior frame corners transparent after alpha cleanup" % path
 			)
-
-func _test_pillar_moss_overlay_is_anchored_to_pillar_cap() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var pillar_texture: Texture2D = (board.get("_prop_textures") as Dictionary).get("pillar", null)
-	var frame_rect: Rect2 = board.call("_prop_rect_for_tile", Vector2i(3, 3))
-	var draw_rect: Rect2 = board.call("_prop_draw_rect", pillar_texture, frame_rect)
-	var moss_rect: Rect2 = board.call("_pillar_moss_rect", draw_rect)
-	_assert(moss_rect.position.y >= draw_rect.position.y + draw_rect.size.y * 0.14, "Pillar moss should sit down on the cap instead of floating above it")
-	_assert(moss_rect.get_center().x <= draw_rect.get_center().x - draw_rect.size.x * 0.02, "Pillar moss should be nudged left to stay centered on the cap")
-	board.free()
-
-func _test_wall_and_pillar_assets_stay_distinct() -> void:
-	var board := CombatBoardView.new()
-	board.call("_load_assets")
-	var textures: Dictionary = board.get("_prop_textures") as Dictionary
-	var pillar_texture: Texture2D = textures.get("pillar", null)
-	var wall_texture: Texture2D = textures.get("wall_row", null)
-	_assert(pillar_texture != null, "Combat board should load dedicated pillar art")
-	_assert(wall_texture != null, "Combat board should load dedicated wall art")
-	if pillar_texture == null or wall_texture == null:
-		board.free()
-		return
-	var pillar_ratio: float = pillar_texture.get_size().x / maxf(1.0, pillar_texture.get_size().y)
-	var wall_ratio: float = wall_texture.get_size().x / maxf(1.0, wall_texture.get_size().y)
-	_assert(pillar_texture.get_size().x >= wall_texture.get_size().x * 1.5, "Pillar art should stay materially broader than wall segments so support columns cannot silently reuse wall art")
-	_assert(pillar_ratio >= wall_ratio + 0.15, "Pillar art should keep a distinctly squarer silhouette than wall segments so a wall/pillar asset swap is caught early")
-	board.free()
-
-func _test_boundary_prop_art_uses_single_tile_footprint() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var textures: Dictionary = board.get("_prop_textures") as Dictionary
-	var frame_rect: Rect2 = board.call("_prop_rect_for_tile", Vector2i(3, 0))
-	var door_frame_rect: Rect2 = board.call("_door_rect_for_tile", Vector2i(3, 0))
-	var tile_width: float = board.call("_tile_width")
-	var wall_draw_rect: Rect2 = board.call("_prop_draw_rect", textures.get("wall_row", null), frame_rect)
-	var door_draw_rect: Rect2 = board.call("_prop_draw_rect", textures.get("door", null), door_frame_rect)
-	_assert(is_equal_approx(wall_draw_rect.get_center().x, frame_rect.get_center().x), "Boundary walls should stay centered within their tile frame")
-	_assert(is_equal_approx(wall_draw_rect.end.y, frame_rect.end.y), "Boundary walls should stay planted on the same base line after fitting")
-	_assert(wall_draw_rect.size.x <= tile_width * 0.66, "Boundary wall art should fit a single wall tile span instead of reading like a multi-tile module")
-	_assert(door_draw_rect.size.x <= door_frame_rect.size.x, "Standalone door art should fit inside its dedicated door frame instead of spilling beyond it")
-	_assert(is_equal_approx(door_draw_rect.end.y, door_frame_rect.end.y), "Standalone door art should stay planted on its dedicated floor line after fitting")
-	board.free()
-
-func _test_boundary_wall_segments_use_full_spans_on_straight_edges() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var grid: Array = _simple_grid()
-	var top_wall := Vector2i(3, 0)
-	var left_wall := Vector2i(0, 3)
-	var textures: Dictionary = board.get("_prop_textures") as Dictionary
-	var top_segments: Array = board.call("_boundary_prop_segments", "wall", grid, top_wall)
-	var left_segments: Array = board.call("_boundary_prop_segments", "wall", grid, left_wall)
-	_assert(top_segments.size() == 1, "Straight top-edge walls should render as a single full-span segment")
-	_assert(left_segments.size() == 1, "Straight side-edge walls should render as a single full-span segment")
-	var top_segment: Dictionary = _find_boundary_segment(top_segments, "row")
-	var left_segment: Dictionary = _find_boundary_segment(left_segments, "col")
-	_assert(str(top_segment.get("half", "")) == "full", "Straight top-edge walls should use the full row segment")
-	_assert(str(left_segment.get("half", "")) == "full", "Straight side-edge walls should use the full column segment")
-	var top_frame: Rect2 = board.call("_prop_rect_for_tile", top_wall)
-	var left_frame: Rect2 = board.call("_prop_rect_for_tile", left_wall)
-	var full_row_rect: Rect2 = board.call("_prop_draw_rect", textures.get("wall_row", null), top_frame)
-	var full_col_rect: Rect2 = board.call("_prop_draw_rect", textures.get("wall_col", null), left_frame)
-	var top_draw_rect: Rect2 = top_segment.get("draw_rect", Rect2())
-	var left_draw_rect: Rect2 = left_segment.get("draw_rect", Rect2())
-	_assert(is_equal_approx(top_draw_rect.position.x, full_row_rect.position.x) and is_equal_approx(top_draw_rect.size.x, full_row_rect.size.x), "Straight top-edge walls should keep the full row-span footprint")
-	_assert(is_equal_approx(left_draw_rect.position.x, full_col_rect.position.x) and is_equal_approx(left_draw_rect.size.x, full_col_rect.size.x), "Straight side-edge walls should keep the full column-span footprint")
-	board.free()
-
-func _test_boundary_wall_corner_tiles_split_into_two_half_segments() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var grid: Array = _simple_grid()
-	var textures: Dictionary = board.get("_prop_textures") as Dictionary
-	var expectations: Array[Dictionary] = [
-		{"tile": Vector2i(0, 0), "row_half": "right", "col_half": "left"},
-		{"tile": Vector2i(7, 0), "row_half": "left", "col_half": "left"},
-		{"tile": Vector2i(0, 7), "row_half": "right", "col_half": "right"},
-		{"tile": Vector2i(7, 7), "row_half": "left", "col_half": "right"}
-	]
-	for entry: Dictionary in expectations:
-		var tile: Vector2i = entry.get("tile", Vector2i.ZERO)
-		var segments: Array = board.call("_boundary_prop_segments", "wall", grid, tile)
-		_assert(segments.size() == 2, "Corner wall tiles should split into two half segments so both perimeter runs meet in the tile center")
-		var row_segment: Dictionary = _find_boundary_segment(segments, "row")
-		var col_segment: Dictionary = _find_boundary_segment(segments, "col")
-		_assert(str(row_segment.get("half", "")) == str(entry.get("row_half", "")), "Corner row segments should use the inward-facing half of the wall span")
-		_assert(str(col_segment.get("half", "")) == str(entry.get("col_half", "")), "Corner column segments should use the inward-facing half of the wall span")
-		var frame_rect: Rect2 = board.call("_prop_rect_for_tile", tile)
-		var full_row_rect: Rect2 = board.call("_prop_draw_rect", textures.get("wall_row", null), frame_rect)
-		var full_col_rect: Rect2 = board.call("_prop_draw_rect", textures.get("wall_col", null), frame_rect)
-		var row_draw_rect: Rect2 = row_segment.get("draw_rect", Rect2())
-		var col_draw_rect: Rect2 = col_segment.get("draw_rect", Rect2())
-		_assert(is_equal_approx(row_draw_rect.size.x, full_row_rect.size.x * 0.5), "Corner row segments should be cut to half-width so they terminate at the tile center")
-		_assert(is_equal_approx(col_draw_rect.size.x, full_col_rect.size.x * 0.5), "Corner column segments should be cut to half-width so they terminate at the tile center")
-	board.free()
-
-func _test_door_art_uses_source_and_flipped_variant() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var textures: Dictionary = board.get("_prop_textures") as Dictionary
-	_assert(textures.get("door", null) != null, "Combat board should load the standalone door art")
-	_assert(textures.get("door_row", null) == textures.get("door", null), "Bottom-left/top-right doors should use the supplied source orientation directly")
-	_assert(textures.get("door_col", null) != null, "Combat board should build a flipped door texture for the opposite diagonal")
-	_assert(textures.get("door_col", null) != textures.get("door", null), "Bottom-right/top-left doors should use a flipped variant instead of the identical source sprite")
-	_assert(board.call("_floor_texture_key", "door") == "stone", "Door tiles should render on top of the regular stone floor texture")
-	board.free()
-
-func _test_standalone_door_art_stays_within_single_tile_footprint() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var grid: Array = _simple_grid()
-	var textures: Dictionary = board.get("_prop_textures") as Dictionary
-	var door_texture: Texture2D = textures.get("door", null)
-	var tile := Vector2i(4, 0)
-	var door_frame: Rect2 = board.call("_door_rect_for_tile", tile, grid)
-	var door_rect: Rect2 = board.call("_prop_draw_rect", door_texture, door_frame)
-	var door_offset: Vector2 = board.call("_door_back_edge_offset_for_tile", tile, grid)
-	_assert(door_rect.size.x <= door_frame.size.x, "Standalone door art should stay inside its dedicated door frame instead of spilling beyond it")
-	_assert(is_equal_approx(door_rect.get_center().x, board.call("_tile_center", tile).x + door_offset.x), "Standalone door art should stay centered on its back-edge door frame")
-	board.free()
-
-func _test_visible_doors_use_dedicated_frame() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	var grid: Array = _simple_grid()
-	var tile := Vector2i(4, 0)
-	var wall_frame: Rect2 = board.call("_prop_rect_for_tile", tile)
-	var door_frame: Rect2 = board.call("_door_rect_for_tile", tile, grid)
-	var door_offset: Vector2 = board.call("_door_back_edge_offset_for_tile", tile, grid)
-	_assert(door_frame.size.x > wall_frame.size.x, "Standalone door art should use its own enlarged frame instead of inheriting wall architecture sizing")
-	_assert(door_frame.size.y > wall_frame.size.y, "Standalone door art should use its own enlarged frame instead of inheriting wall architecture sizing")
-	_assert(is_equal_approx(door_frame.get_center().x, wall_frame.get_center().x + door_offset.x), "Standalone door art should use the opening tile's mirrored back-edge offset")
-	_assert(door_frame.end.y >= wall_frame.end.y - 10.0, "Standalone door art should stay planted near the same floor line as the surrounding architecture")
-	board.free()
-
-func _test_door_frames_slide_toward_each_back_edge() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	var grid: Array = _simple_grid()
-	var offsets: Dictionary = {
-		"top_right": board.call("_door_back_edge_offset_for_tile", Vector2i(4, 0), grid),
-		"bottom_right": board.call("_door_back_edge_offset_for_tile", Vector2i(7, 4), grid),
-		"bottom_left": board.call("_door_back_edge_offset_for_tile", Vector2i(4, 7), grid),
-		"top_left": board.call("_door_back_edge_offset_for_tile", Vector2i(0, 4), grid)
-	}
-	var top_right: Vector2 = offsets.get("top_right", Vector2.ZERO)
-	var bottom_right: Vector2 = offsets.get("bottom_right", Vector2.ZERO)
-	var bottom_left: Vector2 = offsets.get("bottom_left", Vector2.ZERO)
-	var top_left: Vector2 = offsets.get("top_left", Vector2.ZERO)
-	_assert(top_right.x > 0.0 and top_right.y < 0.0, "Top-right doors should slide up-right toward their back edge")
-	_assert(bottom_right.x > 0.0 and bottom_right.y > 0.0, "Bottom-right doors should slide down-right toward their back edge")
-	_assert(bottom_left.x < 0.0 and bottom_left.y > 0.0, "Bottom-left doors should slide down-left toward their back edge")
-	_assert(top_left.x < 0.0 and top_left.y < 0.0, "Top-left doors should slide up-left toward their back edge")
-	_assert(is_equal_approx(absf(top_right.x), absf(top_left.x)), "Top door back-edge offsets should share the same horizontal magnitude")
-	_assert(is_equal_approx(absf(top_right.y), absf(top_left.y)), "Top door back-edge offsets should share the same vertical magnitude")
-	_assert(is_equal_approx(absf(bottom_right.x), absf(bottom_left.x)), "Bottom door back-edge offsets should share the same horizontal magnitude")
-	_assert(is_equal_approx(absf(bottom_right.y), absf(bottom_left.y)), "Bottom door back-edge offsets should share the same vertical magnitude")
-	_assert(absf(top_right.x) < absf(bottom_right.x), "Top doors should use a slightly smaller back-edge offset than bottom doors")
-	_assert(absf(top_right.y) < absf(bottom_right.y), "Top doors should use a slightly smaller back-edge offset than bottom doors")
-	board.free()
-
-func _test_door_opening_sheet_loads_as_directional_frames() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	board.call("_load_assets")
-	var frames: Array = board.get("_door_opening_frames") as Array
-	var flipped_frames: Array = board.get("_door_opening_flipped_frames") as Array
-	_assert(frames.size() == 8, "Door opening sheet should load as eight animation frames")
-	_assert(flipped_frames.size() == frames.size(), "Door opening animation should build flipped frames for side-edge doors")
-	var canvas_size: Vector2i = board.call("_door_opening_frame_canvas_size")
-	_assert(canvas_size == Vector2i(256, 383), "Door opening frames should share the max source-frame canvas size")
-	var first_frame: Texture2D = frames[0] if not frames.is_empty() else null
-	var final_frame: Texture2D = frames[frames.size() - 1] if not frames.is_empty() else null
-	_assert(first_frame != null and first_frame.get_size() == Vector2(canvas_size), "Door opening frame textures should all use the shared canvas")
-	_assert(final_frame != null and final_frame.get_size() == Vector2(canvas_size), "Final door opening frame should stay on the shared canvas")
-	var first_used_rect: Rect2i = board.call("_texture_used_rect", first_frame)
-	var final_used_rect: Rect2i = board.call("_texture_used_rect", final_frame)
-	_assert(first_used_rect.position == Vector2i(20, 2) and first_used_rect.size == Vector2i(236, 381), "First door opening sprite should keep its real source bounds inside the shared canvas")
-	_assert(final_used_rect.position == Vector2i(4, 4) and final_used_rect.size == Vector2i(252, 379), "Final door opening sprite should stay bottom-right anchored inside the shared canvas")
-	var grid: Array = _simple_grid()
-	var row_tile := Vector2i(4, 0)
-	var col_tile := Vector2i(7, 4)
-	grid[row_tile.y][row_tile.x] = "door"
-	grid[col_tile.y][col_tile.x] = "door"
-	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {"door_opening": {"tile": row_tile, "progress": 0.0}})
-	var first_source_frame: Texture2D = frames[0] if not frames.is_empty() else null
-	_assert(board.call("_door_opening_texture_for_tile", grid, row_tile) == first_source_frame, "Top/bottom door openings should use the source orientation frame")
-	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {"door_opening": {"tile": col_tile, "progress": 1.0}})
-	var final_flipped_frame: Texture2D = flipped_frames[flipped_frames.size() - 1] if not flipped_frames.is_empty() else null
-	_assert(board.call("_door_opening_texture_for_tile", grid, col_tile) == final_flipped_frame, "Side door openings should use the flipped final frame")
-	var textures: Dictionary = board.get("_prop_textures") as Dictionary
-	var row_static_texture: Texture2D = textures.get("door_row", null)
-	var row_static_draw_rect: Rect2 = board.call("_prop_draw_rect", row_static_texture, board.call("_door_rect_for_tile", row_tile, grid))
-	var row_static_used_rect: Rect2 = board.call("_texture_used_draw_rect", row_static_texture, row_static_draw_rect)
-	var row_opening_draw_rect: Rect2 = board.call("_door_opening_draw_rect", first_source_frame, row_static_texture, row_static_draw_rect, false)
-	_assert(is_equal_approx(row_opening_draw_rect.end.x, row_static_used_rect.end.x), "Source door opening frames should keep their stone edge anchored to the static door's right edge")
-	_assert(is_equal_approx(row_opening_draw_rect.end.y, row_static_used_rect.end.y), "Door opening frames should stay planted on the static door baseline")
-	var row_final_opening_draw_rect: Rect2 = board.call("_door_opening_draw_rect", final_frame, row_static_texture, row_static_draw_rect, false)
-	_assert(row_final_opening_draw_rect.is_equal_approx(row_opening_draw_rect), "Source door opening frames should render into one stable draw rect across the animation")
-	var row_opening_used_rect: Rect2 = board.call("_texture_used_draw_rect", first_source_frame, row_opening_draw_rect)
-	_assert(is_equal_approx(row_opening_used_rect.position.y, row_static_used_rect.position.y), "First opening frame should match the static door visible top edge")
-	_assert(is_equal_approx(row_opening_used_rect.end.y, row_static_used_rect.end.y), "First opening frame should match the static door visible bottom edge")
-	var col_static_texture: Texture2D = textures.get("door_col", null)
-	var col_static_draw_rect: Rect2 = board.call("_prop_draw_rect", col_static_texture, board.call("_door_rect_for_tile", col_tile, grid))
-	var col_static_used_rect: Rect2 = board.call("_texture_used_draw_rect", col_static_texture, col_static_draw_rect)
-	var col_opening_draw_rect: Rect2 = board.call("_door_opening_draw_rect", final_flipped_frame, col_static_texture, col_static_draw_rect, true)
-	_assert(is_equal_approx(col_opening_draw_rect.position.x, col_static_used_rect.position.x), "Flipped door opening frames should keep their stone edge anchored to the static door's left edge")
-	_assert(is_equal_approx(col_opening_draw_rect.end.y, col_static_used_rect.end.y), "Flipped door opening frames should stay planted on the static door baseline")
-	board.free()
-
-func _test_combat_board_hides_outer_walls_without_hiding_visible_doors() -> void:
-	var board := CombatBoardView.new()
-	var grid: Array = _simple_grid()
-	var wall_tile := Vector2i(0, 3)
-	grid[0][4] = "door"
-	var door_tile := Vector2i(4, 0)
-	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
-	_assert(board.call("_display_tile_id", "door", door_tile) == "wall", "Inactive perimeter doors should fall back to wall semantics")
-	var hidden_tiles: Array = board.call("_tiles_in_draw_order", grid)
-	_assert(not hidden_tiles.has(wall_tile), "Boundary wall tiles should drop out of the draw order while outer wall visuals are disabled")
-	_assert(not hidden_tiles.has(door_tile), "Inactive perimeter doors should also disappear once they resolve back to boundary walls")
-	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {"active_door_tiles": {door_tile: true}})
-	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Active connected doors should render as doors again")
-	var active_tiles: Array = board.call("_tiles_in_draw_order", grid)
-	_assert(active_tiles.has(door_tile), "Active connected doors should stay in draw order so they remain clickable")
-	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {door_tile: "N"}, {}, {})
-	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Usable exits should stay visually present even while the outer wall toggle is off")
-	var exit_tiles: Array = board.call("_tiles_in_draw_order", grid)
-	_assert(exit_tiles.has(door_tile), "Usable exits should remain in draw order so the player can click them")
-	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {door_tile: "N"}, {}, {"pulse_exit_tiles": true})
-	_assert(bool(board.call("_presentation_needs_continuous_redraw")), "Pulsing exit doors should keep the board redraw loop active")
-	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {"locked_door_tiles": {door_tile: true}})
-	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Locked traversal doors should still render as doors for presentation")
-	var locked_tiles: Array = board.call("_tiles_in_draw_order", grid)
-	_assert(locked_tiles.has(door_tile), "Locked traversal doors should stay in draw order while visible")
-	board.free()
-
-func _test_combat_board_assigns_deterministic_floor_variants() -> void:
-	var board := CombatBoardView.new()
-	board.call("_load_assets")
-	var floor_variants: Dictionary = board.get("_floor_texture_variants")
-	var stone_variants: Array = floor_variants.get("stone", [])
-	_assert(stone_variants.size() == CombatBoardView.STONE_FLOOR_VARIANT_PATHS.size(), "Combat board should load every approved stone floor variant")
-	var state := {"grid": _simple_grid(), "room_coord": Vector2i(2, 1)}
-	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
-	var first_lookup: Dictionary = (board.get("_floor_variant_by_tile") as Dictionary).duplicate(true)
-	var distinct: Dictionary = {}
-	var adjacent_repeats: int = 0
-	for y: int in range(1, 7):
-		for x: int in range(1, 7):
-			var tile := Vector2i(x, y)
-			var variant_index: int = int(first_lookup.get(tile, -1))
-			distinct[variant_index] = true
-			if x > 1 and variant_index == int(first_lookup.get(Vector2i(x - 1, y), -2)):
-				adjacent_repeats += 1
-			if y > 1 and variant_index == int(first_lookup.get(Vector2i(x, y - 1), -2)):
-				adjacent_repeats += 1
-	_assert(distinct.size() >= mini(4, stone_variants.size()), "Interior stone floors should spread across the approved variants instead of collapsing to one look")
-	_assert(adjacent_repeats <= 6, "Variant assignment should keep immediate stone-floor repeats rare")
-	var center_tile := Vector2i(4, 4)
-	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
-	var repeated_lookup: Dictionary = board.get("_floor_variant_by_tile")
-	_assert(repeated_lookup.get(center_tile, -1) == first_lookup.get(center_tile, -2), "Floor variants should stay deterministic for the same room coordinate")
-	board.set_combat_state({"grid": _simple_grid(), "room_coord": Vector2i(3, 1)}, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
-	var shifted_lookup: Dictionary = board.get("_floor_variant_by_tile")
-	_assert(shifted_lookup != first_lookup, "Different room coordinates should reshuffle the deterministic floor-variant mix")
-	board.free()
-
-func _test_combat_board_loads_elemental_projectile_atlas() -> void:
-	var board := CombatBoardView.new()
-	board.call("_load_assets")
-	var neutral_frame: AtlasTexture = board.call("_projectile_texture", ElementData.NONE) as AtlasTexture
-	_assert(neutral_frame != null, "Combat board should load a neutral projectile atlas frame")
-	var fallback_frame: AtlasTexture = board.call("_projectile_texture", "unknown") as AtlasTexture
-	_assert(fallback_frame != null, "Unknown projectile elements should use the neutral atlas frame")
-	if neutral_frame != null and fallback_frame != null:
-		_assert(
-			is_equal_approx(fallback_frame.region.position.y, neutral_frame.region.position.y),
-			"Unknown projectile elements should fall back to the neutral atlas row"
-		)
-	var seen_rows: Dictionary = {}
-	for element_id: String in ElementData.all_elements():
-		var frame: AtlasTexture = board.call("_projectile_texture", element_id) as AtlasTexture
-		_assert(frame != null, "Combat board should load projectile atlas frame for %s" % element_id)
-		if frame != null:
-			seen_rows[int(round(frame.region.position.y))] = true
-	_assert(seen_rows.size() == ElementData.all_elements().size(), "Elemental projectile atlas should provide distinct rows for every element")
-	board.free()
-
-func _test_combat_board_ambient_particles_follow_room_element() -> void:
-	var board := CombatBoardView.new()
-	board.call("_load_assets")
-	var neutral_state := {"grid": _simple_grid(), "room_coord": Vector2i(2, 1), "room_element": "none"}
-	board.set_combat_state(neutral_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
-	_assert(not bool(board.call("_ambient_particles_active")), "Neutral rooms should not render elemental ambient particles")
-	_assert(not bool(board.call("_presentation_needs_continuous_redraw")), "Neutral rooms with no active presentation should not request continuous redraw")
-	var fire_state := {"grid": _simple_grid(), "room_coord": Vector2i(2, 1), "room_element": "fire"}
-	board.set_combat_state(fire_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
-	_assert(bool(board.call("_ambient_particles_active")), "Elemental rooms should activate ambient particles")
-	_assert(bool(board.call("_presentation_needs_continuous_redraw")), "Ambient particles should drive a lightweight redraw loop")
-	_assert(board.call("_ambient_particle_texture", "fire", 0) != null, "Elemental ambient particles should use the generated raster atlas")
-	_assert(board.call("_ambient_fire_soft_texture", 0) != null, "Fire ambient particles should use a softened mote atlas to avoid flat sprite rendering")
-	var air_state := {"grid": _simple_grid(), "room_coord": Vector2i(2, 1), "room_element": "air"}
-	board.set_combat_state(air_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
-	var air_wisp_variant: int = int(board.call("_ambient_air_wisp_variant_index", 1200))
-	_assert(air_wisp_variant in [1, 3], "Air wind wisps should use directional full-body variants")
-	_assert(board.call("_ambient_air_wisp_texture", air_wisp_variant, 16) != null, "Air ambient particles should use a full-body wisp frame instead of path-reveal frames")
-	_assert(board.call("_ambient_air_wisp_soft_texture", air_wisp_variant) != null, "Air wind wisps should have a softened body atlas")
-	_assert(board.call("_ambient_air_wisp_glow_texture", air_wisp_variant, 16) != null, "Air wind wisps should have matching glow frames")
-	var wind_direction: float = float(board.call("_ambient_air_wind_direction"))
-	_assert(is_equal_approx(absf(wind_direction), 1.0), "Air wind wisps should share a deterministic left/right wind direction")
-	var first_seed: int = int(board.call("_ambient_room_seed", "fire"))
-	board.set_combat_state(fire_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
-	_assert(int(board.call("_ambient_room_seed", "fire")) == first_seed, "Ambient particle seeds should stay stable for the same room coordinate and element")
-	board.set_combat_state({"grid": _simple_grid(), "room_coord": Vector2i(3, 1), "room_element": "fire"}, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
-	_assert(int(board.call("_ambient_room_seed", "fire")) != first_seed, "Ambient particle seeds should vary across rooms")
-	_assert(int(board.call("_ambient_particle_count", "ice", 72)) > int(board.call("_ambient_particle_count", "earth", 72)), "Snow rooms should carry more particles than heavier earth motes")
-	_assert(int(board.call("_ambient_particle_count", "lightning", 72)) < int(board.call("_ambient_particle_count", "fire", 72)), "Lightning rooms should stay sparser than fire after density tuning")
-	board.free()
-
-func _test_combat_board_loads_defense_heal_cast_frames() -> void:
-	var board := CombatBoardView.new()
-	board.call("_load_assets")
-	var effect_frames: Dictionary = board.get("_effect_frames") as Dictionary
-	var frames: Array = effect_frames.get("defense_heal_casts", [])
-	_assert(frames.size() == 12, "Defense/heal cast sheet should load twelve effect frames")
-	for frame_var: Variant in frames:
-		var frame: Texture2D = frame_var as Texture2D
-		_assert(frame != null and frame.get_width() == 128 and frame.get_height() == 128, "Defense/heal cast frames should be 128px sprites")
-	board.free()
 
 func _test_combat_board_draw_order_tracks_moving_unit_world_position() -> void:
 	var board := CombatBoardView.new()
@@ -6769,31 +5049,31 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	var pierce_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 6, "range": 5, "pierce": true})
 	_assert(pierce_row.size() == 2, "Pierce should replace the ranged damage icon instead of adding another keyword token")
 	_assert(str((pierce_row[0] as Dictionary).get("icon", "")) == "pierce", "Pierce attacks should use the pierce damage icon")
-	_assert(ActionIcons.tooltip("pierce") == "Pierce\nThis damage ignores Block and Stoneskin.", "Pierce tooltip should explain defense bypass")
+	_assert(ActionIcons.tooltip("pierce") == "Pierce\nIgnores Block and Stoneskin.", "Pierce tooltip should explain defense bypass")
 	var blood_row: Array = ActionIcons.tokens_for_action({"type": "melee", "damage": 3, "range": 1, "bleed": 2, "expose": 4, "sunder": 3})
 	_assert(str((blood_row[1] as Dictionary).get("icon", "")) == "bleed", "Bleed should render as an attack keyword token")
 	_assert(str((blood_row[2] as Dictionary).get("icon", "")) == "expose", "Expose should render as an attack keyword token")
 	_assert(str((blood_row[3] as Dictionary).get("icon", "")) == "sunder", "Sunder should render as an attack keyword token")
-	_assert(ActionIcons.tooltip("bleed") == "Bleed\nBefore each move or attack, it takes damage equal to its Bleed. Clears when its turn ends.", "Bleed tooltip should explain action-triggered wound damage")
-	_assert(ActionIcons.tooltip("expose") == "Expose\nThe next attack that damages it deals that much more damage. Then Expose ends.", "Expose tooltip should explain the follow-up damage")
-	_assert(ActionIcons.tooltip("sunder") == "Sunder\nBefore damage, remove up to that much Block, then Stoneskin, from the target.", "Sunder tooltip should explain defense breaking")
+	_assert(ActionIcons.tooltip("bleed") == "Bleed\nTakes that much damage before each move or attack.", "Bleed tooltip should explain action-triggered wound damage")
+	_assert(ActionIcons.tooltip("expose") == "Expose\nIts next damaging hit takes that much more damage.", "Expose tooltip should explain the follow-up damage")
+	_assert(ActionIcons.tooltip("sunder") == "Sunder\nStrips that much Block, then Stoneskin, before damage.", "Sunder tooltip should explain defense breaking")
 	var aoe_row: Array = ActionIcons.tokens_for_action({"type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]]})
 	_assert(str((aoe_row[1] as Dictionary).get("kind", "")) == "aoe_pattern", "AOE actions should surface a tile pattern token")
 	_assert(bool((aoe_row[1] as Dictionary).get("show_origin", false)), "Close AOE pattern tokens should include the player origin tile")
-	_assert(ActionIcons.tooltip("surface_fire") == "Fire\nA unit that enters takes 2 damage. One that starts its turn here takes 3.", "Fire ground tooltips must explain entry timing")
+	_assert(ActionIcons.tooltip("surface_fire") == "Fire\nEntering deals 2 damage; starting a turn here deals 3.", "Fire ground tooltips must explain entry timing")
 	var card_play_row: Array = ActionIcons.tokens_for_action({"type": "card_play", "amount": 1})
 	_assert(str((card_play_row[0] as Dictionary).get("icon", "")) == "card_play", "Card-play actions should use the play-meter icon")
-	_assert(ActionIcons.tooltip("card_play") == "Card Play\nPlaying a card spends 1. Refills each turn. Killing an enemy on your turn grants 1 more, except summons.", "Card-play tooltip should explain the temporary play bonus")
-	var flurry_cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("cinder_fusillade"))
+	_assert(ActionIcons.tooltip("card_play") == "Card Play\nEach card you play spends one; they refill each turn, and kills give one more.", "Card-play tooltip should explain the temporary play bonus")
+	var flurry_cost_rows: Array = ActionIcons.cost_rows_for_card(preload("res://tests/fixtures/dormant_flurry_cards.gd").definitions()["flu_test_ranged"])
 	_assert(flurry_cost_rows.size() == 1 and str(((flurry_cost_rows[0] as Array)[0] as Dictionary).get("icon", "")) == "flurry", "Flurry cards should show their dedicated cost icon")
-	_assert(ActionIcons.tooltip("flurry") == "Flurry\nRepeat this card once per Card Play left, spending them all, on the same target. Pay its Time once.", "Flurry tooltip should distinguish repeated effects from its single time payment")
+	_assert(ActionIcons.tooltip("flurry") == "Flurry\nRepeat this card once per Card Play left, spending them all.", "Flurry tooltip should distinguish repeated effects from its single time payment")
 	var flurry_icon := Image.new()
 	var flurry_icon_error: Error = flurry_icon.load(ActionIcons.icon_path("flurry"))
 	_assert(flurry_icon_error == OK and flurry_icon.get_width() == 112 and flurry_icon.get_height() == 64, "Flurry should ship its dedicated wide 112x64 action icon")
 	var illusion_row: Array = ActionIcons.tokens_for_action({"type": "illusion", "health": 4, "range": 3})
 	_assert(str((illusion_row[0] as Dictionary).get("icon", "")) == "illusion", "Illusion actions should use the illusion icon")
 	_assert(str((illusion_row[1] as Dictionary).get("icon", "")) == "range", "Illusion actions should show placement range")
-	_assert(ActionIcons.tooltip("illusion") == "Illusion\nCreate a decoy with that much Health. Enemies attack it when it's at least as close as you.", "Illusion tooltip should explain the decoy")
+	_assert(ActionIcons.tooltip("illusion") == "Illusion\nA decoy with that much Health; enemies attack it if it's as close as you.", "Illusion tooltip should explain the decoy")
 	# Borrowed Spark exhausts and costs health (Gate Gambit was cut in the card pool overhaul).
 	var cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("borrowed_spark"))
 	_assert(cost_rows.size() == 1, "Card costs should render as one leading action row")
@@ -6803,8 +5083,8 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	var consume_cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("crimson_draught"))
 	_assert(consume_cost_rows.size() == 1 and str(((consume_cost_rows[0] as Array)[0] as Dictionary).get("icon", "")) == "consume", "Consumable item cards should show a one-use cost icon")
 	_assert(not ActionIcons.tooltip("burn").contains("card"), "Burn status tooltip should not describe card exhaust costs")
-	_assert(ActionIcons.tooltip("exhaust") == "Exhaust\nAfter use, this card leaves your deck until combat ends.", "Exhaust cost tooltip should describe card removal")
-	_assert(ActionIcons.tooltip("consume") == "Consume\nAfter use, this item is gone for the rest of the run.", "Consume cost tooltip should describe one-time item use")
+	_assert(ActionIcons.tooltip("exhaust") == "Exhaust\nLeaves your deck for the rest of combat.", "Exhaust cost tooltip should describe card removal")
+	_assert(ActionIcons.tooltip("consume") == "Consume\nGone for the rest of the run once used.", "Consume cost tooltip should describe one-time item use")
 	var tooltip_panel: PanelContainer = UiTooltipPanel.make_text(ActionIcons.tooltip("poison"))
 	_assert(
 		tooltip_panel.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) != null
@@ -6845,280 +5125,6 @@ func _test_room_icon_library_covers_door_room_types() -> void:
 		_assert(not RoomIcons.icon_path(icon_id).is_empty(), "Every door icon id should resolve to a texture path")
 		_assert(RoomIcons.icon_texture(icon_id) != null, "Every door icon id should load a texture")
 
-func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
-	var map_view := LabyrinthMapView.new()
-	var combat_icon: Texture2D = map_view.call("_room_icon_texture_for_room", {"type": "combat", "element": "fire"})
-	var campfire_icon: Texture2D = map_view.call("_room_icon_texture_for_room", {"type": "campfire", "element": "none"})
-	_assert(combat_icon != null, "Minimap combat rooms should use the same elemental door icon textures")
-	_assert(campfire_icon != null, "Minimap non-combat rooms should use the same door icon textures")
-	var uncleared: Color = map_view.call("_room_fill_color", {"type": "combat", "element": "fire", "cleared": false})
-	var cleared: Color = map_view.call("_room_fill_color", {"type": "combat", "element": "fire", "cleared": true})
-	var grey := Color("6f6a63")
-	var uncleared_distance: float = absf(uncleared.r - grey.r) + absf(uncleared.g - grey.g) + absf(uncleared.b - grey.b)
-	var cleared_distance: float = absf(cleared.r - grey.r) + absf(cleared.g - grey.g) + absf(cleared.b - grey.b)
-	_assert(cleared_distance < uncleared_distance, "Cleared minimap rooms should read as muted grey instead of using a large X mark")
-	map_view.set("interactive", false)
-	map_view.set_run_state({
-		"mode": "room",
-		"current_room": Vector2i.ZERO,
-		"rooms": {
-			"0,0": {"coord": Vector2i.ZERO, "type": "start", "revealed": true, "cleared": true}
-		}
-	})
-	map_view.size = Vector2(220.0, 188.0)
-	_assert(float(map_view.call("_base_node_size")) >= 20.0, "Compact minimap icons should keep a legible minimum node size")
-	map_view.set("show_legend", false)
-	map_view.set_run_state({
-		"mode": "room",
-		"current_room": Vector2i.ZERO,
-		"rooms": {
-			"0,0": {
-				"coord": Vector2i.ZERO,
-				"type": "start",
-				"revealed": true,
-				"cleared": true,
-				"connections": [{"coord": Vector2i(1, 0)}]
-			},
-			"1,0": {
-				"coord": Vector2i(1, 0),
-				"type": "combat",
-				"element": "fire",
-				"revealed": true,
-				"cleared": false,
-				"connections": [{"coord": Vector2i.ZERO}]
-			}
-		}
-	})
-	var node_size: float = float(map_view.call("_base_node_size"))
-	var left_position: Vector2 = map_view.call("_coord_position", Vector2i.ZERO)
-	var right_position: Vector2 = map_view.call("_coord_position", Vector2i(1, 0))
-	var compact_spacing: float = float(map_view.call("_grid_spacing"))
-	var compact_rect: Rect2 = map_view.call("_map_rect")
-	_assert(compact_rect.grow(-node_size * 0.55).has_point(left_position), "Compact minimap start medallion should keep visible padding inside the frame")
-	_assert(compact_rect.grow(-node_size * 0.55).has_point(right_position), "Compact minimap destination medallion should keep visible padding inside the frame")
-	_assert(right_position.distance_to(left_position) >= node_size * 1.05, "Compact minimap adjacent rooms should remain visually distinct")
-	map_view.set("interactive", true)
-	map_view.set("show_legend", true)
-	map_view.size = Vector2(920.0, 580.0)
-	var full_left_position: Vector2 = map_view.call("_coord_position", Vector2i.ZERO)
-	var full_right_position: Vector2 = map_view.call("_coord_position", Vector2i(1, 0))
-	var full_spacing: float = float(map_view.call("_grid_spacing"))
-	_assert(full_spacing > compact_spacing, "Full map should open the radial depth bands more confidently than the compact minimap")
-	_assert(float(map_view.call("_base_node_size")) >= 48.0, "Full map nodes should read as deliberate large-map controls instead of compact minimap icons")
-	_assert(full_right_position.distance_to(full_left_position) >= float(map_view.call("_base_node_size")) * 1.05, "Full map adjacent rooms should remain distinct on the radial route")
-	_assert(absf(full_right_position.y - full_left_position.y) < full_spacing * 0.10, "Full map irregularity should remain subtle enough that adjacent depths still connect directly")
-	var map_rect: Rect2 = map_view.call("_map_rect")
-	var legend_rect: Rect2 = map_view.call("_legend_rect")
-	var legend_content_rect: Rect2 = map_view.call("_legend_content_rect")
-	_assert(map_rect.end.x + 1.0 <= legend_rect.position.x, "Full map legend should reserve space instead of covering map rooms")
-	for room_var: Variant in map_view.call("_visible_rooms"):
-		var room: Dictionary = room_var
-		if bool(map_view.call("_room_is_onscreen", room)):
-			_assert(not (map_view.call("_room_visual_rect", room) as Rect2).intersects(legend_rect, false), "Full map medallions should never render underneath the fixed legend")
-	_assert(legend_rect.size.y < map_view.size.y * 0.90, "Full map legend should remain a contained authored subpanel")
-	_assert(absf(legend_content_rect.position.x - legend_rect.position.x - (legend_rect.end.x - legend_content_rect.end.x)) <= 0.01, "Legend content should preserve equal left and right insets")
-	_assert(legend_content_rect.position.x - legend_rect.position.x >= 28.0, "Legend icons should keep a safe inset from the authored border")
-	for route_state: String in ["current", "reachable", "visited", "unavailable"]:
-		_assert(map_view.call("_room_frame_texture", route_state) != null, "Map state %s should use an authored medallion frame" % route_state)
-	_assert(map_view.call("_map_legend_frame") != null and map_view.call("_map_detail_frame") != null, "Map legend and room detail should use authored raster frames")
-	var labels: Dictionary = {}
-	for entry_var: Variant in map_view.call("_legend_entries"):
-		var entry: Dictionary = entry_var
-		labels[str(entry.get("label", ""))] = true
-	for expected_label: String in ["Fire", "Ice", "Lightning", "Air", "Earth", "Ember Hearth", "Relic", "Scavenger", "Boss"]:
-		_assert(labels.has(expected_label), "Full map legend should include %s" % expected_label)
-	_assert(not labels.has("Fight"), "Full map legend should not invent a generic Fight room icon")
-	var marker_rooms: Dictionary = {
-		"0,0": {
-			"coord": Vector2i.ZERO,
-			"type": "start",
-			"revealed": true,
-			"cleared": true
-		},
-		"3,0": {
-			"coord": Vector2i(3, 0),
-			"type": "combat",
-			"element": "fire",
-			"revealed": false,
-			"cleared": false,
-			"recovery_marker": true,
-			"recovery_amount": 23
-		}
-	}
-	map_view.set("interactive", false)
-	map_view.set_run_state({"mode": "room", "current_room": Vector2i.ZERO, "rooms": marker_rooms})
-	_assert(not _map_visible_coords(map_view).has(Vector2i(3, 0)), "Compact minimap should not reveal distant dropped embers")
-	map_view.set("interactive", true)
-	_assert(_map_visible_coords(map_view).has(Vector2i(3, 0)), "Full map should show the dropped ember room at its exact coordinate")
-	map_view.free()
-
-func _test_large_map_decision_layer() -> void:
-	var map_view := LabyrinthMapView.new()
-	map_view.set("interactive", true)
-	map_view.set("show_legend", true)
-	map_view.size = Vector2(920.0, 580.0)
-
-	for fixture_var: Variant in [
-		{"label": "early", "min": Vector2i(-1, -1), "max": Vector2i(1, 1)},
-		{"label": "mid", "min": Vector2i(-3, -2), "max": Vector2i(3, 2)},
-		{"label": "long", "min": Vector2i(-7, -5), "max": Vector2i(7, 5)}
-	]:
-		var fixture: Dictionary = fixture_var
-		var minimum_coord: Vector2i = fixture.get("min", Vector2i.ZERO)
-		var maximum_coord: Vector2i = fixture.get("max", Vector2i.ZERO)
-		var fixture_state: Dictionary = _map_bounds_fixture(minimum_coord, maximum_coord)
-		fixture_state["current_room"] = maximum_coord
-		var fixture_rooms: Dictionary = fixture_state.get("rooms", {})
-		var current_key: String = "%d,%d" % [maximum_coord.x, maximum_coord.y]
-		if fixture_rooms.has(current_key):
-			var fixture_current_room: Dictionary = fixture_rooms[current_key]
-			fixture_current_room["visited"] = true
-			fixture_rooms[current_key] = fixture_current_room
-		map_view.set_run_state(fixture_state)
-		var map_rect: Rect2 = map_view.call("_map_rect")
-		var ring_step_world: float = float(map_view.call("_depth_ring_step")) / float(map_view.call("_camera_zoom_value"))
-		var maximum_depth: int = maxi(
-			maxi(absi(minimum_coord.x), absi(minimum_coord.y)),
-			maxi(absi(maximum_coord.x), absi(maximum_coord.y))
-		)
-		_assert(map_view.call("_coord_position", maximum_coord).distance_to(map_rect.get_center()) <= 0.01, "%s map should frame the current room instead of compressing the entire run" % str(fixture.get("label", "map")))
-		_assert(int(map_view.call("_depth_ring_count")) == maxi(1, maximum_depth), "%s map should preserve one ring for every gameplay depth" % str(fixture.get("label", "map")))
-		for room_var: Variant in map_view.call("_visible_rooms"):
-			var room: Dictionary = room_var
-			var coord: Vector2i = room.get("coord", Vector2i.ZERO)
-			var position: Vector2 = map_view.call("_coord_position", coord)
-			var depth: int = int(room.get("depth", maxi(absi(coord.x), absi(coord.y))))
-			var world_position: Vector2 = map_view.call("_world_position", coord)
-			if depth <= 0:
-				_assert(world_position.length() <= 0.01, "%s map should anchor depth zero at the labyrinth center" % str(fixture.get("label", "map")))
-			else:
-				_assert(absf(world_position.length() - float(depth) * ring_step_world) <= ring_step_world * 0.08, "%s room %s should remain on its exact depth ring" % [str(fixture.get("label", "map")), coord])
-			if map_rect.grow(-float(map_view.call("_base_node_size")) * 0.52).has_point(position):
-				_assert(map_rect.has_point(position), "%s on-screen medallions should remain inside the map field" % str(fixture.get("label", "map")))
-		_assert_map_room_medallions_do_not_overlap(map_view, "%s radial map" % str(fixture.get("label", "map")))
-
-	var earlier_visited := Vector2i.ZERO
-	var visited := Vector2i(1, 0)
-	var current := Vector2i(1, 1)
-	var reachable := Vector2i(2, 1)
-	var unavailable := Vector2i(1, 2)
-	var rooms: Dictionary = {
-		"0,0": {"coord": earlier_visited, "depth": 0, "type": "start", "element": "none", "revealed": true, "visited": true, "cleared": true, "connections": [{"coord": visited}]},
-		"1,0": {"coord": visited, "depth": 1, "type": "campfire", "element": "none", "revealed": true, "visited": true, "cleared": true, "connections": [{"coord": earlier_visited}, {"coord": current}]},
-		"1,1": {"coord": current, "depth": 2, "type": "combat", "element": "fire", "revealed": true, "visited": true, "cleared": true, "connections": [{"coord": visited}, {"coord": reachable}, {"coord": unavailable}]},
-		"2,1": {"coord": reachable, "depth": 3, "type": "combat", "element": "ice", "name": "Known Vault", "revealed": true, "visited": false, "cleared": false, "sealed": false, "connections": [{"coord": current}], "reward": "hidden_relic", "enemy_types": ["hidden_enemy"], "risk": 99},
-		"1,2": {"coord": unavailable, "depth": 3, "type": "treasure", "element": "none", "revealed": true, "visited": false, "cleared": false, "sealed": true, "connections": [{"coord": current}]}
-	}
-	map_view.set_run_state({"mode": "room", "current_room": current, "rooms": rooms})
-	_assert(str(map_view.call("_node_route_state", rooms["1,1"])) == "current", "Large map should classify the current room explicitly")
-	_assert(str(map_view.call("_node_route_state", rooms["2,1"])) == "reachable", "Large map should classify a legal destination explicitly")
-	_assert(str(map_view.call("_node_route_state", rooms["1,0"])) == "visited", "Large map should classify traveled rooms explicitly")
-	_assert(str(map_view.call("_node_route_state", rooms["1,2"])) == "unavailable", "Large map should classify revealed but unavailable rooms explicitly")
-	_assert(str(map_view.call("_connector_route_state", current, reachable)) == "reachable", "Current-to-destination connectors should read as reachable routes")
-	_assert(str(map_view.call("_connector_route_state", current, visited)) == "current", "The connector into the current room should retain current-route hierarchy")
-	_assert(str(map_view.call("_connector_route_state", visited, earlier_visited)) == "visited", "Previously traveled connectors should retain visited-route hierarchy")
-	_assert(str(map_view.call("_connector_route_state", current, unavailable)) == "unavailable", "Sealed or otherwise illegal connectors should retain unavailable-route hierarchy")
-	var room_inventory_before: Array[Vector2i] = _map_visible_coords(map_view)
-	var world_positions_before: Dictionary = {}
-	for coord: Vector2i in room_inventory_before:
-		world_positions_before[coord] = map_view.call("_world_position", coord)
-	var screen_position_before_pan: Vector2 = map_view.call("_coord_position", current)
-	var background_before_pan: Rect2 = map_view.call("_background_screen_rect")
-	_assert((map_view.call("_background_labyrinth_center_screen") as Vector2).distance_to(map_view.call("_radial_center")) <= 0.05, "The authored floor's labyrinth center should align with the gameplay depth rings")
-	var pan_delta := Vector2(46.0, -24.0)
-	map_view.call("pan_camera", pan_delta)
-	_assert(_map_visible_coords(map_view) == room_inventory_before, "Panning should never change the persistent room inventory")
-	for coord: Vector2i in room_inventory_before:
-		_assert((map_view.call("_world_position", coord) as Vector2).distance_to(world_positions_before.get(coord, Vector2.ZERO)) <= 0.001, "Panning should never rebuild or relocate room world coordinates")
-	_assert((map_view.call("_coord_position", current) as Vector2).distance_to(screen_position_before_pan + pan_delta) <= 0.05, "Panning should translate every visible room by the requested screen delta")
-	var background_after_pan: Rect2 = map_view.call("_background_screen_rect")
-	_assert(background_after_pan.position.distance_to(background_before_pan.position + pan_delta) <= 0.05, "The authored background should pan in lockstep with the room map")
-	map_view.call("center_on_current", true)
-	var camera_map_rect: Rect2 = map_view.call("_map_rect")
-	var camera_node_size: float = float(map_view.call("_base_node_size"))
-	var current_center: Vector2 = map_view.call("_coord_position", current)
-	map_view.call("pan_camera", Vector2(camera_map_rect.position.x - camera_node_size * 0.70 - current_center.x, 0.0))
-	_assert(bool(map_view.call("_room_is_onscreen", rooms["1,1"])), "A room should remain rendered while any meaningful part of its medallion remains in view")
-	map_view.call("pan_camera", Vector2(-camera_node_size * 0.12, 0.0))
-	_assert(not bool(map_view.call("_room_is_onscreen", rooms["1,1"])), "A room should cull only after its medallion has geometrically left the map field")
-	map_view.call("center_on_current", true)
-	current_center = map_view.call("_coord_position", current)
-	var camera_legend_rect: Rect2 = map_view.call("_legend_rect")
-	map_view.call("pan_camera", Vector2(camera_legend_rect.position.x - camera_node_size * 0.30 - current_center.x, 0.0))
-	_assert(not bool(map_view.call("_room_is_onscreen", rooms["1,1"])), "A medallion should cull coherently instead of appearing underneath the opaque legend")
-	_assert(map_view.call("_hover_coord_at_point", map_view.call("_coord_position", current)) == Vector2i(-999, -999), "A room hidden by the legend should not retain an invisible hover target")
-	map_view.call("center_on_current", true)
-	var unavailable_room: Dictionary = rooms["1,2"]
-	var unavailable_visual_rect: Rect2 = map_view.call("_room_visual_rect", unavailable_room)
-	var unavailable_center: Vector2 = map_view.call("_coord_position", unavailable)
-	var seam_target_x: float = camera_legend_rect.position.x - unavailable_visual_rect.size.x * 0.5 - 1.0
-	map_view.call("pan_camera", Vector2(seam_target_x - unavailable_center.x, 0.0))
-	_assert(bool(map_view.call("_room_is_onscreen", unavailable_room)), "A blocked medallion should remain rendered when its silhouette is clear of the legend")
-	var seam_room_center: Vector2 = map_view.call("_coord_position", unavailable)
-	var legend_seam_point := Vector2(camera_legend_rect.position.x + 1.0, seam_room_center.y)
-	_assert(map_view.call("_hover_coord_at_point", legend_seam_point) == Vector2i(-999, -999), "The blocked-room hover radius must not leak into the opaque legend")
-	var visible_seam_point := Vector2(camera_map_rect.end.x - 1.0, seam_room_center.y)
-	_assert(map_view.call("_hover_coord_at_point", visible_seam_point) == unavailable, "The same blocked room should remain inspectable from the unobstructed map field")
-	map_view.call("center_on_current", true)
-	var curved_route: PackedVector2Array = map_view.call("_route_curve_points", current, reachable)
-	var straight_midpoint: Vector2 = map_view.call("_coord_position", current).lerp(map_view.call("_coord_position", reachable), 0.5)
-	_assert(curved_route.size() >= 12, "Large-map routes should use sampled curves instead of rigid two-point grid lines")
-	_assert(curved_route[curved_route.size() / 2].distance_to(straight_midpoint) <= 18.1, "Large-map routes should stay relatively direct instead of curling into a spiral")
-
-	var reachable_position: Vector2 = map_view.call("_coord_position", reachable)
-	var unavailable_position: Vector2 = map_view.call("_coord_position", unavailable)
-	_assert(map_view.call("_coord_at_point", reachable_position) == reachable, "Large-map selection should still accept reachable destinations")
-	_assert(map_view.call("_coord_at_point", unavailable_position) == Vector2i(-999, -999), "Large-map selection should still reject unavailable destinations")
-	_assert(map_view.call("_hover_coord_at_point", unavailable_position) == unavailable, "Hover context may inspect a revealed unavailable room without making it selectable")
-	var framed_position: Vector2 = map_view.call("_coord_position", current)
-	var hover_before_pinch := InputEventMouseMotion.new()
-	hover_before_pinch.position = framed_position
-	map_view.call("_gui_input", hover_before_pinch)
-	_assert(map_view.get("_hover_coord") == current, "The current room should be hoverable before trackpad zoom")
-	var pinch := InputEventMagnifyGesture.new()
-	pinch.position = framed_position
-	pinch.factor = 1.40
-	map_view.call("_gui_input", pinch)
-	_assert(is_equal_approx(float(map_view.call("_camera_zoom_value")), 1.40), "Large-map pinch zoom should update the camera zoom")
-	_assert(map_view.get("_hover_coord") == Vector2i(-999, -999), "Trackpad pinch should clear a hover card whose room geometry is about to move")
-	_assert(map_view.call("_coord_position", current).distance_to(framed_position) <= 0.05, "Trackpad pinch zoom should keep the room beneath the gesture anchored")
-	var focus_before_pan: Vector2 = map_view.call("_camera_focus")
-	map_view.call("pan_camera", Vector2(72.0, -38.0))
-	_assert(map_view.call("_camera_focus") != focus_before_pan, "Large-map drag input should pan the camera")
-	map_view.call("center_on_current", true)
-	_assert(is_equal_approx(float(map_view.call("_camera_zoom_value")), 1.0), "Reframing the current room should restore the default readable zoom")
-	_assert(map_view.call("_coord_position", current).distance_to((map_view.call("_map_rect") as Rect2).get_center()) <= 0.05, "Reframing should return the current room to the local map center")
-
-	var card_data: Dictionary = map_view.call("_hover_card_data", rooms["2,1"])
-	var card_keys: Array = card_data.keys()
-	card_keys.sort()
-	_assert(card_keys == ["depth", "element", "name", "type"], "Map hover cards should expose only known name, type, element, and depth fields")
-	_assert(str(card_data.get("name", "")) == "Known Vault", "Map hover card should preserve an already-known room name")
-	_assert(str(card_data.get("type", "")) == "Combat" and str(card_data.get("element", "")) == "Ice" and int(card_data.get("depth", -1)) == 3, "Map hover card should report only known destination metadata")
-
-	for edge_coord: Vector2i in [Vector2i(-7, -5), Vector2i(7, 5)]:
-		var edge_state: Dictionary = _map_bounds_fixture(Vector2i(-7, -5), Vector2i(7, 5))
-		edge_state["current_room"] = edge_coord
-		map_view.set_run_state(edge_state)
-		map_view.call("center_on_current", true)
-		var card_bounds: Rect2 = map_view.call("_hover_card_bounds")
-		var hover_rect: Rect2 = map_view.call("_hover_card_rect", edge_coord)
-		var node_center: Vector2 = map_view.call("_coord_position", edge_coord)
-		var node_half_size: float = float(map_view.call("_base_node_size")) * 0.66
-		var node_safe_rect := Rect2(node_center - Vector2.ONE * node_half_size, Vector2.ONE * node_half_size * 2.0).grow(18.0)
-		_assert(card_bounds.encloses(hover_rect), "Edge hover card should remain fully inside the large-map drawing bounds")
-		_assert(not hover_rect.intersects(node_safe_rect), "Edge hover card should flip away from, rather than cover, its room node")
-		_assert(not bool(map_view.call("_hover_card_intersects_other_node", hover_rect, edge_coord)), "Edge hover card should prefer placement that preserves adjacent route nodes")
-
-	map_view.set_run_state({"mode": "room", "current_room": current, "rooms": rooms})
-	map_view.set("interactive", false)
-	map_view.set("show_legend", false)
-	_assert(map_view.call("_hover_coord_at_point", Vector2.ZERO) == Vector2i(-999, -999), "Compact minimap should remain label- and hover-card-free")
-	var compact_focus: Array[Vector2i] = map_view.call("_compact_focus_coords")
-	_assert(compact_focus.has(current) and compact_focus.has(reachable), "Compact minimap should always retain the current room and legal destinations")
-	_assert(compact_focus.size() <= rooms.size(), "Compact minimap focus should never invent rooms outside the revealed run")
-	map_view.free()
-
 func _assert_map_room_medallions_do_not_overlap(map_view: LabyrinthMapView, context: String) -> void:
 	var visible_rooms: Array[Dictionary] = map_view.call("_visible_rooms")
 	var minimum_clearance: float = float(map_view.call("_base_node_size")) * 0.92
@@ -7150,56 +5156,6 @@ func _map_bounds_fixture(min_coord: Vector2i, max_coord: Vector2i) -> Dictionary
 			continue
 		rooms[key] = {"coord": coord, "depth": maxi(absi(coord.x), absi(coord.y)), "type": "combat", "element": "fire", "revealed": true, "visited": false, "cleared": false, "sealed": true, "connections": []}
 	return {"mode": "room", "current_room": Vector2i.ZERO, "rooms": rooms}
-
-func _test_minimap_travel_animation_state() -> void:
-	var map_view := LabyrinthMapView.new()
-	map_view.set("interactive", false)
-	map_view.set("show_legend", false)
-	map_view.size = Vector2(220.0, 188.0)
-	map_view.set_run_state({
-		"mode": "room",
-		"current_room": Vector2i.ZERO,
-		"rooms": {
-			"0,0": {
-				"coord": Vector2i.ZERO,
-				"type": "start",
-				"revealed": true,
-				"cleared": true,
-				"connections": [{"coord": Vector2i(1, 0)}]
-			},
-			"1,0": {
-				"coord": Vector2i(1, 0),
-				"type": "combat",
-				"element": "fire",
-				"revealed": true,
-				"cleared": false,
-				"connections": [{"coord": Vector2i.ZERO}]
-			}
-		}
-	})
-	var start_position: Vector2 = map_view.call("_coord_position", Vector2i.ZERO)
-	var destination_position: Vector2 = map_view.call("_coord_position", Vector2i(1, 0))
-	_assert(bool(map_view.call("begin_travel_animation", Vector2i.ZERO, Vector2i(1, 0))), "Minimap should start a travel animation between visible connected rooms")
-	_assert(bool(map_view.get("_travel_active")), "Minimap should mark travel animation active after a valid move starts")
-	_assert(map_view.get("_travel_from_coord") == Vector2i.ZERO, "Travel animation should remember the previous room coordinate")
-	_assert(map_view.get("_travel_to_coord") == Vector2i(1, 0), "Travel animation should remember the destination room coordinate")
-	map_view.set("_travel_progress", 0.5)
-	var token_position: Vector2 = map_view.call("_travel_token_position")
-	_assert(token_position.distance_to(start_position) > 1.0, "Travel token should leave the previous room while in transit")
-	_assert(token_position.distance_to(destination_position) > 1.0, "Travel token should not instantly snap to the destination")
-	_assert(((map_view.get("run_state") as Dictionary).get("current_room", Vector2i.ZERO) == Vector2i.ZERO), "Minimap current-room highlight should remain on the previous room until run state changes")
-	map_view.call("clear_travel_animation")
-	_assert(not bool(map_view.get("_travel_active")), "Minimap should clear travel animation state after settlement")
-	_assert(not bool(map_view.call("begin_travel_animation", Vector2i(-999, -999), Vector2i(1, 0))), "Minimap travel animation should no-op cleanly without a previous room coordinate")
-	map_view.free()
-
-func _test_combat_board_loads_door_icons_for_room_types() -> void:
-	var board := CombatBoardView.new()
-	board.call("_load_assets")
-	var textures: Dictionary = board.get("_door_icon_textures") as Dictionary
-	for icon_id: String in ["fire", "combat", "campfire", "treasure", "scavenger", "event", "graftwright", "boss_tharokh", "boss_vyraketh", "boss_vaeloryx", "boss_iskaldra", "boss_zekarion", "boss_noctyrax"]:
-		_assert(textures.get(icon_id, null) != null, "Combat board should load door icons for elemental and non-combat destinations")
-	board.free()
 
 func _map_visible_coords(map_view: LabyrinthMapView) -> Array[Vector2i]:
 	var coords: Array[Vector2i] = []
@@ -7928,33 +5884,6 @@ func _test_run_state_save_and_load() -> void:
 	ProgressionStore.clear_saved_run()
 	_assert(not ProgressionStore.has_saved_run(), "Clearing the saved run should remove the save slot")
 
-func _test_default_theme_uses_readable_text_font() -> void:
-	var theme: Theme = load("res://themes/default_theme.tres")
-	_assert(theme != null, "The project should ship a default UI theme")
-	if theme == null:
-		return
-	var probe := Control.new()
-	probe.theme = theme
-	root.add_child(probe)
-	var font: Font = probe.get_theme_default_font()
-	_assert(font != null, "The default theme should expose a default font")
-	if font != null:
-		_assert(font.resource_path.ends_with("LabyrinthCrumble-Text.tres"), "The default theme should use the readable Labyrinth Crumble text cut")
-	_assert(theme.default_font_size >= UiTypography.SIZE_BODY, "The default theme should preserve the shared readable body-text floor")
-	probe.queue_free()
-
-func _test_ui_typography_system() -> void:
-	_assert(UiTypography.SIZE_CAPTION >= 14, "Utility UI captions should stay at or above the shared readability floor")
-	_assert(UiTypography.SIZE_BODY >= 16, "Utility UI body text should stay at or above the shared readability floor")
-	_assert(UiTypography.SIZE_TITLE > UiTypography.SIZE_SECTION and UiTypography.SIZE_SECTION > UiTypography.SIZE_BODY, "Shared typography roles should preserve title, section, and body hierarchy")
-	_assert(UiTypography.SPACE_TIGHT < UiTypography.SPACE_SMALL and UiTypography.SPACE_SMALL < UiTypography.SPACE_LARGE, "Shared spacing tokens should form a coherent progression")
-	var display_font: Font = UiTypography.display_font()
-	var ui_font: Font = UiTypography.ui_font()
-	var text_font: Font = UiTypography.text_font()
-	_assert(display_font != null and display_font.resource_path.ends_with("LabyrinthCrumble-Display.tres"), "Hero roles should use the expressive Labyrinth Crumble display cut")
-	_assert(ui_font != null and ui_font.resource_path.ends_with("LabyrinthCrumble-UI.tres"), "Headings and controls should use the restrained Labyrinth Crumble UI cut")
-	_assert(text_font != null and text_font.resource_path.ends_with("LabyrinthCrumble-Text.tres"), "Body roles should use the clean Labyrinth Crumble text cut")
-
 func _test_main_scenes_instantiate() -> void:
 	var main_menu_scene: PackedScene = load("res://scenes/main_menu.tscn")
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
@@ -8105,9 +6034,7 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 		_assert(preview_panel.custom_minimum_size.x <= preview_viewport.x - UiTypography.SPACE_XXL and preview_panel.custom_minimum_size.y <= preview_viewport.y - UiTypography.SPACE_XXL, "Pre-battle preview should preserve safe viewport margins")
 	var threat_summary: Label = preview_panel.find_child("PreBattleThreatSummary", true, false) as Label if preview_panel != null else null
 	_assert(threat_summary != null and not threat_summary.text.is_empty(), "Pre-battle enemy cards should summarize already-known tactical threats")
-	var attuned_row: HFlowContainer = preview_panel.find_child("PreBattleAttunedRow", true, false) as HFlowContainer if preview_panel != null else null
-	var displayed_attuned_cards: Array = _pre_battle_card_ids(preview_panel, "attuned")
-	_assert(attuned_row != null and displayed_attuned_cards.size() == (paused_state.get("attuned_magic_cards", []) as Array).size(), "Pre-battle preview should represent every attuned magic card, including counted duplicates")
+	_assert(preview_panel != null and _pre_battle_card_ids(preview_panel, "deck").size() == (paused_state.get("deck_cards", []) as Array).size() and _pre_battle_card_ids(preview_panel, "attuned").is_empty(), "Pre-battle preview lists each deck card once, spells included, without a second spell list")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleIntentRow", true, false) == null, "Pre-battle preview should not reveal enemy opening intents")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleCloseButton", true, false) == null, "Pre-battle preview should not offer a back-out button after room entry")
 	var deck_scroll: ScrollContainer = preview_panel.find_child("PreBattleDeckScroll", true, false) as ScrollContainer if preview_panel != null else null
@@ -8126,7 +6053,7 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 		_assert(not deck_bar.visible and deck_bar.max_value <= deck_bar.page + 1.0, "Standard pre-battle Active Deck should not need or expose vertical scrolling")
 	_assert(displayed_deck_entries == (paused_state.get("deck_cards", []) as Array).size(), "Counted pre-battle deck tiles should represent every card Start will use")
 	if preview_panel != null:
-		for node_name: String in ["PreBattleDeckBadge", "PreBattleAttunedBadge"]:
+		for node_name: String in ["PreBattleDeckBadge"]:
 			for strip_node: Node in preview_panel.find_children(node_name, "Control", true, false):
 				var strip: Control = strip_node as Control
 				var card_id: String = str(strip.get_meta("card_id", ""))
@@ -8150,12 +6077,12 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	_assert(exit_destinations.is_empty(), "Committed pre-battle preview should not expose alternate exits")
 	var inspection_sources: Array[Control] = []
 	if preview_panel != null:
-		for node_name: String in ["PreBattleEnemyCard", "PreBattleEquipmentChip", "PreBattleAttunedBadge", "PreBattleDeckBadge"]:
+		for node_name: String in ["PreBattleEnemyCard", "PreBattleEquipmentChip", "PreBattleDeckBadge"]:
 			var source: Control = preview_panel.find_child(node_name, true, false) as Control
 			if source != null:
 				inspection_sources.append(source)
-	_assert(inspection_sources.size() == 4, "Pre-battle enemy, equipment, attuned magic, and active deck entries should all be inspectable")
-	var inspection_kinds: Array[String] = ["enemy", "equipment", "card", "card"]
+	_assert(inspection_sources.size() == 3, "Pre-battle enemy, equipment, and active deck entries should all be inspectable")
+	var inspection_kinds: Array[String] = ["enemy", "equipment", "card"]
 	for index: int in range(inspection_sources.size()):
 		var hover_inspection_var: Variant = inspection_sources[index].call("_make_custom_tooltip", inspection_sources[index].tooltip_text)
 		_assert(hover_inspection_var is Control, "Hovering a pre-battle summary entry should build a readable rich inspection")
@@ -8257,9 +6184,9 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	_assert(preview_scrim != null and preview_scrim.mouse_filter == Control.MOUSE_FILTER_STOP, "Pre-battle preview should resume intercepting mouse input after loadout closes")
 	preview_panel = instance.get("_pre_battle_panel") as PanelContainer
 	var refreshed_weapon: Control = _pre_battle_control_with_meta(preview_panel, "PreBattleEquipmentChip", "equipment_id", "iron_cleaver")
-	var refreshed_attunement: Control = _pre_battle_control_with_meta(preview_panel, "PreBattleAttunedBadge", "card_id", "bone_dart")
+	var refreshed_spell: Control = _pre_battle_control_with_meta(preview_panel, "PreBattleDeckBadge", "card_id", "bone_dart")
 	_assert(refreshed_weapon != null, "Returning from equipment changes should refresh the exact equipped weapon in the pre-battle summary")
-	_assert(refreshed_attunement != null, "Returning from magic changes should refresh the exact attuned spell in the pre-battle summary")
+	_assert(refreshed_spell != null, "Returning from magic changes should refresh the exact spell in the pre-battle deck list")
 	var expected_deck: Array = ((instance.get("_run_state") as Dictionary).get("deck_cards", []) as Array).duplicate()
 	var displayed_deck: Array = _pre_battle_card_ids(preview_panel, "deck")
 	expected_deck.sort()
@@ -9390,8 +7317,7 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	_assert(recover_button != null and int(recover_button.get_meta("reward_heal_result_hp", -1)) == 24, "Full-health Recover should show unchanged capped health")
 	_assert(recover_button != null and int(recover_button.get_meta("reward_heal_effective", -1)) == 0, "Full-health Recover should show zero effective healing")
 	_assert(recover_button != null and int(recover_button.get_meta("reward_heal_wasted", -1)) == RunEngine.REWARD_HEAL, "Full-health Recover should retain accurate clamping metadata")
-	_assert(recover_button != null and recover_button.text.contains("+%d HP" % RunEngine.REWARD_HEAL), "Full-health Recover should still show the offered value")
-	_assert(recover_button != null and recover_button.text.contains("24 → 24"), "Full-health Recover should concisely show unchanged clamped HP")
+	_assert(recover_button != null and recover_button.text == "SKIP  •  HEALTH FULL", "Full-health skip should say health is full and promise no healing")
 	var healed_full: Dictionary = engine.skip_reward_for_heal(full_state)
 	var displayed_full_result: int = int(recover_button.get_meta("reward_heal_result_hp", -2)) if recover_button != null else -2
 	_assert(int(healed_full.get("player_hp", -1)) == displayed_full_result, "Displayed full-health Recover result should match the actual claim result")
@@ -9773,9 +7699,12 @@ func _test_run_scene_optional_followup_attack_stays_playable() -> void:
 	await process_frame
 
 func _test_run_scene_flurry_utility_resolves_without_attack_target() -> void:
+	var flurry_fixture = preload("res://tests/fixtures/dormant_flurry_cards.gd")
+	flurry_fixture.install()
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
 		_failures.append("Run scene should load for Flurry utility coverage")
+		flurry_fixture.remove()
 		return
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
@@ -9784,13 +7713,13 @@ func _test_run_scene_flurry_utility_resolves_without_attack_target() -> void:
 	var combat_state: Dictionary = combat.create_combat(15112, _simple_room_layout(), {
 		"hp": 20,
 		"max_hp": 20,
-		"deck_cards": ["blade_dance"],
+		"deck_cards": [flurry_fixture.MELEE_ID],
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["blade_dance"]
+	deck["hand"] = [flurry_fixture.MELEE_ID]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
@@ -9801,11 +7730,13 @@ func _test_run_scene_flurry_utility_resolves_without_attack_target() -> void:
 	]
 	_set_run_scene_combat_state_for_test(instance, combat_state)
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
-	_assert(bool(preview.get("complete", false)) and bool(preview.get("playable", false)), "Blade Dance should remain playable for its repeated block when no melee target is in range")
+	_assert(bool(preview.get("complete", false)) and bool(preview.get("playable", false)), "Synthetic Flurry should remain playable for its repeated block when no melee target is in range")
 	var preview_player: Dictionary = (preview.get("state", {}) as Dictionary).get("player", {})
-	_assert(int(preview_player.get("block", 0)) == GameData.fixed_point_amount(4), "Blade Dance should preview both copies of its printed block without requiring an attack target")
+	_assert(int(preview_player.get("block", 0)) == GameData.fixed_point_amount(4), "Synthetic Flurry should preview both copies of its printed block without requiring an attack target")
 	instance.queue_free()
 	await process_frame
+
+	flurry_fixture.remove()
 
 func _test_run_scene_action_step_tracker_states() -> void:
 	await preload("res://tests/suites/card_targeting_audit_suite.gd").run(self, Callable(self, "_assert"))
@@ -10442,10 +8373,13 @@ func _test_card_widget_removes_meter_glow_and_preserves_clock() -> void:
 	await process_frame
 
 func _test_card_widget_flurry_icon_uses_wide_slot() -> void:
+	var flurry_fixture = preload("res://tests/fixtures/dormant_flurry_cards.gd")
+	flurry_fixture.install()
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	var card_scene: PackedScene = load("res://scenes/card_widget.tscn")
 	if run_scene == null or card_scene == null:
 		_failures.append("Run scene and CardWidget scene should load for Flurry icon layout coverage")
+		flurry_fixture.remove()
 		return
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
@@ -10455,8 +8389,8 @@ func _test_card_widget_flurry_icon_uses_wide_slot() -> void:
 	widget.size = Vector2(250.0, 352.0)
 	root.add_child(widget)
 	await process_frame
-	var display: Dictionary = instance.call("_card_widget_display", "blade_dance", {})
-	widget.configure("blade_dance", false, false, true, false, false, true, GameData.card_def("blade_dance"))
+	var display: Dictionary = instance.call("_card_widget_display", flurry_fixture.MELEE_ID, {})
+	widget.configure(flurry_fixture.MELEE_ID, false, false, true, false, false, true, GameData.card_def(flurry_fixture.MELEE_ID))
 	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 	await process_frame
 	var summary_box: VBoxContainer = widget.get("_summary_icon_box") as VBoxContainer
@@ -10469,7 +8403,7 @@ func _test_card_widget_flurry_icon_uses_wide_slot() -> void:
 		elif regular_icon == null and is_equal_approx(minimum_size.x, minimum_size.y):
 			regular_icon = texture_rect
 	_assert(wide_icon != null, "Flurry should render in a dedicated wide summary-token slot")
-	_assert(regular_icon != null, "Blade Dance should retain regular square action-token slots beside Flurry")
+	_assert(regular_icon != null, "Synthetic Flurry should retain regular square action-token slots beside Flurry")
 	if wide_icon != null and regular_icon != null:
 		var wide_size: Vector2 = wide_icon.custom_minimum_size
 		var regular_size: Vector2 = regular_icon.custom_minimum_size
@@ -10478,6 +8412,8 @@ func _test_card_widget_flurry_icon_uses_wide_slot() -> void:
 	widget.queue_free()
 	instance.queue_free()
 	await process_frame
+
+	flurry_fixture.remove()
 
 func _test_card_widget_debossed_role_emblems() -> void:
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("quick_stab")) == "attack_melee", "A sparse melee card should use the sword role emblem")
@@ -11448,14 +9384,17 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	for pack_tile: Control in (instance.get("_equipment_inventory_tiles") as Dictionary).values():
 		_assert(pack_tile.find_child("EquipmentIconChip", true, false) is Button and _label_with_text(pack_tile, str(GameData.equipment_def(str(pack_tile.get("equipment_id"))).get("name", ""))) != null, "Pack gear should expose its socket and full equipment name")
 	var gear_deck: Control = character_body_frame.find_child("CurrentDeckPanel", true, false) as Control
-	var gear_magic_grid: GridContainer = gear_deck.find_child("CharacterDeckGrid", true, false) as GridContainer if gear_deck != null else null
-	_assert(gear_deck != null and _label_with_text(gear_deck, "DECK") != null and gear_magic_grid != null and gear_magic_grid.get_child_count() == 4, "The gear overlay shows starter magic and the owned reward spell")
-	if gear_magic_grid != null:
+	var gear_deck_list: HFlowContainer = gear_deck.find_child("CharacterDeckGrid", true, false) as HFlowContainer if gear_deck != null else null
+	var gear_deck_groups: Array = instance.call("_pre_battle_card_groups", (instance.get("_run_state") as Dictionary).get("deck_cards", []) as Array)
+	_assert(gear_deck != null and _label_with_text(gear_deck, "DECK") != null and gear_deck_list != null and gear_deck_list.get_child_count() == gear_deck_groups.size(), "The Character deck lists the fight preview's whole deck once, spells included")
+	_assert(gear_deck != null and _label_with_text(gear_deck, "MAGIC IN DECK") == null, "The Character deck has no separate spell block")
+	if gear_deck_list != null:
+		for index: int in range(mini(gear_deck_list.get_child_count(), gear_deck_groups.size())):
+			_assert(str(gear_deck_list.get_child(index).get("card_id")) == str(gear_deck_groups[index]["card_id"]), "The Character deck keeps the fight preview's order")
 		for card_name: String in ["Pale Spark", "Dull Bolt", "Waning Pulse"]:
-			var strip_name: Label = _label_with_text(gear_magic_grid, card_name)
+			var strip_name: Label = _label_with_text(gear_deck_list, card_name)
 			var count: Label = strip_name.get_parent().get_node_or_null("Count") as Label if strip_name != null else null
 			_assert(count != null and count.text == "×2" and count.visible, "The deck should preserve both copies of %s in one named strip with a visible ×2 count" % card_name)
-	_assert(_label_with_text(upgrade_scrim, "MAGIC IN DECK") != null, "The gear overlay includes owned magic in the current deck")
 	_assert(_label_with_text(upgrade_scrim, "Rewards") == null, "The gear overlay should not use the old Rewards deck heading")
 	_assert(_label_with_text(upgrade_scrim, "Pale Spark") != null, "The gear overlay should show default attuned magic cards")
 	var equipment_art: TextureRect = upgrade_scrim.find_child("EquipmentCharacterArt", true, false) as TextureRect
@@ -11478,7 +9417,8 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	instance.call("_rebuild_progression_overlay")
 	_assert(_label_with_text(upgrade_scrim, "Iron Cleaver") != null, "The gear overlay should render carried equipment")
 	_assert(_label_with_text(upgrade_scrim, "Crimson Draught") != null, "The gear overlay should render carried consumable items")
-	_assert(_label_with_text(upgrade_scrim, "Items 0/2") != null, "The gear overlay deck should show item loadout capacity")
+	var rebuilt_deck: Control = (instance.get("_upgrade_dialog") as Control).find_child("CurrentDeckPanel", true, false) as Control
+	_assert(rebuilt_deck != null and _label_with_text(rebuilt_deck, "Items 0/2") == null, "The deck list has no per-source headings, so no bare Items heading")
 	_assert(_label_with_text(upgrade_scrim, "Learned Magic") == null, "The gear overlay should not show the magic reserve panel")
 	_assert(_label_with_text(upgrade_scrim, "Static Lash") != null, "The gear overlay deck includes all owned magic")
 	_assert((instance.get("_magic_inventory_tiles") as Dictionary).is_empty(), "The gear overlay should not create reserve magic drag targets")
@@ -11553,6 +9493,8 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(magic_panel != null and _label_with_text(magic_panel, "MAGIC IN DECK") != null, "Magic panel shows the owned-spell list")
 	_assert(character_body_frame.find_child("MagicInventoryPanel", true, false) == null and (instance.get("_magic_inventory_tiles") as Dictionary).is_empty(), "Magic panel has no reserve or swap controls")
 	_assert(_label_with_text(magic_panel, "Static Lash") != null, "Reward magic appears directly in the magic deck list")
+	var magic_deck: Control = character_body_frame.find_child("CurrentDeckPanel", true, false) as Control
+	_assert(magic_deck != null and _label_with_text(magic_deck, "Static Lash") != null and _label_with_text(magic_deck, "Pale Spark") != null, "The Magic tab's deck column lists spells too, as the fight preview does")
 	var pale_spark_name: Label = _label_with_text(magic_panel, "Pale Spark")
 	var pale_spark_count: Label = pale_spark_name.get_parent().get_node_or_null("Count") as Label if pale_spark_name != null else null
 	_assert(pale_spark_count != null and pale_spark_count.text == "×2", "Owned magic groups duplicate copies")

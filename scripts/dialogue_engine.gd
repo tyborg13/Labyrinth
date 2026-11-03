@@ -141,11 +141,4 @@ func boon_dialogue(kind: String) -> Dictionary:
 func heirloom_dialogue(state: Dictionary) -> Dictionary:
 	var ending: Dictionary = state.get(OpeningBoons.HEIRLOOM_END_KEY, {})
 	if ending.has("item"): return boon_dialogue("heirloom_confirmation")
-	var result: Dictionary = boon_dialogue("heirloom_prompt")
-	var options: Array[Dictionary]
-	for slot: String in GameData.equipment_slots():
-		var item: String = str(state.get("equipped_equipment", {}).get(slot, ""))
-		if not item.is_empty(): options.append({"label": GameData.equipment_def(item).get("name", item), "action": "leave_heirloom", "item": item})
-	options.append({"label": OpeningBoons.definitions()["dialogue"]["leave_nothing"], "action": "leave_heirloom", "item": ""})
-	result["lines"][0]["options"] = options
-	return result
+	return boon_dialogue("heirloom_prompt")

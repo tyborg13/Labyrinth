@@ -1,0 +1,1078 @@
+{
+  "ok": false,
+  "errors": [
+    "('front', 'call_the_wind', 10): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 14): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 15): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 16): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 17): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 17): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 18): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 18): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 19): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 19): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 20): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 20): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 21): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 21): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 22): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 22): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 23): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 23): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 24): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 24): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 25): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 25): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 26): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 26): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 27): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 27): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 28): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 28): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 29): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 29): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 30): detached opaque component outside outline exemption",
+    "('front', 'call_the_wind', 30): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 32): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 33): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 35): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 36): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 37): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 39): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 63): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 67): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 7): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 8): new joint-seam hole larger than 1px",
+    "('front', 'call_the_wind', 9): new joint-seam hole larger than 1px",
+    "('front', 'death', 20): new joint-seam hole larger than 1px",
+    "('front', 'death', 22): new joint-seam hole larger than 1px",
+    "('front', 'death', 23): new joint-seam hole larger than 1px",
+    "('front', 'death', 24): new joint-seam hole larger than 1px",
+    "('front', 'death', 25): new joint-seam hole larger than 1px",
+    "('front', 'death', 29): new joint-seam hole larger than 1px",
+    "('front', 'death', 30): new joint-seam hole larger than 1px",
+    "('front', 'death', 33): new joint-seam hole larger than 1px",
+    "('front', 'death', 34): new joint-seam hole larger than 1px",
+    "('front', 'death', 35): detached opaque component outside outline exemption",
+    "('front', 'death', 36): detached opaque component outside outline exemption",
+    "('front', 'death', 36): new joint-seam hole larger than 1px",
+    "('front', 'death', 37): new joint-seam hole larger than 1px",
+    "('front', 'death', 38): new joint-seam hole larger than 1px",
+    "('front', 'death', 39): detached opaque component outside outline exemption",
+    "('front', 'death', 40): detached opaque component outside outline exemption",
+    "('front', 'death', 40): new joint-seam hole larger than 1px",
+    "('front', 'death', 41): detached opaque component outside outline exemption",
+    "('front', 'death', 41): new joint-seam hole larger than 1px",
+    "('front', 'death', 42): detached opaque component outside outline exemption",
+    "('front', 'death', 43): detached opaque component outside outline exemption",
+    "('front', 'death', 43): new joint-seam hole larger than 1px",
+    "('front', 'death', 44): detached opaque component outside outline exemption",
+    "('front', 'death', 44): new joint-seam hole larger than 1px",
+    "('front', 'death', 45): detached opaque component outside outline exemption",
+    "('front', 'death', 45): new joint-seam hole larger than 1px",
+    "('front', 'death', 46): detached opaque component outside outline exemption",
+    "('front', 'death', 46): new joint-seam hole larger than 1px",
+    "('front', 'death', 47): detached opaque component outside outline exemption",
+    "('front', 'death', 47): new joint-seam hole larger than 1px",
+    "('front', 'death', 48): detached opaque component outside outline exemption",
+    "('front', 'death', 48): new joint-seam hole larger than 1px",
+    "('front', 'death', 49): detached opaque component outside outline exemption",
+    "('front', 'death', 49): new joint-seam hole larger than 1px",
+    "('front', 'death', 50): detached opaque component outside outline exemption",
+    "('front', 'death', 50): new joint-seam hole larger than 1px",
+    "('front', 'death', 51): detached opaque component outside outline exemption",
+    "('front', 'death', 51): new joint-seam hole larger than 1px",
+    "('front', 'death', 52): detached opaque component outside outline exemption",
+    "('front', 'death', 52): new joint-seam hole larger than 1px",
+    "('front', 'death', 53): detached opaque component outside outline exemption",
+    "('front', 'death', 53): new joint-seam hole larger than 1px",
+    "('front', 'death', 54): detached opaque component outside outline exemption",
+    "('front', 'death', 54): new joint-seam hole larger than 1px",
+    "('front', 'death', 55): detached opaque component outside outline exemption",
+    "('front', 'death', 55): new joint-seam hole larger than 1px",
+    "('front', 'death', 56): detached opaque component outside outline exemption",
+    "('front', 'death', 56): new joint-seam hole larger than 1px",
+    "('front', 'death', 57): detached opaque component outside outline exemption",
+    "('front', 'death', 57): new joint-seam hole larger than 1px",
+    "('front', 'death', 58): detached opaque component outside outline exemption",
+    "('front', 'death', 58): new joint-seam hole larger than 1px",
+    "('front', 'death', 59): detached opaque component outside outline exemption",
+    "('front', 'death', 59): new joint-seam hole larger than 1px",
+    "('front', 'death', 6): new joint-seam hole larger than 1px",
+    "('front', 'death', 60): detached opaque component outside outline exemption",
+    "('front', 'death', 60): new joint-seam hole larger than 1px",
+    "('front', 'death', 61): detached opaque component outside outline exemption",
+    "('front', 'death', 61): new joint-seam hole larger than 1px",
+    "('front', 'death', 62): detached opaque component outside outline exemption",
+    "('front', 'death', 62): new joint-seam hole larger than 1px",
+    "('front', 'death', 63): detached opaque component outside outline exemption",
+    "('front', 'death', 63): new joint-seam hole larger than 1px",
+    "('front', 'death', 64): detached opaque component outside outline exemption",
+    "('front', 'death', 64): new joint-seam hole larger than 1px",
+    "('front', 'death', 65): detached opaque component outside outline exemption",
+    "('front', 'death', 65): new joint-seam hole larger than 1px",
+    "('front', 'death', 66): detached opaque component outside outline exemption",
+    "('front', 'death', 66): new joint-seam hole larger than 1px",
+    "('front', 'death', 67): detached opaque component outside outline exemption",
+    "('front', 'death', 67): new joint-seam hole larger than 1px",
+    "('front', 'death', 68): detached opaque component outside outline exemption",
+    "('front', 'death', 68): new joint-seam hole larger than 1px",
+    "('front', 'death', 69): detached opaque component outside outline exemption",
+    "('front', 'death', 69): new joint-seam hole larger than 1px",
+    "('front', 'death', 7): new joint-seam hole larger than 1px",
+    "('front', 'death', 70): detached opaque component outside outline exemption",
+    "('front', 'death', 71): detached opaque component outside outline exemption",
+    "('front', 'death', 72): detached opaque component outside outline exemption",
+    "('front', 'death', 73): detached opaque component outside outline exemption",
+    "('front', 'death', 73): new joint-seam hole larger than 1px",
+    "('front', 'death', 74): detached opaque component outside outline exemption",
+    "('front', 'death', 74): new joint-seam hole larger than 1px",
+    "('front', 'death', 75): detached opaque component outside outline exemption",
+    "('front', 'death', 75): new joint-seam hole larger than 1px",
+    "('front', 'death', 76): detached opaque component outside outline exemption",
+    "('front', 'death', 76): new joint-seam hole larger than 1px",
+    "('front', 'death', 77): detached opaque component outside outline exemption",
+    "('front', 'death', 77): new joint-seam hole larger than 1px",
+    "('front', 'death', 78): detached opaque component outside outline exemption",
+    "('front', 'death', 78): new joint-seam hole larger than 1px",
+    "('front', 'death', 79): detached opaque component outside outline exemption",
+    "('front', 'death', 79): new joint-seam hole larger than 1px",
+    "('front', 'death', 80): detached opaque component outside outline exemption",
+    "('front', 'death', 80): new joint-seam hole larger than 1px",
+    "('front', 'death', 81): detached opaque component outside outline exemption",
+    "('front', 'death', 81): new joint-seam hole larger than 1px",
+    "('front', 'death', 82): detached opaque component outside outline exemption",
+    "('front', 'death', 82): new joint-seam hole larger than 1px",
+    "('front', 'death', 83): detached opaque component outside outline exemption",
+    "('front', 'death', 83): new joint-seam hole larger than 1px",
+    "('front', 'death', 84): detached opaque component outside outline exemption",
+    "('front', 'death', 84): new joint-seam hole larger than 1px",
+    "('front', 'death', 85): detached opaque component outside outline exemption",
+    "('front', 'death', 85): new joint-seam hole larger than 1px",
+    "('front', 'death', 86): detached opaque component outside outline exemption",
+    "('front', 'death', 86): new joint-seam hole larger than 1px",
+    "('front', 'death', 87): detached opaque component outside outline exemption",
+    "('front', 'death', 87): new joint-seam hole larger than 1px",
+    "('front', 'death', 88): detached opaque component outside outline exemption",
+    "('front', 'death', 88): new joint-seam hole larger than 1px",
+    "('front', 'death', 89): detached opaque component outside outline exemption",
+    "('front', 'death', 89): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 10): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 11): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 12): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 13): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 14): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 15): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 17): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 18): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 20): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 21): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 22): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 23): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 24): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 31): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 32): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 33): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 34): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 35): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 36): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 37): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 38): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 5): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 6): new joint-seam hole larger than 1px",
+    "('front', 'gust_bolt', 7): new joint-seam hole larger than 1px",
+    "('front', 'hit', 12): new joint-seam hole larger than 1px",
+    "('front', 'hit', 13): new joint-seam hole larger than 1px",
+    "('front', 'hit', 14): new joint-seam hole larger than 1px",
+    "('front', 'hit', 2): new joint-seam hole larger than 1px",
+    "('front', 'hit', 4): detached opaque component outside outline exemption",
+    "('front', 'hit', 4): new joint-seam hole larger than 1px",
+    "('front', 'hit', 5): detached opaque component outside outline exemption",
+    "('front', 'hit', 5): new joint-seam hole larger than 1px",
+    "('front', 'hit', 6): detached opaque component outside outline exemption",
+    "('front', 'hit', 6): new joint-seam hole larger than 1px",
+    "('front', 'hit', 7): detached opaque component outside outline exemption",
+    "('front', 'hit', 7): new joint-seam hole larger than 1px",
+    "('front', 'hit', 8): detached opaque component outside outline exemption",
+    "('front', 'hit', 8): new joint-seam hole larger than 1px",
+    "('front', 'hit', 9): detached opaque component outside outline exemption",
+    "('front', 'hit', 9): new joint-seam hole larger than 1px",
+    "('front', 'move', 1): new joint-seam hole larger than 1px",
+    "('front', 'move', 2): new joint-seam hole larger than 1px",
+    "('front', 'move', 22): detached opaque component outside outline exemption",
+    "('front', 'move', 23): detached opaque component outside outline exemption",
+    "('front', 'move', 24): detached opaque component outside outline exemption",
+    "('front', 'move', 25): detached opaque component outside outline exemption",
+    "('front', 'move', 26): detached opaque component outside outline exemption",
+    "('front', 'move', 27): detached opaque component outside outline exemption",
+    "('front', 'move', 28): detached opaque component outside outline exemption",
+    "('front', 'move', 29): detached opaque component outside outline exemption",
+    "('front', 'move', 3): new joint-seam hole larger than 1px",
+    "('front', 'move', 30): detached opaque component outside outline exemption",
+    "('front', 'move', 46): detached opaque component outside outline exemption",
+    "('front', 'move', 47): detached opaque component outside outline exemption",
+    "('front', 'move', 48): detached opaque component outside outline exemption",
+    "('front', 'move', 48): new joint-seam hole larger than 1px",
+    "('front', 'move', 49): detached opaque component outside outline exemption",
+    "('front', 'move', 5): detached opaque component outside outline exemption",
+    "('front', 'move', 50): new joint-seam hole larger than 1px",
+    "('front', 'move', 51): new joint-seam hole larger than 1px",
+    "('front', 'move', 6): detached opaque component outside outline exemption",
+    "('front', 'move', 7): detached opaque component outside outline exemption",
+    "('front', 'move', 8): detached opaque component outside outline exemption",
+    "('front', 'still_air', 10): new joint-seam hole larger than 1px",
+    "('front', 'still_air', 12): new joint-seam hole larger than 1px",
+    "('front', 'still_air', 13): new joint-seam hole larger than 1px",
+    "('front', 'still_air', 21): new joint-seam hole larger than 1px",
+    "('front', 'still_air', 22): new joint-seam hole larger than 1px",
+    "('front', 'still_air', 48): new joint-seam hole larger than 1px",
+    "('front', 'still_air', 49): new joint-seam hole larger than 1px",
+    "('front', 'still_air', 9): new joint-seam hole larger than 1px",
+    "('rear', 'death', 41): new joint-seam hole larger than 1px",
+    "('rear', 'death', 42): new joint-seam hole larger than 1px",
+    "('rear', 'death', 43): new joint-seam hole larger than 1px",
+    "('rear', 'death', 44): new joint-seam hole larger than 1px",
+    "('rear', 'death', 45): new joint-seam hole larger than 1px",
+    "('rear', 'death', 46): new joint-seam hole larger than 1px",
+    "('rear', 'death', 47): new joint-seam hole larger than 1px",
+    "('rear', 'death', 48): new joint-seam hole larger than 1px",
+    "('rear', 'death', 49): new joint-seam hole larger than 1px",
+    "('rear', 'death', 50): new joint-seam hole larger than 1px",
+    "('rear', 'death', 51): new joint-seam hole larger than 1px",
+    "('rear', 'death', 52): new joint-seam hole larger than 1px",
+    "('rear', 'death', 53): new joint-seam hole larger than 1px",
+    "('rear', 'death', 54): new joint-seam hole larger than 1px",
+    "('rear', 'death', 55): detached opaque component outside outline exemption",
+    "('rear', 'death', 55): new joint-seam hole larger than 1px",
+    "('rear', 'death', 56): detached opaque component outside outline exemption",
+    "('rear', 'death', 56): new joint-seam hole larger than 1px",
+    "('rear', 'death', 57): detached opaque component outside outline exemption",
+    "('rear', 'death', 57): new joint-seam hole larger than 1px",
+    "('rear', 'death', 58): detached opaque component outside outline exemption",
+    "('rear', 'death', 58): new joint-seam hole larger than 1px",
+    "('rear', 'death', 59): detached opaque component outside outline exemption",
+    "('rear', 'death', 62): new joint-seam hole larger than 1px",
+    "('rear', 'death', 65): new joint-seam hole larger than 1px",
+    "('rear', 'death', 66): detached opaque component outside outline exemption",
+    "('rear', 'death', 66): new joint-seam hole larger than 1px",
+    "('rear', 'death', 67): detached opaque component outside outline exemption",
+    "('rear', 'move', 28): new joint-seam hole larger than 1px",
+    "('rear', 'still_air', 19): new joint-seam hole larger than 1px",
+    "('rear', 'still_air', 20): new joint-seam hole larger than 1px",
+    "('rear', 'still_air', 45): new joint-seam hole larger than 1px"
+  ],
+  "views": {
+    "front": {
+      "cut_errors": [],
+      "bone_errors": [],
+      "direction": {
+        "ok": true,
+        "errors": [],
+        "positive_checks": 455,
+        "clip_positive_checks": {
+          "move": 48,
+          "call_the_wind": 168,
+          "still_air": 60,
+          "hit": 30,
+          "death": 107,
+          "gust_bolt": 42
+        },
+        "minimum_forward_channel_dot": 0.0015695057217913256,
+        "body_positive_checks": {
+          "gust_bolt": 42
+        }
+      },
+      "reach": {
+        "ok": true,
+        "errors": [],
+        "overreach": [
+          "front/death/hand_near: maximum reach 79.917479 px > 73.581160 px at 1.000000",
+          "front/move/foot_far: maximum reach 55.323644 px > 48.634416 px at 0.272000",
+          "front/move/foot_near: maximum reach 79.281402 px > 78.116711 px at 0.879000"
+        ],
+        "paths": [
+          {
+            "clip": "move",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              43.603325561245896,
+              28.53506614676055
+            ],
+            "samples": 1014,
+            "allowed_minimum_px": 19.068259414485347,
+            "allowed_maximum_px": 73.58115954216659,
+            "minimum_px": 71.25576617551037,
+            "maximum_px": 71.89308580622343,
+            "minimum_phase": 0.48,
+            "maximum_phase": 0.68
+          },
+          {
+            "clip": "move",
+            "target": "foot_near",
+            "chain": {
+              "first": "thigh_near",
+              "second": "shin_near",
+              "target": "foot_near"
+            },
+            "segment_lengths": [
+              39.81205847478876,
+              36.77295201639379
+            ],
+            "samples": 1014,
+            "allowed_minimum_px": 7.039106458394976,
+            "allowed_maximum_px": 78.1167107010062,
+            "minimum_px": 63.89054689864033,
+            "maximum_px": 79.2814019260155,
+            "minimum_phase": 0.368,
+            "maximum_phase": 0.879
+          },
+          {
+            "clip": "move",
+            "target": "foot_far",
+            "chain": {
+              "first": "thigh_far",
+              "second": "shin_far",
+              "target": "foot_far"
+            },
+            "segment_lengths": [
+              26.800186566514792,
+              20.8806130178211
+            ],
+            "samples": 1014,
+            "allowed_minimum_px": 9.919573548693691,
+            "allowed_maximum_px": 48.63441557602261,
+            "minimum_px": 34.63551266852292,
+            "maximum_px": 55.323643901540315,
+            "minimum_phase": 0.146,
+            "maximum_phase": 0.272
+          },
+          {
+            "clip": "call_the_wind",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              43.603325561245896,
+              28.53506614676055
+            ],
+            "samples": 1002,
+            "allowed_minimum_px": 19.068259414485347,
+            "allowed_maximum_px": 73.58115954216659,
+            "minimum_px": 62.82965814026045,
+            "maximum_px": 71.5122367151245,
+            "minimum_phase": 0.6,
+            "maximum_phase": 0.0
+          },
+          {
+            "clip": "call_the_wind",
+            "target": "hand_far",
+            "chain": {
+              "first": "upper_far",
+              "second": "fore_far",
+              "target": "hand_far"
+            },
+            "segment_lengths": [
+              20.20585465898436,
+              43.531184942521385
+            ],
+            "samples": 1002,
+            "allowed_minimum_px": 27.325330283537024,
+            "allowed_maximum_px": 65.01178039353586,
+            "minimum_px": 27.416065089651358,
+            "maximum_px": 32.30535477626167,
+            "minimum_phase": 0.0,
+            "maximum_phase": 0.6
+          },
+          {
+            "clip": "gust_bolt",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              43.603325561245896,
+              28.53506614676055
+            ],
+            "samples": 1002,
+            "allowed_minimum_px": 19.068259414485347,
+            "allowed_maximum_px": 73.58115954216659,
+            "minimum_px": 71.19816676721392,
+            "maximum_px": 71.5122367151245,
+            "minimum_phase": 0.45,
+            "maximum_phase": 0.0
+          },
+          {
+            "clip": "still_air",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              43.603325561245896,
+              28.53506614676055
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 19.068259414485347,
+            "allowed_maximum_px": 73.58115954216659,
+            "minimum_px": 59.043201890124486,
+            "maximum_px": 71.5122367151245,
+            "minimum_phase": 0.5,
+            "maximum_phase": 0.0
+          },
+          {
+            "clip": "hit",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              43.603325561245896,
+              28.53506614676055
+            ],
+            "samples": 1002,
+            "allowed_minimum_px": 19.068259414485347,
+            "allowed_maximum_px": 73.58115954216659,
+            "minimum_px": 71.5122367151245,
+            "maximum_px": 71.62545121845307,
+            "minimum_phase": 0.0,
+            "maximum_phase": 0.25
+          },
+          {
+            "clip": "death",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              43.603325561245896,
+              28.53506614676055
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 19.068259414485347,
+            "allowed_maximum_px": 73.58115954216659,
+            "minimum_px": 71.5122367151245,
+            "maximum_px": 79.91747868191908,
+            "minimum_phase": 0.0,
+            "maximum_phase": 1.0
+          }
+        ],
+        "dense_intervals": 1000,
+        "minimum_margin_px": 4.0,
+        "minimum_phase_resolution": 1e-06,
+        "maximum_overshoot": 0.02,
+        "step_distance_px": 83.5249328613281,
+        "screen_pixel_scale": 0.603514787262561
+      },
+      "walk": {
+        "ok": true,
+        "errors": [],
+        "swings": [
+          {
+            "side": "near",
+            "start": 0.0,
+            "end": 0.08000000000000002,
+            "from": 0.0,
+            "to": 0.2,
+            "peak_frame": 2,
+            "peak_bend_deg": 59.08518399804732,
+            "apex_frame": 2,
+            "apex_swing_bend_deg": 59.08518399804732,
+            "apex_stance_bend_deg": 29.998681539528512
+          },
+          {
+            "side": "far",
+            "start": 0.12,
+            "end": 0.28,
+            "from": 0.0,
+            "to": 0.4,
+            "peak_frame": 10,
+            "peak_bend_deg": 68.57021538691455,
+            "apex_frame": 11,
+            "apex_swing_bend_deg": 62.349931203424596,
+            "apex_stance_bend_deg": 41.750888439279315
+          },
+          {
+            "side": "near",
+            "start": 0.32,
+            "end": 0.48,
+            "from": 0.2,
+            "to": 0.6,
+            "peak_frame": 21,
+            "peak_bend_deg": 62.029221266381235,
+            "apex_frame": 21,
+            "apex_swing_bend_deg": 62.029221266381235,
+            "apex_stance_bend_deg": 34.80846254649913
+          },
+          {
+            "side": "far",
+            "start": 0.52,
+            "end": 0.68,
+            "from": 0.4,
+            "to": 0.8,
+            "peak_frame": 31,
+            "peak_bend_deg": 71.82908515833711,
+            "apex_frame": 32,
+            "apex_swing_bend_deg": 67.78240573048168,
+            "apex_stance_bend_deg": 41.750911704243535
+          },
+          {
+            "side": "near",
+            "start": 0.72,
+            "end": 0.88,
+            "from": 0.6,
+            "to": 1.0,
+            "peak_frame": 43,
+            "peak_bend_deg": 56.187755597118944,
+            "apex_frame": 42,
+            "apex_swing_bend_deg": 55.52828867264129,
+            "apex_stance_bend_deg": 34.80852965498631
+          },
+          {
+            "side": "far",
+            "start": 0.92,
+            "end": 1.0,
+            "from": 0.8,
+            "to": 1.0,
+            "peak_frame": 51,
+            "peak_bend_deg": 70.476198310792,
+            "apex_frame": 51,
+            "apex_swing_bend_deg": 70.476198310792,
+            "apex_stance_bend_deg": 27.070248051182492
+          }
+        ],
+        "minimum_peak_bend_deg": 56.187755597118944,
+        "maximum_fit_px": 0.17126293900022915,
+        "maximum_total_pelvis_drop_px": 3.0000000000000098,
+        "maximum_rigid_air_px": 0.0,
+        "maximum_stance_frame_change_px": 0.0,
+        "maximum_stance_target_error_px": 0.559994869499515,
+        "sample_counts": {
+          "frames": 130,
+          "stance": 166,
+          "rigid_air": 0
+        },
+        "rigid_air_failures": []
+      },
+      "supports": {
+        "ok": true,
+        "errors": [],
+        "swings": [
+          {
+            "side": "near",
+            "start": 0.0,
+            "end": 0.08000000000000002,
+            "from": 0.0,
+            "to": 0.2,
+            "peak_frame": 2,
+            "peak_bend_deg": 59.08518399804732,
+            "apex_frame": 2,
+            "apex_swing_bend_deg": 59.08518399804732,
+            "apex_stance_bend_deg": 29.998681539528512
+          },
+          {
+            "side": "far",
+            "start": 0.12,
+            "end": 0.28,
+            "from": 0.0,
+            "to": 0.4,
+            "peak_frame": 10,
+            "peak_bend_deg": 68.57021538691455,
+            "apex_frame": 11,
+            "apex_swing_bend_deg": 62.349931203424596,
+            "apex_stance_bend_deg": 41.750888439279315
+          },
+          {
+            "side": "near",
+            "start": 0.32,
+            "end": 0.48,
+            "from": 0.2,
+            "to": 0.6,
+            "peak_frame": 21,
+            "peak_bend_deg": 62.029221266381235,
+            "apex_frame": 21,
+            "apex_swing_bend_deg": 62.029221266381235,
+            "apex_stance_bend_deg": 34.80846254649913
+          },
+          {
+            "side": "far",
+            "start": 0.52,
+            "end": 0.68,
+            "from": 0.4,
+            "to": 0.8,
+            "peak_frame": 31,
+            "peak_bend_deg": 71.82908515833711,
+            "apex_frame": 32,
+            "apex_swing_bend_deg": 67.78240573048168,
+            "apex_stance_bend_deg": 41.750911704243535
+          },
+          {
+            "side": "near",
+            "start": 0.72,
+            "end": 0.88,
+            "from": 0.6,
+            "to": 1.0,
+            "peak_frame": 43,
+            "peak_bend_deg": 56.187755597118944,
+            "apex_frame": 42,
+            "apex_swing_bend_deg": 55.52828867264129,
+            "apex_stance_bend_deg": 34.80852965498631
+          },
+          {
+            "side": "far",
+            "start": 0.92,
+            "end": 1.0,
+            "from": 0.8,
+            "to": 1.0,
+            "peak_frame": 51,
+            "peak_bend_deg": 70.476198310792,
+            "apex_frame": 51,
+            "apex_swing_bend_deg": 70.476198310792,
+            "apex_stance_bend_deg": 27.070248051182492
+          }
+        ],
+        "minimum_peak_bend_deg": 56.187755597118944,
+        "maximum_fit_px": 0.17126293900022915,
+        "maximum_total_pelvis_drop_px": 3.0000000000000098,
+        "maximum_rigid_air_px": 0.0,
+        "maximum_stance_frame_change_px": 0.0,
+        "maximum_stance_target_error_px": 0.559994869499515,
+        "maximum_jab_frame_change_px": 0.0,
+        "maximum_jab_target_error_px": 4.315837271437802e-05,
+        "maximum_target_error_px": 0.559994869499515,
+        "maximum_frame_change_px": 0.0,
+        "sample_counts": {
+          "frames": 130,
+          "stance": 166,
+          "rigid_air": 0,
+          "jab": 526
+        },
+        "rigid_air_failures": []
+      }
+    },
+    "rear": {
+      "cut_errors": [],
+      "bone_errors": [],
+      "direction": {
+        "ok": true,
+        "errors": [],
+        "positive_checks": 455,
+        "clip_positive_checks": {
+          "move": 48,
+          "call_the_wind": 168,
+          "still_air": 60,
+          "hit": 30,
+          "death": 107,
+          "gust_bolt": 42
+        },
+        "minimum_forward_channel_dot": 0.001555857845736014,
+        "body_positive_checks": {
+          "gust_bolt": 42
+        }
+      },
+      "reach": {
+        "ok": true,
+        "errors": [],
+        "overreach": [
+          "rear/death/hand_near: maximum reach 63.191145 px > 61.239872 px at 1.000000",
+          "rear/gust_bolt/hand_near: maximum reach 62.682388 px > 61.239872 px at 0.450000",
+          "rear/move/foot_far: maximum reach 84.263341 px > 79.568899 px at 0.921000",
+          "rear/move/foot_near: maximum reach 70.411050 px > 68.417065 px at 0.727000",
+          "rear/move/hand_near: maximum reach 61.879409 px > 61.239872 px at 0.480000"
+        ],
+        "paths": [
+          {
+            "clip": "move",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              38.33079701754191,
+              21.70829334609241
+            ],
+            "samples": 1014,
+            "allowed_minimum_px": 20.6225036714495,
+            "allowed_maximum_px": 61.23987217090701,
+            "minimum_px": 57.192121104292205,
+            "maximum_px": 61.879409205259655,
+            "minimum_phase": 0.28,
+            "maximum_phase": 0.48
+          },
+          {
+            "clip": "move",
+            "target": "foot_near",
+            "chain": {
+              "first": "thigh_near",
+              "second": "shin_near",
+              "target": "foot_near"
+            },
+            "segment_lengths": [
+              37.12142238654117,
+              29.95413160150032
+            ],
+            "samples": 1014,
+            "allowed_minimum_px": 11.167290785040851,
+            "allowed_maximum_px": 68.41706506780233,
+            "minimum_px": 50.89995774760176,
+            "maximum_px": 70.41104989946592,
+            "minimum_phase": 0.052000000000000005,
+            "maximum_phase": 0.727
+          },
+          {
+            "clip": "move",
+            "target": "foot_far",
+            "chain": {
+              "first": "thigh_far",
+              "second": "shin_far",
+              "target": "foot_far"
+            },
+            "segment_lengths": [
+              39.53795644693843,
+              38.47076812334269
+            ],
+            "samples": 1014,
+            "allowed_minimum_px": 5.067188323595744,
+            "allowed_maximum_px": 79.56889906168674,
+            "minimum_px": 68.417575324124,
+            "maximum_px": 84.2633413415073,
+            "minimum_phase": 0.629,
+            "maximum_phase": 0.921
+          },
+          {
+            "clip": "call_the_wind",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              38.33079701754191,
+              21.70829334609241
+            ],
+            "samples": 1002,
+            "allowed_minimum_px": 20.6225036714495,
+            "allowed_maximum_px": 61.23987217090701,
+            "minimum_px": 45.744322754589405,
+            "maximum_px": 59.50630218724736,
+            "minimum_phase": 0.6,
+            "maximum_phase": 0.0
+          },
+          {
+            "clip": "call_the_wind",
+            "target": "hand_far",
+            "chain": {
+              "first": "upper_far",
+              "second": "fore_far",
+              "target": "hand_far"
+            },
+            "segment_lengths": [
+              25.57395171360891,
+              27.64019050676027
+            ],
+            "samples": 1002,
+            "allowed_minimum_px": 6.06623879315136,
+            "allowed_maximum_px": 54.27842506477657,
+            "minimum_px": 45.64965087489717,
+            "maximum_px": 53.13158082463867,
+            "minimum_phase": 0.0,
+            "maximum_phase": 0.6
+          },
+          {
+            "clip": "gust_bolt",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              38.33079701754191,
+              21.70829334609241
+            ],
+            "samples": 1002,
+            "allowed_minimum_px": 20.6225036714495,
+            "allowed_maximum_px": 61.23987217090701,
+            "minimum_px": 59.50630218724736,
+            "maximum_px": 62.682387569842646,
+            "minimum_phase": 0.0,
+            "maximum_phase": 0.45
+          },
+          {
+            "clip": "still_air",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              38.33079701754191,
+              21.70829334609241
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 20.6225036714495,
+            "allowed_maximum_px": 61.23987217090701,
+            "minimum_px": 42.16644776193561,
+            "maximum_px": 59.50630218724736,
+            "minimum_phase": 0.5,
+            "maximum_phase": 0.0
+          },
+          {
+            "clip": "hit",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              38.33079701754191,
+              21.70829334609241
+            ],
+            "samples": 1002,
+            "allowed_minimum_px": 20.6225036714495,
+            "allowed_maximum_px": 61.23987217090701,
+            "minimum_px": 58.72801352111279,
+            "maximum_px": 59.50630218724736,
+            "minimum_phase": 0.25,
+            "maximum_phase": 0.0
+          },
+          {
+            "clip": "death",
+            "target": "hand_near",
+            "chain": {
+              "first": "upper_near",
+              "second": "fore_near",
+              "target": "hand_near"
+            },
+            "segment_lengths": [
+              38.33079701754191,
+              21.70829334609241
+            ],
+            "samples": 1001,
+            "allowed_minimum_px": 20.6225036714495,
+            "allowed_maximum_px": 61.23987217090701,
+            "minimum_px": 59.50630218724736,
+            "maximum_px": 63.1911447359521,
+            "minimum_phase": 0.0,
+            "maximum_phase": 1.0
+          }
+        ],
+        "dense_intervals": 1000,
+        "minimum_margin_px": 4.0,
+        "minimum_phase_resolution": 1e-06,
+        "maximum_overshoot": 0.02,
+        "step_distance_px": 83.5249328613281,
+        "screen_pixel_scale": 0.603514787262561
+      },
+      "walk": {
+        "ok": true,
+        "errors": [],
+        "swings": [
+          {
+            "side": "near",
+            "start": 0.0,
+            "end": 0.08000000000000002,
+            "from": 0.0,
+            "to": 0.2,
+            "peak_frame": 2,
+            "peak_bend_deg": 66.99115789362521,
+            "apex_frame": 2,
+            "apex_swing_bend_deg": 66.99115789362521,
+            "apex_stance_bend_deg": 18.232866497737007
+          },
+          {
+            "side": "far",
+            "start": 0.12,
+            "end": 0.28,
+            "from": 0.0,
+            "to": 0.4,
+            "peak_frame": 10,
+            "peak_bend_deg": 48.75573841709008,
+            "apex_frame": 11,
+            "apex_swing_bend_deg": 47.84844076780391,
+            "apex_stance_bend_deg": 46.74854182156253
+          },
+          {
+            "side": "near",
+            "start": 0.32,
+            "end": 0.48,
+            "from": 0.2,
+            "to": 0.6,
+            "peak_frame": 22,
+            "peak_bend_deg": 69.61383222752943,
+            "apex_frame": 21,
+            "apex_swing_bend_deg": 66.62426547851129,
+            "apex_stance_bend_deg": 23.151241719015648
+          },
+          {
+            "side": "far",
+            "start": 0.52,
+            "end": 0.68,
+            "from": 0.4,
+            "to": 0.8,
+            "peak_frame": 32,
+            "peak_bend_deg": 51.331313945471756,
+            "apex_frame": 32,
+            "apex_swing_bend_deg": 51.331313945471756,
+            "apex_stance_bend_deg": 43.591382050218144
+          },
+          {
+            "side": "near",
+            "start": 0.72,
+            "end": 0.88,
+            "from": 0.6,
+            "to": 1.0,
+            "peak_frame": 43,
+            "peak_bend_deg": 62.88405578177768,
+            "apex_frame": 42,
+            "apex_swing_bend_deg": 60.255126840204774,
+            "apex_stance_bend_deg": 23.551351606915482
+          },
+          {
+            "side": "far",
+            "start": 0.92,
+            "end": 1.0,
+            "from": 0.8,
+            "to": 1.0,
+            "peak_frame": 51,
+            "peak_bend_deg": 47.4680205086451,
+            "apex_frame": 51,
+            "apex_swing_bend_deg": 47.4680205086451,
+            "apex_stance_bend_deg": 31.35974389555902
+          }
+        ],
+        "minimum_peak_bend_deg": 47.4680205086451,
+        "maximum_fit_px": 0.1005893119594532,
+        "maximum_total_pelvis_drop_px": 2.9999999999999893,
+        "maximum_rigid_air_px": 0.0,
+        "maximum_stance_frame_change_px": 0.0,
+        "maximum_stance_target_error_px": 0.5599684151618203,
+        "sample_counts": {
+          "frames": 130,
+          "stance": 166,
+          "rigid_air": 0
+        },
+        "rigid_air_failures": []
+      },
+      "supports": {
+        "ok": true,
+        "errors": [],
+        "swings": [
+          {
+            "side": "near",
+            "start": 0.0,
+            "end": 0.08000000000000002,
+            "from": 0.0,
+            "to": 0.2,
+            "peak_frame": 2,
+            "peak_bend_deg": 66.99115789362521,
+            "apex_frame": 2,
+            "apex_swing_bend_deg": 66.99115789362521,
+            "apex_stance_bend_deg": 18.232866497737007
+          },
+          {
+            "side": "far",
+            "start": 0.12,
+            "end": 0.28,
+            "from": 0.0,
+            "to": 0.4,
+            "peak_frame": 10,
+            "peak_bend_deg": 48.75573841709008,
+            "apex_frame": 11,
+            "apex_swing_bend_deg": 47.84844076780391,
+            "apex_stance_bend_deg": 46.74854182156253
+          },
+          {
+            "side": "near",
+            "start": 0.32,
+            "end": 0.48,
+            "from": 0.2,
+            "to": 0.6,
+            "peak_frame": 22,
+            "peak_bend_deg": 69.61383222752943,
+            "apex_frame": 21,
+            "apex_swing_bend_deg": 66.62426547851129,
+            "apex_stance_bend_deg": 23.151241719015648
+          },
+          {
+            "side": "far",
+            "start": 0.52,
+            "end": 0.68,
+            "from": 0.4,
+            "to": 0.8,
+            "peak_frame": 32,
+            "peak_bend_deg": 51.331313945471756,
+            "apex_frame": 32,
+            "apex_swing_bend_deg": 51.331313945471756,
+            "apex_stance_bend_deg": 43.591382050218144
+          },
+          {
+            "side": "near",
+            "start": 0.72,
+            "end": 0.88,
+            "from": 0.6,
+            "to": 1.0,
+            "peak_frame": 43,
+            "peak_bend_deg": 62.88405578177768,
+            "apex_frame": 42,
+            "apex_swing_bend_deg": 60.255126840204774,
+            "apex_stance_bend_deg": 23.551351606915482
+          },
+          {
+            "side": "far",
+            "start": 0.92,
+            "end": 1.0,
+            "from": 0.8,
+            "to": 1.0,
+            "peak_frame": 51,
+            "peak_bend_deg": 47.4680205086451,
+            "apex_frame": 51,
+            "apex_swing_bend_deg": 47.4680205086451,
+            "apex_stance_bend_deg": 31.35974389555902
+          }
+        ],
+        "minimum_peak_bend_deg": 47.4680205086451,
+        "maximum_fit_px": 0.1005893119594532,
+        "maximum_total_pelvis_drop_px": 2.9999999999999893,
+        "maximum_rigid_air_px": 0.0,
+        "maximum_stance_frame_change_px": 0.0,
+        "maximum_stance_target_error_px": 0.5599684151618203,
+        "maximum_jab_frame_change_px": 0.0,
+        "maximum_jab_target_error_px": 3.0517578011313162e-05,
+        "maximum_target_error_px": 0.5599684151618203,
+        "maximum_frame_change_px": 0.0,
+        "sample_counts": {
+          "frames": 130,
+          "stance": 166,
+          "rigid_air": 0,
+          "jab": 526
+        },
+        "rigid_air_failures": []
+      }
+    }
+  },
+  "design_placeholders": {},
+  "native_pixels": true,
+  "production_ready": false,
+  "reach_policy": "overreach reported; inside-minimum targets fail"
+}

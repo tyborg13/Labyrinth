@@ -1,0 +1,61 @@
+{
+  "full_exit_code": 124,
+  "timeout_seconds": 900,
+  "main_body_seconds": 741.956,
+  "main_body_assertions": 495806,
+  "programs_total": 252,
+  "programs_passed": 154,
+  "programs_failed": [
+    {
+      "name": "threats_at_rest_test",
+      "returncode": 1,
+      "seconds": 111.385,
+      "log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/11-threats_at_rest_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/11/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "suites/sfx_sync_0_program",
+      "returncode": 124,
+      "seconds": 180.362,
+      "log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/19-suites-sfx_sync_0_program.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/19/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "suites/sfx_sync_1_program",
+      "returncode": 124,
+      "seconds": 180.582,
+      "log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/20-suites-sfx_sync_1_program.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/20/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "suites/full_scene_controls_program",
+      "returncode": 124,
+      "seconds": 180.561,
+      "log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/38-suites-full_scene_controls_program.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/38/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "card_display_performance_test",
+      "returncode": 1,
+      "seconds": 11.543,
+      "log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/61-card_display_performance_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/61/godot.log",
+      "reason": ""
+    }
+  ],
+  "programs_interrupted": 93,
+  "main_final_failure_list": "not emitted before the 900 s budget timeout; main-body counters alone are not a PASS",
+  "standalone_affected_programs_passed": 24,
+  "standalone_failed_or_timed_out_programs_passed": 5,
+  "standalone_total_passed": 29,
+  "standalone_nonzero": 0
+}

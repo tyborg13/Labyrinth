@@ -1,0 +1,17 @@
+--- a/scripts/maquette_cutout_runtime/stable_skin.gd
++++ b/scripts/maquette_cutout_runtime/stable_skin.gd
+@@ -68,12 +68,12 @@
+ 	var pair_groups: Dictionary = {}
+ 	for vertex: int in range(offsets.size() - 1):
+ 		var start: int = offsets[vertex]
+-		if offsets[vertex + 1] - start == 1 and weights[start] == 1.0:
++		if vertex % 4 != 0 and offsets[vertex + 1] - start == 1 and weights[start] == 1.0:
+ 			var group: Dictionary = singles[bones[start] / 6]
+ 			group["indices"].append(vertex)
+ 			group["dx"].append(dx[start])
+ 			group["dy"].append(dy[start])
+-		elif offsets[vertex + 1] - start == 2:
++		elif vertex % 4 != 0 and offsets[vertex + 1] - start == 2:
+ 			var key: Vector2i = Vector2i(bones[start], bones[start + 1])
+ 			if not pair_groups.has(key):
+ 				pair_groups[key] = {"bones": key, "indices": PackedInt32Array(), "dx1": PackedFloat64Array(), "dy1": PackedFloat64Array(), "w1": PackedFloat64Array(), "dx2": PackedFloat64Array(), "dy2": PackedFloat64Array(), "w2": PackedFloat64Array()}

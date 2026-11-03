@@ -1,7 +1,7 @@
 extends "res://tests/dragon_pressure_warning_probe.gd"
 
-## Bounded Ice tuning proof: the live Talon pursuit gains one step while
-## the separate fixed trail and the rest of the four-part cycle stay intact.
+## Retained Ice-cycle proof: Talon keeps its live three-step pursuit.
+## The shared Frostbite beat replaces the former surviving-trail rider.
 func _roster() -> Dictionary:
 	return {"iskaldra":12}
 

@@ -1,0 +1,10 @@
+{
+  "min_images": 4,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*00_start.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "*01_rear_idle.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "*02_targeted_idle.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "*03_two_sources_idle.png", "width": 1920, "height": 1080, "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]}
+  ]
+}

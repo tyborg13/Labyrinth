@@ -126,7 +126,9 @@ static func _include_unit(board: Control, unit: Dictionary, bounds: Rect2) -> Re
 			if Presentation.has_profile(str(unit["type"])):
 				var anchor: Vector2 = Presentation.floor_anchor(str(unit["type"]), view, mirrored)
 				source_position = center - anchor * body.size / 255.0
-			var canvas := Rect2(source_position - Vector2(128, 128) * body.size / 255.0, body.size * Vector2(512, 512) / 255.0)
+			var renderer: Node = board.unit_cutout_renderer(unit)
+			var geometry: Dictionary = renderer.canvas_geometry() if is_instance_valid(renderer) and renderer.has_method("canvas_geometry") else {"offset": Vector2(128, 128), "size": Vector2i(512, 512)}
+			var canvas := Rect2(source_position - (geometry["offset"] as Vector2) * body.size / 255.0, body.size * Vector2(geometry["size"]) / 255.0)
 			canvas = board.get_global_transform_with_canvas() * canvas
 			bounds = bounds.merge(canvas) if bounds.has_area() else canvas
 	return bounds

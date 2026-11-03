@@ -19,7 +19,10 @@ Every distinct player-facing concept owns a distinct icon. This includes named a
 
 ## Current exact-concept aliases
 
+- int-09: the Ember Hoarder’s "Slip Away" rule panel uses its own map emblem (`assets/art/icons/map/ember_hoarder.png`). Both identify the same Hoarder encounter. The data-backed rule-panel collection and this sole alias are audited in `test_distinct_player_facing_concepts_own_distinct_assets`.
+
 - `move` and `move_toward` are both the player-facing Move action.
+- `veil_blink` (Fade) uses `blink`: it is the existing Blink action.
 - `heal` and `heal_self` are both the player-facing Heal action.
 - `outcrop` (player cards) and `raise_terrain` (enemy intents) are both the player-facing Raise Terrain action: each creates breakable, sight-blocking terrain on empty floor. The Outcrops grimoire topic (`combat:outcrops`) uses the same Raise Terrain icon.
 - `burst_terrain` (Rockburst, Worldbreak) and `terrain_burst` (Tharokh's Worldspine pulse) are both the player-facing Terrain Burst: standing terrain erupts and hits the tiles around it.
@@ -58,7 +61,7 @@ Grimoire topics use the new icons where the icon is the topic's concept:
 
 ## Pending purpose-built icons
 
-None. EN01 uses the approved distinct `burrow`, `erupt` and `burst` paintings.
+EN01 uses the approved distinct `burrow`, `erupt` and `burst` paintings.
 Burrow intent and Burrowed status share `burrow`; Erupt intent and delayed mark
 share `erupt`; Kindle intent, Kindled state and the Bursts badge share `burst`.
 These are the director-approved identities for each mechanic.
@@ -81,7 +84,7 @@ Element identity (`element_fire`, `element_ice`, `element_lightning`, `element_a
 
 ## Section enemies E2 (en-05)
 
-The permanent Reflect badge uses only `reflect`; Dive intent uses only `dive`;
+The permanent Reflect badge uses only `reflect`;
 the permanent Flying badge uses only `flying`. Their unchanged approved raw
 paintings are verified against `peer_benchmark/staged/enemies/raw_sha256.txt`,
 keyed and fitted with the current Blink icon padding. Refraction retains
@@ -89,8 +92,7 @@ keyed and fitted with the current Blink icon padding. Refraction retains
 
 ## Section enemies E2 (en-04)
 
-`grow_bramble` and the Bramble terrain tooltip use the approved `bramble`
-painting. `lob_mark` and `lob_land` share the approved `lob` painting because
+The former Bramble identity was retired in el-02 (see below). `lob_mark` and `lob_land` share the approved `lob` painting because
 marking and landing are one delayed Lob Slag concept. Both paintings are
 independent of Meteorfall and Icefall; hashes are recorded additively under
 `spec/assets/enemies/`. No generic or temporary icon aliases were added.
@@ -99,8 +101,46 @@ independent of Meteorfall and Icefall; hashes are recorded additively under
 | Concept / actions | Identity | Approved source |
 | --- | --- | --- |
 | Charge intent, Charge badge, gain/reset charge | `charge` | `raw_art/icons/charge.png` |
-| Mirror intent | `mirror` | `raw_art/icons/mirror.png` |
 | Discharge chain | `chain` | Existing Chain painting; explicitly shared by the unit brief |
 
-Mirror's revealed copy uses the copied card's central attack identity in its row
-and compass. This is the copied action, rather than a new icon concept.
+mim-01 retires the `mirror` keyword registration and glossary/grimoire topic.
+Echo uses the existing ranged/shadow and Retaliate identities. Archived icon
+paintings remain provenance assets and are no longer registered.
+
+## Battlefield rules (el-02)
+
+Wildfire, Frostbite, Lightning Storm, Upheaval and Shadowstep use their five
+purpose-built paintings under `assets/art/icons/`. They are byte-identical to
+`peer_benchmark/staged/element_rules/icons/`, with SHA-256 checks bound to that
+folder's `provenance.json`. Gust retains `wind`, the same renamed concept.
+Thornwall's marking action uses Upheaval; the Thrall's unchanged Tether intent
+uses Lightning Strikes. Bramble, Ice Pillar and Tether have no glossary or icon
+registry identity. Historical PNG files are not registered or reused.
+
+## sta-01 retired identities
+
+Veiled and the bespoke Dive action are retired. `veil` and `dive` are absent
+from the central registry, glossary and Grimoire keyword inventory. Their
+historical PNGs remain untouched and unregistered. Fade uses Blink; Dive uses
+the existing Move, AoE and Push identities. Flying retains `flying`.
+
+## mrk-01 — retired keywords, preserved moves
+
+`icefall`, `lob`, `burrow` and `erupt` no longer own glossary or Grimoire
+keyword pages. Their names/action verbs alias `marked`, the one delayed-hit
+keyword. Their existing central registry paths remain as **move and marker
+identities**, since the approved brief explicitly preserves those paintings.
+Marked owns the approved `assets/art/icons/marked.png` painting as a separate
+identity from those unchanged moves.
+No asset is removed, copied, repainted or reused for Marked. The original
+Icefall mark/land and Lob mark/land exact-action alias groups remain unchanged.
+`tests/test_icon_identity_policy.py` verifies retirement of the four keyword
+pages, preservation of the move paths and the real Marked painting path.
+
+## flu-01 dormant Flurry
+
+Flurry has no shipped card, glossary row or Grimoire topic and is excluded from
+`ActionIconLibrary.all_icon_keys()`. The existing icon path, width handling and
+original tooltip copy remain available only for synthetic engine/UI fixtures;
+no asset is added, removed or repainted. Sawtooth Rake retains the save ID and
+approved art path `sawtooth_flurry`.

@@ -1,0 +1,15 @@
+00:00.418  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/cold/maquette.blend"
+00:03.982  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_1/front_silhouette.png'
+00:06.368  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_1/front_silhouette.png'
+00:08.848  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_1/front_parts.png'
+00:11.181  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_1/front_silhouette.png'
+00:13.397  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_1/front_silhouette.png'
+00:15.595  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_1/front_silhouette.png'
+00:17.791  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_1/front_silhouette.png'
+00:19.974  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_1/front_silhouette.png'
+00:22.456  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gale_herald/proof/feedback1/native/capture_jobs/front_1/front_silhouette.png'
+BLENDER_FACING: PASS
+MQ12_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=front; solos=['cape_far', 'upper_near', 'fore_near', 'hand_near', 'upper_far']
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit

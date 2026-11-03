@@ -1,0 +1,275 @@
+{
+  "scope": "Proof-only choices; no player-facing tuning, new assets or material design.",
+  "proof": {
+    "native_size": 1024,
+    "painting_scale": 4,
+    "alpha_threshold": 128,
+    "joint_tolerance_px": 0.02,
+    "level_tolerance_m": 1e-08,
+    "floor_tolerance_m": 0.005,
+    "endpoint_tolerance_m": 0.0001,
+    "caption_height_px": 28,
+    "opaque_annotation_mode": "RGB",
+    "webp_effort": 100,
+    "background": [
+      24,
+      24,
+      24,
+      255
+    ],
+    "guideline_colour": [
+      80,
+      220,
+      240,
+      255
+    ],
+    "label_offsets_px": {
+      "helm_bottom": -14,
+      "shoulder_row": 2
+    }
+  },
+  "execution": {
+    "job_timeout_s": 110,
+    "response_timeout_s": 120,
+    "poll_s": 1,
+    "budget_bytes": 6000000
+  },
+  "native_probe": {
+    "native_size_px": 1024,
+    "endpoint_tolerance_m": 0.0001,
+    "mutation_material_index": 0
+  },
+  "synthetic_fixtures": {
+    "shoulder_delta_m": 0.001,
+    "unknown_mesh_hash": "changed-by-test",
+    "front_height_px": 1000,
+    "inside_height_px": 1029,
+    "outside_height_px": 1031,
+    "overstrict_helm_tolerance": 1e-05
+  },
+  "brief_limits_not_chosen": {
+    "shoulder_slope": 0.15,
+    "shoulder_tolerance_px": 10,
+    "rear_height_relative": 0.03,
+    "centroid_error_255_px": 5,
+    "front_silhouette_iou": 0.82
+  },
+  "mass_measurement": {
+    "palette_tolerance": 1,
+    "antialias_radius_px": 2,
+    "alpha_threshold": 128,
+    "scan_radius_px": 200,
+    "line_stations": 13,
+    "arm_inner_fractions": [
+      0.2,
+      0.8
+    ],
+    "boot_ankle_offset_px": 8,
+    "definition": "Proof-only pixel classification and scanline sampling; source dimensions and design limits remain in the measured annotations."
+  },
+  "synthetic_mass_fixtures": {
+    "small_mask_side_px": 16,
+    "open_front_width_px": 128,
+    "body_rectangle_px": [
+      3,
+      3,
+      13,
+      13
+    ],
+    "hole_rows_px": [
+      6,
+      10
+    ],
+    "hole_columns_px": [
+      7,
+      9
+    ],
+    "open_trouser_run_px": [
+      45,
+      85
+    ],
+    "open_left_garment_run_px": [
+      20,
+      40
+    ],
+    "open_right_garment_run_px": [
+      100,
+      120
+    ],
+    "measurement_row_px": 8,
+    "outside_mass_ratio": 1.16,
+    "chest_reference_px": 100,
+    "chest_at_limit_px": 80,
+    "chest_below_limit_px": 79,
+    "loft_test_samples": 8,
+    "loft_test_radii_m": [
+      1,
+      0.9
+    ],
+    "sheet_test_thickness_m": 0.1
+  },
+  "authoring_implementation": {
+    "ring_samples": 64,
+    "definition": "Native tessellation for closed source-derived volumes; no player-facing tuning."
+  },
+  "cloth_measurement": {
+    "alpha_threshold": 128,
+    "painting_scale": 4,
+    "native_size": 1024,
+    "webp_effort": 100
+  },
+  "geometry_probe": {
+    "hem_prominence_m": 0.005,
+    "finger_cross_samples": 16,
+    "upper_link_depth_below_grip_m": 0.028,
+    "link_envelope_slack_m": 0.004,
+    "thumb_minimum_overlap_m": 0.01,
+    "thumb_maximum_gap_m": 0.035
+  },
+  "closed_sweep_numeric": {
+    "length_epsilon": 1e-10
+  },
+  "closed_finger_cross_samples": 16,
+  "synthetic_cloth_and_grip_fixtures": {
+    "mask_shape": [
+      16,
+      64
+    ],
+    "left_run": [
+      2,
+      12
+    ],
+    "right_run": [
+      40,
+      47
+    ],
+    "row": 8,
+    "over_limit_delta": 0.001,
+    "point_shift_m": 0.3,
+    "distant_link_m": 5,
+    "reference_px": 100,
+    "ragged_test_profile": [
+      0.48,
+      0.44,
+      0.5,
+      0.45,
+      0.5,
+      0.44,
+      0.48
+    ]
+  },
+  "fit_measurement": {
+    "size_px": 255,
+    "alpha_threshold": 128,
+    "fft_padding": 512,
+    "overlay_scale": 4,
+    "outline_colour": [
+      80,
+      220,
+      240,
+      255
+    ],
+    "outline_width_px": 1
+  },
+  "synthetic_native_geometry_fixtures": {
+    "finger_flat_offset_m": 0.1,
+    "detached_link_m": 5,
+    "detached_thumb_m": 2,
+    "helm_vertex_delta_m": 0.02,
+    "valid_overlap_m": 0.02,
+    "valid_gap_m": 0.02,
+    "detached_overlap_m": -0.001,
+    "detached_gap_m": 0.1,
+    "mesh_vertices_m": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0
+      ]
+    ],
+    "mesh_faces": [
+      [
+        0,
+        1,
+        2
+      ]
+    ]
+  },
+  "synthetic_pose_fit_fixtures": {
+    "size_px": 64,
+    "rectangle_xyxy": [
+      11,
+      15,
+      26,
+      41
+    ],
+    "translation_px": [
+      18,
+      -7
+    ],
+    "head_shift_px": 6,
+    "rigid_translation_m": [
+      0.1,
+      0.2,
+      0.3
+    ],
+    "test_scale": 2,
+    "rigid_points_m": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        -2,
+        1,
+        0
+      ]
+    ],
+    "diagonal_offset_px": [
+      4,
+      4
+    ],
+    "iou_below_limit": 0.819,
+    "matrix_distance_tolerance_m": 1e-10
+  },
+  "native_review_mutations": {
+    "flat_finger_z_offset_m": 0.1,
+    "link_displacement_m": 5,
+    "thumb_displacement_m": 2,
+    "helm_vertex_displacement_m": 0.02
+  },
+  "fit_authoring": {
+    "description": "Pose offsets are measurements fitted to the approved source, not chosen design defaults. Original surface profiles remain unchanged; all matrix operations are rigid, and section-centre neck bends retain each closed cross-section."
+  },
+  "authoring_search": {
+    "seed": 15,
+    "iterations": 130,
+    "initial_proposal_px": 0.75,
+    "final_proposal_px": 0.4,
+    "angular_proposal_deg": 1.25,
+    "neck_station_proposal_m": 0.025,
+    "neck_station_bounds_m": [
+      1.12,
+      1.62
+    ],
+    "working_centroid_margin_px": 4.5,
+    "excess_distance_penalty": 0.015,
+    "scope": "Disposable numerical source-fit search; the resulting pose matrices are source measurements, not new design defaults."
+  }
+}

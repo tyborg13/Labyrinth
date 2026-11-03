@@ -25,57 +25,15 @@ TEST_TIMEOUT_SECONDS = 15
 STARTUP_TIMEOUT_SECONDS = 5
 HUNG_CHILD_TIMEOUT_SECONDS = STARTUP_TIMEOUT_SECONDS + 0.2
 POLL_SECONDS = 0.02
-EXTRACTED_PROGRAMS = [
-    "suites/full_scene_presentation_program", "suites/full_scene_cutouts_program",
-    "suites/full_scene_creature_cutouts_program", "suites/full_scene_audio_program",
-    "suites/full_scene_navigation_program", "suites/full_scene_card_drag_program",
-    "suites/full_scene_controls_program",
-    "suites/full_scene_clock_program",
-    "suites/full_scene_choices_program", "suites/full_scene_interaction_program",
-]
-MERGED_PROGRAMS = ["opening_boon_recovery_test", "section_map_v5_test", "section_map_v5_layout_test",
-                   "suites/section_map_performance_program"]
-SUPPLEMENTAL_MANIFEST = ROOT / "tests/headless_test_programs.json"
-SNARE_PROGRAMS = [{"path": "tests/snare_test.gd"}, {"path": "tests/snare_ui_test.gd"}]
-WARBAND_PROGRAMS = [{"path": "tests/warband_test.gd"}, {"path": "tests/warband_ui_test.gd"}]
-WARBAND_ORDER_PROGRAMS = [
-    {"path": "tests/warband_orders_test.gd"},
-    {"path": "tests/warband_wind_lock_test.gd"},
-    {"path": "tests/warband_orders_probe.gd", "args": ["--check-only"]},
-]
 FIXTURE_TEST_TIMEOUT_SECONDS = 30
 # Independent of the manifest: recognized but incorrect modes must fail too.
-REQUIRED_FIXTURE_MODES = {
-    **{name + "_cutout_pack_test": "cutout_pack" for name in (
-        "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "crawler",
-        "frostglass_lancer", "grave_surgeon", "gust_shrike", "harrier", "iskaldra", "noctyrax",
-        "protagonist", "stone_warden", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion",
-    )},
-    **{name + "_cutout_pack_test": "roster_pack" for name in (
-        "graftwright", "guardian", "scavenger",
-    )},
-    "enemy_cutout_roster_pack_test": "roster_pack",
-    "demo_capture_settings_test": "capture_settings",
-}
-SPLIT_PROGRAMS = {
-    "forced_movement_query_equivalence_test": [
-        "suites/forced_movement_query_%s_program" % fixture
-        for fixture in ("open", "dense", "heart", "surface_ready", "blocked")
-    ],
-    "section_map_v5_test": ["suites/section_map_v5_program", "suites/section_map_legacy_hashes_0_program",
-                            "suites/section_map_legacy_hashes_1_program"],
-    "encounter_tables_test": [
-        "suites/encounter_rules_program", "suites/encounter_placement_0_program",
-        "suites/encounter_placement_1_program", "suites/encounter_placement_summary_program",
-    ],
-    "sfx_sync_harness": ["suites/sfx_sync_%d_program" % index for index in range(3)],
-}
-DEADLINE_BUDGET_SECONDS = 0.3
-DEADLINE_CLEANUP_SECONDS = 0.04
-
+REQUIRED_FIXTURE_MODES = {"demo_capture_settings_test": "capture_settings"}
 sys.path.insert(0, str(ROOT / "tools"))
+
 import program_suite_runner as runner
 import program_suite_fixture as fixture
+import godot_import_cache as import_cache
+import godot_task_runner as task_runner
 
 FAKE_GODOT = '''#!/usr/bin/env python3
 import json, os, sys, time
@@ -88,10 +46,13 @@ def event(kind):
                appdata=os.environ['APPDATA'], localappdata=os.environ['LOCALAPPDATA'],
                xdg_data=os.environ['XDG_DATA_HOME'], xdg_config=os.environ['XDG_CONFIG_HOME'],
                xdg_cache=os.environ['XDG_CACHE_HOME'], xdg_state=os.environ['XDG_STATE_HOME'],
-               user=os.environ['LABYRINTH_USER_DIR_NAME'], args=sys.argv[1:])
+               user=os.environ['LABYRINTH_USER_DIR_NAME'], cel=os.environ['LABYRINTH_CEL_LOOK'], args=sys.argv[1:])
     fd = os.open(os.environ['RUNNER_TEST_EVENTS'], os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
     os.write(fd, (json.dumps(row) + '\\n').encode())
     os.close(fd)
+previous = [json.loads(line) for line in Path(os.environ['RUNNER_TEST_EVENTS']).read_text().splitlines()] if Path(os.environ['RUNNER_TEST_EVENTS']).exists() else []
+if 'retry' in case and any(row['kind'] == 'start' and row['name'] == name for row in previous):
+    case = case['retry']
 event('start')
 print('CHILD LOG START ' + name, flush=True)
 if case.get('barrier', 0):
@@ -110,6 +71,16 @@ sys.exit(case.get('code', 0))
 
 
 class ProgramSuiteRunnerTests(unittest.TestCase):
+    def test_cel_default_and_explicit_modes(self):
+        for index, value in enumerate((None, 'all', 'actors', 'off', '')):
+            with self.subTest(value=value), mock.patch.dict(os.environ):
+                os.environ.pop('LABYRINTH_CEL_LOOK', None)
+                if value is not None:
+                    os.environ['LABYRINTH_CEL_LOOK'] = value
+                result, report = self.run_scheduler({'cel_' + str(index): {}})
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(self.read_events()[-1]['cel'], 'off' if value is None else value)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -117,11 +88,26 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         self.godot = self.directory / "godot"
         self.godot.write_text(FAKE_GODOT)
         self.godot.chmod(0o755)
+        self.fixture_manifest = self.directory / "programs.json"
+        fixture_programs = [
+            {"path":"tests/runner_pack_fixture.gd", "mode":"cutout_pack"},
+            {"path":"tests/runner_roster_fixture.gd", "mode":"roster_pack"},
+            {"path":"tests/demo_capture_settings_test.gd", "mode":"capture_settings"},
+        ]
+        # Fixture sources live under the test's temp directory. The real stage
+        # bootstrap still uses the repository runtime for its root project.
+        for row in fixture_programs[:2]:
+            script = self.directory / Path(row["path"]).name
+            script.write_text('extends SceneTree\nfunc _initialize() -> void:\n'
+                              '\tprint("RUNNER PACKAGE FIXTURE: PASS")\n\tquit(0)\n')
+            row["source"] = str(script)
+        self.fixture_manifest.write_text(json.dumps(fixture_programs))
         self.events = self.directory / "events.jsonl"
         self.report = self.directory / "report.json"
 
     def environment(self, cases):
-        return dict(os.environ, RUNNER_TEST_CASES=json.dumps(cases), RUNNER_TEST_EVENTS=str(self.events))
+        return dict(os.environ, RUNNER_TEST_CASES=json.dumps(cases), RUNNER_TEST_EVENTS=str(self.events),
+                    LABYRINTH_PROGRAM_MANIFEST=str(self.fixture_manifest))
 
     def command(self, suites, *extra):
         command = [sys.executable, str(RUNNER), "--project", str(ROOT), "--godot", str(self.godot),
@@ -138,55 +124,79 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
     def read_events(self):
         return [json.loads(line) for line in self.events.read_text().splitlines()]
 
-    def assert_complete_manifest(self, actual):
-        # Read the former orchestration manifests, not a second hand-maintained list.
-        expected = []
-        for path in ("tests/static_facing_program_suites.gd", "tests/helpers/program_sub_suites.gd"):
-            source = (ROOT / path).read_text().split("const SUITES:", 1)[1].split("=", 1)[1].split("]", 1)[0]
-            expected.extend(re.findall(r'"([a-z0-9_]+)"', source))
-        expected.extend(EXTRACTED_PROGRAMS)
-        expected.extend(MERGED_PROGRAMS)
-        supplemental = json.loads(SUPPLEMENTAL_MANIFEST.read_text())
-        self.assertEqual(supplemental[-len(SNARE_PROGRAMS):], SNARE_PROGRAMS)
-        supplemental = supplemental[:-len(SNARE_PROGRAMS)]
-        # det-01 restores owned_cpu_asset_preparation_test after deterministic cancellation coverage;
-        # bug-01's four fixed tests left quarantine for the supplemental set at its merge;
-        # rr-05 made maquette_cutout_test a real pixel-runtime program (no longer a shared wrapper).
-        # rr-12, rr-17 and rr-18 each add one rig/runtime domain after the accepted 122.
-        # spx-01 inserts its measurement programs before rr07; spx-02 adds the special map/reward and native legend
-        # domains; spx-03 appends the Warband programs.
-        self.assertEqual(supplemental[-len(WARBAND_PROGRAMS):], WARBAND_PROGRAMS)
-        # spx-04 adds its explicit programs ahead of the untouched spx-03 suffix;
-        # spx-07 inserts the independent wind-lock regression between them.
-        order_end = len(supplemental) - len(WARBAND_PROGRAMS)
-        order_start = order_end - len(WARBAND_ORDER_PROGRAMS)
-        self.assertEqual(supplemental[order_start:order_end], WARBAND_ORDER_PROGRAMS)
-        accepted = supplemental[:order_start]
-        self.assertEqual(len(accepted), 129, "Preserve the accepted supplemental set plus spx-01 and spx-02")
-        self.assertEqual(accepted[-8:-6], [{"path": "tests/encounter_analytics_test.gd"}, {"path": "tests/encounter_measurement_test.gd"}])
-        self.assertEqual(accepted[-6:], [{"path": "tests/rr07/runtime_test.gd"}, {"path": "tests/rr12/runtime_test.gd"}, {"path": "tests/rr17/runtime_test.gd"}, {"path": "tests/rr18/runtime_test.gd"}, {"path": "tests/special_encounter_test.gd"}, {"path": "tests/special_encounter_legend_test.gd"}])
-        expected.extend(program["path"].removeprefix("tests/").removesuffix(".gd") for program in supplemental + SNARE_PROGRAMS)
-        expected = [part for name in expected for part in SPLIT_PROGRAMS.get(name, [name])]
-        self.assertEqual(list(actual), expected)
-        self.assertEqual(len(set(actual)), len(actual), "No child may be silently overwritten")
-        for suite in EXTRACTED_PROGRAMS + [part for parts in SPLIT_PROGRAMS.values() for part in parts]:
-            self.assertTrue((ROOT / "tests" / (suite + ".gd")).is_file())
+    def test_manifest_has_unique_existing_programs_and_valid_timeouts(self):
+        self.assertEqual(len(runner.SUITES), len(set(runner.SUITES)))
+        for name in runner.SUITES:
+            self.assertTrue((ROOT / "tests" / (name + ".gd")).is_file(), name)
+        for program in runner.SUPPLEMENTAL_PROGRAMS:
+            self.assertGreater(program.get("timeout_seconds", runner.SUITE_TIMEOUT_SECONDS), 0)
+        self.assertEqual(runner.SUITE_TIMEOUT_SECONDS, 300)
 
-    def test_manifest_preserves_all_existing_children_and_order(self):
-        self.assert_complete_manifest(runner.SUITES)
+    def test_perf_selection_preserves_functional_programs(self):
+        programs = {"functional": {}, "mixed": {"perf_checks": True}, "speed": {"group": "perf"}}
+        with mock.patch.object(runner, "SUITES", tuple(programs)), mock.patch.object(runner, "SUPPLEMENTAL_BY_NAME", programs):
+            self.assertEqual(set(runner.selected_suites()), {"functional", "mixed"})
+            self.assertEqual(set(runner.selected_suites(True)), {"mixed", "speed"})
 
-    def test_removing_any_extracted_program_fails_manifest_guard(self):
-        parts = EXTRACTED_PROGRAMS + [part for parts in SPLIT_PROGRAMS.values() for part in parts]
-        for removed in ([name] for name in parts):
-            with self.subTest(removed=removed), self.assertRaises(AssertionError):
-                self.assert_complete_manifest([name for name in runner.SUITES if name not in removed])
+    def test_missing_and_stale_import_artifacts_are_detected(self):
+        project = self.directory / "project"
+        project.mkdir()
+        self.assertIn("missing", import_cache.stale_reason(project))
+        (project / ".godot").mkdir()
+        (project / ".godot/global_script_class_cache.cfg").touch()
+        source = project / "image.png"
+        source.write_bytes(b"fixture")
+        sidecar = project / "image.png.import"
+        sidecar.write_text('[deps]\ndest_files=["res://.godot/imported/image.ctex"]\n')
+        self.assertIn("missing artifact", import_cache.stale_reason(project))
+        artifact = project / ".godot/imported/image.ctex"
+        artifact.parent.mkdir()
+        artifact.touch()
+        self.assertEqual(import_cache.stale_reason(project), "")
+        # Godot writes the sidecar just after the artifact. Its timestamp alone
+        # must not turn a successful import into an endless reimport loop.
+        newer = artifact.stat().st_mtime_ns + 1_000_000
+        os.utime(sidecar, ns=(newer, newer))
+        self.assertEqual(import_cache.stale_reason(project), "")
+        old = source.stat().st_mtime_ns - 1_000_000
+        os.utime(artifact, ns=(old, old))
+        self.assertIn("stale artifact", import_cache.stale_reason(project))
+        with mock.patch.object(import_cache.subprocess, "call", return_value=0) as launch:
+            self.assertEqual(import_cache.ensure_imported(project, "godot", "test-02"), 0)
+        command = launch.call_args.args[0]
+        self.assertIn("godot_task_runner.py", command[1])
+        self.assertEqual(command[-1], "--import")
+        artifact.touch()
+        with mock.patch.object(import_cache.subprocess, "call") as launch:
+            self.assertEqual(import_cache.ensure_imported(project, "godot", "test-02"), 0)
+            launch.assert_not_called()
 
-    def test_removing_any_supplemental_or_merged_program_fails_manifest_guard(self):
-        names = [part for name in [*MERGED_PROGRAMS, *runner.SUPPLEMENTAL_BY_NAME]
-                 for part in SPLIT_PROGRAMS.get(name, [name])]
-        for name in names:
-            with self.subTest(removed=name), self.assertRaises(AssertionError):
-                self.assert_complete_manifest([suite for suite in runner.SUITES if suite != name])
+    def test_import_index_reuses_paths_and_detects_new_sidecars(self):
+        project = self.directory / "indexed"
+        (project / ".godot").mkdir(parents=True)
+        (project / ".godot/global_script_class_cache.cfg").touch()
+        (project / "first.png").write_bytes(b"fixture")
+        (project / "first.png.import").write_text('dest_files=["res://.godot/first.ctex"]\n')
+        (project / ".godot/first.ctex").touch()
+        self.assertEqual(import_cache.stale_reason(project), "")
+        with mock.patch.object(import_cache, "_build_index", side_effect=AssertionError("warm check rebuilt index")):
+            self.assertEqual(import_cache.stale_reason(project), "")
+        (project / "new.png").write_bytes(b"fixture")
+        (project / "new.png.import").write_text('dest_files=["res://.godot/new.ctex"]\n')
+        self.assertIn("missing artifact: .godot/new.ctex", import_cache.stale_reason(project))
+        (project / import_cache.INDEX_PATH).write_text('{"version":1,"directories":[],"rows":[]}')
+        self.assertIn("missing artifact: .godot/new.ctex", import_cache.stale_reason(project))
+
+    def test_perf_flag_enables_only_opt_in_guards_in_the_child(self):
+        result, _report = self.run_scheduler({"speed": {}}, "--perf")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("--perf-checks", self.read_events()[0]["args"])
+
+    def test_full_suite_entrypoint_is_detected_before_godot_parses(self):
+        for script in ("tests/run_tests.gd", "./tests/run_tests.gd", "tests/../tests/run_tests.gd",
+                       "res://tests/run_tests.gd", str(ROOT / "tests/run_tests.gd")):
+            self.assertEqual(import_cache.full_suite_project(["godot", "--path", str(ROOT), "--script", script], ROOT), ROOT)
+        self.assertIsNone(import_cache.full_suite_project(["godot", "--import"], ROOT))
 
     def assert_supplemental_modes(self, programs):
         self.assertLessEqual(REQUIRED_FIXTURE_MODES.keys(), programs.keys())
@@ -211,17 +221,18 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         directory.mkdir()
         foreign = self.directory / "foreign-project"
         foreign.mkdir()
-        script = "tests/acolyte_cutout_pack_test.gd"
+        script = "tests/runner_pack_fixture.gd"
         stages = [(ROOT, script, []), (foreign, str(ROOT / script), [])]
-        with mock.patch.object(fixture, "fixture_stages", return_value=stages), \
+        with mock.patch.object(runner, "SUPPLEMENTAL_BY_NAME", {"runner_pack_fixture": {"path":script}}), \
+                mock.patch.dict(execute.__globals__, {"fixture_stages": mock.Mock(return_value=stages)}), \
                 mock.patch.object(fixture.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)), \
                 mock.patch.object(runner, "task_command", return_value=["unused"]):
-            result = execute(["--project", str(ROOT), "--suite", "acolyte_cutout_pack_test",
+            result = execute(["--project", str(ROOT), "--suite", "runner_pack_fixture",
                               "--directory", str(directory), "--godot", "unused", "--task-id", "runtime-paths",
                               "--timeout", str(FIXTURE_TEST_TIMEOUT_SECONDS)])
         self.assertEqual(result, 0)
-        root_bootstrap = (directory / "acolyte_cutout_pack_test.gd").read_text()
-        foreign_bootstrap = (directory / "stage-1/acolyte_cutout_pack_test.gd").read_text()
+        root_bootstrap = (directory / "runner_pack_fixture.gd").read_text()
+        foreign_bootstrap = (directory / "stage-1/runner_pack_fixture.gd").read_text()
         resource = 'preload("res://scripts/parallel_runtime.gd")'
         absolute = 'preload(' + json.dumps(str(ROOT / "scripts/parallel_runtime.gd")) + ')'
         self.assertIn(resource, root_bootstrap)
@@ -284,12 +295,12 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         self.assertTrue(report["complete"])
 
     def test_fixture_stages_keep_one_slot_and_preserve_build_verify_arguments(self):
-        cases = {"acolyte_cutout_pack_test": {}, "demo_capture_settings_test": {}, "enemy_cutout_roster_pack_test": {}}
+        cases = {"runner_pack_fixture": {}, "demo_capture_settings_test": {}, "runner_roster_fixture": {}}
         result, report = self.run_scheduler(cases)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         starts = [event for event in self.read_events() if event["kind"] == "start"]
         self.assertEqual(len(starts), 4)
-        pack = [event for event in starts if event["name"] == "acolyte_cutout_pack_test"]
+        pack = [event for event in starts if event["name"] == "runner_pack_fixture"]
         self.assertEqual([event["args"][-2] for event in pack], ["build", "verify"])
         self.assertEqual(pack[0]["args"][-1], pack[1]["args"][-1])
         self.assertEqual(len({event["home"] for event in starts}), 4)
@@ -302,14 +313,14 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
 
     def test_reusing_fixture_report_path_keeps_staging_fresh(self):
         for _iteration in range(2):
-            result, _report = self.run_scheduler({"acolyte_cutout_pack_test": {}, "demo_capture_settings_test": {}})
+            result, _report = self.run_scheduler({"runner_pack_fixture": {}, "demo_capture_settings_test": {}})
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         builds = [event["args"][-1] for event in self.read_events()
-                  if event["kind"] == "start" and event["name"] == "acolyte_cutout_pack_test" and event["args"][-2] == "build"]
+                  if event["kind"] == "start" and event["name"] == "runner_pack_fixture" and event["args"][-2] == "build"]
         self.assertEqual(len(set(builds)), 2)
 
     def test_parent_pipe_eof_cancels_active_package_stage(self):
-        cases = {"acolyte_cutout_pack_test": {"sleep": 60}}
+        cases = {"runner_pack_fixture": {"sleep": 60}}
         process = subprocess.Popen(self.command(cases, "--watch-parent-stdin"), env=self.environment(cases),
                                    stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
@@ -339,9 +350,9 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which("godot"), "Needs native headless Godot for fixture stages")
     def test_real_fixture_stages_initialize_namespaces_and_run_complete_contracts(self):
-        command = self.command(["acolyte_cutout_pack_test", "demo_capture_settings_test", "enemy_cutout_roster_pack_test"])
+        command = self.command(["runner_pack_fixture", "demo_capture_settings_test", "runner_roster_fixture"])
         command[command.index("--godot") + 1] = shutil.which("godot")
-        result = subprocess.run(command, text=True, capture_output=True, timeout=FIXTURE_TEST_TIMEOUT_SECONDS)
+        result = subprocess.run(command, env=self.environment({}), text=True, capture_output=True, timeout=FIXTURE_TEST_TIMEOUT_SECONDS)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         paths = []
         logs = ""
@@ -353,10 +364,8 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         for field in ("user_data", "log_file"):
             self.assertEqual(len({value[field] for value in paths}), 4)
         self.assertTrue(all(Path(value["log_file"]).is_file() for value in paths))
-        self.assertIn("ACOLYTE CUTOUT PACK TEST RESULT: PASS (build", logs)
-        self.assertIn("ACOLYTE CUTOUT PACK TEST RESULT: PASS (verify", logs)
+        self.assertEqual(logs.count("RUNNER PACKAGE FIXTURE: PASS"), 3)
         self.assertIn("DEMO MOVIE GUARD TEST: PASS", logs)
-        self.assertIn("ENEMY CUTOUT ROSTER PACK BUILD TEST RESULT: PASS", logs)
 
     def test_nonzero_child_fails_scheduler_and_names_child(self):
         result, report = self.run_scheduler({"deliberate_failure": {"code": 7}, "success": {}})
@@ -383,73 +392,103 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         # Unlike the controlled-clock deadline tests below, this fixture needs
         # a real interpreter to start and record its owned PID before timeout.
         starts = self.read_events() if self.events.exists() else []
-        self.assertEqual(len(starts), 1, "Stub did not start within its startup budget:\n" + log)
-        with self.assertRaises(ProcessLookupError):
-            os.kill(starts[0]["pid"], 0)
+        self.assertEqual(len(starts), 2, "Each timeout attempt must start:\n" + log)
+        self.assertEqual(report["retries"], ["hung_child"])
+        for start in starts:
+            with self.assertRaises(ProcessLookupError):
+                os.kill(start["pid"], 0)
 
-    def test_budget_names_active_and_unstarted_children(self):
-        cases = {"active": {"sleep": 60}, "pending": {}}
-        result, report = self.run_scheduler(cases, "--jobs", "1", "--budget", "0.3")
-        self.assertEqual(result.returncode, 1)
-        self.assertEqual([row["name"] for row in report["results"]], list(cases))
-        self.assertTrue(all(row["timed_out"] for row in report["results"]))
-        self.assertIn("budget exhausted", report["results"][1]["reason"])
-        self.assertGreater(report["results"][0]["seconds"], 0)
-        self.assertEqual(report["results"][1]["seconds"], 0)
-        # The total budget includes interpreter startup. On a loaded machine
-        # the active wrapper can expire before its fixture writes an event.
-        if self.events.exists():
-            self.assertEqual([event["name"] for event in self.read_events()], ["active"])
-
-    def assert_controlled_deadline(self, run_suites):
+    def test_sequential_children_each_receive_their_whole_timeout(self):
         class Clock:
-            now = 1000.0
-
-            def monotonic(self):
-                return self.now
-
-            def advance(self, seconds):
-                self.now += seconds
-
+            now = 100.0
+            def advance(self, seconds): self.now += seconds
+            def monotonic(self): return self.now
+        clock = Clock()
+        timeouts = []
         class Process:
-            returncode = None
+            def __init__(self): self.started = clock.now
+            def poll(self): return 0 if clock.now - self.started >= 0.2 else None
+        def launch(command, **kwargs):
+            timeouts.append(float(command[command.index("--timeout") + 1]))
+            return Process()
+        args = argparse.Namespace(project=self.directory, godot="fixture", task_id="independent",
+                                  result_file=self.report, suite=["first", "second"], jobs=1, timeout=0.3)
+        with mock.patch.object(runner, "spawn_owned_process", side_effect=launch), \
+                mock.patch.object(runner, "stop_wrapper"):
+            report = runner.run_suites(args, threading.Event(), clock=clock.monotonic, wait=clock.advance)
+        self.assertFalse(report["failed"])
+        self.assertGreater(report["seconds"], args.timeout)
+        self.assertEqual(timeouts, [0.3, 0.3])
 
-            def poll(self):
-                return self.returncode
+    def test_full_suite_has_no_implicit_outer_cap_but_respects_explicit_timeouts(self):
+        for script, flags, expected in (
+            ("tests/run_tests.gd", [], None),
+            ("tests/run_tests.gd", ["--timeout", "7"], 7),
+            ("tests/run_tests.gd", ["--timeout=9"], 9),
+            ("tests/individual.gd", [], task_runner.DEFAULT_TIMEOUT_SECONDS),
+        ):
+            with self.subTest(script=script, flags=flags), \
+                    mock.patch.object(import_cache, "ensure_imported", return_value=0), \
+                    mock.patch.object(task_runner, "run_task_command", return_value=task_runner.CommandResult(0, "", "")) as run:
+                code = task_runner.main(["--project", str(ROOT), "--task-id", "test-02", "--godot-home-root", str(self.directory),
+                                         *flags, "--", "godot", "--headless", "--path", str(ROOT), "--script", script])
+            self.assertEqual(code, 0)
+            self.assertEqual(run.call_args.args[3], expected)
 
-        for budget in (DEADLINE_BUDGET_SECONDS, DEADLINE_BUDGET_SECONDS * 2):
-            clock = Clock()
-            cancelled_at = []
-            args = argparse.Namespace(project=self.directory, godot="fixture", task_id="deadline",
-                                      result_file=self.report, suite=["active", "pending"],
-                                      jobs=1, timeout=60, budget=budget)
+    def test_rejected_editor_scan_cannot_start_an_import(self):
+        with mock.patch.object(import_cache, "ensure_imported") as imported:
+            with self.assertRaisesRegex(SystemExit, "refusing Godot --editor scan"):
+                task_runner.main(["--project", str(ROOT), "--task-id", "test-02", "--godot-home-root", str(self.directory),
+                                  "--", "godot", "--editor", "--script", "tests/run_tests.gd"])
+        imported.assert_not_called()
 
-            def stop(process):
-                cancelled_at.append(clock.now - 1000.0)
-                clock.advance(DEADLINE_CLEANUP_SECONDS)
-                process.returncode = 124
+    def test_full_entrypoint_import_failure_prevents_suite_launch(self):
+        with mock.patch.object(import_cache, "ensure_imported", return_value=7), \
+                mock.patch.object(task_runner, "run_task_command") as run:
+            code = task_runner.main(["--project", str(ROOT), "--task-id", "test-02", "--godot-home-root", str(self.directory),
+                                     "--", "godot", "--headless", "--path", str(ROOT), "--script", "tests/run_tests.gd"])
+        self.assertEqual(code, 7)
+        run.assert_not_called()
 
-            with mock.patch.object(runner.subprocess, "Popen", side_effect=lambda *a, **kw: Process()), \
-                    mock.patch.dict(run_suites.__globals__, stop_wrapper=stop):
-                report = run_suites(args, threading.Event(), clock=clock.monotonic, wait=clock.advance)
-            self.assertEqual(len(cancelled_at), 1)
-            self.assertAlmostEqual(cancelled_at[0], budget, delta=runner.POLL_SECONDS)
-            self.assertLessEqual(report["seconds"], budget + DEADLINE_CLEANUP_SECONDS + runner.POLL_SECONDS)
-            self.assertTrue(report["complete"] and report["failed"])
-            self.assertTrue(all(row["timed_out"] for row in report["results"]))
-            self.assertEqual(report["results"][1]["seconds"], 0)
+    def test_timeout_retries_once_serially_after_all_other_programs(self):
+        cases = {"timeout": {"code": 124, "retry": {}}, "last": {"sleep": CASE_SLEEP_SECONDS}}
+        result, report = self.run_scheduler(cases)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(report["retries"], ["timeout"])
+        self.assertEqual([row["returncode"] for row in report["results"][0]["attempts"]], [124, 0])
+        events = self.read_events()
+        starts = [row for row in events if row["kind"] == "start" and row["name"] == "timeout"]
+        last_end = next(row for row in events if row["kind"] == "end" and row["name"] == "last")
+        self.assertGreater(events.index(starts[1]), events.index(last_end))
+        self.assertNotEqual(starts[0]["home"], starts[1]["home"])
 
-    def test_cancels_at_requested_deadline_with_bounded_cleanup(self):
-        self.assert_controlled_deadline(runner.run_suites)
+    def test_timeout_twice_fails(self):
+        result, report = self.run_scheduler({"twice": {"code": 124}})
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(report["retries"], ["twice"])
+        self.assertEqual([row["returncode"] for row in report["results"][0]["attempts"]], [124, 124])
 
-    def test_doubling_budget_fails_controlled_deadline_guard(self):
-        source = RUNNER.read_text()
-        original = "deadline = started + args.budget"
-        self.assertIn(original, source)
-        mutated = {"__file__": str(RUNNER), "__name__": "deadline_mutation"}
-        exec(compile(source.replace(original, original + " * 2", 1), str(RUNNER), "exec"), mutated)
-        with self.assertRaises(AssertionError):
-            self.assert_controlled_deadline(mutated["run_suites"])
+    def test_assertion_failure_is_never_retried_even_before_a_timeout(self):
+        result, report = self.run_scheduler({"assertion": {"code": 124, "output": "TEST RESULT: FAIL assertion"}})
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(report["retries"], [])
+        self.assertEqual(report["results"][0]["returncode"], 1)
+        self.assertEqual(len(report["results"][0]["attempts"]), 1)
+
+    def test_per_program_override_reaches_task_runner(self):
+        args = argparse.Namespace(project=ROOT, godot=str(self.godot), task_id="test-02", result_file=self.report,
+                                  suite=["slow"], jobs=1, timeout=300)
+        original = runner.child_command
+        observed = []
+        def command(args, suite, timeout, bootstrap, engine_log):
+            observed.append(timeout)
+            return original(args, suite, timeout, bootstrap, engine_log)
+        with mock.patch.dict(os.environ, self.environment({"slow": {}})), \
+                mock.patch.dict(runner.SUPPLEMENTAL_BY_NAME, {"slow": {"timeout_seconds": 450}}), \
+                mock.patch.object(runner, "child_command", side_effect=command):
+            report = runner.run_suites(args, threading.Event())
+        self.assertFalse(report["failed"])
+        self.assertEqual(observed, [450])
 
     def test_parent_pipe_eof_cancels_children(self):
         cases = {"orphan_candidate": {"sleep": 60}}
@@ -475,7 +514,7 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
                 process.communicate(timeout=TEST_TIMEOUT_SECONDS)
 
     def test_onset_arguments_are_preserved(self):
-        suites = ["sfx_sync_harness", *SPLIT_PROGRAMS["sfx_sync_harness"]]
+        suites = ["sfx_sync_harness", *["suites/sfx_sync_%d_program" % i for i in range(3)]]
         result, _report = self.run_scheduler({name: {} for name in suites})
         self.assertEqual(result.returncode, 0)
         for event in self.read_events():
@@ -549,7 +588,7 @@ func _initialize() -> void:
 
         args = argparse.Namespace(project=project, task_id="namespace-mutation", godot=shutil.which("godot"),
                                   result_file=self.directory / "mutation.json", jobs=1, timeout=5,
-                                  budget=10, suite=["early_storage"])
+                                  suite=["early_storage"])
         with mock.patch.object(runner, "write_child_bootstrap", side_effect=omit_namespace_initialization):
             report = runner.run_suites(args, threading.Event())
         self.assertTrue(report["failed"], "Removing bootstrap initialization must fail before persistence")

@@ -1,0 +1,78 @@
+{
+  "K": 4,
+  "drawn_size": [
+    191,
+    226
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.1296011366392903,
+    "edge_light_share": 0.0,
+    "feature_px": 6.082446370183122,
+    "height": 226,
+    "height_drawn": 226.0,
+    "orphan_share": 0.06222060505250026,
+    "regions": 520,
+    "run_length": 2.260900223292984,
+    "symmetry": 0.6561152320165603,
+    "thin_abs": 0.012319367917662971,
+    "thin_rel": 0.06856222060505246,
+    "value": 0.21623876824666868,
+    "width": 191
+  },
+  "pixel_sha256": "7afd197be503a5b05abf838e7b20fe529393195a2181f9e29a1e46ec284a531e",
+  "placement": [
+    33,
+    20
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/frostglass_lancer/mq14_front/kit.json",
+        "pixel_sha256": "76a82c443b835caf9d333b8cbfc5f97ed48818d2fcd8a3f8a56bd0c5764fc39e"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "ed0431eba440248cc1177eeb4d03b4a9adca50d5cc67667bc24e9c7a0152720f",
+      "protected_body_share": {
+        "front": 0.03457307490832897,
+        "rear": 0.04855923159018143
+      },
+      "reference_pixel_sha256": "76a82c443b835caf9d333b8cbfc5f97ed48818d2fcd8a3f8a56bd0c5764fc39e",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "656e2e58d4c7419bbbc1743f31e29fb07c1c5df21b4d1510aa36029ef10756dc",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "4f5c842a60ed29e268e5880c88879ccb71a3b42d332cb2e0fb75e9498b6add52",
+  "shift": [
+    0,
+    0
+  ]
+}

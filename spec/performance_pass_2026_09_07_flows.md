@@ -197,3 +197,12 @@ python3 tools/performance_pass.py compare /tmp/base.json /tmp/candidate.json
 The background startup budget is separately 48 seconds, based on the measured approximately 4× CPU slowdown; the normal startup budget remains 12 seconds. The wrapper still uses the standard Godot/visual runners and task-local save namespaces.
 
 Actual Steam Deck/Linux/Windows execution, sustained GPU limits, battery/thermal behavior and fleet telemetry remain unmeasured here. The Mac stress condition cannot certify performance on those platforms. The pass is prepared for user inspection; publication requires approval of the final reviewed commit.
+
+## Current export command
+
+Release and playtest exports refresh cel variants and verify their packaged paths and runtime pixels:
+
+```bash
+python3 tools/export_game.py --task-id <task-id> --preset 'Steam macOS' --output /private/tmp/labyrinth_codex/<task-id>/Escape-the-Umbra.zip
+python3 tools/export_game.py --task-id <task-id> --preset 'Steam Windows' --output /private/tmp/labyrinth_codex/<task-id>/Escape-the-Umbra.exe
+```

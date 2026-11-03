@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "checks": {
+    "fresh_and_replay_raw_hashes": true,
+    "joint_endpoints": true,
+    "native_geometry": true
+  },
+  "spec_hash": "79c3bb4474359f6f90d89d6a3f3f5e9f4c605d8918abda55bc5a6f4a7c6e307a",
+  "cache_revision": 8,
+  "raw_hashes_identical": true,
+  "mesh_count": 86,
+  "joint_errors": {
+    "pelvis": 1.2332905350064373e-07,
+    "torso": 1.2036781326982014e-07,
+    "head": 1.257802770743827e-07,
+    "shoulder_near": 1.2644054553268208e-07,
+    "elbow_near": 3.793216365980463e-07,
+    "hand_near": 1.228781230931777e-07,
+    "hip_near": 4.829677602840022e-06,
+    "knee_near": 5.405651672845201e-07,
+    "ankle_near": 8.694548434674495e-07,
+    "shoulder_far": 2.537576312709809e-07,
+    "elbow_far": 1.4901161193847656e-07,
+    "hand_far": 1.3657139822709083e-07,
+    "hip_far": 9.427928888693996e-07,
+    "knee_far": 1.0566173733017347e-06,
+    "ankle_far": 1.617849658258642e-07
+  },
+  "combined_mesh_hashes": {
+    "cold": "3b13750da8d8244ca99b387b2c8c712e64debb6326e5a4f1b317c46c572af6bf",
+    "replay": "3b13750da8d8244ca99b387b2c8c712e64debb6326e5a4f1b317c46c572af6bf",
+    "independent_cold": "3b13750da8d8244ca99b387b2c8c712e64debb6326e5a4f1b317c46c572af6bf"
+  },
+  "delivery_binding": {
+    "spec_hash": "79c3bb4474359f6f90d89d6a3f3f5e9f4c605d8918abda55bc5a6f4a7c6e307a",
+    "cold_mesh_hash": "3b13750da8d8244ca99b387b2c8c712e64debb6326e5a4f1b317c46c572af6bf",
+    "report_sha256": {
+      "build_report.json": "f6959d716edde300208e1020d6cd4f65918592c37b443f689972647ebf86046a",
+      "capture_checks.json": "579e13085a62b1a5f47632eb14d5db00be1062a06167298e8cf92240eeda6d79",
+      "facing_report.json": "245d2829466eebdf43a055e90a4ba94c640310e43e47a352f84417807f21cfd2",
+      "ownership_validation.json": "90421ed7df4d9f8f5cf3294d11301b2e1a4038e54ee67af2d5d1844b61f1b9fc",
+      "solo_coverage.json": "3e7e8b3e275ed26a702e6138e41c1eb97103303c2585e5c640a5cac7496f5042",
+      "mq26_native.json": "05ad771fdf546962548a4dfa36fcdddb22c4d64c3d67795bcd2704663c82dfca",
+      "mq26_acceptance.json": "2a0861adeb3b296d809577df19030bafed75c232c672c77cae55c75df5550b75",
+      "capture_manifest.json": "d7256b50db95bb00b03803d900df47a412069060e92f7144f27d07a217366765"
+    },
+    "exact_native_replay_sha256": "f101faa21a11c37106db9af0c19401317d9588a845ed1a96f6b1ea1405e05a57"
+  }
+}

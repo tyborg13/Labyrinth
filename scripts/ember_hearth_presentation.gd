@@ -98,9 +98,8 @@ func result(host: Node, display: Dictionary, chrome: Dictionary, text: String, h
 	if heal: base["effect"] = {"kind": "heal", "tile": tile}
 	var texts: Array = [{"tile": tile, "text": text, "color": color, "offset": -8.0}]
 	var duration: float = 0.65 if reduced else 0.90
-	var started: int = Time.get_ticks_usec()
+	var elapsed: float = 0.0
 	while token == generation:
-		var elapsed: float = float(Time.get_ticks_usec() - started) / 1000000.0
 		var progress: float = clampf(elapsed / duration, 0.0, 1.0)
 		var frame: Dictionary = base.duplicate(true)
 		# Hold a legible static heal pose under reduced motion, not the invisible last frame.
@@ -109,6 +108,7 @@ func result(host: Node, display: Dictionary, chrome: Dictionary, text: String, h
 		render.call(display, frame)
 		if elapsed >= duration: break
 		await host.get_tree().process_frame
+		elapsed += host.get_process_delta_time()
 
 func dismiss(host: Node, bar: HBoxContainer, reduced: bool) -> void:
 	if not is_instance_valid(bar): return

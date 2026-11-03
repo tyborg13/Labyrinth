@@ -1,0 +1,1513 @@
+{
+  "profiles": [
+    {
+      "view": "front",
+      "clip": "hit",
+      "group": "torso",
+      "scale": 0.7,
+      "status": "measured_safe",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 30,
+          "target_findings": 1,
+          "total_findings": 2,
+          "live_states": 18,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.8,
+          "frames": 30,
+          "target_findings": 2,
+          "total_findings": 4,
+          "live_states": 18,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false
+        },
+        {
+          "scale": 0.7,
+          "frames": 30,
+          "target_findings": 0,
+          "total_findings": 0,
+          "live_states": 18,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "torso_root"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "group": "arm_near",
+      "scale": 0.8,
+      "status": "measured_safe",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 66,
+          "target_findings": 1,
+          "total_findings": 4,
+          "live_states": 64,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.8,
+          "frames": 66,
+          "target_findings": 0,
+          "total_findings": 2,
+          "live_states": 64,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "internal_arm_near"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "group": "torso",
+      "scale": 0.9,
+      "status": "measured_safe",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 66,
+          "target_findings": 0,
+          "total_findings": 2,
+          "live_states": 63,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "torso_root"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mourning_hook",
+      "group": "arm_far",
+      "scale": 0.9,
+      "status": "measured_safe",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 54,
+          "target_findings": 0,
+          "total_findings": 2,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "internal_arm_far"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mourning_hook",
+      "group": "torso",
+      "scale": 1.0,
+      "status": "approved_excursion_retained",
+      "reason": "No admissible full-clip budget at or above 60%; preserve live action/elbows/component contracts",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 54,
+          "target_findings": 2,
+          "total_findings": 6,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.8,
+          "frames": 54,
+          "target_findings": 1,
+          "total_findings": 4,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.7,
+          "frames": 54,
+          "target_findings": 5,
+          "total_findings": 12,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false
+        },
+        {
+          "scale": 0.6,
+          "frames": 54,
+          "target_findings": 5,
+          "total_findings": 12,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false
+        }
+      ],
+      "joints": [
+        "torso_root"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "group": "leg_far",
+      "scale": 1.0,
+      "status": "approved_excursion_retained",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 51,
+          "target_findings": 2,
+          "total_findings": 19,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false,
+          "walk_ok": false,
+          "walk_errors": [
+            "front/move/far/0.14: swing lift differs from protagonist curve",
+            "front/move/far/0.16: swing lift differs from protagonist curve",
+            "front/move/far/0.18: swing lift differs from protagonist curve",
+            "front/move/far/0.22: swing lift differs from protagonist curve",
+            "front/move/far/0.24: swing lift differs from protagonist curve",
+            "front/move/far/0.26: swing lift differs from protagonist curve",
+            "front/move/far/0.2: swing lift differs from protagonist curve",
+            "front/move/far/0.54: swing lift differs from protagonist curve",
+            "front/move/far/0.56: swing lift differs from protagonist curve",
+            "front/move/far/0.58: swing lift differs from protagonist curve",
+            "front/move/far/0.62: swing lift differs from protagonist curve",
+            "front/move/far/0.64: swing lift differs from protagonist curve",
+            "front/move/far/0.66: swing lift differs from protagonist curve",
+            "front/move/far/0.6: swing lift differs from protagonist curve",
+            "front/move/far/0.94: swing lift differs from protagonist curve",
+            "front/move/far/0.96: swing lift differs from protagonist curve",
+            "front/move/far/0.98: swing lift differs from protagonist curve"
+          ]
+        },
+        {
+          "scale": 0.8,
+          "frames": 51,
+          "target_findings": 2,
+          "total_findings": 19,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false,
+          "walk_ok": false,
+          "walk_errors": [
+            "front/move/far/0.14: swing lift differs from protagonist curve",
+            "front/move/far/0.16: swing lift differs from protagonist curve",
+            "front/move/far/0.18: swing lift differs from protagonist curve",
+            "front/move/far/0.22: swing lift differs from protagonist curve",
+            "front/move/far/0.24: swing lift differs from protagonist curve",
+            "front/move/far/0.26: swing lift differs from protagonist curve",
+            "front/move/far/0.2: swing lift differs from protagonist curve",
+            "front/move/far/0.54: swing lift differs from protagonist curve",
+            "front/move/far/0.56: swing lift differs from protagonist curve",
+            "front/move/far/0.58: swing lift differs from protagonist curve",
+            "front/move/far/0.62: swing lift differs from protagonist curve",
+            "front/move/far/0.64: swing lift differs from protagonist curve",
+            "front/move/far/0.66: swing lift differs from protagonist curve",
+            "front/move/far/0.6: swing lift differs from protagonist curve",
+            "front/move/far/0.94: swing lift differs from protagonist curve",
+            "front/move/far/0.96: swing lift differs from protagonist curve",
+            "front/move/far/0.98: swing lift differs from protagonist curve"
+          ]
+        },
+        {
+          "scale": 0.7,
+          "frames": 51,
+          "target_findings": 0,
+          "total_findings": 17,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false,
+          "walk_ok": false,
+          "walk_errors": [
+            "front/move/far/0.14: swing lift differs from protagonist curve",
+            "front/move/far/0.16: swing lift differs from protagonist curve",
+            "front/move/far/0.18: swing lift differs from protagonist curve",
+            "front/move/far/0.22: swing lift differs from protagonist curve",
+            "front/move/far/0.24: swing lift differs from protagonist curve",
+            "front/move/far/0.26: swing lift differs from protagonist curve",
+            "front/move/far/0.2: swing lift differs from protagonist curve",
+            "front/move/far/0.54: swing lift differs from protagonist curve",
+            "front/move/far/0.56: swing lift differs from protagonist curve",
+            "front/move/far/0.58: swing lift differs from protagonist curve",
+            "front/move/far/0.62: swing lift differs from protagonist curve",
+            "front/move/far/0.64: swing lift differs from protagonist curve",
+            "front/move/far/0.66: swing lift differs from protagonist curve",
+            "front/move/far/0.6: swing lift differs from protagonist curve",
+            "front/move/far/0.94: swing lift differs from protagonist curve",
+            "front/move/far/0.96: swing lift differs from protagonist curve",
+            "front/move/far/0.98: swing lift differs from protagonist curve"
+          ]
+        }
+      ],
+      "joints": [
+        "ankle_far"
+      ],
+      "reason": "No measured budget preserves the existing protagonist lift curve, knees and supports"
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "group": "leg_near",
+      "scale": 1.0,
+      "status": "approved_excursion_retained",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 51,
+          "target_findings": 15,
+          "total_findings": 19,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false,
+          "walk_ok": false,
+          "walk_errors": [
+            "front/move/near/0.02: swing lift differs from protagonist curve",
+            "front/move/near/0.04: swing lift differs from protagonist curve",
+            "front/move/near/0.06: swing lift differs from protagonist curve",
+            "front/move/near/0.34: swing lift differs from protagonist curve",
+            "front/move/near/0.36: swing lift differs from protagonist curve",
+            "front/move/near/0.38: swing lift differs from protagonist curve",
+            "front/move/near/0.42: swing lift differs from protagonist curve",
+            "front/move/near/0.44: swing lift differs from protagonist curve",
+            "front/move/near/0.46: swing lift differs from protagonist curve",
+            "front/move/near/0.4: swing lift differs from protagonist curve",
+            "front/move/near/0.74: swing lift differs from protagonist curve",
+            "front/move/near/0.76: swing lift differs from protagonist curve",
+            "front/move/near/0.78: swing lift differs from protagonist curve",
+            "front/move/near/0.82: swing lift differs from protagonist curve",
+            "front/move/near/0.84: swing lift differs from protagonist curve",
+            "front/move/near/0.86: swing lift differs from protagonist curve",
+            "front/move/near/0.8: swing lift differs from protagonist curve"
+          ]
+        },
+        {
+          "scale": 0.8,
+          "frames": 51,
+          "target_findings": 15,
+          "total_findings": 21,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false,
+          "walk_ok": false,
+          "walk_errors": [
+            "front/move/near/0.02: swing lift differs from protagonist curve",
+            "front/move/near/0.04: swing lift differs from protagonist curve",
+            "front/move/near/0.06: swing lift differs from protagonist curve",
+            "front/move/near/0.34: swing lift differs from protagonist curve",
+            "front/move/near/0.36: swing lift differs from protagonist curve",
+            "front/move/near/0.38: swing lift differs from protagonist curve",
+            "front/move/near/0.42: swing lift differs from protagonist curve",
+            "front/move/near/0.44: swing lift differs from protagonist curve",
+            "front/move/near/0.46: swing lift differs from protagonist curve",
+            "front/move/near/0.4: swing lift differs from protagonist curve",
+            "front/move/near/0.74: swing lift differs from protagonist curve",
+            "front/move/near/0.76: swing lift differs from protagonist curve",
+            "front/move/near/0.78: swing lift differs from protagonist curve",
+            "front/move/near/0.82: swing lift differs from protagonist curve",
+            "front/move/near/0.84: swing lift differs from protagonist curve",
+            "front/move/near/0.86: swing lift differs from protagonist curve",
+            "front/move/near/0.8: swing lift differs from protagonist curve"
+          ]
+        },
+        {
+          "scale": 0.7,
+          "frames": 51,
+          "target_findings": 15,
+          "total_findings": 29,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false,
+          "walk_ok": false,
+          "walk_errors": [
+            "front/move/near/0.02: swing lift differs from protagonist curve",
+            "front/move/near/0.04: swing lift differs from protagonist curve",
+            "front/move/near/0.06: swing lift differs from protagonist curve",
+            "front/move/near/0.34: swing lift differs from protagonist curve",
+            "front/move/near/0.36: swing lift differs from protagonist curve",
+            "front/move/near/0.38: swing lift differs from protagonist curve",
+            "front/move/near/0.42: swing lift differs from protagonist curve",
+            "front/move/near/0.44: swing lift differs from protagonist curve",
+            "front/move/near/0.46: swing lift differs from protagonist curve",
+            "front/move/near/0.4: swing lift differs from protagonist curve",
+            "front/move/near/0.74: swing lift differs from protagonist curve",
+            "front/move/near/0.76: swing lift differs from protagonist curve",
+            "front/move/near/0.78: swing lift differs from protagonist curve",
+            "front/move/near/0.82: swing lift differs from protagonist curve",
+            "front/move/near/0.84: swing lift differs from protagonist curve",
+            "front/move/near/0.86: swing lift differs from protagonist curve",
+            "front/move/near/0.8: swing lift differs from protagonist curve"
+          ]
+        },
+        {
+          "scale": 0.6,
+          "frames": 51,
+          "target_findings": 51,
+          "total_findings": 67,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false,
+          "walk_ok": false,
+          "walk_errors": [
+            "front/move/near/0.02: swing lift differs from protagonist curve",
+            "front/move/near/0.04: swing lift differs from protagonist curve",
+            "front/move/near/0.06: swing lift differs from protagonist curve",
+            "front/move/near/0.34: swing lift differs from protagonist curve",
+            "front/move/near/0.36: swing lift differs from protagonist curve",
+            "front/move/near/0.38: swing lift differs from protagonist curve",
+            "front/move/near/0.42: swing lift differs from protagonist curve",
+            "front/move/near/0.44: swing lift differs from protagonist curve",
+            "front/move/near/0.46: swing lift differs from protagonist curve",
+            "front/move/near/0.4: swing lift differs from protagonist curve",
+            "front/move/near/0.74: swing lift differs from protagonist curve",
+            "front/move/near/0.76: swing lift differs from protagonist curve",
+            "front/move/near/0.78: swing lift differs from protagonist curve",
+            "front/move/near/0.82: swing lift differs from protagonist curve",
+            "front/move/near/0.84: swing lift differs from protagonist curve",
+            "front/move/near/0.86: swing lift differs from protagonist curve",
+            "front/move/near/0.8: swing lift differs from protagonist curve"
+          ]
+        }
+      ],
+      "joints": [
+        "ankle_near"
+      ],
+      "reason": "No measured budget preserves the existing protagonist lift curve, knees and supports"
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "group": "torso",
+      "scale": 0.7,
+      "status": "measured_safe",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 51,
+          "target_findings": 5,
+          "total_findings": 27,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false,
+          "walk_ok": true,
+          "walk_errors": []
+        },
+        {
+          "scale": 0.8,
+          "frames": 51,
+          "target_findings": 6,
+          "total_findings": 29,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false,
+          "walk_ok": true,
+          "walk_errors": []
+        },
+        {
+          "scale": 0.7,
+          "frames": 51,
+          "target_findings": 0,
+          "total_findings": 17,
+          "live_states": 51,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true,
+          "walk_ok": true,
+          "walk_errors": []
+        }
+      ],
+      "joints": [
+        "torso_root"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "snuff",
+      "group": "torso",
+      "scale": 0.6,
+      "status": "measured_safe",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 54,
+          "target_findings": 8,
+          "total_findings": 16,
+          "live_states": 45,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false
+        },
+        {
+          "scale": 0.8,
+          "frames": 54,
+          "target_findings": 22,
+          "total_findings": 44,
+          "live_states": 44,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false
+        },
+        {
+          "scale": 0.7,
+          "frames": 54,
+          "target_findings": 18,
+          "total_findings": 36,
+          "live_states": 43,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": false
+        },
+        {
+          "scale": 0.6,
+          "frames": 54,
+          "target_findings": 0,
+          "total_findings": 0,
+          "live_states": 43,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "torso_root"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "group": "arm_near",
+      "scale": 0.6,
+      "status": "measured_floor_remaining",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 96,
+          "target_findings": 46,
+          "total_findings": 63,
+          "live_states": 80,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.8,
+          "frames": 96,
+          "target_findings": 46,
+          "total_findings": 63,
+          "live_states": 79,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.7,
+          "frames": 96,
+          "target_findings": 46,
+          "total_findings": 63,
+          "live_states": 79,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.6,
+          "frames": 96,
+          "target_findings": 46,
+          "total_findings": 63,
+          "live_states": 80,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "internal_arm_near",
+        "wrist_near"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "group": "pelvis",
+      "scale": 0.6,
+      "status": "measured_floor_remaining",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 96,
+          "target_findings": 19,
+          "total_findings": 94,
+          "live_states": 83,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.8,
+          "frames": 96,
+          "target_findings": 21,
+          "total_findings": 127,
+          "live_states": 83,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.7,
+          "frames": 96,
+          "target_findings": 26,
+          "total_findings": 74,
+          "live_states": 80,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.6,
+          "frames": 96,
+          "target_findings": 24,
+          "total_findings": 100,
+          "live_states": 82,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "ankle_near"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "group": "leg_far",
+      "scale": 1.0,
+      "status": "no_independent_target",
+      "trials": [],
+      "joints": [
+        "ankle_far"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "group": "leg_near",
+      "scale": 1.0,
+      "status": "no_independent_target",
+      "trials": [],
+      "joints": [
+        "ankle_near"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "group": "arm_near",
+      "scale": 0.6,
+      "status": "measured_floor_remaining",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 66,
+          "target_findings": 14,
+          "total_findings": 73,
+          "live_states": 62,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.8,
+          "frames": 66,
+          "target_findings": 15,
+          "total_findings": 74,
+          "live_states": 62,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.7,
+          "frames": 66,
+          "target_findings": 15,
+          "total_findings": 74,
+          "live_states": 63,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.6,
+          "frames": 66,
+          "target_findings": 15,
+          "total_findings": 75,
+          "live_states": 62,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "internal_arm_near",
+        "wrist_near"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "group": "lantern",
+      "scale": 0.6,
+      "status": "measured_floor_remaining",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 66,
+          "target_findings": 13,
+          "total_findings": 73,
+          "live_states": 62,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.8,
+          "frames": 66,
+          "target_findings": 13,
+          "total_findings": 73,
+          "live_states": 64,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.7,
+          "frames": 66,
+          "target_findings": 13,
+          "total_findings": 73,
+          "live_states": 62,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.6,
+          "frames": 66,
+          "target_findings": 13,
+          "total_findings": 73,
+          "live_states": 63,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "grip"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "group": "pelvis",
+      "scale": 0.6,
+      "status": "measured_floor_remaining",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 66,
+          "target_findings": 38,
+          "total_findings": 64,
+          "live_states": 63,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.8,
+          "frames": 66,
+          "target_findings": 36,
+          "total_findings": 62,
+          "live_states": 63,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.7,
+          "frames": 66,
+          "target_findings": 35,
+          "total_findings": 61,
+          "live_states": 63,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.6,
+          "frames": 66,
+          "target_findings": 29,
+          "total_findings": 56,
+          "live_states": 63,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "ankle_near"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "mourning_hook",
+      "group": "arm_near",
+      "scale": 0.6,
+      "status": "measured_floor_remaining",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 54,
+          "target_findings": 11,
+          "total_findings": 56,
+          "live_states": 53,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.8,
+          "frames": 54,
+          "target_findings": 16,
+          "total_findings": 61,
+          "live_states": 53,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.7,
+          "frames": 54,
+          "target_findings": 16,
+          "total_findings": 61,
+          "live_states": 53,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.6,
+          "frames": 54,
+          "target_findings": 16,
+          "total_findings": 61,
+          "live_states": 53,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "internal_arm_near",
+        "wrist_near"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "mourning_hook",
+      "group": "lantern",
+      "scale": 0.6,
+      "status": "measured_floor_remaining",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 54,
+          "target_findings": 6,
+          "total_findings": 56,
+          "live_states": 53,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.8,
+          "frames": 54,
+          "target_findings": 8,
+          "total_findings": 61,
+          "live_states": 53,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.7,
+          "frames": 54,
+          "target_findings": 8,
+          "total_findings": 61,
+          "live_states": 53,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.6,
+          "frames": 54,
+          "target_findings": 8,
+          "total_findings": 61,
+          "live_states": 53,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "grip"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "mourning_hook",
+      "group": "leg_far",
+      "scale": 1.0,
+      "status": "no_independent_target",
+      "trials": [],
+      "joints": [
+        "ankle_far"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "mourning_hook",
+      "group": "leg_near",
+      "scale": 1.0,
+      "status": "no_independent_target",
+      "trials": [],
+      "joints": [
+        "ankle_near"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "approved_excursion_retained",
+      "reason": "Prescribed idle, full walk arm ratios and released-item floor path stay fixed",
+      "trials": [],
+      "joints": [
+        "internal_arm_near",
+        "wrist_near"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "group": "lantern",
+      "scale": 1.0,
+      "status": "no_independent_target",
+      "trials": [],
+      "joints": [
+        "grip"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "snuff",
+      "group": "lantern",
+      "scale": 0.6,
+      "status": "measured_floor_remaining",
+      "trials": [
+        {
+          "scale": 0.9,
+          "frames": 54,
+          "target_findings": 42,
+          "total_findings": 61,
+          "live_states": 44,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.8,
+          "frames": 54,
+          "target_findings": 42,
+          "total_findings": 61,
+          "live_states": 44,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.7,
+          "frames": 54,
+          "target_findings": 42,
+          "total_findings": 61,
+          "live_states": 43,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        },
+        {
+          "scale": 0.6,
+          "frames": 54,
+          "target_findings": 42,
+          "total_findings": 61,
+          "live_states": 43,
+          "elbows_ok": true,
+          "reach_ok": true,
+          "admissible": true
+        }
+      ],
+      "joints": [
+        "grip"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "snuff",
+      "group": "leg_near",
+      "scale": 1.0,
+      "status": "no_independent_target",
+      "trials": [],
+      "joints": [
+        "ankle_near"
+      ]
+    }
+  ],
+  "clamps": [
+    {
+      "view": "front",
+      "clip": "hit",
+      "source": "torso.forward_px",
+      "at": 0.18,
+      "target": -3,
+      "clamped": -2.0999999999999996,
+      "budget_note": "Complete native-origin clip joint budget torso x 0.7; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "source": "torso.lift_px",
+      "at": 0.18,
+      "target": -1,
+      "clamped": -0.7,
+      "budget_note": "Complete native-origin clip joint budget torso x 0.7; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "source": "torso.lean_deg",
+      "at": 0.18,
+      "target": 3,
+      "clamped": 2.0999999999999996,
+      "budget_note": "Complete native-origin clip joint budget torso x 0.7; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "source": "hand_near.forward_px",
+      "at": 0.3,
+      "target": -8,
+      "clamped": -6.4,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.8; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "source": "hand_near.forward_px",
+      "at": 0.5,
+      "target": 14,
+      "clamped": 11.200000000000001,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.8; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "source": "hand_near.forward_px",
+      "at": 0.65,
+      "target": 10,
+      "clamped": 8.0,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.8; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "source": "hand_near.forward_px",
+      "at": 0.85,
+      "target": 4,
+      "clamped": 3.2,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.8; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "source": "hand_near.lift_px",
+      "at": 0.3,
+      "target": 16,
+      "clamped": 12.8,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.8; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "source": "hand_near.lift_px",
+      "at": 0.5,
+      "target": 4,
+      "clamped": 3.2,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.8; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "source": "hand_near.lift_px",
+      "at": 0.65,
+      "target": -2,
+      "clamped": -1.6,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.8; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "source": "torso.lean_deg",
+      "at": 0.3,
+      "target": 4,
+      "clamped": 3.6,
+      "budget_note": "Complete native-origin clip joint budget torso x 0.9; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "source": "torso.lean_deg",
+      "at": 0.5,
+      "target": -4,
+      "clamped": -3.6,
+      "budget_note": "Complete native-origin clip joint budget torso x 0.9; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "source": "torso.lean_deg",
+      "at": 0.65,
+      "target": -4,
+      "clamped": -3.6,
+      "budget_note": "Complete native-origin clip joint budget torso x 0.9; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "source": "torso.forward_px",
+      "at": 0.5,
+      "target": 5,
+      "clamped": 4.5,
+      "budget_note": "Complete native-origin clip joint budget torso x 0.9; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "last_procession",
+      "source": "torso.forward_px",
+      "at": 0.65,
+      "target": 5,
+      "clamped": 4.5,
+      "budget_note": "Complete native-origin clip joint budget torso x 0.9; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "mourning_hook",
+      "source": "hand_far.forward_px",
+      "at": 0.25,
+      "target": -4,
+      "clamped": -3.6,
+      "budget_note": "Complete native-origin clip joint budget arm_far x 0.9; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "mourning_hook",
+      "source": "hand_far.forward_px",
+      "at": 0.42,
+      "target": 16,
+      "clamped": 14.4,
+      "budget_note": "Complete native-origin clip joint budget arm_far x 0.9; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "mourning_hook",
+      "source": "hand_far.forward_px",
+      "at": 0.55,
+      "target": 14,
+      "clamped": 12.6,
+      "budget_note": "Complete native-origin clip joint budget arm_far x 0.9; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "mourning_hook",
+      "source": "hand_far.forward_px",
+      "at": 0.75,
+      "target": -2,
+      "clamped": -1.8,
+      "budget_note": "Complete native-origin clip joint budget arm_far x 0.9; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "mourning_hook",
+      "source": "hand_far.lift_px",
+      "at": 0.25,
+      "target": 4,
+      "clamped": 3.6,
+      "budget_note": "Complete native-origin clip joint budget arm_far x 0.9; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "mourning_hook",
+      "source": "hand_far.lift_px",
+      "at": 0.42,
+      "target": 6,
+      "clamped": 5.4,
+      "budget_note": "Complete native-origin clip joint budget arm_far x 0.9; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "mourning_hook",
+      "source": "hand_far.lift_px",
+      "at": 0.75,
+      "target": 2,
+      "clamped": 1.8,
+      "budget_note": "Complete native-origin clip joint budget arm_far x 0.9; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "source": "torso.lean_deg",
+      "at": 0.12,
+      "target": -3,
+      "clamped": -2.0999999999999996,
+      "budget_note": "Complete native-origin clip joint budget torso x 0.7; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "source": "torso.lean_deg",
+      "at": 0.88,
+      "target": -3,
+      "clamped": -2.0999999999999996,
+      "budget_note": "Complete native-origin clip joint budget torso x 0.7; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "snuff",
+      "source": "torso.lean_deg",
+      "at": 0.4,
+      "target": -4,
+      "clamped": -2.4,
+      "budget_note": "Complete native-origin clip joint budget torso x 0.6; measured_safe"
+    },
+    {
+      "view": "front",
+      "clip": "snuff",
+      "source": "torso.lean_deg",
+      "at": 0.6,
+      "target": -4,
+      "clamped": -2.4,
+      "budget_note": "Complete native-origin clip joint budget torso x 0.6; measured_safe"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "source": "hand_near.lift_px",
+      "at": 0.75,
+      "target": -5,
+      "clamped": -3.0,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "source": "hand_near.lift_px",
+      "at": 1,
+      "target": -6,
+      "clamped": -3.5999999999999996,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "source": "pelvis.lift_px",
+      "at": 0.7,
+      "target": -4,
+      "clamped": -2.4,
+      "budget_note": "Complete native-origin clip joint budget pelvis x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "source": "pelvis.lift_px",
+      "at": 0.95,
+      "target": -6,
+      "clamped": -3.5999999999999996,
+      "budget_note": "Complete native-origin clip joint budget pelvis x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "source": "pelvis.lift_px",
+      "at": 1,
+      "target": -6,
+      "clamped": -3.5999999999999996,
+      "budget_note": "Complete native-origin clip joint budget pelvis x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "source": "pelvis.forward_px",
+      "at": 0.7,
+      "target": 1,
+      "clamped": 0.6,
+      "budget_note": "Complete native-origin clip joint budget pelvis x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "source": "pelvis.forward_px",
+      "at": 0.95,
+      "target": 2,
+      "clamped": 1.2,
+      "budget_note": "Complete native-origin clip joint budget pelvis x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "source": "pelvis.forward_px",
+      "at": 1,
+      "target": 2,
+      "clamped": 1.2,
+      "budget_note": "Complete native-origin clip joint budget pelvis x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "hand_near.forward_px",
+      "at": 0.3,
+      "target": -8,
+      "clamped": -4.8,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "hand_near.forward_px",
+      "at": 0.5,
+      "target": 14,
+      "clamped": 8.4,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "hand_near.forward_px",
+      "at": 0.65,
+      "target": 10,
+      "clamped": 6.0,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "hand_near.forward_px",
+      "at": 0.85,
+      "target": 4,
+      "clamped": 2.4,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "hand_near.lift_px",
+      "at": 0.3,
+      "target": 16,
+      "clamped": 9.6,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "hand_near.lift_px",
+      "at": 0.5,
+      "target": 4,
+      "clamped": 2.4,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "hand_near.lift_px",
+      "at": 0.65,
+      "target": -2,
+      "clamped": -1.2,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "lantern.angle_deg",
+      "at": 0.3,
+      "target": -30,
+      "clamped": -18.0,
+      "budget_note": "Complete native-origin clip joint budget lantern x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "lantern.angle_deg",
+      "at": 0.5,
+      "target": 20,
+      "clamped": 12.0,
+      "budget_note": "Complete native-origin clip joint budget lantern x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "lantern.angle_deg",
+      "at": 0.65,
+      "target": 35,
+      "clamped": 21.0,
+      "budget_note": "Complete native-origin clip joint budget lantern x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "lantern.angle_deg",
+      "at": 0.8,
+      "target": -10,
+      "clamped": -6.0,
+      "budget_note": "Complete native-origin clip joint budget lantern x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "pelvis.lift_px",
+      "at": 0.5,
+      "target": -2,
+      "clamped": -1.2,
+      "budget_note": "Complete native-origin clip joint budget pelvis x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "last_procession",
+      "source": "pelvis.lift_px",
+      "at": 0.7,
+      "target": -2,
+      "clamped": -1.2,
+      "budget_note": "Complete native-origin clip joint budget pelvis x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "mourning_hook",
+      "source": "hand_near.forward_px",
+      "at": 0.42,
+      "target": -3,
+      "clamped": -1.7999999999999998,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "mourning_hook",
+      "source": "hand_near.forward_px",
+      "at": 0.75,
+      "target": 1,
+      "clamped": 0.6,
+      "budget_note": "Complete native-origin clip joint budget arm_near x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "mourning_hook",
+      "source": "lantern.angle_deg",
+      "at": 0.42,
+      "target": 8,
+      "clamped": 4.8,
+      "budget_note": "Complete native-origin clip joint budget lantern x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "mourning_hook",
+      "source": "lantern.angle_deg",
+      "at": 0.6,
+      "target": -5,
+      "clamped": -3.0,
+      "budget_note": "Complete native-origin clip joint budget lantern x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "mourning_hook",
+      "source": "lantern.angle_deg",
+      "at": 0.8,
+      "target": 2,
+      "clamped": 1.2,
+      "budget_note": "Complete native-origin clip joint budget lantern x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "snuff",
+      "source": "lantern.angle_deg",
+      "at": 0.35,
+      "target": 6,
+      "clamped": 3.5999999999999996,
+      "budget_note": "Complete native-origin clip joint budget lantern x 0.6; measured_floor_remaining"
+    },
+    {
+      "view": "rear",
+      "clip": "snuff",
+      "source": "lantern.angle_deg",
+      "at": 0.8,
+      "target": -3,
+      "clamped": -1.7999999999999998,
+      "budget_note": "Complete native-origin clip joint budget lantern x 0.6; measured_floor_remaining"
+    }
+  ],
+  "source_sweep_sha256": "96396ede370716e876db2a51f957a2719ab2c40ef2ec72ef3c8d31f125e639e8",
+  "walk_arm_excursion_ratios": {
+    "near": 1.0,
+    "far": 1.0
+  },
+  "native_pixels": false,
+  "defaults": {
+    "ratios": [
+      0.9,
+      0.8,
+      0.7,
+      0.6
+    ],
+    "workers": 3
+  },
+  "walk_admissibility_checks": 10
+}

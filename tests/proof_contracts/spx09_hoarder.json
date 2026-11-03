@@ -1,0 +1,178 @@
+{
+  "min_images": 10,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*spx09/fire_tier2/pre_battle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*spx09/fire_tier2/first_turn.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*spx09/fire_tier2/last_turn.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*spx09/fire_tier2/slipped_away.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*spx09/fire_tier2/caught_reward.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*spx09/ice_tier1/pre_battle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*spx09/ice_tier1/first_turn.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*spx09/ice_tier1/last_turn.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*spx09/ice_tier1/slipped_away.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*spx09/ice_tier1/caught_reward.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,272 @@
+{
+  "min_images": 12,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "ashen_reaver_forecast.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            150,
+            1300,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "ashen_reaver_beat.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            500,
+            15,
+            920,
+            110
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        },
+        {
+          "rect": [
+            300,
+            150,
+            1300,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "rimejaw_forecast.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            150,
+            1300,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "rimejaw_beat.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            500,
+            15,
+            920,
+            110
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        },
+        {
+          "rect": [
+            300,
+            150,
+            1300,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "storm_cantor_forecast.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            150,
+            1300,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "storm_cantor_beat.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            500,
+            15,
+            920,
+            110
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        },
+        {
+          "rect": [
+            300,
+            150,
+            1300,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "gallows_roc_forecast.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            150,
+            1300,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "gallows_roc_beat.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            500,
+            15,
+            920,
+            110
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        },
+        {
+          "rect": [
+            300,
+            150,
+            1300,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "craghide_forecast.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            150,
+            1300,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "craghide_beat.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            500,
+            15,
+            920,
+            110
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        },
+        {
+          "rect": [
+            300,
+            150,
+            1300,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "last_lamplighter_forecast.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            150,
+            1300,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "last_lamplighter_beat.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            500,
+            15,
+            920,
+            110
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        },
+        {
+          "rect": [
+            300,
+            150,
+            1300,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

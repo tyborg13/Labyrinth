@@ -201,8 +201,6 @@ func _grimoire_pages() -> void:
 		var body: RichTextLabel = scene.get("_grimoire_detail_body")
 		_expect(title.text == str(definition["title"]), entry_id + " selected production page is visible")
 		_expect(body.text == str(scene.call("_grimoire_body_text", definition)), entry_id + " retains all authored rules")
-		if GRIMOIRE_ENTRIES.has(entry_id):
-			_expect(body.text.contains("fixed marked ground"), entry_id + " distinguishes marked ground from Eclipse darkness")
 		_expect(body.is_visible_in_tree() and body.get_content_height() <= body.size.y+1.0, entry_id + " rules fit without clipping")
 		var name: String = "grimoire_"+entry_id.replace(":", "_")+".png"
 		var image: Image = canvas.get_texture().get_image()
@@ -220,16 +218,7 @@ func _action_sources(state: Dictionary, enemy: Dictionary) -> Array[Dictionary]:
 			source["live_tiles_at_current_body"] = Held.live_tiles(combat, state, enemy, action)
 			# The warning itself includes planned movement and sequential actions;
 			# these live tiles are source evidence, not a replacement for that union.
-		if action.has("snapshot_key"):
-			source["enemy_source_snapshot"] = enemy.get(str(action["snapshot_key"]), null)
-		if str(action.get("field_anchor", "")) == "player":
-			source["semantics"] = "Fixed area held around field_center at declaration; radius and declared_tiles are authoritative."
-		elif Held.shape(action) == "surface_snapshot":
-			source["semantics"] = "Declared surface centers filtered by the living surface, expanded by snapshot_radius."
-		elif Held.shape(action) == "trail_snapshot":
-			source["semantics"] = "Fixed declared trail area retained from the resolver-created source."
-		else:
-			source["semantics"] = "Raw authored/committed action retained; complete sequential threat is expected_warning."
+		source["semantics"] = "Raw authored/committed action retained; complete sequential threat is expected_warning."
 		result.append(source)
 	return result
 

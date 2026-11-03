@@ -2,7 +2,7 @@
   "rig": "humanoid_v2",
   "units": "source_px",
   "creature": "hoarfrost_seer",
-  "director_sha256": "3936cc0fb6028fe2eb858e7f753efe7aab712d92b8158ea9f74ea4dd91e25f42",
+  "director_sha256": "30cf0240b1f1850daa474548824771a5e5d688bbc5b120eb3b367c49b73c706b",
   "projection": {
     "front": {
       "forward": [
@@ -28,7 +28,7 @@
       "release_at": {}
     },
     "move": {
-      "seconds": 0.9,
+      "seconds": 0.3333333333333333,
       "intents": [
         "withdraw:move_away"
       ],

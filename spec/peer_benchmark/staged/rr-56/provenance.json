@@ -1,0 +1,27 @@
+{
+ "schema": 1,
+ "unit": "rr-56",
+ "what": "director data for the Storm Cantor rig (humanoid v2): motion tracks and body underlays behind the arms, staff and bell (front and rear), from the owner-approved take-three paintings (inbox cantor-paint-3)",
+ "image_jobs": {
+  "front_underlay": "img-rr56-cantor-front-underlay-r1 (edit of mq26_front processed x4; the tool returned 1254 px); thigh from the r2 resume (the first read as bare skin), composited over r1 in x 132-158, y 128-178 only",
+  "rear_underlay": "img-rr56-cantor-rear-underlay-r1 (edit of mq26_rear processed x4; 1254 px)"
+ },
+ "processing": {
+  "underlays": "../rr-44/reduce_underlay.py <raw> <painting> <out>",
+  "motion": "gen_motion.py writes motion_tracks.json"
+ },
+ "approved_by": "director, 2026-11-01 (underlay pixels outside the painting: 140 front / 197 rear; arms, staff and bell removed; ribs, flanks, near thigh and cloak painted in); front v2 near thigh plated, director 2026-11-01",
+ "files": {
+  "front_body_underlay.png": "330a8a9326a21116c5ac3b5c8246645b0ccc42cb8faed390513503357cff6e18",
+  "front_underlay_raw.png": "f9c44fb9cb0335d9b50ddffd26870f1280c58ced11f5637869040d24c5ab06ef",
+  "front_underlay_raw_r2.png": "cbb13d5d9a76b240a752167c72d1fd077aa7fb1fb8d06f9be5ce32972415ba4a",
+  "gen_motion.py": "ef25c8e6ac96b0e458aa7c5dc604fb917ef8e6d6811e9eff085fd7f8f0bbffdd",
+  "motion_tracks.json": "da9f862e264d981bcae9fd98b4ef45be98beda097f8178222803830f89616b4b",
+  "prompt_front_body_underlay_r1.md": "9c177e241d01e0aecb71303f16ae9ac2af41c9f686b1ae99409a2d5e201f55e2",
+  "prompt_rear_body_underlay_r1.md": "696749cb82346da9a835c2b1fa449c57bcf0e7407bf1e4020319aa989fec24f7",
+  "rear_body_underlay.png": "9adad26883f7b08cff7aa16a4c40f24e679da4ec757cdfe44f5d2df6ad017e4f",
+  "rear_underlay_raw.png": "c76df4aaee6cb63ad4c1c6f42fb45ece7fb846f377954e2cbb3da4fe567ab3f4",
+  "ref_front_approved_x4.png": "d689ee6fb715eb19268df93b90df0ade20ed160374e48c45f2c63bf23145a4dd",
+  "ref_rear_approved_x4.png": "647c5756a612c2844ae4cfb10a0aa468ab6da9a8068c88f8e74bd051310c4e90"
+ }
+}

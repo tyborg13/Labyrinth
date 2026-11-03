@@ -1,0 +1,72 @@
+{
+  "source_run": "/private/tmp/rr44-python-final",
+  "status": "superseded by final run; original assertions retained",
+  "tests": 2108,
+  "findings": [
+    {
+      "test": "test_silhouette_probe_cases_pin_density_sources (test_board_pixel_density.BoardPixelDensityTest)",
+      "kind": "failures",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_board_pixel_density.py\", line 287, in test_silhouette_probe_cases_pin_density_sources\n    self.assertEqual(paint.convert(\"RGBA\").tobytes(), source.convert(\"RGBA\").tobytes(),\nAssertionError: b'\\x0[13213 chars]x00\\x00\\x00\\n\\xff\\x00\\x00\\x00\\xff\\x86@*\\xff\\x8[21286 chars]\\x00' != b'\\x0[13213 chars]x00\\x14\\x10\\x15\\xff\\x18\\x0b\\x0b\\xff]*\\x18\\xff\\[21350 chars]\\x00' : Case paint differs from density source: /Users/borgerding/workspace/Labyrinth.worktrees/rr-44/experiments/cutouts/chainbound_gaoler/rr42/pieces/front/head.png \u2192 assets/units/chainbound_gaoler_cutout/humanoid_v2/front/head.png\n"
+    },
+    {
+      "test": "test_every_transitive_probe_preload_and_base_is_bound (test_proof_runtime_paths.ProofRuntimePathsTests)",
+      "kind": "failures",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_proof_runtime_paths.py\", line 85, in test_every_transitive_probe_preload_and_base_is_bound\n    self.assertEqual(set(gates.RUNTIME_PATHS), closure)\nAssertionError: Items in the second set but not the first:\n'scripts/maquette_cutout_runtime/humanoid_elbows.gd'\n"
+    },
+    {
+      "test": "test_curated_inventory_budget_and_lf_sources (test_mq15_maquette.DeliveryTests)",
+      "kind": "errors",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_mq15_maquette.py\", line 217, in test_curated_inventory_budget_and_lf_sources\n    self.assertLessEqual(verify_inventory(), 6_000_000)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/spec/art_identity/maquettes/chainbound_gaoler/proof.py\", line 273, in verify_inventory\n    raise ValueError('Figure manifest differs: ' + str(sorted(names ^ listed)))\nValueError: Figure manifest differs: ['rr44/fit_status.json', 'rr44/joints_source_px.json', 'rr44/measurements.json', 'rr44/native_proof.py', 'rr44/spec_native.json']\n"
+    },
+    {
+      "test": "test_rest_and_density_evidence_reseal_to_identical_bytes (test_rr41_feedback3.WalkingTests)",
+      "kind": "failures",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_rr41_feedback3.py\", line 131, in test_rest_and_density_evidence_reseal_to_identical_bytes\n    self.assertEqual(temp_report.read_bytes(),before)\nAssertionError: b'{\\n[104 chars]6\": \"4dcb8e27655d8902e717ca5ef0fc04cf761dd65ef[380 chars]n}\\n' != b'{\\n[104 chars]6\": \"227fdfcb48c690d122f3d04ea2cacef44e1543237[380 chars]n}\\n'\n"
+    },
+    {
+      "test": "test_front_motion_staged_inputs_and_gate_tool_remain_protected (test_rr43_outline.HouseOutlineTests)",
+      "kind": "failures",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_rr43_outline.py\", line 63, in test_front_motion_staged_inputs_and_gate_tool_remain_protected\n    self.assertEqual(digest(PROJECT/path),sha,path)\nAssertionError: '20bd5676f2fe4a056594193169e6556551bf4c7f2d6e1a5f556f8cc3f78b300c' != 'e6e3706b4b88a8934171bfba9ed902773824574220c6f6f43fb85934d7322a09'\n- 20bd5676f2fe4a056594193169e6556551bf4c7f2d6e1a5f556f8cc3f78b300c\n+ e6e3706b4b88a8934171bfba9ed902773824574220c6f6f43fb85934d7322a09\n : tools/art_identity_gate.py\n"
+    },
+    {
+      "test": "test_production_motion_and_approved_paint_are_untouched_copies (test_maquette_cutout.GaolerCaseTests)",
+      "kind": "failures",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_maquette_cutout.py\", line 646, in test_production_motion_and_approved_paint_are_untouched_copies\n    self.assertEqual((PROJECT / \"assets/units/chainbound_gaoler_cutout/humanoid_v2/director_motion.json\").read_bytes(),\nAssertionError: b'{\\n[30 chars] (rr-44), humanoid rig v2 for the Chainbound G[23724 chars]}\\n}' != b'{\\n[30 chars] (rr-38), humanoid rig v2 for the Chainbound G[19938 chars]}\\n}'\n"
+    },
+    {
+      "test": "test_exact_paint_and_protected_motion (test_rr38_gaoler.GaolerTests)",
+      "kind": "failures",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_rr38_gaoler.py\", line 65, in test_exact_paint_and_protected_motion\n    self.assertEqual((ASSETS/'humanoid_v2/director_motion.json').read_bytes(),DIRECTOR.read_bytes())\nAssertionError: b'{\\n[30 chars] (rr-44), humanoid rig v2 for the Chainbound G[23724 chars]}\\n}' != b'{\\n[30 chars] (rr-38), humanoid rig v2 for the Chainbound G[19938 chars]}\\n}'\n"
+    },
+    {
+      "test": "test_production_motion_paint_and_render_code_remain_byte_identical (test_rr42_feedback2.Feedback2Tests)",
+      "kind": "failures",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_rr42_feedback2.py\", line 94, in test_production_motion_paint_and_render_code_remain_byte_identical\n    self.assertEqual(digest(ROOT/key.removeprefix('production:')),sha,key)\nAssertionError: 'd5b6940427d6d1b5ed06cde769e2a672d79305c538c20c86ef5bb1173fde2eb1' != 'fd2d7e313e7a6ff93cea7d87d80aa140a8ccc3cebae8eaac1edd366eaf9be938'\n- d5b6940427d6d1b5ed06cde769e2a672d79305c538c20c86ef5bb1173fde2eb1\n+ fd2d7e313e7a6ff93cea7d87d80aa140a8ccc3cebae8eaac1edd366eaf9be938\n : production:assets/units/chainbound_gaoler_cutout/humanoid_v2/compiled_motion.json\n"
+    },
+    {
+      "test": "test_motion_candidate_alone_without_ignored_production_case (test_rr42_feedback3.Feedback3Tests)",
+      "kind": "failures",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_rr42_feedback3.py\", line 41, in test_motion_candidate_alone_without_ignored_production_case\n    self.assertEqual(result.returncode,0,result.stdout+result.stderr)\nAssertionError: 1 != 0 : test_motion_targets_and_reference_compilation_unchanged (tests.test_rr42_gaoler.GaolerPaintTests) ... FAIL\n\n======================================================================\nFAIL: test_motion_targets_and_reference_compilation_unchanged (tests.test_rr42_gaoler.GaolerPaintTests)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr42-clean-vl6ecvac/tests/test_rr42_gaoler.py\", line 57, in test_motion_targets_and_reference_compilation_unchanged\n    self.assertEqual(candidate,current)\nAssertionError: {'rig[88 chars]6': 'd193048ceb6643707a874a66baf0f4a94a1185814[61505 chars]}}}}} != {'rig[88 chars]6': '6b941618b9c407a975607f2ae8f627f616e222639[65610 chars]}}}}}\nDiff is 216960 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 1 test in 0.227s\n\nFAILED (failures=1)\n\n"
+    },
+    {
+      "test": "test_current_production_matches_current_staged_motion (test_rr42_gaoler.GaolerPaintTests)",
+      "kind": "failures",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_rr42_gaoler.py\", line 62, in test_current_production_matches_current_staged_motion\n    self.assertEqual((production/'director_motion.json').read_bytes(),staged.read_bytes())\nAssertionError: b'{\\n[30 chars] (rr-44), humanoid rig v2 for the Chainbound G[23724 chars]}\\n}' != b'{\\n[30 chars] (rr-38), humanoid rig v2 for the Chainbound G[19938 chars]}\\n}'\n"
+    },
+    {
+      "test": "test_motion_targets_and_reference_compilation_unchanged (test_rr42_gaoler.GaolerPaintTests)",
+      "kind": "failures",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_rr42_gaoler.py\", line 57, in test_motion_targets_and_reference_compilation_unchanged\n    self.assertEqual(candidate,current)\nAssertionError: {'rig[88 chars]6': 'd193048ceb6643707a874a66baf0f4a94a1185814[61505 chars]}}}}} != {'rig[88 chars]6': '6b941618b9c407a975607f2ae8f627f616e222639[65610 chars]}}}}}\nDiff is 216960 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_production_changed_texels_are_exact_and_others_preserved (test_rr42_gaoler.GaolerPaintTests)",
+      "kind": "failures",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_rr42_gaoler.py\", line 117, in test_production_changed_texels_are_exact_and_others_preserved\n    self.assertTrue(np.array_equal(actual[~mask],old[~mask]),part['name'])\nAssertionError: False is not true : head\n"
+    },
+    {
+      "test": "test_protected_inputs_registered_and_every_footprint_partitioned (test_rr42_gaoler.GaolerPaintTests)",
+      "kind": "failures",
+      "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-44/tests/test_rr42_gaoler.py\", line 33, in test_protected_inputs_registered_and_every_footprint_partitioned\n    self.assertTrue(source_report()['ok'],source_report()['errors'])\nAssertionError: False is not true : ['Protected motion differs', 'Protected motion differs']\n"
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "rig": "seer",
+  "case": "hoarfrost_seer/rr10",
+  "runtime_byte_identical": true,
+  "samples": 1258,
+  "native_pixels": false,
+  "report_only": true,
+  "threshold_deg": 2,
+  "failures": [
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 76,
+      "kind": "presented",
+      "phase": 0.752475247524752,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.094143191775357,
+      "points": [
+        [
+          155.5,
+          131.0
+        ],
+        [
+          172.5,
+          155.0
+        ],
+        [
+          185.5,
+          172.0
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 81,
+      "kind": "presented",
+      "phase": 0.801980198019802,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -3.138860679565647,
+      "points": [
+        [
+          152.5,
+          134.0
+        ],
+        [
+          170.499984741211,
+          156.999984741211
+        ],
+        [
+          184.499984741211,
+          173.0
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 82,
+      "kind": "presented",
+      "phase": 0.811881188118812,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.1211293312807284,
+      "points": [
+        [
+          104.5,
+          112.75
+        ],
+        [
+          86.5,
+          136.75
+        ],
+        [
+          69.4999923706055,
+          157.749984741211
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 83,
+      "kind": "presented",
+      "phase": 0.821782178217822,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.1211293312799677,
+      "points": [
+        [
+          104.500007629395,
+          112.75
+        ],
+        [
+          86.5000076293945,
+          136.75
+        ],
+        [
+          69.5,
+          157.749984741211
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 85,
+      "kind": "presented",
+      "phase": 0.841584158415842,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.1210847398077024,
+      "points": [
+        [
+          105.499992370605,
+          112.75
+        ],
+        [
+          87.4999847412109,
+          136.75
+        ],
+        [
+          70.4999847412109,
+          157.75
+        ]
+      ],
+      "passed": false
+    }
+  ],
+  "witnesses": [
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 81,
+      "kind": "presented",
+      "phase": 0.801980198019802,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -3.138860679565647,
+      "points": [
+        [
+          152.5,
+          134.0
+        ],
+        [
+          170.499984741211,
+          156.999984741211
+        ],
+        [
+          184.499984741211,
+          173.0
+        ]
+      ],
+      "passed": false,
+      "crop": "seer_front_death_081_cpu_4x.webp",
+      "sha256": "bfff6527f89d9513336106b11cd9100a969ad9850682a186eb8d314da800adf3"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 82,
+      "kind": "presented",
+      "phase": 0.811881188118812,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.1211293312807284,
+      "points": [
+        [
+          104.5,
+          112.75
+        ],
+        [
+          86.5,
+          136.75
+        ],
+        [
+          69.4999923706055,
+          157.749984741211
+        ]
+      ],
+      "passed": false,
+      "crop": "seer_rear_death_082_cpu_4x.webp",
+      "sha256": "fa730c45008e1665341e3fc8c4014c37349f2afa8575615c519be460479c0da0"
+    }
+  ],
+  "unchanged_files": {
+    "experiments/cutouts/hoarfrost_seer/rr10/compiled_motion.json": "1d1b8579fe6189732b404ee0e266b9f006661997cafad140139ffa05d19a8736",
+    "experiments/cutouts/hoarfrost_seer/rr10/layouts/front.json": "767c05cf491eee395a8c7a478267eca493935d72a4a3e1c83ea0354418a5bab5",
+    "experiments/cutouts/hoarfrost_seer/rr10/layouts/rear.json": "bb50513bbf7af43141e73305d314770de8afe9a5f05c848e924c814ae269219b"
+  }
+}

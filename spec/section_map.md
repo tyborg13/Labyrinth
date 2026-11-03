@@ -104,13 +104,17 @@ a soft ground shadow. The room you stand in shows the lantern; choosing a room w
 byte from `spec/peer_benchmark/staged/spx/`; `assets/art/icons/map/provenance.json`
 retains the approved hashes. `SpecialEncounterLibrary` owns `definition(type)`,
 `variant(type, biome)`, `enabled_types()`, `display_name(room)` and
-`tooltip_line(room)`. Definitions and variants are private copies. Only Warband
-is enabled; the other three concepts are registered but cannot spawn.
+`tooltip_line(room)`. Definitions and variants are private copies. Warband
+(spx-02), Umbral Snare (spx-05) and Last Light (spx-08) are enabled; disabled
+concepts stay registered but cannot spawn. A type's optional
+`first_layout_revision` (Last Light: 7) keeps it off older map revisions, so
+saved revision-6 maps regenerate unchanged.
 
 After the revision-5 type solver, revision 6 draws the weighted request of two
 (weight 3) or three (weight 2), caps it by enabled types and feasible legal slots,
-and converts rolled standard combats. With the current catalog every section
-has exactly one Warband. The section RNG selects types and cells; a bounded
+and converts rolled standard combats. With the spx-02 catalog every section
+had exactly one Warband; on revision 7, with three placeable types, a section
+rolls two or three. The section RNG selects types and cells; a bounded
 12,000-node search and canonical bounded repair preserve seed determinism. If
 no special fits, the generator uses its existing deterministic legal topology
 and repeats placement. Revisions 3–5 never execute this pass or consume its RNG.

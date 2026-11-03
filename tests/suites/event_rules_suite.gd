@@ -18,7 +18,7 @@ const EXPOSE_FIXTURE_BLOCK: int = 3
 const EXPOSE_FIXTURE_LETHAL_HP: int = 9
 const EXPOSE_FIXTURE_PLAYER_TILE: Vector2i = Vector2i(3, 4)
 const EXPOSE_FIXTURE_ENEMY_TILE: Vector2i = Vector2i(4, 4)
-const SELECTION_SEEDS: int = 24
+const SELECTION_SEEDS: int = 50
 const EVENTS_PER_SECTION: int = 2
 const SURVEY_FIXTURE_HOPS: int = 4
 const SURVEY_FIXTURE_TARGET_COUNT: int = 2
@@ -26,8 +26,9 @@ const SURVEY_FIXTURE_TARGET_COUNT: int = 2
 static func run(expect: Callable) -> void:
 	var engine := Run.new()
 	expect.call(Events.validate_data().is_empty(), "Authored event data validates: %s" % str(Events.validate_data()))
-	expect.call(Data.events().size() == 27 and Data.omens().size() == 11, "All 27 events and 11 omens load")
+	expect.call(Data.events().size() == 45 and Data.omens().size() == 11, "All 45 events and 11 omens load")
 	expect.call(Events.art_path("bloodletters_basin") == "res://assets/art/events/bloodletters_basin.png", "Art has one derived accessor and may be missing")
+	preload("res://tests/helpers/event_preview_checks.gd").run(engine, expect)
 	_validation(expect)
 	_selection(engine, expect)
 	_requirements(engine, expect)
@@ -76,8 +77,8 @@ static func _validation(expect: Callable) -> void:
 	event["choices"][1]["id"] = event["choices"][0]["id"]
 	event["choices"][0]["requires"].append({"type": "unknown"})
 	event["choices"][0]["effects"].append({"type": "omen", "id": "unknown"})
-	event["choices"][1]["effects"][0]["outcomes"][0]["weight"] = 49
-	expect.call(Events.validate_data().size() >= 7, "Validator rejects bounds, pools, text, ids, requirements, omen references and random totals")
+	event["choices"][1]["effects"].append({"type": "random", "outcomes": []})
+	expect.call(Events.validate_data().size() >= 7, "Validator rejects bounds, pools, text, ids, requirements, omen references and retired random effects")
 	event.clear()
 	event.merge(original)
 	var omen: Dictionary = Data.omen_def("dread")
@@ -116,7 +117,7 @@ static func _selection(engine: RefCounted, expect: Callable) -> void:
 				entered["seed"] = seed + 999
 				expect.call(Events.enter_event(entered)["event_state"]["event_id"] == id, "Persisted event id survives entry and changed RNG inputs")
 				state["seen_events"].append(id)
-	expect.call(coverage.size() == 27, "At least 20 seeds exercise all 27 authored events across six sections")
+	expect.call(coverage.size() == 45, "Fifty seeds exercise all 45 authored events across six sections")
 	var state: Dictionary = _event_state(engine)
 	var definitions: Dictionary = Data.events()
 	var original: Dictionary = definitions.duplicate(true)
@@ -244,14 +245,6 @@ static func _effects(engine: RefCounted, expect: Callable) -> void:
 	expect.call(engine.repair_loaded_run_state(next)["defiance_capacity"] == next["defiance_capacity"], "Run Defiance survives load repair")
 	expect.call(Graph.section(next, Events.section_index(next))["scouts"] == Graph.section(state, Events.section_index(state))["scouts"] + 2, "Scout only increases current-section uses")
 	expect.call(Omens.active(next).size() == 1 and not result["outcomes"].back()["rooms"].is_empty(), "Omen and survey effects record concrete outcomes")
-	var random_effect: Array = Events.choice_def("bloodletters_basin", "reach")["effects"]
-	expect.call(_apply(engine, state, random_effect) == _apply(engine, state, random_effect), "Random outcomes are seeded and reproduce atomically")
-	var seen_random: Dictionary = {}
-	for seed: int in range(32):
-		state["seed"] = seed
-		var randomized: Dictionary = _apply(engine, state, random_effect)
-		seen_random[randomized["outcomes"][0]["type"]] = true
-	expect.call(seen_random.size() == 2, "Both random branches are reachable")
 	expect.call(Events.stepped_rarity("legendary", 1) == "legendary", "Rarity upgrades cap at Legendary")
 
 static func _reveal_state(engine: RefCounted, index: int, revision: int) -> Dictionary:
@@ -335,12 +328,10 @@ static func _reveals(engine: RefCounted, expect: Callable) -> void:
 
 static func _previews(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = _event_state(engine)
-	expect.call(Events.choice_effect_lines(state, "bloodletters_basin", "bleed") == _strings(["Lose 5 @icon(health).", "Gain a random Rare relic."]), "Basin bleed exact preview strings")
-	expect.call(Events.choice_effect_lines(state, "bloodletters_basin", "reach") == _strings(["50%: Gain a random Common relic.", "50%: Lose 3 @icon(health)."]), "Basin reach exact random previews")
+	var lines: Array[Dictionary] = Events.preview_lines(state, "bloodletters_basin", "bleed")
+	expect.call(lines[0]["text"] == "Lose 5 @icon(health)." and lines[1]["kind"] == "relic", "Basin bleed preserves its exact cost and names its concrete relic")
 	expect.call(Events.choice_effect_lines(state, "ember_usurer", "borrow") == _strings(["Gain 100 Embers.", "Bane: Tithe of Ash. Enemies drop 50% fewer Embers. (3 fights)"]), "Usurer exact previews include authored omen values")
-	expect.call(Events.choice_effect_lines(state, "abandoned_forge", "weapon") == _strings(["Reforge your weapon into a random Rare one.", "Lose 3 @icon(health)."]), "Forge exact preview resolves equipped rarity")
-	expect.call(Events.choice_effect_lines(state, "mirror_of_skins", "trade") == _strings(["Transform 3 random spells."]), "Mirror exact plural preview")
-	expect.call(Events.effect_lines(state, [{"type": "max_hp", "amount": -4}, {"type": "random", "outcomes": [{"weight": 100, "effects": []}]}]) == _strings(["−4 max @icon(health).", "100%: Nothing."]), "Preview uses U+2212 minus and empty-outcome copy")
+	expect.call(Events.effect_lines(state, [{"type": "max_hp", "amount": -4}]) == _strings(["−4 max @icon(health)."]), "Preview retains U+2212 minus")
 
 static func _result_rows(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = _event_state(engine, "lost_cartographer", true)
@@ -374,14 +365,6 @@ static func _result_rows(engine: RefCounted, expect: Callable) -> void:
 	var healed: Dictionary = _apply(engine, state, [{"type": "hp", "amount": -1}, {"type": "heal_percent", "percent": 25}, {"type": "heal", "amount": 8}])
 	healed["state"]["event_state"]["outcomes"] = healed["outcomes"]
 	expect.call(Events.outcome_lines(healed["state"]) == _strings(["Lost 1 @icon(health).", "Healed 1 @icon(health).", "Healed 0 @icon(health)."]), "Healing result rows report the actual capped amount, including zero healing")
-	var fixtures: Array = [
-		["weapon", "Gain a random Common weapon."], ["offhand", "Gain a random Common offhand."],
-		["armor", "Gain a random Common armour."], ["boots", "Gain random Common boots."],
-		["trinket", "Gain a random Common trinket."]
-	]
-	for fixture: Array in fixtures:
-		expect.call(Events.effect_lines(state, [{"type": "equipment", "rarity": "common", "slot": fixture[0]}]) == _strings([fixture[1]]), "Equipment preview respects the noun phrase for each slot")
-	expect.call(Events.effect_lines(state, [{"type": "equipment", "rarity": "rare"}]) == _strings(["Gain a random Rare piece of gear."]), "Unslotted gear retains its approved preview")
 	expect.call(Events.first_available_choice_id(_event_state(engine, "bloodletters_basin")) == "bleed", "Traversal selects the first authored choice when available")
 	state = _event_state(engine, "bloodletters_basin")
 	state["player_hp"] = 5
@@ -728,6 +711,25 @@ static func _ui(engine: RefCounted, expect: Callable) -> void:
 	expect.call(view.choices.size() == 3 and not view.choices[0].available and view.choices[0].tooltip_text == "Requires more than 5 Health.", "Illustrated event UI keeps unavailable choices with exact reasons")
 	view.present(engine.resolve_map_event(state, "leave"), true)
 	expect.call(view.choices.is_empty() and view.continue_button != null and view.continue_button.text == "Continue", "Illustrated event result page exposes Continue")
+	state = _event_state(engine, "hanged_knight")
+	view.present(state, true)
+	var cached: Array[Dictionary] = view.cached_preview_lines("cut")
+	var cache_row: Dictionary = cached[0].duplicate(true)
+	cached[0]["text"] = "debug-only mutation"
+	expect.call(view.cached_preview_lines("cut")[0] == cache_row, "Caller cannot mutate the screen’s cached preview")
+	view.present(state, true)
+	expect.call(view.cached_preview_lines("cut")[0] == cache_row, "Frame refresh retains opening preview")
+	var alternate: Dictionary = state.duplicate(true)
+	alternate["seed"] = TEST_SEED + 1
+	view.present(alternate, true)
+	expect.call(view.run_state["seed"] == alternate["seed"] and view.cached_preview_lines("cut") == Events.preview_lines(alternate, "hanged_knight", "cut"), "A different run cannot reuse the prior event’s preview through the frame signature")
+	for row: RichTextLabel in view.choices[0].rows:
+		if row.has_meta("event_preview"): expect.call(row.get_meta("event_preview").has("ids"), "Choice rows retain concrete ids for evt-02 hover")
+	Data.events()["evt01_missing_art_fixture"] = Data.event_def("hanged_knight").duplicate(true)
+	state = _event_state(engine, "evt01_missing_art_fixture")
+	view.present(state, true)
+	expect.call(view.art.texture == null and view.choices.size() == 3, "Missing event art keeps the choices usable")
+	Data.events().erase("evt01_missing_art_fixture")
 	view.free()
 
 static func _strings(values: Array) -> Array[String]:

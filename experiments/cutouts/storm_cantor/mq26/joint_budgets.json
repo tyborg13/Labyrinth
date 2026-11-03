@@ -1,0 +1,1344 @@
+{
+  "profiles": [
+    {
+      "view": "front",
+      "clip": "lay_the_choir",
+      "hand": "hand_near",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 9.930443495863425,
+      "allowed_maximum_px": 53.1461095986907,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 45.811106847845416,
+          "maximum_px": 51.35172830587107,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "lay_the_choir",
+      "hand": "hand_far",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 10.4164878389476,
+      "allowed_maximum_px": 33.06481759572655,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 20.37996638029595,
+          "maximum_px": 30.532994744832777,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "peal",
+      "hand": "hand_near",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 9.930443495863425,
+      "allowed_maximum_px": 53.1461095986907,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 21.910845372668962,
+          "maximum_px": 52.2754671444456,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "peal",
+      "hand": "hand_far",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 10.4164878389476,
+      "allowed_maximum_px": 33.06481759572655,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 24.041630560342615,
+          "maximum_px": 25.495097567963924,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "broken_rhythm",
+      "hand": "hand_near",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 9.930443495863425,
+      "allowed_maximum_px": 53.1461095986907,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 48.32087045782632,
+          "maximum_px": 53.05701404243349,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "broken_rhythm",
+      "hand": "hand_far",
+      "ratio": 1.0,
+      "status": "director_accepted_runtime_clamp",
+      "allowed_minimum_px": 10.4164878389476,
+      "allowed_maximum_px": 33.06481759572655,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 14.237210187920178,
+          "maximum_px": 40.18344108049901,
+          "ok": false
+        },
+        {
+          "ratio": 0.9833333333333333,
+          "minimum_px": 14.400404167905558,
+          "maximum_px": 39.93672788684356,
+          "ok": false
+        },
+        {
+          "ratio": 0.9666666666666667,
+          "minimum_px": 14.565006560494226,
+          "maximum_px": 39.69005613461152,
+          "ok": false
+        },
+        {
+          "ratio": 0.95,
+          "minimum_px": 14.730970153375589,
+          "maximum_px": 39.44342660130339,
+          "ok": false
+        },
+        {
+          "ratio": 0.9333333333333333,
+          "minimum_px": 14.898249456101858,
+          "maximum_px": 39.19684008385339,
+          "ok": false
+        },
+        {
+          "ratio": 0.9166666666666666,
+          "minimum_px": 15.066800645692197,
+          "maximum_px": 38.95029739923577,
+          "ok": false
+        },
+        {
+          "ratio": 0.9,
+          "minimum_px": 15.236581512334602,
+          "maximum_px": 38.70379938509425,
+          "ok": false
+        },
+        {
+          "ratio": 0.8833333333333333,
+          "minimum_px": 15.407551405437433,
+          "maximum_px": 38.45734690039475,
+          "ok": false
+        },
+        {
+          "ratio": 0.8666666666666667,
+          "minimum_px": 15.579671180245484,
+          "maximum_px": 38.210940826103105,
+          "ok": false
+        },
+        {
+          "ratio": 0.85,
+          "minimum_px": 15.75290314520282,
+          "maximum_px": 37.9645820658884,
+          "ok": false
+        },
+        {
+          "ratio": 0.8333333333333334,
+          "minimum_px": 15.927211010214705,
+          "maximum_px": 37.71827154685337,
+          "ok": false
+        },
+        {
+          "ratio": 0.8166666666666667,
+          "minimum_px": 16.102559835934862,
+          "maximum_px": 37.472010220292866,
+          "ok": false
+        },
+        {
+          "ratio": 0.8,
+          "minimum_px": 16.27891598418074,
+          "maximum_px": 37.22579906248177,
+          "ok": false
+        },
+        {
+          "ratio": 0.7833333333333333,
+          "minimum_px": 16.456247069558785,
+          "maximum_px": 36.97963907549363,
+          "ok": false
+        },
+        {
+          "ratio": 0.7666666666666667,
+          "minimum_px": 16.63452191236356,
+          "maximum_px": 36.73353128805143,
+          "ok": false
+        },
+        {
+          "ratio": 0.75,
+          "minimum_px": 16.81371049279841,
+          "maximum_px": 36.487476756411944,
+          "ok": false
+        },
+        {
+          "ratio": 0.7333333333333333,
+          "minimum_px": 16.993783906551528,
+          "maximum_px": 36.241476565285275,
+          "ok": false
+        },
+        {
+          "ratio": 0.7166666666666667,
+          "minimum_px": 17.17471432174912,
+          "maximum_px": 35.995531828791094,
+          "ok": false
+        },
+        {
+          "ratio": 0.7,
+          "minimum_px": 17.35647493729685,
+          "maximum_px": 35.749643691453414,
+          "ok": false
+        },
+        {
+          "ratio": 0.6833333333333333,
+          "minimum_px": 17.53903994261166,
+          "maximum_px": 35.50381332923561,
+          "ok": false
+        },
+        {
+          "ratio": 0.6666666666666666,
+          "minimum_px": 17.72238447873861,
+          "maximum_px": 35.25804195061763,
+          "ok": false
+        },
+        {
+          "ratio": 0.65,
+          "minimum_px": 17.906484600840493,
+          "maximum_px": 35.01233079771737,
+          "ok": false
+        },
+        {
+          "ratio": 0.6333333333333333,
+          "minimum_px": 18.091317242042788,
+          "maximum_px": 34.766681147458335,
+          "ok": false
+        },
+        {
+          "ratio": 0.6166666666666667,
+          "minimum_px": 18.27686017861181,
+          "maximum_px": 34.521094312785806,
+          "ok": false
+        },
+        {
+          "ratio": 0.6,
+          "minimum_px": 18.463091996440138,
+          "maximum_px": 34.275571643933844,
+          "ok": false
+        }
+      ],
+      "budget_note": "Feedback 1: preserve the exact keyed targets; runtime IK clamps this named profile, below the 60% floor if needed."
+    },
+    {
+      "view": "front",
+      "clip": "call_the_spark",
+      "hand": "hand_near",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 9.930443495863425,
+      "allowed_maximum_px": 53.1461095986907,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 40.03154294498223,
+          "maximum_px": 51.35172830587107,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "hand": "hand_near",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 9.930443495863425,
+      "allowed_maximum_px": 53.1461095986907,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 50.36345258556359,
+          "maximum_px": 51.80498682343241,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "hand": "hand_far",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 10.4164878389476,
+      "allowed_maximum_px": 33.06481759572655,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 23.21965051610974,
+          "maximum_px": 25.495097567963924,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "hand": "hand_near",
+      "ratio": 1.0,
+      "status": "director_accepted_runtime_clamp",
+      "allowed_minimum_px": 9.930443495863425,
+      "allowed_maximum_px": 53.1461095986907,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 57.3149195236284,
+          "ok": false
+        },
+        {
+          "ratio": 0.9833333333333333,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 57.21546993602342,
+          "ok": false
+        },
+        {
+          "ratio": 0.9666666666666667,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 57.11602227046278,
+          "ok": false
+        },
+        {
+          "ratio": 0.95,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 57.016576537003694,
+          "ok": false
+        },
+        {
+          "ratio": 0.9333333333333333,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 56.91713274577348,
+          "ok": false
+        },
+        {
+          "ratio": 0.9166666666666666,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 56.817690906970164,
+          "ok": false
+        },
+        {
+          "ratio": 0.9,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 56.71825103086307,
+          "ok": false
+        },
+        {
+          "ratio": 0.8833333333333333,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 56.61881312779348,
+          "ok": false
+        },
+        {
+          "ratio": 0.8666666666666667,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 56.51937720817526,
+          "ok": false
+        },
+        {
+          "ratio": 0.85,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 56.41994328249542,
+          "ok": false
+        },
+        {
+          "ratio": 0.8333333333333334,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 56.32051136131489,
+          "ok": false
+        },
+        {
+          "ratio": 0.8166666666666667,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 56.22108145526907,
+          "ok": false
+        },
+        {
+          "ratio": 0.8,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 56.12165357506851,
+          "ok": false
+        },
+        {
+          "ratio": 0.7833333333333333,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 56.02222773149958,
+          "ok": false
+        },
+        {
+          "ratio": 0.7666666666666667,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 55.92280393542513,
+          "ok": false
+        },
+        {
+          "ratio": 0.75,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 55.823382197785186,
+          "ok": false
+        },
+        {
+          "ratio": 0.7333333333333333,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 55.72396252959762,
+          "ok": false
+        },
+        {
+          "ratio": 0.7166666666666667,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 55.624544941958845,
+          "ok": false
+        },
+        {
+          "ratio": 0.7,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 55.525129446044524,
+          "ok": false
+        },
+        {
+          "ratio": 0.6833333333333333,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 55.42571605311022,
+          "ok": false
+        },
+        {
+          "ratio": 0.6666666666666666,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 55.326304774492215,
+          "ok": false
+        },
+        {
+          "ratio": 0.65,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 55.226895621608136,
+          "ok": false
+        },
+        {
+          "ratio": 0.6333333333333333,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 55.12748860595773,
+          "ok": false
+        },
+        {
+          "ratio": 0.6166666666666667,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 55.02808373912361,
+          "ok": false
+        },
+        {
+          "ratio": 0.6,
+          "minimum_px": 51.35172830587107,
+          "maximum_px": 54.92868103277194,
+          "ok": false
+        }
+      ],
+      "budget_note": "Feedback 1: preserve the exact keyed targets; runtime IK clamps this named profile, below the 60% floor if needed."
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "hand": "hand_far",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 10.4164878389476,
+      "allowed_maximum_px": 33.06481759572655,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 25.495097567963924,
+          "maximum_px": 30.23243291566195,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "lay_the_choir",
+      "hand": "hand_near",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 7.198039027185569,
+      "allowed_maximum_px": 17.54199980772928,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 11.976224524973718,
+          "maximum_px": 17.11724276862369,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "lay_the_choir",
+      "hand": "hand_far",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 5.998263139950932,
+      "allowed_maximum_px": 49.002555290293,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 29.848098292587917,
+          "maximum_px": 38.94371170190357,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "peal",
+      "hand": "hand_near",
+      "ratio": 1.0,
+      "status": "director_accepted_runtime_clamp",
+      "allowed_minimum_px": 7.198039027185569,
+      "allowed_maximum_px": 17.54199980772928,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 3.2136113041284715,
+          "maximum_px": 18.49776160161014,
+          "ok": false
+        },
+        {
+          "ratio": 0.9833333333333333,
+          "minimum_px": 3.2133678162085766,
+          "maximum_px": 18.473636749680196,
+          "ok": false
+        },
+        {
+          "ratio": 0.9666666666666667,
+          "minimum_px": 3.213526751473039,
+          "maximum_px": 18.44954693418598,
+          "ok": false
+        },
+        {
+          "ratio": 0.95,
+          "minimum_px": 3.213294382713193,
+          "maximum_px": 18.425492292549265,
+          "ok": false
+        },
+        {
+          "ratio": 0.9333333333333333,
+          "minimum_px": 3.213385811308569,
+          "maximum_px": 18.401472962709203,
+          "ok": false
+        },
+        {
+          "ratio": 0.9166666666666666,
+          "minimum_px": 3.2134570592589378,
+          "maximum_px": 18.377489083123073,
+          "ok": false
+        },
+        {
+          "ratio": 0.9,
+          "minimum_px": 3.2133900403820626,
+          "maximum_px": 18.353540792767,
+          "ok": false
+        },
+        {
+          "ratio": 0.8833333333333333,
+          "minimum_px": 3.2132947378286425,
+          "maximum_px": 18.329628231136635,
+          "ok": false
+        },
+        {
+          "ratio": 0.8666666666666667,
+          "minimum_px": 3.213509954322484,
+          "maximum_px": 18.305751538247875,
+          "ok": false
+        },
+        {
+          "ratio": 0.85,
+          "minimum_px": 3.2132961869716397,
+          "maximum_px": 18.281910854637488,
+          "ok": false
+        },
+        {
+          "ratio": 0.8333333333333334,
+          "minimum_px": 3.2133023475206937,
+          "maximum_px": 18.258106321363787,
+          "ok": false
+        },
+        {
+          "ratio": 0.8166666666666667,
+          "minimum_px": 3.213298820965698,
+          "maximum_px": 18.234338080007205,
+          "ok": false
+        },
+        {
+          "ratio": 0.8,
+          "minimum_px": 3.2134756051850832,
+          "maximum_px": 18.210606272670937,
+          "ok": false
+        },
+        {
+          "ratio": 0.7833333333333333,
+          "minimum_px": 3.2134242118091363,
+          "maximum_px": 18.186911041981467,
+          "ok": false
+        },
+        {
+          "ratio": 0.7666666666666667,
+          "minimum_px": 3.2133362972515234,
+          "maximum_px": 18.163252531089178,
+          "ok": false
+        },
+        {
+          "ratio": 0.75,
+          "minimum_px": 3.2133492185023362,
+          "maximum_px": 18.139630883668826,
+          "ok": false
+        },
+        {
+          "ratio": 0.7333333333333333,
+          "minimum_px": 3.2133687860725253,
+          "maximum_px": 18.116046243920078,
+          "ok": false
+        },
+        {
+          "ratio": 0.7166666666666667,
+          "minimum_px": 3.2133188856103008,
+          "maximum_px": 18.09249875656798,
+          "ok": false
+        },
+        {
+          "ratio": 0.7,
+          "minimum_px": 3.2132943384239474,
+          "maximum_px": 18.06898856686344,
+          "ok": false
+        },
+        {
+          "ratio": 0.6833333333333333,
+          "minimum_px": 3.213295839095445,
+          "maximum_px": 18.045515820583624,
+          "ok": false
+        },
+        {
+          "ratio": 0.6666666666666666,
+          "minimum_px": 3.2179941798855762,
+          "maximum_px": 18.0220806640324,
+          "ok": false
+        },
+        {
+          "ratio": 0.65,
+          "minimum_px": 3.26207652719898,
+          "maximum_px": 17.998683244040706,
+          "ok": false
+        },
+        {
+          "ratio": 0.6333333333333333,
+          "minimum_px": 3.3146575140702224,
+          "maximum_px": 17.975323707966904,
+          "ok": false
+        },
+        {
+          "ratio": 0.6166666666666667,
+          "minimum_px": 3.36723915322337,
+          "maximum_px": 17.95200220369714,
+          "ok": false
+        },
+        {
+          "ratio": 0.6,
+          "minimum_px": 3.419815362414805,
+          "maximum_px": 17.928718879645626,
+          "ok": false
+        }
+      ],
+      "budget_note": "Feedback 1: preserve the exact keyed targets; runtime IK clamps this named profile, below the 60% floor if needed."
+    },
+    {
+      "view": "rear",
+      "clip": "peal",
+      "hand": "hand_far",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 5.998263139950932,
+      "allowed_maximum_px": 49.002555290293,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 32.802438933713454,
+          "maximum_px": 34.058772731852805,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "broken_rhythm",
+      "hand": "hand_near",
+      "ratio": 1.0,
+      "status": "director_accepted_runtime_clamp",
+      "allowed_minimum_px": 7.198039027185569,
+      "allowed_maximum_px": 17.54199980772928,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 16.099689928280704,
+          "maximum_px": 18.354363526120885,
+          "ok": false
+        },
+        {
+          "ratio": 0.9833333333333333,
+          "minimum_px": 16.099689743565982,
+          "maximum_px": 18.330405963176233,
+          "ok": false
+        },
+        {
+          "ratio": 0.9666666666666667,
+          "minimum_px": 16.099695332477765,
+          "maximum_px": 18.306553610679888,
+          "ok": false
+        },
+        {
+          "ratio": 0.95,
+          "minimum_px": 16.100091463929832,
+          "maximum_px": 18.282806880414913,
+          "ok": false
+        },
+        {
+          "ratio": 0.9333333333333333,
+          "minimum_px": 16.101108672858714,
+          "maximum_px": 18.259166184478328,
+          "ok": false
+        },
+        {
+          "ratio": 0.9166666666666666,
+          "minimum_px": 16.102746841564205,
+          "maximum_px": 18.23563193525925,
+          "ok": false
+        },
+        {
+          "ratio": 0.9,
+          "minimum_px": 16.105005780557978,
+          "maximum_px": 18.212204545416707,
+          "ok": false
+        },
+        {
+          "ratio": 0.8833333333333333,
+          "minimum_px": 16.107885228673123,
+          "maximum_px": 18.188884427857225,
+          "ok": false
+        },
+        {
+          "ratio": 0.8666666666666667,
+          "minimum_px": 16.111384853214997,
+          "maximum_px": 18.165671995712053,
+          "ok": false
+        },
+        {
+          "ratio": 0.85,
+          "minimum_px": 16.11550425015319,
+          "maximum_px": 18.14256766231415,
+          "ok": false
+        },
+        {
+          "ratio": 0.8333333333333334,
+          "minimum_px": 16.120242944354327,
+          "maximum_px": 18.119571841174867,
+          "ok": false
+        },
+        {
+          "ratio": 0.8166666666666667,
+          "minimum_px": 16.125600389855425,
+          "maximum_px": 18.09668494596033,
+          "ok": false
+        },
+        {
+          "ratio": 0.8,
+          "minimum_px": 16.131575970177412,
+          "maximum_px": 18.073907390467546,
+          "ok": false
+        },
+        {
+          "ratio": 0.7833333333333333,
+          "minimum_px": 16.138168998678417,
+          "maximum_px": 18.05123958860021,
+          "ok": false
+        },
+        {
+          "ratio": 0.7666666666666667,
+          "minimum_px": 16.145378718946333,
+          "maximum_px": 18.028681954344236,
+          "ok": false
+        },
+        {
+          "ratio": 0.75,
+          "minimum_px": 16.153204305230123,
+          "maximum_px": 18.006234901742996,
+          "ok": false
+        },
+        {
+          "ratio": 0.7333333333333333,
+          "minimum_px": 16.16164486290937,
+          "maximum_px": 17.983898844872254,
+          "ok": false
+        },
+        {
+          "ratio": 0.7166666666666667,
+          "minimum_px": 16.170699429001353,
+          "maximum_px": 17.961674197814848,
+          "ok": false
+        },
+        {
+          "ratio": 0.7,
+          "minimum_px": 16.180366972705055,
+          "maximum_px": 17.939561374635048,
+          "ok": false
+        },
+        {
+          "ratio": 0.6833333333333333,
+          "minimum_px": 16.19064639598137,
+          "maximum_px": 17.917560789352656,
+          "ok": false
+        },
+        {
+          "ratio": 0.6666666666666666,
+          "minimum_px": 16.20153653416874,
+          "maximum_px": 17.895672855916814,
+          "ok": false
+        },
+        {
+          "ratio": 0.65,
+          "minimum_px": 16.21303615663347,
+          "maximum_px": 17.87389798817952,
+          "ok": false
+        },
+        {
+          "ratio": 0.6333333333333333,
+          "minimum_px": 16.225143967453853,
+          "maximum_px": 17.852236599868878,
+          "ok": false
+        },
+        {
+          "ratio": 0.6166666666666667,
+          "minimum_px": 16.237858606137202,
+          "maximum_px": 17.830689104562055,
+          "ok": false
+        },
+        {
+          "ratio": 0.6,
+          "minimum_px": 16.25117864836898,
+          "maximum_px": 17.80925591565796,
+          "ok": false
+        }
+      ],
+      "budget_note": "Feedback 1: preserve the exact keyed targets; runtime IK clamps this named profile, below the 60% floor if needed."
+    },
+    {
+      "view": "rear",
+      "clip": "broken_rhythm",
+      "hand": "hand_far",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 5.998263139950932,
+      "allowed_maximum_px": 49.002555290293,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 23.638597650453526,
+          "maximum_px": 48.98643211363643,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "call_the_spark",
+      "hand": "hand_near",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 7.198039027185569,
+      "allowed_maximum_px": 17.54199980772928,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 8.441655817890952,
+          "maximum_px": 17.11724276862369,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "hand": "hand_near",
+      "ratio": 0.6333333333333333,
+      "status": "measured_and_clamped",
+      "allowed_minimum_px": 7.198039027185569,
+      "allowed_maximum_px": 17.54199980772928,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 16.832081841666163,
+          "maximum_px": 17.78982909771764,
+          "ok": false
+        },
+        {
+          "ratio": 0.9833333333333333,
+          "minimum_px": 16.83455990773855,
+          "maximum_px": 17.778318252691278,
+          "ok": false
+        },
+        {
+          "ratio": 0.9666666666666667,
+          "minimum_px": 16.83709751587646,
+          "maximum_px": 17.76681723520188,
+          "ok": false
+        },
+        {
+          "ratio": 0.95,
+          "minimum_px": 16.839695806593515,
+          "maximum_px": 17.75532606434682,
+          "ok": false
+        },
+        {
+          "ratio": 0.9333333333333333,
+          "minimum_px": 16.842350075404248,
+          "maximum_px": 17.743844759256564,
+          "ok": false
+        },
+        {
+          "ratio": 0.9166666666666666,
+          "minimum_px": 16.84506239736188,
+          "maximum_px": 17.732373339094682,
+          "ok": false
+        },
+        {
+          "ratio": 0.9,
+          "minimum_px": 16.8478390789951,
+          "maximum_px": 17.720911823057836,
+          "ok": false
+        },
+        {
+          "ratio": 0.8833333333333333,
+          "minimum_px": 16.850681133513945,
+          "maximum_px": 17.70946023037581,
+          "ok": false
+        },
+        {
+          "ratio": 0.8666666666666667,
+          "minimum_px": 16.85357922276255,
+          "maximum_px": 17.698018580311466,
+          "ok": false
+        },
+        {
+          "ratio": 0.85,
+          "minimum_px": 16.856545375562167,
+          "maximum_px": 17.68658689216078,
+          "ok": false
+        },
+        {
+          "ratio": 0.8333333333333334,
+          "minimum_px": 16.859580774443746,
+          "maximum_px": 17.67516518525282,
+          "ok": false
+        },
+        {
+          "ratio": 0.8166666666666667,
+          "minimum_px": 16.862679376271643,
+          "maximum_px": 17.66375347894974,
+          "ok": false
+        },
+        {
+          "ratio": 0.8,
+          "minimum_px": 16.865846050335858,
+          "maximum_px": 17.652351792646805,
+          "ok": false
+        },
+        {
+          "ratio": 0.7833333333333333,
+          "minimum_px": 16.869085654894146,
+          "maximum_px": 17.640960145772368,
+          "ok": false
+        },
+        {
+          "ratio": 0.7666666666666667,
+          "minimum_px": 16.872394032962184,
+          "maximum_px": 17.62957855778785,
+          "ok": false
+        },
+        {
+          "ratio": 0.75,
+          "minimum_px": 16.875772158152994,
+          "maximum_px": 17.618207048187774,
+          "ok": false
+        },
+        {
+          "ratio": 0.7333333333333333,
+          "minimum_px": 16.879226833860002,
+          "maximum_px": 17.606845636499735,
+          "ok": false
+        },
+        {
+          "ratio": 0.7166666666666667,
+          "minimum_px": 16.882753944013192,
+          "maximum_px": 17.595494342284397,
+          "ok": false
+        },
+        {
+          "ratio": 0.7,
+          "minimum_px": 16.886354236637818,
+          "maximum_px": 17.5841531851355,
+          "ok": false
+        },
+        {
+          "ratio": 0.6833333333333333,
+          "minimum_px": 16.890034595189697,
+          "maximum_px": 17.572822184679826,
+          "ok": false
+        },
+        {
+          "ratio": 0.6666666666666666,
+          "minimum_px": 16.8937892149936,
+          "maximum_px": 17.56150136057724,
+          "ok": false
+        },
+        {
+          "ratio": 0.65,
+          "minimum_px": 16.897622081551173,
+          "maximum_px": 17.550190732520637,
+          "ok": false
+        },
+        {
+          "ratio": 0.6333333333333333,
+          "minimum_px": 16.901538383380878,
+          "maximum_px": 17.53889032023595,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "hand": "hand_far",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 5.998263139950932,
+      "allowed_maximum_px": 49.002555290293,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 31.570558379646606,
+          "maximum_px": 34.058772731852805,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "hand": "hand_near",
+      "ratio": 1.0,
+      "status": "director_accepted_runtime_clamp",
+      "allowed_minimum_px": 7.198039027185569,
+      "allowed_maximum_px": 17.54199980772928,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 23.08679276123039,
+          "ok": false
+        },
+        {
+          "ratio": 0.9833333333333333,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 22.987170334775875,
+          "ok": false
+        },
+        {
+          "ratio": 0.9666666666666667,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 22.887551201471947,
+          "ok": false
+        },
+        {
+          "ratio": 0.95,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 22.78793540450736,
+          "ok": false
+        },
+        {
+          "ratio": 0.9333333333333333,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 22.688322987827902,
+          "ok": false
+        },
+        {
+          "ratio": 0.9166666666666666,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 22.588713996153036,
+          "ok": false
+        },
+        {
+          "ratio": 0.9,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 22.489108474992953,
+          "ok": false
+        },
+        {
+          "ratio": 0.8833333333333333,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 22.38950647066612,
+          "ok": false
+        },
+        {
+          "ratio": 0.8666666666666667,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 22.289908030317218,
+          "ok": false
+        },
+        {
+          "ratio": 0.85,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 22.190313201935663,
+          "ok": false
+        },
+        {
+          "ratio": 0.8333333333333334,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 22.090722034374522,
+          "ok": false
+        },
+        {
+          "ratio": 0.8166666666666667,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 21.991134577370037,
+          "ok": false
+        },
+        {
+          "ratio": 0.8,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 21.89155088156159,
+          "ok": false
+        },
+        {
+          "ratio": 0.7833333333333333,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 21.791970998512273,
+          "ok": false
+        },
+        {
+          "ratio": 0.7666666666666667,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 21.69239498073,
+          "ok": false
+        },
+        {
+          "ratio": 0.75,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 21.592822881689184,
+          "ok": false
+        },
+        {
+          "ratio": 0.7333333333333333,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 21.493254755853055,
+          "ok": false
+        },
+        {
+          "ratio": 0.7166666666666667,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 21.39369065869655,
+          "ok": false
+        },
+        {
+          "ratio": 0.7,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 21.294130646729865,
+          "ok": false
+        },
+        {
+          "ratio": 0.6833333333333333,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 21.194574777522668,
+          "ok": false
+        },
+        {
+          "ratio": 0.6666666666666666,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 21.095023109728988,
+          "ok": false
+        },
+        {
+          "ratio": 0.65,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 20.9954757031128,
+          "ok": false
+        },
+        {
+          "ratio": 0.6333333333333333,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 20.895932618574363,
+          "ok": false
+        },
+        {
+          "ratio": 0.6166666666666667,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 20.796393918177255,
+          "ok": false
+        },
+        {
+          "ratio": 0.6,
+          "minimum_px": 17.11724276862369,
+          "maximum_px": 20.696859665176262,
+          "ok": false
+        }
+      ],
+      "budget_note": "Feedback 1: preserve the exact keyed targets; runtime IK clamps this named profile, below the 60% floor if needed."
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "hand": "hand_far",
+      "ratio": 1.0,
+      "status": "full_requested",
+      "allowed_minimum_px": 5.998263139950932,
+      "allowed_maximum_px": 49.002555290293,
+      "trials": [
+        {
+          "ratio": 1.0,
+          "minimum_px": 34.058772731852805,
+          "maximum_px": 38.2099463490856,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "clamps": [
+    {
+      "view": "rear",
+      "clip": "hit",
+      "source": "hand_near.forward_px",
+      "at": 0.18,
+      "target": -1,
+      "clamped": -0.6333333333333333,
+      "budget_note": "Largest dense measured reach-safe excursion on the Reaver 1/60 grid, at least 60% of director targets. Source bytes unchanged."
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "source": "hand_near.forward_px",
+      "at": 0.35,
+      "target": -3,
+      "clamped": -1.9,
+      "budget_note": "Largest dense measured reach-safe excursion on the Reaver 1/60 grid, at least 60% of director targets. Source bytes unchanged."
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "source": "hand_near.lift_px",
+      "at": 0.18,
+      "target": -1,
+      "clamped": -0.6333333333333333,
+      "budget_note": "Largest dense measured reach-safe excursion on the Reaver 1/60 grid, at least 60% of director targets. Source bytes unchanged."
+    }
+  ],
+  "runtime_clamps": [
+    {
+      "view": "front",
+      "clip": "broken_rhythm",
+      "hand": "hand_far",
+      "phase": 0.46,
+      "target_excursion_px": 15.001465306695785,
+      "achieved_excursion_px": 7.443471503202522,
+      "clamp_distance_px": 7.766953241551391,
+      "achieved_ratio": 0.4961829628656467,
+      "maximum_clamp_distance_px": 7.766953241551391,
+      "clamped_samples": 335,
+      "samples": 1003,
+      "budget_note": "Director feedback 1: exact keyed targets retained; this named profile may fall below 60% and use the existing physical IK clamp."
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "hand": "hand_near",
+      "phase": 1.0,
+      "target_excursion_px": 6.0,
+      "achieved_excursion_px": 0.9829911459685468,
+      "clamp_distance_px": 5.2108905053041905,
+      "achieved_ratio": 0.16383185766142447,
+      "maximum_clamp_distance_px": 5.2108905053041905,
+      "clamped_samples": 753,
+      "samples": 1005,
+      "budget_note": "Director feedback 1: exact keyed targets retained; this named profile may fall below 60% and use the existing physical IK clamp."
+    },
+    {
+      "view": "rear",
+      "clip": "broken_rhythm",
+      "hand": "hand_near",
+      "phase": 0.46,
+      "target_excursion_px": 5.999999999999996,
+      "achieved_excursion_px": 5.999999999999996,
+      "clamp_distance_px": 0.0,
+      "achieved_ratio": 1.0,
+      "maximum_clamp_distance_px": 1.1563244989353163,
+      "clamped_samples": 307,
+      "samples": 1003,
+      "budget_note": "Director feedback 1: exact keyed targets retained; this named profile may fall below 60% and use the existing physical IK clamp."
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "hand": "hand_near",
+      "phase": 1.0,
+      "target_excursion_px": 6.0000000000000036,
+      "achieved_excursion_px": 0.5272899916504893,
+      "clamp_distance_px": 5.888753734044824,
+      "achieved_ratio": 0.0878816652750815,
+      "maximum_clamp_distance_px": 5.888753734044824,
+      "clamped_samples": 932,
+      "samples": 1005,
+      "budget_note": "Director feedback 1: exact keyed targets retained; this named profile may fall below 60% and use the existing physical IK clamp."
+    },
+    {
+      "view": "rear",
+      "clip": "peal",
+      "hand": "hand_near",
+      "phase": 0.42,
+      "target_excursion_px": 29.464077858368366,
+      "achieved_excursion_px": 29.464077858368366,
+      "clamp_distance_px": 0.0,
+      "achieved_ratio": 1.0,
+      "maximum_clamp_distance_px": 1.2997225744245717,
+      "clamped_samples": 234,
+      "samples": 1002,
+      "budget_note": "Director feedback 1: exact keyed targets retained; this named profile may fall below 60% and use the existing physical IK clamp."
+    }
+  ],
+  "placeholders": {},
+  "walk_arm_excursion_ratios": {
+    "near": 1.0,
+    "far": 1.0
+  },
+  "dense_intervals": 1000,
+  "search_denominator": 60,
+  "native_pixels": false
+}

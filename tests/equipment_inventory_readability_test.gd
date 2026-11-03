@@ -6,6 +6,7 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const PROOF_VIEWPORT_SIZE := Vector2i(1920, 1080)
 const OUTPUT_DIR: String = "user://probes/equipment_inventory_readability"
 const GEAR_IDS: Array[String] = ["duelist_rapier", "mirror_guard", "cinderweave_mail", "cloudstep_sandals", "worldroot_greaves", "ember_hourglass"]
 var _failures: Array[String]
@@ -19,9 +20,14 @@ func _initialize() -> void:
 	ProgressionStore.clear_saved_run()
 	SettingsStore.clear_storage()
 	if _capture_requested():
+		root.size = PROOF_VIEWPORT_SIZE
+		root.content_scale_size = PROOF_VIEWPORT_SIZE
+		root.content_scale_factor = 1.0
+		DisplayServer.window_set_size(PROOF_VIEWPORT_SIZE)
+		_expect(DisplayServer.get_name() != "headless", "Readability captures require a real renderer")
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	var viewport := SubViewport.new()
-	viewport.size = Vector2i(1920, 1080)
+	viewport.size = PROOF_VIEWPORT_SIZE
 	viewport.disable_3d = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)

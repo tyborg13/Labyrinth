@@ -1,0 +1,75 @@
+{
+  "ashen_reaver": {
+    "rule": "wildfire",
+    "cadence": {
+      "anchor": "after_player_turn",
+      "every": 2
+    },
+    "dials": {
+      "spread": "toward_player"
+    },
+    "sentence": "After every second turn of yours, the Reaver's Fire spreads 1 tile toward you."
+  },
+  "rimejaw": {
+    "rule": "frostbite",
+    "cadence": {
+      "anchor": "after_player_turn",
+      "every": 1
+    },
+    "dials": {
+      "damage": 0
+    },
+    "sentence": "After each of your turns, Rimejaw's Frostbite Freezes everyone standing on Ice."
+  },
+  "storm_cantor": {
+    "rule": "lightning_storm",
+    "cadence": {
+      "anchor": "on_intent",
+      "intent": "peal"
+    },
+    "dials": {
+      "damage": 3,
+      "chain": 2
+    },
+    "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 3, with Chain 2."
+  },
+  "gallows_roc": {
+    "rule": "gust",
+    "cadence": {
+      "anchor": "after_player_turn",
+      "every": 1
+    },
+    "dials": {
+      "tiles": 1,
+      "direction": "toward_source"
+    },
+    "sentence": "After each of your turns, the Roc's wind Pushes everyone 1 tile toward it."
+  },
+  "craghide": {
+    "rule": "upheaval",
+    "cadence": {
+      "anchor": "after_source_turn",
+      "every": 2
+    },
+    "dials": {
+      "pattern": "line_between",
+      "length": 3,
+      "health": 2
+    },
+    "sentence": "After every second Craghide turn, the marked tiles rise as Outcrops."
+  },
+  "last_lamplighter": {
+    "rule": "shadowstep",
+    "cadence": {
+      "anchor": "after_player_turn",
+      "every": 1
+    },
+    "dials": {
+      "blink": 1,
+      "who": [
+        "wick_shade"
+      ]
+    },
+    "sentence": "After each of your turns, hidden Wick Shades Blink 1 tile toward you."
+  }
+}

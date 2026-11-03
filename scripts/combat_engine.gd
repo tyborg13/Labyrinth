@@ -3,9 +3,12 @@ class_name CombatEngine
 
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const BrambleRules = preload("res://scripts/enemy_mechanics/bramble.gd")
-const LobRules = preload("res://scripts/enemy_mechanics/lob.gd")
-const IcefallRules = preload("res://scripts/enemy_mechanics/icefall.gd")
+const MarkedRules = preload("res://scripts/enemy_mechanics/marked_strike.gd")
 const WindRules = preload("res://scripts/enemy_mechanics/wind.gd")
+const EnemyActivationRules = preload("res://scripts/enemy_activation_rules.gd")
+const BoardAttackRules = preload("res://scripts/board_attack_rules.gd")
+const BattlefieldRules = preload("res://scripts/battlefield_rules/dispatcher.gd")
+const EnemyCastPresentation = preload("res://scripts/enemy_mechanics/cast_presentation.gd")
 
 const OmenRules = preload("res://scripts/omen_rules.gd")
 
@@ -31,6 +34,7 @@ const DragonCombatRules = preload("res://scripts/dragon_combat_rules.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SnareRules = preload("res://scripts/snare_room_rules.gd")
 const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
+const HoarderRules = preload("res://scripts/hoarder_room_rules.gd")
 const EnemyIdentity = preload("res://scripts/enemy_identity.gd")
 
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
@@ -40,17 +44,20 @@ const RiteRules = preload("res://scripts/rite_rules.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
 const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
+const ChainFootprintGeometry = preload("res://scripts/chain_footprint_geometry.gd")
+const SummonCardPlays = preload("res://scripts/summon_card_play_rules.gd")
 const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
 const SurfaceCardRules = preload("res://scripts/surface_card_rules.gd")
 const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
 const IllusionRelicRules = preload("res://scripts/illusion_relic_rules.gd")
 const TerrainCardRules = preload("res://scripts/terrain_card_rules.gd")
 const ReflectRules = preload("res://scripts/enemy_mechanics/reflect.gd")
-const DiveRules = preload("res://scripts/enemy_mechanics/dive.gd")
+const FlyingRules = preload("res://scripts/enemy_mechanics/flying.gd")
+const StalkerRules = preload("res://scripts/enemy_mechanics/stalker.gd")
 const CapacitorRules = preload("res://scripts/enemy_mechanics/capacitor.gd")
-const MimicRules = preload("res://scripts/enemy_mechanics/mimic.gd")
-const TetherRules = preload("res://scripts/enemy_mechanics/tether.gd")
 const VeilRules = preload("res://scripts/enemy_mechanics/veil.gd")
+const SnuffRules = preload("res://scripts/enemy_mechanics/snuff.gd")
+const LastLightRules = preload("res://scripts/last_light_rules.gd")
 
 const MovementUndoRules = preload("res://scripts/movement_undo_rules.gd")
 
@@ -117,7 +124,7 @@ const GuardianCombatRules = preload("res://scripts/guardian_combat_rules.gd")
 const ATTACK_ACTION_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull", "detonate"]
 const BOSS_DAMAGE_ACTION_TYPES: Array[String] = ["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const DragonPressureFields = preload("res://scripts/dragon_pressure_fields.gd")
-const BOSS_PATTERN_ACTION_TYPES: Array[String] = ["raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
+const BOSS_PATTERN_ACTION_TYPES: Array[String] = ["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const ENEMY_SUPPORT_ACTION_TYPES: Array[String] = ["heal_ally", "guard_ally"]
 const CARDINAL_DIRECTIONS: Array[Vector2i] = [
 	Vector2i(0, -1),
@@ -132,7 +139,6 @@ const PLAYER_BLEED_TRIGGER_ACTION_TYPES := ["move", "melee", "ranged", "aoe", "p
 const ENEMY_BLEED_TRIGGER_ACTION_TYPES := ["lob_land", "erupt", "move_toward", "move_away", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "terrain_burst", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const ZEKARION_TYPE: String = "zekarion"
 const LIGHTNING_WISP_TYPE: String = "lightning_wisp"
-const DRAGON_SPIRE_KIND: String = "dragon_spire"
 const CINDER_MARK_KIND: String = "cinder_mark"
 const INVALID_TILE: Vector2i = Vector2i(-999999, -999999)
 const FORCE_COLLISION_DAMAGE_PER_TILE: int = 2
@@ -157,6 +163,9 @@ const RunScoreRules = preload("res://scripts/run_score_rules.gd")
 const RUN_STAT_ENEMIES_KILLED: String = "enemies_killed"
 const RUN_STAT_DAMAGE_DEALT: String = "damage_dealt"
 const RUN_STAT_DAMAGE_RECEIVED: String = "damage_received"
+
+# Transient presentation capture inherited by recursive deferred death hooks.
+var _surface_death_trace: Dictionary = {}
 
 # Relic ownership is stable throughout a combat, while virtually every action
 # hook asks for the same expanded effect definitions. Keep that immutable
@@ -276,7 +285,7 @@ func _initial_umbra_state(room_layout: Dictionary) -> Dictionary:
 	var room_depth: int = int(room_layout.get("depth", 1))
 	var room_type: String = str(room_layout.get("type", "combat"))
 	var stage_id: String = UMBRA_STAGE_CLEAR
-	if room_type in ["combat", "boss", "guardian"]:
+	if room_type in ["combat", "boss", "guardian"] or (SnareRules.is_room(room_layout) and str(room_layout.get("special_variant", "")) == "shadow"):
 		if room_layout.has("umbra_section_index"):
 			stage_id = umbra_stage_for_section(int(room_layout.get("umbra_section_index", 0)))
 		elif room_layout.has("section_index"):
@@ -321,7 +330,12 @@ func effective_umbra_radius(state: Dictionary) -> int:
 	if base_radius >= UMBRA_UNLIMITED_RADIUS:
 		return UMBRA_UNLIMITED_RADIUS
 	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
-	return DepthRules.sight_radius(state, stage_id, int(state.get("section_index", (maxi(1, int(state.get("room_depth", 1))) - 1) / DEPTHS_PER_SEQUENCE)), base_radius + maxi(0, int(umbra.get("vision_bonus", 0))))
+	# int-09 r1: Last Light keeps its authored sight; Light and Vision still raise it.
+	if LastLightRules.active(state): return base_radius + maxi(0, int(umbra.get("vision_bonus", 0)))
+	var radius: int = DepthRules.sight_radius(state, stage_id, int(state.get("section_index", (maxi(1, int(state.get("room_depth", 1))) - 1) / DEPTHS_PER_SEQUENCE)), base_radius + maxi(0, int(umbra.get("vision_bonus", 0))))
+	if SnareRules.Pressure.id(state) == "umbra_rings":
+		radius = maxi(int(SnareRules.Pressure.definition(state)["min_radius"]), radius - int(state.get("snare_pressure", {}).get("radius_loss", 0)))
+	return radius
 
 func umbra_visible_tiles(state: Dictionary) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
@@ -335,7 +349,7 @@ func umbra_visible_tiles(state: Dictionary) -> Array[Vector2i]:
 		var row: Array = grid[y] as Array
 		for x: int in range(row.size()):
 			var tile := Vector2i(x, y)
-			var visible: bool = personal_radius >= UMBRA_UNLIMITED_RADIUS or PathUtils.manhattan(player_pos, tile) <= personal_radius
+			var visible: bool = SnareRules.Pressure.visible_tile(state, tile) or personal_radius >= UMBRA_UNLIMITED_RADIUS or PathUtils.manhattan(player_pos, tile) <= personal_radius
 			if not visible:
 				for source: Dictionary in sources:
 					var source_pos: Vector2i = source.get("pos", Vector2i(-999, -999))
@@ -353,6 +367,7 @@ func umbra_visible_tile_lookup(state: Dictionary) -> Dictionary:
 	return result
 
 func is_tile_visible_to_player(state: Dictionary, tile: Vector2i, visible_lookup: Dictionary = {}) -> bool:
+	if SnareRules.Pressure.visible_tile(state, tile): return true
 	if not visible_lookup.is_empty():
 		return visible_lookup.has(tile)
 	var radius: int = effective_umbra_radius(state)
@@ -375,6 +390,7 @@ func is_tile_visible_to_player(state: Dictionary, tile: Vector2i, visible_lookup
 func is_enemy_visible_to_player(state: Dictionary, enemy: Dictionary, visible_lookup: Dictionary = {}) -> bool:
 	if int(enemy.get("hp", 0)) <= 0:
 		return false
+	if SnareRules.active(state) and bool(enemy.get("snare_sealbinder", false)): return true
 	if VeilRules.prior_revealed(state, enemy): return true
 	var definition: Dictionary = GameData.enemies().get(str(enemy.get("type", "")), {}) as Dictionary
 	if bool(definition.get("boss_bar", false)):
@@ -899,6 +915,7 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 		"death_bonus_card_plays_this_turn": 0,
 		"card_play_bonus_this_turn": 0,
 		"pending_relic_card_plays": 0,
+		"pending_summon_card_plays": 0,
 		"player_turn_ending": false,
 		"heal_bonus": int(player_snapshot.get("heal_bonus", 0)),
 		"deck": {
@@ -937,7 +954,9 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 		"rng_state": rng.state,
 		"log": []
 	}
+	if room_layout.has("battlefield_rule"): state["battlefield_rule"] = room_layout["battlefield_rule"].duplicate(true)
 	if SnareRules.active(state): state["snare_entry"] = room_layout.get("snare_entry", room_layout.get("player_start", Vector2i.ZERO))
+	if bool(room_layout.get(SnuffRules.RELIGHT_KEY, false)): state[SnuffRules.RELIGHT_KEY] = true
 	if DepthRules.depth(room_layout) > 0:
 		state[DepthRules.STATE_KEY] = DepthRules.depth(room_layout)
 		state["section_index"] = int(room_layout.get("section_index", (maxi(1, int(room_layout.get("depth", 1))) - 1) / DEPTHS_PER_SEQUENCE))
@@ -945,7 +964,11 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 	SurfaceRelicRules.configure(state)
 	state = _apply_start_combat_relic_effects(state, player_snapshot)
 	state = CommonRelicRules.start_combat(self, state)
-	state = OmenRules.start_combat(self, state, player_snapshot)
+	state = OmenRules.start_combat(self, state, player_snapshot, int(room_layout.get("omen_extra_enemies_added", 0)))
+	DragonCombatRules.initialize(self, state)
+	WarbandRules.initialize(self, state)
+	SnareRules.Pressure.initialize(self, state)
+	BattlefieldRules.prepare(self, state)
 	return {"state": state, "rng": rng, "enemy_index": 0, "enemy_count": (state.get("enemies", []) as Array).size(), "complete": false}
 
 # One original enemy assignment per call, followed by the unchanged opening.
@@ -1090,6 +1113,10 @@ func player_action_needs_orientation(action: Dictionary) -> bool:
 	return _action_has_forced_movement(action)
 
 func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
+	# A lethal payment or reaction ends the card, including targetless suffixes.
+	# Preview, card resolution and playback all use this shared legality gate.
+	if combat_outcome(state) == "defeat":
+		return false
 	if not action_surface_requirement_met(state, action):
 		return false
 	var action_type: String = str(action.get("type", ""))
@@ -1231,7 +1258,6 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 				if enemy_targetable:
 					_append_enemy_footprint_targets(targets, enemy)
 			for terrain: Dictionary in _live_terrain(state):
-				if not BrambleRules.attackable(terrain): continue
 				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
 				if PathUtils.manhattan(player_pos, terrain_pos) <= melee_range and not targets.has(terrain_pos):
 					targets.append(terrain_pos)
@@ -1252,7 +1278,6 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 				if enemy_targetable:
 					_append_enemy_footprint_targets(targets, enemy)
 			for terrain: Dictionary in _live_terrain(state):
-				if not BrambleRules.attackable(terrain): continue
 				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
 				if DragonTrophyRules.route(self,state,resolved_action,terrain_pos,visible_lookup).is_empty():
 					continue
@@ -1388,7 +1413,7 @@ func action_with_automatic_origin(state: Dictionary, action: Dictionary, target:
 	return invalid
 
 func player_action_target_reason(state: Dictionary, action: Dictionary, tile: Vector2i) -> String:
-	return VeilRules.target_reason(self, state, action, tile)
+	return ""
 
 func _player_action_destination_is_passable(state: Dictionary, action: Dictionary, tile: Vector2i) -> bool:
 	var kind: String = str(action.get("type", ""))
@@ -1398,8 +1423,7 @@ func _player_action_destination_is_passable(state: Dictionary, action: Dictionar
 func _player_action_target_is_accepted(state: Dictionary, action: Dictionary, tile: Vector2i, accept_target: Callable) -> bool:
 	return (
 		_player_action_destination_is_passable(state, action, tile) and
-		VeilRules.target_reason(self, state, action, tile).is_empty()
-		and _surface_condition_met_or_empty(state, action.get("requires_surface", {}) as Dictionary, tile)
+		_surface_condition_met_or_empty(state, action.get("requires_surface", {}) as Dictionary, tile)
 		and SurfaceRelicRules.can_prepare(state, action, tile)
 		and (not accept_target.is_valid() or bool(accept_target.call(tile)))
 	)
@@ -1545,7 +1569,6 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		or (not validate_target and not bool(action.get("_empower_repeat_first", false)) and not SurfaceRelicRules.mode_enabled(action, "cross"))
 		or valid_targets_for_player_action(next_state, action).has(target_tile)
 	)
-	if not VeilRules.target_reason(self, next_state, action, target_tile).is_empty(): return next_state
 	if action_needs_target and not _player_action_destination_is_passable(next_state, action, target_tile): return next_state
 	if not target_is_valid or not SurfaceRelicRules.can_prepare(next_state, action, target_tile) or (action.has("_origin_tile") and not is_tile_visible_to_player(next_state, action["_origin_tile"])):
 		return next_state
@@ -1583,7 +1606,6 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		action = action.duplicate(true)
 		action["_player_bleed_paid"] = true
 		TempoRules.refresh_next_attack_in_place(next_state, action)
-	SurfaceVarietyRules.before_action(next_state, action)
 	TempoRules.consume_next_attack(next_state, action)
 	var player: Dictionary = next_state.get("player", {})
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
@@ -1746,10 +1768,9 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		for tile: Vector2i in BoardSurfaceRules.footprint_tiles(next_state.get("player", {}) as Dictionary):
 			BoardSurfaceRules.remove(next_state, tile, str(action["clear_surface"]), "clear")
 	next_state.erase("_forced_relic_knocked")
-	if str(action.get("type", "")) in ["blink", "swap", "illusion_swap"]: VeilRules.record_move(next_state, state["player"]["pos"], next_state["player"]["pos"])
+	if str(action.get("type", "")) in ["blink", "swap", "illusion_swap"]: StalkerRules.record_move(next_state, state["player"]["pos"], next_state["player"]["pos"])
 	next_state = SurfaceRelicRules.apply_events(self, state, next_state, action, target_tile, presentation_trace)
-	next_state = SurfaceVarietyRules.after_action(self, state, next_state, action, target_tile, _relic_effects(next_state))
-	MimicRules.record(self, state, next_state, action)
+	next_state = SurfaceVarietyRules.collect_removals(next_state, int(state.get("surface_event_sequence", 0)), _relic_effects(next_state))
 	_record_runtime_performance_phase("player_action_body_total", performance_phase_started)
 	_record_runtime_performance_phase("player_action_total", performance_total_started)
 	return next_state
@@ -2193,7 +2214,7 @@ func current_turn_order(state: Dictionary, limit: int = TURN_ORDER_PREVIEW_LIMIT
 				entry["late_relic_id"] = str(late_effect.get("relic_id", ""))
 	_record_runtime_performance_phase("current_turn_order_present", performance_phase_started)
 	_record_runtime_performance_phase("current_turn_order_total", performance_total_started)
-	return result
+	return BattlefieldRules.project_turn_order(self, state, result, limit)
 
 func _umbra_presented_turn_order_entry(state: Dictionary, entry: Dictionary, projection_context: Dictionary = {}) -> Dictionary:
 	var presented: Dictionary = entry.duplicate(true)
@@ -2230,7 +2251,21 @@ func _umbra_presented_turn_order_entry(state: Dictionary, entry: Dictionary, pro
 	presented.erase("base_initiative")
 	return presented
 
-func finish_player_activation(state: Dictionary) -> Dictionary:
+func finish_player_activation(state: Dictionary, accepted: Callable = Callable()) -> Dictionary:
+	var next_state: Dictionary = prepare_player_activation_end(state)
+	if combat_outcome(state) != "" or not is_player_turn(state):
+		return next_state
+	if accepted.is_valid(): accepted.call(next_state)
+	var room_round_started: bool = SnareRules.begin_round(self, next_state)
+	HoarderRules.begin_round(self, next_state)
+	next_state = BattlefieldRules.after_player_turn(self, next_state, -1, accepted)
+	if room_round_started: SnareRules.start_round(self, next_state, true, true)
+	return next_state
+
+# Owned snapshot immediately before room pressure. Forecasts and completion
+# share all activation-end effects, flag expiry and scheduling in this order.
+# The initial outcome check keeps an escaped hero out of every end-turn effect.
+func prepare_player_activation_end(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	if combat_outcome(next_state) != "" or not is_player_turn(next_state):
 		return next_state
@@ -2262,17 +2297,16 @@ func finish_player_activation(state: Dictionary) -> Dictionary:
 	var scheduled_time: int = int(ending["time"])
 	_schedule_actor(next_state, _player_actor_entry(scheduled_time, 0))
 	next_state["current_actor"] = {"kind": "transition"}
-	SnareRules.start_round(self, next_state)
 	return next_state
 
-func advance_to_next_player_turn_with_steps(state: Dictionary) -> Dictionary:
+func advance_to_next_player_turn_with_steps(state: Dictionary, accepted: Callable = Callable()) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	var steps: Array[Dictionary] = []
 	var player_turn_before_state: Dictionary = {}
 	var safety: int = 0
 	while combat_outcome(next_state) == "" and safety < 100:
 		safety += 1
-		var slice_result: Dictionary = advance_one_activation_with_steps(next_state)
+		var slice_result: Dictionary = advance_one_activation_with_steps(next_state, true, accepted)
 		next_state = slice_result.get("state", next_state) as Dictionary
 		for step_var: Variant in slice_result.get("steps", []):
 			if typeof(step_var) == TYPE_DICTIONARY:
@@ -2318,7 +2352,7 @@ func enemy_acts_before_next_player_turn(scheduled_state: Dictionary) -> bool:
 	probe = popped.get("state", probe) as Dictionary
 	return combat_outcome(probe) == "" and str((popped.get("entry", {}) as Dictionary).get("kind", "")) == "enemy"
 
-func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: bool = true) -> Dictionary:
+func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: bool = true, accepted: Callable = Callable()) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
 	var steps: Array[Dictionary] = []
@@ -2341,6 +2375,7 @@ func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: 
 		next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
 		player_turn_before_state = next_state.duplicate(true)
 		next_state = prepare_next_player_turn(next_state)
+		if accepted.is_valid(): accepted.call(next_state)
 		if include_commit_steps:
 			_append_commit_step(steps, before_pop_state, next_state, "player_turn_start")
 		steps.append_array(SurfaceCardRules.turn_start_presentation_steps(self, player_turn_before_state, next_state))
@@ -2351,6 +2386,7 @@ func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: 
 		"player":
 			player_turn_before_state = next_state.duplicate(true)
 			next_state = prepare_next_player_turn(next_state)
+			if accepted.is_valid(): accepted.call(next_state)
 			if include_commit_steps:
 				_append_commit_step(steps, before_pop_state, next_state, "player_turn_start")
 			steps.append_array(SurfaceCardRules.turn_start_presentation_steps(self, player_turn_before_state, next_state))
@@ -2365,7 +2401,7 @@ func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: 
 			if enemy_index < 0:
 				_record_runtime_performance_phase("enemy_phase_slice_total", performance_total_started)
 				return {"state": next_state, "steps": steps, "player_turn_before_state": {}, "complete": false}
-			var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index, include_commit_steps)
+			var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index, include_commit_steps, true, accepted)
 			# The turn resolver owns its initial state copy. Keep that ownership within
 			# this activation rather than cloning the full combat snapshot again.
 			next_state = turn_result.get("state", next_state) as Dictionary
@@ -2532,7 +2568,10 @@ func resolve_enemy_phase(state: Dictionary) -> Dictionary:
 
 # choose_next_intent=false is reserved for the guarded PASS-loss cursor; its
 # compact evidence is not an animation or a state suitable for committing.
-func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_commit_steps: bool = true, choose_next_intent: bool = true) -> Dictionary:
+func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_commit_steps: bool = true, choose_next_intent: bool = true, accepted: Callable = Callable()) -> Dictionary:
+	return preload("res://scripts/reaction_presentation_trace.gd").complete_turn(_resolve_enemy_turn_with_steps(state, enemy_index, include_commit_steps, choose_next_intent, accepted))
+
+func _resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_commit_steps: bool = true, choose_next_intent: bool = true, accepted: Callable = Callable()) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
 	_record_runtime_performance_phase("enemy_turn_initial_duplicate", performance_total_started)
@@ -2552,13 +2591,11 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	var turn_time_cost: int = _enemy_intent_time_cost(intent)
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var before_turn_setup: Dictionary = next_state.duplicate(true)
-	if not ManeuverRules.keeps_block_at_turn_start(enemy):
-		enemy["block"] = 0
-	(next_state.get("enemies", []) as Array)[enemy_index] = enemy
 	var turn_setup: Dictionary = _resolve_enemy_start_of_turn(next_state, enemy_index)
 	# _resolve_enemy_start_of_turn mutates the resolver-owned state and returns
 	# that same ownership. Re-cloning it here only duplicates the whole combat.
 	next_state = turn_setup.get("state", next_state) as Dictionary
+	if accepted.is_valid(): accepted.call(next_state)
 	if include_commit_steps:
 		_append_commit_step(steps, before_turn_setup, next_state, "enemy_turn_start")
 	for step_var: Variant in turn_setup.get("steps", []):
@@ -2572,7 +2609,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	if bool(turn_setup.get("skip_all", false)):
 		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		var before_skip_resolution: Dictionary = next_state.duplicate(true) if include_commit_steps else {}
-		next_state = BrambleRules.complete_turn(self, next_state, steps)
+		next_state = BattlefieldRules.complete_source_turn(self, next_state, steps, int(enemy["id"]), "", accepted)
 		var skip_enemies: Array = next_state.get("enemies", [])
 		if enemy_index >= 0 and enemy_index < skip_enemies.size():
 			var skip_enemy: Dictionary = _normalized_enemy(skip_enemies[enemy_index] as Dictionary)
@@ -2594,20 +2631,30 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 	if not immobilized:
 		var retreat: Array[Vector2i] = WarbandRules.retreat_path(self, next_state, enemy)
+		if retreat.is_empty(): retreat = HoarderRules.retreat_path(self, next_state, enemy)
 		if retreat.size() > 1:
 			var before_retreat: Dictionary = next_state.duplicate(true)
 			var retreat_context: Dictionary = {"committed": true}
 			var retreat_bleed: Array[Dictionary]
-			next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, {"type": "move_away"}, retreat_bleed)
+			if preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").traced_intent(intent):
+				retreat_context["reaction_trace"] = {"capture_reactions": true}
+				next_state = preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").pay_bleed(self, next_state, enemy_index, {"type": "move_away"}, retreat_context, retreat_bleed)
+			else:
+				next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, {"type": "move_away"}, retreat_bleed)
 			if not _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 				next_state = _move_enemy_along_planned_path(next_state, enemy_index, retreat, retreat_context, 1)
+			if accepted.is_valid(): accepted.call(next_state)
 			if include_commit_steps: _append_commit_step(steps, before_retreat, next_state, "warband_retreat")
 			for bleed_step: Dictionary in retreat_bleed:
 				steps.append(_umbra_marked_enemy_status_step(before_retreat, next_state, bleed_step, int(enemy["id"])))
-			steps.append(_enemy_action_step(before_retreat, next_state, enemy_index, {"type": "move_away", "range": 1}, retreat_context))
+			if preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").separate_movement(retreat_context):
+				for arrival: Dictionary in preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").before_attack_steps(self, retreat_context): steps.append(_umbra_marked_enemy_status_step(before_retreat, next_state, arrival, int(enemy["id"])))
+			elif not bool(retreat_context.get("bleed_stopped", false)):
+				steps.append(_enemy_action_step(before_retreat, next_state, enemy_index, {"type": "move_away", "range": 1}, retreat_context))
 			enemy = _normalized_enemy(next_state["enemies"][enemy_index])
 			if combat_outcome(next_state) != "": return {"state": next_state, "steps": steps, "time_cost": turn_time_cost}
 	intent = WarbandRules.current_intent(next_state, enemy, _surface_pay_enemy_fuel(next_state, enemy, enemy.get("intent", {})))
+	var intent_resolved: bool = not intent.is_empty() and (intent.get("actions", []) as Array).is_empty() and EnemyActivationRules.empty_intent_allowed(turn_setup)
 	if not intent.is_empty():
 		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
@@ -2621,10 +2668,9 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			var action: Dictionary = action_var
 			if combat_outcome(next_state) != "":
 				break
-			if shocked and not _enemy_action_is_movement(action) and not TetherRules.handles(action) and not DiveRules.handles(action) and not MimicRules.handles(action):
+			if not EnemyActivationRules.action_allowed(self, action, turn_setup):
 				continue
-			if immobilized and _enemy_action_is_movement(action):
-				continue
+			intent_resolved = intent_resolved or enemy_action_can_resolve(next_state, action)
 			performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			var before_state: Dictionary = next_state.duplicate(true)
 			var followup_action: Dictionary = {}
@@ -2637,13 +2683,14 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			_record_runtime_performance_phase("enemy_turn_action_prepare", performance_phase_started)
 			performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps, action_context)
+			if accepted.is_valid(): accepted.call(next_state)
 			if _enemy_action_is_movement(action): activation_plan["resolved_path"] = action_context.get("resolved_path",_vector2i_values([next_state["enemies"][enemy_index]["pos"]]))
 			_record_runtime_performance_phase("enemy_turn_action_resolve_%s_total" % str(action.get("type", "other")), performance_phase_started)
 			var presentation_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			performance_phase_started = presentation_started
 			var enemy_hidden_before: bool = _enemy_is_hidden_by_id(before_state, enemy_id)
 			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_visibility", performance_phase_started)
-			if not choose_next_intent and not include_commit_steps and not enemy_hidden_before and bleed_steps.is_empty():
+			if not choose_next_intent and not include_commit_steps and not enemy_hidden_before and bleed_steps.is_empty() and (action_context.get("reaction_trace", {}).get("attack_bleed_steps", []) as Array).is_empty():
 				steps.append({"kind": "known_loss", "target_losses": _actor_target_losses(before_state, next_state)})
 				_record_runtime_performance_phase("enemy_turn_action_compact_loss", performance_phase_started)
 				_record_runtime_performance_phase("enemy_turn_action_presentation_total", presentation_started)
@@ -2657,23 +2704,23 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 				_append_commit_step(steps, before_state, next_state, "enemy_action")
 			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_commit_total", performance_phase_started)
 			for bleed_step: Dictionary in bleed_steps:
-				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, bleed_step, int(enemy.get("id", -1))))
+				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, bleed_step, int(bleed_step.get("cascade", {}).get("id", enemy.get("id", -1)))))
 			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_bleed_steps", performance_phase_started)
 			var raw_step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action, action_context)
 			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_step_build", performance_phase_started)
 			var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, raw_step, enemy_id, enemy_hidden_before)
 			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_umbra_mark", performance_phase_started)
+			for arrival_step: Dictionary in preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").before_attack_steps(self, action_context):
+				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, arrival_step, int(arrival_step.get("cascade", {}).get("id", enemy_id))))
 			if not step.is_empty():
 				steps.append(step)
-			for retaliate_step: Dictionary in RetaliateRules.presentation_steps(self, before_state, next_state):
-				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, retaliate_step, enemy_id))
-			for retort_step: Dictionary in IllusionCardRules.presentation_steps(self, before_state, next_state):
-				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, retort_step, enemy_id))
+			for reaction_step: Dictionary in preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").presentation_steps(self, before_state, next_state, action_context):
+				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, reaction_step, int(reaction_step["cascade"]["id"]) if reaction_step.has("cascade") else enemy_id))
 			_record_runtime_performance_phase("enemy_turn_action_append", performance_phase_started)
 			_record_runtime_performance_phase("enemy_turn_action_presentation_total", presentation_started)
 	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var before_turn_complete: Dictionary = next_state.duplicate(true) if include_commit_steps else {}
-	next_state = BrambleRules.complete_turn(self, next_state, steps)
+	next_state = BattlefieldRules.complete_source_turn(self, next_state, steps, int(enemy["id"]), str(intent.get("id", "")) if intent_resolved else "", accepted)
 	if combat_outcome(next_state) == "":
 		var post_turn_enemies: Array = next_state.get("enemies", [])
 		if enemy_index >= 0 and enemy_index < post_turn_enemies.size():
@@ -2743,7 +2790,7 @@ func _compute_enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Diction
 	var coverage: Dictionary = _threat_coverage(state, enemy, intent, plan, occupied)
 	var move_lookup: Dictionary = coverage["move"]
 	var attack_lookup: Dictionary = coverage["attack"]
-	if CapacitorRules.handles_intent(intent) or MimicRules.handles_intent(intent) or not DiveRules.action_for(intent).is_empty() or str(enemy.get("type", "")) == "glacial_mirror" or not TetherRules.action_for(intent).is_empty() or VeilRules.handles_intent(intent) or (intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent)):
+	if CapacitorRules.handles_intent(intent) or str(enemy.get("type", "")) == "glacial_mirror" or StalkerRules.handles_intent(intent) or (intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent)):
 		move_lookup.clear()
 		attack_lookup.clear()
 		for tile: Vector2i in plan.get("path",[]):
@@ -2814,9 +2861,9 @@ func _compute_threat_coverage(state: Dictionary, enemy: Dictionary, intent: Dict
 				for start_tile: Vector2i in frontier:
 					for attack_tile: Vector2i in _threat_attack_tiles(state, enemy, start_tile, action):
 						attack_lookup[attack_tile] = true
-			"icefall_mark", "icefall_land", "call_wind", "grow_bramble", "lob_mark", "lob_land":
+			"icefall_mark", "icefall_land", "call_wind", "upheaval_mark", "lob_mark", "lob_land":
 				for attack_tile: Vector2i in plan.get("projected_attack", []): attack_lookup[attack_tile] = true
-			"raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse":
+			"terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse":
 				for attack_tile: Vector2i in _boss_action_threat_tiles(state, enemy, action):
 					attack_lookup[attack_tile] = true
 	return {"move": move_lookup, "attack": attack_lookup}
@@ -2832,7 +2879,10 @@ func projected_player_force(state: Dictionary, enemy_id: int, threat: Dictionary
 	var amount: int = _forced_movement_amount(action)
 	var enemy_index: int = _enemy_index_for_id(state, enemy_id)
 	if enemy_index >= 0 and str(action.get("type", "")) == "erupt": return BurrowRules.projected_player_force(self, state, enemy_index, action)
-	if amount <= 0 or enemy_index < 0 or str(threat.get("projected_target_key", "")) != "player":
+	var player_tile: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", INVALID_TILE)
+	# A held target can outlive a blocked approach or interrupted attack. Force
+	# belongs to the projected hit, not merely to the selected target identity.
+	if amount <= 0 or enemy_index < 0 or str(threat.get("projected_target_key", "")) != "player" or not (threat.get("projected_attack", []) as Array).has(player_tile):
 		return {}
 	var trial: Dictionary = state.duplicate(true)
 	var enemies: Array = trial.get("enemies", []) as Array
@@ -2869,8 +2919,12 @@ func projected_player_force(state: Dictionary, enemy_id: int, threat: Dictionary
 	return {"path": path, "destination": to, "collision": collision}
 
 func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
+	return preload("res://scripts/reaction_presentation_trace.gd").complete_turn(_resolve_enemy_phase_with_steps(state))
+
+func _resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 	if SnareRules.active(state): return SnareRules.resolve_phase(self, state)
 	if WarbandRules.active(state): return WarbandRules.resolve_phase(self, state)
+	if HoarderRules.active(state): return HoarderRules.resolve_phase(self, state)
 	var next_state: Dictionary = state.duplicate(true)
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.state = int(next_state.get("rng_state", 0))
@@ -2881,9 +2935,6 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 		var enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		if not ManeuverRules.keeps_block_at_turn_start(enemy):
-			enemy["block"] = 0
-		(next_state.get("enemies", []) as Array)[enemy_index] = enemy
 		var before_turn_setup: Dictionary = next_state.duplicate(true)
 		var turn_setup: Dictionary = _resolve_enemy_start_of_turn(next_state, enemy_index)
 		next_state = (turn_setup.get("state", next_state) as Dictionary).duplicate(true)
@@ -2893,7 +2944,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 		if combat_outcome(next_state) != "":
 			break
 		if bool(turn_setup.get("skip_all", false)):
-			next_state = BrambleRules.complete_turn(self, next_state, steps)
+			next_state = BattlefieldRules.complete_source_turn(self, next_state, steps, int(enemy["id"]))
 			var skip_enemies: Array = next_state.get("enemies", [])
 			if enemy_index >= 0 and enemy_index < skip_enemies.size():
 				var skip_enemy: Dictionary = _normalized_enemy(skip_enemies[enemy_index] as Dictionary)
@@ -2905,6 +2956,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 		var immobilized: bool = bool(turn_setup.get("immobilized", false))
 		enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 		var intent: Dictionary = enemy.get("intent", {})
+		var intent_resolved: bool = not intent.is_empty() and (intent.get("actions", []) as Array).is_empty() and EnemyActivationRules.empty_intent_allowed(turn_setup)
 		if not intent.is_empty():
 			steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
 			var actions: Array = intent.get("actions", [])
@@ -2916,10 +2968,9 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				var action: Dictionary = action_var
 				if combat_outcome(next_state) != "":
 					break
-				if shocked and not _enemy_action_is_movement(action) and not TetherRules.handles(action) and not DiveRules.handles(action) and not MimicRules.handles(action):
+				if not EnemyActivationRules.action_allowed(self, action, turn_setup):
 					continue
-				if immobilized and _enemy_action_is_movement(action):
-					continue
+				intent_resolved = intent_resolved or enemy_action_can_resolve(next_state, action)
 				var before_state: Dictionary = next_state.duplicate(true)
 				var followup_action: Dictionary = {}
 				if not shocked:
@@ -2934,15 +2985,15 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				_anonymize_hidden_enemy_action_logs(before_state, next_state, enemy_id, action, enemy_hidden_before)
 				_record_hidden_umbra_attack_damage(before_state, next_state, enemy_id, enemy_hidden_before)
 				for bleed_step: Dictionary in bleed_steps:
-					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, bleed_step, int(enemy.get("id", -1))))
+					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, bleed_step, int(bleed_step.get("cascade", {}).get("id", enemy.get("id", -1)))))
 				var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, _enemy_action_step(before_state, next_state, enemy_index, action, action_context), enemy_id, enemy_hidden_before)
+				for arrival_step: Dictionary in preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").before_attack_steps(self, action_context):
+					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, arrival_step, int(arrival_step.get("cascade", {}).get("id", enemy_id))))
 				if not step.is_empty():
 					steps.append(step)
-				for retaliate_step: Dictionary in RetaliateRules.presentation_steps(self, before_state, next_state):
-					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, retaliate_step, enemy_id))
-				for retort_step: Dictionary in IllusionCardRules.presentation_steps(self, before_state, next_state):
-					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, retort_step, enemy_id))
-		next_state = BrambleRules.complete_turn(self, next_state, steps)
+				for reaction_step: Dictionary in preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").presentation_steps(self, before_state, next_state, action_context):
+					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, reaction_step, int(reaction_step["cascade"]["id"]) if reaction_step.has("cascade") else enemy_id))
+		next_state = BattlefieldRules.complete_source_turn(self, next_state, steps, int(enemy["id"]), str(intent.get("id", "")) if intent_resolved else "")
 		if combat_outcome(next_state) == "":
 			var post_turn_enemies: Array = next_state.get("enemies", [])
 			if enemy_index >= 0 and enemy_index < post_turn_enemies.size():
@@ -2962,6 +3013,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 		return next_state
 	next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
 	SnareRules.end_round(next_state)
+	HoarderRules.end_round(next_state)
 	next_state["player_turn_ending"] = false
 	next_state["banked_play_active"] = clampi(int(next_state.get("banked_plays", 0)), 0, 1)
 	next_state["banked_plays"] = 0
@@ -2979,8 +3031,9 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state["player_movement_capacity"] = player_movement_capacity(next_state)
 	next_state["player_movement_remaining"] = int(next_state.get("player_movement_capacity", BASE_PLAYER_MOVEMENT))
 	next_state["death_bonus_card_plays_this_turn"] = 0
-	next_state["card_play_bonus_this_turn"] = maxi(0, int(next_state.get("pending_relic_card_plays", 0)))
+	next_state["card_play_bonus_this_turn"] = maxi(0, int(next_state.get("pending_relic_card_plays", 0))) + maxi(0, int(next_state.get(SummonCardPlays.PENDING_FIELD, 0)))
 	next_state["pending_relic_card_plays"] = 0
+	next_state[SummonCardPlays.PENDING_FIELD] = 0
 	next_state["player_turn_restrictions"] = {
 		"frozen": false,
 		"shocked": false,
@@ -3489,7 +3542,7 @@ func _resolve_enemy_intent(state: Dictionary, enemy_index: int, intent: Dictiona
 
 func _enemy_intent_step_for_player(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
 	var hidden: bool = not is_enemy_visible_to_player(state, enemy)
-	return {
+	var step: Dictionary = {
 		"kind": "intent",
 		"actor_key": _enemy_key(enemy),
 		"actor_name": "Unknown Presence" if hidden else EnemyIdentity.display_name(enemy),
@@ -3497,6 +3550,8 @@ func _enemy_intent_step_for_player(state: Dictionary, enemy: Dictionary, intent:
 		"intent_name": "Hidden Intent" if hidden else str(intent.get("name", "Action")),
 		"hidden_by_umbra": hidden
 	}
+	if preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").traced_intent(intent): step["trace_state_after"] = preload("res://scripts/reaction_presentation_trace.gd").snapshot(state)
+	return step
 
 func _enemy_intent_refresh_step(state: Dictionary, enemy_id: int) -> Dictionary:
 	var enemy_index: int = _enemy_index_for_id(state, enemy_id)
@@ -3551,6 +3606,7 @@ func _umbra_marked_enemy_action_step(before_state: Dictionary, after_state: Dict
 	return presented
 
 func _umbra_marked_enemy_status_step(before_state: Dictionary, after_state: Dictionary, step: Dictionary, enemy_id: int) -> Dictionary:
+	if step.has("cascade"): enemy_id = int(step["cascade"]["id"])
 	var presented: Dictionary = _umbra_marked_enemy_action_step(before_state, after_state, step, enemy_id)
 	if not bool(presented.get("hidden_by_umbra", false)):
 		var index: int = _enemy_index_for_id(after_state, enemy_id)
@@ -3577,6 +3633,8 @@ func _anonymize_hidden_enemy_action_logs(before_state: Dictionary, after_state: 
 	logs.resize(before_logs.size())
 	var action_type: String = str(action.get("type", ""))
 	logs.append("A hidden presence attacks." if action_type in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"] else "Something shifts in the Umbra.")
+	if int(after_state.get(SummonCardPlays.PENDING_FIELD, 0)) > int(before_state.get(SummonCardPlays.PENDING_FIELD, 0)):
+		logs.append(SummonCardPlays.LOG_LINE)
 	after_state["log"] = logs
 
 func _record_hidden_umbra_attack_damage(before_state: Dictionary, after_state: Dictionary, enemy_id: int, enemy_hidden_before_value: Variant = null) -> void:
@@ -3658,6 +3716,8 @@ func _enemy_action_step_base(before_state: Dictionary, after_state: Dictionary, 
 				"sfx_category": str(action.get("sfx_category", action.get("block_sfx_category", ""))),
 				"label": "Guard"
 			}
+		"retaliate":
+			return {"kind": "status", "actor_key": _enemy_key(after_enemy), "actor_name": actor_name, "tile": after_enemy.get("pos", Vector2i.ZERO), "label": "Retaliate", "enemy_status_gain": true, "enemy_after": after_enemy.duplicate(true)}
 		"stoneskin":
 			var skin_gain: int = int(after_enemy.get("stoneskin", 0)) - int(before_enemy.get("stoneskin", 0))
 			if skin_gain <= 0:
@@ -3774,14 +3834,7 @@ func _enemy_action_step_base(before_state: Dictionary, after_state: Dictionary, 
 				"frost_armor": "Crystal Mantle"
 			}
 			var focus_tiles: Array[Vector2i] = []
-			if action_type == "raise_terrain":
-				for terrain_var: Variant in after_state.get("terrain", []):
-					if typeof(terrain_var) != TYPE_DICTIONARY:
-						continue
-					var terrain: Dictionary = terrain_var as Dictionary
-					if str(terrain.get("kind", "")) == DRAGON_SPIRE_KIND and not _terrain_id_exists(before_state, str(terrain.get("id", ""))):
-						focus_tiles.append(terrain.get("pos", Vector2i.ZERO))
-			elif action_type == "cinder_marks":
+			if action_type == "cinder_marks":
 				for trap: Dictionary in _cinder_fire_entries(after_state, int(after_enemy.get("id", -1))):
 					if _trap_index_at_tile(before_state, trap.get("pos", INVALID_TILE)) < 0:
 						focus_tiles.append(trap.get("pos", Vector2i.ZERO))
@@ -3903,14 +3956,13 @@ func _enemy_action_step_base(before_state: Dictionary, after_state: Dictionary, 
 		"summon_minions":
 			var before_count: int = before_enemies.size()
 			var after_count: int = after_enemies.size()
-			if after_count <= before_count:
-				return {}
 			return {
 				"kind": "summon",
 				"actor_key": _enemy_key(after_enemy),
 				"actor_name": actor_name,
 				"tile": after_enemy.get("pos", Vector2i.ZERO),
 				"amount": after_count - before_count,
+				"analytics_only": after_count <= before_count,
 				# Resolved snapshots let Zekarion's calling gesture reveal exactly the
 				# already-created minions. Presentation must never summon them again.
 				"spawned_enemies": after_enemies.slice(before_count).duplicate(true),
@@ -4041,8 +4093,6 @@ func _terrain_target_losses(before_state: Dictionary, after_state: Dictionary) -
 		if typeof(before_terrain_var) != TYPE_DICTIONARY:
 			continue
 		var before_terrain: Dictionary = before_terrain_var as Dictionary
-		# Ice Pillars are terrain with no attack durability or damage feedback.
-		if str(before_terrain.get("kind", "")) in ["ice_pillar", "bramble"]: continue
 		if int(before_terrain.get("hp", 0)) <= 0:
 			continue
 		var terrain_id: String = str(before_terrain.get("id", ""))
@@ -4472,7 +4522,13 @@ func _illusion_attack_damage(state: Dictionary, illusion_id: int, damage: int, s
 func _apply_action_keywords_to_target(state: Dictionary, target: Dictionary, action: Dictionary, source_pos: Vector2i) -> Dictionary:
 	if str(target.get("kind", "")) == "player":
 		return _apply_action_keywords_to_player(state, action, source_pos)
-	if str(target.get("kind", "")) == "illusion" and str(action.get("element", "")) == "ice" and int(action.get("damage", 0)) > 0:
+	# Rule hits cover every unit. Keep ordinary illusion hit semantics unchanged:
+	# no Shock, and only positive-damage Ice hits can Freeze them.
+	var battlefield_hit: bool = str(state.get("damage_context", {}).get("source_kind", "")) == "battlefield_rule"
+	if str(target.get("kind", "")) == "illusion" and battlefield_hit and int(action.get("shock", 0)) > 0:
+		var illusion: Dictionary = _surface_actor(state, "illusion", int(target.get("id", -1)))
+		if int(illusion.get("hp", 0)) > 0: illusion["shock"] = maxi(int(illusion.get("shock", 0)), int(action["shock"]))
+	if str(target.get("kind", "")) == "illusion" and str(action.get("element", "")) == "ice" and (int(action.get("damage", 0)) > 0 or battlefield_hit):
 		return _surface_freeze_actor(state, "illusion", int(target.get("id", -1)), action)
 	return state
 
@@ -4492,21 +4548,21 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 		return next_state
 	var resolved_action: Dictionary = _resolved_surface_action(next_state, action)
 	action = resolved_action
-	if DiveRules.handles(action): return DiveRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
 	if ReflectRules.refraction(next_state["enemies"][enemy_index], action): return ReflectRules.resolve(self, next_state, enemy_index, action, bleed_steps, action_context)
 	if CapacitorRules.handles(action): return CapacitorRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
-	if MimicRules.handles(action): return MimicRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
 	if CapacitorRules.immobile(enemy) and _enemy_action_is_movement(action): return next_state
-	if TetherRules.handles(action): return TetherRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
-	if VeilRules.handles(action): return VeilRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
-	if BurrowRules.handles(action): return BurrowRules.resolve(self, next_state, enemy_index, action, bleed_steps)
+	if StalkerRules.handles(action): return StalkerRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
+	if SnuffRules.handles(action): return SnuffRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
+	if BurrowRules.handles(action): return BurrowRules.resolve(self, next_state, enemy_index, action, bleed_steps, action_context)
 	if str(action.get("type", "")) == "kindle": return KindleRules.resolve(next_state, enemy_index, action)
 	if GuardianCombatRules.handles(action):
 		action["_resolved_path"] = action_context.get("resolved_path",_vector2i_values([enemy["pos"]]))
-		return GuardianCombatRules.resolve(self, next_state, enemy_index, action, rng, bleed_steps)
+		var enemies_before: int = enemies.size()
+		next_state = GuardianCombatRules.resolve(self, next_state, enemy_index, action, rng, bleed_steps)
+		SummonCardPlays.grant(self, next_state, action, enemies_before)
+		return next_state
 	if BrambleRules.handles(action): return BrambleRules.resolve(self, next_state, enemy_index, action)
-	if LobRules.handles(action): return LobRules.resolve(self, next_state, enemy_index, action, bleed_steps)
-	if IcefallRules.handles(action): return IcefallRules.resolve(self, next_state, enemy_index, action)
+	if MarkedRules.handles(action): return MarkedRules.resolve(self, next_state, enemy_index, action, bleed_steps)
 	if str(action.get("type", "")) == "call_wind": return WindRules.resolve(self, next_state, enemy_index, action)
 	var state_before_action: Dictionary = next_state.duplicate(true)
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
@@ -4561,6 +4617,9 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 				EnemyIdentity.display_name(enemy),
 				int(action.get("amount", 0))
 			])
+		"retaliate":
+			RetaliateRules.gain(enemy, action)
+			enemies[enemy_index] = enemy
 		"stoneskin":
 			enemy["stoneskin"] = int(enemy.get("stoneskin", 0)) + int(action.get("amount", 0))
 			enemies[enemy_index] = enemy
@@ -4636,9 +4695,9 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 		"pull":
 			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, false, rng, bleed_steps, action_context)
 		"summon_minions":
+			var enemies_before: int = (next_state.get("enemies", []) as Array).size()
 			next_state = _enemy_summon_minions(next_state, enemy_index, action, rng)
-		"raise_terrain":
-			next_state = _enemy_raise_dragon_spires(next_state, enemy_index, action)
+			SummonCardPlays.grant(self, next_state, action, enemies_before)
 		"terrain_burst":
 			next_state = _enemy_terrain_burst(next_state, enemy_index, action, bleed_steps)
 		"cinder_marks":
@@ -4679,6 +4738,13 @@ func _planned_enemy_movement_path(state: Dictionary, enemy: Dictionary, enemy_in
 	var navigation: Dictionary = _unit_movement_navigation(state, enemy, int(action.get("range", 0)), _enemy_path_blockers(state, enemy, true, false))
 	return _vector2i_values((navigation.get("paths", {}) as Dictionary).get(destination, [start]))
 
+# Shared by live movement and held-path previews. A negative result means the
+# next step exceeds the allowance; preserve the existing first-step exception.
+func _enemy_allowed_step_cost(state: Dictionary, enemy: Dictionary, from: Vector2i, to: Vector2i, allowance: int, spent: int, first_step: bool) -> int:
+	var cost: int = 1 if FlyingRules.flying(enemy) else BoardSurfaceRules.movement_step_cost(state, enemy, from, to)
+	if first_step and allowance > 0: cost = mini(cost, allowance)
+	return -1 if allowance >= 0 and spent + cost > allowance else cost
+
 func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned_path: Array[Vector2i], action_context: Dictionary, allowance: int = -1) -> Dictionary:
 	if CapacitorRules.immobile(state["enemies"][enemy_index]): return state
 	var next_state: Dictionary = state
@@ -4688,6 +4754,7 @@ func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	resolved_path.append(enemy.get("pos", Vector2i.ZERO))
+	var previous_trace: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").movement_started(self, next_state, action_context)
 	var spent: int = 0
 	for path_index: int in range(1, planned_path.size()):
 		enemies = next_state.get("enemies", [])
@@ -4696,23 +4763,26 @@ func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned
 		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0 or enemy.get("pos", INVALID_TILE) != planned_path[path_index - 1]:
 			break
-		if bool(action_context.get("committed", false)) and not (path_index < planned_path.size() - 1 and DiveRules.can_cross(self, next_state, enemy, planned_path[path_index])) and not _enemy_can_occupy_anchor(next_state, enemy, planned_path[path_index], _enemy_path_blockers(next_state,enemy,true,false)):
+		if bool(action_context.get("committed", false)) and not _enemy_can_occupy_anchor(next_state, enemy, planned_path[path_index], _enemy_path_blockers(next_state,enemy,true,false)):
 			break
-		var cost: int = 1 if DiveRules.flying(enemy) else BoardSurfaceRules.movement_step_cost(next_state, enemy, planned_path[path_index - 1], planned_path[path_index])
-		if path_index == 1 and allowance > 0:
-			cost = mini(cost, allowance)
-		if allowance >= 0 and spent + cost > allowance:
+		var cost: int = _enemy_allowed_step_cost(next_state, enemy, planned_path[path_index - 1], planned_path[path_index], allowance, spent, path_index == 1)
+		if cost < 0:
 			break
 		spent += cost
+		_resolver_journal("begin", next_state, {"kind": "move", "id": enemy["id"]})
+		var move_owner: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").cascade_begin(self, next_state, {"action_type": "move", "id": enemy["id"], "tile": planned_path[path_index]}) if action_context.has("reaction_trace") else {}
 		enemy["pos"] = planned_path[path_index]
 		enemies[enemy_index] = enemy
 		next_state["enemies"] = enemies
 		resolved_path.append(planned_path[path_index])
 		next_state = surface_actor_arrival(next_state, "enemy", int(enemy.get("id", -1)), planned_path[path_index - 1])
+		_resolver_journal("end", next_state)
+		if action_context.has("reaction_trace"): preload("res://scripts/reaction_presentation_trace.gd").cascade_end(self, next_state, move_owner)
 		if combat_outcome(next_state) != "":
 			break
 	action_context["resolved_path"] = resolved_path
 	action_context["movement_spent"] = spent
+	preload("res://scripts/reaction_presentation_trace.gd").movement_finished(self, action_context, previous_trace)
 	return next_state
 
 func _current_actor_target_for_plan(state: Dictionary, action_context: Dictionary) -> Dictionary:
@@ -4781,6 +4851,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		BoardSurfaceRules.record_event(next_state, {"kind": "actor_death", "actor_kind": "enemy", "id": int(enemy.get("id", -1)), "actor_key": _enemy_key(enemy), "source_kind": str(context.get("source_kind", "direct_attack")), "unit": enemy.duplicate(true), "player_card": credit, "source": context.duplicate(true)})
 		reward_embers = OmenRules.ember_drop(next_state, reward_embers)
 		if DepthRules.enemy_class(enemy) == "dragon": reward_embers = DepthRules.dragon_embers(next_state, reward_embers)
+		if SnareRules.active(next_state) and bool(enemy.get("snare_hunter", false)): reward_embers = 0
 		next_state["room_embers"] = int(next_state.get("room_embers", 0)) + reward_embers
 		_record_score_wallet_max(next_state)
 		next_state["death_bonus_card_plays_this_turn"] = int(next_state.get("death_bonus_card_plays_this_turn", 0)) + bonus_card_plays
@@ -4794,6 +4865,10 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 	return next_state
 
 func _clear_remaining_enemies_for_leader_objective(state: Dictionary, leader_id: int) -> Dictionary:
+	if HoarderRules.active(state):
+		state = HoarderRules.catch(self, state, leader_id)
+		WindRules.clear_dead_source(self, state)
+		return state
 	if WarbandRules.active(state):
 		state = WarbandRules.break_followers(self, state, leader_id)
 		WindRules.clear_dead_source(self, state)
@@ -5021,7 +5096,6 @@ func _damage_terrain(state: Dictionary, terrain_index: int, damage: int) -> Dict
 	if terrain_index < 0 or terrain_index >= terrain_entries.size():
 		return next_state
 	var terrain: Dictionary = _normalized_terrain(terrain_entries[terrain_index])
-	if not BrambleRules.attackable(terrain): return next_state
 	if not BoardSurfaceRules.terrain_is_live(terrain):
 		return next_state
 	terrain["hp"] = maxi(0, int(terrain.get("hp", 0)) - damage)
@@ -5330,16 +5404,13 @@ func _normalized_terrain(terrain_value: Variant) -> Dictionary:
 	terrain["id"] = str(terrain.get("id", ""))
 	terrain["kind"] = str(terrain.get("kind", "wooden_box"))
 	terrain["pos"] = terrain.get("pos", Vector2i.ZERO)
-	if str(terrain["kind"]) in ["ice_pillar", "bramble"]:
-		terrain.erase("hp")
-		terrain.erase("max_hp")
-		return terrain
 	terrain["hp"] = int(terrain.get("hp", 0))
 	terrain["max_hp"] = maxi(1, int(terrain.get("max_hp", terrain.get("hp", 1))))
 	return terrain
 
 func _normalized_enemy(enemy_value: Variant) -> Dictionary:
 	var enemy: Dictionary = _normalized_unit(enemy_value)
+	enemy.erase("veiled")
 	enemy["frost_armor"] = maxi(0, int(enemy.get("frost_armor", 0)))
 	if not enemy.has("element"):
 		enemy["element"] = ElementData.NONE
@@ -5379,7 +5450,8 @@ func _initialize_initiative_queue(state: Dictionary) -> Dictionary:
 		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		enemy["intent"] = TetherRules.commit(self, next_state, enemy, enemy.get("intent", {}))
+		# Queue and caption consumers also handle actors awaiting an assignment.
+		enemy["intent"] = enemy.get("intent", {})
 		enemies[enemy_index] = enemy
 		var intent_time_cost: int = _enemy_intent_time_cost(enemy.get("intent", {}) as Dictionary)
 		var first_delay: int = maxi(ENEMY_MIN_INITIATIVE, _enemy_base_initiative(next_state, enemy) + maxi(0, intent_time_cost))
@@ -6417,7 +6489,11 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 		_log(next_state, "%s triggers a trap." % EnemyIdentity.display_name(enemy))
 		return next_state
 	if target.is_empty():
-		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps, int(selection.get("terrain_index", -2)))
+		var terrain_index: int = int(selection.get("terrain_index", -2))
+		if terrain_index == -2: terrain_index = _blocking_terrain_index_for_enemy_action(next_state, enemy_index, action)
+		if terrain_index < 0:
+			action_context["no_action_reason"] = preload("res://scripts/enemy_no_action_reason.gd").attack_failure(self, next_state, enemy, action, action_context)
+		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps, terrain_index)
 	var resolved: Dictionary = _enemy_action_oriented_to_target(action, enemy, target.get("pos", INVALID_TILE))
 	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
@@ -6490,7 +6566,6 @@ func _blocking_terrain_index_for_enemy_action(state: Dictionary, enemy_index: in
 		var terrain_index: int = _terrain_index_at_tile(state, tile)
 		if terrain_index < 0:
 			continue
-		if not BrambleRules.attackable(state["terrain"][terrain_index]): return -1
 		if _enemy_action_reaches_tile(state, enemy, action, tile):
 			return terrain_index
 		return -1
@@ -6580,75 +6655,12 @@ func _all_passable_tiles(state: Dictionary) -> Array[Vector2i]:
 	return tiles
 
 func _dragon_spires(state: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
-	for terrain_var: Variant in state.get("terrain", []):
-		if typeof(terrain_var) != TYPE_DICTIONARY:
-			continue
-		var terrain: Dictionary = _normalized_terrain(terrain_var)
-		if str(terrain.get("kind", "")) == DRAGON_SPIRE_KIND and int(terrain.get("hp", 0)) > 0:
-			result.append(terrain)
-	return result
+	return DragonCombatRules.owned_stone(state)
 
-func _dragon_spire_tiles(state: Dictionary) -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = []
-	for terrain: Dictionary in _dragon_spires(state):
-		tiles.append(terrain.get("pos", Vector2i.ZERO))
-	return tiles
-
-func _enemy_raise_dragon_spires(state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
-	var next_state: Dictionary = state
-	var enemies: Array = next_state.get("enemies", [])
-	if enemy_index < 0 or enemy_index >= enemies.size():
-		return next_state
-	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var candidates: Array[Vector2i] = [
-		Vector2i(2, 2), Vector2i(6, 2), Vector2i(2, 5), Vector2i(6, 5),
-		Vector2i(3, 6), Vector2i(5, 6), Vector2i(2, 4), Vector2i(6, 4)
-	]
-	if action.has("declared_tiles"): candidates = _vector2i_values(action["declared_tiles"])
-	if candidates.is_empty(): return next_state
-	var occupied: Dictionary = _occupied_actor_tiles(next_state)
-	var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", Vector2i.ZERO)
-	var terrain_entries: Array = next_state.get("terrain", []).duplicate(true)
-	var count: int = maxi(0, mini(int(action.get("count", 4)),int(action.get("maximum",99))-_dragon_spires(next_state).size()))
-	if count <= 0: return next_state
-	var health: int = maxi(1, int(action.get("health", GameData.fixed_point_amount(6))))
-	var raised: int = 0
-	var start_index: int = 0 if action.has("declared_tiles") else posmod(int(next_state.get("turn", 1)) + int(enemy.get("id", 0)), candidates.size())
-	for offset: int in range(candidates.size()):
-		var tile: Vector2i = candidates[posmod(start_index + offset, candidates.size())]
-		if not PathUtils.is_passable(next_state.get("grid", []), tile):
-			continue
-		if tile == player_pos or occupied.has(tile) or _terrain_index_at_tile(next_state, tile) >= 0 or _trap_index_at_tile(next_state, tile) >= 0:
-			continue
-		if not action.has("declared_tiles") and PathUtils.manhattan(player_pos, tile) <= 1:
-			continue
-		if not DragonCombatRules.spire_preserves_routes(self,next_state,enemy,tile): continue
-		BoardSurfaceRules.remove(next_state, tile, "all", "terrain_created")
-		var terrain_id: String = "dragon_spire_%d_%d_%d" % [int(enemy.get("id", 0)), int(next_state.get("turn", 1)), raised]
-		BoardSurfaceRules.record_event(next_state, {"kind": "terrain_created", "terrain_kind": DRAGON_SPIRE_KIND, "terrain_id": terrain_id, "tile": tile, "health": health, "source": _surface_source(next_state, action)})
-		terrain_entries.append({
-			"id": terrain_id,
-			"owner_id": int(enemy["id"]),
-			"kind": DRAGON_SPIRE_KIND,
-			"surface_on_destroy": "rubble",
-			"pos": tile,
-			"hp": health,
-			"max_hp": health,
-			"boss_created": true
-		})
-		next_state["terrain"] = terrain_entries
-		raised += 1
-		if raised >= count:
-			break
-	if raised > 0:
-		_mark_dragon_mechanic_opened(next_state, enemy_index)
-		_log(next_state, "%s raises %d Worldspine%s." % [_enemy_display_name(enemy), raised, "s" if raised != 1 else ""])
-	return next_state
-
-func _terrain_burst_tiles(state: Dictionary, radius: int) -> Array[Vector2i]:
+func _terrain_burst_tiles(state: Dictionary, radius: int, owner_id: int = -1) -> Array[Vector2i]:
 	var lookup: Dictionary = {}
-	for spire_tile: Vector2i in _dragon_spire_tiles(state):
+	for stone: Dictionary in DragonCombatRules.owned_stone(state, owner_id):
+		var spire_tile: Vector2i = stone["pos"]
 		for tile: Vector2i in PathUtils.diamond_tiles(spire_tile, maxi(1, radius), state.get("grid", [])):
 			if PathUtils.is_passable(state.get("grid", []), tile):
 				lookup[tile] = true
@@ -6660,10 +6672,11 @@ func _enemy_terrain_burst(state: Dictionary, enemy_index: int, action: Dictionar
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var spire_tiles: Array[Vector2i] = _dragon_spire_tiles(next_state)
+	var spire_tiles: Array[Vector2i]
+	for stone: Dictionary in DragonCombatRules.owned_stone(next_state, int(enemy["id"])): spire_tiles.append(stone["pos"])
 	if spire_tiles.is_empty():
 		return next_state
-	var affected_tiles: Array[Vector2i] = _terrain_burst_tiles(next_state, int(action.get("radius", 1)))
+	var affected_tiles: Array[Vector2i] = _terrain_burst_tiles(next_state, int(action.get("radius", 1)), int(enemy["id"]))
 	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 		return next_state
@@ -6865,7 +6878,7 @@ func _boss_action_threat_tiles(state: Dictionary, enemy: Dictionary, action: Dic
 		"raise_terrain":
 			return _vector2i_values(action.get("declared_tiles",[]))
 		"terrain_burst":
-			return _terrain_burst_tiles(state, int(action.get("radius", 1)))
+			return _terrain_burst_tiles(state, int(action.get("radius", 1)), int(enemy["id"]))
 		"cinder_marks":
 			return _vector2i_values(action["declared_tiles"]) if action.has("declared_tiles") else _cinder_mark_candidate_tiles(state, enemy, maxi(1, int(action.get("count", 5))))
 		"detonate_cinders":
@@ -7140,8 +7153,6 @@ func _force_collision_damage(state: Dictionary, kind: String, id: int, amount: i
 	return _surface_damage_actor(state, kind, id, amount, false, false)
 
 func _apply_force_collision(state: Dictionary, kind: String, id: int, contact: Dictionary, direction: Vector2i, lost: int, pushing: bool) -> Dictionary:
-	if BrambleRules.collision(self, state, kind, id, contact, direction, lost, pushing): return state
-	if IcefallRules.collision(self, state, kind, id, contact, direction, lost, pushing): return state
 	if IllusionRelicRules.puppet_collision(self, state, kind, id, contact, direction, lost, pushing):
 		return state
 	return ForcedRelicRules.resolve_collision(self, state, kind, id, contact, direction, lost, pushing)
@@ -7164,7 +7175,7 @@ func _force_action_affects_enemy(state: Dictionary, enemy_index: int, action: Di
 	return not bool(contact.get("source", false))
 
 func _force_actor_anchored(state: Dictionary, kind: String, id: int) -> bool:
-	return (kind == "enemy" and (CapacitorRules.immobile(_force_unit(state, kind, id)) or bool(_force_unit(state, kind, id).get("snare_sealbinder", false)))) or WindRules.force_anchored(self, state, kind, id)
+	return (kind == "enemy" and CapacitorRules.immobile(_force_unit(state, kind, id))) or WindRules.force_anchored(self, state, kind, id)
 
 func _force_move_enemy_from(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i, pushing: bool, amount: int) -> Dictionary:
 	var enemies: Array = state.get("enemies", [])
@@ -7279,7 +7290,7 @@ func _move_player_along_path(state: Dictionary, path: Array[Vector2i], allowance
 				if not vaulted.has(enemy_id):
 					vaulted[enemy_id] = true
 					_apply_stagger_to_enemy(next_state, enemy_id, int(vault.get("stagger", 2)))
-		VeilRules.record_move(next_state, player["pos"], path[step_index])
+		StalkerRules.record_move(next_state, player["pos"], path[step_index])
 		player["pos"] = path[step_index]
 		next_state["player"] = player
 		performance_phase_started = _record_runtime_performance_phase("traverse_position", performance_phase_started)
@@ -7479,6 +7490,8 @@ func _trigger_trap_at_index(state: Dictionary, trap_index: int, protect_player: 
 	var context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 	state["damage_context"] = context.duplicate(true)
 	state["damage_context"]["source_kind"] = "trap"
+	# Keep trap causality when a nested collision/relic replaces source_kind.
+	state["damage_context"]["causal_source_kind"] = "trap"
 	state["damage_context"]["trap_element"] = str(trap.get("element", ""))
 	var actors: Array[Dictionary] = _surface_actor_records(state)
 	for actor: Dictionary in actors:
@@ -7596,6 +7609,7 @@ func _enemy_status_damage_step(
 	step["player_after"] = (after_state.get("player", {}) as Dictionary).duplicate(true)
 	step["surfaces_after"] = (after_state.get("surfaces", {}) as Dictionary).duplicate(true)
 	step["surface_events"] = _surface_events_since(before_state, after_state)
+	preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").capture_legacy_bursts(step, before_state, after_state)
 	return step
 
 func _player_action_triggers_bleed(action: Dictionary) -> bool:
@@ -7628,7 +7642,9 @@ func _trigger_enemy_bleed_for_action(state: Dictionary, enemy_index: int, action
 		return {"state": next_state, "step": empty_step}
 	var before_state: Dictionary = next_state.duplicate(true)
 	var before_enemy: Dictionary = enemy.duplicate(true)
+	_resolver_journal("begin", next_state, {"kind": "bleed_move" if _enemy_action_is_movement(action) else "bleed_attack", "id": enemy["id"]})
 	next_state = _damage_enemy(next_state, enemy_index, bleed_amount, false)
+	_resolver_journal("end", next_state)
 	var after_enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= after_enemies.size():
 		return {"state": next_state, "step": empty_step}
@@ -7685,15 +7701,34 @@ func _clear_enemy_bleed_after_turn(state: Dictionary, enemy_index: int) -> Dicti
 	next_state["enemies"] = enemies
 	return next_state
 
+# Optional raw resolver observation. Never reads presentation steps or trace data.
+func _resolver_journal(event: String, state: Dictionary, owner: Dictionary = {}) -> void:
+	if has_meta("resolver_journal_observer"):
+		var observer: Callable = get_meta("resolver_journal_observer")
+		observer.call(event, state, owner)
+
 func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictionary:
+	(state["enemies"][enemy_index] as Dictionary).erase(RetaliateRules.STATE_KEY)
+	state = BrambleRules.begin_turn(self, state, enemy_index)
 	var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index])
+	# Complete activation-start preparation, shared by both turn resolvers and
+	# on_intent projection: clear ordinary Block before ground contact. Petrify
+	# retains its Block for the skipped activation through the existing predicate.
+	if not ManeuverRules.keeps_block_at_turn_start(enemy):
+		enemy["block"] = 0
 	(state.get("enemies", []) as Array)[enemy_index] = enemy
 	var frozen: bool = int(enemy.get("freeze", 0)) > 0
 	var petrified: bool = ManeuverRules.is_petrified(enemy)
 	var before: Dictionary = state.duplicate(true)
 	var old_context: Dictionary = state.get("damage_context", {}) as Dictionary
 	state["damage_context"] = {"source_kind": "surface_fire", "player_card": false, "phase": "activation_start"}
+	var charge_trace: Dictionary = {"capture_reactions": true} if preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").traced_intent(enemy.get("intent", {})) and BoardSurfaceRules.unit_on(before, enemy, "fire") else {}
+	var charge_scope: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").charge_started(self, state, charge_trace, int(enemy["id"])) if not charge_trace.is_empty() else {}
+	if BoardSurfaceRules.unit_on(before, enemy, "fire"): _resolver_journal("begin", state, {"kind": "activation_fire", "id": enemy["id"]})
 	state = _surface_contact(state, "enemy", int(enemy.get("id", -1)), INVALID_TILE, true)
+	if BoardSurfaceRules.unit_on(before, enemy, "fire"): _resolver_journal("end", state)
+	var charge_entries: Array[Dictionary]
+	if not charge_trace.is_empty(): charge_entries = preload("res://scripts/reaction_presentation_trace.gd").charge_finished(self, state, charge_trace, charge_scope)
 	state["damage_context"] = old_context
 	enemy = (state.get("enemies", []) as Array)[enemy_index]
 	var held: bool = frozen or petrified
@@ -7707,13 +7742,28 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 		enemy[ManeuverRules.PETRIFY_FIELD] = 0
 	if immobilized:
 		enemy["immobilize"] = false
+	if held or shocked or immobilized: _resolver_journal("instant", state, {"kind": "skip", "id": enemy["id"]})
 	var steps: Array[Dictionary] = []
 	if BoardSurfaceRules.unit_on(before, (before.get("enemies", []) as Array)[enemy_index], "fire"):
-		steps.append(_enemy_status_damage_step({"kind": "status_damage", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": "Fire", "text": "Fire", "amount": RiteRules.surface_tile_damage(_relic_effects(state), "fire", "enemy", GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE), {}, GameData.FIXED_POINT_SCALE)}, before, state))
+		var fire_step: Dictionary = _enemy_status_damage_step({"kind": "status_damage", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": "Fire", "text": "Fire", "amount": RiteRules.surface_tile_damage(_relic_effects(state), "fire", "enemy", GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE), {}, GameData.FIXED_POINT_SCALE)}, before, state)
+		if charge_trace.is_empty(): steps.append(fire_step)
+		else:
+			fire_step["action_type"] = "activation_fire"
+			steps.append_array(preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").charge_steps(self, before, state, charge_entries, fire_step))
 	if held or shocked or immobilized:
 		var label: String = "Petrified" if petrified else "Frozen" if frozen else ("Shocked" if shocked else "Immobilized")
-		steps.append({"kind": "status", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": label, "text": label})
+		var reasons: Array[String] = preload("res://scripts/enemy_no_action_reason.gd").status_reasons(self, state, enemy_index, frozen, petrified, shocked, immobilized)
+		var reason: String = label.to_lower()
+		steps.append({"kind": "status", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": label, "text": label,
+			"no_action_reason": reason if reasons.has(reason) else "", "no_action_at_turn_start": reason != "shocked"})
+		# Fire owns its earlier boundary; the skip owns consumed status counters.
+		if preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").traced_intent(enemy.get("intent", {})):
+			steps.back()["enemy_after"] = enemy.duplicate(true)
+			steps.back()["reaction_after"] = preload("res://scripts/reaction_presentation_trace.gd").snapshot(state)
+		if label != "Immobilized" and reasons.has("immobilized"):
+			steps.append({"kind": "no_action", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "no_action_reason": "immobilized", "no_action_at_turn_start": true})
 	for step: Dictionary in steps:
+		if step.has("reaction_after"): continue
 		step["surfaces_after"] = (state.get("surfaces", {}) as Dictionary).duplicate(true)
 		step["surface_events"] = _surface_events_since(before, state)
 	return {"state": state, "steps": steps, "skip_all": held or int(enemy.get("hp", 0)) <= 0, "shocked": shocked, "immobilized": immobilized, "petrified": petrified}
@@ -8310,7 +8360,14 @@ func _trigger_enemy_death_spawn(state: Dictionary, enemy: Dictionary) -> Diction
 	intent_rng.state = int(next_state.get("rng_state", 1))
 	for spawned_index: int in range(first_spawned_index, first_spawned_index + spawn_tiles.size()):
 		_assign_enemy_intent(next_state, spawned_index, intent_rng)
-		next_state = surface_actor_arrival(next_state, "enemy", int((next_state.get("enemies", []) as Array)[spawned_index].get("id", -1)), INVALID_TILE)
+		# Seal the birth roster before contact: arrival losses start at spawn HP,
+		# including a lethal landing. Empty traces retain ordinary payloads.
+		var newborn: Dictionary = next_state["enemies"][spawned_index]
+		_resolver_journal("begin", next_state, {"kind": "spawn_arrival", "id": newborn["id"]})
+		var arrival_owner: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").cascade_begin(self, next_state, {"action_type": "spawn_arrival", "id": newborn["id"], "tile": newborn["pos"]})
+		next_state = surface_actor_arrival(next_state, "enemy", int(newborn["id"]), INVALID_TILE)
+		_resolver_journal("end", next_state)
+		preload("res://scripts/reaction_presentation_trace.gd").cascade_end(self, next_state, arrival_owner)
 		var spawned_enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[spawned_index] as Dictionary)
 		_schedule_enemy_after_spawn(next_state, spawned_enemy, spawned_index - first_spawned_index)
 	next_state["rng_state"] = intent_rng.state
@@ -8716,8 +8773,8 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	if enemy_type == "slag_mortar" and not (enemy.get("lob_tiles", []) as Array).is_empty(): following_id = "slag_lands"
 	if bool(enemy.get("burrowed", false)): following_id = "erupt"
 	var following: Dictionary = _intent_by_id(intents, following_id) if not following_id.is_empty() else {}
-	if VeilRules.handles_intent(following) and not bool(VeilRules.plan(self, state, enemy_index, following).get("attack_available", true)): following = _intent_by_id(intents, "slash")
-	if not following.is_empty() and BurrowRules.available(enemy, following) and IcefallRules.available(self, state, enemy, following) and TetherRules.available(self, state, enemy_index, following) and LobRules.available(self, state, enemy, following):
+	if StalkerRules.handles_intent(following) and not bool(StalkerRules.plan(self, state, enemy_index, following).get("attack_available", true)): following = _intent_by_id(intents, "slash")
+	if not following.is_empty() and BurrowRules.available(enemy, following) and MarkedRules.available(self, state, enemy, following):
 		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, following)
 		enemies[enemy_index] = enemy
 		return
@@ -8731,8 +8788,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		var cycle: int = int(enemy.get("guardian_cycle", -1)) + 1
 		enemy["guardian_cycle"] = cycle
 		enemies[enemy_index] = enemy
-		var chosen: Dictionary = _surface_prepare_enemy_intent(state, enemy, GuardianCombatRules.choose_intent(state, enemy, intents, cycle))
-		chosen = GuardianCombatRules.with_reinforcements(state, enemy, chosen)
+		var chosen: Dictionary = _surface_prepare_enemy_intent(state, enemy, SnuffRules.declare(state, enemy, GuardianCombatRules.choose_intent(state, enemy, SnuffRules.cycle_intents(intents), cycle)))
 		enemy["intent"] = GuardianCombatRules.commit(self, state, enemy_index, chosen)
 		enemies[enemy_index] = enemy
 		return
@@ -8750,20 +8806,16 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
 		var intent: Dictionary = intent_var as Dictionary
-		if int(intent.get("weight", 1)) > 0 and IcefallRules.available(self, state, enemy, intent) and BurrowRules.available(enemy, intent) and _dragon_intent_available(state, enemy, intent) and TetherRules.available(self, state, enemy_index, intent) and DiveRules.available(self, state, enemy_index, intent) and ReflectRules.available(self, state, enemy_index, intent) and BrambleRules.available(self, state, enemy, intent) and LobRules.available(self, state, enemy, intent):
+		if int(intent.get("weight", 1)) > 0 and BurrowRules.available(enemy, intent) and _dragon_intent_available(state, enemy, intent) and ReflectRules.available(self, state, enemy_index, intent) and BrambleRules.available(self, state, enemy, intent) and MarkedRules.available(self, state, enemy, intent):
 			if str(intent.get("id", "")) == "kindle" and not KindleRules.available(enemy): continue
 			available_intents.append(intent)
 	intents = available_intents
 	if intents.is_empty():
 		return
-	if enemy_type == "hollow_mimic":
-		enemy["intent"] = MimicRules.choose(self, state, enemy_index, intents, rng)
-		enemies[enemy_index] = enemy
-		return
 	if enemy_type in ["hoarfrost_seer", "gale_herald", "glacial_mirror", "gust_shrike", "briar_weaver", "slag_mortar"]:
 		var chosen: Dictionary = WindRules.choose_intent(self, state, enemy_index, intents, rng)
 		if not chosen.is_empty():
-			enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, LobRules.declare(state, enemy, chosen, rng))
+			enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, MarkedRules.declare(state, enemy, chosen, rng))
 			enemies[enemy_index] = enemy
 			return
 		# Range/LOS can reject every immediate shot after Thornwall fills its
@@ -8826,7 +8878,7 @@ func enemy_tactical_intent_options(state: Dictionary, enemy_index: int) -> Array
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
 		var intent: Dictionary = intent_var as Dictionary
-		if int(intent.get("weight", 1)) > 0 and IcefallRules.available(self, state, enemy, intent) and BurrowRules.available(enemy, intent) and _dragon_intent_available(state, enemy, intent) and TetherRules.available(self, state, enemy_index, intent) and BrambleRules.available(self, state, enemy, intent) and LobRules.available(self, state, enemy, intent):
+		if int(intent.get("weight", 1)) > 0 and BurrowRules.available(enemy, intent) and _dragon_intent_available(state, enemy, intent) and BrambleRules.available(self, state, enemy, intent) and MarkedRules.available(self, state, enemy, intent):
 			if str(intent.get("id", "")) == "kindle" and not KindleRules.available(enemy): continue
 			available.append(intent)
 	return _enemy_tactical_intent_options(state, enemy_index, enemy, definition, available)
@@ -9164,6 +9216,8 @@ func _dragon_intent_available(state: Dictionary, enemy: Dictionary, intent: Dict
 	return true
 
 func _scaled_enemy_intents(base_intents: Array, room_depth: int, depth_state: Dictionary = {}, enemy: Dictionary = {}) -> Array:
+	base_intents = GuardianCombatRules.encounter_intents(depth_state, enemy, base_intents)
+	base_intents = SnuffRules.available_intents(depth_state, base_intents)
 	var intents: Array = []
 	for intent_var: Variant in base_intents:
 		if typeof(intent_var) != TYPE_DICTIONARY:
@@ -9201,8 +9255,9 @@ func _scaled_enemy_max_hp(enemy_type: String, room_depth: int) -> int:
 func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dictionary:
 	var scaled: Dictionary = action.duplicate(true)
 	var action_type: String = str(scaled.get("type", ""))
+	var scale_damage: bool = bool(scaled.get("scale_damage", true))
 	var damage_delta: int = _local_enemy_damage_delta(room_depth)
-	if damage_delta != 0 and (action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES or action_type == "dive_line") and scaled.has("damage"):
+	if scale_damage and damage_delta != 0 and (action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES) and scaled.has("damage"):
 		scaled["damage"] = maxi(GameData.fixed_point_amount(1), int(scaled.get("damage", 0)) + damage_delta)
 	if action_type == "lob_land":
 		for field: String in ["center_damage", "arm_damage"]: scaled[field] = maxi(GameData.fixed_point_amount(1), int(scaled[field]) + damage_delta)
@@ -9219,7 +9274,7 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 		return scaled
 	var damage_bonus: int = ENEMY_DAMAGE_BONUS_BY_SEQUENCE[mini(sequence_index, ENEMY_DAMAGE_BONUS_BY_SEQUENCE.size() - 1)]
 	var support_bonus: int = ENEMY_SUPPORT_BONUS_BY_SEQUENCE[mini(sequence_index, ENEMY_SUPPORT_BONUS_BY_SEQUENCE.size() - 1)]
-	if action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES or action_type == "dive_line":
+	if scale_damage and (action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES):
 		if scaled.has("damage"):
 			scaled["damage"] = int(scaled.get("damage", 0)) + damage_bonus
 	if action_type == "lob_land":
@@ -9273,13 +9328,14 @@ func _preview_block_for_intent(intent: Dictionary) -> int:
 	return total
 
 func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dictionary = {}, movement_disabled: bool = false, attack_disabled: bool = false, include_warband_retreat: bool = true) -> Dictionary:
-	if not WarbandRules.active(state): return _enemy_intent_plan_base(state, enemy_index, intent_override, movement_disabled, attack_disabled)
+	if not WarbandRules.active(state) and not HoarderRules.active(state): return _enemy_intent_plan_base(state, enemy_index, intent_override, movement_disabled, attack_disabled)
 	if enemy_index < 0 or enemy_index >= (state.get("enemies", []) as Array).size(): return {}
 	var enemy: Dictionary = state["enemies"][enemy_index]
 	var retreat: Array[Vector2i]
 	var planning: Dictionary = state
 	if include_warband_retreat and not movement_disabled:
 		retreat = WarbandRules.retreat_path(self, state, enemy)
+		if retreat.is_empty(): retreat = HoarderRules.retreat_path(self, state, enemy)
 		if retreat.size() > 1:
 			planning = state.duplicate(true)
 			planning["enemies"][enemy_index]["pos"] = retreat.back()
@@ -9309,19 +9365,17 @@ func _enemy_intent_plan_base(state: Dictionary, enemy_index: int, intent_overrid
 	intent = BrambleRules.effective_intent(self, state, enemy, intent)
 	var bramble_plan: Dictionary = BrambleRules.plan(self, state, enemy_index, intent, attack_disabled)
 	if not bramble_plan.is_empty(): return bramble_plan
-	var lob_plan: Dictionary = LobRules.plan(self, state, enemy_index, intent, attack_disabled)
-	if not lob_plan.is_empty(): return lob_plan
+	var marked_plan: Dictionary = MarkedRules.plan(self, state, enemy_index, intent, attack_disabled)
+	if not marked_plan.is_empty(): return marked_plan
 	if CapacitorRules.handles_intent(intent): return CapacitorRules.plan(self, state, enemy_index, intent, attack_disabled)
-	if MimicRules.handles_intent(intent): return MimicRules.plan(self, state, enemy_index, intent, movement_disabled, attack_disabled)
-	if not DiveRules.action_for(intent).is_empty(): return DiveRules.plan(self, state, enemy_index, intent, movement_disabled, attack_disabled)
 	var reflect_plan: Dictionary = ReflectRules.plan(self, state, enemy_index, intent, attack_disabled)
 	if not reflect_plan.is_empty(): return reflect_plan
-	var icefall_plan: Dictionary = IcefallRules.plan(self, state, enemy_index, intent, attack_disabled)
-	if not icefall_plan.is_empty(): return icefall_plan
 	var wind_plan: Dictionary = WindRules.plan(self, state, enemy_index, intent, attack_disabled)
 	if not wind_plan.is_empty(): return wind_plan
-	if not TetherRules.action_for(intent).is_empty(): return TetherRules.plan(self, state, enemy_index, intent, movement_disabled, attack_disabled)
-	if VeilRules.handles_intent(intent): return VeilRules.plan(self, state, enemy_index, intent, movement_disabled, attack_disabled)
+	if StalkerRules.handles_intent(intent): return StalkerRules.plan(self, state, enemy_index, intent, movement_disabled, attack_disabled)
+	if SnuffRules.handles_intent(intent): return SnuffRules.plan(self, state, enemy_index, intent, movement_disabled, attack_disabled)
+	if GuardianCombatRules.has_authored_actions(intent) and not intent.has("committed_plan") and not bool(intent.get("_planning_shape", false)):
+		intent = GuardianCombatRules.commit(self, state, enemy_index, intent)
 	if intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent):
 		return GuardianCombatRules.current_plan(self, state, enemy, intent, movement_disabled, attack_disabled)
 	var definitions: Array
@@ -9979,6 +10033,8 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 	# once, and move that anchor without copying statuses/intent at every edge.
 	var candidate_enemy: Dictionary = enemy.duplicate(false)
 	var target_tile: Vector2i = target.get("pos", Vector2i.ZERO)
+	# Distances depend only on this actor footprint, anchor and fixed target.
+	var target_distances: Dictionary = {start: _enemy_distance_from_anchor(enemy, start, target_tile)}
 	while not open.is_empty():
 		var current: Dictionary = open.pop()
 		var current_tile: Vector2i = current.get("tile", start)
@@ -9989,7 +10045,7 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 		var anchor_details: Dictionary = _enemy_future_anchor_details(state, enemy, current_tile, planning_context)
 		if bool(anchor_details.get("dynamically_open", false)) and _enemy_action_reaches_target(state, candidate_enemy, attack_action, target):
 			return current
-		var current_target_distance: int = _enemy_distance_from_anchor(enemy, current_tile, target_tile)
+		var current_target_distance: int = int(target_distances[current_tile])
 		var route: Array[Vector2i] = current["route"]
 		for direction: Vector2i in PathUtils.DIRS_4:
 			var next_tile: Vector2i = current_tile + direction
@@ -10005,7 +10061,9 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 				continue
 			var next_route: Array[Vector2i] = route.duplicate()
 			next_route.append(next_tile)
-			var next_target_distance: int = _enemy_distance_from_anchor(enemy, next_tile, target_tile)
+			if not target_distances.has(next_tile):
+				target_distances[next_tile] = _enemy_distance_from_anchor(enemy, next_tile, target_tile)
+			var next_target_distance: int = int(target_distances[next_tile])
 			var regression_cost: int = int(current.get("regression_cost", 0)) + maxi(0, next_target_distance - current_target_distance)
 			var next_steps: int = int(current.get("steps", 0)) + 1
 			var prefix_distance_cost: int = int(current.get("prefix_distance_cost", 0))
@@ -10083,7 +10141,6 @@ func _enemy_future_anchor_step_cost(state: Dictionary, anchor_details: Dictionar
 			return -1
 		for terrain_index: int in terrain_indices:
 			var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
-			if not BrambleRules.attackable(terrain): return -1
 			var hits: int = ceili(float(int(terrain.get("hp", 0))) / float(damage))
 			cost += maxi(1, hits) * maxi(1, move_range)
 	var blocking_enemy_count: int = int(anchor_details.get("blocking_enemy_count", 0))
@@ -10157,28 +10214,37 @@ func _enemy_future_planning_context(state: Dictionary, enemy: Dictionary) -> Dic
 		"actor_target_tiles": actor_target_tiles,
 	}
 
-func _enemy_future_blocking_enemy_count(enemy: Dictionary, anchor: Vector2i, planning_context: Dictionary) -> int:
-	var blocking_enemy_entries: Dictionary = {}
-	var blocking_enemy_entries_by_tile: Dictionary = planning_context.get("blocking_enemy_entries_by_tile", {})
-	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
-		var tile_entries: Dictionary = blocking_enemy_entries_by_tile.get(tile, {})
-		for enemy_index_var: Variant in tile_entries.keys():
-			blocking_enemy_entries[enemy_index_var] = true
-	return blocking_enemy_entries.size()
-
 func _enemy_future_anchor_details(state: Dictionary, enemy: Dictionary, anchor: Vector2i, planning_context: Dictionary) -> Dictionary:
 	var cache: Dictionary = planning_context.get("anchor_details", {})
 	if cache.has(anchor):
 		return cache[anchor] as Dictionary
-	var in_grid: bool = _enemy_anchor_is_in_grid(state, enemy, anchor)
-	var terrain_indices: Array[int] = _enemy_future_terrain_indices(enemy, anchor, planning_context)
-	var blocking_enemy_count: int = _enemy_future_blocking_enemy_count(enemy, anchor, planning_context)
-	var actor_target_overlap: bool = _enemy_future_actor_target_overlap(enemy, anchor, planning_context)
-	var trap_penalty: int = _enemy_future_trap_penalty(enemy, anchor, planning_context)
+	# These facts all traverse the same immutable footprint. Resolve its tiles
+	# once instead of allocating an array for each occupancy/hazard lookup.
+	var in_grid: bool = true
+	var terrain_indices: Array[int]
+	var blocking_entries: Dictionary = {}
+	var actor_target_overlap: bool = false
+	var trap_penalty: int = 0
+	var seen_traps: Dictionary = {}
 	var surface_hazard: int = 0
+	var terrain_by_tile: Dictionary = planning_context.get("terrain_index_by_tile", {})
+	var enemies_by_tile: Dictionary = planning_context.get("blocking_enemy_entries_by_tile", {})
+	var targets: Dictionary = planning_context.get("actor_target_tiles", {})
+	var traps_by_tile: Dictionary = planning_context.get("trap_entry_by_tile", {})
 	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
+		if not _tile_is_passable(state, tile): in_grid = false
+		var terrain_index: int = int(terrain_by_tile.get(tile, -1))
+		if terrain_index >= 0 and not terrain_indices.has(terrain_index): terrain_indices.append(terrain_index)
+		for enemy_index: Variant in (enemies_by_tile.get(tile, {}) as Dictionary): blocking_entries[enemy_index] = true
+		if targets.has(tile): actor_target_overlap = true
+		var trap: Dictionary = traps_by_tile.get(tile, {})
+		var trap_index: int = int(trap.get("index", -1))
+		if trap_index >= 0 and not seen_traps.has(trap_index):
+			seen_traps[trap_index] = true
+			trap_penalty += int(trap.get("penalty", 0))
 		if BoardSurfaceRules.element_at(state, tile) == "fire":
 			surface_hazard = BoardSurfaceRules.FIRE_ENTRY_DAMAGE + BoardSurfaceRules.FIRE_START_DAMAGE
+	var blocking_enemy_count: int = blocking_entries.size()
 	var details: Dictionary = {
 		"surface_hazard": surface_hazard,
 		"in_grid": in_grid,
@@ -10191,41 +10257,6 @@ func _enemy_future_anchor_details(state: Dictionary, enemy: Dictionary, anchor: 
 	cache[anchor] = details
 	planning_context["anchor_details"] = cache
 	return details
-
-func _enemy_future_terrain_indices(enemy: Dictionary, anchor: Vector2i, planning_context: Dictionary) -> Array[int]:
-	var indices: Array[int]
-	var terrain_index_by_tile: Dictionary = planning_context.get("terrain_index_by_tile", {}) as Dictionary
-	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
-		var terrain_index: int = int(terrain_index_by_tile.get(tile, -1))
-		if terrain_index >= 0 and not indices.has(terrain_index):
-			indices.append(terrain_index)
-	return indices
-
-func _enemy_future_actor_target_overlap(enemy: Dictionary, anchor: Vector2i, planning_context: Dictionary) -> bool:
-	var actor_target_tiles: Dictionary = planning_context.get("actor_target_tiles", {}) as Dictionary
-	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
-		if actor_target_tiles.has(tile):
-			return true
-	return false
-
-func _enemy_future_trap_penalty(enemy: Dictionary, anchor: Vector2i, planning_context: Dictionary) -> int:
-	var penalty: int = 0
-	var seen_indices: Array[int]
-	var trap_entry_by_tile: Dictionary = planning_context.get("trap_entry_by_tile", {}) as Dictionary
-	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
-		var trap_entry: Dictionary = trap_entry_by_tile.get(tile, {}) as Dictionary
-		var trap_index: int = int(trap_entry.get("index", -1))
-		if trap_index < 0 or seen_indices.has(trap_index):
-			continue
-		seen_indices.append(trap_index)
-		penalty += int(trap_entry.get("penalty", 0))
-	return penalty
-
-func _enemy_anchor_is_in_grid(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> bool:
-	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
-		if not _tile_is_passable(state, tile):
-			return false
-	return true
 
 func _enemy_anchor_is_dynamically_open(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> bool:
 	return _enemy_anchor_terrain_indices(state, enemy, anchor).is_empty() and _enemy_anchor_blocking_enemy_count(state, enemy, anchor) == 0 and not _enemy_anchor_overlaps_any_actor_target(state, enemy, anchor)
@@ -10292,7 +10323,6 @@ func _planned_blocking_terrain_index(state: Dictionary, enemy: Dictionary, attac
 	for anchor: Vector2i in route:
 		for terrain_index: int in _enemy_anchor_terrain_indices(state, enemy, anchor):
 			var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
-			if not BrambleRules.attackable(terrain): return -1
 			if _enemy_action_reaches_tile(state, enemy, attack_action, terrain.get("pos", INVALID_TILE)):
 				return terrain_index
 			return -1
@@ -10549,23 +10579,26 @@ func _move_range_for_action(state: Dictionary, action: Dictionary) -> int:
 		return move_range
 	return move_range + _move_bonus_for_current_turn(state)
 
-func _damage_for_enemy_target(state: Dictionary, action: Dictionary, enemy_index: int) -> int:
-	var resolved_action: Dictionary = _resolved_surface_action(state, action)
-	var relic_effects: Array[Dictionary] = _relic_effects(state)
-	return _damage_for_enemy_target_with_context(state, resolved_action, enemy_index, relic_effects)
+func _damage_for_enemy_target(state: Dictionary, action: Dictionary, enemy_index: int, player_bonuses: bool = true) -> int:
+	var resolved_action: Dictionary = _resolved_surface_action(state, action) if player_bonuses else action
+	var relic_effects: Array[Dictionary]
+	if player_bonuses: relic_effects = _relic_effects(state)
+	return _damage_for_enemy_target_with_context(state, resolved_action, enemy_index, relic_effects, player_bonuses)
 
 func _damage_for_enemy_target_with_context(
 	state: Dictionary,
 	resolved_action: Dictionary,
 	enemy_index: int,
-	relic_effects: Array[Dictionary]
+	relic_effects: Array[Dictionary],
+	player_bonuses: bool = true
 ) -> int:
-	var damage: int = _final_damage_for_resolved_player_action(state, resolved_action, relic_effects)
+	var damage: int = _final_damage_for_resolved_player_action(state, resolved_action, relic_effects) if player_bonuses else int(resolved_action.get("damage", 0))
 	var enemies: Array = state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return damage
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	damage += int(enemy.get("expose", 0))
+	if not player_bonuses: return maxi(0, damage)
 	damage += TempoRelicRules.late_damage(self, state, resolved_action, int(enemy.get("id", -1)), relic_effects)
 	for effect: Dictionary in relic_effects:
 		if str(effect.get("type", "")) != "damage_vs_status":
@@ -11544,7 +11577,10 @@ func _surface_condition_met(state: Dictionary, condition: Dictionary, target: Ve
 	return present == bool(condition.get("present", true))
 
 func _surface_source(state: Dictionary, action: Dictionary = {}) -> Dictionary:
-	return {"actor_kind": str((state.get("current_actor", {}) as Dictionary).get("kind", "player")), "actor_id": int(action.get("_enemy_id", -1)), "card_id": str(action.get("_card_id", "")), "action_type": str(action.get("type", "")), "player_card": not bool(action.get("_movement_pool", false)) and not action.has("_enemy_id")}
+	if str(state.get("damage_context", {}).get("source_kind", "")) == "battlefield_rule": return state["damage_context"].duplicate(true)
+	var source: Dictionary = {"actor_kind": str((state.get("current_actor", {}) as Dictionary).get("kind", "player")), "actor_id": int(action.get("_enemy_id", -1)), "card_id": str(action.get("_card_id", "")), "action_type": str(action.get("type", "")), "player_card": not bool(action.get("_movement_pool", false)) and not action.has("_enemy_id")}
+	var definition: Dictionary = {} if action.has("_card_surface_consume") else GameData.card_def(str(source["card_id"]))
+	return preload("res://scripts/surface_expend_rules.gd").card_source(source, definition, action)
 
 func _surface_action_tiles(state: Dictionary, action: Dictionary, target: Vector2i, origin: Vector2i = INVALID_TILE) -> Array[Vector2i]:
 	var center: Vector2i = target
@@ -11603,7 +11639,7 @@ func _surface_actor_records(state: Dictionary, team: String = "all") -> Array[Di
 	return actors
 
 func _surface_damage_actor(state: Dictionary, actor_kind: String, actor_id: int, amount: int, direct: bool = false, pierce: bool = false) -> Dictionary:
-	if not direct and DiveRules.flying(_surface_actor(state, actor_kind, actor_id)): return state
+	if not direct and FlyingRules.flying(_surface_actor(state, actor_kind, actor_id)): return state
 	if amount <= 0:
 		return state
 	match actor_kind:
@@ -11620,7 +11656,7 @@ func _surface_damage_actor(state: Dictionary, actor_kind: String, actor_id: int,
 
 func _surface_contact(state: Dictionary, actor_kind: String, actor_id: int, previous: Vector2i, start: bool = false, elemental_snapshot: Dictionary = {}) -> Dictionary:
 	var unit: Dictionary = _surface_actor(state, actor_kind, actor_id)
-	if DiveRules.flying(unit): return state
+	if FlyingRules.flying(unit): return state
 	if unit.is_empty() or int(unit.get("hp", 0)) <= 0:
 		return state
 	var footprint: Array[Vector2i] = BoardSurfaceRules.footprint_tiles(unit)
@@ -11674,7 +11710,7 @@ func _surface_contact(state: Dictionary, actor_kind: String, actor_id: int, prev
 	return state
 
 func surface_actor_arrival(state: Dictionary, actor_kind: String, actor_id: int, old_pos: Vector2i) -> Dictionary:
-	if DiveRules.flying(_surface_actor(state, actor_kind, actor_id)): return state
+	if FlyingRules.flying(_surface_actor(state, actor_kind, actor_id)): return state
 	# Trap wakes are placement, not an extra entry. Snapshot both contact kinds
 	# before the trap can paint beneath a large actor's newly entered footprint.
 	var elemental_before: Dictionary = {INVALID_TILE: ""}
@@ -11690,7 +11726,8 @@ func surface_actor_arrival(state: Dictionary, actor_kind: String, actor_id: int,
 		var trap_index: int = _trap_index_at_tile(state, _surface_actor(state, actor_kind, actor_id).get("pos", INVALID_TILE))
 		if trap_index >= 0:
 			state = _trigger_trap_at_index(state, trap_index)
-	return _surface_contact(state, actor_kind, actor_id, old_pos, false, elemental_before)
+	state = _surface_contact(state, actor_kind, actor_id, old_pos, false, elemental_before)
+	return state
 
 func _surface_freeze_actor(state: Dictionary, actor_kind: String, actor_id: int, action: Dictionary) -> Dictionary:
 	var unit: Dictionary = _surface_actor(state, actor_kind, actor_id)
@@ -11732,7 +11769,7 @@ func movement_cost_for_path(state: Dictionary, path: Array, allowance: int = -1,
 	return spent
 
 func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int, occupied: Dictionary, minimum_progress: bool = true, stop_after_reaching: Callable = Callable()) -> Dictionary:
-	if DiveRules.flying(unit): return DiveRules.navigation(self, state, unit, budget, occupied)
+	if FlyingRules.flying(unit): return FlyingRules.navigation(self, state, unit, budget, occupied)
 	var blocked: Dictionary = occupied.duplicate()
 	var size: Vector2i = unit.get("footprint", Vector2i.ONE)
 	if size != Vector2i.ONE:
@@ -11850,7 +11887,7 @@ func _surface_unit_intersects(unit: Dictionary, tiles: Array[Vector2i]) -> bool:
 func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vector2i], actor_kind: String) -> Dictionary:
 	var conductor_state: Dictionary = IllusionRelicRules.conduction_state(self, state, action, actor_kind)
 	var opponents: Array[Dictionary]
-	for actor: Dictionary in _surface_actor_records(state, "enemies" if actor_kind == "player" else "player"):
+	for actor: Dictionary in _surface_actor_records(state, "all" if bool(action.get("_battlefield_all_units", false)) else ("enemies" if actor_kind == "player" else "player")):
 		if BurrowRules.targetable(actor["unit"], action): opponents.append(actor)
 	var visible_lookup: Dictionary = umbra_visible_tile_lookup(state) if actor_kind == "player" else {}
 	var native: Array[Dictionary]
@@ -11869,7 +11906,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 			hit["hidden_direct"] = actor_kind == "player" and not is_enemy_visible_to_player(state, actor["unit"] as Dictionary, visible_lookup)
 			# AOE may hit unseen occupants, but cannot discover them as Chain
 			# heads or disclose their identity in the visible route.
-			if not bool(hit["hidden_direct"]):
+			if not bool(hit["hidden_direct"]) and not bool((actor["unit"] as Dictionary).get("burrowed", false)):
 				native.append(hit)
 			hits.append(hit)
 			visited[actor["key"]] = true
@@ -11879,7 +11916,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 	var visible_ground: Dictionary = {INVALID_TILE: true}
 	if reach > 0 or lightning:
 		for tile: Vector2i in BoardSurfaceRules.tiles(conductor_state):
-			if BoardSurfaceRules.is_conductive(conductor_state, tile) and (actor_kind != "player" or is_tile_visible_to_player(state, tile, visible_lookup)):
+			if BoardSurfaceRules.is_conductive(conductor_state, tile, bool(action.get("_battlefield_rule_fuel", false))) and (actor_kind != "player" or is_tile_visible_to_player(state, tile, visible_lookup)):
 				conductive.append(tile)
 				visible_ground[tile] = true
 	var relays: Dictionary = {}
@@ -11894,11 +11931,11 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 		var enemy_hop: int = 0
 		head["enemy_hop"] = 0
 		var route_assisted: bool = false
-		var current: Vector2i = head["to"]
+		var current_unit: Dictionary = (head["unit"] as Dictionary).duplicate(true)
 		if reach > 0 and _action_has_forced_movement(action):
 			var forecast: Dictionary = _surface_chain_displacement(geometry, head, forecast_action, primary_origin)
 			geometry = forecast["state"]
-			current = forecast["pos"]
+			current_unit["pos"] = forecast["pos"]
 		while reach > 0:
 			var route_opponents: Array[Dictionary]
 			for actor: Dictionary in opponents:
@@ -11906,11 +11943,10 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 				updated["unit"] = _surface_actor(geometry, str(actor["kind"]), int(actor["id"]))
 				if int((updated["unit"] as Dictionary).get("hp", 0)) > 0:
 					route_opponents.append(updated)
-			var route: Array[Dictionary] = _surface_chain_useful_route(conductor_state, route_opponents, visited, relays, served_components, current, reach, conductive, actor_kind == "player", lightning, visible_lookup)
+			var route: Array[Dictionary] = _surface_chain_useful_route(conductor_state, route_opponents, visited, relays, served_components, current_unit, reach, conductive, actor_kind == "player", lightning, visible_lookup)
 			if route.is_empty():
 				break
 			for node: Dictionary in route:
-				node["from"] = current
 				if str(node["kind_trace"]) == "relay":
 					route_assisted = true
 					relays[node["to"]] = true
@@ -11924,12 +11960,12 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 					node["enemy_hop"] = enemy_hop
 				node["electrically_assisted"] = route_assisted
 				hits.append(node)
-				current = node["to"]
-				touched[current] = true
+				current_unit = (node["unit"] as Dictionary).duplicate(true) if node.has("unit") else {"pos": node["to"]}
+				touched[node["to"]] = true
 				if str(node["kind_trace"]) == "actor" and _action_has_forced_movement(action):
 					var forecast: Dictionary = _surface_chain_displacement(geometry, node, forecast_action, node["from"])
 					geometry = forecast["state"]
-					current = forecast["pos"]
+					current_unit["pos"] = forecast["pos"]
 	# A hit's footprint can contact a component even when its anchor is elsewhere.
 	for hit: Dictionary in hits:
 		if hit.has("unit"):
@@ -11952,7 +11988,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 			if hit.has("unit") and _surface_unit_intersects(hit["unit"] as Dictionary, network_tiles):
 				hit["electrically_assisted"] = true
 		for actor: Dictionary in opponents:
-			if visited.has(actor["key"]) or not _surface_unit_intersects(actor["unit"] as Dictionary, network_tiles):
+			if visited.has(actor["key"]) or bool((actor["unit"] as Dictionary).get("burrowed", false)) or not _surface_unit_intersects(actor["unit"] as Dictionary, network_tiles):
 				continue
 			if actor_kind == "player" and not is_enemy_visible_to_player(state, actor["unit"] as Dictionary, visible_lookup):
 				continue
@@ -11976,233 +12012,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 	return {"hits": hits, "used_conductors": used_conductors, "consumed": consumed}
 
 func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector2i, actor_kind: String = "player", actor_id: int = -1, trace: Dictionary = {}, supplied_impact: Array[Vector2i] = []) -> Dictionary:
-	action = action.duplicate(true)
-	if actor_kind == "player" and GuardianRelicRules.amount(state,"force_enemy_line") > 0:
-		action["_group_force_context"] = {"moved_ids":{}}
-	if actor_kind == "player" and IllusionRelicRules.puppet_action(self, state, action) and not IllusionCardRules.illusion_at(self, state, target).is_empty():
-		state = _trigger_player_bleed_for_action(state, action)
-		if combat_outcome(state) == "defeat": return state
-		state = IllusionRelicRules.resolve_puppet(self, state, action, target)
-		if int(action.get("damage", 0)) > 0: _mark_first_attack_used(state)
-		return state
-	var raise_outcrop: bool = actor_kind == "player" and int(action.get("outcrop_health", 0)) > 0 and CombatTerrainRules.is_empty_floor(self, state, target)
-	var performance_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var capture_states: bool = trace.has("chain_hits") and bool(trace.get("capture_states", true))
-	var origin: Vector2i = action.get("_origin_tile", (_surface_actor(state, actor_kind, actor_id)).get("pos", INVALID_TILE))
-	var resolved: Dictionary = action.duplicate(true)
-	if str(action.get("type", "")) in ["push", "pull"]:
-		resolved[str(action["type"])] = int(action.get("amount", 0))
-	var impact: Array[Vector2i] = supplied_impact.duplicate()
-	if impact.is_empty():
-		if str(action.get("type", "")) == "aoe":
-			impact = _best_aoe_tiles_for_target(state, action, _board_aoe_center(action, target, origin), actor_kind != "player")
-		else:
-			impact.append(target)
-	var route_action: Dictionary = resolved.duplicate(true)
-	if actor_kind == "player":
-		for index: int in _enemy_indices_in_tiles(state, impact):
-			if not is_enemy_visible_to_player(state, (state.get("enemies", []) as Array)[index]) or not BurrowRules.targetable((state.get("enemies", []) as Array)[index], action):
-				continue
-			var target_action: Dictionary = _action_with_target_state_relic_modifiers(state, resolved, index)
-			route_action["chain"] = maxi(int(route_action.get("chain", 0)), int(target_action.get("chain", 0)))
-	# Illusion echoes repeat damage only: no Bleed payment and no Flint fuel.
-	var echo: bool = bool(action.get("_illusion_echo", false))
-	if actor_kind == "player" and not echo:
-		state = _trigger_player_bleed_for_action(state, resolved)
-		if combat_outcome(state) == "defeat":
-			return state
-	if actor_kind == "enemy" and ReflectRules.reflects(self, state, resolved, origin, _enemy_index_at_tile(state, target)):
-		return ReflectRules.bounce(self, state, _enemy_index_at_tile(state, target), int(resolved.get("damage", 0)), actor_kind, actor_id)
-	var melee_fuel: Dictionary = CommonRelicRules.consume_melee_target(self, state, resolved, target, actor_kind == "player" and not echo)
-	var plan: Dictionary = _board_attack_plan(state, route_action, impact, actor_kind)
-	if actor_kind == "player" and bool(action.get("also_hits_near_illusions", false)):
-		IllusionCardRules.append_refraction_hits(self, state, plan)
-	var family_context: Dictionary = {} if echo else SurfaceCardRules.begin_attack(self, state, resolved, impact, actor_kind)
-	performance_started = _record_runtime_performance_phase("board_attack_plan_total", performance_started)
-	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
-	state["_surface_damage_batch"] = true
-	var consumed: Dictionary = plan["consumed"] as Dictionary
-	var used_conductors: Dictionary = plan["used_conductors"] as Dictionary
-	var capture_route: bool = int(route_action.get("chain", 0)) > 0 or not used_conductors.is_empty() or action.has("_ranged_relay") or bool(plan.get("refraction", false))
-	capture_states = capture_states and capture_route
-	# Ordinary Electrified is reusable. Stormcoal Fire pays for conduction.
-	for tile: Vector2i in _sorted_tiles_from_lookup(used_conductors):
-		var event: Dictionary = {"kind": "surface_conducted", "surface": BoardSurfaceRules.element_at(state, tile), "tile": tile, "reason": str(used_conductors[tile]), "source": _surface_source(state, action)}
-		if IllusionRelicRules.copper_active(self, state, action, actor_kind) and IllusionRelicRules.virtual_conductor(self, state, tile):
-			event["surface"] = "electrified"
-			event["virtual"] = true
-		BoardSurfaceRules.record_event(state, event)
-	for tile: Vector2i in _sorted_tiles_from_lookup(consumed):
-		BoardSurfaceRules.remove(state, tile, "elemental", str(consumed[tile]))
-	var affected: Array[int]
-	var player_struck: bool = false
-	var struck_player_tile: Vector2i = INVALID_TILE
-	var attack_health_loss: int = 0
-	var attack_block_loss: int = 0
-	var struck_illusions: Dictionary = {}
-	var native_trace: Array = []
-	var rebound_route: Array = []
-	var relay: Dictionary = action.get("_ranged_relay",{}) as Dictionary
-	if not relay.is_empty():
-		var relay_hit: Dictionary = {"kind":"relay","from":relay["from"],"to":relay["relay"],"range_relay":true}
-		if capture_states: relay_hit["state"] = state.duplicate(true)
-		native_trace.append(relay_hit)
-	performance_started = _record_runtime_performance_phase("board_attack_conduction", performance_started)
-	# Squall: every enemy in the pattern is pushed away from its center (the one
-	# on the center away from the attacker), farthest first.
-	var from_center: bool = actor_kind == "player" and ManeuverRules.uses_from_center(action)
-	var aoe_center: Vector2i = _board_aoe_center(action, target, origin)
-	var ordered_hits: Array = plan["hits"] as Array
-	if from_center:
-		ordered_hits = ManeuverRules.order_from_center_hits(self, ordered_hits, aoe_center)
-	elif actor_kind == "player" and _forced_movement_amount(resolved) > 0:
-		# Wind Shear and friends: farthest first for pushes, nearest first for
-		# pulls, so no target collides with one about to move out of the way.
-		ordered_hits = ManeuverRules.order_force_hits(self, ordered_hits, origin, _forced_movement_pushes(resolved))
-	for hit: Dictionary in ordered_hits:
-		var trace_hit: Dictionary = {"kind": str(hit["kind_trace"]), "conduction": str(hit["kind_trace"]) == "conduction", "from": hit["from"], "to": hit["to"]}
-		if not relay.is_empty() and hit["from"] == hit["to"]:
-			trace_hit["from"] = relay["relay"]
-			trace_hit["relay_delivery"] = true
-		if hit.has("path"):
-			trace_hit["path"] = hit["path"]
-		if hit.has("id"):
-			trace_hit["actor_kind"] = hit["kind"]
-			trace_hit["id"] = hit["id"]
-			if str(hit["kind"]) == "enemy":
-				trace_hit["enemy_id"] = hit["id"]
-		if str(hit["kind_trace"]) == "relay":
-			if capture_states:
-				trace_hit["state"] = state.duplicate(true)
-			native_trace.append(trace_hit)
-			rebound_route.append(trace_hit)
-			continue
-		var hit_action: Dictionary = resolved.duplicate(true)
-		if actor_kind == "player" and hit.has("enemy_hop"):
-			trace_hit["base_damage"] = int(hit_action.get("damage",0))
-			hit_action["damage"] = GuardianRelicRules.boosted(int(hit_action.get("damage",0)),int(hit["enemy_hop"]),GuardianRelicRules.amount(state,"chain_hop_damage"))
-			trace_hit["enemy_hop"] = int(hit["enemy_hop"])
-			trace_hit["chain_bonus_damage"] = int(hit_action["damage"])-int(trace_hit["base_damage"])
-		var bonus: Dictionary = hit_action.get("surface_bonus", {}) as Dictionary
-		var target_bonus: bool = str(bonus.get("subject", "")) == "target" and _surface_condition_met(state, bonus, hit["to"])
-		var assisted_bonus: bool = str(bonus.get("subject", "")) == "conducted" and bool(hit.get("electrically_assisted", false))
-		if target_bonus or assisted_bonus:
-			for field: String in SURFACE_BONUS_FIELDS:
-				if bonus.has(field):
-					hit_action[field] = int(hit_action.get(field, 0)) + int(bonus[field])
-		if str(hit["kind"]) == "enemy":
-			var index: int = _enemy_index_for_id(state, int(hit["id"]))
-			if index < 0 or int(_surface_actor(state, "enemy", int(hit["id"])).get("hp", 0)) <= 0:
-				continue
-			hit_action = _action_with_target_state_relic_modifiers(state, hit_action, index)
-			if not echo: hit_action = _action_with_light_target_skill_modifier(state, hit_action, index)
-			hit_action = CardKeywordRules.action_with_state_bonus(self, state, hit_action, index)
-			hit_action = CommonRelicRules.before_melee_hit(state, hit_action, hit, melee_fuel)
-			hit_action = SurfaceCardRules.before_enemy_hit(self, state, hit_action, hit, index, family_context)
-			if str(hit.get("kind_trace", "")) == "actor" and index == _enemy_index_at_tile(state, target) and ReflectRules.reflects(self, state, hit_action, origin, index):
-				var reflected_damage: int = _damage_for_enemy_target(state, hit_action, index) if actor_kind == "player" else int(hit_action.get("damage", 0))
-				state = ReflectRules.bounce(self, state, index, reflected_damage, actor_kind, actor_id)
-				continue
-			if not echo: state = _sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
-			var damage: int = _damage_for_enemy_target(state, hit_action, index)
-			trace_hit["damage"] = IllusionRelicRules.direct_amount(self, state, _surface_actor(state, "enemy", int(hit["id"])), damage)
-			if echo:
-				damage = IllusionRelicRules.half(int(trace_hit["damage"]))
-				trace_hit["damage"] = damage
-				state = _damage_enemy(state, index, damage, true, _action_pierces_defense(hit_action), false, false)
-			else:
-				state = _damage_enemy(state, index, damage, true, _action_pierces_defense(hit_action))
-			if not melee_fuel.is_empty(): BoardSurfaceRules.sync_chilled(state)
-			if damage > 0:
-				state = _consume_enemy_expose(state, index)
-			if action.has("_group_force_context"): hit_action["_group_force_context"] = action["_group_force_context"]
-			# The aimed line belongs to the primary target; Chain hops push from
-			# their hop origin along their own default line.
-			if hit["from"] != hit["to"]: hit_action.erase("force_direction")
-			var force_source: Vector2i = origin if hit["from"] == hit["to"] else hit["from"]
-			if from_center:
-				force_source = ManeuverRules.from_center_source(self, state, int(hit["id"]), aoe_center, origin)
-			state = _apply_action_keywords_to_enemy(state, index, IllusionRelicRules.echo_forces(hit_action) if echo else hit_action, force_source)
-			if not echo: _apply_stagger_to_enemy(state, int(hit["id"]), int(hit_action.get("stagger", 0)))
-			state = SurfaceCardRules.after_enemy_hit(self, state, hit_action, family_context)
-			if not echo: _mark_light_target_skill_trigger(state, hit_action)
-			affected.append(index)
-		else:
-			hit_action["damage"] = int(hit_action.get("damage", 0)) - int(hit_action.get("_stored_release_damage", 0))
-			var hit_origin: Vector2i = origin
-			if actor_kind == "enemy" and bool(hit_action.get("radial_force",false)):
-				# Ring force radiates from the nearest footprint tile, like every
-				# enemy Push/Pull; the ordinary straight-line resolver picks the line.
-				hit_origin = _closest_enemy_tile_to(_surface_actor(state,"enemy",actor_id),hit["to"])
-			if actor_kind == "enemy" and str(hit["kind"]) == "illusion":
-				IllusionCardRules.note_enemy_hit(self, state, struck_illusions, hit, hit_action)
-			var block_before_hit: int = int((state.get("player", {}) as Dictionary).get("block", 0))
-			var health_lost_before_hit: int = int((state.get("run_stats", {}) as Dictionary).get(RUN_STAT_DAMAGE_RECEIVED, 0))
-			state = _damage_actor_target(state, hit, int(hit_action.get("damage", 0)), _action_pierces_defense(hit_action), hit_action)
-			if actor_kind == "enemy" and str(hit["kind"]) == "player":
-				# Count health actually lost before Defiance/prevent-lethal recovery.
-				attack_health_loss += maxi(0, int((state.get("run_stats", {}) as Dictionary).get(RUN_STAT_DAMAGE_RECEIVED, 0)) - health_lost_before_hit)
-				attack_block_loss += maxi(0, block_before_hit - int(state["player"].get("block", 0)))
-			if not player_struck and actor_kind == "enemy" and str(hit["kind"]) == "player" and int(hit_action.get("damage", 0)) > 0:
-				# Retaliate judges melee range where the strike landed, before knockback.
-				player_struck = true
-				struck_player_tile = (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)
-			state = _apply_action_keywords_to_target(state, hit, hit_action, hit_origin)
-		trace_hit["hidden_direct"] = bool(hit.get("hidden_direct", false))
-		rebound_route.append(trace_hit.duplicate(true))
-		if bool(hit.get("hidden_direct", false)):
-			continue
-		if capture_states:
-			trace_hit["state"] = state.duplicate(true)
-		native_trace.append(trace_hit)
-	performance_started = _record_runtime_performance_phase("board_attack_hits_total", performance_started)
-	if actor_kind == "player":
-		state = IllusionRelicRules.rebound(self, state, route_action, rebound_route, native_trace, capture_states)
-	state = SurfaceCardRules.after_attack_hits(self, state, family_context)
-	# Card blasts derived from non-attack actions (IllusionCardRules.blast_action)
-	# hit enemies only: no terrain damage and no trap triggers on their tiles.
-	var enemies_only: bool = bool(resolved.get("_enemies_only", false))
-	if actor_kind == "player":
-		var terrain_damage: int = final_damage_for_player_action(state, resolved) - int(resolved.get("_stored_release_damage", 0))
-		if not enemies_only:
-			var terrain_targets: Array[int] = _terrain_indices_in_tiles(state, impact)
-			if IllusionRelicRules.copper_active(self, state, action, actor_kind):
-				terrain_targets.assign(terrain_targets.filter(func(index: int) -> bool: return not IllusionRelicRules.owned_outcrop(state["terrain"][index])))
-			state = _damage_terrain_indices(state, terrain_targets, terrain_damage)
-		if int(resolved.get("damage", 0)) > 0:
-			_mark_first_attack_used(state)
-		if not echo:
-			state = _trigger_resolved_action_light(state, resolved, target, affected)
-			_mark_light_target_skill_trigger(state, resolved)
-	else:
-		var terrain_targets: Array[int] = _terrain_indices_in_tiles(state, impact)
-		if bool(resolved.get("preserve_owned_terrain",false)):
-			terrain_targets.assign(terrain_targets.filter(func(index: int) -> bool: return int(state["terrain"][index].get("owner_id",-1)) != actor_id))
-		state = _damage_terrain_indices(state, terrain_targets, int(resolved.get("damage", 0)))
-	if not enemies_only:
-		state = _trigger_traps_on_tiles(state, _trap_tiles_in_tiles(state, impact))
-	state = _place_action_surface(state, resolved, _board_aoe_center(action, target, origin) if str(action.get("type", "")) == "aoe" else target, impact)
-	if actor_kind == "player" and not echo and not affected.is_empty():
-		state = _trigger_direct_attack_surface(state, resolved, target)
-	if raise_outcrop:
-		CombatTerrainRules.raise_outcrop(self, state, target, int(action["outcrop_health"]), _surface_source(state, action))
-	if player_struck:
-		# Once per enemy attack, inside the batch so Retaliate deaths flush here.
-		state = CommonRelicRules.blocked_attack(self, state, actor_id, attack_health_loss, attack_block_loss)
-		state = RetaliateRules.after_enemy_hit(self, state, actor_id, resolved, struck_player_tile)
-	if not struck_illusions.is_empty():
-		state = IllusionCardRules.after_enemy_hit(self, state, actor_id, struck_illusions)
-	state["_surface_damage_batch"] = previous_batch
-	if not previous_batch:
-		state = _flush_surface_deaths(state)
-	state = SurfaceCardRules.finish_attack(self, state, family_context)
-	if not relay.is_empty() and native_trace.size() == 1:
-		var ground_hit: Dictionary = {"kind":"actor","from":relay["relay"],"to":relay["to"],"relay_delivery":true}
-		if capture_states: ground_hit["state"] = state.duplicate(true)
-		native_trace.append(ground_hit)
-	trace["chain_hits"] = native_trace if capture_route else []
-	_record_runtime_performance_phase("board_attack_finish_total", performance_started)
-	return state
+	return BoardAttackRules.resolve(self, state, action, target, actor_kind, actor_id, trace, supplied_impact)
 
 func _board_aoe_center(action: Dictionary, target: Vector2i, origin: Vector2i) -> Vector2i:
 	# A ranged area centers on its target; a range-0 area on its origin, unless
@@ -12258,6 +12068,8 @@ func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vect
 		state = _trigger_player_bleed_for_action(state, action)
 		if combat_outcome(state) == "defeat":
 			return state
+	_resolver_journal("begin", state, {"kind": "action"})
+	preload("res://scripts/reaction_presentation_trace.gd").action_started(trace, state)
 	var victims: Array[Dictionary]
 	var blast_tiles: Array[Vector2i] = _sorted_tiles_from_lookup(blast)
 	var spare_player: bool = bool(action.get("spare_player", false))
@@ -12266,14 +12078,21 @@ func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vect
 			continue
 		if _surface_unit_intersects(actor["unit"] as Dictionary, blast_tiles):
 			victims.append(actor.duplicate(true))
+	var removal_source: Dictionary = {}
+	if player_action and SurfaceRelicRules.mode_enabled(action, "crush"):
+		removal_source = SurfaceRelicRules.removal_source(state, "rubble_detonate")
+	elif player_action and cluster_bonus > 0:
+		removal_source = SurfaceRelicRules.removal_source(state, "connected_detonate")
 	for tile: Vector2i in consumed:
-		BoardSurfaceRules.remove(state, tile, fuel, "detonate")
+		BoardSurfaceRules.remove(state, tile, fuel, "detonate", removal_source)
 	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
 	var prior_damage_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 	state["damage_context"]["source_kind"] = "detonate"
 	state["damage_context"]["causal_owner"] = "player" if player_action else "enemy"
 	state["_surface_damage_batch"] = true
 	var affected: Array[int]
+	var retaliators: Dictionary = {}
+	var origin: Vector2i = action.get("_origin_tile", (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE))
 	for victim: Dictionary in victims:
 		var hit_action: Dictionary = action.duplicate(true)
 		hit_action["damage"] = GuardianRelicRules.boosted(int(action.get("damage",6)),GuardianRelicRules.overlap(victim["unit"],blast)-1,cluster_bonus)
@@ -12284,6 +12103,7 @@ func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vect
 			hit_action = _action_with_light_target_skill_modifier(state, hit_action, index)
 			state = _sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
 			amount = _damage_for_enemy_target(state, hit_action, index)
+			RetaliateRules.collect_player_hit(self, state, retaliators, int(victim["id"]), hit_action, origin, amount)
 			state = _damage_enemy(state, index, amount, true, _action_pierces_defense(hit_action))
 			if amount > 0:
 				state = _consume_enemy_expose(state, index)
@@ -12291,21 +12111,23 @@ func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vect
 			_mark_light_target_skill_trigger(state, hit_action)
 			affected.append(index)
 		else:
-			amount -= int(hit_action.get("_stored_release_damage", 0))
 			state = _surface_damage_actor(state, str(victim["kind"]), int(victim["id"]), amount, true, _action_pierces_defense(hit_action))
 	if player_action:
 		if int(action.get("damage", 0)) > 0:
 			_mark_first_attack_used(state)
 		state = _trigger_resolved_action_light(state, action, target, affected)
-	state = _damage_terrain_indices(state, _terrain_indices_in_tiles(state, blast_tiles), int(action.get("damage", GameData.fixed_point_amount(6))) - int(action.get("_stored_release_damage", 0)))
+	state = _damage_terrain_indices(state, _terrain_indices_in_tiles(state, blast_tiles), int(action.get("damage", GameData.fixed_point_amount(6))))
 	# Fuel was consumed before the direct-hit batch. Traps remove themselves
 	# before resolving their wake, so newly painted Fire is never detonated again.
 	state = _trigger_traps_on_tiles(state, _trap_tiles_in_tiles(state, blast_tiles))
 	BoardSurfaceRules.record_event(state, {"kind": "detonate", "surface": fuel, "consumed": consumed, "tiles": blast_tiles, "source": state.get("damage_context", {})})
 	state = SurfaceCardRules.leave_detonate_surface(self, state, action, consumed)
+	_resolver_journal("end", state)
+	preload("res://scripts/reaction_presentation_trace.gd").action_finished(self, trace, state)
+	state = RetaliateRules.after_player_hits(self, state, retaliators, action, trace)
 	state["_surface_damage_batch"] = previous_batch
 	if not previous_batch:
-		state = _flush_surface_deaths(state)
+		state = _flush_surface_deaths(state, trace)
 	state["damage_context"] = prior_damage_context
 	trace["detonate_tiles"] = blast_tiles
 	return state
@@ -12327,13 +12149,25 @@ func _resolve_surface_consumer(state: Dictionary, action: Dictionary, target: Ve
 		state = apply_surface_reward(state, raw_reward, {"source_name": "Expended ground"})
 	return state
 
-func _flush_surface_deaths(state: Dictionary) -> Dictionary:
+func _flush_surface_deaths(state: Dictionary, trace: Dictionary = {}) -> Dictionary:
+	_resolver_journal("checkpoint", state)
+	var previous_trace: Dictionary = _surface_death_trace
+	if bool(trace.get("capture_reactions", false)): _surface_death_trace = trace
+	preload("res://scripts/reaction_presentation_trace.gd").seal_owner(self, state)
 	var deaths: Array = state.get("_surface_pending_deaths", []).duplicate(true)
 	state.erase("_surface_pending_deaths")
-	if WarbandRules.broken(state):
-		state = _clear_remaining_enemies_for_leader_objective(state, int(state["objective"]["leader_id"]))
+	if WarbandRules.broken(state) or HoarderRules.broken(state):
+		var leader_id: int = int(state["objective"]["leader_id"])
+		var leader: Dictionary = _surface_actor(state, "enemy", leader_id)
+		_resolver_journal("begin", state, {"kind": "surface_death", "id": leader_id})
+		var break_owner: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").cascade_begin(self, state, {"action_type": "surface_death", "id": leader_id, "tile": leader.get("pos", INVALID_TILE)})
+		state = _clear_remaining_enemies_for_leader_objective(state, leader_id)
+		_resolver_journal("end", state)
+		preload("res://scripts/reaction_presentation_trace.gd").cascade_end(self, state, break_owner)
 	for death: Dictionary in deaths:
 		var enemy: Dictionary = death["enemy"]
+		_resolver_journal("begin", state, {"kind": "surface_death", "id": enemy["id"]})
+		var owner: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").cascade_begin(self, state, {"action_type": "surface_death", "id": enemy["id"], "tile": enemy["pos"]})
 		var prior_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 		state["damage_context"] = death.get("context", prior_context)
 		state = SurfaceVarietyRules.death(self, state, enemy, _relic_effects(state), bool(death.get("on_fire", false)))
@@ -12341,9 +12175,12 @@ func _flush_surface_deaths(state: Dictionary) -> Dictionary:
 		state["damage_context"] = prior_context
 		if bool(enemy.get("is_leader", false)) and str((state.get("objective", {}) as Dictionary).get("type", "")) == CombatObjectiveRules.KILL_LEADER:
 			state = _clear_remaining_enemies_for_leader_objective(state, int(enemy.get("id", -1)))
-		elif not WarbandRules.suppress_death_effects(state, enemy):
+		elif not WarbandRules.suppress_death_effects(state, enemy) and not HoarderRules.suppress_death_effects(state, enemy):
 			state = _trigger_enemy_death_spawn(state, enemy)
-		if not WarbandRules.suppress_death_effects(state, enemy): state = DeathBurstRules.on_death(self, state, enemy)
+		if not WarbandRules.suppress_death_effects(state, enemy) and not HoarderRules.suppress_death_effects(state, enemy): state = DeathBurstRules.on_death(self, state, enemy)
+		_resolver_journal("end", state)
+		preload("res://scripts/reaction_presentation_trace.gd").cascade_end(self, state, owner)
+	_surface_death_trace = previous_trace
 	return state
 
 func _surface_move_illusion(state: Dictionary, id: int, direction: Vector2i) -> Dictionary:
@@ -12357,8 +12194,8 @@ func _surface_move_illusion(state: Dictionary, id: int, direction: Vector2i) -> 
 
 func _surface_prepare_enemy_intent(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
 	intent = WindRules.commit(self, state, enemy, intent)
-	intent = MimicRules.prepare(self, state, enemy, intent)
-	intent = TetherRules.commit(self, state, enemy, intent)
+	if GuardianCombatRules.has_authored_actions(intent) and not intent.has("committed_plan") and not bool(GameData.enemy_def(str(enemy["type"])).get("dragon_cycle", false)) and not bool(GameData.enemy_def(str(enemy["type"])).get("intent_cycle", false)):
+		intent = GuardianCombatRules.commit(self, state, _enemy_index_for_id(state, int(enemy["id"])), intent)
 	var prepared: Dictionary = intent.duplicate(true)
 	var fuel: Dictionary = prepared.get("surface_fuel", {}) as Dictionary
 	if fuel.is_empty():
@@ -12482,23 +12319,26 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 	action = WarbandRules.action(before_state, before_state["enemies"][enemy_index], action).duplicate(true)
 	action["_resolved_path"] = action_context.get("resolved_path",_vector2i_values([before_state["enemies"][enemy_index]["pos"]]))
 	var step: Dictionary
-	if DiveRules.handles(action): step = DiveRules.step(self, before_state, after_state, enemy_index, action, action_context)
-	elif ReflectRules.refraction(before_state["enemies"][enemy_index], action): step = ReflectRules.step(self, before_state, after_state, enemy_index, action, action_context)
+	if ReflectRules.refraction(before_state["enemies"][enemy_index], action): step = ReflectRules.step(self, before_state, after_state, enemy_index, action, action_context)
 	elif BrambleRules.handles(action): step = BrambleRules.animation_step(self, before_state, after_state, enemy_index, action)
-	elif LobRules.handles(action): step = LobRules.animation_step(self, before_state, after_state, enemy_index, action)
+	elif MarkedRules.handles(action): step = MarkedRules.animation_step(self, before_state, after_state, enemy_index, action)
 	elif CapacitorRules.handles(action): step = CapacitorRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
-	elif MimicRules.handles(action): step = MimicRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
-	elif IcefallRules.handles(action): step = IcefallRules.animation_step(self, before_state, after_state, enemy_index, action)
 	elif str(action.get("type", "")) == "call_wind": step = WindRules.animation_step(self, before_state, after_state, enemy_index, action)
-	elif TetherRules.handles(action): step = TetherRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
-	elif VeilRules.handles(action): step = VeilRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
-	elif BurrowRules.handles(action): step = BurrowRules.animation_step(before_state, after_state, enemy_index, action)
+	elif StalkerRules.handles(action): step = StalkerRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
+	elif BurrowRules.handles(action): step = BurrowRules.animation_step(before_state, after_state, enemy_index, action, action_context)
 	elif str(action.get("type", "")) == "kindle":
-		step = {"kind": "status", "actor_key": _enemy_key(after_state["enemies"][enemy_index]), "actor_name": _enemy_display_name(after_state["enemies"][enemy_index]), "label": "Kindle", "enemy_after": (after_state["enemies"][enemy_index] as Dictionary).duplicate(true)}
+		step = {"kind": "status", "actor_key": _enemy_key(after_state["enemies"][enemy_index]), "actor_name": _enemy_display_name(after_state["enemies"][enemy_index]), "label": "Kindle", "action_type": "kindle", "amount": int(after_state["enemies"][enemy_index].get("kindled_bonus", 0)) - int(before_state["enemies"][enemy_index].get("kindled_bonus", 0)), "tile": after_state["enemies"][enemy_index]["pos"], "enemy_after": (after_state["enemies"][enemy_index] as Dictionary).duplicate(true)}
 	else: step = GuardianCombatRules.animation_step(self,before_state,after_state,enemy_index,action) if GuardianCombatRules.handles(action) else _enemy_action_step_base(before_state, after_state, enemy_index, action, action_context)
+	if step.is_empty() and not str(action_context.get("no_action_reason", "")).is_empty():
+		var actor: Dictionary = after_state["enemies"][enemy_index]
+		step = {"kind": "no_action", "action_type": str(action.get("type", "")), "actor_key": _enemy_key(actor), "actor_name": _enemy_display_name(actor), "tile": actor.get("pos", INVALID_TILE), "no_action_reason": str(action_context["no_action_reason"])}
+	SummonCardPlays.decorate_step(before_state, after_state, action, step, action_context)
+	step = EnemyCastPresentation.decorate(step, before_state["enemies"][enemy_index])
 	step = RetaliateRules.decorate_attack_step(before_state, after_state, step)
 	if not CapacitorRules.grounded_targets(before_state, after_state).is_empty(): step["grounded_targets"] = CapacitorRules.grounded_targets(before_state, after_state)
 	if not step.is_empty():
+		if not step.has("intent_id"):
+			step["intent_id"] = str(before_state["enemies"][enemy_index].get("intent", {}).get("id", ""))
 		if (before_state["enemies"][enemy_index] as Dictionary).has("display_name") and not step.has("source_actor_key"):
 			step["actor_name"] = EnemyIdentity.display_name(before_state["enemies"][enemy_index])
 		step["surfaces_after"] = (after_state.get("surfaces", {}) as Dictionary).duplicate(true)
@@ -12507,37 +12347,49 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 
 # Find useful routes only. Zero relays preserves ordinary nearest-enemy Chain;
 # extra ground is selected by relay count, distance, then stable actor/tile order.
-func _surface_chain_useful_route(state: Dictionary, opponents: Array[Dictionary], visited: Dictionary, used: Dictionary, served: Dictionary, origin: Vector2i, reach: int, conductive: Array[Vector2i], player_chain: bool, lightning: bool, visible_lookup: Dictionary = {}) -> Array[Dictionary]:
+func _surface_chain_useful_route(state: Dictionary, opponents: Array[Dictionary], visited: Dictionary, used: Dictionary, served: Dictionary, origin: Dictionary, reach: int, conductive: Array[Vector2i], player_chain: bool, lightning: bool, visible_lookup: Dictionary = {}) -> Array[Dictionary]:
 	var best_route: Array[Dictionary]
 	var best_relays: int = 9999
 	var best_distance: int = 99999
+	# Geometry and eligibility are immutable within this search. Preserve actor
+	# order while resolving visibility once, outside the relay/actor cross product.
+	var eligible: Array[Dictionary]
+	for actor: Dictionary in opponents:
+		if not visited.has(actor["key"]) and not bool((actor["unit"] as Dictionary).get("burrowed", false)) and (not player_chain or is_enemy_visible_to_player(state, actor["unit"] as Dictionary, visible_lookup)):
+			eligible.append(actor)
+	if eligible.is_empty():
+		return best_route
+	var origin_tiles: Dictionary = {}
+	for tile: Vector2i in BoardSurfaceRules.footprint_tiles(origin):
+		origin_tiles[tile] = true
 	var queue: Array[Dictionary]
-	queue.append({"pos": origin, "nodes": [], "distance": 0})
+	# The initial frontier is the whole struck body. Later entries are single
+	# conductive tiles; nearest-pair distance seeds them from every body tile
+	# without changing stable actor order when two routes have equal cost.
+	queue.append({"unit": origin, "nodes": [], "distance": 0})
 	var cursor: int = 0
 	var best_by_tile: Dictionary = {}
 	var visible_ground: Dictionary = {INVALID_TILE: true}
 	for tile: Vector2i in conductive:
 		visible_ground[tile] = true
-	# Geometry and eligibility are immutable within this search. Preserve actor
-	# order while resolving visibility once, outside the relay/actor cross product.
-	var eligible: Array[Dictionary]
-	for actor: Dictionary in opponents:
-		if not visited.has(actor["key"]) and (not player_chain or is_enemy_visible_to_player(state, actor["unit"] as Dictionary, visible_lookup)):
-			eligible.append(actor)
 	# Keep components per origin: a blocked origin can exit onto passable ground
 	# even though the reverse traversal cannot enter that origin.
 	var components: Dictionary = {}
 	while cursor < queue.size():
 		var entry: Dictionary = queue[cursor]
 		cursor += 1
-		var at: Vector2i = entry["pos"]
+		var source: Dictionary = entry["unit"]
+		var at: Vector2i = source.get("pos", INVALID_TILE)
+		var source_max: Vector2i = at + ChainFootprintGeometry.size(source) - Vector2i.ONE
+		var point_source: bool = source_max == at
 		var nodes: Array = entry["nodes"]
 		var travel: int = int(entry["distance"])
 		if nodes.size() > best_relays:
 			continue
 		for actor: Dictionary in eligible:
-			var tile: Vector2i = (actor["unit"] as Dictionary).get("pos", INVALID_TILE)
-			var gap: int = PathUtils.manhattan(at, tile)
+			var pair: Dictionary = ChainFootprintGeometry.nearest_pair(source, actor["unit"])
+			var tile: Vector2i = pair["to"]
+			var gap: int = int(pair["distance"])
 			var component_goal: bool = false
 			if gap > reach and lightning and not nodes.is_empty() and not served.has(at):
 				if not components.has(at):
@@ -12557,15 +12409,17 @@ func _surface_chain_useful_route(state: Dictionary, opponents: Array[Dictionary]
 			if gap <= reach:
 				var hit: Dictionary = actor.duplicate(true)
 				hit["kind_trace"] = "actor"
+				hit["from"] = pair["from"]
 				hit["to"] = tile
 				best_route.append(hit)
 		if nodes.size() >= best_relays:
 			continue
 		for tile: Vector2i in conductive:
-			if tile == at or tile == origin or used.has(tile):
-				continue
-			var gap: int = PathUtils.manhattan(at, tile)
-			if gap > reach:
+			# Relay entries are points. Reject distant tiles before hash lookups,
+			# and reserve rectangle clamps for the initial large-body frontier.
+			var from: Vector2i = at if point_source else Vector2i(clampi(tile.x, at.x, source_max.x), clampi(tile.y, at.y, source_max.y))
+			var gap: int = absi(from.x - tile.x) + absi(from.y - tile.y)
+			if gap > reach or tile == at or origin_tiles.has(tile) or used.has(tile):
 				continue
 			var count: int = nodes.size() + 1
 			var distance: int = travel + gap
@@ -12574,11 +12428,26 @@ func _surface_chain_useful_route(state: Dictionary, opponents: Array[Dictionary]
 				continue
 			best_by_tile[tile] = {"count": count, "distance": distance}
 			var path: Array = nodes.duplicate(true)
-			path.append({"kind_trace": "relay", "to": tile})
-			queue.append({"pos": tile, "nodes": path, "distance": distance})
+			path.append({"kind_trace": "relay", "from": from, "to": tile})
+			queue.append({"unit": {"pos": tile}, "nodes": path, "distance": distance})
 	return best_route
 
 func _surface_chain_displacement(state: Dictionary, actor: Dictionary, action: Dictionary, source: Vector2i) -> Dictionary:
+	if str(actor.get("kind", "")) == "player":
+		# Use the same damage and force primitives as commitment: a lethal hit
+		# cannot push the hero, while Block/defenses and arrivals may change survival.
+		state["_surface_damage_batch"] = true
+		state["damage_context"] = {"actor_kind": "enemy", "player_card": false, "source_kind": "forecast"}
+		var player_action: Dictionary = action.duplicate(true)
+		var bonus: Dictionary = player_action.get("surface_bonus", {}) as Dictionary
+		var target_bonus: bool = str(bonus.get("subject", "")) == "target" and _surface_condition_met(state, bonus, (actor.get("unit", {}) as Dictionary).get("pos", INVALID_TILE))
+		var assisted_bonus: bool = str(bonus.get("subject", "")) == "conducted" and bool(actor.get("electrically_assisted", false))
+		if target_bonus or assisted_bonus:
+			for field: String in SURFACE_BONUS_FIELDS:
+				if bonus.has(field): player_action[field] = int(player_action.get(field, 0)) + int(bonus[field])
+		state = _damage_actor_target(state, actor, int(player_action.get("damage", 0)), _action_pierces_defense(player_action), player_action)
+		state = _apply_action_keywords_to_target(state, actor, player_action, source)
+		return {"state": state, "pos": (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)}
 	if str(actor.get("kind", "")) != "enemy":
 		return {"state": state, "pos": (actor.get("unit", {}) as Dictionary).get("pos", INVALID_TILE)}
 	var index: int = _enemy_index_for_id(state, int(actor.get("id", -1)))
@@ -12631,3 +12500,6 @@ func apply_illusion_movement(state: Dictionary, illusion_id: int, tile: Vector2i
 
 func snare_escape_context(state: Dictionary) -> Dictionary:
 	return SnareRules.escape_context(state)
+
+func last_light_context(state: Dictionary) -> Dictionary:
+	return LastLightRules.context(self, state)

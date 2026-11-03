@@ -40,7 +40,7 @@
   "hidden/rear/torso.png": "843b066d42dd4fc2c32e3c0de78359fb33955f78e7f1959b72c7ce5ea8213494",
   "hidden/rear/upper_far.png": "6d37760f7208e33a8580d9a185c92723584fb55719baf425366f28299755e4aa",
   "hidden/rear/upper_near.png": "a550c2970a83a9da88840096f41f8c6d2e61890a6a707eef44677f39bf2d4cd4",
-  "hidden_fills/index.json": "e37dd0354164cc9bb2f8761a1a61dd9372513b157645bd95b22e408901d78a68",
+  "hidden_fills/index.json": "31ffccca497a1da10f31518e948ffb7f417fed5ec4e36daeec5b00bce2cd2980",
   "layouts/front.json": "09145bf7c0b6be2da4ee70c1623b6fbb2026e28391b68ba75713d423ba4bf311",
   "layouts/rear.json": "9bb750a8088b7cb7fb7c67ab6205773ced3e70915fd2bcb357c6de1f8df10c0d",
   "motion.gd": "7c85b84b16814d1969d3d3da66bfacdc2ce77fe8be20719feeebf892f2a74e27",

@@ -4,6 +4,7 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
+const Flurry = preload("res://tests/fixtures/dormant_flurry_cards.gd")
 const START := Vector2i(2, 4)
 
 
@@ -94,6 +95,7 @@ static func _assert_flags(actual: Dictionary, expected: bool, expect: Callable, 
 
 
 static func _test_flurry_and_health_costs(expect: Callable) -> void:
+	Flurry.install()
 	var combat := CombatEngine.new()
 	var scene := RunScene.new()
 	for card_id_var: Variant in GameData.cards().keys():
@@ -115,7 +117,7 @@ static func _test_flurry_and_health_costs(expect: Callable) -> void:
 			# upfront affordability gate that the existing preview never used.
 			_assert_card_matches_full_walk(scene, combat, low_health, 0, expect, "%s health below printed cost" % card_id)
 	scene.free()
-
+	Flurry.remove()
 
 static func _test_root_summary_edges(expect: Callable) -> void:
 	var combat := CombatEngine.new()

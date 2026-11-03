@@ -1,0 +1,3 @@
+NATIVE_CAPTURE_PACKING: PASS; raw_bytes=12509323; packed_bytes=2916937
+DELIVERY_STAGE: PASS; prepared
+MQ13_PROMOTION: PASS; canonical=r3; approved_geometry_and_pixels_exact=True

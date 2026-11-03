@@ -1,0 +1,56 @@
+{
+ "_doc": "Director-approved battlefield-rule icons (element rules, 2026-10-23). Raw = image-gen output on #00FF00; final = key_icon.py (16x blocks -> 64x64, key green, despill). Style refs: wind, surface_fire, icefall, blink icons enlarged 16x. Gust keeps the existing wind icon (same concept).",
+ "icons": {
+  "wildfire": {
+   "final": "wildfire.png",
+   "final_sha256": "993707f37e3b908cb6a1fad6868d327ebb2fdb129937cc70c9502470dd1c323f",
+   "raw": "raw/wildfire.png",
+   "raw_sha256": "2063581f4b94e480578473db95e11299e1f5b45daa9c0f4b0eed461a0ffbf524",
+   "prompts": [
+    "prompts/wildfire.md"
+   ],
+   "job": "icon-wildfire-r1"
+  },
+  "frostbite": {
+   "final": "frostbite.png",
+   "final_sha256": "1975a3a6a6ec036bc26a2deb2fd7d91dab629fde1967c159b727bc5a56a2c08b",
+   "raw": "raw/frostbite.png",
+   "raw_sha256": "efd3e6a2e2893158ab4af065b933b2ae9c2f6ab84c121f653bda330b6b094a09",
+   "prompts": [
+    "prompts/frostbite.md"
+   ],
+   "job": "icon-frostbite-r1"
+  },
+  "lightning_storm": {
+   "final": "lightning_storm.png",
+   "final_sha256": "1bae8c641d41c200a163fbca09b6069811a8e31cfce42619943b71ea406686f2",
+   "raw": "raw/lightning_storm.png",
+   "raw_sha256": "d33302946cf0dc28fce845a6e52646778820356ac73623bb439d9101d1a9aab0",
+   "prompts": [
+    "prompts/lightning_storm.md"
+   ],
+   "job": "icon-lightning_storm-r1"
+  },
+  "upheaval": {
+   "final": "upheaval.png",
+   "final_sha256": "cb10978bcd31dc2b05f636f61460731de65f10b38afa5d26ea23398249af4a17",
+   "raw": "raw/upheaval.png",
+   "raw_sha256": "2751252500a63fe3ee4c00deb0ea16bb0e1aead02cc1a37f7b2d7a1fc8aaac65",
+   "prompts": [
+    "prompts/upheaval.md"
+   ],
+   "job": "icon-upheaval-r1"
+  },
+  "shadowstep": {
+   "final": "shadowstep.png",
+   "final_sha256": "2e7d9e4b389c1f6825b4cbe1a137817ed502f91644099c8dd7b13690ef5443d2",
+   "raw": "raw/shadowstep.png",
+   "raw_sha256": "6f02cc404e97f99dacf805fd2b8f330e28726d3f7d136a4a3b014db7d99f2d1e",
+   "prompts": [
+    "prompts/shadowstep.md",
+    "prompts/shadowstep_fix1.md"
+   ],
+   "job": "icon-shadowstep-r1"
+  }
+ }
+}

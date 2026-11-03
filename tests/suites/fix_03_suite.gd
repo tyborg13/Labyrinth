@@ -13,17 +13,20 @@ const TEST_EXPOSE: int = 3
 const TEST_DEFENSE: int = 100
 const TEST_DAMAGE: int = 2
 const LATER_CYCLE: int = 2
+const EXPECTED_TOKEN_CASES: int = 10
 const TOKEN_CAPTIONS: Dictionary = {
-	"burrow": "Burrow", "erupt": "Erupt 6", "kindle": "Kindle +2",
-	"gain_charge": "+1", "chain_discharge": "4"
+	"burrow": "Burrow", "erupt": "Erupt 6", "kindle": "Burst +2",
+	"gain_charge": "Charge +1", "chain_discharge": "Arc 4, range 4, 3 jumps"
 }
 
-static func run(expect: Callable) -> void:
-	_test_fatigue(expect)
-	_test_skill_hud(expect)
-	_test_tokens(expect)
+static func run(expect: Callable) -> bool:
+	# A runtime error returns without reaching the completion sentinel. Callers
+	# must check it instead of reporting PASS after an aborted subtest.
+	var completed: bool = _test_fatigue(expect) and _test_skill_hud(expect) and _test_tokens(expect)
+	expect.call(completed, "FIX-03 reaches every subtest completion sentinel")
+	return completed
 
-static func _test_fatigue(expect: Callable) -> void:
+static func _test_fatigue(expect: Callable) -> bool:
 	var engine := Combat.new()
 	for statuses: Dictionary in [{}, {"expose": TEST_EXPOSE}, {"chilled": true}, {"freeze": 1}, {"expose": TEST_EXPOSE, "chilled": true, "freeze": 1}]:
 		for cycle: int in [0, LATER_CYCLE]:
@@ -59,6 +62,7 @@ static func _test_fatigue(expect: Callable) -> void:
 	attacked = engine._damage_player(attacked, TEST_DAMAGE, true)
 	expect.call(attack_hp - int(attacked["player"]["hp"]) == (TEST_DAMAGE + TEST_EXPOSE) * preload("res://scripts/board_surface_rules.gd").FROZEN_MULTIPLIER, "Attack amplification remains unchanged")
 	expect.call(attacked["player"]["expose"] == 0, "An attack still consumes Expose")
+	return true
 
 static func skill_states() -> Array[Dictionary]:
 	var engine := Combat.new()
@@ -73,7 +77,7 @@ static func skill_states() -> Array[Dictionary]:
 	result.append(next_turn)
 	return result
 
-static func _test_skill_hud(expect: Callable) -> void:
+static func _test_skill_hud(expect: Callable) -> bool:
 	var scene := RunScene.new()
 	scene.set("_run_state", {"mode": "combat"})
 	var states: Array[Dictionary] = skill_states()
@@ -82,6 +86,7 @@ static func _test_skill_hud(expect: Callable) -> void:
 		for skill: String in ["sunpath", "dawnbrand"]:
 			expect.call(scene._skill_hud_status(skill) == ("SPENT" if index == 1 else "WAITING"), "%s HUD follows real rule activation and next-turn reset (%d)" % [skill, index])
 	scene.free()
+	return true
 
 static func token_cases() -> Array[Dictionary]:
 	var result: Array[Dictionary]
@@ -90,7 +95,7 @@ static func token_cases() -> Array[Dictionary]:
 		result.append({"name": "library_" + action["type"], "tokens": Icons.tokens_for_action(action), "icon": key, "caption": TOKEN_CAPTIONS[action["type"]]})
 		var rows: Array = KindleView.rows({"actions": [action]}) if action["type"] == "kindle" else BurrowView.rows({"actions": [action]})
 		result.append({"name": "intent_" + action["type"], "tokens": rows[0], "icon": key, "caption": TOKEN_CAPTIONS[action["type"]]})
-	for action: Dictionary in [{"type": "gain_charge", "amount": 1}, {"type": "chain_discharge", "damage": 4}]:
+	for action: Dictionary in [{"type": "gain_charge", "amount": 1}, {"type": "chain_discharge", "damage": 4, "first_range": 4, "jumps": 3, "falloff": 1}]:
 		var rows: Array = CapacitorView.rows({"actions": [action]})
 		result.append({"name": "intent_" + action["type"], "tokens": rows[0], "icon": "charge" if action["type"] == "gain_charge" else "chain", "caption": TOKEN_CAPTIONS[action["type"]]})
 	result.append({"name": "lightning_strikes", "tokens": Icons.tokens_for_action({"type": "lightning_strikes", "damage": 3, "count": 4}), "icon": "lightning_strikes"})
@@ -100,8 +105,11 @@ static func token_cases() -> Array[Dictionary]:
 	board.free()
 	return result
 
-static func _test_tokens(expect: Callable) -> void:
-	for entry: Dictionary in token_cases():
+static func _test_tokens(expect: Callable) -> bool:
+	var cases: Array[Dictionary] = token_cases()
+	expect.call(cases.size() == EXPECTED_TOKEN_CASES, "Every FIX-03 token fixture finishes construction")
+	if cases.size() != EXPECTED_TOKEN_CASES: return false
+	for entry: Dictionary in cases:
 		if entry.has("caption"):
 			expect.call(Icons.plain_text_for_tokens(entry["tokens"]) == entry["caption"], entry["name"] + " preserves authored summary text")
 		var found: bool = false
@@ -111,8 +119,11 @@ static func _test_tokens(expect: Callable) -> void:
 				expect.call(token.get("kind", "") != "text", entry["name"] + " reaches the icon renderer")
 				expect.call(Icons.icon_texture(entry["icon"]) != null, entry["name"] + " has a loadable approved icon")
 				expect.call(not Icons.token_tooltip(token).contains("<"), entry["name"] + " tooltip has no unfilled placeholder")
-				if str(entry["name"]).begins_with("intent_gain_charge") or str(entry["name"]).begins_with("intent_chain_discharge"):
-					expect.call(Icons.token_tooltip(token) == "Charge\nGains Charge each use. At 3, its next intent is Arc Burst: lightning jumping between nearby units. Shock removes 1.", entry["name"] + " uses the approved Charge definition")
+				if entry["name"] == "intent_gain_charge":
+					expect.call(Icons.token_tooltip(token) == "At 3 Charge it fires Arc Burst. Shocking it removes 1 Charge.", "Charge uses its exact numeric rules")
+				if entry["name"] == "intent_chain_discharge":
+					expect.call(Icons.token_tooltip(token) == "Hits the nearest target within 4 for 4, then jumps to up to 3 more beside each hit, losing 1 per jump.", "Arc Burst uses every action-data number")
 			if entry["name"] == "lightning_strikes":
 				expect.call(token.get("icon", "") != "shock", "Lightning Strikes count does not imply Shock")
 		expect.call(found, entry["name"] + " includes its concept icon")
+	return true

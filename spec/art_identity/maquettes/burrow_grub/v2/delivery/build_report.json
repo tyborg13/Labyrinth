@@ -1,0 +1,330 @@
+{
+  "schema": 2,
+  "blender": "5.2.1 LTS",
+  "spec_hash": "d6622cb9b1ed3ca6f470db3358c599707272746a2100e3c8009a65d3af03e0d8",
+  "mesh_hashes": {
+    "seg_1_render": "a4b13fdb8895b25392923ea5a0fb6ceb4b0d45cb9e365250d1d05ca0600a0f7d",
+    "seg_2_render": "b934506421dc5b507819cf87a5af1c5a7e2315918a3c12c269bfd9d2f703ed31",
+    "seg_3_render": "16499582948f0cf576d2c841c290d2e6f4d7027d47945ca6cbfee20d921e4cc3",
+    "seg_4_render": "7caffef879854c84b71a34d5c0d6f593ff8f305e3274160a2f5ad469d5d66a94",
+    "seg_5_render": "4993537eb34ae18e3fb4953872aeb3dc92aaf9be979128c6219fbf7484443cc4",
+    "seg_6_render": "94e9b0d222763e1c761a1c0cc6033641f66854cb35a71e2f03c87ad31b908dbb",
+    "tail_render": "930b3e7ca16d5d4a5f6fc1eb3d0e9be7c245c191df36f363a88c5f6837088877",
+    "maw_ring_render": "465e0335fd496652b3ca1345b8e1213515b96c1d72e08c2a193d1c56da1cf3d2",
+    "maw_throat_render": "1744e960545a03e91690b9590bbbc3fafab4e3179840dd7bb33d3ae011f8baf7",
+    "tooth_00_render": "829be99a9af0b4d31e614a5984e1f096d8047629b41ca0fb58a4a9a82727fcbf",
+    "tooth_01_render": "3f89e593476861d705bb4115ba9caf3b722912056ac578d782befb426c1455bb",
+    "tooth_02_render": "299e5327182b19152176309988c9138eb66506238cb8429796ee0f47c8d81f57",
+    "tooth_03_render": "01fc4812afc56c972cc4e8bc1d1004926dac4de75b73aa393e357b00d9ad0ab7",
+    "tooth_04_render": "eb32819d0cdd2d0e1dd5fbdd2ad5a31c7bd2c5c77235c93b8b297e9b7c8f82bd",
+    "tooth_05_render": "bba9d3630d9dd79ba018900a4c33d92e0513f6a490b7f32608c5a0262ff00581",
+    "tooth_06_render": "6ada9b3dfd81ca24122c9cfd6f355538625cca810388151e9c45c33f9f069fbc",
+    "tooth_07_render": "d1edfaa03f4e96d3fcfcd4f405d6e50905435bfd67f7d8e6a1916fbcb26ca091",
+    "tooth_08_render": "a200b8fc8359040d24a29105a7704a960057c212c526912f9c0d5ed250a65e9e",
+    "tooth_09_render": "675fb681b6b0895bff28c4fc9114daaed945cd33698d2b9bab3bfa0438c3ed0c",
+    "leg_near_1_render": "e5d90e53a5dff25716eb83c245b69d3420442ba2e9a0772d35dc31c0aad371f7",
+    "leg_near_2_render": "78fe4b6167683f0a0dec81464f3b3356a43178304f8f8e12b0e440f2dda04698",
+    "leg_near_3_render": "c2493e5cac862e31a56814eb6537e080ce57d34beae00034fd2fd0bbb1929c04",
+    "leg_far_1_render": "56fa5ed2ff33beea3431415fb582b919fd0ac2593eaa62a4cd52151f3f16b9d8",
+    "leg_far_2_render": "7072ffafb00e621bfff157917a0ce65cfe332ce231c528eccc082110c8181f55",
+    "leg_far_3_render": "21e52808d52668f6c41440df4d97331c8720d7aa6e53eb936c701d996c8e35a6"
+  },
+  "combined_mesh_hash": "6cfadfea65d9493b4dc64c5fc198320a4b0969f047ee2b96bcd6c5cb93321b76",
+  "checks": {
+    "rings_grounded_and_08_cross_section": true,
+    "feet_grounded_short_thick_and_low": true,
+    "head_grounded": true,
+    "lip_low": true,
+    "head_tilt": true,
+    "lower_edge_angle": true,
+    "length_125_tiles": true,
+    "plan_turns": true,
+    "approved_body_geometry_unchanged": true,
+    "approved_body_joints_unchanged": true,
+    "labels_and_joint_names": true,
+    "six_leg_parents": true
+  },
+  "passed": true,
+  "provenance": {
+    "baseline_measurements_sha256": "74c5f240963631bd460e52e3e72b11f4673d218bef69e7c2e6690161a9bea941",
+    "feedback_1_contract_sha256": "b2740244055ed60cd4c20a54d3cbdb991d72eb9b7644d8a0e6d37e98ca0d68d8",
+    "implementation_sha256": {
+      "build.py": "06aa0a61e558df6244c5b20f071c96646a6dd67db701983fea03dbfeebf4c47c",
+      "stub_legs.py": "d6f9b7025a1d00eda0ebf9bd0a5e5e768dcfa67733a7ca1d49beefa6fa4587f1",
+      "screen_clearance.py": "2b51c45219e832d8e1270438304050e5f721edf1511045779be2317bf97393fc",
+      "floor_report.py": "89c1342b0f1e8cfd67ff196a0652ac7cc883cbaee8c5d0ae7643eb659265e809",
+      "probe.py": "b282c69987fdd1e893ca8f370c14e3992b658885dd491647b55a900cf58a8b09",
+      "workflow.py": "f039c49f53e56fefaa4757737670f7350004f68826876d6deb0a45572921b2f5",
+      "verify.py": "2cce27c47f5af7f49963d49b7151d92e92897ac6bff4aba2a4f13ecc4d81999f",
+      "recipe.py": "7618a9873fba6a3b71905c663e286d636e46783e985b11695cf84c443c73dcaa"
+    },
+    "constraints": {
+      "length_tiles": 1.25,
+      "art_scale": 0.85,
+      "ortho_scale_m": 2.4,
+      "height_width": 0.8,
+      "ring_gap_L": 0.02,
+      "head_gap_L": 0.04,
+      "foot_gap_L": 0.01,
+      "lip_height_L": 0.22,
+      "head_tilt_max_deg": 12,
+      "turn_max_deg": 6,
+      "leg_length_L": 0.075,
+      "hip_minimum_width_L": 0.05,
+      "hip_maximum_height_L": 0.09,
+      "foot_screen_clearance_px": 34,
+      "lower_edge_target_deg": 26.6,
+      "lower_edge_tolerance_deg": 4,
+      "leg_segments": [
+        1,
+        3,
+        5
+      ]
+    },
+    "proof_defaults": {
+      "epsilon_m": 1e-06,
+      "angle_search_steps": 4096,
+      "bridge_deadline_s": 120,
+      "tile_width_px": 248,
+      "review_size_px": [
+        960,
+        360
+      ],
+      "review_floor_y_px": 270,
+      "review_centres_x_px": [
+        160,
+        480,
+        800
+      ],
+      "ground_rgb": [
+        69,
+        65,
+        58
+      ],
+      "floor_rgb": [
+        132,
+        126,
+        113
+      ],
+      "review_label_offset_px": [
+        -100,
+        32
+      ],
+      "review_caption_xy_px": [
+        24,
+        336
+      ],
+      "review_axis_half_extent_m": 1.5,
+      "alpha_threshold": 128,
+      "ownership_rgb_tolerance": 2,
+      "joint_projection_tolerance_px": 0.011,
+      "lift_mutation_limit_multiplier": 2,
+      "screen_alpha_threshold": 1,
+      "leg_fit_steps": 64,
+      "leg_fit_refinements": 8,
+      "screen_raster_guard_px": 2,
+      "screen_antialias_radius_px": 1
+    },
+    "body_uniform_scale": 1.1917849636109397
+  },
+  "placements": {
+    "seg_1": {
+      "centre": [
+        0.832094736681242,
+        0.0,
+        0.4805463140336584
+      ],
+      "yaw": 0.12493379269804332,
+      "width": 0.6452139507124915
+    },
+    "seg_2": {
+      "centre": [
+        0.4805228081302768,
+        -0.04415317474622827,
+        0.4805463140336584
+      ],
+      "yaw": 0.11678188496550002,
+      "width": 0.6200253561708349
+    },
+    "seg_3": {
+      "centre": [
+        0.10129915486182019,
+        -0.08551104046982276,
+        0.4805463140336584
+      ],
+      "yaw": 0.05628207798254854,
+      "width": 0.6235450576103871
+    },
+    "seg_4": {
+      "centre": [
+        -0.2700240056302095,
+        -0.08697189968753334,
+        0.4805463140336584
+      ],
+      "yaw": -0.035129250762546756,
+      "width": 0.6464578866442806
+    },
+    "seg_5": {
+      "centre": [
+        -0.6136954414047482,
+        -0.061427106634399646,
+        0.4805463140336584
+      ],
+      "yaw": -0.12164598648839833,
+      "width": 0.5950641107906134
+    },
+    "seg_6": {
+      "centre": [
+        -0.8981131813560908,
+        -0.01286854618873357,
+        0.4805463140336584
+      ],
+      "yaw": -0.11915022977881687,
+      "width": 0.5845880905480095
+    },
+    "tail": {
+      "centre": [
+        -1.083774761602106,
+        0.0,
+        0.4805463140336584
+      ],
+      "yaw": -0.06920116683807097,
+      "width": 0.38148497749605026
+    }
+  },
+  "spine_floor_m": [
+    [
+      1.2425744698466965,
+      0.0,
+      0.4805463140336584
+    ],
+    [
+      0.832094736681242,
+      0.0,
+      0.4805463140336584
+    ],
+    [
+      0.4805228081302768,
+      -0.04415317474622827,
+      0.4805463140336584
+    ],
+    [
+      0.10129915486182019,
+      -0.08551104046982276,
+      0.4805463140336584
+    ],
+    [
+      -0.2700240056302095,
+      -0.08697189968753334,
+      0.4805463140336584
+    ],
+    [
+      -0.6136954414047482,
+      -0.061427106634399646,
+      0.4805463140336584
+    ],
+    [
+      -0.8981131813560908,
+      -0.01286854618873357,
+      0.4805463140336584
+    ],
+    [
+      -1.083774761602106,
+      0.0,
+      0.4805463140336584
+    ],
+    [
+      -1.2425744698466965,
+      0.0,
+      0.4805463140336584
+    ]
+  ],
+  "leg_factors": {
+    "leg_near_1": 0.3734044052727328,
+    "leg_near_2": 0.26017149541196494,
+    "leg_near_3": 0.24702378489016946,
+    "leg_far_1": 0.15939801339053486,
+    "leg_far_2": 0.2279374060004653,
+    "leg_far_3": 0.1787116158199944
+  },
+  "leg_shapes": {
+    "leg_near_1": {
+      "axis_factor": 0.3734044052727328,
+      "radius_factor": 2.55211078972817,
+      "radial_samples": 16,
+      "axis_samples": 51,
+      "hook_span_samples": 10,
+      "axis_limit_L": 0.06588134765625,
+      "raster_clearance_px": {
+        "front": 32,
+        "rear": 0
+      },
+      "raster_guard_px": 2
+    },
+    "leg_near_2": {
+      "axis_factor": 0.26017149541196494,
+      "radius_factor": 3.6628509595934235,
+      "radial_samples": 16,
+      "axis_samples": 51,
+      "hook_span_samples": 10,
+      "axis_limit_L": 0.058859252929687494,
+      "raster_clearance_px": {
+        "front": 32,
+        "rear": 0
+      },
+      "raster_guard_px": 2
+    },
+    "leg_near_3": {
+      "axis_factor": 0.24702378489016946,
+      "radius_factor": 3.8578042679261695,
+      "radial_samples": 16,
+      "axis_samples": 51,
+      "hook_span_samples": 10,
+      "axis_limit_L": 0.049223327636718744,
+      "raster_clearance_px": {
+        "front": 32,
+        "rear": 0
+      },
+      "raster_guard_px": 2
+    },
+    "leg_far_1": {
+      "axis_factor": 0.15939801339053486,
+      "radius_factor": 5.978552626585998,
+      "radial_samples": 16,
+      "axis_samples": 51,
+      "hook_span_samples": 10,
+      "axis_limit_L": 0.0259552001953125,
+      "raster_clearance_px": {
+        "front": 0,
+        "rear": 25
+      },
+      "raster_guard_px": 2
+    },
+    "leg_far_2": {
+      "axis_factor": 0.2279374060004653,
+      "radius_factor": 4.180838188650029,
+      "radial_samples": 16,
+      "axis_samples": 51,
+      "hook_span_samples": 10,
+      "axis_limit_L": 0.037115478515624994,
+      "raster_clearance_px": {
+        "front": 0,
+        "rear": 32
+      },
+      "raster_guard_px": 2
+    },
+    "leg_far_3": {
+      "axis_factor": 0.1787116158199944,
+      "radius_factor": 5.332442478660376,
+      "radial_samples": 16,
+      "axis_samples": 51,
+      "hook_span_samples": 10,
+      "axis_limit_L": 0.02910003662109375,
+      "raster_clearance_px": {
+        "front": 0,
+        "rear": 32
+      },
+      "raster_guard_px": 2
+    }
+  }
+}

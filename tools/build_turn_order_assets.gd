@@ -2,6 +2,11 @@ extends SceneTree
 
 const PORTRAIT_SIZE := 128
 const ICON_SIZE := 64
+# Exact crop coordinates were not supplied. These named placeholders use only
+# the shipped front layout's authored head joint / eye bounds, pending the
+# director's contact-sheet approval; they are not new portrait art or tuning.
+const TODO_DESIGN_LAST_LAMPLIGHTER_PORTRAIT_FOCUS := Vector2i(121, 66)
+const TODO_DESIGN_LIGHTNING_WISP_PORTRAIT_FOCUS := Vector2i(117, 153)
 
 # Turn-order and pre-battle portraits: an exact 1:1, 128x128 cut of each
 # unit's current in-game art (cutout rest bakes), centred on the head and
@@ -16,16 +21,18 @@ const PORTRAITS := [
 	{"key": "harrier", "source": "res://assets/units/harrier_cutout/front/rest.png", "out": "res://assets/art/portraits/bone_harrier.png", "focus": Vector2i(112, 74)},
 	{"key": "grave_surgeon", "source": "res://assets/units/grave_surgeon_cutout/front/rest.png", "out": "res://assets/art/portraits/grave_surgeon.png", "focus": Vector2i(138, 66)},
 	{"key": "warden", "source": "res://assets/units/stone_warden_cutout/front/rest.png", "out": "res://assets/art/portraits/stone_warden.png", "focus": Vector2i(128, 62)},
-	{"key": "bile_bloomer", "source": "res://assets/units/bile_bloomer_cutout/front/rest.png", "out": "res://assets/art/portraits/bile_bloomer.png", "focus": Vector2i(126, 72)},
-	{"key": "chainbound_gaoler", "source": "res://assets/units/chainbound_gaoler_cutout/front/rest.png", "out": "res://assets/art/portraits/chainbound_gaoler.png", "focus": Vector2i(138, 58)},
+	{"key": "bile_bloomer", "source": "res://assets/units/shale_bloomer_cutout/front/rest.png", "out": "res://assets/art/portraits/bile_bloomer.png", "focus": Vector2i(126, 72)},
+	{"key": "chainbound_gaoler", "source": "res://assets/units/chainbound_gaoler_cutout/humanoid_v2/front/rest.png", "out": "res://assets/art/portraits/chainbound_gaoler.png", "focus": Vector2i(138, 58)},
 	{"key": "zekarion", "source": "res://assets/units/zekarion_cutout/front/rest.png", "out": "res://assets/art/portraits/zekarion.png", "focus": Vector2i(76, 116)},
 	{"key": "tharokh", "source": "res://assets/units/tharokh_cutout/front/rest.png", "out": "res://assets/art/portraits/tharokh.png", "focus": Vector2i(76, 128)},
 	{"key": "vyraketh", "source": "res://assets/units/vyraketh_cutout/front/rest.png", "out": "res://assets/art/portraits/vyraketh.png", "focus": Vector2i(72, 126)},
 	{"key": "vaeloryx", "source": "res://assets/units/vaeloryx_cutout/front/rest.png", "out": "res://assets/art/portraits/vaeloryx.png", "focus": Vector2i(80, 120)},
 	{"key": "iskaldra", "source": "res://assets/units/iskaldra_cutout/front/rest.png", "out": "res://assets/art/portraits/iskaldra.png", "focus": Vector2i(72, 120)},
 	{"key": "noctyrax", "source": "res://assets/units/noctyrax_cutout/front/rest.png", "out": "res://assets/art/portraits/noctyrax.png", "focus": Vector2i(88, 96)},
-	{"key": "lightning_wisp", "source": "res://assets/units/lightning_wisp_cutout/front/rest.png", "out": "res://assets/art/portraits/lightning_wisp.png", "focus": Vector2i(118, 128)},
-	{"key": "frostglass_lancer", "source": "res://assets/units/frostglass_lancer_cutout/front/rest.png", "out": "res://assets/art/portraits/frostglass_lancer.png", "focus": Vector2i(116, 60)},
+	{"key": "last_lamplighter", "source": "res://assets/units/last_lamplighter_cutout/humanoid_v2/front/rest.png", "out": "res://assets/art/portraits/guardians/last_lamplighter_portrait.png", "focus": TODO_DESIGN_LAST_LAMPLIGHTER_PORTRAIT_FOCUS},
+	{"key": "lightning_wisp", "source": "res://assets/units/lightning_wisp_cutout/front/rest.png", "out": "res://assets/art/portraits/lightning_wisp.png", "focus": TODO_DESIGN_LIGHTNING_WISP_PORTRAIT_FOCUS},
+	{"key": "frostglass_lancer", "source": "res://assets/units/frostglass_lancer_cutout/humanoid_v2/front/rest.png", "out": "res://assets/art/portraits/frostglass_lancer.png", "focus": Vector2i(116, 60)},
+	{"key": "arc_thrall", "source": "res://assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png", "out": "res://assets/art/portraits/arc_thrall.png", "focus": Vector2i(96, 78)},
 	{"key": "cinder_ooze", "source": "res://assets/units/cinder_ooze_cutout/front/rest.png", "out": "res://assets/art/portraits/cinder_ooze.png", "focus": Vector2i(112, 140)},
 	{"key": "cinder_droplet", "source": "res://assets/units/cinder_droplet_cutout/front/rest.png", "out": "res://assets/art/portraits/cinder_droplet.png", "focus": Vector2i(100, 148)},
 ]
@@ -93,7 +100,8 @@ func _build_portrait(config: Dictionary) -> bool:
 	var canvas: Image = _portrait_image(config)
 	if canvas == null:
 		return false
-	var err: Error = canvas.save_png(str(config.get("out", "")))
+	_ensure_dir(str(config["out"]).get_base_dir())
+	var err: Error = canvas.save_png(str(config["out"]))
 	if err != OK:
 		push_error("Could not save portrait %s" % str(config.get("out", "")))
 	return err == OK

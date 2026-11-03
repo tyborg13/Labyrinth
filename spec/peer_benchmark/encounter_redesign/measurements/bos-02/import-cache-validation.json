@@ -1,0 +1,8 @@
+{
+  "matched_imports": 10628,
+  "cached_resources": 10628,
+  "unavailable_imports": 12478,
+  "stale_imports_removed": 0,
+  "stale_imports": [],
+  "validation": "current import settings and source MD5 equal the cached resource inputs; only ignored cache files were written"
+}

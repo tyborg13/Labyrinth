@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "method": "diffusion",
+  "parameters": {
+    "radius": 3,
+    "palette_k": 6,
+    "palette_min_own_pixels": 40,
+    "outline_tone": [
+      20,
+      16,
+      21
+    ],
+    "seed": 0,
+    "kmeans_max_iterations": 256,
+    "diffusion_max_iterations": 4096,
+    "diffusion_residual_tolerance": 1e-06
+  },
+  "donor_policy": "Own visible paint and listed exact same-material neighbours; when own count <40 and no local neighbour, use the same part's visible paint in the paired view",
+  "palette_policy": "Own visible RGB when >=40 pixels; otherwise local same-material neighbours, then the approved same-part cross-view fallback; seeded weighted RGB k-means",
+  "outline_policy": "Filled pixels on the four-connected boundary of the whole part only; alpha unchanged",
+  "cross_view_fallback": "same_part"
+}

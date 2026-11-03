@@ -1,0 +1,1 @@
+Subject: a quarry cut into living rock inside a cavern, the rock face strangely soft and swollen, closing slowly around picks and hammers left stuck in it, one chisel half swallowed. Warm earthy light. A glint of buried armour shows deep in the seam. Mood: geological, hungry, slow.

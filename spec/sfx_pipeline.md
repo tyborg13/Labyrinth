@@ -399,6 +399,15 @@ cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-03 && /Users/borgerding/.
 cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-03 && /Users/borgerding/.cache/umbra-sfx/venv/bin/python spec/peer_benchmark/staged/sfx/measure_mix.py . output/sfx-03/mix_100ms.json --window 0.1
 ```
 
+pol-12 replaces that limiter rebuild for this cue: `hit.blade.light_01.ogg` is now the
+layered recipe in `spec/peer_benchmark/staged/sfx/recipes_pol12.json`, rendered with
+`design.py` against `output/sfx-lab-index-2026-10-20/features.jsonl` and encoded with
+`tools.sfx_lab.common.encode` (Vorbis q6). Its sidecar is
+`assets/audio/sfx/pol-12-design-provenance.json`. The older row for this path in
+`assets/audio/sfx/sfx-04-provenance.json` no longer matches the shipped bytes, so do
+not rerun the sfx-04 sync rebuild over this path. The -2.131 LU loudness exception of
+2026-10-15 closes with it.
+
 The manifest lists every output's relative path, cue/category/variant, source
 path and source ID, original take range, licence ID, source and output SHA-256,
 loop points, effective trim/pitch/gain/filter/fade parameters, channel decision,

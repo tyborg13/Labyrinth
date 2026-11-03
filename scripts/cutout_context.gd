@@ -15,7 +15,7 @@ static var STATIC_ENEMY_TYPES: Array[String] = _static_enemy_types()
 const FAMILY_KEYS: Dictionary = {
 	"player": "protagonist_motion", "warden": "warden_motion",
 	"crawler": "crawler_motion", "acolyte": "acolyte_motion",
-	"bile_bloomer": "bile_bloomer_motion", "chainbound_gaoler": "gaoler_motion",
+	"bile_bloomer": "bile_bloomer_motion",
 	"cinder_droplet": "cinder_droplet_motion", "cinder_ooze": "cinder_ooze_motion",
 	"frostglass_lancer": "frostglass_motion", "grave_surgeon": "grave_surgeon_motion",
 	"harrier": "harrier_motion", "iskaldra": "iskaldra_motion",

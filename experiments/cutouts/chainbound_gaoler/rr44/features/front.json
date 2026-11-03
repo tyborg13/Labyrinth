@@ -1,0 +1,12 @@
+[
+  {
+    "name": "visor_slit",
+    "piece": "head",
+    "mask": "features/front_visor_slit.png"
+  },
+  {
+    "name": "tower_emblem",
+    "piece": "tabard",
+    "mask": "features/front_tower_emblem.png"
+  }
+]

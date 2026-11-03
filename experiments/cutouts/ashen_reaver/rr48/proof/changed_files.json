@@ -1,0 +1,35 @@
+{
+  "modified_tracked": [
+    ".gitignore",
+    "assets/generated/unit_shadow_cache.res",
+    "scripts/actor_presentation.gd",
+    "scripts/enemy_strike_points.gd",
+    "scripts/guardian_cutout/renderer.gd",
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd",
+    "scripts/maquette_cutout_runtime/presentation.gd",
+    "spec/art_identity/registry.json",
+    "spec/assets/board_pixel_density/outputs.json",
+    "spec/assets/board_pixel_density/registry.json",
+    "tests/fix18/rest_binding_changes.json",
+    "tests/fix18/rest_provenance.py",
+    "tests/headless_test_programs.json",
+    "tests/maquette_cutout/proof_inputs.gd",
+    "tests/rr46/preservation.py",
+    "tests/suites/enemy_strike_trail_suite.gd",
+    "tests/test_program_suite_runner.py",
+    "tests/test_rr43_outline.py",
+    "tests/windowed_test_allowlist.json",
+    "tools/humanoid_cutout/compiler.py",
+    "tools/maquette_motion/gates.py",
+    "tools/python_suite_resources.json"
+  ],
+  "untracked_count": 391,
+  "owned_roots": [
+    "experiments/cutouts/ashen_reaver/rr48",
+    "experiments/cutouts/ashen_reaver/underlay_requests",
+    "assets/units/ashen_reaver_cutout",
+    "tests/rr48"
+  ],
+  "protected_motion_sha256": "bd73148007e974725c5136a2fb88fa605447b57f72ec27e4e2ed278f2823adfd"
+}

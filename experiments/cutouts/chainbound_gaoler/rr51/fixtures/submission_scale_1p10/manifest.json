@@ -1,0 +1,100 @@
+{
+  "unit": "rr-51",
+  "oracle": "res://experiments/cutouts/chainbound_gaoler/rr49/fixtures/submission_2bd5ea39a/legacy_production.gd",
+  "oracle_sha256": "761896e053ee590d12042bcf997c15359ca306e07955565a5e7441fb45f9dd9c",
+  "oracle_revision": "2bd5ea39a0a42eff5f768016406d02ac3510fc54",
+  "poses": 8364,
+  "polygon_buffers": 304685,
+  "before": {
+    "fixture": "experiments/cutouts/chainbound_gaoler/rr49/fixtures/submission_2bd5ea39a",
+    "manifest_sha256": "de38d3fb2145f0a0b81d249f202bb25305d6218c96a5fe08818d250d932ce7e7",
+    "art_scale": 0.9,
+    "configs": [
+      {},
+      {
+        "origin": [
+          0,
+          0
+        ],
+        "scale": 0.54316328460095,
+        "step": 83.5248718261719,
+        "mirrored": false
+      },
+      {
+        "origin": [
+          192,
+          192
+        ],
+        "scale": 0.54316328460095,
+        "step": 83.5248718261719,
+        "mirrored": false
+      },
+      {
+        "origin": [
+          192,
+          192
+        ],
+        "scale": 0.54316328460095,
+        "step": 0.0,
+        "mirrored": true
+      },
+      {
+        "origin": [
+          192,
+          192
+        ],
+        "scale": 0.54316328460095,
+        "step": 83.5248718261719,
+        "mirrored": true
+      }
+    ]
+  },
+  "after": {
+    "art_scale": 1.1,
+    "configs": [
+      {},
+      {
+        "origin": [
+          0,
+          0
+        ],
+        "scale": 0.648385620117187,
+        "step": 81.5771789550781,
+        "mirrored": false
+      },
+      {
+        "origin": [
+          192,
+          192
+        ],
+        "scale": 0.648385620117187,
+        "step": 81.5771789550781,
+        "mirrored": false
+      },
+      {
+        "origin": [
+          192,
+          192
+        ],
+        "scale": 0.648385620117187,
+        "step": 0.0,
+        "mirrored": true
+      },
+      {
+        "origin": [
+          192,
+          192
+        ],
+        "scale": 0.648385620117187,
+        "step": 81.5771789550781,
+        "mirrored": true
+      }
+    ],
+    "geometry": "tests/gait01/board_geometry.gd at 1920x1080, 100% UI scale, seed 91210, tile (2, 4)"
+  },
+  "files": {
+    ".gdignore": "d76d4fc878635c4a58cd8f774002745739c3dd14c11f1c7d6d622254540af4a1",
+    "buffers.json.gz": "63c71d616889907f4cc9decaa564c28784aed97bd7396af347fc3ef3f0c41df4",
+    "cases.json": "e832a182e6b27a8f972837942f4f1345f509e8f8b0565369e895971f0f497021"
+  }
+}

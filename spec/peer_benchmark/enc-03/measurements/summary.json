@@ -1,0 +1,358 @@
+{
+  "revision": 7,
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "chosen_defaults": {
+    "workers": 6,
+    "timeout_seconds": 7200,
+    "cohort": "all applicable rooms in frozen 200-record baseline groups"
+  },
+  "groups": [
+    {
+      "tier": 1,
+      "cohort": "warband",
+      "phase": "before",
+      "n": 34,
+      "win_rate": 0.7941176470588235,
+      "hp_lost": {
+        "n": 34,
+        "median": 14.0,
+        "p10": 5,
+        "p90": 26
+      },
+      "turns": {
+        "n": 34,
+        "median": 6.5,
+        "p10": 5,
+        "p90": 11
+      },
+      "action_mix": {
+        "lob": 104,
+        "lob_mark": 63,
+        "lob_land": 41,
+        "brace": 133,
+        "scatter": 1,
+        "retreat": 135
+      },
+      "turn_caps": 1
+    },
+    {
+      "tier": 1,
+      "cohort": "warband",
+      "phase": "after",
+      "n": 34,
+      "win_rate": 0.7941176470588235,
+      "hp_lost": {
+        "n": 34,
+        "median": 15.0,
+        "p10": 5,
+        "p90": 24
+      },
+      "turns": {
+        "n": 34,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "action_mix": {
+        "lob": 117,
+        "lob_mark": 70,
+        "lob_land": 47,
+        "brace": 3,
+        "scatter": 1,
+        "retreat": 55
+      },
+      "turn_caps": 0
+    },
+    {
+      "tier": 1,
+      "cohort": "standard",
+      "phase": "before",
+      "n": 4,
+      "win_rate": 0.5,
+      "hp_lost": {
+        "n": 4,
+        "median": 24.5,
+        "p10": 7,
+        "p90": 26
+      },
+      "turns": {
+        "n": 4,
+        "median": 6.0,
+        "p10": 5,
+        "p90": 11
+      },
+      "action_mix": {
+        "lob": 7,
+        "lob_mark": 5,
+        "lob_land": 2,
+        "brace": 9,
+        "scatter": 1,
+        "retreat": 3
+      },
+      "turn_caps": 0
+    },
+    {
+      "tier": 1,
+      "cohort": "standard",
+      "phase": "after",
+      "n": 4,
+      "win_rate": 0.5,
+      "hp_lost": {
+        "n": 4,
+        "median": 24.5,
+        "p10": 7,
+        "p90": 26
+      },
+      "turns": {
+        "n": 4,
+        "median": 6.0,
+        "p10": 5,
+        "p90": 9
+      },
+      "action_mix": {
+        "lob": 14,
+        "lob_mark": 6,
+        "lob_land": 8,
+        "brace": 0,
+        "scatter": 1,
+        "retreat": 0
+      },
+      "turn_caps": 0
+    },
+    {
+      "tier": 2,
+      "cohort": "warband",
+      "phase": "before",
+      "n": 29,
+      "win_rate": 0.6206896551724138,
+      "hp_lost": {
+        "n": 29,
+        "median": 14,
+        "p10": 2,
+        "p90": 26
+      },
+      "turns": {
+        "n": 29,
+        "median": 8,
+        "p10": 2,
+        "p90": 14
+      },
+      "action_mix": {
+        "lob": 99,
+        "lob_mark": 62,
+        "lob_land": 37,
+        "brace": 127,
+        "scatter": 0,
+        "retreat": 134
+      },
+      "turn_caps": 0
+    },
+    {
+      "tier": 2,
+      "cohort": "warband",
+      "phase": "after",
+      "n": 29,
+      "win_rate": 0.6206896551724138,
+      "hp_lost": {
+        "n": 29,
+        "median": 18,
+        "p10": 2,
+        "p90": 26
+      },
+      "turns": {
+        "n": 29,
+        "median": 6,
+        "p10": 2,
+        "p90": 8
+      },
+      "action_mix": {
+        "lob": 126,
+        "lob_mark": 72,
+        "lob_land": 54,
+        "brace": 1,
+        "scatter": 0,
+        "retreat": 55
+      },
+      "turn_caps": 0
+    },
+    {
+      "tier": 2,
+      "cohort": "standard",
+      "phase": "before",
+      "n": 5,
+      "win_rate": 0.4,
+      "hp_lost": {
+        "n": 5,
+        "median": 24,
+        "p10": 8,
+        "p90": 26
+      },
+      "turns": {
+        "n": 5,
+        "median": 9,
+        "p10": 4,
+        "p90": 11
+      },
+      "action_mix": {
+        "lob": 18,
+        "lob_mark": 10,
+        "lob_land": 8,
+        "brace": 13,
+        "scatter": 0,
+        "retreat": 7
+      },
+      "turn_caps": 0
+    },
+    {
+      "tier": 2,
+      "cohort": "standard",
+      "phase": "after",
+      "n": 5,
+      "win_rate": 0.4,
+      "hp_lost": {
+        "n": 5,
+        "median": 24,
+        "p10": 12,
+        "p90": 26
+      },
+      "turns": {
+        "n": 5,
+        "median": 10,
+        "p10": 4,
+        "p90": 12
+      },
+      "action_mix": {
+        "lob": 34,
+        "lob_mark": 14,
+        "lob_land": 20,
+        "brace": 0,
+        "scatter": 0,
+        "retreat": 0
+      },
+      "turn_caps": 0
+    },
+    {
+      "tier": 3,
+      "cohort": "warband",
+      "phase": "before",
+      "n": 33,
+      "win_rate": 0.45454545454545453,
+      "hp_lost": {
+        "n": 33,
+        "median": 24,
+        "p10": 8,
+        "p90": 26
+      },
+      "turns": {
+        "n": 33,
+        "median": 4,
+        "p10": 2,
+        "p90": 13
+      },
+      "action_mix": {
+        "lob": 75,
+        "lob_mark": 46,
+        "lob_land": 29,
+        "brace": 137,
+        "scatter": 0,
+        "retreat": 144
+      },
+      "turn_caps": 0
+    },
+    {
+      "tier": 3,
+      "cohort": "warband",
+      "phase": "after",
+      "n": 33,
+      "win_rate": 0.3333333333333333,
+      "hp_lost": {
+        "n": 33,
+        "median": 24,
+        "p10": 9,
+        "p90": 26
+      },
+      "turns": {
+        "n": 33,
+        "median": 3,
+        "p10": 2,
+        "p90": 11
+      },
+      "action_mix": {
+        "lob": 156,
+        "lob_mark": 76,
+        "lob_land": 80,
+        "brace": 1,
+        "scatter": 0,
+        "retreat": 36
+      },
+      "turn_caps": 1
+    },
+    {
+      "tier": 3,
+      "cohort": "standard",
+      "phase": "before",
+      "n": 8,
+      "win_rate": 0.25,
+      "hp_lost": {
+        "n": 8,
+        "median": 25.0,
+        "p10": 20,
+        "p90": 26
+      },
+      "turns": {
+        "n": 8,
+        "median": 5.5,
+        "p10": 3,
+        "p90": 12
+      },
+      "action_mix": {
+        "lob": 27,
+        "lob_mark": 16,
+        "lob_land": 11,
+        "brace": 24,
+        "scatter": 0,
+        "retreat": 10
+      },
+      "turn_caps": 0
+    },
+    {
+      "tier": 3,
+      "cohort": "standard",
+      "phase": "after",
+      "n": 8,
+      "win_rate": 0.25,
+      "hp_lost": {
+        "n": 8,
+        "median": 24.0,
+        "p10": 10,
+        "p90": 26
+      },
+      "turns": {
+        "n": 8,
+        "median": 4.5,
+        "p10": 3,
+        "p90": 30
+      },
+      "action_mix": {
+        "lob": 69,
+        "lob_mark": 24,
+        "lob_land": 45,
+        "brace": 2,
+        "scatter": 1,
+        "retreat": 0
+      },
+      "turn_caps": 1
+    }
+  ],
+  "historical_baseline_check": {
+    "rooms": 113,
+    "different_results": 40,
+    "fields": [
+      "won",
+      "hp_lost",
+      "turns",
+      "decisions",
+      "intent_previews"
+    ]
+  }
+}

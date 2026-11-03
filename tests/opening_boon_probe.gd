@@ -3,6 +3,8 @@ extends "res://tests/pre_battle_fixture.gd"
 const Boons = preload("res://scripts/opening_boon_rules.gd")
 const Fixture = preload("res://tests/helpers/opening_boon_fixture.gd")
 const Proof = preload("res://tests/helpers/opening_boon_proof.gd")
+const HeirloomFixture = preload("res://tests/helpers/heirloom_fixture.gd")
+const HeirloomChecks = preload("res://tests/helpers/heirloom_checks.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
 const OUTPUT_ROOT: String = "user://opening_boon_probe/1920x1080"
 var _verify_only: bool = false
@@ -11,6 +13,7 @@ var _purge_pair_captured: bool = false
 var _secondary_geometry: Dictionary = {}
 var _maximum_relic_rule_height: int = 0
 var _relic_rules_proof: Dictionary = {}
+var _heirloom_proof: Dictionary = {}
 
 func _initialize() -> void:
 	_setup()
@@ -68,7 +71,7 @@ func _run() -> void:
 			await _settle()
 	await _additional_offers(scene)
 	await _heirloom(scene)
-	var report: Dictionary = {"resolution": "1920x1080", "ui_scale": 1.0, "geometry_tolerance_px": 1, "captures": _captures, "headless_semantics_only": _verify_only, "passed": not _failed, "secondary_geometry": _secondary_geometry, "maximum_relic_rule_height": _maximum_relic_rule_height, "relic_rules": _relic_rules_proof}
+	var report: Dictionary = {"resolution": "1920x1080", "ui_scale": 1.0, "geometry_tolerance_px": 1, "captures": _captures, "headless_semantics_only": _verify_only, "passed": not _failed, "secondary_geometry": _secondary_geometry, "maximum_relic_rule_height": _maximum_relic_rule_height, "relic_rules": _relic_rules_proof, "heirloom": _heirloom_proof}
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_ROOT))
 	var file := FileAccess.open(OUTPUT_ROOT + "/semantics.json", FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "\t"))
@@ -140,25 +143,64 @@ func _capture_purge_pair(modal: Control) -> void:
 	_purge_pair_captured = true
 
 func _heirloom(scene: Node) -> void:
-	var terminal: Dictionary = Fixture.state(true)
-	terminal["mode"] = "defeat"
-	terminal["game_over"] = true
-	terminal["player_hp"] = 0
-	ProgressionStore.save_data(terminal["progression"])
-	scene.call("_load_run_state", terminal)
-	scene.call("_refresh_ui")
-	scene.call("_complete_current_dialogue_line")
-	await _settle()
-	_expect(not bool(scene.get("_run_end_recap").visible), "Heirloom prompt is captured before the summary")
-	var dialogue: Control = scene.get("_dialogue_dialog")
-	_expect(Rect2(Vector2.ZERO, Vector2(PROBE_VIEWPORT)).encloses(dialogue.get_global_rect()), "Heirloom dialogue and all equipped choices fit the viewport")
-	for button: Control in scene.get("_dialogue_choice_bar").get_children():
-		_expect(dialogue.get_global_rect().encloses(button.get_global_rect()), "Each equipped piece and Leave nothing fits the prompt")
-	await _save("heirloom_prompt.png")
-	var settings: Dictionary = scene.get("_settings")
+	await _pointer(Vector2(24.0, 800.0))
+	for count: int in [4, 5, 1]:
+		var view: Control = await HeirloomChecks.open(self, scene, count)
+		HeirloomChecks.geometry(view, count, _expect)
+		_heirloom_proof[str(count)] = {"row": [view.row.position.x, view.row.position.y, view.row.size.x, view.row.size.y], "card_count": view.cards.size(), "first_focused": _viewport.gui_get_focus_owner() == view.cards[0], "medallion": view.cards[0].medallion.size.x, "art": view.cards[0].art.size.x}
+		_expect(_viewport.gui_get_focus_owner() == view.cards[0], "Heirloom proof starts with the first card focused")
+		_expect(not scene.get("_dialogue_footer").visible and scene.get("_dialogue_choice_bar").get_child_count() == 0, "Heirloom dialogue keeps portrait and exact line, without options or footer")
+		await _save("heirloom_choice_%d.png" % count)
+		if count == 4: await _save("heirloom_prompt.png")
+	var view: Control = await HeirloomChecks.open(self, scene, 4)
+	view.call("_choose", 0)
+	view.ceremony.fixed_clock = true
+	view.ceremony.seek(HeirloomFixture.BURN_CLOCK_SECONDS)
+	_expect(view.ceremony.burns.size() == 3, "Every non-chosen card uses the burn material")
+	for burn: Control in view.ceremony.burns:
+		_expect(is_equal_approx(float(burn.burn_material.get_shader_parameter("progress")), 0.36), "Burn proof holds the ease-in quad dissolve at exactly 0.30s")
+	_heirloom_proof["burn"] = {"seconds": view.ceremony.elapsed, "cards": view.ceremony.burns.size(), "progress": view.ceremony.burns[0].burn_material.get_shader_parameter("progress"), "embers_per_card": view.ceremony.burns[0].sparks.size()}
+	await _save("heirloom_ceremony_burn.png")
+	view.ceremony.seek(HeirloomFixture.MID_CLOCK_SECONDS)
+	_expect(view.ceremony.elapsed == 0.70 and view.ceremony.get_node("HeirloomFlyingArt").visible, "Ceremony proof is held at exactly 0.70 seconds")
+	_heirloom_proof["ceremony"] = {"seconds": view.ceremony.elapsed, "flight_visible": view.ceremony.get_node("HeirloomFlyingArt").visible, "flight_scale": view.ceremony.get_node("HeirloomFlyingArt").scale.x}
+	await _save("heirloom_ceremony_mid.png")
+	var settings: Dictionary = Settings.default_settings()
 	settings["reduced_motion"] = true
+	Settings.apply_settings(settings, null, false)
 	scene.set("_settings", settings)
+	view = await HeirloomChecks.open(self, scene, 4)
 	await _save("heirloom_prompt_reduced_motion.png")
+	view.call("_choose", 0)
+	view.ceremony.fixed_clock = true
+	view.ceremony.seek(HeirloomFixture.CROSSFADE_PROOF_SECONDS)
+	_expect(view.ceremony.reduced_motion and view.ceremony.get_node_or_null("HeirloomFlyingArt") == null, "Reduced-motion proof uses only the crossfade")
+	_heirloom_proof["reduced_motion"] = {"seconds": view.ceremony.elapsed, "reduced": view.ceremony.reduced_motion, "row_alpha": view.row.modulate.a, "duration": view.ceremony.duration()}
+	await _save("heirloom_reduced_motion.png")
+	settings["reduced_motion"] = false
+	Settings.apply_settings(settings, null, false)
+	scene.set("_settings", settings)
+	view = await HeirloomChecks.open(self, scene, 0)
+	_expect(view == null and scene.get("_run_end_recap").visible and not scene.get("_dialogue_active"), "Starter-only proof shows the real recap without dialogue")
+	_expect(scene.get("_run_state")[Boons.HEIRLOOM_END_KEY] == {"item": "", "done": true}, "Starter-only proof records exactly Leave nothing")
+	_heirloom_proof["starter_only"] = {"recap_visible": scene.get("_run_end_recap").visible, "dialogue_active": scene.get("_dialogue_active"), "heirloom_end": scene.get("_run_state")[Boons.HEIRLOOM_END_KEY]}
+	await _save("heirloom_starter_only_skipped.png")
+	_heirloom_contact_sheet()
+
+func _heirloom_contact_sheet() -> void:
+	if _verify_only: return
+	# Proof-only 3x3 contact sheet; all source captures remain native.
+	var sheet := Image.create(1920, 1080, false, Image.FORMAT_RGBA8)
+	sheet.fill(Palette.INK_0)
+	var names := PackedStringArray(["heirloom_choice_4", "heirloom_choice_5", "heirloom_choice_1", "heirloom_ceremony_burn", "heirloom_ceremony_mid", "heirloom_reduced_motion", "heirloom_starter_only_skipped"])
+	for index: int in range(names.size()):
+		var frame: Image = Image.load_from_file(OUTPUT_ROOT + "/" + names[index] + ".png")
+		frame.convert(Image.FORMAT_RGBA8)
+		frame.resize(640, 360, Image.INTERPOLATE_LANCZOS)
+		sheet.blit_rect(frame, Rect2i(0, 0, 640, 360), Vector2i((index % 3) * 640, (index / 3) * 360))
+	var path: String = OUTPUT_ROOT + "/heirloom_contact_sheet.png"
+	_expect(sheet.save_png(path) == OK, "Heirloom contact sheet saves")
+	print("HEIRLOOM CONTACT SHEET: " + ProjectSettings.globalize_path(path))
 
 func _save(name: String) -> void:
 	if _verify_only: return

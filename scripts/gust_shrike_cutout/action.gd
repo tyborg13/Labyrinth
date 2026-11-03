@@ -7,8 +7,8 @@ const Data = preload("motion_data.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
 
 static func action_for_effect(effect: Dictionary, actor: Dictionary) -> String:
-	if str(actor.get("type", "")) != "gust_shrike" or bool(effect.get("cancelled", false)): return ""
-	if str(effect.get("action_type", "")) == "dive_line": return "dive"
+	if str(actor.get("type", "")) != "gust_shrike" or bool(effect.get("cancelled", false)) or bool(effect.get("interrupted", false)): return ""
+	if str(effect.get("committed_shape", "")) == "swept_path": return "dive"
 	if str(effect.get("kind", "")) == "melee": return "talon_rake"
 	if str(effect.get("kind", "")) == "block": return "hover"
 	return ""
@@ -28,10 +28,14 @@ static func motion_for_effect(effect: Dictionary, actor: Dictionary, progress: f
 	if action.is_empty(): return {}
 	var sampled: float = progress
 	if action != "hover":
-		var boundary: float = 1.0 if action == "dive" else effect_contact_boundary(effect, frame_count)
+		var boundary: float = effect_contact_boundary(effect, frame_count)
 		sampled = contact_phase(progress, boundary, float(Data.CONTACT_PHASES[action]))
-	return {"clip": action, "phase": sampled,
-		"direction": (effect.get("to", actor.get("pos", Vector2i.ZERO)) as Vector2i) - (effect.get("from", actor.get("pos", Vector2i.ZERO)) as Vector2i)}
+	# Shared committed steps carry the travel direction separately from `to`,
+	# which is just the first affected tile in an area attack.
+	var direction: Vector2i = effect.get("travel_direction", Vector2i.ZERO)
+	if direction == Vector2i.ZERO:
+		direction = (effect.get("to", actor.get("pos", Vector2i.ZERO)) as Vector2i) - (effect.get("from", actor.get("pos", Vector2i.ZERO)) as Vector2i)
+	return {"clip": action, "phase": sampled, "direction": direction}
 
 static func decorate(state: Dictionary, presentation: Dictionary) -> void:
 	if not Renderer.available(): return

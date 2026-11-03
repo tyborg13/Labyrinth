@@ -378,6 +378,7 @@ func _drive_support() -> void:
 	SupportCases.run(self)
 	preload("res://tests/suites/magic_deck_sfx_sync.gd").run(self)
 	preload("res://tests/suites/empower_sfx_sync_cases.gd").run(self)
+	preload("res://tests/sfx_sync_cutout_contacts.gd").run(self)
 
 func _finish(before: Dictionary) -> void:
 	var occurrences: Dictionary = {}
@@ -454,6 +455,11 @@ func _anchor(cue: String, before: Dictionary, event: Dictionary = {}, occurrence
 		if frame.has("mark"):
 			if cue.begins_with("empower.") or cue.begins_with("card.") or cue.begins_with("map.") or cue.begins_with("event.") or cue.begins_with("shop.") or cue.begins_with("ambience.") or cue in ["defiance", "omen.bane", "omen.blessing"]: return frame
 			continue
+		if cue == "push.slide" and event.get("stack", []).any(func(entry: Dictionary) -> bool: return entry["source"] == "res://scripts/maquette_cutout_runtime/contact_actions.gd"):
+			# A contact cue anchors to its effect submission, after the wind-up
+			# and intent focus. Legacy push cues retain their action-start anchor.
+			if bool(shown.get("maquette_explicit_clip", false)) and shown.has("effect"): return frame
+			continue
 		if cue == "move.blink" and scenario == "player/swap" and state.get("player", {}).get("pos") != before["player"]["pos"]: return frame
 		if cue == "move.blink" and str(shown.get("effect", {}).get("kind", "")) == "blink": return frame
 		if scenario == "enemy/eclipse" and cue == "spell.shadow" and shown.has("effect"): return frame
@@ -465,7 +471,8 @@ func _anchor(cue: String, before: Dictionary, event: Dictionary = {}, occurrence
 				var old_units: Dictionary = router._unit_snapshot(before)
 				var units: Dictionary = router._unit_snapshot(state)
 				if key.is_empty() or units.get(key, {}) != old_units.get(key, {}): return frame
-		elif cue.begins_with("status.") or cue in ["block.gain", "stoneskin.gain"]:
+		elif cue.begins_with("status.") or cue in ["block.gain", "stoneskin.gain"] or (cue == "surface.fire" and scenario == "status_tick/Fire"):
+			# A Fire tick sounds the burning ground on the loss itself.
 			if state != before: return frame
 		elif cue in ["cast.arcane", "shot.bow", "shot.crossbow"]:
 			if not shown.get("effect", {}).is_empty():

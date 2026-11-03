@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "authority": "Protected director paint prompts; current provided bytes, including staged director front revision. Never rewritten by proof tooling.",
+  "files": {
+    "mq21_prompt_front.md": "d208a7f0e9a14452838224bf413f48e3f9e7553aecbf4fd84b9335d57596eeb9",
+    "mq21_prompt_rear.md": "c078f728c9aae205da63c4b318219b78b97f56875b5ffe8bdfd66289e8642f81"
+  },
+  "git_blob": {
+    "mq21_prompt_front.md": "9951a703bf62233b5799f3144afb9347d88769f4",
+    "mq21_prompt_rear.md": "680be705071288957b89c083b8d58694ef532d04"
+  }
+}

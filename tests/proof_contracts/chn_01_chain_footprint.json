@@ -1,0 +1,23 @@
+{
+  "task_id": "chn-01",
+  "risk_tier": "standard",
+  "acceptance_criteria": [
+    "Chain reaches a surfaced Grub on every side of Tharokh and reaches Tharokh as a secondary target",
+    "Production arc endpoints and contact health match the resolved footprint route at native1080 UI100",
+    "Normal and reduced-motion production Chain playback remain supported"
+  ],
+  "inspection_expectation": "Inspect head and target arcs on all four footprint sides at 1920x1080, 100% UI scale, using existing production assets and animation timing.",
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "footprint_head_0_contact.png", "min_count": 1, "width": 1920, "height": 1080},
+    {"pattern": "footprint_head_1_contact.png", "min_count": 1, "width": 1920, "height": 1080},
+    {"pattern": "footprint_head_2_contact.png", "min_count": 1, "width": 1920, "height": 1080},
+    {"pattern": "footprint_head_3_contact.png", "min_count": 1, "width": 1920, "height": 1080},
+    {"pattern": "footprint_target_0_contact.png", "min_count": 1, "width": 1920, "height": 1080},
+    {"pattern": "footprint_target_1_contact.png", "min_count": 1, "width": 1920, "height": 1080},
+    {"pattern": "footprint_target_2_contact.png", "min_count": 1, "width": 1920, "height": 1080},
+    {"pattern": "footprint_target_3_contact.png", "min_count": 1, "width": 1920, "height": 1080},
+    {"pattern": "footprint_*_travel.png", "min_count": 8, "width": 1920, "height": 1080},
+    {"pattern": "footprint_head_1_reduced_contact.png", "min_count": 1, "width": 1920, "height": 1080}
+  ]
+}

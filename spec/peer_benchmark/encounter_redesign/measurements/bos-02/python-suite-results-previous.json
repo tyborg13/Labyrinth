@@ -1,0 +1,445 @@
+{
+  "command": "python3 tools/run_python_suite.py --shards 4 --output-dir /private/tmp/bos-02-python-full-final",
+  "exit": 1,
+  "aggregate": "not completed",
+  "cause": "PermissionError [Errno 1] Operation not permitted at tools/godot_task_runner.py:129 os.killpg(process.pid, signal.SIGTERM), during shard process cleanup",
+  "completed_shards": [
+    {
+      "shard": 3,
+      "tests": 573,
+      "duration": 1398.567921417,
+      "failures": [
+        [
+          "test_authored_origin_and_center_correction_mutations_fail (test_fix18_draw_origin.DrawOriginTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_fix18_draw_origin.py\", line 119, in test_authored_origin_and_center_correction_mutations_fail\n    self.assertIn(failure, result.stdout)\nAssertionError: 'FIX18 TRAVEL BODY CORRECTION move/' not found in 'Running task-local command:\\n  task: fix-18\\n  run: fix-18-1793165694326270000-30800\\n  HOME: /private/tmp/labyrinth-godot-home/fix-18-1793165694326270000-30800\\n  Steam: disabled\\n  command: godot --log-file /private/tmp/labyrinth-godot-home/fix-18-1793165694326270000-30800/godot.log --headless --path /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/fix18-travel-mutations-6dth58hf/project --script tests/fix18/draw_origin_test.gd -- --validate-only --label four-rigs --enemy-types \\'hoarfrost_seer,glacial_mirror,chainbound_gaoler,frostglass_lancer\\' --biome iskaldra --seed 7262026\\n  timeout: 300s\\n  stream: enabled\\nGodot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org\\n\\nERROR: Condition \"ret != noErr\" is true. Returning: \"\"\\n   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)\\nREAL_FIGHT_CAPTURE_MANIFEST /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/fix18-travel-mutations-6dth58hf/disabled_center_correction/four-rigs.json\\nFIX18 DRAW ORIGIN: FAIL (0 actor checks; 1 failures)\\nERROR: Timed out in the production Continue transition\\n   at: push_error (core/variant/variant_utility.cpp:1024)\\n   GDScript backtrace (most recent call first):\\n       [0] _capture_finish (res://tests/fix18/real_fight_capture_probe.gd:606)\\n       [1] _capture_finish (res://tests/fix18/draw_origin_test.gd:48)\\n       [2] _capture_run (res://tests/fix18/real_fight_capture_probe.gd:118)\\nREAL FIGHT CAPTURE VALIDATION: FAIL\\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\\n     at: cleanup (core/object/object.cpp:2641)\\nERROR: 8 resources still in use at exit (run with --verbose for details).\\n   at: clear (core/io/resource.cpp:810)\\nERROR: Pages in use exist at exit in PagedAllocator: N7Variant5Pools11BucketSmallE\\n   at: ~PagedAllocator (./core/templates/paged_allocator.h:169)\\n'\n"
+        ],
+        [
+          "test_continue_resize_move_and_layout (test_fix18_draw_origin.DrawOriginTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_fix18_draw_origin.py\", line 130, in test_continue_resize_move_and_layout\n    self.assertEqual(result.returncode, 0, result.stdout)\nAssertionError: 1 != 0 : Running task-local command:\n  task: fix-18\n  run: fix-18-1793165731288405000-30874\n  HOME: /private/tmp/labyrinth-godot-home/fix-18-1793165731288405000-30874\n  Steam: disabled\n  command: godot --log-file /private/tmp/labyrinth-godot-home/fix-18-1793165731288405000-30874/godot.log --headless --path /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/fix18-current-z420u0lh/project --script tests/fix18/draw_origin_test.gd -- --validate-only --label four-rigs --enemy-types 'hoarfrost_seer,glacial_mirror,chainbound_gaoler,frostglass_lancer' --biome iskaldra --seed 7262026\n  timeout: 300s\n  stream: enabled\nGodot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org\n\nERROR: Condition \"ret != noErr\" is true. Returning: \"\"\n   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)\nREAL_FIGHT_CAPTURE_MANIFEST /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/fix18-current-z420u0lh/evidence/four-rigs.json\nERROR: Timed out in the production Continue transition\n   at: push_error (core/variant/variant_utility.cpp:1024)\n   GDScript backtrace (most recent call first):\n       [0] _capture_finish (res://tests/fix18/real_fight_capture_probe.gd:606)\n       [1] _capture_finish (res://tests/fix18/draw_origin_test.gd:48)\nFIX18 DRAW ORIGIN: FAIL (0 actor checks; 1 failures)\nREAL FIGHT CAPTURE VALIDATION: FAIL\n       [2] _capture_run (res://tests/fix18/real_fight_capture_probe.gd:118)\nWARNING: 1 RID of type \"CanvasItem\" was leaked.\n     at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2690)\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\nERROR: 10 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:810)\nERROR: Pages in use exist at exit in PagedAllocator: N7Variant5Pools11BucketSmallE\n   at: ~PagedAllocator (./core/templates/paged_allocator.h:169)\n\n"
+        ],
+        [
+          "test_hash_bound_stale_source_fails_for_every_rig (test_fix18_draw_origin.DrawOriginTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_fix18_draw_origin.py\", line 155, in test_hash_bound_stale_source_fails_for_every_rig\n    self.assertIn('FIX18 FLOOR CONTAINMENT continue: ' + identity, result.stdout)\nAssertionError: 'FIX18 FLOOR CONTAINMENT continue: hoarfrost_seer' not found in 'Running task-local command:\\n  task: fix-18\\n  run: fix-18-1793165769116728000-30913\\n  HOME: /private/tmp/labyrinth-godot-home/fix-18-1793165769116728000-30913\\n  Steam: disabled\\n  command: godot --log-file /private/tmp/labyrinth-godot-home/fix-18-1793165769116728000-30913/godot.log --headless --path /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/fix18-stale-yskfqlj5/project --script tests/fix18/draw_origin_test.gd -- --validate-only --label four-rigs --enemy-types \\'hoarfrost_seer,glacial_mirror,chainbound_gaoler,frostglass_lancer\\' --biome iskaldra --seed 7262026\\n  timeout: 300s\\n  stream: enabled\\nGodot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org\\n\\nERROR: Condition \"ret != noErr\" is true. Returning: \"\"\\n   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)\\nREAL_FIGHT_CAPTURE_MANIFEST /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/fix18-stale-yskfqlj5/evidence/four-rigs.json\\nFIX18 DRAW ORIGIN: FAIL (0 actor checks; 1 failures)\\nERROR: Timed out in the production Continue transition\\n   at: push_error (core/variant/variant_utility.cpp:1024)\\n   GDScript backtrace (most recent call first):\\n       [0] _capture_finish (res://tests/fix18/real_fight_capture_probe.gd:606)\\n       [1] _capture_finish (res://tests/fix18/draw_origin_test.gd:48)\\n       [2] _capture_run (res://tests/fix18/real_fight_capture_probe.gd:118)\\nREAL FIGHT CAPTURE VALIDATION: FAIL\\nWARNING: 1 RID of type \"CanvasItem\" was leaked.\\n     at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2690)\\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\\n     at: cleanup (core/object/object.cpp:2641)\\nERROR: 10 resources still in use at exit (run with --verbose for details).\\n   at: clear (core/io/resource.cpp:810)\\nERROR: Pages in use exist at exit in PagedAllocator: N7Variant5Pools11BucketSmallE\\n   at: ~PagedAllocator (./core/templates/paged_allocator.h:169)\\n'\n"
+        ],
+        [
+          "test_glossary_matches_approved_copy_and_budget (text_budget_test.TextBudgetTest) (entry='summon_minions')",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/text_budget_test.py\", line 83, in test_glossary_matches_approved_copy_and_budget\n    self.assertEqual(actual[\"definition\"], short_copy.get(key, source[\"definition\"]))\nAssertionError: 'Call[28 chars]ight. When an enemy summons, you gain +1 Card [19 chars]urn.' != 'Call[28 chars]ight.'\n- Calls the shown enemy into the fight. When an enemy summons, you gain +1 Card Play on your next turn.\n+ Calls the shown enemy into the fight.\n\n"
+        ]
+      ],
+      "errors": [
+        [
+          "test_fresh_regeneration_and_all_foreign_bytes_are_preserved (test_mq18_maquette.CuratedDeliveryTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_mq18_maquette.py\", line 248, in test_fresh_regeneration_and_all_foreign_bytes_are_preserved\n    validate_regeneration(self.spec,self.delivery)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/spec/art_identity/maquettes/last_lamplighter/regeneration_validation.py\", line 41, in validate_regeneration\n    raise ValueError('Regeneration input inventory is incomplete or contains unexpected paths')\nValueError: Regeneration input inventory is incomplete or contains unexpected paths\n"
+        ],
+        [
+          "test_all_four_comparisons_are_required (test_mq18_maquette.RegenerationVerificationTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_mq18_maquette.py\", line 269, in setUp\n    self.validate(self.spec,self.delivery,self.source)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/spec/art_identity/maquettes/last_lamplighter/regeneration_validation.py\", line 41, in validate_regeneration\n    raise ValueError('Regeneration input inventory is incomplete or contains unexpected paths')\nValueError: Regeneration input inventory is incomplete or contains unexpected paths\n"
+        ],
+        [
+          "test_comparison_hashes_are_bound_to_delivered_images (test_mq18_maquette.RegenerationVerificationTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_mq18_maquette.py\", line 269, in setUp\n    self.validate(self.spec,self.delivery,self.source)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/spec/art_identity/maquettes/last_lamplighter/regeneration_validation.py\", line 41, in validate_regeneration\n    raise ValueError('Regeneration input inventory is incomplete or contains unexpected paths')\nValueError: Regeneration input inventory is incomplete or contains unexpected paths\n"
+        ],
+        [
+          "test_failed_front_clay_comparison_is_rejected (test_mq18_maquette.RegenerationVerificationTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_mq18_maquette.py\", line 269, in setUp\n    self.validate(self.spec,self.delivery,self.source)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/spec/art_identity/maquettes/last_lamplighter/regeneration_validation.py\", line 41, in validate_regeneration\n    raise ValueError('Regeneration input inventory is incomplete or contains unexpected paths')\nValueError: Regeneration input inventory is incomplete or contains unexpected paths\n"
+        ],
+        [
+          "test_invalid_input_inventory_digest_is_rejected (test_mq18_maquette.RegenerationVerificationTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_mq18_maquette.py\", line 269, in setUp\n    self.validate(self.spec,self.delivery,self.source)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/spec/art_identity/maquettes/last_lamplighter/regeneration_validation.py\", line 41, in validate_regeneration\n    raise ValueError('Regeneration input inventory is incomplete or contains unexpected paths')\nValueError: Regeneration input inventory is incomplete or contains unexpected paths\n"
+        ],
+        [
+          "test_missing_inventory_entry_cannot_hide_stale_sources (test_mq18_maquette.RegenerationVerificationTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_mq18_maquette.py\", line 269, in setUp\n    self.validate(self.spec,self.delivery,self.source)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/spec/art_identity/maquettes/last_lamplighter/regeneration_validation.py\", line 41, in validate_regeneration\n    raise ValueError('Regeneration input inventory is incomplete or contains unexpected paths')\nValueError: Regeneration input inventory is incomplete or contains unexpected paths\n"
+        ],
+        [
+          "test_opaque_lantern_glass_is_rejected_as_stale_source (test_mq18_maquette.RegenerationVerificationTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_mq18_maquette.py\", line 269, in setUp\n    self.validate(self.spec,self.delivery,self.source)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/spec/art_identity/maquettes/last_lamplighter/regeneration_validation.py\", line 41, in validate_regeneration\n    raise ValueError('Regeneration input inventory is incomplete or contains unexpected paths')\nValueError: Regeneration input inventory is incomplete or contains unexpected paths\n"
+        ]
+      ],
+      "skipped": [
+        [
+          "test_hash_bound_samples_meet_input_onset_and_duration (test_empower_sfx.EmpowerSfxTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_mix_targets_and_six_db_difference (test_empower_sfx.EmpowerSfxTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_real_blender_build_and_geometry_gates (test_maquette_blender.NativeContractTests)",
+          "Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge"
+        ],
+        [
+          "test_real_lancer_cloth_cache_replay_has_identical_raw_hashes (test_maquette_blender.NativeContractTests)",
+          "Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge"
+        ],
+        [
+          "test_bytes_peak_provenance_source_preservation_and_no_deletions (test_sfx_lab.LayeredDesignTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_designed_multi_root_cli_pipeline_and_relocation (test_sfx_lab.LayeredDesignTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_excluded_recipe_paths_and_ambiguous_take (test_sfx_lab.LayeredDesignTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_layer_without_trim_renders_full_take (test_sfx_lab.LayeredDesignTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_licence_derivation_and_missing_or_invalid_sidecar_before_index (test_sfx_lab.LayeredDesignTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_master_order_filters_peak_fade_length_and_errors (test_sfx_lab.LayeredDesignTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_sample_exact_offset_mono_stereo_sum_and_default_length (test_sfx_lab.LayeredDesignTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_trim_pitch_reverse_filters_and_layer_fades (test_sfx_lab.LayeredDesignTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_ceiling_linked_channels_boundary_peaks_and_input_gain (test_sfx_lab.LimiterTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_determinism_silence_and_short_file (test_sfx_lab.LimiterTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_invalid_limiter_settings_fail (test_sfx_lab.LimiterTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_lookahead_attack_starts_early_and_is_linear (test_sfx_lab.LimiterTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_release_is_one_pole_exponential (test_sfx_lab.LimiterTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_approved_defaults_and_invalid_inputs (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_attack_decay_and_antiphase_spectrum (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_audition_two_cues_html_audio_and_provenance (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_build_deterministic_bytes_loudness_manifest (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_capped_take_passes_below_loudness_target (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_cli_index_slice_features_query_audition_build (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_equal_power_fades_linear_fade_in_and_crossfade (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_features_sine_noise_bands_and_short_rms (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_index_all_formats_license_hash_and_skips (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_index_and_analysis_deterministic_across_workers (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_limiter_build_stage_manifest_encoded_ceiling_and_determinism (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_lowpass_before_normalization_and_short_boundary (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_multichannel_front_pair_in_audition_and_build (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_normalize_no_clip_cap_is_recorded (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_page_javascript_offline_export_play_and_shortcuts (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_query_all_ranges_and_sort (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_refuse_excluded_paths_symlinks_and_forged_provenance (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_short_peak_caps_and_processing_parameters (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_slice_boundaries_and_identity (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_slice_silence_tiny_take_tail_floor_and_cap (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_stereo_policy_and_loop_seam (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_uncapped_take_outside_tolerance_fails_even_near_ceiling (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_unknown_ambiguous_modified_take_and_unsafe_cue (test_sfx_lab.SfxLabTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_cli_default_explicit_and_short_windows_preserve_cue_gain_and_inheritance (test_sfx_lab.WindowMeasureTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_default_400ms_matches_director_measure_and_100ms_uses_25ms_hops (test_sfx_lab.WindowMeasureTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ],
+        [
+          "test_short_padding_and_window_validation (test_sfx_lab.WindowMeasureTests)",
+          "Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python."
+        ]
+      ],
+      "log": "/private/tmp/bos-02-python-full-final/shard-3-output.log"
+    },
+    {
+      "shard": 4,
+      "tests": 526,
+      "duration": 1389.642965459,
+      "failures": [
+        [
+          "test_sabatons_and_no_self_shrink (test_card_legibility.CardLegibilityTest)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_card_legibility.py\", line 14, in test_sabatons_and_no_self_shrink\n    self._run_case(\"--regressions-only\")\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_card_legibility.py\", line 33, in _run_case\n    self.assertEqual(child.returncode, 0, output)\nAssertionError: 124 != 0 : Running task-local command:\n  task: pt13-08\n  run: pt13-08-1793165761400400000-30905\n  HOME: /private/tmp/labyrinth-godot-home/pt13-08-1793165761400400000-30905\n  Steam: disabled\n  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-08-1793165761400400000-30905/godot.log --headless --path . --script tests/card_legibility_test.gd -- --regressions-only\n  timeout: 60s\n  stream: enabled\nGodot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org\n\nLIVE AUDIT: combat fixture mode=combat\nLIVE AUDIT OPEN: card_tooltip\nCARD LEGIBILITY CONTEXT: {\"context\":\"card_tooltip\",\"definition_counts\":{\"base\":3,\"modified\":0},\"definition_source\":\"both\",\"definitions\":3,\"exemption\":\"\",\"floor_failure_count\":0,\"icon_px\":21.5039992332458,\"overflow_count\":0,\"production_builder_call\":\"scripts/run_scene.gd: _build_card_tooltip_panel / _build_equipment_tooltip_panel -> _item_preview_builder; scripts/item_preview_builders.gd: card_preview -> widget.configure(..., card_definition(id)); definition_resolver = RunScene._card_def\",\"sample_failure_count\":0,\"samples\":3,\"shrunk_count\":0,\"text_px\":{\"footer\":null,\"rules\":14.3359994888306,\"token_number\":14.3359994888306}}\nLIVE AUDIT OPEN: equipment_tooltip\nCARD LEGIBILITY CONTEXT: {\"context\":\"equipment_tooltip\",\"definition_counts\":{\"base\":3,\"modified\":0},\"definition_source\":\"both\",\"definitions\":3,\"exemption\":\"\",\"floor_failure_count\":0,\"icon_px\":21.5039992332458,\"overflow_count\":0,\"production_builder_call\":\"scripts/run_scene.gd: _build_card_tooltip_panel / _build_equipment_tooltip_panel -> _item_preview_builder; scripts/item_preview_builders.gd: card_preview -> widget.configure(..., card_definition(id)); definition_resolver = RunScene._card_def\",\"sample_failure_count\":0,\"samples\":3,\"shrunk_count\":0,\"text_px\":{\"footer\":null,\"rules\":14.3359994888306,\"token_number\":14.3359994888306}}\nLIVE AUDIT OPEN: purge_confirmation\nERROR: Condition \"ret != noErr\" is true. Returning: \"\"\n   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)\nerror: command timed out after 60 seconds.\n\n"
+        ],
+        [
+          "test_seven_reading_contexts_share_minimum (test_card_legibility.CardLegibilityTest)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_card_legibility.py\", line 17, in test_seven_reading_contexts_share_minimum\n    self._run_case(\"--fixed-contexts\")\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_card_legibility.py\", line 33, in _run_case\n    self.assertEqual(child.returncode, 0, output)\nAssertionError: 124 != 0 : Running task-local command:\n  task: pt13-08\n  run: pt13-08-1793165821670842000-31042\n  HOME: /private/tmp/labyrinth-godot-home/pt13-08-1793165821670842000-31042\n  Steam: disabled\n  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-08-1793165821670842000-31042/godot.log --headless --path . --script tests/card_legibility_test.gd -- --fixed-contexts\n  timeout: 60s\n  stream: enabled\nGodot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org\n\nLIVE AUDIT: combat fixture mode=combat\nERROR: Condition \"ret != noErr\" is true. Returning: \"\"\n   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)\nerror: command timed out after 60 seconds.\n\n"
+        ],
+        [
+          "test_manifest_preserves_all_existing_children_and_order (test_program_suite_runner.ProgramSuiteRunnerTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_program_suite_runner.py\", line 239, in test_manifest_preserves_all_existing_children_and_order\n    self.assert_complete_manifest(runner.SUITES)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_program_suite_runner.py\", line 207, in assert_complete_manifest\n    self.assertEqual(supplemental[-len(POST_SNARE_PROGRAMS):], POST_SNARE_PROGRAMS)\nAssertionError: Lists differ: [{'path': 'tests/perf/deferred_deadline_test.gd'}, {'path':[2851 chars]y']}] != [{'path': 'tests/pass_preview_prewarm_test.gd'}, {'path': '[2831 chars]y']}]\n\nFirst differing element 0:\n{'path': 'tests/perf/deferred_deadline_test.gd'}\n{'path': 'tests/pass_preview_prewarm_test.gd'}\n\nDiff is 3557 characters long. Set self.maxDiff to None to see it.\n"
+        ],
+        [
+          "test_instrumented_runtime_and_baseline (test_pt14_04_coverage.HeroCoverage)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_pt14_04_coverage.py\", line 192, in test_instrumented_runtime_and_baseline\n    self.assertEqual(candidate.returncode, 0, candidate.stdout)\nAssertionError: 1 != 0 : Running task-local command:\n  task: pt14-04\n  run: pt14-04-1793188889213525000-37573\n  HOME: /private/tmp/labyrinth-godot-home/pt14-04-1793188889213525000-37573\n  Steam: disabled\n  command: godot --log-file /private/tmp/labyrinth-godot-home/pt14-04-1793188889213525000-37573/godot.log --headless --path . --script tests/pt14_01_preparation_check.gd --\n  timeout: 300s\n  stream: enabled\nGodot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org\n\nERROR: Condition \"ret != noErr\" is true. Returning: \"\"\n   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)\nPT14 MAIN THREAD: initialization max=0.342 ms calls=2 events={ \"rig\": 0, \"image\": 0, \"thread\": 0 }\nPT14 MAIN THREAD: new_run max=0.000 ms calls=0 events={ \"rig\": 0, \"image\": 0, \"thread\": 0 }\nPT14 MAIN THREAD: equip max=0.000 ms calls=0 events={ \"rig\": 0, \"image\": 0, \"thread\": 0 }\nPT14 MAIN THREAD: continue max=0.001 ms calls=1 events={ \"rig\": 2, \"image\": 5, \"thread\": 0 }\nPT14-04 PREPARATION JSON: {\"continue\":{\"calls\":1,\"events\":{\"image\":5,\"rig\":2,\"thread\":0},\"max_usec\":1,\"total_usec\":1},\"equip\":{\"calls\":0,\"events\":{\"image\":0,\"rig\":0,\"thread\":0},\"max_usec\":0,\"total_usec\":0},\"initialization\":{\"calls\":2,\"events\":{\"image\":0,\"rig\":0,\"thread\":0},\"max_usec\":342,\"total_usec\":499},\"new_run\":{\"calls\":0,\"events\":{\"image\":0,\"rig\":0,\"thread\":0},\"max_usec\":0,\"total_usec\":0}}\nERROR: Hero coverage starts zero rig: continue\n   at: push_error (core/variant/variant_utility.cpp:1024)\n   GDScript backtrace (most recent call first):\nPT14 PREPARATION RESULT: FAIL (21 assertions; 2 failures)\n       [0] _run (res://tests/pt14_01_preparation_check.gd:59)\nERROR: Hero coverage starts zero image: continue\n   at: push_error (core/variant/variant_utility.cpp:1024)\n   GDScript backtrace (most recent call first):\n       [0] _run (res://tests/pt14_01_preparation_check.gd:59)\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\n\n"
+        ],
+        [
+          "test_runtime_boundary_and_reverts (test_pt14_04_coverage.HeroCoverage)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_pt14_04_coverage.py\", line 163, in test_runtime_boundary_and_reverts\n    self.assertEqual((ROOT / name).read_bytes(), expected, name)\nAssertionError: b'ext[3424 chars]onst TurnBannerScript = preload(\"res://scripts[1773801 chars]()\\n' != b'ext[3424 chars]onst ActionCaptionScrimScript = preload(\"res:/[1774538 chars]()\\n' : scripts/run_scene.gd\n"
+        ],
+        [
+          "test_zero_runtime_mutations (test_pt14_04_coverage.HeroCoverage)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_pt14_04_coverage.py\", line 231, in test_zero_runtime_mutations\n    self.assertEqual(result.returncode, 0, result.stdout)\nAssertionError: 1 != 0 : Running task-local command:\n  task: pt14-04\n  run: pt14-04-1793188919865373000-37854\n  HOME: /private/tmp/labyrinth-godot-home/pt14-04-1793188919865373000-37854\n  Steam: disabled\n  command: godot --log-file /private/tmp/labyrinth-godot-home/pt14-04-1793188919865373000-37854/godot.log --headless --path . --script tests/pt14_04_runtime_check.gd --\n  timeout: 300s\n  stream: enabled\nGodot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org\n\nERROR: Condition \"ret != noErr\" is true. Returning: \"\"\n   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)\nPT14 PACKED REAR: raw_exists=false resource_exists=true rear_matches=true\nPT14 STATIC HERO: facing=front gear_independent=true animation_stable=true both_mirrors=true\nPT14 STATIC HERO: facing=rear gear_independent=true animation_stable=true both_mirrors=true\nPT14-04 RUNTIME COUNTERS: {\"calls\":412,\"events\":{\"image\":3,\"rig\":0,\"thread\":0},\"max_usec\":14957,\"total_usec\":26507}\nERROR: Zero-runtime mutation: hero coverage starts no image\n   at: push_error (core/variant/variant_utility.cpp:1024)\n   GDScript backtrace (most recent call first):\n       [0] _run (res://tests/pt14_04_runtime_check.gd:13)\nPT14-04 RUNTIME RESULT: FAIL (217 assertions; 1 failures)\n\n"
+        ],
+        [
+          "test_no_automatic_time_panel_on_card_surfaces (test_short_card_tooltips.ShortCardTooltipsTest)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_short_card_tooltips.py\", line 90, in test_no_automatic_time_panel_on_card_surfaces\n    self.assertIn('Icons.tooltip_entries_for_rows(Icons.rows_for_card(card))', boon)\nAssertionError: 'Icons.tooltip_entries_for_rows(Icons.rows_for_card(card))' not found in 'extends RefCounted\\n\\n## Automatic modal focus is silent. Only a new pointer motion or a navigation\\n## focus change may expose the secondary card\\'s glossary stack.\\nconst Icons = preload(\"res://scripts/action_icon_library.gd\")\\nconst NAVIGATION_ACTIONS := [&\"ui_focus_next\", &\"ui_focus_prev\", &\"ui_up\", &\"ui_down\", &\"ui_left\", &\"ui_right\"]\\nvar _cards: Array[Control]\\nvar _stack: Control\\nvar _owner: Control\\nvar _navigation: bool = false\\n\\nfunc configure(stack: Control) -> void:\\n\\t_stack = stack\\n\\nfunc bind_card(widget: Control) -> void:\\n\\t_cards.append(widget)\\n\\twidget.focus_entered.connect(_focus_entered.bind(widget))\\n\\twidget.focus_exited.connect(_focus_exited.bind(widget))\\n\\twidget.mouse_exited.connect(_pointer_exited.bind(widget))\\n\\twidget.display_overrides_changed.connect(_display_changed.bind(widget))\\n\\nfunc handle_input(event: InputEvent) -> void:\\n\\tif not is_instance_valid(_stack): return\\n\\tif event is InputEventMouseMotion:\\n\\t\\t_navigation = false\\n\\t\\tvar target: Control\\n\\t\\tfor widget: Control in _cards:\\n\\t\\t\\tif widget.get_global_rect().has_point(event.position):\\n\\t\\t\\t\\ttarget = widget\\n\\t\\t\\t\\tbreak\\n\\t\\tif target != null: _show(target)\\n\\t\\telif is_instance_valid(_owner): _hide(_owner)\\n\\telse:\\n\\t\\tfor action: StringName in NAVIGATION_ACTIONS:\\n\\t\\t\\tif event.is_action_pressed(action):\\n\\t\\t\\t\\t_navigation = true\\n\\t\\t\\t\\tbreak\\n\\nfunc _focus_entered(widget: Control) -> void:\\n\\tif _navigation: _show(widget)\\n\\nfunc _focus_exited(widget: Control) -> void:\\n\\tif _navigation: _hide(widget)\\n\\nfunc _pointer_exited(widget: Control) -> void:\\n\\tif not _navigation: _hide(widget)\\n\\nfunc _display_changed(widget: Control) -> void:\\n\\tif is_instance_valid(_stack) and _owner == widget and _stack.visible: _show(widget, true)\\n\\nfunc _show(widget: Control, refresh: bool = false) -> void:\\n\\tif not is_instance_valid(_stack): return\\n\\tif not refresh and _owner == widget and _stack.visible: return\\n\\tvar entries: Array[Dictionary] = Icons.tooltip_entries_for_rows(widget.display_summary_rows())\\n\\t_stack.show_for(widget, entries)\\n\\t_owner = widget\\n\\nfunc _hide(widget: Control) -> void:\\n\\tif not is_instance_valid(_stack): return\\n\\t_stack.hide_for(widget)\\n\\tif _owner == widget: _owner = null\\n\\nfunc clear() -> void:\\n\\tif is_instance_valid(_stack): _stack.hide_stack(true)\\n\\t_stack = null\\n\\t_owner = null\\n\\t_navigation = false\\n\\t_cards.clear()\\n'\n"
+        ],
+        [
+          "test_protected_copy_and_term_matching (test_short_card_tooltips.ShortCardTooltipsTest) (term='summon_minions')",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_short_card_tooltips.py\", line 33, in test_protected_copy_and_term_matching\n    self.assertEqual(by_id[change[\"id\"]][\"definition\"], self.superseding.get(change[\"id\"], change[\"tooltip\"]))\nAssertionError: 'Call[28 chars]ight. When an enemy summons, you gain +1 Card [19 chars]urn.' != 'Call[28 chars]ight.'\n- Calls the shown enemy into the fight. When an enemy summons, you gain +1 Card Play on your next turn.\n+ Calls the shown enemy into the fight.\n\n"
+        ],
+        [
+          "test_repository_headless_registration_guard (test_test_registration_audit.RegistrationAuditTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_test_registration_audit.py\", line 411, in test_repository_headless_registration_guard\n    self.assertEqual(errors, [], \"\\n\" + \"\\n\".join(errors))\nAssertionError: Lists differ: ['Unregistered headless test: tests/suites[97 chars].gd'] != []\n\nFirst list contains 2 additional elements.\nFirst extra element 0:\n'Unregistered headless test: tests/suites/pt15_01_owner_feet_suite.gd'\n\n+ []\n- ['Unregistered headless test: tests/suites/pt15_01_owner_feet_suite.gd',\n-  'Unregistered headless test: tests/suites/pt15_01_sole_cache_suite.gd'] : \nUnregistered headless test: tests/suites/pt15_01_owner_feet_suite.gd\nUnregistered headless test: tests/suites/pt15_01_sole_cache_suite.gd\n"
+        ]
+      ],
+      "errors": [
+        [
+          "test_clean_regeneration_and_frozen_foreign_sources (test_mq17_maquette.CuratedDeliveryTests)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/tests/test_mq17_maquette.py\", line 424, in test_clean_regeneration_and_frozen_foreign_sources\n    regen=validate_regeneration(self.spec,self.delivery)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/bos-02/spec/art_identity/maquettes/storm_cantor/regeneration_checks.py\", line 62, in validate_regeneration\n    raise ValueError('Missing, stale or incomplete clean input inventory')\nValueError: Missing, stale or incomplete clean input inventory\n"
+        ]
+      ],
+      "skipped": [
+        [
+          "test_bank_generator_is_deterministic (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests)",
+          "requires pinned Python 3.12 audio environment"
+        ],
+        [
+          "test_normalizer_writes_full_score_and_separate_parts (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests)",
+          "requires pinned Python 3.12 audio environment"
+        ],
+        [
+          "test_provenance_gate_rejects_mismatches_and_placeholder_licenses (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests)",
+          "requires pinned Python 3.12 audio environment"
+        ],
+        [
+          "test_reference_render_and_verifier_match_approved_outputs (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests)",
+          "requires pinned Python 3.12 audio environment"
+        ],
+        [
+          "test_scaffold_is_rights_locked_and_non_overwriting (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests)",
+          "requires pinned Python 3.12 audio environment"
+        ],
+        [
+          "test_string_track_can_request_a_slow_attack_without_changing_the_default (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests)",
+          "requires pinned Python 3.12 audio environment"
+        ],
+        [
+          "test_complete_movement_boundaries_and_source_counts (test_old_castle_full_arrangement.OldCastleFullArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_config_uses_cc0_symbolic_source_and_no_omr_inputs (test_old_castle_full_arrangement.OldCastleFullArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_every_printed_system_and_opening_lament_are_anchored (test_old_castle_full_arrangement.OldCastleFullArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_five_voice_reduction_counts_and_range (test_old_castle_full_arrangement.OldCastleFullArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_generated_musicxml_has_stable_unique_part_ids_and_107_measures (test_old_castle_full_arrangement.OldCastleFullArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_v01_audition_is_byte_for_byte_unchanged (test_old_castle_full_arrangement.OldCastleFullArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_v07_builder_keeps_every_prior_version_immutable (test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_v07_is_strictly_verified_and_promoted_without_byte_drift (test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_v07_preserves_the_approved_v06_music_byte_for_byte (test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_every_base_event_is_an_exact_v02_crop (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_high_strings_are_sparse_exact_octave_doublings (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_midi_tracks_channels_counts_tempo_and_loop_markers (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_normalized_score_and_config_are_audition_only (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_percussion_is_quiet_regular_six_eight_background (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_prior_audition_trees_remain_byte_for_byte_unchanged (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ],
+        [
+          "test_selection_is_the_requested_contiguous_measure_span (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests)",
+          "Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt)."
+        ]
+      ],
+      "log": "/private/tmp/bos-02-python-full-final/shard-4-output.log"
+    }
+  ],
+  "interrupted_shards": [
+    1,
+    2
+  ],
+  "focused_recovery": [
+    {
+      "module": "test_rr29_mimic",
+      "exit": 0,
+      "log": "/private/tmp/bos-02-recovery-test_rr29_mimic.log",
+      "result_lines": [
+        "Ran 14 tests in 26.358s",
+        "OK"
+      ]
+    },
+    {
+      "module": "test_rr35_cutout",
+      "exit": 0,
+      "log": "/private/tmp/bos-02-recovery-test_rr35_cutout.log",
+      "result_lines": [
+        "Ran 25 tests in 60.766s",
+        "OK"
+      ]
+    },
+    {
+      "module": "test_rr35_native_defects",
+      "exit": 0,
+      "log": "/private/tmp/bos-02-recovery-test_rr35_native_defects.log",
+      "result_lines": [
+        "Ran 9 tests in 7.636s",
+        "OK"
+      ]
+    },
+    {
+      "module": "test_rr35_production",
+      "exit": 0,
+      "log": "/private/tmp/bos-02-recovery-test_rr35_production.log",
+      "result_lines": [
+        "Ran 3 tests in 87.888s",
+        "OK"
+      ]
+    },
+    {
+      "module": "test_rr43_lancer",
+      "exit": 0,
+      "log": "/private/tmp/bos-02-recovery-test_rr43_lancer.log",
+      "result_lines": [
+        "Ran 8 tests in 50.605s",
+        "OK"
+      ]
+    },
+    {
+      "module": "test_rr43_outline",
+      "exit": 0,
+      "log": "/private/tmp/bos-02-recovery-test_rr43_outline.log",
+      "result_lines": [
+        "Ran 5 tests in 20.541s",
+        "OK"
+      ]
+    },
+    {
+      "module": "test_rr45_lancer",
+      "exit": 0,
+      "log": "/private/tmp/bos-02-recovery-test_rr45_lancer.log",
+      "result_lines": [
+        "Ran 7 tests in 45.803s",
+        "OK"
+      ]
+    }
+  ]
+}

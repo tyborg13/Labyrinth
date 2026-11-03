@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "checks": {
+    "fresh_and_replay_raw_hashes": true,
+    "joint_endpoints": true,
+    "native_geometry": true
+  },
+  "spec_hash": "fa7df679eb9c8c19978d44932adc8082d79b83b937702b1108071ee3c167f5c5",
+  "cache_revision": 8,
+  "raw_hashes_identical": true,
+  "mesh_count": 49,
+  "joint_errors": {
+    "pelvis": 3.834567516812899e-08,
+    "torso": 2.419145121433471e-07,
+    "head": 2.386803704855403e-07,
+    "shoulder_near": 3.332000937312528e-08,
+    "elbow_near": 4.2146848510894035e-08,
+    "hand_near": 1.2489448945403256e-07,
+    "hip_near": 1.4502472627214942e-06,
+    "knee_near": 8.640103944733276e-07,
+    "ankle_near": 4.4901726166365635e-07,
+    "shoulder_far": 1.367744784853296e-07,
+    "elbow_far": 1.7120130796843852e-07,
+    "hand_far": 1.0745380149674383e-07,
+    "hip_far": 1.2013700229374393e-06,
+    "knee_far": 9.686041332554226e-07,
+    "ankle_far": 2.502330485544602e-07
+  },
+  "combined_mesh_hashes": {
+    "cold": "2b649e22b26aac0e780c94c8a7347625c339604c1121ddb076248b12b4eea7c7",
+    "replay": "2b649e22b26aac0e780c94c8a7347625c339604c1121ddb076248b12b4eea7c7",
+    "independent_cold": "2b649e22b26aac0e780c94c8a7347625c339604c1121ddb076248b12b4eea7c7"
+  },
+  "delivery_binding": {
+    "spec_hash": "fa7df679eb9c8c19978d44932adc8082d79b83b937702b1108071ee3c167f5c5",
+    "cold_mesh_hash": "2b649e22b26aac0e780c94c8a7347625c339604c1121ddb076248b12b4eea7c7",
+    "report_sha256": {
+      "build_report.json": "e12f503cc031b683d33e802af07a6504efec69895badefbbda6b7285113dfe24",
+      "capture_checks.json": "b76dc1a04de9e65aa5227317baba83212aa423a022c138599ed4b818315026de",
+      "facing_report.json": "001c4c04b56707949a3c4e104051f732e392edced3b4e9d28184cea65393b9ef",
+      "ownership_validation.json": "90421ed7df4d9f8f5cf3294d11301b2e1a4038e54ee67af2d5d1844b61f1b9fc",
+      "solo_coverage.json": "48b17677b42bec652564c86bafca5f14b4eeca183568cc6e4fd3f9b3e01e797f",
+      "native_probe.json": "f2e087f6e0025a72e739a3bcc0061928476825359299183f85425751ffe512ec",
+      "mq16_acceptance.json": "b88a5417f4cba5a3df486b418796f3c9f107e95a56b8e3348094bceee58388b6",
+      "capture_manifest.json": "bccda50a7b68f1f29c990a56805d681fbe0839557f3a6daf252b8a3baff3e8bb"
+    },
+    "exact_native_replay_sha256": "a3c9fc17c90fd070f5713c576455f2e7657618e75137a0cf12ae35645618d6c4"
+  }
+}

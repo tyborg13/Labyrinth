@@ -1,0 +1,62 @@
+{
+  "K": 4,
+  "drawn_size": [
+    255,
+    255
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "match_reference": {
+    "path": "refs/approved.png",
+    "pixel_sha256": "ebe6bcc1c4d77b8e4fa5a89e57f5118725414f75715578d9307dbb7408aac4ae"
+  },
+  "metrics": {
+    "chroma": 0.10163248888828967,
+    "edge_light_share": 0.0,
+    "feature_px": 6.193225650341182,
+    "height": 215,
+    "height_drawn": 215.0,
+    "orphan_share": 0.027446710978684393,
+    "regions": 455,
+    "run_length": 2.9842681258549932,
+    "symmetry": 0.6583892298178012,
+    "thin_abs": 0.008996103598441385,
+    "thin_rel": 0.06589502635801059,
+    "value": 0.17231150337283663,
+    "width": 148
+  },
+  "pixel_sha256": "9e8d26f74a967634655cb4596650cbfe1360243755a69dd4de59667feac94784",
+  "placement": [
+    0,
+    0
+  ],
+  "processing": "gaoler_arm_rr44_registered_native",
+  "raw_pixel_sha256": "9e8d26f74a967634655cb4596650cbfe1360243755a69dd4de59667feac94784",
+  "raw_steps": [
+    {
+      "inputs": {
+        "approved": {
+          "path": "refs/approved.png",
+          "sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "ccca0929214ff5e01381457503ebdc2578fe39e12e31e87d7c0cbc6ea12acd1c"
+        },
+        "recipe": {
+          "path": "refs/compose_arm.py",
+          "sha256": "8025cd27b0bf1193bc7dae546c6b4a08396309757cef186ff895dfc3f09d1942"
+        }
+      },
+      "kind": "gaoler_arm_rr44",
+      "output_raw_pixel_sha256": "9e8d26f74a967634655cb4596650cbfe1360243755a69dd4de59667feac94784",
+      "parameters": {
+        "side": "right"
+      }
+    }
+  ],
+  "shift": [
+    0,
+    0
+  ]
+}

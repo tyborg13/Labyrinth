@@ -214,16 +214,30 @@ static func price(state: Dictionary, base: int) -> int:
 		return ceili(float(base) * float(definitions()["boons"]["debt"]["price_multiplier"]))
 	return base
 
-static func heirloom_prompt_pending(state: Dictionary) -> bool:
+static func heirloom_end_pending(state: Dictionary) -> bool:
 	return state.has(HEIRLOOM_END_KEY) and str(state.get("mode", "")) in ["victory", "defeat"] and not bool(state.get("debug_boss_run", false)) and not bool((state.get(HEIRLOOM_END_KEY, {}) as Dictionary).get("done", false))
 
+static func heirloom_pieces(state: Dictionary) -> Array[String]:
+	var result: Array[String]
+	var starters: Array = Data.starter_equipment_ids()
+	for slot: String in Data.equipment_slots():
+		var item: String = str(state.get("equipped_equipment", {}).get(slot, ""))
+		if not item.is_empty() and not starters.has(item): result.append(item)
+	return result
+
+static func heirloom_prompt_pending(state: Dictionary) -> bool:
+	return heirloom_end_pending(state) and (not heirloom_pieces(state).is_empty() or not str(state.get(HEIRLOOM_END_KEY, {}).get("item", "")).is_empty())
+
 static func leave_heirloom(state: Dictionary, item: String) -> Dictionary:
-	if not heirloom_prompt_pending(state) or (state.get(HEIRLOOM_END_KEY, {}) as Dictionary).has("item"): return state.duplicate(true)
-	if not item.is_empty() and not (state.get("equipped_equipment", {}) as Dictionary).values().has(item): return state.duplicate(true)
+	if not heirloom_end_pending(state) or (state.get(HEIRLOOM_END_KEY, {}) as Dictionary).has("item"): return state.duplicate(true)
+	var pieces: Array[String] = heirloom_pieces(state)
+	if not item.is_empty() and not pieces.has(item): return state.duplicate(true)
 	var next: Dictionary = state.duplicate(true)
 	next["progression"] = Store.leave_heirloom(next.get("progression", {}), item)
 	next[HEIRLOOM_END_KEY] = {"item": item, "done": item.is_empty()}
-	_event(next, "heirloom_left", {"item": item, "none": item.is_empty()})
+	var payload: Dictionary = {"item": item, "none": item.is_empty()}
+	if pieces.is_empty(): payload["skipped_no_eligible"] = true
+	_event(next, "heirloom_left", payload)
 	return next
 
 static func _event(state: Dictionary, type: String, payload: Dictionary) -> void:

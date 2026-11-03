@@ -16,6 +16,10 @@ const CALLOUT_TARGET_GAP: float = 22.0
 const SPOTLIGHT_GROW: float = 3.0
 const SPOTLIGHT_CORNER: float = 16.0
 const MAX_SPOTLIGHTS: int = 24
+const BLOCKED_DURATION_MSEC: int = 900
+const MAX_PRESENTATION_DELTA_SECONDS: float = 0.1
+const PULSE_RADIANS_PER_SECOND: float = 5.0
+const UNSCALED_CLOCK_PRIORITY_OFFSET: int = -1
 
 var _ui_skin: UiSkin = UiSkin.new()
 var _phase_id: String = ""
@@ -26,6 +30,15 @@ var _avoid_rects: Array = []
 var _reduced_motion: bool = false
 var _blocked_until_msec: int = 0
 var _blocked_count: int = 0
+var _presentation_seconds: float = 0.0
+var _pulse_epoch_usec: int = 0
+var _presentation_has_drawn: bool = false
+var _blocked_has_drawn: bool = false
+var _presentation_frame: int = 0
+var _blocked_input_frame: int = 0
+var _frame_started_msec: int = 0
+var _frame_delta_seconds: float = 0.0
+var _unscaled_frame_timer: Timer
 var _completion_requested: bool = false
 
 var _callout: PanelContainer
@@ -47,7 +60,18 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	clip_contents = false
 	_build()
+	# A zero game-speed delta cannot be divided back into unscaled time. This
+	# idle timer samples the same engine frame before this control processes.
+	_unscaled_frame_timer = Timer.new()
+	_unscaled_frame_timer.ignore_time_scale = true
+	_unscaled_frame_timer.one_shot = true
+	_unscaled_frame_timer.process_callback = Timer.TIMER_PROCESS_IDLE
+	_unscaled_frame_timer.process_priority = process_priority + UNSCALED_CLOCK_PRIORITY_OFFSET
+	add_child(_unscaled_frame_timer)
+	_unscaled_frame_timer.start(MAX_PRESENTATION_DELTA_SECONDS)
 	_connect_input_router()
+	if not draw.is_connected(_on_prompt_drawn): draw.connect(_on_prompt_drawn)
+	if not _feedback.draw.is_connected(_on_blocked_feedback_drawn): _feedback.draw.connect(_on_blocked_feedback_drawn)
 	clear_prompt()
 	set_process(true)
 
@@ -65,6 +89,7 @@ func configure(
 	_phase_id = next_phase_id
 	if phase_changed:
 		_blocked_until_msec = 0
+		_blocked_has_drawn = false
 		_feedback.visible = false
 		_completion_requested = false
 	_reduced_motion = reduced_motion
@@ -124,6 +149,14 @@ func clear_prompt() -> void:
 	_evidence_rects.clear()
 	_avoid_rects.clear()
 	_blocked_until_msec = 0
+	_blocked_has_drawn = false
+	_presentation_seconds = 0.0
+	_pulse_epoch_usec = 0
+	_presentation_has_drawn = false
+	_presentation_frame = 0
+	_blocked_input_frame = 0
+	_frame_started_msec = 0
+	_frame_delta_seconds = 0.0
 	_completion_requested = false
 	if _feedback != null:
 		_feedback.visible = false
@@ -146,9 +179,12 @@ func show_blocked(message: String = "Follow the highlighted action.") -> void:
 	if not visible:
 		return
 	_blocked_count += 1
-	_blocked_until_msec = Time.get_ticks_msec() + 900
+	_blocked_until_msec = _presentation_msec() + BLOCKED_DURATION_MSEC
+	_blocked_has_drawn = false
+	_blocked_input_frame = _presentation_frame
 	_feedback.text = message
 	_feedback.visible = true
+	_feedback.queue_redraw() # Repeated identical text still needs a new first-draw boundary.
 	set_meta("blocked_count", _blocked_count)
 	queue_redraw()
 
@@ -160,11 +196,45 @@ func focus_primary_action() -> void:
 	elif _skip_button.visible:
 		_skip_button.grab_focus()
 
-func _process(_delta: float) -> void:
-	if not visible:
+func _presentation_msec() -> int:
+	# Match the parent's integer-millisecond pulse phase without accumulating
+	# floating-point round-off at whole-millisecond frame boundaries.
+	return floori(roundf(_presentation_seconds * 1000000.0) / 1000.0)
+
+func _on_prompt_drawn() -> void:
+	if not is_visible_in_tree() or _presentation_has_drawn: return
+	# The first submitted frame owns its delta. Counting it here preserves the
+	# parent's input -> process -> draw cadence without charging undrawn frames.
+	_presentation_seconds += _frame_delta_seconds
+	# Preserve the parent's application-uptime pulse phase. This is an initial
+	# phase anchor only; all subsequent progress uses presented frame deltas.
+	_pulse_epoch_usec = Time.get_ticks_usec() - roundi(_presentation_seconds * 1000000.0)
+	_presentation_has_drawn = true
+
+func _pulse_msec() -> int:
+	return floori(float(_pulse_epoch_usec + roundi(_presentation_seconds * 1000000.0)) / 1000.0)
+
+func _on_blocked_feedback_drawn() -> void:
+	if not is_visible_in_tree() or not _feedback.visible or _blocked_has_drawn: return
+	# Credit this submitted frame only if it processed after the input. Input
+	# after processing must not inherit the preceding frame's elapsed time.
+	var start_msec: int = _frame_started_msec if _presentation_frame > _blocked_input_frame else _presentation_msec()
+	_blocked_until_msec = start_msec + BLOCKED_DURATION_MSEC
+	_blocked_has_drawn = true
+
+func _process(delta: float) -> void:
+	var unscaled_delta: float = delta / Engine.time_scale if Engine.time_scale > 0.0 else MAX_PRESENTATION_DELTA_SECONDS - _unscaled_frame_timer.time_left
+	_unscaled_frame_timer.start(MAX_PRESENTATION_DELTA_SECONDS)
+	if not is_visible_in_tree():
 		return
-	if _feedback.visible and Time.get_ticks_msec() >= _blocked_until_msec:
+	_presentation_frame += 1
+	_frame_started_msec = _presentation_msec()
+	_frame_delta_seconds = clampf(unscaled_delta, 0.0, MAX_PRESENTATION_DELTA_SECONDS)
+	if _presentation_has_drawn:
+		_presentation_seconds += _frame_delta_seconds
+	if _feedback.visible and _blocked_has_drawn and _presentation_msec() >= _blocked_until_msec:
 		_feedback.visible = false
+		queue_redraw() # Retire the red accent even when reduced motion stops pulsing.
 	if not _reduced_motion or _feedback.visible:
 		queue_redraw()
 
@@ -212,8 +282,8 @@ func _draw() -> void:
 	set_meta("spotlight_hole_count", holes.size())
 	set_meta("spotlight_frame_count", frame_spotlights.size())
 	set_meta("spotlight_frame_rects", _global_spotlight_rects(frame_spotlights))
-	var pulse: float = 1.0 if _reduced_motion else 0.78 + 0.22 * sin(float(Time.get_ticks_msec()) * 0.005)
-	var blocked: bool = Time.get_ticks_msec() < _blocked_until_msec
+	var pulse: float = 1.0 if _reduced_motion else 0.78 + 0.22 * sin(float(_pulse_msec()) * PULSE_RADIANS_PER_SECOND / 1000.0)
+	var blocked: bool = _feedback.visible
 	var accent: Color = Color("e7775c") if blocked else Color("f0bd63")
 	var attention_pulse: bool = bool(_definition.get("attention_pulse", false))
 	# Keep tutorial emphasis outside the target. A filled wash changes the

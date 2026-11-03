@@ -1,0 +1,13 @@
+F...
+======================================================================
+FAIL: test_complete_far_hand_reversed_about_forearm_fails (tests.test_mq24_maquette.SourceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/tests/test_mq24_maquette.py", line 183, in test_complete_far_hand_reversed_about_forearm_fails
+    self.assertFalse(normal['passed']);self.assertAlmostEqual(normal['measured'],FIXTURE_DEFAULTS['far_hand_reversal_degrees'])
+AssertionError: 179.9999895086538 != 180 within 7 places (1.0491346188246098e-05 difference)
+
+----------------------------------------------------------------------
+Ran 4 tests in 7.263s
+
+FAILED (failures=1)

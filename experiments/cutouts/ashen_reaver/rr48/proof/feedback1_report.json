@@ -1,0 +1,377 @@
+{
+  "unit": "rr-48",
+  "feedback": 1,
+  "accepted_base": "3fbe07289",
+  "uncommitted": true,
+  "native_pixels": false,
+  "production_ready": false,
+  "requirements": {
+    "1_director_underlays": {
+      "status": "implemented_with_coverage_findings",
+      "method": "rr-44/rr-42 density partition hook; pinned round-zero production outside; exact director RGBA/alpha-zero clears only inside the accepted vacated-footprint masks. The gate rejects any extension of that authority.",
+      "source_and_production_texel_checks_each": 8435,
+      "footprint_entries_uncovered": 7308,
+      "coverage": "underlay_coverage.json",
+      "missing_masks": "../underlay_coverage/",
+      "tuck_coverage": "feedback1_tuck_coverage.json"
+    },
+    "2_painted_joint_budgets": {
+      "status": "unresolved_with_provided_paint",
+      "method": "Gaoler assembled source-space joint_holes + pocket_report + DetachedSource + declared held-release policy, on actual engine Bone2D poses; no isolated-piece component heuristic",
+      "frames": 844,
+      "transported_seam_surfaces": 11394,
+      "findings": 6191,
+      "existing_numeric_clamps_retained": 24,
+      "new_painted_clamps_applied": 0,
+      "rejected_zero_profile_key_clamps": 196,
+      "clamp_values_and_each_channel_range": "../joint_budgets.json",
+      "reason": "No searched uniform non-tearing profile preserves all live actions, planted travel and the declared drop. Paint-only zero profiles for rake/sweep/fall/hit fail the existing six-state production and live-strike contracts. The brief impossibility rule is used to retain the approved motion and report the unsatisfied budgets. These are conservative coupled profiles on a 1/60 grid, not claims of independent continuous joint maxima.",
+      "measurement_equivalence": "Exact measured motion/layout/partition bytes retained; current compiled record only adds an empty non-operative painted_budget_clamps field."
+    },
+    "3_idle_free_arm": {
+      "status": "implemented",
+      "rule": "The free arm rides rigidly with the torso bob; sword-arm lag retained; cloth/legs/feet remain stationary. Existing accepted idle behaviour preserved."
+    },
+    "4_held_follow": {
+      "status": "implemented",
+      "opt_in": "held_follow.reference_frame=root; reference_bone=pelvis",
+      "limit_deg": 35,
+      "engine_root_travel_mutation_phases": 202,
+      "endpoints_zero": true,
+      "gaoler_and_all_earlier_rigs_unchanged": true
+    },
+    "5_painted_floor": {
+      "status": "headless_pass_native_pending",
+      "source_checks": 144,
+      "production_checks": 144,
+      "observed_final_angle_deg": {
+        "front": 15.94539613547251,
+        "rear": -11.309933143775382
+      },
+      "rule": "Opaque texel cell hull; first new support point; exact floor projection after quantization; no cell below floor",
+      "constraint_resolution": "The signed path reaches its next support only at 90 degrees, beyond the 80-degree bound. The only support within that bound reverses the signed path. This follows the brief closest-intent impossibility rule; protected source keys remain byte-identical."
+    }
+  },
+  "original_task_acceptance": {
+    "1_cut": "Accepted fourteen visible pieces per view and source rest 0 px retained; eight exact director-body hidden layers added without donating pauldron paint to arms.",
+    "2_hidden_fills": "Exact supplied paint integrated; every requested uncovered UV retained in coverage records and masks. Strict findings remain.",
+    "3_motion": "Seven clips and protected bytes preserved; root-relative follow and floor constraints implemented. Measured painted budgets cannot be fully satisfied with the supplied paint.",
+    "4_production": "Accepted routing, movement steps, contacts, mechanics, Wildfire and fade preserved; front/rear production logic and strike registration pass.",
+    "5_gates": "Numerical, exact-RGBA, floor, mutation and parity checks pass. Overall art/painted-budget gates stay false and CLI exits 1. Native proof remains director-owned."
+  },
+  "generic_extensions": [
+    {
+      "file": "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+      "change": "Case-only opt-in root-relative held follow and transient painted-floor release state."
+    },
+    {
+      "file": "scripts/maquette_cutout_runtime/humanoid_presentation.gd",
+      "change": "Case-only post-quantization floor callback and constrained-item anchor handling."
+    },
+    {
+      "file": "tools/humanoid_cutout/cpu_pose.py",
+      "change": "Opt-in match_presentation_anchor for exact rigid source-air references; legacy reference mask bytes unchanged."
+    }
+  ],
+  "gate_results": {
+    "numerical_motion_ok": true,
+    "art_ok": false,
+    "painted_joint_budget": {
+      "ok": false,
+      "measured": true,
+      "unresolved_profiles": [
+        {
+          "clip": "move",
+          "group": "all",
+          "status": "no_admissible_scale_preserving_supports_and_drop"
+        },
+        {
+          "clip": "rake",
+          "group": "all",
+          "status": "no_admissible_scale_preserving_live_actions"
+        },
+        {
+          "clip": "sweep",
+          "group": "all",
+          "status": "no_admissible_scale_preserving_live_actions"
+        },
+        {
+          "clip": "fall",
+          "group": "all",
+          "status": "no_admissible_scale_preserving_live_actions"
+        },
+        {
+          "clip": "hit",
+          "group": "all",
+          "status": "no_admissible_scale_preserving_live_actions"
+        },
+        {
+          "clip": "death",
+          "group": "all",
+          "status": "no_admissible_scale_preserving_supports_and_drop"
+        }
+      ],
+      "rejected_clamps": 196,
+      "record": "joint_budgets.json",
+      "native_pixels": false
+    },
+    "overall_ok": false,
+    "overall_exit_code": 1,
+    "continuation_findings": {
+      "front": 27,
+      "rear": 28
+    },
+    "elbows": {
+      "ok": true,
+      "errors": [],
+      "checks": 2552,
+      "max_hyperextension_deg": 7.882707746463948e-05
+    },
+    "exact_oracles": {
+      "source_underlay": {
+        "ok": true,
+        "errors": [],
+        "texel_checks": 8435,
+        "scope": "source",
+        "native_pixels": false
+      },
+      "production_underlay": {
+        "ok": true,
+        "errors": [],
+        "texel_checks": 8435,
+        "scope": "production",
+        "native_pixels": false
+      },
+      "source_floor": {
+        "ok": true,
+        "errors": [],
+        "checks": 144,
+        "final_angle_deg": {
+          "front": 15.94539613547251,
+          "rear": -11.309933143775382
+        },
+        "native_pixels": false
+      },
+      "production_floor": {
+        "ok": true,
+        "errors": [],
+        "checks": 144,
+        "final_angle_deg": {
+          "front": 15.94539613547251,
+          "rear": -11.309933143775382
+        },
+        "native_pixels": false
+      },
+      "root_follow": {
+        "ok": true,
+        "errors": [],
+        "checks": 8
+      }
+    },
+    "joint_findings_by_kind": {
+      "joint_hole": 4809,
+      "unmatched_detached_paint": 777,
+      "held_release": 605
+    }
+  },
+  "tests": {
+    "focused": {
+      "command": "env PYTHONPATH=tools:experiments/cutouts/ashen_reaver python3 -m unittest tests.test_rr48_reaver",
+      "result_lines": [
+        "Ran 13 tests in 153.239s",
+        "OK",
+        "RR48 AIR REFERENCES: PASS (real engine anchor; legacy CPU mask bytes unchanged)",
+        "RR48 BONE SAMPLES: PASS (1276 poses; headless transforms only)",
+        "RR48 BONE SAMPLES: PASS (1276 poses; headless transforms only)",
+        "RR48 MOTION MUTATIONS: PASS (hyperextension and detached grip rejected)",
+        "RR48 SOURCE PAINT: PASS (both views 0 px; no synthesized underlays)",
+        "RR48 ASSEMBLED BUDGET MUTATION: PASS (actual disconnected paint rejected)",
+        "RR48 ROOT-RELATIVE FOLLOW: PASS (202 phases; root-travel mutation rejected; both endpoints zero)",
+        "RR48 HEADLESS DEPTH: PASS (2 boards; 496 routes; 26784 samples; 104980 prop comparisons; native pixels=false)",
+        "RR48 EARLIER POSE SAMPLES: PASS (10 rigs; 8086 frames)",
+        "RR48 EARLIER POSE SAMPLES: PASS (10 rigs; 8086 frames)",
+        "RR48 EARLIER RIG PARITY: PASS (all earlier humanoid production frames byte-identical)",
+        "RR48 UNDERLAY MUTATIONS: PASS (wrong RGBA, opaque replacement of director air and authority outside footprints rejected)",
+        "RR48 NATIVE FLOOR ORACLE MUTATIONS: PASS (synthetic codec fixture only; native pixels=false)",
+        "RR48 PRODUCTION LOGIC: PASS (front/rear move, rake, sweep, fall, hit, death)",
+        "RR48 DIRECTOR DATA: PASS (byte-identical import; clamps recorded separately)",
+        "RR48 SOURCE PROVENANCE MUTATIONS: PASS (only pinned before/after bytes normalize)",
+        "RR48 STRIKE REGISTRATION: PASS (1808 checks; production registry and every supported facing)"
+      ],
+      "log": "/private/tmp/rr48-feedback1-focused-scope.log"
+    },
+    "motion_and_art_gates": {
+      "command": "env PYTHONPATH=tools:experiments/cutouts/ashen_reaver python3 -B experiments/cutouts/ashen_reaver/rr48_gates.py --samples experiments/cutouts/ashen_reaver/rr48/proof/feedback1_samples.json",
+      "result_lines": [
+        "RR48 HELD front: PASS (0 errors)",
+        "RR48 HELD rear: PASS (0 errors)",
+        "RR48 WALK front: PASS (0 errors)",
+        "RR48 WALK rear: PASS (0 errors)",
+        "RR48 SUPPORTS front: PASS (0 errors)",
+        "RR48 SUPPORTS rear: PASS (0 errors)",
+        "RR48 DIRECTION front: PASS (0 errors)",
+        "RR48 DIRECTION rear: PASS (0 errors)",
+        "RR48 REACH front: PASS (0 errors)",
+        "RR48 REACH rear: PASS (0 errors)",
+        "RR48 IDLE front: PASS (0 errors)",
+        "RR48 IDLE rear: PASS (0 errors)",
+        "RR48 ELBOW GATE: PASS (2552 checks; maximum hyperextension 0.000079 deg)",
+        "RR48 ART GATE: FINDINGS (strict continuation and underlay coverage)",
+        "RR48 PAINTED BUDGET GATE: FINDINGS (6 unresolved clips)",
+        "RR48 OVERALL GATE: FINDINGS"
+      ],
+      "log": "/private/tmp/rr48-feedback1-gates-final.log"
+    },
+    "assembled_budget": {
+      "command": "env PYTHONPATH=tools:experiments/cutouts/ashen_reaver python3 -B -u experiments/cutouts/ashen_reaver/rr48_joint_budget.py",
+      "result_lines": [
+        "RR48 PAINTED JOINTS: FINDINGS (844 frames; 11394 transported seam surfaces; 6191 findings)",
+        "RR48 MEASUREMENT EQUIVALENCE: PASS (844 measured poses; exact motion/layout/partition hashes; empty clamp metadata only)"
+      ],
+      "log": "/private/tmp/rr48-feedback1-joints-final.log"
+    },
+    "metadata": {
+      "result_lines": [
+        "Ran 35 tests in 30.933s",
+        "OK"
+      ],
+      "log": "/private/tmp/rr48-feedback1-metadata.log"
+    },
+    "identity": {
+      "result_lines": [
+        "Ran 111 tests in 59.507s",
+        "OK"
+      ],
+      "log": "/private/tmp/rr48-feedback1-art.log"
+    },
+    "icons": {
+      "result_lines": [
+        "Ran 8 tests in 0.074s",
+        "OK"
+      ],
+      "log": "/private/tmp/rr48-feedback1-icons.log"
+    },
+    "sfx_sync": [
+      {
+        "program": "tests/suites/sfx_sync_0_program.gd",
+        "result_lines": [
+          "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)"
+        ],
+        "log": "/private/tmp/rr48-feedback1-sfx0.log"
+      },
+      {
+        "program": "tests/suites/sfx_sync_1_program.gd",
+        "result_lines": [
+          "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)"
+        ],
+        "log": "/private/tmp/rr48-feedback1-sfx1.log"
+      },
+      {
+        "program": "tests/suites/sfx_sync_2_program.gd",
+        "result_lines": [
+          "SFX SYNC HARNESS RESULT: PASS (1688 observations, 0 failures)"
+        ],
+        "log": "/private/tmp/rr48-feedback1-sfx2.log"
+      }
+    ],
+    "native_probe_load": {
+      "result_lines": [
+        "RR48 NATIVE PROBE LOAD: PASS"
+      ],
+      "native_pixels": false
+    },
+    "shadow": {
+      "result_lines": [
+        "RR48 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ]
+    },
+    "registration_audit": "TEST REGISTRATION AUDIT: PASS (918 scripts; full suite=550, quarantined=29, windowed probe=339)",
+    "resource_audit": "ISOLATION AUDIT: 255 modules; /private/tmp/rr48-feedback1-resource-audit-final/isolation-audit.md",
+    "reduction_replay": "/private/tmp/rr48-underlay-replay/report.json; 0 RGBA differences front and rear",
+    "full_suites": "Not run this feedback round, as directed.",
+    "budget_record_retest": {
+      "command": "env PYTHONPATH=tools:experiments/cutouts/ashen_reaver python3 -m unittest tests.test_rr48_reaver.ReaverTests.test_protected_motion_and_clamps",
+      "result_lines": [
+        "Ran 1 test in 0.025s",
+        "OK",
+        "RR48 DIRECTOR DATA: PASS (byte-identical import; clamps recorded separately)"
+      ],
+      "log": "/private/tmp/rr48-feedback1-record-final.log"
+    }
+  },
+  "protected_inputs": "Staged provenance hashes verified; director_motion.json copies remain byte-identical. Round-zero density snapshot hashes verified.",
+  "earlier_rigs": {
+    "production_data_unchanged": true,
+    "compiler_outputs_identical": 10,
+    "presented_frames_byte_identical": 8086,
+    "registry_scope": "All non-Reaver entries in art identity, density registry and outputs unchanged."
+  },
+  "TODO_DESIGN": {},
+  "chosen_defaults": {
+    "search_denominator": 60,
+    "cpu_triangle_batch_size": 128,
+    "serialized_budget_tolerance_px": 0.001,
+    "floor_oracle_tolerance_px": 0.0001,
+    "detachment_mutation_px": [
+      -120,
+      -60
+    ],
+    "floor_mutation_px": 0.25,
+    "synthetic_floor_fixture_rgba": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "process_timeout_seconds": 300,
+    "inherited_proof_canvas_size": 640,
+    "inherited_source_offset": 192,
+    "authority_mutation_uv": [
+      0,
+      0
+    ]
+  },
+  "open_issues": [
+    "Painted no-tear budgets cannot preserve six live clips with current paint; see joint_budgets.json and feedback1_joint_measurement.json. No zero action was promoted.",
+    "Uncovered footprint entries and insufficient continuation remain strict findings; no generated or smeared pixels were used.",
+    "No window server: native density/rest, seam/stray/clean-piece captures, sheets, protagonist idle comparison, production capture, review and both depth jobs remain pending."
+  ],
+  "proof_for_design_owner": {
+    "commands": "owner_commands.json",
+    "wrapper": "experiments/cutouts/ashen_reaver/rr48_proof.sh",
+    "resolution": [
+      1920,
+      1080
+    ],
+    "ui_scale": 1.0,
+    "capture_paths": [
+      "native_rest/production",
+      "native_rest",
+      "native",
+      "contact_sheets",
+      "idle_native",
+      "production_native/front",
+      "production_native/rear",
+      "ashen_reaver_protagonist_idle.mp4",
+      "ashen_reaver_review.mp4",
+      "native/depth/fire_t1_r6/ashen_reaver",
+      "native/depth/earth_t3_r7/ashen_reaver"
+    ],
+    "windowed_attempts": 0
+  },
+  "changed_files_manifest": "feedback1_changed_files.json",
+  "files_changed_groups": [
+    "experiments/cutouts/ashen_reaver/rr48_feedback1.py, rr48_feedback_gates.py, rr48_joint_budget.py and rr48_budget_search.py; density, native and gate adapters",
+    "experiments/cutouts/ashen_reaver/rr48/: exact hidden layers, immutable round-zero baseline, source partitions, registered air references, motion-policy data, budget findings and proof records",
+    "assets/units/ashen_reaver_cutout/: held_drop runtime, promoted layouts/compiled motion, eight hidden textures and integration provenance",
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd and humanoid_presentation.gd; tools/humanoid_cutout/cpu_pose.py (three opt-in extensions)",
+    "tests/test_rr48_reaver.py; tests/rr48/ sampling, native capture, root-follow check, budget helper, depth inventory and runtime source pins; headless program registration",
+    "Only Reaver entries in art identity and board-density registries/outputs and adopted density source textures"
+  ],
+  "final_checks": [
+    "git diff --check: exit 0",
+    "Current source bindings, compiled hash and both native depth inventory jobs verified",
+    "Protected staged provenance and round-zero snapshot hashes verified",
+    "No native/windowed runs, Git writes, peer review, branch changes or full suites this feedback round"
+  ]
+}

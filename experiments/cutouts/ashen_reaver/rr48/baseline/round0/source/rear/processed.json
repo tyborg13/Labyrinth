@@ -1,0 +1,61 @@
+{
+  "K": 4,
+  "drawn_size": [
+    172,
+    238
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.18372393339582935,
+    "edge_light_share": 0.015178571428571428,
+    "feature_px": 5.2757054848124465,
+    "height": 238,
+    "height_drawn": 238.0,
+    "orphan_share": 0.0699720111955218,
+    "regions": 629,
+    "run_length": 1.8992189195053157,
+    "symmetry": 0.4804503403735381,
+    "thin_abs": 0.008568001370880207,
+    "thin_rel": 0.026617924258867887,
+    "value": 0.19301695344271252,
+    "width": 172
+  },
+  "pixel_sha256": "7c3a12174c2863312a9cd85032eaaf884a179e965ef9777b580b89b93664f5c8",
+  "placement": [
+    42,
+    8
+  ],
+  "post_steps": [
+    {
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "eefd63b14b3f48c376526c00f12af3c26adec4e3914245ac99f84c02d7a5e1d4",
+      "protected_body_share": {
+        "front": 0.045816532258064514,
+        "rear": 0.05687203791469194
+      },
+      "reference": "spec/art_identity/jobs/ashen_reaver/mq21_rear/front_match.png",
+      "reference_pixel_sha256": "d341978d6cd63afaeadb5c87070edc593a0734da4b04d120b0dd38e0ecd09b90",
+      "step": "palette_match"
+    }
+  ],
+  "raw_sha256": "f0678a253c2c249b8bcf07262919e82de333e31f2804c74dba3bbe1c619127e8",
+  "shift": [
+    0,
+    0
+  ]
+}

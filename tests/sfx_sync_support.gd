@@ -274,6 +274,16 @@ static func _run_contexts(h: SceneTree) -> void:
 	h._begin("input/event_choose")
 	h._invoke("_on_section_map_event", ["embers"])
 	h._finish(h._state())
+	# evt-02's result beats route bank cues through this production callback.
+	# Use its authored Bane cue and mark the synchronous beat/input boundary,
+	# retaining the harness's onset and complete live-call-site assertions.
+	h._begin("context/event_result_bane")
+	h.clock.mark("event_result_beat", get_stack())
+	var event_cue: String = preload("res://scripts/event_result_beats.gd").BANE_CUE
+	h._invoke("_play_event_feedback_cue", [event_cue])
+	var event_requests: Array = h.events.filter(func(event: Dictionary) -> bool: return event["cue"] == event_cue and event["result"] == "played")
+	if event_requests.size() != 1: h.failures.append("Event result beat must play its authored Bane cue exactly once")
+	h._finish(h._state())
 	var fixture: Dictionary = ShopFixture._scavenger_fixture(engine)
 	var shop: Dictionary = fixture["state"]
 	shop["current_room"] = fixture["coord"]

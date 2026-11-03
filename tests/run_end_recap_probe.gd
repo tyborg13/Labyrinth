@@ -292,8 +292,8 @@ func _validate_last_light_semantics(instance: Node, recap: Control) -> void:
 	if ledger == null or ledger.get_child_count() != 7:
 		_fail("Mockup fixture must show four base rows and three feat rows")
 	var chronicle: Button = recap.find_child("ChronicleButton", true, false) as Button
-	if chronicle == null or not chronicle.disabled or chronicle.tooltip_text != "Coming soon":
-		_fail("Chronicle is disabled with its approved tooltip")
+	if chronicle == null or chronicle.disabled or chronicle.get_parent() != column:
+		_fail("Chronicle is a live link in the recap column")
 	var primary: Button = recap.find_child("NewRunButton", true, false) as Button
 	if primary == null or primary.text != "Rise Again":
 		_fail("Primary action retains its node id and approved label")

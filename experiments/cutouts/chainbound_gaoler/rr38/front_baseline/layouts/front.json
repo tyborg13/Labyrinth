@@ -1,0 +1,470 @@
+{
+  "facing": "front",
+  "canvas_size": [
+    255,
+    255
+  ],
+  "joints": {
+    "root": {
+      "position": [
+        153.5,
+        222.555859375
+      ],
+      "parent": null
+    },
+    "pelvis": {
+      "position": [
+        148.3302734375,
+        128.158544921875
+      ],
+      "parent": "root"
+    },
+    "torso": {
+      "position": [
+        153.5,
+        94.65493164062501
+      ],
+      "parent": "pelvis"
+    },
+    "head": {
+      "position": [
+        140.040283203125,
+        61.497460937499994
+      ],
+      "parent": "torso"
+    },
+    "chain": {
+      "position": [
+        76.046240234375,
+        65.564013671875
+      ],
+      "parent": "hand_far"
+    },
+    "upper_near": {
+      "position": [
+        177.15224609375,
+        90.949462890625
+      ],
+      "parent": "torso"
+    },
+    "fore_near": {
+      "position": [
+        175.21733398437502,
+        135.649169921875
+      ],
+      "parent": "upper_near"
+    },
+    "hand_near": {
+      "position": [
+        174.10419921875,
+        161.37578125
+      ],
+      "parent": "fore_near"
+    },
+    "thigh_near": {
+      "position": [
+        166.11552734375,
+        136.891796875
+      ],
+      "parent": "pelvis"
+    },
+    "shin_near": {
+      "position": [
+        166.85761718749998,
+        196.42333984375
+      ],
+      "parent": "thigh_near"
+    },
+    "foot_near": {
+      "position": [
+        175.685498046875,
+        226.458056640625
+      ],
+      "parent": "shin_near"
+    },
+    "upper_far": {
+      "position": [
+        117.04794921875,
+        81.93232421875
+      ],
+      "parent": "torso"
+    },
+    "fore_far": {
+      "position": [
+        99.374755859375,
+        89.729248046875
+      ],
+      "parent": "upper_far"
+    },
+    "hand_far": {
+      "position": [
+        76.046240234375,
+        65.564013671875
+      ],
+      "parent": "fore_far"
+    },
+    "thigh_far": {
+      "position": [
+        128.04482421875,
+        128.626708984375
+      ],
+      "parent": "pelvis"
+    },
+    "shin_far": {
+      "position": [
+        127.912841796875,
+        175.164208984375
+      ],
+      "parent": "thigh_far"
+    },
+    "foot_far": {
+      "position": [
+        124.83740234375,
+        206.8076171875
+      ],
+      "parent": "shin_far"
+    }
+  },
+  "parts": [
+    {
+      "name": "head",
+      "logical_part": "head",
+      "bone": "head",
+      "file": "pieces/front/head.png",
+      "offset": [
+        117,
+        30
+      ],
+      "bbox": [
+        117,
+        30,
+        160,
+        80
+      ],
+      "z_index": 19
+    },
+    {
+      "name": "torso",
+      "logical_part": "torso",
+      "bone": "torso",
+      "file": "pieces/front/torso.png",
+      "offset": [
+        104,
+        56
+      ],
+      "bbox": [
+        104,
+        56,
+        190,
+        142
+      ],
+      "z_index": 17
+    },
+    {
+      "name": "pelvis",
+      "logical_part": "pelvis",
+      "bone": "pelvis",
+      "file": "pieces/front/pelvis.png",
+      "offset": [
+        116,
+        125
+      ],
+      "bbox": [
+        116,
+        125,
+        163,
+        165
+      ],
+      "z_index": 13
+    },
+    {
+      "name": "belt",
+      "logical_part": "belt",
+      "bone": "pelvis",
+      "file": "pieces/front/belt.png",
+      "offset": [
+        113,
+        111
+      ],
+      "bbox": [
+        113,
+        111,
+        195,
+        140
+      ],
+      "z_index": 11
+    },
+    {
+      "name": "tabard",
+      "logical_part": "tabard",
+      "bone": "pelvis",
+      "file": "pieces/front/tabard.png",
+      "offset": [
+        116,
+        127
+      ],
+      "bbox": [
+        116,
+        127,
+        151,
+        203
+      ],
+      "z_index": 12
+    },
+    {
+      "name": "coat_near",
+      "logical_part": "coat_near",
+      "bone": "pelvis",
+      "file": "pieces/front/coat_near.png",
+      "offset": [
+        181,
+        129
+      ],
+      "bbox": [
+        181,
+        129,
+        216,
+        205
+      ],
+      "z_index": 7
+    },
+    {
+      "name": "coat_far",
+      "logical_part": "coat_far",
+      "bone": "pelvis",
+      "file": "pieces/front/coat_far.png",
+      "offset": [
+        102,
+        142
+      ],
+      "bbox": [
+        102,
+        142,
+        114,
+        174
+      ],
+      "z_index": 2
+    },
+    {
+      "name": "upper_near",
+      "logical_part": "upper_near",
+      "bone": "upper_near",
+      "file": "pieces/front/upper_near.png",
+      "offset": [
+        167,
+        79
+      ],
+      "bbox": [
+        167,
+        79,
+        189,
+        131
+      ],
+      "z_index": 18
+    },
+    {
+      "name": "fore_near",
+      "logical_part": "fore_near",
+      "bone": "upper_near",
+      "file": "pieces/front/fore_near.png",
+      "offset": [
+        162,
+        132
+      ],
+      "bbox": [
+        162,
+        132,
+        187,
+        163
+      ],
+      "z_index": 16
+    },
+    {
+      "name": "hand_near",
+      "logical_part": "hand_near",
+      "bone": "hand_near",
+      "file": "pieces/front/hand_near.png",
+      "offset": [
+        161,
+        160
+      ],
+      "bbox": [
+        161,
+        160,
+        187,
+        181
+      ],
+      "z_index": 15
+    },
+    {
+      "name": "upper_far",
+      "logical_part": "upper_far",
+      "bone": "upper_far",
+      "file": "pieces/front/upper_far.png",
+      "offset": [
+        93,
+        64
+      ],
+      "bbox": [
+        93,
+        64,
+        118,
+        103
+      ],
+      "z_index": 14
+    },
+    {
+      "name": "fore_far",
+      "logical_part": "fore_far",
+      "bone": "upper_far",
+      "file": "pieces/front/fore_far.png",
+      "offset": [
+        69,
+        61
+      ],
+      "bbox": [
+        69,
+        61,
+        103,
+        98
+      ],
+      "z_index": 10
+    },
+    {
+      "name": "hand_far",
+      "logical_part": "hand_far",
+      "bone": "hand_far",
+      "file": "pieces/front/hand_far.png",
+      "offset": [
+        56,
+        53
+      ],
+      "bbox": [
+        56,
+        53,
+        84,
+        76
+      ],
+      "z_index": 9
+    },
+    {
+      "name": "thigh_near",
+      "logical_part": "thigh_near",
+      "bone": "thigh_near",
+      "file": "pieces/front/thigh_near.png",
+      "offset": [
+        151,
+        144
+      ],
+      "bbox": [
+        151,
+        144,
+        184,
+        203
+      ],
+      "z_index": 8
+    },
+    {
+      "name": "shin_near",
+      "logical_part": "shin_near",
+      "bone": "thigh_near",
+      "file": "pieces/front/shin_near.png",
+      "offset": [
+        159,
+        197
+      ],
+      "bbox": [
+        159,
+        197,
+        185,
+        232
+      ],
+      "z_index": 5
+    },
+    {
+      "name": "foot_near",
+      "logical_part": "foot_near",
+      "bone": "foot_near",
+      "file": "pieces/front/foot_near.png",
+      "offset": [
+        157,
+        199
+      ],
+      "bbox": [
+        157,
+        199,
+        194,
+        246
+      ],
+      "z_index": 4
+    },
+    {
+      "name": "thigh_far",
+      "logical_part": "thigh_far",
+      "bone": "thigh_far",
+      "file": "pieces/front/thigh_far.png",
+      "offset": [
+        111,
+        117
+      ],
+      "bbox": [
+        111,
+        117,
+        122,
+        180
+      ],
+      "z_index": 3
+    },
+    {
+      "name": "shin_far",
+      "logical_part": "shin_far",
+      "bone": "thigh_far",
+      "file": "pieces/front/shin_far.png",
+      "offset": [
+        112,
+        178
+      ],
+      "bbox": [
+        112,
+        178,
+        140,
+        204
+      ],
+      "z_index": 1
+    },
+    {
+      "name": "foot_far",
+      "logical_part": "foot_far",
+      "bone": "foot_far",
+      "file": "pieces/front/foot_far.png",
+      "offset": [
+        102,
+        182
+      ],
+      "bbox": [
+        102,
+        182,
+        146,
+        229
+      ],
+      "z_index": 0
+    },
+    {
+      "name": "chain",
+      "logical_part": "chain",
+      "bone": "chain",
+      "file": "pieces/front/chain.png",
+      "offset": [
+        40,
+        72
+      ],
+      "bbox": [
+        40,
+        72,
+        73,
+        183
+      ],
+      "z_index": 6
+    }
+  ]
+}

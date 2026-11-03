@@ -275,9 +275,7 @@ func _add_legend_item(type: String) -> void:
 	icon.draw.connect(func() -> void:
 		var center: Vector2 = icon.size * 0.5
 		if str(icon.get_meta("room_icon_id")) == "unknown":
-			for segment: int in range(8):
-				var angle: float = TAU * float(segment) / 8.0
-				icon.draw_arc(center, 18, angle, angle + 0.47, 8, Color("aaa2af"), 1.8, true)
+			MapSkin.draw_unknown_room(icon, center, 24, Palette.GOLD)
 		else:
 			MapSkin.draw_medallion(icon, center, 24, MapSkin.icon_texture(str(icon.get_meta("room_icon_id"))))
 	)

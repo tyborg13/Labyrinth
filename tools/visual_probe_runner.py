@@ -214,6 +214,7 @@ def run_process_with_watchdogs(
 
 def run_probe(args: argparse.Namespace, namespace: str, rendering_driver: str) -> tuple[subprocess.CompletedProcess[str], Path | None]:
     env = os.environ.copy()
+    env.setdefault("LABYRINTH_CEL_LOOK", "off")
     home_dir: Path | None = None
     log_file: Path | None = None
     if args.isolated_home:

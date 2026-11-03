@@ -1,0 +1,309 @@
+{
+  "unit": "rr-35",
+  "round": "feedback 3",
+  "starting_head": "187ce0327f3da507d4ba1e24ea55f4b76fdf09a8",
+  "reviewed_delivery": "e4b60147b",
+  "uncommitted": true,
+  "full_suites_run": false,
+  "windowed_runs_attempted": false,
+  "requirements": {
+    "1_cpu_inventory": "PASS: shared evidence_errors validates views, all compiled clips, frame identity/multiplicity, counts and phases before raster processing; empty and truncated inventories fail.",
+    "2_immutable_legacy": "PASS: both consumers use immutable f1fae7475b2c034f85cd785f080434283c94bfee; all four source SHA-256 values checked. A revision containing rr-35 and changed source bytes are rejected. Unchecked HEAD mutation is caught in both consumers.",
+    "3_carapace_pixel_controls": "PASS: ten controls duplicate plate pixels onto both arms, the head and both capes in both views, preserving torso pixels and bones. Removing exclusivity causes ten assertion failures."
+  },
+  "inventory": {
+    "source": "compiled_motion.json",
+    "fps": 60,
+    "clip_presented_frame_counts": {
+      "idle": 50,
+      "move": 51,
+      "fade": 48,
+      "ambush": 42,
+      "slash": 48,
+      "hit": 30,
+      "death": 84
+    },
+    "presented_frames_per_view": {
+      "front": 353,
+      "rear": 353
+    }
+  },
+  "checks": [
+    {
+      "name": "new tests before fix",
+      "command": "python3 -B -m unittest tests.test_rr35_cutout.CutoutTests.test_cpu_gate_rejects_empty_inventory tests.test_rr35_cutout.CutoutTests.test_cpu_gate_rejects_truncated_inventory tests.test_rr35_cutout.CutoutTests.test_prechange_baseline_is_pinned_and_hash_checked tests.test_rr35_cutout.CutoutTests.test_prechange_baseline_rejects_rr35_revision_in_both_consumers tests.test_rr35_cutout.CutoutTests.test_prechange_baseline_rejects_source_hash_mismatch tests.test_rr35_cutout.CutoutTests.test_carapace_duplicate_plate_pixels_rejected",
+      "exit_code": 1,
+      "result_lines": [
+        "RR35 FRONT CPU SEAMS/CLEAN: PASS (0 frames; 0 failures)",
+        "RR35 REAR CPU SEAMS/CLEAN: PASS (0 frames; 0 failures)",
+        "RR35 REAR CPU SEAMS/CLEAN: PASS (1 frames; 0 failures)",
+        "Ran 6 tests in 7.387s",
+        "FAILED (failures=2, errors=3)"
+      ],
+      "log": "logs/feedback3/new_tests_before.txt"
+    },
+    {
+      "name": "focused rr-35 after fix",
+      "command": "python3 -B -m unittest tests.test_rr35_cutout tests.test_rr35_production",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 28 tests in 125.148s",
+        "OK"
+      ],
+      "log": "logs/feedback3/focused.txt"
+    },
+    {
+      "name": "focused references with pinned legacy source",
+      "command": "python3 -B tests/rr35/run_reference_tests.py --compare-legacy-reach tests.test_rr10_humanoid tests.test_rr11_humanoid tests.test_rr18_humanoid tests.test_rr17_cutout tests.test_rr17_integration tests.test_rr21_cutout tests.test_rr21_production tests.test_rr26_consolidation tests.test_rr29_mimic tests.test_rr30_mortar tests.test_rr31_calibration tests.test_rr31_storage tests.test_rr32_herald tests.test_rr32_production tests.test_rr15_reach tests.test_rr16_feedback1 tests.test_rr16_review_fixes tests.test_rr14_anatomy",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 177 tests in 434.327s",
+        "OK",
+        "RR16 CURVED REACH: FAIL AS REQUIRED (23.113249183 px at 0.500730859)",
+        "RR16 SUPPORT MODES: PASS (4 views/configurations)",
+        "RR35 LEGACY REACH REPORTS: PASS (23 byte-identical JSON reports)"
+      ],
+      "log": "logs/feedback3/references.txt"
+    },
+    {
+      "name": "headless samples refreshed",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_evidence.py --refresh",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 BONE SAMPLES: PASS (1096 poses; headless transforms only)",
+        "RR35 COMPACT SAMPLES: PASS (1096 poses; full transforms in ignored logs)"
+      ],
+      "log": "logs/feedback3/samples.txt"
+    },
+    {
+      "name": "complete CPU frame gate",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_seams.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 FRONT CPU SEAMS/CLEAN: PASS (353 frames; 0 failures)",
+        "RR35 REAR CPU SEAMS/CLEAN: PASS (353 frames; 0 failures)"
+      ],
+      "log": "logs/feedback3/cpu.txt"
+    },
+    {
+      "name": "independent negative controls",
+      "command": "in-memory guard-removal and unchecked-HEAD mutations; no source files rewritten",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 1 test in 7.291s",
+        "FAILED (failures=10)",
+        "RR35 CARAPACE EXCLUSIVITY GUARD REMOVAL: CAUGHT",
+        "Ran 1 test in 6.429s",
+        "FAILED (failures=2)",
+        "RR35 POST-COMMIT SELF-COMPARISON: CAUGHT"
+      ],
+      "log": "logs/feedback3/mutations.txt"
+    },
+    {
+      "name": "pinned preservation",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_preservation.py",
+      "exit_code": 1,
+      "result_lines": [
+        "RR35 PRESERVATION: FAIL (2959 protected files; 3 expected generic changes)",
+        "accepted cut paint changed: production:assets/units/gloam_stalker_cutout/humanoid_v2/front/rest.png",
+        "accepted cut paint changed: production:assets/units/gloam_stalker_cutout/humanoid_v2/rear/rest.png"
+      ],
+      "log": "logs/feedback3/preservation.txt"
+    },
+    {
+      "name": "pre-feedback-3 preservation control",
+      "command": "Loaded 187ce0327f3da507d4ba1e24ea55f4b76fdf09a8:experiments/cutouts/gloam_stalker/rr35_preservation.py in memory and ran check() with receipt writes disabled",
+      "exit_code": 1,
+      "result_lines": [
+        "RR35 PRESERVATION: FAIL (2959 protected files; 3 expected generic changes)",
+        "accepted cut paint changed: production:assets/units/gloam_stalker_cutout/humanoid_v2/front/rest.png",
+        "accepted cut paint changed: production:assets/units/gloam_stalker_cutout/humanoid_v2/rear/rest.png"
+      ],
+      "log": "logs/feedback3/preservation_before_fix.txt"
+    }
+  ],
+  "legacy_comparison": {
+    "ok": true,
+    "baseline_revision": "f1fae7475b2c034f85cd785f080434283c94bfee",
+    "original_reach_sha256": "d3d4e6a742bf650ce9862a68ac213593e50c612284e7f58deebb76cda7ac2b58",
+    "comparisons": [
+      {
+        "view": "front",
+        "paths": 12
+      },
+      {
+        "view": "rear",
+        "paths": 12
+      },
+      {
+        "view": "front",
+        "paths": 14
+      },
+      {
+        "view": "front",
+        "paths": 14
+      },
+      {
+        "view": "rear",
+        "paths": 14
+      },
+      {
+        "view": "front",
+        "paths": 9
+      },
+      {
+        "view": "rear",
+        "paths": 9
+      },
+      {
+        "view": "front",
+        "paths": 9
+      },
+      {
+        "view": "front",
+        "paths": 9
+      },
+      {
+        "view": "rear",
+        "paths": 9
+      },
+      {
+        "view": "front",
+        "paths": 9
+      },
+      {
+        "view": "rear",
+        "paths": 9
+      },
+      {
+        "view": "front",
+        "paths": 9
+      },
+      {
+        "view": "rear",
+        "paths": 9
+      },
+      {
+        "view": "front",
+        "paths": 9
+      },
+      {
+        "view": "rear",
+        "paths": 9
+      },
+      {
+        "view": "front",
+        "paths": 11
+      },
+      {
+        "view": "rear",
+        "paths": 11
+      },
+      {
+        "view": "rear",
+        "paths": 11
+      },
+      {
+        "view": "rear",
+        "paths": 11
+      },
+      {
+        "view": "rear",
+        "paths": 11
+      },
+      {
+        "view": "front",
+        "paths": 1
+      },
+      {
+        "view": "front",
+        "paths": 1
+      }
+    ],
+    "reports_byte_identical": 23
+  },
+  "mutations": {
+    "ok": true,
+    "results": [
+      {
+        "mutation": "RR35 CARAPACE EXCLUSIVITY GUARD REMOVAL",
+        "caught": true,
+        "tests": 1,
+        "failures": 10,
+        "errors": 0
+      },
+      {
+        "mutation": "RR35 POST-COMMIT SELF-COMPARISON",
+        "caught": true,
+        "tests": 1,
+        "failures": 2,
+        "errors": 0
+      }
+    ]
+  },
+  "cpu_result": {
+    "front": {
+      "ok": true,
+      "frames": 353,
+      "failures": [],
+      "native_pixels": false,
+      "samples_sha256": "8b5c115574ccee6d327b766b64e97248721427770d26c1318e6c6f480e575c74",
+      "rest_components": 1,
+      "maximum_components": 1
+    },
+    "rear": {
+      "ok": true,
+      "frames": 353,
+      "failures": [],
+      "native_pixels": false,
+      "samples_sha256": "8b5c115574ccee6d327b766b64e97248721427770d26c1318e6c6f480e575c74",
+      "rest_components": 1,
+      "maximum_components": 1
+    }
+  },
+  "native_receipt_audit": "feedback3_bindings.json",
+  "only_bound_changed_code": [
+    "tests/rr35/run_reference_tests.py"
+  ],
+  "required_windowed_stages": [
+    "rest",
+    "native",
+    "sheets",
+    "idle",
+    "production",
+    "review"
+  ],
+  "density_rerun_required": false,
+  "native_receipts_rewritten": false,
+  "motion_layout_cut_asset_changes": [],
+  "protected_motion_sha256": "278cfc6d5922c439f08a971ab14020f235e34697f3aedc115452d96e68908bee",
+  "todo_design": {},
+  "chosen_defaults": [],
+  "open_issues": [
+    {
+      "issue": "Inherited preservation failures for the two native production rests against round-0 PNG hashes.",
+      "observed_in_unchanged_starting_head": true,
+      "same_errors_after_fix": true,
+      "errors": [
+        "accepted cut paint changed: production:assets/units/gloam_stalker_cutout/humanoid_v2/front/rest.png",
+        "accepted cut paint changed: production:assets/units/gloam_stalker_cutout/humanoid_v2/rear/rest.png"
+      ],
+      "assertions_changed": false,
+      "assets_changed": false
+    },
+    {
+      "issue": "Native manifests retain their accepted old captures, but tests/rr35/run_reference_tests.py has a new bound hash; director must refresh the six listed stages."
+    },
+    {
+      "issue": "Worker Git preflight write probe is blocked by sandbox access to the shared Git metadata.",
+      "command": "python3 tools/parallel_task.py preflight",
+      "observed_exit_code": 0,
+      "result": "error: git write-tree failed: fatal: Unable to create '/Users/borgerding/workspace/Labyrinth/.git/worktrees/rr-35/index.lock': Operation not permitted",
+      "git_mutations_performed": false
+    }
+  ],
+  "final_checks": [
+    "RR35 FINAL EVIDENCE BINDINGS: PASS",
+    "git diff --check: exit 0"
+  ]
+}

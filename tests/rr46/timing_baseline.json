@@ -1,0 +1,1084 @@
+{
+  "errors": [],
+  "legacy_death_seconds": 1.036,
+  "legacy_move_seconds": 0.183336,
+  "rows": [
+    {
+      "attacks": {},
+      "death_in_enemy_action_seconds": 1.295,
+      "death_seconds": 1.036,
+      "hit_seconds": 0.36,
+      "move_seconds": 0.183348,
+      "movement_frames_two_tiles": 66,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "ash_hound"
+    },
+    {
+      "attacks": {},
+      "death_in_enemy_action_seconds": 0.863333333333333,
+      "death_seconds": 0.690666666666667,
+      "hit_seconds": 0.24,
+      "move_seconds": 0.122232,
+      "movement_frames_two_tiles": 66,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "ash_hound"
+    },
+    {
+      "attacks": {},
+      "death_in_enemy_action_seconds": 0.6475,
+      "death_seconds": 0.518,
+      "hit_seconds": 0.18,
+      "move_seconds": 0.091674,
+      "movement_frames_two_tiles": 66,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "ash_hound"
+    },
+    {
+      "attacks": {
+        "bite": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.3375
+        },
+        "kindle": {
+          "clip_seconds": 1.125,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.5625
+        }
+      },
+      "death_in_enemy_action_seconds": 1.125,
+      "death_seconds": 0.9,
+      "hit_seconds": 0.5,
+      "move_seconds": 0.700014,
+      "movement_frames_two_tiles": 84,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "ember_tick"
+    },
+    {
+      "attacks": {
+        "bite": {
+          "clip_seconds": 0.5,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.225
+        },
+        "kindle": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.375
+        }
+      },
+      "death_in_enemy_action_seconds": 0.75,
+      "death_seconds": 0.6,
+      "hit_seconds": 0.333333333333333,
+      "move_seconds": 0.466676,
+      "movement_frames_two_tiles": 84,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "ember_tick"
+    },
+    {
+      "attacks": {
+        "bite": {
+          "clip_seconds": 0.375,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.16875
+        },
+        "kindle": {
+          "clip_seconds": 0.5625,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.28125
+        }
+      },
+      "death_in_enemy_action_seconds": 0.5625,
+      "death_seconds": 0.45,
+      "hit_seconds": 0.25,
+      "move_seconds": 0.350007,
+      "movement_frames_two_tiles": 84,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "ember_tick"
+    },
+    {
+      "attacks": {},
+      "death_in_enemy_action_seconds": 1.295,
+      "death_seconds": 1.036,
+      "hit_seconds": 0.36,
+      "move_seconds": 0.183335,
+      "movement_frames_two_tiles": 74,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "cinder_ooze"
+    },
+    {
+      "attacks": {},
+      "death_in_enemy_action_seconds": 0.863333333333333,
+      "death_seconds": 0.690666666666667,
+      "hit_seconds": 0.24,
+      "move_seconds": 0.122223333333333,
+      "movement_frames_two_tiles": 74,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "cinder_ooze"
+    },
+    {
+      "attacks": {},
+      "death_in_enemy_action_seconds": 0.6475,
+      "death_seconds": 0.518,
+      "hit_seconds": 0.18,
+      "move_seconds": 0.0916675,
+      "movement_frames_two_tiles": 74,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "cinder_ooze"
+    },
+    {
+      "attacks": {
+        "bolt": {
+          "clip_seconds": 1.0625,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.53125
+        },
+        "land": {
+          "clip_seconds": 1.0,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.45
+        },
+        "mark": {
+          "clip_seconds": 1.625,
+          "contact_phase": 0.72,
+          "contact_seconds": 1.17
+        },
+        "ward": {
+          "clip_seconds": 1.125,
+          "contact_phase": 0.3,
+          "contact_seconds": 0.3375
+        }
+      },
+      "death_clip_seconds": 1.7,
+      "death_fade_seconds": 0.0,
+      "death_in_enemy_action_seconds": 2.125,
+      "death_seconds": 1.7,
+      "hit_seconds": 0.5,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.900018,
+      "movement_frames_two_tiles": 108,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "hoarfrost_seer"
+    },
+    {
+      "attacks": {
+        "bolt": {
+          "clip_seconds": 0.708333333333333,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.354166666666667
+        },
+        "land": {
+          "clip_seconds": 0.666666666666667,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.3
+        },
+        "mark": {
+          "clip_seconds": 1.08333333333333,
+          "contact_phase": 0.72,
+          "contact_seconds": 0.78
+        },
+        "ward": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.3,
+          "contact_seconds": 0.225
+        }
+      },
+      "death_clip_seconds": 1.13333333333333,
+      "death_fade_seconds": 0.0,
+      "death_in_enemy_action_seconds": 1.41666666666667,
+      "death_seconds": 1.13333333333333,
+      "hit_seconds": 0.333333333333333,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.600012,
+      "movement_frames_two_tiles": 108,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "hoarfrost_seer"
+    },
+    {
+      "attacks": {
+        "bolt": {
+          "clip_seconds": 0.53125,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.265625
+        },
+        "land": {
+          "clip_seconds": 0.5,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.225
+        },
+        "mark": {
+          "clip_seconds": 0.8125,
+          "contact_phase": 0.72,
+          "contact_seconds": 0.585
+        },
+        "ward": {
+          "clip_seconds": 0.5625,
+          "contact_phase": 0.3,
+          "contact_seconds": 0.16875
+        }
+      },
+      "death_clip_seconds": 0.85,
+      "death_fade_seconds": 0.0,
+      "death_in_enemy_action_seconds": 1.0625,
+      "death_seconds": 0.85,
+      "hit_seconds": 0.25,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.450009,
+      "movement_frames_two_tiles": 108,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "hoarfrost_seer"
+    },
+    {
+      "attacks": {
+        "jab": {
+          "clip_seconds": 0.875,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.39375
+        },
+        "tether": {
+          "clip_seconds": 1.5,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.75
+        }
+      },
+      "death_clip_seconds": 1.5,
+      "death_fade_seconds": 0.0,
+      "death_in_enemy_action_seconds": 1.875,
+      "death_seconds": 1.5,
+      "hit_seconds": 0.5,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.850017,
+      "movement_frames_two_tiles": 102,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "arc_thrall"
+    },
+    {
+      "attacks": {
+        "jab": {
+          "clip_seconds": 0.583333333333333,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.2625
+        },
+        "tether": {
+          "clip_seconds": 1.0,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.5
+        }
+      },
+      "death_clip_seconds": 1.0,
+      "death_fade_seconds": 0.0,
+      "death_in_enemy_action_seconds": 1.25,
+      "death_seconds": 1.0,
+      "hit_seconds": 0.333333333333333,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.566678,
+      "movement_frames_two_tiles": 102,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "arc_thrall"
+    },
+    {
+      "attacks": {
+        "jab": {
+          "clip_seconds": 0.4375,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.196875
+        },
+        "tether": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.375
+        }
+      },
+      "death_clip_seconds": 0.75,
+      "death_fade_seconds": 0.0,
+      "death_in_enemy_action_seconds": 0.9375,
+      "death_seconds": 0.75,
+      "hit_seconds": 0.25,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.4250085,
+      "movement_frames_two_tiles": 102,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "arc_thrall"
+    },
+    {
+      "attacks": {
+        "guard": {
+          "clip_seconds": 1.125,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.50625
+        },
+        "refraction": {
+          "clip_seconds": 1.375,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.6875
+        }
+      },
+      "death_clip_seconds": 1.5,
+      "death_fade_seconds": 0.0,
+      "death_in_enemy_action_seconds": 1.875,
+      "death_seconds": 1.5,
+      "hit_seconds": 0.5,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.900018,
+      "movement_frames_two_tiles": 108,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "glacial_mirror"
+    },
+    {
+      "attacks": {
+        "guard": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.3375
+        },
+        "refraction": {
+          "clip_seconds": 0.916666666666667,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.458333333333333
+        }
+      },
+      "death_clip_seconds": 1.0,
+      "death_fade_seconds": 0.0,
+      "death_in_enemy_action_seconds": 1.25,
+      "death_seconds": 1.0,
+      "hit_seconds": 0.333333333333333,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.600012,
+      "movement_frames_two_tiles": 108,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "glacial_mirror"
+    },
+    {
+      "attacks": {
+        "guard": {
+          "clip_seconds": 0.5625,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.253125
+        },
+        "refraction": {
+          "clip_seconds": 0.6875,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.34375
+        }
+      },
+      "death_clip_seconds": 0.75,
+      "death_fade_seconds": 0.0,
+      "death_in_enemy_action_seconds": 0.9375,
+      "death_seconds": 0.75,
+      "hit_seconds": 0.25,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.450009,
+      "movement_frames_two_tiles": 108,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "glacial_mirror"
+    },
+    {
+      "attacks": {
+        "lash": {
+          "clip_seconds": 0.9375,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.421875
+        },
+        "mend": {
+          "clip_seconds": 1.25,
+          "contact_phase": 0.55,
+          "contact_seconds": 0.6875
+        },
+        "thornwall": {
+          "clip_seconds": 1.375,
+          "contact_phase": 0.55,
+          "contact_seconds": 0.75625
+        }
+      },
+      "death_clip_seconds": 1.5,
+      "death_fade_seconds": 1.036,
+      "death_in_enemy_action_seconds": 3.17,
+      "death_seconds": 2.536,
+      "hit_seconds": 0.5,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.900018,
+      "movement_frames_two_tiles": 108,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "briar_weaver"
+    },
+    {
+      "attacks": {
+        "lash": {
+          "clip_seconds": 0.625,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.28125
+        },
+        "mend": {
+          "clip_seconds": 0.833333333333333,
+          "contact_phase": 0.55,
+          "contact_seconds": 0.458333333333333
+        },
+        "thornwall": {
+          "clip_seconds": 0.916666666666667,
+          "contact_phase": 0.55,
+          "contact_seconds": 0.504166666666667
+        }
+      },
+      "death_clip_seconds": 1.0,
+      "death_fade_seconds": 0.690666666666667,
+      "death_in_enemy_action_seconds": 2.11333333333333,
+      "death_seconds": 1.69066666666667,
+      "hit_seconds": 0.333333333333333,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.600012,
+      "movement_frames_two_tiles": 108,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "briar_weaver"
+    },
+    {
+      "attacks": {
+        "lash": {
+          "clip_seconds": 0.46875,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.2109375
+        },
+        "mend": {
+          "clip_seconds": 0.625,
+          "contact_phase": 0.55,
+          "contact_seconds": 0.34375
+        },
+        "thornwall": {
+          "clip_seconds": 0.6875,
+          "contact_phase": 0.55,
+          "contact_seconds": 0.378125
+        }
+      },
+      "death_clip_seconds": 0.75,
+      "death_fade_seconds": 0.518,
+      "death_in_enemy_action_seconds": 1.585,
+      "death_seconds": 1.268,
+      "hit_seconds": 0.25,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.450009,
+      "movement_frames_two_tiles": 108,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "briar_weaver"
+    },
+    {
+      "attacks": {
+        "block": {
+          "clip_seconds": 1.0,
+          "contact_phase": 0.4,
+          "contact_seconds": 0.4
+        },
+        "bolt": {
+          "clip_seconds": 1.0,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.45
+        },
+        "mirror": {
+          "clip_seconds": 1.125,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.5625
+        }
+      },
+      "death_clip_seconds": 1.4,
+      "death_fade_seconds": 1.036,
+      "death_in_enemy_action_seconds": 3.045,
+      "death_seconds": 2.436,
+      "hit_seconds": 0.5,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.800016,
+      "movement_frames_two_tiles": 96,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "hollow_mimic"
+    },
+    {
+      "attacks": {
+        "block": {
+          "clip_seconds": 0.666666666666667,
+          "contact_phase": 0.4,
+          "contact_seconds": 0.266666666666667
+        },
+        "bolt": {
+          "clip_seconds": 0.666666666666667,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.3
+        },
+        "mirror": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.375
+        }
+      },
+      "death_clip_seconds": 0.933333333333333,
+      "death_fade_seconds": 0.690666666666667,
+      "death_in_enemy_action_seconds": 2.03,
+      "death_seconds": 1.624,
+      "hit_seconds": 0.333333333333333,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.533344,
+      "movement_frames_two_tiles": 96,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "hollow_mimic"
+    },
+    {
+      "attacks": {
+        "block": {
+          "clip_seconds": 0.5,
+          "contact_phase": 0.4,
+          "contact_seconds": 0.2
+        },
+        "bolt": {
+          "clip_seconds": 0.5,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.225
+        },
+        "mirror": {
+          "clip_seconds": 0.5625,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.28125
+        }
+      },
+      "death_clip_seconds": 0.7,
+      "death_fade_seconds": 0.518,
+      "death_in_enemy_action_seconds": 1.5225,
+      "death_seconds": 1.218,
+      "hit_seconds": 0.25,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.400008,
+      "movement_frames_two_tiles": 96,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "hollow_mimic"
+    },
+    {
+      "attacks": {
+        "brace": {
+          "clip_seconds": 1.125,
+          "contact_phase": 0.4,
+          "contact_seconds": 0.45
+        },
+        "land": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.3,
+          "contact_seconds": 0.225
+        },
+        "lob": {
+          "clip_seconds": 1.5,
+          "contact_phase": 0.6,
+          "contact_seconds": 0.9
+        },
+        "scatter": {
+          "clip_seconds": 1.0,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.5
+        }
+      },
+      "death_clip_seconds": 1.5,
+      "death_fade_seconds": 1.036,
+      "death_in_enemy_action_seconds": 3.17,
+      "death_seconds": 2.536,
+      "hit_seconds": 0.5,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.850017,
+      "movement_frames_two_tiles": 102,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "slag_mortar"
+    },
+    {
+      "attacks": {
+        "brace": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.4,
+          "contact_seconds": 0.3
+        },
+        "land": {
+          "clip_seconds": 0.5,
+          "contact_phase": 0.3,
+          "contact_seconds": 0.15
+        },
+        "lob": {
+          "clip_seconds": 1.0,
+          "contact_phase": 0.6,
+          "contact_seconds": 0.6
+        },
+        "scatter": {
+          "clip_seconds": 0.666666666666667,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.333333333333333
+        }
+      },
+      "death_clip_seconds": 1.0,
+      "death_fade_seconds": 0.690666666666667,
+      "death_in_enemy_action_seconds": 2.11333333333333,
+      "death_seconds": 1.69066666666667,
+      "hit_seconds": 0.333333333333333,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.566678,
+      "movement_frames_two_tiles": 102,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "slag_mortar"
+    },
+    {
+      "attacks": {
+        "brace": {
+          "clip_seconds": 0.5625,
+          "contact_phase": 0.4,
+          "contact_seconds": 0.225
+        },
+        "land": {
+          "clip_seconds": 0.375,
+          "contact_phase": 0.3,
+          "contact_seconds": 0.1125
+        },
+        "lob": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.6,
+          "contact_seconds": 0.45
+        },
+        "scatter": {
+          "clip_seconds": 0.5,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.25
+        }
+      },
+      "death_clip_seconds": 0.75,
+      "death_fade_seconds": 0.518,
+      "death_in_enemy_action_seconds": 1.585,
+      "death_seconds": 1.268,
+      "hit_seconds": 0.25,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.4250085,
+      "movement_frames_two_tiles": 102,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "slag_mortar"
+    },
+    {
+      "attacks": {
+        "call_the_wind": {
+          "clip_seconds": 1.5,
+          "contact_phase": 0.6,
+          "contact_seconds": 0.9
+        },
+        "gust_bolt": {
+          "clip_seconds": 1.0,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.45
+        },
+        "still_air": {
+          "clip_seconds": 1.125,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.5625
+        }
+      },
+      "death_clip_seconds": 1.5,
+      "death_fade_seconds": 1.036,
+      "death_in_enemy_action_seconds": 3.17,
+      "death_seconds": 2.536,
+      "hit_seconds": 0.5,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.900018,
+      "movement_frames_two_tiles": 108,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "gale_herald"
+    },
+    {
+      "attacks": {
+        "call_the_wind": {
+          "clip_seconds": 1.0,
+          "contact_phase": 0.6,
+          "contact_seconds": 0.6
+        },
+        "gust_bolt": {
+          "clip_seconds": 0.666666666666667,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.3
+        },
+        "still_air": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.375
+        }
+      },
+      "death_clip_seconds": 1.0,
+      "death_fade_seconds": 0.690666666666667,
+      "death_in_enemy_action_seconds": 2.11333333333333,
+      "death_seconds": 1.69066666666667,
+      "hit_seconds": 0.333333333333333,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.600012,
+      "movement_frames_two_tiles": 108,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "gale_herald"
+    },
+    {
+      "attacks": {
+        "call_the_wind": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.6,
+          "contact_seconds": 0.45
+        },
+        "gust_bolt": {
+          "clip_seconds": 0.5,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.225
+        },
+        "still_air": {
+          "clip_seconds": 0.5625,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.28125
+        }
+      },
+      "death_clip_seconds": 0.75,
+      "death_fade_seconds": 0.518,
+      "death_in_enemy_action_seconds": 1.585,
+      "death_seconds": 1.268,
+      "hit_seconds": 0.25,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.450009,
+      "movement_frames_two_tiles": 108,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "gale_herald"
+    },
+    {
+      "attacks": {
+        "ambush": {
+          "clip_seconds": 0.875,
+          "contact_phase": 0.4,
+          "contact_seconds": 0.35
+        },
+        "fade": {
+          "clip_seconds": 1.0,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.5
+        },
+        "slash": {
+          "clip_seconds": 1.0,
+          "contact_phase": 0.48,
+          "contact_seconds": 0.48
+        }
+      },
+      "death_clip_seconds": 1.4,
+      "death_fade_seconds": 1.036,
+      "death_in_enemy_action_seconds": 3.045,
+      "death_seconds": 2.436,
+      "hit_seconds": 0.5,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.850017,
+      "movement_frames_two_tiles": 102,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "gloam_stalker"
+    },
+    {
+      "attacks": {
+        "ambush": {
+          "clip_seconds": 0.583333333333333,
+          "contact_phase": 0.4,
+          "contact_seconds": 0.233333333333333
+        },
+        "fade": {
+          "clip_seconds": 0.666666666666667,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.333333333333333
+        },
+        "slash": {
+          "clip_seconds": 0.666666666666667,
+          "contact_phase": 0.48,
+          "contact_seconds": 0.32
+        }
+      },
+      "death_clip_seconds": 0.933333333333333,
+      "death_fade_seconds": 0.690666666666667,
+      "death_in_enemy_action_seconds": 2.03,
+      "death_seconds": 1.624,
+      "hit_seconds": 0.333333333333333,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.566678,
+      "movement_frames_two_tiles": 102,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "gloam_stalker"
+    },
+    {
+      "attacks": {
+        "ambush": {
+          "clip_seconds": 0.4375,
+          "contact_phase": 0.4,
+          "contact_seconds": 0.175
+        },
+        "fade": {
+          "clip_seconds": 0.5,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.25
+        },
+        "slash": {
+          "clip_seconds": 0.5,
+          "contact_phase": 0.48,
+          "contact_seconds": 0.24
+        }
+      },
+      "death_clip_seconds": 0.7,
+      "death_fade_seconds": 0.518,
+      "death_in_enemy_action_seconds": 1.5225,
+      "death_seconds": 1.218,
+      "hit_seconds": 0.25,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.4250085,
+      "movement_frames_two_tiles": 102,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "gloam_stalker"
+    },
+    {
+      "attacks": {
+        "cast": {
+          "clip_seconds": 1.1875,
+          "contact_phase": 0.55,
+          "contact_seconds": 0.653125
+        },
+        "guard": {
+          "clip_seconds": 1.125,
+          "contact_phase": 0.3,
+          "contact_seconds": 0.3375
+        },
+        "jab": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.3375
+        },
+        "lunge": {
+          "clip_seconds": 1.375,
+          "contact_phase": 0.48,
+          "contact_seconds": 0.66
+        },
+        "pin": {
+          "clip_seconds": 1.5,
+          "contact_phase": 0.65,
+          "contact_seconds": 0.975
+        }
+      },
+      "death_clip_seconds": 1.6,
+      "death_fade_seconds": 1.036,
+      "death_in_enemy_action_seconds": 3.295,
+      "death_seconds": 2.636,
+      "hit_seconds": 0.5,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.850017,
+      "movement_frames_two_tiles": 102,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "frostglass_lancer"
+    },
+    {
+      "attacks": {
+        "cast": {
+          "clip_seconds": 0.791666666666667,
+          "contact_phase": 0.55,
+          "contact_seconds": 0.435416666666667
+        },
+        "guard": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.3,
+          "contact_seconds": 0.225
+        },
+        "jab": {
+          "clip_seconds": 0.5,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.225
+        },
+        "lunge": {
+          "clip_seconds": 0.916666666666667,
+          "contact_phase": 0.48,
+          "contact_seconds": 0.44
+        },
+        "pin": {
+          "clip_seconds": 1.0,
+          "contact_phase": 0.65,
+          "contact_seconds": 0.65
+        }
+      },
+      "death_clip_seconds": 1.06666666666667,
+      "death_fade_seconds": 0.690666666666667,
+      "death_in_enemy_action_seconds": 2.19666666666667,
+      "death_seconds": 1.75733333333333,
+      "hit_seconds": 0.333333333333333,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.566678,
+      "movement_frames_two_tiles": 102,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "frostglass_lancer"
+    },
+    {
+      "attacks": {
+        "cast": {
+          "clip_seconds": 0.59375,
+          "contact_phase": 0.55,
+          "contact_seconds": 0.3265625
+        },
+        "guard": {
+          "clip_seconds": 0.5625,
+          "contact_phase": 0.3,
+          "contact_seconds": 0.16875
+        },
+        "jab": {
+          "clip_seconds": 0.375,
+          "contact_phase": 0.45,
+          "contact_seconds": 0.16875
+        },
+        "lunge": {
+          "clip_seconds": 0.6875,
+          "contact_phase": 0.48,
+          "contact_seconds": 0.33
+        },
+        "pin": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.65,
+          "contact_seconds": 0.4875
+        }
+      },
+      "death_clip_seconds": 0.8,
+      "death_fade_seconds": 0.518,
+      "death_in_enemy_action_seconds": 1.6475,
+      "death_seconds": 1.318,
+      "hit_seconds": 0.25,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.4250085,
+      "movement_frames_two_tiles": 102,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "frostglass_lancer"
+    },
+    {
+      "attacks": {
+        "guard": {
+          "clip_seconds": 1.125,
+          "contact_phase": 0.3,
+          "contact_seconds": 0.3375
+        },
+        "pin": {
+          "clip_seconds": 1.0,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.5
+        },
+        "press": {
+          "clip_seconds": 1.0625,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.53125
+        },
+        "reel": {
+          "clip_seconds": 1.375,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.6875
+        }
+      },
+      "death_clip_seconds": 1.6,
+      "death_fade_seconds": 1.036,
+      "death_in_enemy_action_seconds": 3.295,
+      "death_seconds": 2.636,
+      "hit_seconds": 0.5,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.850017,
+      "movement_frames_two_tiles": 102,
+      "scale": 1.0,
+      "speed": "normal",
+      "type": "chainbound_gaoler"
+    },
+    {
+      "attacks": {
+        "guard": {
+          "clip_seconds": 0.75,
+          "contact_phase": 0.3,
+          "contact_seconds": 0.225
+        },
+        "pin": {
+          "clip_seconds": 0.666666666666667,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.333333333333333
+        },
+        "press": {
+          "clip_seconds": 0.708333333333333,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.354166666666667
+        },
+        "reel": {
+          "clip_seconds": 0.916666666666667,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.458333333333333
+        }
+      },
+      "death_clip_seconds": 1.06666666666667,
+      "death_fade_seconds": 0.690666666666667,
+      "death_in_enemy_action_seconds": 2.19666666666667,
+      "death_seconds": 1.75733333333333,
+      "hit_seconds": 0.333333333333333,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.566678,
+      "movement_frames_two_tiles": 102,
+      "scale": 1.5,
+      "speed": "fast",
+      "type": "chainbound_gaoler"
+    },
+    {
+      "attacks": {
+        "guard": {
+          "clip_seconds": 0.5625,
+          "contact_phase": 0.3,
+          "contact_seconds": 0.16875
+        },
+        "pin": {
+          "clip_seconds": 0.5,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.25
+        },
+        "press": {
+          "clip_seconds": 0.53125,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.265625
+        },
+        "reel": {
+          "clip_seconds": 0.6875,
+          "contact_phase": 0.5,
+          "contact_seconds": 0.34375
+        }
+      },
+      "death_clip_seconds": 0.8,
+      "death_fade_seconds": 0.518,
+      "death_in_enemy_action_seconds": 1.6475,
+      "death_seconds": 1.318,
+      "hit_seconds": 0.25,
+      "move_duration_scale": 1.00002,
+      "move_seconds": 0.4250085,
+      "movement_frames_two_tiles": 102,
+      "scale": 2.0,
+      "speed": "fastest",
+      "type": "chainbound_gaoler"
+    }
+  ]
+}

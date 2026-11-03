@@ -1,0 +1,316 @@
+<title>One Rule per Element</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column. The test every beat passes, the six beats as plates (sentence, primitives, play, dials), the in-game panel, then the element x fight matrix where each cell only sets dials. Single dark look in the game's ink and gold. */
+:root {
+  color-scheme: dark;
+  --ink: #120e0b; --ink-2: #1b1511; --ink-3: #251d17; --rule: #3a2f25;
+  --text: #efe3c8; --text-2: #b8a88d; --text-3: #85776a;
+  --gold: #c9a25e; --gold-bright: #f0cf8a;
+  --earth: #c99a5b; --fire: #e8893a; --air: #cfe3f2; --ice: #86cbe6; --lightning: #a8bfff; --shadow: #a48af2;
+  --ok: #8fcf7d; --change: #e8b45a; --new: #8fb3d9;
+  --display: "Alegreya SC", "Iowan Old Style", Georgia, serif;
+  --body: "Alegreya Sans", "Gill Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+body { background: var(--ink); color: var(--text); font: 17px/1.55 var(--body); }
+.page { max-width: 1120px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 56px; }
+header { display: grid; gap: 14px; max-width: 780px; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); }
+h1 { font: 700 clamp(34px, 5.4vw, 56px)/1.02 var(--display); margin: 0; color: var(--gold-bright); letter-spacing: 0.01em; text-wrap: balance; }
+h2 { font: 700 26px/1.15 var(--display); margin: 0; color: var(--gold); text-wrap: balance; }
+h3 { font: 700 21px/1.2 var(--display); margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.lede { font-size: 20px; line-height: 1.5; }
+.muted { color: var(--text-2); }
+section { display: grid; gap: 20px; }
+.intro { display: grid; gap: 10px; max-width: 760px; }
+
+/* The test */
+.tests { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.test { background: var(--ink-2); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.test .k { font: 500 11px/1.3 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+.test p { font-size: 15.5px; color: var(--text-2); }
+
+/* Beats */
+.beats { display: grid; gap: 14px; }
+.beat { background: var(--ink-2); border: 1px solid var(--rule); border-left: 3px solid var(--el); border-radius: 6px;
+  padding: 18px 20px 20px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 18px 28px; }
+.beat .head { display: grid; gap: 9px; align-content: start; min-width: 0; }
+.beat .el { font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); }
+.beat h3 { color: var(--el); }
+.beat .sentence { font-size: 17px; color: var(--text); }
+.beat .parts { display: flex; flex-wrap: wrap; gap: 6px; }
+.part { font: 500 11.5px/1 var(--mono); letter-spacing: 0.03em; padding: 5px 7px; border-radius: 3px; background: var(--ink-3); color: var(--text-2); border: 1px solid var(--rule); }
+.beat dl { margin: 0; display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 9px 14px; min-width: 0; }
+.beat dt { font: 500 11px/1.5 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); padding-top: 2px; }
+.beat dd { margin: 0; color: var(--text-2); font-size: 15.5px; }
+.beat dd b { color: var(--text); font-weight: 500; }
+
+/* In-game panel mock */
+.panel-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 24px; align-items: start; }
+.panel-row > div { display: grid; gap: 10px; min-width: 0; }
+.hud { background: #18120e; border: 1px solid #5a4630; border-radius: 4px; padding: 10px 14px; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 12px; align-items: center; max-width: 420px; box-shadow: 0 2px 0 #0a0706; }
+.hud + .hud { margin-top: 8px; }
+.hud .icon { grid-row: span 2; width: 34px; height: 34px; border-radius: 50%; border: 1px solid #7c6240; display: grid; place-items: center; font: 700 15px/1 var(--display); color: var(--el); background: var(--ink-3); }
+.hud .name { font: 700 16px/1.1 var(--display); color: var(--gold-bright); }
+.hud .line { font-size: 14px; line-height: 1.35; color: var(--text); }
+.hud-wrap { display: grid; gap: 8px; }
+
+/* Matrix */
+.matrix-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--ink-2); }
+table { border-collapse: collapse; width: 100%; min-width: 1000px; }
+th, td { text-align: left; vertical-align: top; padding: 14px; border-bottom: 1px solid var(--rule); }
+thead th { font: 500 12px/1.3 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); background: var(--ink-3); }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+tbody th { width: 128px; }
+tbody th .name { display: block; font: 700 17px/1.2 var(--display); color: var(--el); }
+tbody th .core { display: block; margin-top: 4px; font-size: 13.5px; color: var(--text-3); }
+td { font-size: 15px; line-height: 1.45; color: var(--text); }
+td .who { display: block; font: 500 11px/1.3 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px; }
+td ul.d { list-style: none; padding: 0; margin: 0; display: grid; gap: 3px; }
+td ul.d li { color: var(--text); font-size: 14.5px; }
+td ul.d li span { color: var(--text-3); font: 500 10.5px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; margin-right: 4px; }
+.chip { display: inline-block; margin-top: 9px; font: 500 11px/1.2 var(--mono); letter-spacing: 0.04em; padding: 4px 7px; border-radius: 3px; border: 1px solid currentColor; }
+.chip.ok { color: var(--ok); } .chip.change { color: var(--change); } .chip.new { color: var(--new); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; color: var(--text-2); align-items: center; }
+.legend .chip { margin-top: 0; }
+
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.two > div { display: grid; gap: 12px; align-content: start; min-width: 0; }
+ul { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; }
+li { color: var(--text-2); }
+li b { color: var(--text); font-weight: 500; }
+ol.calls { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+ol.calls li { color: var(--text); }
+.note { font-size: 15px; color: var(--text-3); }
+.el-earth { --el: var(--earth); } .el-fire { --el: var(--fire); } .el-air { --el: var(--air); }
+.el-ice { --el: var(--ice); } .el-lightning { --el: var(--lightning); } .el-shadow { --el: var(--shadow); }
+
+@media (max-width: 980px) {
+  .tests { grid-template-columns: minmax(0, 1fr); }
+  .beat, .panel-row { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .two { grid-template-columns: minmax(0, 1fr); }
+  .beat dl { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .beat dd { margin-bottom: 8px; }
+  body { font-size: 16px; }
+}
+</style>
+
+<main class="page">
+  <header>
+    <span class="eyebrow">Escape the Umbra · encounter design · proposal, revision 3 · 23 October 2026</span>
+    <h1>One rule per element</h1>
+    <p class="lede">Each element is one battlefield rule that fires on a beat, the way the Gust does. Each is one sentence made only of things the game already has, with no exceptions written into it. Fights stay distinct by turning a few dials: what feeds the rule, the pattern it lays, which way it goes and how often it fires.</p>
+    <p class="muted">Revision 3, from your notes. Wildfire loses "Ice and stone don't catch": Fire just replaces what's there, as every elemental tile already does. Hard Frost is now Frostbite, and the Strike is now Lightning Storm, whose reach comes from Chain instead of a new touching rule. Eclipse is replaced by Shadowstep. I also dropped my blanket "the wielder is never hit" rule and the dragons' Break meter: both were rules of their own.</p>
+  </header>
+
+  <section>
+    <div class="intro">
+      <h2>The test every beat passes</h2>
+    </div>
+    <div class="tests">
+      <div class="test"><span class="k">One sentence, no exceptions</span><p>It reads the same in every fight. If a fight needs an exception, the design is wrong.</p></div>
+      <div class="test"><span class="k">Only existing pieces</span><p>Push, Fire ground, Chilled, Freeze, Electrified ground, Chain, Outcrops, the Umbra, Blink. Nothing new to learn underneath.</p></div>
+      <div class="test"><span class="k">Something to play around</span><p>You step clear of it, and you set enemies up so it hits them, the way you shove a Shrike upwind of a pillar.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="intro">
+      <h2>The six beats</h2>
+      <p class="muted">Each plate gives the sentence the game shows, the pieces it's made of, how you play it, and the dials a fight can set.</p>
+    </div>
+    <div class="beats">
+      <article class="beat el-air">
+        <div class="head">
+          <span class="el">Air</span>
+          <h3>Gust</h3>
+          <p class="sentence">On the beat, the wind Pushes every unit 1 tile downwind.</p>
+          <div class="parts"><span class="part">Push</span><span class="part">Collision</span><span class="part">Anchored</span></div>
+        </div>
+        <dl>
+          <dt>Step clear</dt><dd>Don't stand upwind of a wall, a unit or a hazard.</dd>
+          <dt>Set up</dt><dd><b>Shove enemies upwind of walls, each other, Fire or a trap,</b> and let the gust finish the job.</dd>
+          <dt>Dials</dt><dd>Which way it blows (fixed, aimed, turning, toward its source) · how far · how often · what calls it.</dd>
+        </dl>
+      </article>
+
+      <article class="beat el-fire">
+        <div class="head">
+          <span class="el">Fire</span>
+          <h3>Wildfire</h3>
+          <p class="sentence">On the beat, each Fire tile sets the next tile in the blaze's direction on Fire.</p>
+          <div class="parts"><span class="part">Fire ground</span><span class="part">placing ground replaces ground</span></div>
+        </div>
+        <dl>
+          <dt>Step clear</dt><dd>Stay ahead of the front. Fire replaces whatever ground it lands on, so nothing stops it but distance and time.</dd>
+          <dt>Set up</dt><dd><b>Push enemies onto the tiles about to catch.</b> Your own Fire spreads on the same beat, so a Fire card on their side grows into them.</dd>
+          <dt>Dials</dt><dd>What lays the Fire (marks, trails, the entry) · which way it spreads (toward you, away from the entry, all four ways) · how often · how long Fire lasts.</dd>
+        </dl>
+      </article>
+
+      <article class="beat el-ice">
+        <div class="head">
+          <span class="el">Ice</span>
+          <h3>Frostbite</h3>
+          <p class="sentence">On the beat, an Ice hit strikes every Ice tile, Freezing whoever stands on one.</p>
+          <div class="parts"><span class="part">Ice ground: Chilled</span><span class="part">Ice hit Freezes the Chilled</span><span class="part">Freeze</span></div>
+        </div>
+        <dl>
+          <dt>Step clear</dt><dd>Be off the Ice when it strikes. Your Fire replaces Ice like any other ground.</dd>
+          <dt>Set up</dt><dd><b>Push or pull enemies onto Ice just before the beat, then hit them for triple damage.</b> Freezing uses up the Ice under them, as an Ice hit always does.</dd>
+          <dt>Dials</dt><dd>What lays the Ice (Icefall, trails, Spitters, thresholds) · the pattern · how often it strikes · how hard.</dd>
+        </dl>
+      </article>
+
+      <article class="beat el-lightning">
+        <div class="head">
+          <span class="el">Lightning</span>
+          <h3>Lightning Storm</h3>
+          <p class="sentence">On the beat, lightning strikes every Electrified tile; some storms Chain on from each hit.</p>
+          <div class="parts"><span class="part">Electrified ground</span><span class="part">Lightning Strikes</span><span class="part">Chain</span><span class="part">Shock</span></div>
+        </div>
+        <dl>
+          <dt>Step clear</dt><dd>Be off the network when it strikes. If the storm Chains, don't stand near anyone on it.</dd>
+          <dt>Set up</dt><dd><b>Push enemies onto the network before the beat.</b> Between beats, their network is yours: your Lightning spreads through it to every enemy on it.</dd>
+          <dt>Dials</dt><dd>What lays the network (Thralls, Skybreak, Bell Tenders) · how often it strikes · damage · Chain 0 to 3.</dd>
+        </dl>
+      </article>
+
+      <article class="beat el-earth">
+        <div class="head">
+          <span class="el">Earth</span>
+          <h3>Upheaval</h3>
+          <p class="sentence">On the beat, the marked tiles rise as Outcrops, throwing off whoever stands there.</p>
+          <div class="parts"><span class="part">Raise Terrain</span><span class="part">displace, as Erupt does</span><span class="part">Collision</span><span class="part">Rubble</span></div>
+        </div>
+        <dl>
+          <dt>Step clear</dt><dd>Step off the marks, or stand where the new wall cuts their lines of fire to you.</dd>
+          <dt>Set up</dt><dd><b>Push enemies onto the marks so they're thrown into each other, or walled away from their friends.</b> Break the stone (it has Health) and it leaves Rubble.</dd>
+          <dt>Dials</dt><dd>The pattern (a line, a ring, a lane) · where it's marked · how often · the stone's Health.</dd>
+        </dl>
+      </article>
+
+      <article class="beat el-shadow">
+        <div class="head">
+          <span class="el">Shadow</span>
+          <h3>Shadowstep</h3>
+          <p class="sentence">On the beat, every enemy hidden in the dark Blinks toward you.</p>
+          <div class="parts"><span class="part">The Umbra: hidden</span><span class="part">Blink</span><span class="part">landing triggers the ground</span></div>
+        </div>
+        <dl>
+          <dt>Step clear</dt><dd>Keep enemies in sight. One you can see doesn't step, so Light, Vision and Truesight pin them where they are.</dd>
+          <dt>Set up</dt><dd><b>Lay Fire, Ice or network around you before the beat, and let the dark deliver them onto it.</b> Blink only lands on tiles you can see, so they always arrive where you can hit them.</dd>
+          <dt>Dials</dt><dd>How dark it is (sight radius, Light sources) · how far they Blink · how often.</dd>
+        </dl>
+      </article>
+    </div>
+    <p class="note">Everything follows the primitive as it stands: Fire replaces Ice and Ice replaces Fire. The Gust shoves units onto Fire, Ice or network, and Upheaval throws them the same way. The Stormcaller stays put because a Gale Herald is Anchored, not because of a special rule.</p>
+  </section>
+
+  <section class="panel-row">
+    <div>
+      <h2>Always on screen</h2>
+      <p class="muted">Each fight shows its rule in the panel above the objective: an icon, the name, and its one sentence with this fight's dials filled in. It's the panel the Stormcaller's wind already uses. The beat sits on the turn clock where it fires, and its result is drawn a round ahead: ghosts for anything that moves or Blinks, and lit edges for tiles about to catch, freeze, strike or rise.</p>
+      <p class="muted">The first time you meet a rule, one short card explains it. That's six cards for the whole game.</p>
+    </div>
+    <div class="hud-wrap" aria-label="Example battlefield panels">
+      <div class="hud el-air"><span class="icon">G</span><span class="name">Gust</span><span class="line">The Stormcaller's wind Pushes everyone 1 tile toward your nearest wall every round.</span></div>
+      <div class="hud el-fire"><span class="icon">W</span><span class="name">Wildfire</span><span class="line">Fire spreads 1 tile toward you at the end of every round.</span></div>
+      <div class="hud el-shadow"><span class="icon">S</span><span class="name">Shadowstep</span><span class="line">Every 2 rounds, enemies hidden in the dark Blink 3 tiles toward you.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="intro">
+      <h2>Every fight, by element</h2>
+      <p class="muted">A fight only sets dials. A Guardian sets one dial unusually; a dragon turns the dials up at half health, and its cataclysm is one beat at full size, shown a round ahead.</p>
+      <div class="legend"><span class="chip ok">Built, fits</span><span class="chip change">Built, small change</span><span class="chip new">Not built</span></div>
+    </div>
+    <div class="matrix-wrap">
+      <table>
+        <thead><tr><th scope="col">Beat</th><th scope="col">Warband captain</th><th scope="col">Umbral Snare</th><th scope="col">Guardian</th><th scope="col">Dragon</th></tr></thead>
+        <tbody>
+          <tr class="el-air">
+            <th scope="row"><span class="name">Gust</span><span class="core">Air</span></th>
+            <td><span class="who">The Stormcaller</span><ul class="d"><li><span>Way</span>at your nearest hazard, or toward itself</li><li><span>Size</span>1 tile</li><li><span>Beat</span>every round, while it stands</li></ul><span class="chip ok">Built, fits</span></td>
+            <td><span class="who">Headwind</span><ul class="d"><li><span>Way</span>toward the entry</li><li><span>Size</span>1 tile</li><li><span>Beat</span>after each of your turns</li></ul><span class="chip ok">Built, fits</span></td>
+            <td><span class="who">Gallows Roc</span><ul class="d"><li><span>Way</span>toward the Roc</li><li><span>Size</span>1 tile</li><li><span>Beat</span>every round</li></ul><span class="chip new">Not built</span></td>
+            <td><span class="who">Vaeloryx</span><ul class="d"><li><span>Way</span>turns a quarter clockwise each round</li><li><span>Size</span>1 tile; 2 at half health</li><li><span>Cataclysm</span>one 4-tile gust</li></ul><span class="chip new">Not built</span></td>
+          </tr>
+          <tr class="el-fire">
+            <th scope="row"><span class="name">Wildfire</span><span class="core">Fire</span></th>
+            <td><span class="who">The Slagmaster</span><ul class="d"><li><span>Fed by</span>Lob Slag, which already lands as Fire</li><li><span>Way</span>toward you</li><li><span>Beat</span>every round, while it stands</li></ul><span class="chip change">Adds the spread</span></td>
+            <td><span class="who">The floor burns</span><ul class="d"><li><span>Fed by</span>the entry</li><li><span>Way</span>away from the entry</li><li><span>Beat</span>every round</li></ul><span class="chip ok">Built, fits</span></td>
+            <td><span class="who">Ashen Reaver</span><ul class="d"><li><span>Fed by</span>Raking Flame lanes</li><li><span>Way</span>all four ways</li><li><span>Lasts</span>the whole fight</li></ul><span class="chip new">Not built</span></td>
+            <td><span class="who">Vyraketh</span><ul class="d"><li><span>Fed by</span>Meteorfall marks</li><li><span>Beat</span>every other round; every round at half health</li><li><span>Cataclysm</span>spreads 3 tiles at once</li></ul><span class="chip new">Not built</span></td>
+          </tr>
+          <tr class="el-ice">
+            <th scope="row"><span class="name">Frostbite</span><span class="core">Ice</span></th>
+            <td><span class="who">The Rime Oracle</span><ul class="d"><li><span>Fed by</span>Icefall, now leaving Ice ground</li><li><span>Pattern</span>a line between you and her</li><li><span>Beat</span>every other round</li></ul><span class="chip change">Ice Pillars become Ice</span></td>
+            <td><span class="who">The doors frost</span><ul class="d"><li><span>Fed by</span>each sealing door's threshold</li><li><span>Beat</span>every round</li></ul><span class="chip change">Adds the strike</span></td>
+            <td><span class="who">Rimejaw</span><ul class="d"><li><span>Fed by</span>its Ice trail</li><li><span>Beat</span>each time it Pounces</li></ul><span class="chip new">Not built</span></td>
+            <td><span class="who">Iskaldra</span><ul class="d"><li><span>Fed by</span>her Rime Spitters</li><li><span>Beat</span>every other round; every round at half health</li><li><span>Cataclysm</span>the whole floor turns to Ice</li></ul><span class="chip new">Not built</span></td>
+          </tr>
+          <tr class="el-lightning">
+            <th scope="row"><span class="name">Lightning Storm</span><span class="core">Lightning</span></th>
+            <td><span class="who">The Dynamo</span><ul class="d"><li><span>Fed by</span>its Thralls Electrify the ground between them</li><li><span>Beat</span>Arc Burst, when its Charge reaches 3</li><li><span>Chain</span>3 jumps, as Arc Burst already does</li></ul><span class="chip change">Thralls lay network, no tether</span></td>
+            <td><span class="who">Live lanes</span><ul class="d"><li><span>Fed by</span>the Thralls' lines</li><li><span>Beat</span>every round</li><li><span>Chain</span>0</li></ul><span class="chip change">Tethers become network</span></td>
+            <td><span class="who">Storm Cantor</span><ul class="d"><li><span>Fed by</span>Lay the Choir</li><li><span>Beat</span>its Peal</li><li><span>Chain</span>1</li></ul><span class="chip new">Not built</span></td>
+            <td><span class="who">Zekarion</span><ul class="d"><li><span>Fed by</span>Skybreak, already Electrifying its marks</li><li><span>Chain</span>1; 2 at half health</li><li><span>Cataclysm</span>Chain 3</li></ul><span class="chip new">Not built</span></td>
+          </tr>
+          <tr class="el-earth">
+            <th scope="row"><span class="name">Upheaval</span><span class="core">Earth</span></th>
+            <td><span class="who">The Thornmother</span><ul class="d"><li><span>Pattern</span>a 5-tile line between you and her</li><li><span>Beat</span>every other round</li></ul><span class="chip change">Bramble becomes Outcrops</span></td>
+            <td><span class="who">The way out closes</span><ul class="d"><li><span>Pattern</span>one tile of your shortest way out</li><li><span>Beat</span>every round</li></ul><span class="chip change">Rubble becomes Outcrops</span></td>
+            <td><span class="who">Craghide</span><ul class="d"><li><span>Pattern</span>a ring around you</li><li><span>Beat</span>every rotation</li></ul><span class="chip new">Not built</span></td>
+            <td><span class="who">Tharokh</span><ul class="d"><li><span>Pattern</span>beside its spires</li><li><span>Beat</span>every other round; the outer ring at half health</li><li><span>Cataclysm</span>beside every spire at once</li></ul><span class="chip new">Not built</span></td>
+          </tr>
+          <tr class="el-shadow">
+            <th scope="row"><span class="name">Shadowstep</span><span class="core">Shadow</span></th>
+            <td><span class="who">The Hollow Prior</span><ul class="d"><li><span>Dark</span>its followers beyond 2 tiles of you stay hidden</li><li><span>Blink</span>3</li><li><span>Beat</span>every other round</li></ul><span class="chip change">Adds the step</span></td>
+            <td><span class="who">The dark closes</span><ul class="d"><li><span>Dark</span>your sight shrinks by 1 every two rounds</li><li><span>Blink</span>2</li><li><span>Beat</span>every round</li></ul><span class="chip change">Adds the step</span></td>
+            <td><span class="who">Last Lamplighter</span><ul class="d"><li><span>Dark</span>it snuffs the braziers</li><li><span>Blink</span>3</li><li><span>Beat</span>every round</li></ul><span class="chip new">Not built</span></td>
+            <td><span class="who">Noctyrax</span><ul class="d"><li><span>Dark</span>Last Eclipse, already in its rotation</li><li><span>Blink</span>2; 3 at half health</li><li><span>Cataclysm</span>Eclipse, and every hidden enemy steps in</li></ul><span class="chip new">Not built</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">The Ember Hoarder and Last Light stay on hold until you've played the Warband and the Snare; they'll take their row from this table when they're built.</p>
+  </section>
+
+  <section class="two">
+    <div>
+      <h2>What gets simpler</h2>
+      <ul>
+        <li><b>Six sentences.</b> One per element, the same in every fight, each made of pieces you already know.</li>
+        <li><b>Retired:</b> Bramble, Ice Pillar and Tether as keywords; the Guardians' custom rules (Gallows, Crag Armour, Vigil); the dragons' Break meter; any "the wielder is immune" rule.</li>
+        <li><b>Distinct fights come from dials,</b> never from exceptions: what feeds the rule, the pattern, the direction, the beat, the numbers.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>What it changes in built work</h2>
+      <ul>
+        <li><b>Warband:</b> the Slagmaster's Fire spreads; the Rime Oracle's Icefall leaves Ice and Frostbite strikes it; the Dynamo's Thralls lay network; the Thornmother raises Outcrops; the Prior's hidden followers Shadowstep. The Stormcaller stays as it is.</li>
+        <li><b>Snare:</b> the doors' Ice gets Frostbite; the Thralls' tethers become network; the shortest way out gets Upheaval; the shadow Snare gets Shadowstep. Fire and air stay as they are.</li>
+        <li><b>Ordinary enemies</b> follow the same pieces: the Briar Weaver raises Outcrops, the Seer's Icefall leaves Ice, and Arc Thralls lay network.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Your calls</h2>
+    <ol class="calls">
+      <li>Does Shadowstep give shadow the hook it was missing?</li>
+      <li>Is dropping the dragons' Break meter right? The cataclysm would then be answered by positioning alone, shown a round ahead.</li>
+      <li>Order: retrofit the Warband and the Snare first, so your playtest of them uses these rules; then Vaeloryx; then the Guardians.</li>
+    </ol>
+  </section>
+</main>

@@ -1,0 +1,51 @@
+{
+  "tile_width_px": 248,
+  "grub_art_scale": 0.85,
+  "hero_art_scale": 1.03,
+  "ground_rgb": [
+    69,
+    65,
+    58
+  ],
+  "sources": {
+    "front_clay.png": {
+      "sha256": "3d1dc60d8969037ef2b6abfcd41653eb8ca4d33225ff36964b564f1b67f68cbd",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "draw_width_px": 211,
+      "scale": 0.2060546875,
+      "placement_px": [
+        54,
+        116
+      ]
+    },
+    "front_assembled_rest_v9.png": {
+      "sha256": "4ab9fdc6552ac1b9b6b2f1aee230d2e3195dc7cd602eecec8c239e55e44a9ab7",
+      "source_size": [
+        255,
+        255
+      ],
+      "draw_width_px": 255,
+      "scale": 1.0,
+      "placement_px": [
+        352,
+        45
+      ]
+    },
+    "rear_clay.png": {
+      "sha256": "c843fbb282d1351ff67b23f7496ea77324784bd1899b0f506b0166b6975806b6",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "draw_width_px": 211,
+      "scale": 0.2060546875,
+      "placement_px": [
+        694,
+        116
+      ]
+    }
+  }
+}

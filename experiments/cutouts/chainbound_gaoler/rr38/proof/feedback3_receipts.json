@@ -1,0 +1,779 @@
+{
+  "task": "rr-38",
+  "round": "feedback3",
+  "native_acceptance": false,
+  "production_changes_applied": false,
+  "acceptance": {
+    "1": "PASS: CPU reproduces all 314 raw native errors / 263 unique frame-kind signatures with fresh historical poses.",
+    "2": "BLOCKED: traced the generated shoulder speck; removing its source texel fails the immutable required-tuck gate. Other detached components are original coat/boot paint, not generated continuation recipes. No failing removal applied.",
+    "3": "PARTIAL: no common-scale candidate in the tested grid. Independent minimum press clears all 102 presented frames but retains 509 flat warnings; relaxed death at full 15px drop still tears on 31 presented frames. No final channel-specific maximum established, and no production clamp applied. Stop for the native fill/continuation decision; no claim that every channel combination is infeasible.",
+    "4": "PASS for focused worker checks; all windowed stages remain director-only."
+  },
+  "calibration": {
+    "full_log": "proof/logs/feedback3/calibration_final/calibration.json",
+    "full_log_sha256": "d2aa8cf8279e56fa6d7fc02f43a919ee075348963450593d779cd9d12fb4986e",
+    "fixture_sha256": "27db2c075c83829bf7a829601c98ec2d45585add4fa368ac2371fc61dd06ed9d",
+    "covered": 263,
+    "expected": 263,
+    "raw_errors": 314,
+    "missing": [],
+    "max_shard_seconds": 5.877483000000001
+  },
+  "preservation": {
+    "native_manifest_sha256": "36be5f9b74f761b4b32fcf45acd78ca466d41f60af7f07f05432df8db4c6fed7",
+    "native_gate_log_sha256": "644a3aa5a9f54c2891b3776523a230e0bb3231a3fcca44fe17b59a5392ccacbe",
+    "hashed_rows": 44600,
+    "errors": [],
+    "seconds": 7.6419775
+  },
+  "detached_sources": {
+    "full_log": "proof/logs/feedback3/fill_sources/fill_sources.json",
+    "full_log_sha256": "a25a24067efcdfd19d738aa01ae1a50c4ff7e300e97e9d765558c08405feef8c",
+    "part_pixel_totals": {
+      "foot_far": 42,
+      "coat_far": 898,
+      "hidden_arm_far": 17
+    },
+    "component_records": 65,
+    "examples": [
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 14,
+        "visible_parts": {
+          "coat_far": 55
+        },
+        "native_frame_sha256": "cb94dd59be1371c6bcf1420b2ec277a6a7a543681adfab19e26f8b62b1aa9adf",
+        "crop": {
+          "file": "proof/logs/feedback3/handoff_crops/native_rear_move_14_component_0_4x.png",
+          "sha256": "222a4274575bbc73b096be263e3591a2df1184edf34684657e1241bc4de70a17"
+        }
+      },
+      {
+        "view": "front",
+        "clip": "reel",
+        "frame": 33,
+        "visible_parts": {
+          "hidden_arm_far": 3
+        },
+        "native_frame_sha256": "a63f5908a18a42b78fafe76ed79a57fa31434911ee06f8edf87c70d09a471a9c",
+        "crop": {
+          "file": "proof/logs/feedback3/handoff_crops/native_front_reel_33_component_0_4x.png",
+          "sha256": "f408515d1fbbdf08177bb42e76e632177e07e3c577f4cf6b4e5c174002a95f51"
+        }
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 12,
+        "visible_parts": {
+          "foot_far": 1
+        },
+        "native_frame_sha256": "5f8572f5acad6ffd299246284d1467cf0d912823b962323d4d1dca4db3c709fd",
+        "crop": {
+          "file": "proof/logs/feedback3/handoff_crops/native_front_move_12_component_0_4x.png",
+          "sha256": "51b50b8fcfb9598312e8ed42b3937d89feacb16e061cc05d3f69b52f05ff1519"
+        }
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 12,
+        "visible_parts": {
+          "foot_far": 1
+        },
+        "native_frame_sha256": "5f8572f5acad6ffd299246284d1467cf0d912823b962323d4d1dca4db3c709fd",
+        "crop": {
+          "file": "proof/logs/feedback3/handoff_crops/native_front_move_12_component_1_4x.png",
+          "sha256": "dd9290976d0cbc126bd42b7cb58979e883551c9a730ad7c0bfab06ddd81455dc"
+        }
+      }
+    ],
+    "rejected_removal": "rr38_feedback3_pruning.json; source-space pixel (104,62), hidden_arm_far; tuck: missing actual texels: arm_far"
+  },
+  "limits": {
+    "press": {
+      "status": "NO_TESTED_COMMON_SCALE_PASSES",
+      "full_log": "proof/logs/feedback3/limits_press_final/search.json",
+      "full_log_sha256": "de2d3764885f61168bf19ee6f89ffeae498fbaf4666fe982a2fa2c99d3479400",
+      "tested_scales": [
+        1.0,
+        0.9833333333333333,
+        0.9666666666666667,
+        0.95,
+        0.9333333333333333,
+        0.9166666666666666,
+        0.9,
+        0.8833333333333333,
+        0.8666666666666667,
+        0.85,
+        0.8333333333333334,
+        0.8166666666666667,
+        0.8,
+        0.7833333333333333,
+        0.7666666666666667,
+        0.75,
+        0.7333333333333333,
+        0.7166666666666667,
+        0.7,
+        0.6833333333333333,
+        0.6666666666666666
+      ],
+      "largest_tested_tear_free_scale": null,
+      "floor_scale": 0.6666666666666666,
+      "floor_channel_targets": {
+        "front": {
+          "hand_near.lift_px": [
+            -4.0,
+            14.666666666666666
+          ],
+          "hand_near.forward_px": [
+            -5.333333333333333,
+            12.0
+          ],
+          "torso.lean_deg": [
+            -4.666666666666666,
+            2.6666666666666665
+          ],
+          "torso.forward_px": [
+            -1.3333333333333333,
+            4.0
+          ],
+          "pelvis.lift_px": [
+            -2.6666666666666665,
+            0.0
+          ],
+          "head.lean_deg": [
+            -2.0,
+            -0.0
+          ],
+          "coat_near_tip.forward_px": [
+            0.0,
+            1.3333333333333333
+          ],
+          "coat_far_tip.forward_px": [
+            0.0,
+            1.3333333333333333
+          ]
+        },
+        "rear": {
+          "hand_near.lift_px": [
+            -4.0,
+            14.666666666666666
+          ],
+          "hand_near.forward_px": [
+            -5.333333333333333,
+            12.0
+          ],
+          "torso.lean_deg": [
+            -2.6666666666666665,
+            4.666666666666666
+          ],
+          "torso.forward_px": [
+            -1.3333333333333333,
+            4.0
+          ],
+          "pelvis.lift_px": [
+            -2.6666666666666665,
+            0.0
+          ],
+          "head.lean_deg": [
+            0.0,
+            2.0
+          ],
+          "coat_near_tip.forward_px": [
+            0.0,
+            1.3333333333333333
+          ],
+          "coat_far_tip.forward_px": [
+            0.0,
+            1.3333333333333333
+          ]
+        }
+      },
+      "floor_witness": {
+        "view": "front",
+        "frame": 14,
+        "failures": [
+          {
+            "bbox": [
+              298,
+              371,
+              301,
+              378
+            ],
+            "pixel_count": 9,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": true
+          }
+        ],
+        "crops": [
+          {
+            "file": "proof/logs/feedback3/handoff_crops/press_floor_front_14_0_4x.png",
+            "sha256": "38717f386fedee3aab2f8f46e7642dac95c24faa2600f24612872b2ac1e3065a"
+          }
+        ]
+      },
+      "max_frame_process_seconds": 1.1573957499999779
+    },
+    "death": {
+      "status": "NO_TESTED_COMMON_SCALE_PASSES",
+      "full_log": "proof/logs/feedback3/limits_death_final/search.json",
+      "full_log_sha256": "f9f8f5ebee52475723b8d2805f03418d9a3327d6cd2497a1d4e1536851196ef6",
+      "tested_scales": [
+        1.0,
+        0.9833333333333333,
+        0.9666666666666667,
+        0.95,
+        0.9333333333333333,
+        0.9166666666666666,
+        0.9,
+        0.8833333333333333,
+        0.8666666666666667,
+        0.85,
+        0.8333333333333334,
+        0.8166666666666667,
+        0.8,
+        0.7833333333333333,
+        0.7666666666666667,
+        0.75,
+        0.7333333333333333,
+        0.7166666666666667,
+        0.7,
+        0.6833333333333333,
+        0.6666666666666666
+      ],
+      "largest_tested_tear_free_scale": null,
+      "floor_scale": 0.6666666666666666,
+      "floor_channel_targets": {
+        "front": {
+          "pelvis.lift_px": [
+            -10.0,
+            0.0
+          ],
+          "pelvis.forward_px": [
+            0.0,
+            2.0
+          ],
+          "torso.lean_deg": [
+            -12.0,
+            2.0
+          ],
+          "torso.forward_px": [
+            -0.6666666666666666,
+            4.0
+          ],
+          "head.lean_deg": [
+            -9.333333333333332,
+            2.6666666666666665
+          ],
+          "hand_far.lift_px": [
+            -24.0,
+            0.0
+          ],
+          "hand_near.lift_px": [
+            -4.0,
+            0.0
+          ],
+          "coat_near_tip.lift_px": [
+            -2.6666666666666665,
+            0.0
+          ],
+          "coat_far_tip.lift_px": [
+            -2.6666666666666665,
+            0.0
+          ],
+          "tabard_tip.lift_px": [
+            -2.0,
+            0.0
+          ]
+        },
+        "rear": {
+          "pelvis.lift_px": [
+            -10.0,
+            0.0
+          ],
+          "pelvis.forward_px": [
+            0.0,
+            2.0
+          ],
+          "torso.lean_deg": [
+            -2.0,
+            12.0
+          ],
+          "torso.forward_px": [
+            -0.6666666666666666,
+            4.0
+          ],
+          "head.lean_deg": [
+            -2.6666666666666665,
+            9.333333333333332
+          ],
+          "hand_far.lift_px": [
+            -24.0,
+            0.0
+          ],
+          "hand_near.lift_px": [
+            -4.0,
+            0.0
+          ],
+          "coat_near_tip.lift_px": [
+            -2.6666666666666665,
+            0.0
+          ],
+          "coat_far_tip.lift_px": [
+            -2.6666666666666665,
+            0.0
+          ],
+          "tabard_tip.lift_px": [
+            -2.0,
+            0.0
+          ]
+        }
+      },
+      "floor_witness": {
+        "view": "front",
+        "frame": 37,
+        "failures": [
+          {
+            "bbox": [
+              260,
+              277,
+              263,
+              286
+            ],
+            "pixel_count": 23,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": true
+          }
+        ],
+        "crops": [
+          {
+            "file": "proof/logs/feedback3/handoff_crops/death_floor_front_37_0_4x.png",
+            "sha256": "da3486c00804da422b86fc4ebbfbbe61018e30bd5ebac8ab1f052e4c629b9ed3"
+          }
+        ]
+      },
+      "max_frame_process_seconds": 1.1128198750000138
+    }
+  },
+  "death_floor_final_knee": {
+    "failures": [
+      {
+        "bbox": [
+          290,
+          379,
+          291,
+          381
+        ],
+        "pixel_count": 2,
+        "painted_or_tuck_pixels": 0,
+        "joint_tear": true
+      }
+    ],
+    "crops": [
+      {
+        "file": "proof/logs/feedback3/handoff_crops/death_floor_front_95_knee_0_4x.png",
+        "sha256": "083e3fbde817c8038b257e2c7ebd0dcad2ac6d7ee798ec0baacc64470b6f733a"
+      }
+    ]
+  },
+  "TODO_DESIGN": {
+    "TODO_DESIGN_front_shoulder_underlay": "Director painted continuation needed, or a director-approved alternative to required arm tuck; native reel speck plus death floor seam.",
+    "TODO_DESIGN_front_knee_underlay": "Death knee continuation decision; press knee gaps can be avoided in the tested candidate by removing the hip dip. This does not establish a maximum joint budget.",
+    "TODO_DESIGN_detached_coat_boot_continuation": "Director decision for original coat_far / foot_far paint detaching in both views; removing original paint would change the approved rest.",
+    "TODO_DESIGN_front_leg_coat_underlay": "Director continuation decision for native flat hidden_leg_far walk surfaces and hidden_coat_near press patches; crops in native_judged_frames. No procedural replacement."
+  },
+  "chosen_defaults": {
+    "scale_denominator": 60,
+    "crop_context_px": 12,
+    "crop_zoom": 4,
+    "shard_frames": 4,
+    "calibration_workers": 2,
+    "child_timeout_seconds": 90,
+    "triangle_batch_size": 128,
+    "independent_channel_probe_config": "rr38_feedback3_channel_probes.json: proof-only channels toward rest; press lift10/forward12/hip0, death forward/torso/head0 and far-hand factor2/3, hip10 or15."
+  },
+  "tests": {
+    "focused_python": "Ran 38 tests in 252.753s; OK",
+    "sidecars": "Ran 19 tests in 1.749s; OK",
+    "runtime": "RR38 RUNTIME: PASS (239 checks; headless registration, views, portraits and clocks)",
+    "gates": "RR38 ALL GATES: PASS (0 unique errors; native=False)",
+    "geometry": "V2 BOARD SPRITE GEOMETRY: {\"cases\":88,\"errors\":[],\"native\":false,\"orientation_mutations_rejected\":0,\"placement_mutations_rejected\":0}",
+    "prepared_canvas": "PREPARED UNIT CANVAS RESULT: {\"cases\":64,\"checks\":4864,\"errors\":[],\"native\":false,\"orphans\":0,\"pixel_differences\":[]}",
+    "full_suites": "Not run this round, per feedback 3.",
+    "native_pixel_gates": "Original director run remains FAIL (314 errors); no windowed command attempted.",
+    "canceled_invocation": "Direct invocation of RefCounted helper tests/rr40/board_sprite_geometry.gd produced no test result; canceled (130). Correct standalone prepared_unit_canvas_equivalence_test.gd then passed."
+  },
+  "test_logs": {
+    "calibration-final.log": "b785bb9c784476bb6b2593a6f0ccb3c63316054edc2cddfe54280e1f6cd59388",
+    "canvas.log": "ed43dcbbf396c2a7fb393ad080543e85f2db5856600a778c2634e123c5caff80",
+    "source-samples.log": "4d9578bca7167c8d0786f905c16cc2d09e1e95e088191282af075d3e59921fa8",
+    "sidecars.log": "917facb4be9c175a220a69f558ea0bb415b4b624425775a8c567335d0cc9ef18",
+    "gates.log": "d0892764f4b1db9eaa0db4ac92c7d3e3f18d26230361e8c60826ff139b2e5b69",
+    "runtime.log": "fdf9135cf41304167bf957a4847fcc785dd6f713d8982481a444bc320cb1df98",
+    "focused.log": "562f82f9228da0b25f90714e3b351de711d18f7d61d8158653d57769ab23052a",
+    "independent-press-sweep.log": "77cf7e2bc171ec7b726a83eee6b144a6c2497a8731bd74d0f8c7dea10140e054",
+    "independent-death-sweep.log": "dececc26e06845dace58ca0a785fe9b4817ace74e98c6456abd34edbbfb8a8e7",
+    "channel-smoke.log": "e298eb8cf88d4e69df1a76a8b10cf315e60c6a8dc08097bceaba7c2d734e10d4"
+  },
+  "windowed_commands": [
+    "sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh native",
+    "sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh sheets",
+    "sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh production",
+    "sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh review"
+  ],
+  "windowed_outputs": {
+    "native": "proof/native_feedback3",
+    "gates": "proof/logs/feedback3/native_current_gates.json",
+    "sheets": "proof/feedback3_contact_sheets",
+    "review": "proof/chainbound_gaoler_review.mp4"
+  },
+  "native_flat_judgment_frames": {
+    "full_log": "proof/logs/feedback3/native_judged_frames/report.json",
+    "full_log_sha256": "90ce03b1d5b419022fc3717ca88dc45dd890173c9429d7cd8622c35d2bb40861",
+    "frames": [
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 12,
+        "crop": "proof/logs/feedback3/native_judged_frames/front_move_12_native_4x.png",
+        "crop_sha256": "f28f912d7cbf2233182518336dbb51533237b161ee8589ea7e96e36f0683d1b1",
+        "flat_flags": 13
+      },
+      {
+        "view": "front",
+        "clip": "press",
+        "frame": 13,
+        "crop": "proof/logs/feedback3/native_judged_frames/front_press_13_native_4x.png",
+        "crop_sha256": "04891d6c5ec1ba1db0573d50eae65442829ee9196b24534432a283fe31460ccd",
+        "flat_flags": 17
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 37,
+        "crop": "proof/logs/feedback3/native_judged_frames/front_death_37_native_4x.png",
+        "crop_sha256": "b9abae3430c9588a8cb9471343414acfbbf440e45a22d8e00d945c01eabf41b8",
+        "flat_flags": 10
+      },
+      {
+        "view": "front",
+        "clip": "reel",
+        "frame": 33,
+        "crop": "proof/logs/feedback3/native_judged_frames/front_reel_33_native_4x.png",
+        "crop_sha256": "43a5ede2e5dd8829b9509dfba7e62b7050326717ee499ec9bfc572496f1953bb",
+        "flat_flags": 8
+      }
+    ],
+    "status": "Director-described flat blocks remain open; these are actual native surfaces. No procedural replacement attempted."
+  },
+  "independent_channel_experiments": {
+    "press": {
+      "full_log": "proof/logs/feedback3/independent_floors/press/proof/logs/cpu_sweep.json",
+      "full_log_sha256": "474374adca6a124944b370deba1ed958d2322380fc21fea8d212eac79dcc3a17",
+      "frames": 102,
+      "hard_findings": 0,
+      "flat_regions": 509,
+      "failure_frames": [],
+      "maximum_shard_seconds": 5.878795957999998,
+      "channel_scales": {
+        "pelvis.lift_px": 0,
+        "hand_near.lift_px": 0.45454545454545453,
+        "hand_near.forward_px": 0.6666666666666666
+      },
+      "result_line": "RR38 CPU SWEEP: PASS (102 frames; 0 findings; 509 flat regions; native=False)"
+    },
+    "death": {
+      "full_log": "proof/logs/feedback3/death_hip_budget/drop_15.00/proof/logs/cpu_sweep.json",
+      "full_log_sha256": "4481db39fe0337afa066b8caa22ddc513a8219676d84abb578f9fa5464bd5e0a",
+      "frames": 192,
+      "hard_findings": 124,
+      "flat_regions": 1088,
+      "failure_frames": [
+        {
+          "view": "front",
+          "frame": 38,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 39,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 40,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 43,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 44,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 46,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 50,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 52,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 53,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 59,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 60,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 61,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 62,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 63,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 64,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 65,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 66,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 67,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 68,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 69,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 70,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 78,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 80,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 81,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 82,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 84,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 85,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 86,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "front",
+          "frame": 87,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 41,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 42,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ],
+      "maximum_shard_seconds": 5.967572457999999,
+      "channel_scales": {
+        "pelvis.lift_px": 1,
+        "pelvis.forward_px": 0,
+        "torso.lean_deg": 0,
+        "torso.forward_px": 0,
+        "head.lean_deg": 0,
+        "hand_far.lift_px": 0.6666666666666666
+      },
+      "result_line": "RR38 CPU SWEEP: FAIL (192 frames; 124 findings; 1088 flat regions; native=False)"
+    },
+    "death_floor": {
+      "source_report": "proof/logs/feedback3/channel_probe_smoke/frame95/report.json",
+      "source_report_sha256": "989a27733a20be4ee76196b0a3706595cf12db0e73d46ec0dd20787bafd655b4",
+      "failures": [
+        {
+          "bbox": [
+            290,
+            378,
+            291,
+            380
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ],
+      "crop": "proof/logs/feedback3/handoff_crops/CPU_independent_death10_front95_knee_4x.png",
+      "crop_sha256": "d99c56b30a2c126a8aaec21848983d2205bf7ead2f305fde484b23279b8bff2f"
+    }
+  },
+  "independent_hip_endpoint_survey": {
+    "full_log": "proof/logs/feedback3/death_hip_budget/report.json",
+    "full_log_sha256": "c238d2f0a148cf42b95d1a618d22ccb042484d69dc5b2f7fe4273acee804baaa",
+    "purpose": "21 hip-drop endpoints from 15 to 10 at 0.25px intervals, torso/forward channels at rest; some endpoints clear, so endpoint-only testing cannot establish full-clip budgets."
+  }
+}

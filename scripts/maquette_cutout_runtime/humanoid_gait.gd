@@ -125,7 +125,7 @@ static func arm_wave(gait: Dictionary, side: String, phase: float) -> float:
 		previous_value = value
 	return 0.0
 
-static func shoulder_pendulum(world: Dictionary, joints: Dictionary, gait: Dictionary, seconds: float, phase: float, forward: Vector2) -> void:
+static func shoulder_pendulum(world: Dictionary, joints: Dictionary, gait: Dictionary, seconds: float, phase: float, forward: Vector2, elbow_policy: Dictionary = {}, facing: String = "") -> void:
 	var arms: Dictionary = gait.get("arm_swing", {})
 	if arms.get("model", "") != "shoulder_pendulum": return
 	var envelope: float = 1.0
@@ -151,6 +151,13 @@ static func shoulder_pendulum(world: Dictionary, joints: Dictionary, gait: Dicti
 		var bend_side: float = signf((b - a).cross(c - b))
 		var bend: float = float(arm["forearm_bend_deg"]["forward" if delayed >= 0.0 else "back"]) * absf(delayed)
 		var fore_angle: float = base_angle + deg_to_rad(float(arm["upper_deg"]) * delayed * direction + bend * bend_side)
+		if facing in elbow_policy.get("views", []) and side in elbow_policy.get("sides", []):
+			# Declared facing owns flexion, including a nearly straight bind.
+			var flex_sign: float = -signf(forward.x)
+			bend_side = flex_sign
+			fore_angle = base_angle + deg_to_rad(float(arm["upper_deg"]) * delayed * direction + bend * bend_side)
+			var flex: float = wrapf((c - b).angle() + fore_angle - (b - a).angle() - upper_angle, -PI, PI) * flex_sign
+			if flex < 0.0: fore_angle -= flex * flex_sign
 		var elbow: Vector2 = shoulder.origin + (b - a).rotated(upper_angle)
 		var wrist: Vector2 = elbow + (c - b).rotated(fore_angle)
 		world[upper] = Transform2D(upper_angle, shoulder.origin)

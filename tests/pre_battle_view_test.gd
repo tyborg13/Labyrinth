@@ -34,7 +34,7 @@ func _run_layout_proof() -> void:
 		_assert_pre_battle_body_inside_panel(panel, "%d foes" % count)
 		_assert_foe_fit(panel, count)
 		_assert_cards(panel, state["deck_cards"], "deck")
-		_assert_cards(panel, state["attuned_magic_cards"], "attuned")
+		_expect(panel.find_child("PreBattleAttunedRow", true, false) == null, "%d foes: spells appear once, in the deck list" % count)
 		print("Pre-battle layout %d foes panel=%s" % [count, panel.size])
 		await _layout_capture(instance, "%02d_foes" % count)
 	var elemental: Dictionary = preview.duplicate(true)
@@ -126,7 +126,7 @@ func _run_input_proof() -> void:
 		await _settle()
 		_expect(not (instance.get("_pinned_tooltip_scrim") as Control).visible, "Close socket dismisses known moves")
 	await _run_native_hover_dismissal_proof(instance, foe)
-	for node_name: String in ["PreBattleEquipmentChip", "PreBattleAttunedBadge", "PreBattleDeckBadge"]:
+	for node_name: String in ["PreBattleEquipmentChip", "PreBattleDeckBadge"]:
 		var source := panel.find_child(node_name, true, false) as Control
 		var tooltip := source.call("_make_custom_tooltip", source.tooltip_text) as Control
 		_expect(tooltip != null, "Equipment and card hover inspection remains available")

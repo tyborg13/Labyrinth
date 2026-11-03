@@ -1,0 +1,46 @@
+[
+  {
+    "seed": 3,
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/private/tmp/labyrinth_codex/qa-23/run_hunt_task.py",
+      "--seed",
+      "3",
+      "--runs",
+      "1",
+      "--processes",
+      "1",
+      "--no-embrace",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-3-fixed"
+    ],
+    "started": 1793686095.7551491,
+    "product_sha256": "7b2c7a0e6927d1cc8e9c307f2c80008cfc38f4a7a561240869921d505fc57f89",
+    "driver": "tools/run_hunt.gd (unchanged original)",
+    "output": "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-3-fixed",
+    "returncode": 0,
+    "wall_seconds": 1122.0027258396149
+  },
+  {
+    "seed": 4,
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/private/tmp/labyrinth_codex/qa-23/run_hunt_task.py",
+      "--seed",
+      "4",
+      "--runs",
+      "1",
+      "--processes",
+      "1",
+      "--no-embrace",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-4-fixed"
+    ],
+    "started": 1793686095.755219,
+    "product_sha256": "7b2c7a0e6927d1cc8e9c307f2c80008cfc38f4a7a561240869921d505fc57f89",
+    "driver": "tools/run_hunt.gd (unchanged original)",
+    "output": "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-4-fixed",
+    "returncode": 0,
+    "wall_seconds": 1238.5180730819702
+  }
+]

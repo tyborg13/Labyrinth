@@ -1,9 +1,34 @@
 # Slag Mortar — en-04 implementation
 
+## mrk-01 — current keyword and implementation
+
+Lob Slag is a move name; its glossary/grimoire keyword is **Marked**: “these
+tiles take the hit on this enemy's next turn.” Old Lob/action names are lookup
+aliases. Intent, token and tile tooltips share phase-specific copy, using the
+resolved centre damage, arm damage and number of crosses. One-cross marking:
+“Marks your tile and the 4 around it. Next turn: <centre> in the centre,
+<arm> around it, and they become Fire.” Multiple-cross marking: “Marks
+<count> crosses. Next turn: <centre> in each centre, <arm> around them, and
+they become Fire.” Landing: “Marked tiles take the hit: <centre> in the centre,
+<arm> around it, and they become Fire.” For multiple crosses, landing uses
+“in each centre” and “around them”. Captain intent tooltips append their Order
+line. Existing damage rows, tile medallions and activation captions remain.
+
+The shared `scripts/enemy_mechanics/marked_strike.gd` owns marking/planning;
+repository callers use it directly. Saved action names stay unchanged.
+Data retains enc-03's range 2–6,
+plus shape, LOS bypass, centre 5 / arms 3, scaling and Fire; in-board-only
+clipping is now explicit. The Slagmaster's barrage, captain retreat, element
+rule, hit reactions, distinct view, sound and animation remain unchanged.
+Permanent checks: `tests/mrk01_marked_test.gd` and `tests/enc03_slag_test.gd`.
+The shared `tests/mrk01_marked_probe.gd` captures all three enemies and Marked's
+approved `assets/art/icons/marked.png` in the grimoire at 1920×1080/100% UI scale.
+
+
 Binding design and protected data are the same sources named in
 `briar_weaver.md`; `slag_mortar` is copied unchanged from `wave_e2.json` into
 `data/enemies.json`. Focused mechanic and view files are
-`scripts/enemy_mechanics/lob.gd` and `lob_view.gd`.
+`scripts/enemy_mechanics/marked_strike.gd` and `lob_view.gd`.
 
 3. **Lob Slag** marks the hero's tile plus the four board orthogonals.
    Only off-board cells are removed from that tile array. Selection requires

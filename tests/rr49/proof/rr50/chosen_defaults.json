@@ -1,0 +1,35 @@
+{
+  "paired_cost": {
+    "PAIR_ROUNDS": 3,
+    "WARMUP_POSES": 3,
+    "purpose": "Timing noise control only; exact 51 poses in every authored motion clip/view"
+  },
+  "cache_payload": {
+    "MUTATION_PHASE_STEP": 0.001,
+    "purpose": "Distinct proof-only transform keys; no authored motion changed"
+  },
+  "python_tests": {
+    "CLEAN_TIMING_RUNS": 5,
+    "RUNNER_TIMEOUT_SECONDS": 120,
+    "PIN_FIXTURE_BONES": [
+      1,
+      0,
+      0,
+      1
+    ],
+    "UNAPPROVED_BYTE": "newline"
+  },
+  "prescribed": {
+    "CACHE_CAPACITY": 16,
+    "MINIMUM_SPEEDUP": 1.6,
+    "MAX_VIEW_BYTES": 4194304
+  },
+  "inherited": {
+    "TIMING_HEADROOM_FACTOR": 2.0,
+    "POSE_COUNT": 51,
+    "MOTION_MEDIAN_US": 2000,
+    "MOTION_MAX_US": 3000,
+    "HELD_MAX_US": 500
+  },
+  "cache_budget_note": "The two caches share 16 retained buffers. Separate full 16-entry budgets would total 6.24 MiB front / 5.50 MiB rear, so cannot meet the combined 4 MiB requirement."
+}

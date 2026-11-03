@@ -1,0 +1,14 @@
+{
+  "resolved": [
+    "TODO_DESIGN_DRAGON_GRIMOIRE_COPY"
+  ],
+  "open": {
+    "TODO_DESIGN_HOLLOW_GALE_GLOSSARY_COPY": {
+      "file": "data/glossary.json",
+      "entry": "gale_force",
+      "text": "Pushes everything within 2 tiles, then erupts along its last dive.",
+      "actual": "Hollow Gale retains its radius-2 body attack with the director-approved Push 1; the Dive wake rider is removed.",
+      "status": "The nine owned Grimoire bodies were replaced verbatim. This separate, protected glossary definition was not supplied for rewriting."
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "campaign_start": {
+    "base_head": "8174a1a0a6acd3be6851a7ab43c4964aa5dc9da3",
+    "sha256": {
+      "tools/run_hunt.gd": "04ddae399d0bb6bd0ba0e228aaa0184b9a0f02be14e7b677e9a48faf70a2eb5d",
+      "tools/run_hunt_policy.gd": "c89501f6ad50dbedaca8f6631b1aed0bbf8039b861106b5f63a829c3dee02394",
+      "tools/run_hunt.py": "765b9b34521e333a42a63fe83233b362ce282354f1bb3c3963ebfd14e181f461"
+    }
+  },
+  "final_sha256": {
+    "tools/run_hunt.gd": "1ea800f9706ec701dc663d44d8f75528a14f0e4786e2e53799a2a503fdf28161",
+    "tools/run_hunt_policy.gd": "c89501f6ad50dbedaca8f6631b1aed0bbf8039b861106b5f63a829c3dee02394",
+    "tools/run_hunt.py": "5436ddac3ba0ea41f0e85bd07f982b1f6cf01a084fcf70ce7b3bdcb378d15853"
+  },
+  "private_replay_sha256": {
+    "/private/tmp/labyrinth_codex/qa-16/run_hunt_prior.gd": "54cc9e7f5204deb4d9db85da6eb123a93451083bd10d93d936865b93a4b1b4b4",
+    "/private/tmp/labyrinth_codex/qa-16/run_hunt_prior_policy.gd": "157992764810c2074d139b1cc17692edbb8ba89ef20583bf99cea2339272579d",
+    "/private/tmp/labyrinth_codex/qa-16/run_hunt_planted_final.gd": "f338261978562f6f9e88a4831e4fbf2c8a83816a161ef7b9b58efc473fffe348"
+  },
+  "note": "Report parsing was hardened after campaign launch. The final census traversal includes internal children; campaign tree_nodes used public children. Gameplay, inputs and RNG policy were unchanged by that census correction."
+}

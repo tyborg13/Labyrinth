@@ -1,0 +1,17 @@
+[
+  {
+    "name": "cyan_visor",
+    "piece": "head",
+    "mask": "features/front_cyan_visor.png"
+  },
+  {
+    "name": "chest_crystal",
+    "piece": "torso",
+    "mask": "features/front_chest_crystal.png"
+  },
+  {
+    "name": "crystal_spearhead",
+    "piece": "spear",
+    "mask": "features/front_crystal_spearhead.png"
+  }
+]

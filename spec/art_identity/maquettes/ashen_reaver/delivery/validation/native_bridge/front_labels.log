@@ -1,0 +1,8 @@
+00:00.670  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-16/spec/art_identity/maquettes/ashen_reaver/proof/f2_r2/native/maquette.blend"
+00:06.255  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-16/spec/art_identity/maquettes/ashen_reaver/proof/f2_r2/front_labels/front_silhouette.png'
+00:11.717  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-16/spec/art_identity/maquettes/ashen_reaver/proof/f2_r2/front_labels/front_silhouette.png'
+00:18.444  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-16/spec/art_identity/maquettes/ashen_reaver/proof/f2_r2/front_labels/front_parts.png'
+00:24.408  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-16/spec/art_identity/maquettes/ashen_reaver/proof/f2_r2/front_labels/front_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+BLENDER_FACING: PASS
+MQ16_BOUNDED_CAPTURE: PASS; front; labels

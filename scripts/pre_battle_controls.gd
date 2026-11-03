@@ -42,7 +42,7 @@ class Strip:
 
 	func _layout() -> void:
 		super._layout()
-		custom_minimum_size.x = Typography.scaled_value(self, 190.0)
+		custom_minimum_size.x = Typography.scaled_value(self, CardStrip.LIST_WIDTH)
 
 	func _init() -> void:
 		super._init()

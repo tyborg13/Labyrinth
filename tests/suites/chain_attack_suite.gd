@@ -5,6 +5,7 @@ const Combat = preload("res://scripts/combat_engine.gd")
 static func run(expect: Callable) -> void:
 	var combat := Combat.new()
 	var state: Dictionary = fixture(combat)
+	preload("res://tests/suites/chain_footprint_cases.gd").run(combat, state, expect)
 	var original: Dictionary = state.duplicate(true)
 	var action: Dictionary = {"type": "ranged", "damage": 4, "range": 7, "chain": 2}
 	var result: Dictionary = combat.resolve_player_action_for_presentation(state, action, Vector2i(4, 4))

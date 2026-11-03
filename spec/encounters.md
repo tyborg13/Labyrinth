@@ -649,7 +649,7 @@ forecast. No animation timing, visual markers, input routes or assets change.
 The ordinary route search uses a stable minimum heap with the original route
 comparator and FIFO ties. Its reference scan remains available for equivalence
 proof. Presentation adapters copy the outer containers they change and retain
-unchanged nested evidence. Tether's threat and real-resolver damage evidence are
+unchanged nested evidence. Enemy threat and real-resolver damage evidence are
 memoized together, preserving card-damage precedence.
 
 PASS's loss-only cursor can omit unrevealed future intent rolls and animation
@@ -673,10 +673,8 @@ writers remain unchanged. No card values or heuristic coefficients change.
 Focused wind proof is `tests/warband_wind_lock_test.gd`. The existing Warband
 suite checks 6 variants × 3 tiers × 200 seeds, four entry directions, role order,
 Command range, screen geometry, alternating sides, gaps and an independent
-approach flood fill. Ordinary order controls use frozen pre-spread layouts from
-base `3fad2e65b1685996f7eed3fd407513cd54012129` in
-`tests/fixtures/spx07_order_control_layouts.bin`, preserving their original golden
-hash assertions rather than coupling them to the new placement search.
+approach flood fill. (The frozen ordinary order-control layouts and their spx-04 golden were retired by el-02, when
+the Warband orders became battlefield-rule instances; the battlefield-rule and element-retrofit suites cover them.)
 
 The headless proof and current remaining budget failures are recorded in
 `output/spx07/HANDOFF.md`. Native first-turn proof uses the existing Warband probe
@@ -725,6 +723,481 @@ One owned wind forecast serves each synchronous overlay tile loop.
 `tests/helpers/spx07_cache_ownership_cases.gd`, registered through the Warband UI
 suite, mutates each nested container independently and checks both retained
 results and later hits. It covers memo, plan, threat/coverage/geometry, catalog,
-orders, badge focus, Tether, wind, paths, clips and mesh resources. Its locked-wind
+orders, badge focus, wind, paths, clips and mesh resources. Its locked-wind
 collision fixture preserves the reviewer's unequal states hashing to 2943709617:
 hero `(2,3)` with nonce 104756 and `(8,8)` with nonce 8893, including undo.
+
+## Umbral Snare: the room closes in (spx-06)
+
+The six `pressure` objects are imported without edits from the protected
+`spec/peer_benchmark/staged/spx-06/pressures.json`. The production and staged
+special catalogs remain byte-identical. `snare_pressure_rules.gd` owns selection,
+initialization and saved pressure state; Snare round start applies pressure
+after the escape guard and before adding a hunter or resolving enemies. The
+existing pending-round bit makes player completion idempotent. Seals retain
+their end-of-enemy-round boundary.
+
+| Variant / id | Exact implementation |
+| --- | --- |
+| Earth / `rubble_lane` | Ignore units, retain walking blockers, charge two to leave Rubble. Choose the cheapest open exit route; equal costs retain spx-05's door order (`path_tiles`, then `map_lane`). Path ties retain the existing cardinal discovery order. Paint the first legal, non-threshold, non-Rubble tile at least two path steps away. Recompute from the current board each preview/completion. |
+| Fire / `fire_rows` | Snapshot entry walking distances before the first player turn, without unit/surface costs. On player completion N, paint the legal non-exit tiles at stored distance N−1. Ordinary Fire placement, entry and turn-start contact rules remain authoritative. |
+| Air / `headwind` | Persist a room-owned wind with the entry-wall direction and authored push distance. Apply the existing mover once per player completion, with its ordering, collisions and anchors; Sealbinders are anchored. Enemy completions cannot repeat this wind. The existing chip's arrow remains and its title is exactly `Headwind`, with no count. Existing wind animation and reduced-motion timing are reused. |
+| Ice / `frost_thresholds` | Before the first player turn, place ordinary Ice on each sealing threshold's inward adjacent floor tile with the shortest entry walk; ties use lower x, then lower y. Sealing does not remove the surface. |
+| Lightning / `live_tethers` | The saved pressure id is retained. After each player turn, the existing `snare_lightning` rule strikes every Electrified tile for 3. Arc Thralls use Arc Bolt (Move 2 + ranged lightning 3, range 3, Electrified rider); ordinary movement, hover previews and damage rules apply. No crossing hook or passive enemy path is added. |
+| Shadow / `umbra_rings` | Start at the normal section's Umbra stage, subtract one radius after each two completed player turns, and stop at one. Existing Light and vision effects still contribute normally. Door art, thresholds, chips and Sealbinders remain visible beyond sight. |
+
+The objective description is shared by the HUD and pre-battle heading; the exact
+pressure text is its last line. `snare_pressure_view.gd` uses the existing
+Thornwall marked-intent area style, with no new art, icon, colour or marker.
+Earth and Fire mark exactly the changed tiles; an upcoming sight reduction
+marks exactly the tiles leaving visibility. Headwind retains its shared wind
+forecast and collision paths; Ice and Electrified ground retain their ordinary surface
+and telegraph evidence. Pressure presentation uses the exact, owned preview memo
+so focus changes reuse the resolver while mutations invalidate it.
+
+Saved combat data adds `snare_pressure` (id, radius loss, and Fire's immutable
+distance map when applicable); room wind remains in the existing `wind` field.
+Both player-turn and pending-enemy-round saves round-trip through production
+repair for all six variants. Pressure event/terminal fields are documented in
+`analytics.md`. Fire can kill arriving hunters; their existing zero-Ember
+contract is honored at the death-reward boundary as well as in the fixed
+starting-roster special reward. Seal dissolves still have no death effects.
+No card mechanics or intrinsic card coefficients change; the encounter-only
+pressure values are the director's supplied tuning.
+
+### Implementation proof and design-owner renderer commands
+
+`tests/snare_test.gd -- --pressure-only` runs the pressure suite independently;
+the ordinary Snare entrypoint also includes it, including in the full Godot
+manifest. Coverage includes fixed exact tiles/slides, lane switching, Fire's
+immutable distances, collisions/anchors, Ice tie-breaks, repeated live entries
+by walking/force and production damage chips, fog exemptions, all-six saves
+and pending-round continuations, both JSONL callers and retry deduplication,
+and tier-two seed-83 fixtures. The existing Snare matrix remains six variants ×
+three tiers × 200 seeds; the revision-5 and Warband checks remain registered.
+The seal-only no-death-rewards fixture uses Earth so Fire killing a hunter does
+not confound that assertion; the pressure suite separately checks those deaths.
+
+The implementation sandbox has no macOS window server. These commands are
+prepared for the design owner and have **not** been run windowed. The probe
+captures player turn three in every variant at exactly 1920×1080 and 100% UI
+scale, with two aligned planned Thralls and already-shrunk normal Shadow sight:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-06 && bash tests/spx06_design_owner_proof.sh capture
+```
+
+That command runs exactly:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-06 && python3 tools/visual_probe_runner.py --task-id spx-06 --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --expect-size 1920x1080 --proof-contract tests/proof_contracts/spx06_snare_pressures.json --result-manifest /private/tmp/labyrinth_codex/spx-06-pressure-captures.json tests/snare_probe.gd -- --pressures-only
+```
+
+PNG paths are `user://probes/spx06/pressures_tier2/<biome>_turn3.png`, with
+`captures.json` beside them and the validated result manifest above. The probe
+prints each absolute capture path. Non-Shadow capture-only vision uses the
+existing named `CAPTURE_VISION_BONUS`; Shadow keeps its real fog. The six-case
+probe uses a 180-second execution budget while retaining the startup watchdog.
+Fresh renderer inspection and the UI identity judge remain the design owner's
+steps after implementation.
+
+Each playable fixture command regenerates, verifies and launches its own saved
+state. Use any of these exact task-local commands:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-06 && bash tests/spx06_design_owner_proof.sh fixture earth
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-06 && bash tests/spx06_design_owner_proof.sh fixture fire
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-06 && bash tests/spx06_design_owner_proof.sh fixture air
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-06 && bash tests/spx06_design_owner_proof.sh fixture ice
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-06 && bash tests/spx06_design_owner_proof.sh fixture lightning
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-06 && bash tests/spx06_design_owner_proof.sh fixture shadow
+```
+
+For example, the lightning wrapper expands to:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-06 && python3 tools/inspection_fixture.py --task-id spx-06 --run-id spx-06-lightning-pressure-turn3 --manifest /private/tmp/labyrinth-inspection-manifests/spx-06-lightning-pressure-turn3.json --launch --scenario snare --snare-biome lightning --snare-tier 2 --snare-case pressure_turn3 --seed 83
+```
+
+The console accepts `snare <biome> 2 83 pressure_turn3` and prints the exact
+pressure text plus the live tile/radius/slide forecast. Debug-only choices are
+named fields: the focused test's 9×9 open board and 1000 HP; `TEST_POSITIONS` uses entry
+`(1,4)`, hero `(4,4)`, exits `(7,4)/(4,1)/(4,7)` and Thralls `(2,3)/(6,3)`;
+fixture endurance retains the existing 100 HP. Proof Thralls keep their natural
+positions and receive the stock scaled Arc Bolt intent. No player-visible tuning or asset was invented.
+There are no `TODO_DESIGN_*` placeholders.
+
+### Observed implementation verification (2026-10-21)
+
+The final-source Godot full run completed with these exact result lines:
+
+```text
+Snare placement matrix: 3600 rooms (6 variants × 3 tiers × 200 seeds), 2/3 exits, 4 entries
+Snare suite: 0 failures
+Snare UI/fixture suite: 0 failures
+Warband suite: 0 failures
+WARBAND ORDERS TEST RESULT: PASS (214 checks, 0 failures)
+SPX07 WIND LOCK RESULT: PASS (114 checks, 0 failures)
+FULL SUITE RUNTIME: 539.269 seconds (budget 900 seconds)
+TEST RESULT: FAIL (1 failure(s))
+```
+
+The only failing registered child is the unchanged `special_encounter_test`:
+`SPX special encounter suite: 2 failures`. Its two assertions require the real
+resource-loader imports of the approved production and staged emblems. This
+worktree's `.godot/imported/` cache lacks the `.ctex` files named by the existing
+Warband, Snare, Ember Hoarder and Last Light sidecars. The emblem assets,
+sidecars and assertions were not edited. All other 187 registered child
+programs passed; the main body executed 494879 assertions. The earlier broad
+run reported the same child failure. No editor scan was used to mask it.
+
+Final Godot log: `/private/tmp/labyrinth_codex/spx-06-full-godot-final.log`.
+Focused logs: `/private/tmp/labyrinth_codex/spx-06-{pressure-final,snare-final,ui-final,warband,wind-lock}.log`.
+The UI identity gate separately reported `Ran 25 tests in 3.532s` and `OK` in
+`/private/tmp/labyrinth_codex/spx-06-identity-final.log`. Shell syntax and
+`git diff --check` exited zero. A separate catalog check reported:
+
+```text
+Pressure director import: PASS (six exact objects; catalogs byte-identical; protected data unchanged; no unrelated catalog values changed)
+```
+
+The production fixture wrapper generated and reloaded Shadow and Lightning
+without launching a window; each reported `Inspection fixture verified.`.
+Their manifests are
+`/private/tmp/labyrinth-inspection-manifests/spx-06-shadow-pressure-headless.json`
+and
+`/private/tmp/labyrinth-inspection-manifests/spx-06-lightning-pressure-headless.json`.
+All six variants' staged turn-three and saved-pressure contracts also passed
+in the focused suite. The historical console smoke log at
+`/private/tmp/labyrinth_codex/spx-06-console.log` predates `thrall-rework-v1`.
+Current lightning pressure copy is
+`Snare pressure [live_tethers]: After each of your turns, lightning strikes every Electrified tile for 3.`
+
+No native capture has been generated or inspected in this sandbox. The PNG
+paths and windowed commands above are the design owner's remaining renderer
+proof. The branch remains uncommitted; no peer review or publication was run.
+The four new GDScript sidecars were created and round-trip validated through
+Godot's native UID API without an editor scan:
+`Snare pressure script UIDs: 4 native identities written and validated`
+(`/private/tmp/labyrinth_codex/spx-06-uids.log`).
+
+The full Python suite was also run from this worktree with
+`python3 -m unittest discover -s tests -p 'test_*.py' -v`. Its exact final result
+was:
+
+```text
+Ran 1635 tests in 2535.354s
+OK (skipped=66)
+```
+
+The complete verbose log, including every skip reason, is
+`/private/tmp/labyrinth_codex/spx-06-full-python.log`. No assertion or optional
+test gate was weakened. All changes remain uncommitted for the design owner.
+
+### spx-06 director feedback 1 (checkpoint 463c6a0c5)
+
+1. `CombatEngine.prepare_player_activation_end` owns the snapshot after the
+   escape guard, block conversion, activation-end relics, tempo/maneuver expiry,
+   Bleed cleanup and scheduling. Both the live pressure forecast and actual
+   player completion use it. Resolution selects from the already prepared
+   snapshot, without applying preparation twice. The console/batch Snare API
+   also crosses this boundary when called directly from a player activation.
+2. Pressure presentation and memo results contain only `tiles`,
+   `displacement_paths` and `collision_markers`. Collision projection retains
+   only the shared icon/tooltip/dedup fields. Room-wind presentation uses the
+   same projection; resolver states and analytics bookkeeping are excluded.
+   Exact source inputs still validate cache hits. The six-frame native probe
+   compares projections, so analytics added by scene loading cannot create a
+   false mismatch.
+3. Sealbinders rely on the existing forced-movement guard. The duplicate
+   wind-specific anchor predicate is removed. Both free-space immobility and
+   collision against a Sealbinder remain covered by the pressure suite.
+4. Room-wind depth drawing reads submitted displacement paths directly, rather
+   than validating a complete rules query for each clipped tile. Public wind
+   forecasts retain exact dependency validation. No path, marker, animation,
+   timing or visual style changes.
+
+The boundary suite uses the real `cinder_trail` card actions. Before the fix:
+`Snare Cinder Trail forecast HP=2; outcome HP=0` and `Snare suite: 9 failures`
+(`/private/tmp/labyrinth_codex/spx-06-feedback-before.log`). After the fix:
+`Snare Cinder Trail forecast HP=0; outcome HP=0` and `Snare suite: 0 failures`.
+It additionally exercises Worldheart's actual end-turn conversion, its pulse
+and an Ember Tick's death burst for each of the six pressures. This covers
+new Fire before Fire-row selection, Fire replacing an Ice approach, changed
+actors/defenses before wind, prepared sight reduction, and lethal preparation
+cancelling the pressure boundary for every variant. An observing subclass
+records the real relic hook's output without replacing its behavior. Further
+checks cover immutable source state, drawn-only memo results, scene-load
+analytics independence and unchanged submitted wind paths.
+
+#### Frame comparison and attribution
+
+`tests/snare_pressure_frame_benchmark.gd` preserves the reviewer's real-iteration
+headless sweep: tier 2, seed 83, player turn 3, 1920×1080, UI scale 1,
+uncapped processing, 1.5 seconds settle, 4 seconds idle and 6 seconds of viewport
+mouse motion per variant. Queued CanvasItem drawing executes in these samples;
+this is CPU evidence with the dummy renderer, not native/GPU frame pacing.
+The comparison disables the review probe's absolute budget gate on both sides
+and retains raw intervals, monitor peaks and section costs. `FRAME RESULT: PASS`
+means fixture/input/drawing/orphan assertions passed, not that every interval
+met 16 ms.
+
+`tools/snare_pressure_performance.py` archives integration `d96eadf4f` into a
+short-lived directory inside this worktree; it never checks out or alters Git
+state. Both revisions use one identical test fixture adapter. Assets/fonts are
+unchanged between these revisions and shared read-only. The helper records
+revision/diff and workload hashes. Two natural-board pairs reproduced the
+Earth and Lightning spikes on the base. Natural Air differs because headwind
+moves hunters onto the pointer sweep, causing enemy-hover redraws absent in
+the base. The additional control pair loads byte-identical saved turn-three
+boards on both sides, including those positions, with fixture hashes checked.
+
+Apple M5 Pro, macOS, Godot 4.6.1, headless CPU control sweep (milliseconds):
+
+| Biome | Base median / p95 / max | Candidate median / p95 / max |
+| --- | --- | --- |
+| Earth | 0.772 / 3.877 / 22.685 | 0.720 / 3.932 / 20.121 |
+| Fire | 0.789 / 1.834 / 9.158 | 0.740 / 1.647 / 10.879 |
+| Air | 0.806 / 2.021 / 22.947 | 0.797 / 1.818 / 18.576 |
+| Ice | 0.911 / 2.230 / 12.228 | 1.034 / 2.029 / 8.366 |
+| Lightning | 0.577 / 1.401 / 20.410 | 0.547 / 1.289 / 22.523 |
+| Shadow | 0.517 / 1.080 / 10.815 | 0.520 / 1.187 / 8.186 |
+
+Top draw costs on the control pair: Earth's existing `overlay_meteor`
+12.874/13.279 ms (base/candidate); Air path-depth drawing 3.912/1.351 ms;
+Lightning path-depth drawing 6.852/7.065 ms. These are maxima within the
+instrumented draw samples, not whole-frame intervals. The natural pairs'
+Lightning maxima were 20.860/18.410 and 17.895/15.816 ms; the control pair's
+opposite ordering demonstrates variance rather than a consistent Lightning
+regression. Whole-frame outliers also occur in unrelated torch, ambient and
+Umbra sections. Common renderer work is left unchanged. Final resources on
+both sides: 11 nodes, zero orphan nodes; static memory 604,210,989/603,413,720
+bytes (base/candidate). No universal hardware-performance claim is made.
+
+Raw control reports and samples:
+`/private/tmp/labyrinth_codex/spx-06-feedback-frames-matched/{base,head}.json`.
+Natural pairs: `spx-06-feedback-frames-{base,head}-{1,2}.json`; path optimization
+samples: `spx-06-feedback-frames-optimized-{1,2}.json`, under the same directory.
+Repeat the matched CPU comparison with:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-06 && python3 tools/snare_pressure_performance.py pair --output-dir /private/tmp/labyrinth_codex/spx-06-feedback-frames-matched
+```
+
+Debug-only values introduced by these regressions are named constants: lethal
+Cinder HP 2, Block 2, Tick HP 1, Cinder destination `(5,4)`, Tick position `(3,4)`;
+other fixture values and frame timings preserve the existing proof/review
+workload. The path-capture stub uses white only as a test argument. No
+`TODO_DESIGN_` placeholder or new player-facing value is introduced.
+
+Native proof remains the director's responsibility; this sandbox has no window
+server. `bash tests/spx06_design_owner_proof.sh capture` runs the updated
+six-variant projection comparison. Capture targets remain
+`user://probes/spx06/pressures_tier2/{earth,fire,air,ice,lightning,shadow}_turn3.png`.
+The existing `fixture <biome>` commands above still launch each turn-three
+inspection state. No native run was attempted during this feedback pass.
+
+Feedback validation (logs in `/private/tmp/labyrinth_codex/`):
+
+- Focused Snare: `Snare suite: 0 failures`; placement matrix remains 3,600 rooms.
+  All six preview/outcome/escape, save/load and analytics cases pass.
+- `Snare UI/fixture suite: 0 failures`.
+- `Warband suite: 0 failures`.
+- `WARBAND ORDERS TEST RESULT: PASS (214 checks, 0 failures)`.
+- `SPX07 WIND LOCK RESULT: PASS (114 checks, 0 failures)`.
+- `EN02 ENEMIES TEST RESULT: PASS (235 checks, 0 failures)`.
+- `EN03 ENEMIES TEST RESULT: PASS (210 checks, 0 failures)`.
+- Warband UI: 249 nested ownership boundaries, 100 exact cold/warm path-command
+  comparisons, path batching equivalence and 43 exact catalog definitions.
+- UI identity: `Ran 25 tests in 3.766s` / `OK`.
+- One full Godot run: `MAIN BODY ASSERTIONS: 494879`;
+  `FULL SUITE RUNTIME: 602.398 seconds (budget 900 seconds)`;
+  `TEST RESULT: FAIL (2 failure(s))`. All 187 other standalone programs pass,
+  including Snare and Snare UI. One failure was the new frame diagnostic's
+  `_probe.gd` filename being audited as an unregistered headless test. Renamed
+  it to the established `_benchmark.gd` convention; focused recheck:
+  `TEST REGISTRATION AUDIT: PASS (788 scripts; full suite=436, quarantined=29, windowed probe=323)`.
+  The full run retains its earlier audit failure. The other failing program is
+  the unchanged `special_encounter_test`: its two approved/staged emblem
+  resource-loader assertions still lack imported `.ctex` files, as at r0.
+  No assertion or approved asset was rewritten. Full log:
+  `spx-06-feedback-full-godot.log`; focused audit: `spx-06-feedback-registration.log`.
+- One full Python discovery: `Ran 1635 tests in 2084.790s` /
+  `OK (skipped=66)`; process exit 0. Log: `spx-06-feedback-full-python.log`.
+  The existing optional dependency/native-tool skips remain unchanged. The
+  suite-rewritten Briar Weaver `mq9/proof/samples.json` was restored to its
+  exact clean pre-run bytes; it is not part of this unit's changes.
+- No commits, branch changes, peer review, windowed runs or publication were
+  performed. Runtime source was unchanged during the final suites; the frame
+  diagnostic filename correction and this proof record are reported above.
+
+## Last Light (spx-08)
+
+Owner approval `last-light-v2` (2026-10-29). Last Light is the parked Survive
+objective in a dark room with three braziers; every piece is an existing primitive.
+`scripts/last_light_rules.gd` owns the type-keyed room and combat rules;
+`scripts/enemy_mechanics/snuff.gd` owns the Wick Shade's Snuff. Shared hook points
+only dispatch to them (objective type and copy, room generation, combat creation,
+intent filtering/planning/resolution, the dawn reward, analytics).
+
+- **Catalog.** `types.last_light` is enabled and placed by the shared special
+  placement, from map layout revision 7 (`first_layout_revision`): saved
+  revision-5/6 maps regenerate byte for byte (the map-03 digests hold). On
+  revision 7 a section now rolls two (weight 3) or three (weight 2) specials and
+  every map reshuffles its specials; seed-pinned revision-7 fixtures were
+  re-found (see the unit report). The stub's twists,
+  flames, flame radii, `fire_relights` and `hold_player_turns` are removed; each
+  section keeps only its `attackers`. `bonus` is `heal_per_lit_brazier`
+  (amount 2, max 6, `reward_line`). `objective_description`, `sight_radius`,
+  `braziers` (count, distance from start, tooltip), `wick_shades` and
+  `battlefield_instance` carry the brief's values. The staged catalog copy stays
+  byte-identical.
+- **Objective.** Survive unchanged: target clock 60/66/72 by encounter depth (director tuning; generic Survive remains 42/46/50),
+  reinforcements every 16 Time from the room's unique starting types. Title
+  "Last Light", description "Survive until dawn.", `goal_met` true. The HUD keeps
+  "N time remaining · Reinforcements in M".
+- **Cast.** Two Wick Shades, then the section's attackers, in that order.
+  Ordinary enemy placement, with brazier tiles excluded. No objective extras,
+  spawn groups or omen enemies (omens add enemies only to standard combats).
+- **Darkness.** The room's Umbra stage is the stage whose sight radius equals
+  `sight_radius` (3 → `deep`), so the dark, its board treatment, Light, Truesight,
+  and Vision work as everywhere. Its authored sight stays 3 in every section
+  and at every Umbra depth: section and depth darkening do not reduce it.
+  Light and Vision can still raise sight, and Truesight still reveals enemies.
+  The HUD names the stage "Deep" whatever the section (int-09 r1).
+- **Braziers.** `guardian_braziers` ids 1–3, all lit: permanent radius-2 Light
+  sources with the Lamplighter's watch-brazier art. Placement: passable non-door
+  floor at Manhattan distance 3 from the authored start, never on the interior edge
+  ring (x or y equal to 1 or 7), reachable on foot; the set maximizing the smallest
+  pairwise distance, ties to the lowest row-major tile indices. Braziers are placed
+  before enemies, traps, loot and terrain; a room without three legal tiles retries
+  its template like Warband/Snare formations, then clears interior blockers. The
+  prop tooltip is the brief's exact sentence.
+- **Rule.** `battlefield_rules.json` instance `last_light`: Shadowstep, room
+  source, `after_player_turn` every 1, `blink 2`, `who: all_hidden`, with the
+  brief's sentence. Panel, turn-clock beat and ghost forecast are the shared
+  battlefield-rule presentation; the ghost forecast uses the Snare's
+  activation-end boundary (`battlefield_rule_view.gd`).
+- **Snuff.** The Wick Shade gains `snuff` (Time 4, weight 2): one `move_toward`
+  range 2 carrying the existing `snuff_brazier` flag. At declaration it records the
+  lit brazier nearest the Shade (ties: lower brazier index) as `brazier_id`; if that
+  brazier is already out when it acts, it turns to the lit brazier nearest it then.
+  It moves along the shared enemy movement path, then puts the brazier out if it
+  stands on it or orthogonally beside it. Rooted Shades still snuff when already
+  beside; Shocked Shades only move. The Shade cycles its intents, so the weight is
+  the number of interleaved cycle slots Snuff fills: Grasp, Snuff, Drift,
+  Snuff. Snuff is offered only while the room has a lit brazier the hero can relight
+  by stepping (`brazier_relight_on_step`), so the Lamplighter and Noctyrax fights,
+  and every brazier-less fight, keep their exact intent lists and cycles.
+- **Relight.** `DragonCombatRules.relight_brazier` also runs when the room sets
+  `brazier_relight_on_step`; Noctyrax keeps its exact `dragon_light_restored`
+  event, room relights record `brazier_relit`.
+- **Reward.** Victory pays the shared special bonus plus `min(2 × lit at dawn, 6)`
+  Health, capped at max Health, inside `finish_combat`'s completed-room guard;
+  `pending_reward.healed_amount` records it. Defeat is ordinary.
+- **Fixture.** `tools/last_light_inspection.gd`, through `tools/inspection_fixture.py
+  --scenario last_light --last-light-biome <section> --last-light-tier <1-3>
+  --last-light-case pre_battle|encounter`.
+
+Open design items (no player text was invented): `TODO_DESIGN_snuff_brazier_marker`
+(no per-brazier on-board marker names the threatened brazier; the plan, path ghost
+and the known-move note "Move 2 toward the nearest lit brazier, then put it out if
+adjacent." — the brief's own composition sentence — identify it),
+`TODO_DESIGN_last_light_reward_line_placement` (no existing screen shows a special's
+reward line; `LastLightRules.reward_line()` holds it) and
+`TODO_DESIGN_snuff_gate_outside_last_light` (the brief's literal gate, "a lit brazier
+exists", would let the Lamplighter's own Shade snuff its lit braziers).
+
+Proof: `tests/last_light_test.gd` (`tests/suites/last_light_suite.gd`), registered in
+`tests/headless_test_programs.json`; measurement in
+`spec/peer_benchmark/encounter_redesign/measurements/last_light/report.md`.
+
+## Ember Hoarder (spx-09)
+
+Owner approval `ember-hoarder-v2` (2026-10-29). No new mechanic: the room
+combines the Warband captain's back-line placement, keep-away step and break,
+the Snare Sealbinder's player-turn clock and silent dissolve, the Ember Tick's
+Kindle and death burst, and an ordinary `move_away` intent. `types.ember_hoarder`
+is enabled in both director catalog copies (live and staged, byte-identical);
+the pre-principle `spill_embers_per_hit`, per-section gangs/twists, marks and
+fixed HP table are removed. Every value below is read from that type, from the
+new `data/enemies.json` entry `ember_hoarder`, or from `HoarderRoomRules`
+(`scripts/hoarder_room_rules.gd`). Shared hook points only dispatch to it.
+
+- **Placement.** Exactly as the other specials, on the current map revision.
+  The type declares `first_layout_revision: 7`; the shared place-level gate in
+  `SpecialEncounterLibrary.place` skips it and Last Light for revision 6.
+  Saved revision-6 maps and the legacy digest goldens stay byte-identical.
+  Revision-7 fixtures use named seeds found on the merged catalog, without
+  replacing or disabling any catalog entry. The authored two/three section
+  request and at-most-two-specials route constraints remain unchanged.
+- **Unit.** `ember_hoarder` is the Ember Tick's entry (art, rear art, scale,
+  element, accent, Health, initiative, Embers, death burst, AI profile) with the
+  name "Ember Hoarder" and two intents: the Ember Tick's Kindle (weight 1) and
+  Scurry (`move_away` 2, Time 4, weight 2). It never attacks. Its board art is
+  the Ember Tick's articulated rig at the Tick's scale, aliased by the director's
+  int-09 decision in the maquette runtime. Floor, height and action bounds reuse
+  the Tick's exact registration, and Kindle uses its existing selector. Every
+  other rig remains byte-identical; provenance ledgers carry the exact alias delta.
+- **Start.** The roster is the Hoarder plus three Ember Ticks at every tier,
+  placed by `WarbandRoomRules.positions` and validated by `WarbandRoomRules.validate`
+  (captain slot 5–7 from entry, screened). Ordinary depth, sequence and Umbra
+  scaling apply to all four; then the Hoarder's Health becomes 3× the brood Tick's
+  final Health. The Defeat the Leader objective carries no generic leader HP or
+  Stoneskin. The Hoarder is the marked leader with the per-instance nameplate
+  "Ember Hoarder" (the captain's mechanism; no new icon). Omen enemies are added
+  as for the Warband.
+- **Keep-away.** Before its intent, a living Hoarder at large takes the
+  captain's step: `HoarderRoomRules.retreat_path` runs the unchanged
+  `WarbandCombatRules.retreat_path` with this room's keep-distance dials (one
+  tile away when the hero is within 2, screened tiles first; the step reads no
+  other objective field). Initiative
+  activations, intent plans/previews and the legacy batch API all include it.
+- **Clock.** `objective.player_turns_completed` advances once per completed hero
+  activation, guarded by the saved `enemy_round_pending` bit (cleared at the next
+  player preparation), exactly as the Sealbinder's. Tier 1 escapes after 5 turns,
+  tiers 2–3 after 4. The rule panel above the objective shows "The Hoarder slips
+  away with its hoard after your Nth turn." with ` · N TURNS LEFT` (` · 1 TURN LEFT`)
+  on its kicker; it hides once the Hoarder is gone. The panel title is "Slip Away"
+  and uses the Hoarder's own map emblem (director decisions, int-09).
+- **Escape.** At the end of that hero turn the Hoarder dissolves like a sealing
+  Sealbinder (`snare_dissolved`, HP 0, no death burst, Embers, kill credit or
+  sound; the Snare's audio filter covers both rooms). The objective becomes the ordinary Defeat All (`kill_all`, standard
+  name, description and icon; `goal_met` false). Remaining enemies keep the fight
+  going; with none left it is won at once. Standard cards and per-kill Embers.
+- **Catch.** Killing the Hoarder wins at once (`goal_met` true). The brood
+  scatters by the Warband break (`break_followers`, flee paths, `warband_fled`):
+  their death bursts and spawns are suppressed, including batched deaths queued
+  before the catch. The Hoarder's own death burst fires as an Ember Tick's
+  (4 plus Kindle). The break presentation (run and dissolve) is shared;
+  `break_line` is "The brood scatters!" (director decision, int-09).
+- **Reward when caught.** The shared special reward (4 cards with the Rare floor,
+  1.5× the captured starting roster's Embers) plus `hoard_embers`: one standard
+  fight's Embers, computed like the special base (the captured
+  `special_starting_reward_embers` × `standard_fight_embers` 1.0, half-up, combat
+  omens). The run notice and `pending_reward.special_bonus_line` read "The
+  Hoarder's hoard: +N embers". The completed-room guard prevents double payment.
+- **Map.** The approved emblem `assets/art/icons/map/ember_hoarder.png` (director
+  provenance hash a4807c1d…5caf, not a placeholder); tooltip line "Catch the Ember
+  Hoarder before it slips away with its hoard."; objective "Ember Hoarder" /
+  "Catch the Hoarder before it slips away.".
+
+Saves need no migration: all state is ordinary objective/enemy data. Legacy
+batch resolution, previews and resume share the pending bit. No player-card
+coefficient changes; the encounter assumptions are mirrored in
+`tools/card_heuristic.py --show-assumptions` (`combat_objectives.ember_hoarder`).
+
+### Validation and proof (spx-09)
+
+`tests/hoarder_test.gd` (registered) checks each requirement with independent
+literals and the brief's mutations: Health 2×, clock 5 at tier 2, an attacking
+Hoarder (data and behaviour), a death burst on dissolve, brood bursts after a
+catch, the hoard paid on escape and a leftover `spill_embers_per_hit` are each
+rejected. Its generation matrix covers 6 biomes × 3 tiers × 40 seeds across
+sections I–VI and Umbra depth. The inspection fixture is
+`tools/inspection_fixture.py --scenario ember_hoarder --hoarder-biome <section>
+--hoarder-tier <1-3> --hoarder-case pre_battle|encounter`. Measurement (meas-02
+bot, revision 7) lives in `peer_benchmark/encounter_redesign/measurements/spx-09/`;
+the bot accepts any enabled special type other than the Warband as an extra
+cohort (`umbral_snare` / `snare`, `last_light`, `ember_hoarder`) through the
+single `Sweep.special_cohort(cohort, revision)` helper. Baseline sweep bins are unchanged.

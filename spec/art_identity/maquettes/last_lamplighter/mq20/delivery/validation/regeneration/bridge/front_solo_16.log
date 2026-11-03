@@ -1,0 +1,12 @@
+00:00.700  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/native/maquette.blend"
+00:04.253  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_16/front_silhouette.png'
+00:06.823  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_16/front_silhouette.png'
+00:09.600  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_16/front_parts.png'
+00:12.068  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_16/front_silhouette.png'
+00:14.619  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_16/front_silhouette.png'
+00:17.114  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_16/front_silhouette.png'
+00:19.574  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_16/front_silhouette.png'
+00:22.372  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_16/front_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+BLENDER_FACING: PASS
+MQ18_BOUNDED_CAPTURE: PASS; front; mantle,cage,belt,robe

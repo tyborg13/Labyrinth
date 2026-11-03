@@ -1,0 +1,72 @@
+{
+  "base_head": "65b9d0d43636c1d5bd72944c38518c5a8540e5cb",
+  "files": {
+    "assets/units/gloam_stalker_cutout/actions.gd": {
+      "sha256": "930a675c6876e6ee2562ae7eff361e96381dd3214d58599147caf15e5366ec29",
+      "bytes": 3982
+    },
+    "tests/suites/en03_enemies_suite.gd": {
+      "sha256": "09bf4c31edfebb7ae3914840c21e94df0b37c55101b211200fdff06b40338b3b",
+      "bytes": 27169
+    }
+  },
+  "regression": {
+    "before": "QA23 AMBUSH PLAYBACK: FAIL (33 checks, 4 failures)",
+    "after": "QA23 AMBUSH PLAYBACK: PASS (33 checks, 0 failures)",
+    "before_script_errors": 4,
+    "after_script_errors": 0,
+    "base_adapter_sha256": "691f7dcf5250bf8859ed28948657d00b34c190dfc2e83655d1f4ed25506291ba"
+  },
+  "no_effect_reference": "scripts/enemy_mechanics/stalker_view.gd",
+  "integration_audit": "adapter-audit.json",
+  "focused": {
+    "suite": "en03_enemies_test",
+    "returncode": 0,
+    "retries": [],
+    "result_line": "EN03 ENEMIES TEST RESULT: PASS (499 checks, 0 failures)"
+  },
+  "python": {
+    "selected_groups": [
+      "default"
+    ],
+    "modules": 19,
+    "tests": 178,
+    "seconds": 27.654893125,
+    "failures": 0,
+    "errors": 0
+  },
+  "replay": {
+    "seed": 5,
+    "returncode": 0,
+    "decisions": 2476,
+    "outcome": "replay_point",
+    "sections": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "rooms": 67,
+    "script_error_markers": 0,
+    "matching_original_inputs": 2476,
+    "wall_seconds": 1086.231615708,
+    "retained_findings": [
+      {
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      },
+      {
+        "error": "tree_nodes grew more than 25% from section 0 to section 5 (1548 -> 5380)",
+        "location": "res://tools/run_hunt.gd:258"
+      }
+    ]
+  },
+  "commands": {
+    "regression": "LABYRINTH_CEL_LOOK=off python3 tools/godot_task_runner.py --task-id qa-23 --stream -- godot --headless --path . --script /private/tmp/labyrinth_codex/qa-23/feedback-1/ambush_regression.gd",
+    "focused": "LABYRINTH_CEL_LOOK=off python3 tools/program_suite_runner.py --task-id qa-23 --suite en03_enemies_test --jobs 1 --result-file /private/tmp/labyrinth_codex/qa-23/feedback-1/en03-final.json",
+    "python": "python3 tools/run_python_suite.py --shards 4 --output-dir /private/tmp/labyrinth_codex/qa-23/feedback-1/python-final",
+    "replay": "LABYRINTH_CEL_LOOK=off python3 /private/tmp/labyrinth_codex/qa-23/run_hunt_task.py --seed 5 --runs 1 --processes 1 --stop-after 2476 --output-dir /private/tmp/labyrinth_codex/qa-23/feedback-1/seed5-replay"
+  }
+}

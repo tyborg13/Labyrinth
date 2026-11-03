@@ -1,0 +1,1898 @@
+{
+  "task": "rr-38",
+  "round": "feedback1",
+  "status": "implementation complete; acceptance incomplete",
+  "native_acceptance": false,
+  "git_changes": "uncommitted; no index/branch/publication mutations",
+  "runs": {
+    "full_godot": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+      "result_lines": [
+        "FULL SUITE RUNTIME: 667.304 seconds (budget 900 seconds)",
+        "TEST RESULT: PASS"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-full-godot-isolated.log",
+      "log_sha256": "2ebd798ac30fbfd2002c8941851b414db857fe256866381a8ee5381f8ce6e651"
+    },
+    "full_python": {
+      "command": "LABYRINTH_TASK_ID=rr-38 python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "result_lines": [
+        "Ran 1978 tests in 4457.068s",
+        "FAILED (failures=1, skipped=66)"
+      ],
+      "failures": [
+        {
+          "test": "test_godot_sidecars.GodotSidecarRepositoryTests.test_tracked_sources_have_sidecars_and_sidecars_have_sources",
+          "cause": "tests/rr38/contextual.gd.uid exists after import but is not tracked. User requires an uncommitted handoff; no staging or assertion edits performed.",
+          "file": "tests/rr38/contextual.gd.uid",
+          "prospective_inventory": "PASS; generated sidecar included in handoff"
+        }
+      ],
+      "log": "/private/tmp/rr38-f1-full-python.log",
+      "log_sha256": "acfc5cbec88b6682b6bda3ff7d9cb73e4979980b9e017038ed018890e5700ee5"
+    },
+    "focused": {
+      "command": "LABYRINTH_TASK_ID=rr-38 python3 -m unittest tests.test_rr38_feedback1 tests.test_rr38_gaoler tests.test_rr10_feedback -v",
+      "result_lines": [
+        "Ran 22 tests in 25.884s",
+        "OK"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-focused-final.log",
+      "log_sha256": "20f27d5001bd93e083a2b8f3f96f789ca0c68a3544d451a8be5d87b50fdd8f12"
+    },
+    "closure": {
+      "command": "LABYRINTH_TASK_ID=rr-38 python3 -m unittest tests.test_rr38_gaoler tests.test_rr38_feedback1 tests.test_proof_runtime_paths -v",
+      "result_lines": [
+        "Ran 25 tests in 27.383s",
+        "OK"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-closure-final.log",
+      "log_sha256": "0046d5675cbeca5119fc7edda8e65d3f50b4bbb25e47aafb3b15a709d3f7bfe0"
+    },
+    "raster_regression": {
+      "command": "LABYRINTH_TASK_ID=rr-38 python3 -m unittest tests.test_rr38_feedback1 -v",
+      "result_lines": [
+        "Ran 8 tests in 10.269s",
+        "OK"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-mask-focused.log",
+      "log_sha256": "8787719d9ae42590bbc34327a825a7a2cc3108bbad230cc36008b31d73fb1e62"
+    },
+    "density": {
+      "command": "python3 tools/process_board_density.py --check --only chainbound_gaoler_cutout",
+      "result_lines": [
+        "CHECK-OK"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-density-check.log",
+      "log_sha256": "fc0805f5b885ebfa08b1ef349d1c7530594734c814cbaf6d4a218eda454d3c77"
+    },
+    "pack_build": {
+      "command": "Task-runner invocation of tests/chainbound_gaoler_cutout_pack_test.gd -- --build /private/tmp/rr38-f1-final.pck; full runner command retained in log.",
+      "result_lines": [
+        "GAOLER CUTOUT PACK TEST RESULT: PASS (build, editor=true)"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-pack-final.log",
+      "log_sha256": "0e0289223dd8c4f3188a82145a8288abbd5dfd2c8ced542ef3401c267c3a2d8e",
+      "observed_engine_command": "godot --log-file /private/tmp/labyrinth-godot-home/rr-38-1792977412058018000-32738/godot.log --headless --path . --script tests/chainbound_gaoler_cutout_pack_test.gd -- build /private/tmp/rr38-f1-final.pck"
+    },
+    "pack_empty_verify": {
+      "command": "Task-runner empty-project invocation of tests/chainbound_gaoler_cutout_pack_test.gd; full runner command retained in log.",
+      "result_lines": [
+        "GAOLER CUTOUT PACK TEST RESULT: PASS (verify, editor=true)"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-pack-final-empty.log",
+      "log_sha256": "b5f50b4d5141dd21ee4c6b693aa4a5ea33937f592179d29ca780d6d388be582c",
+      "observed_engine_command": "godot --log-file /private/tmp/labyrinth-godot-home/rr-38-1792977423206026000-32782/godot.log --headless --path /private/tmp/rr38-empty --script /Users/borgerding/workspace/Labyrinth.worktrees/rr-38/tests/chainbound_gaoler_cutout_pack_test.gd -- verify /private/tmp/rr38-f1-final.pck"
+    },
+    "export_runtime": {
+      "command": "Task-runner invocation of unmodified stock /private/tmp/rr38-export-template/Godot with matching exported Godot.pck; full runner command retained in log.",
+      "result_lines": [
+        "GAOLER CUTOUT EXPORT RUNTIME: PASS (editor=false)"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-final-export-runtime.log",
+      "log_sha256": "7c66e3525e33c81492a0187f726c9310c9ad36c76dd5a15d6af53e5856bdd203",
+      "observed_engine_command": "/private/tmp/rr38-export-template/Godot --log-file /private/tmp/labyrinth-godot-home/rr-38-1792977424184242000-32789/godot.log --headless"
+    },
+    "shadow": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path . --script tests/rr38/shadow_refresh.gd",
+      "result_lines": [
+        "RR38 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-shadow.log",
+      "log_sha256": "be26eb7d77bf42d36a4cc756c86d2df1166dbe0b7bf74e2bfafdc1ee430d1a73",
+      "observed_engine_command": "godot --log-file /private/tmp/labyrinth-godot-home/rr-38-1792976002845437000-23519/godot.log --headless --path . --script tests/rr38/shadow_refresh.gd"
+    },
+    "native_load_only": {
+      "command": "Task-runner headless load-only wrapper for tests/rr38/native_capture.gd; no renderer capture.",
+      "result_lines": [
+        "RR38 NATIVE PROBE LOAD: PASS"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-native-load.log",
+      "log_sha256": "e7e192eb02aa0f0f44ec406d0c70eee233b4436b1ac78376f0e0cf9e36539203",
+      "observed_engine_command": "godot --log-file /private/tmp/labyrinth-godot-home/rr-38-1792977959318747000-35856/godot.log --headless --path . --script tests/rr38/native_capture.gd -- --validate-only --output /private/tmp/rr38-f1-native-validated"
+    },
+    "isolated_transition": {
+      "command": "Task-runner isolated differential probe; observed exact engine invocation is recorded in observed_engine_command.",
+      "result_lines": [
+        "PERF03 TRANSITION DIFFERENTIAL RESULT: PASS"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-transition-isolated.log",
+      "log_sha256": "c1bd44cbae753ed7db0acba73b5f1c22423be519d0d8916e89c98b6b23ddff5e",
+      "observed_engine_command": "godot --log-file /private/tmp/labyrinth-godot-home/rr-38-1792979076737325000-40537/godot.log --headless --path . --script tests/perf/transition_failure_case.gd"
+    },
+    "prospective_sidecars": {
+      "command": "Read-only prospective tracked-minus-deleted-plus-untracked sidecar inventory (no Git index writes).",
+      "result_lines": [
+        "GODOT SIDECARS: gitignored exemptions = 1996",
+        "RR38 PROSPECTIVE SIDECARS: PASS (working-tree sources and generated sidecars; no Git staging)"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-sidecars-prospective.log",
+      "log_sha256": "c6cae88efd3ae3835f926934523c317ea1945f58e436fb1535debbfa67cff745"
+    },
+    "production_front": {
+      "command": "Task-runner capture; observed exact engine invocation is recorded in observed_engine_command.",
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1440 frames)"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-production-front-sealed.log",
+      "log_sha256": "ed8f995a32c5446af04ca8526fdad9a8202df2e1a2cb5c9e9ec5e297bd57c05f",
+      "observed_engine_command": "godot --log-file /private/tmp/labyrinth-godot-home/rr-38-1792980689203742000-48345/godot.log --headless --path . --script tests/rr38/production_capture.gd -- --type chainbound_gaoler --logic-only --output /private/tmp/rr38-f1-production-front-sealed"
+    },
+    "production_front_binding": {
+      "command": "python3 experiments/cutouts/chainbound_gaoler/rr38_production.py --input /private/tmp/rr38-f1-production-front-sealed/logic_frames.json",
+      "result_lines": [
+        "RR38 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-production-front-sealed-check.log",
+      "log_sha256": "c9a057d3289587bef5de5ea416be8e42023154a267468493c04a0fd1bbaf1e54"
+    },
+    "production_rear": {
+      "command": "Task-runner capture; observed exact engine invocation is recorded in observed_engine_command.",
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1440 frames)"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-production-rear-sealed.log",
+      "log_sha256": "ee1c57c10342e77f4768370d70c09050e9845a94050beaafb1a7f67502229d3c",
+      "observed_engine_command": "godot --log-file /private/tmp/labyrinth-godot-home/rr-38-1792980690370158000-48349/godot.log --headless --path . --script tests/rr38/production_capture.gd -- --type chainbound_gaoler --rear --logic-only --output /private/tmp/rr38-f1-production-rear-sealed"
+    },
+    "production_rear_binding": {
+      "command": "python3 experiments/cutouts/chainbound_gaoler/rr38_production.py --input /private/tmp/rr38-f1-production-rear-sealed/logic_frames.json",
+      "result_lines": [
+        "RR38 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+      ],
+      "failures": [],
+      "log": "/private/tmp/rr38-f1-production-rear-sealed-check.log",
+      "log_sha256": "c9a057d3289587bef5de5ea416be8e42023154a267468493c04a0fd1bbaf1e54"
+    },
+    "source_numeric_and_cpu": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path . --script tests/rr38/samples.gd -- --case experiments/cutouts/chainbound_gaoler/rr38; python3 experiments/cutouts/chainbound_gaoler/rr38_gates.py --case experiments/cutouts/chainbound_gaoler/rr38; python3 experiments/cutouts/chainbound_gaoler/rr38_feedback1_gates.py --case experiments/cutouts/chainbound_gaoler/rr38; python3 experiments/cutouts/chainbound_gaoler/rr38_sweep.py --case experiments/cutouts/chainbound_gaoler/rr38",
+      "result_lines": [
+        "RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)",
+        "RR38 ALL GATES: PASS (0 unique errors; native=False)",
+        "RR38 FEEDBACK1 MOTION: PASS (0 errors; 322 measured clamps; no native claim)",
+        "RR38 CPU SWEEP: FAIL (892 frames; 477 findings; 5936 flat regions; native=False)"
+      ],
+      "failures": [
+        {
+          "cause": "CPU joint-tear, tiny-component and missing-coverage findings; native confirmation remains independent.",
+          "failure_list": "feedback1_source_cpu.json",
+          "full_log_sha256": "e04278786410e948ec6bb0974e806d1dbcd7f0a08efa5679bf3368bb9624de6c",
+          "findings": {
+            "joint tears": 153,
+            "uncovered_tiny_components": 8,
+            "uncovered_missing_pixels": 316
+          },
+          "flat_regions_for_director_judgment": 5936,
+          "max_shard_seconds": 7.803425166000011,
+          "timeout_count": 0
+        }
+      ],
+      "log": "/private/tmp/rr38-f1-source-final-proof.log",
+      "log_sha256": "7534bea225af1e65116fb9e979a6ea476b86b7056e375a4396a67fe73a362022"
+    },
+    "treated_numeric_and_cpu": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path . --script tests/rr38/samples.gd -- --case experiments/cutouts/chainbound_gaoler/rr38/proof/production_case; python3 experiments/cutouts/chainbound_gaoler/rr38_gates.py --case experiments/cutouts/chainbound_gaoler/rr38/proof/production_case; python3 experiments/cutouts/chainbound_gaoler/rr38_feedback1_gates.py --case experiments/cutouts/chainbound_gaoler/rr38/proof/production_case; python3 experiments/cutouts/chainbound_gaoler/rr38_sweep.py --case experiments/cutouts/chainbound_gaoler/rr38/proof/production_case",
+      "result_lines": [
+        "RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)",
+        "RR38 ALL GATES: PASS (0 unique errors; native=False)",
+        "RR38 FEEDBACK1 MOTION: PASS (0 errors; 322 measured clamps; no native claim)",
+        "RR38 CPU SWEEP: FAIL (892 frames; 477 findings; 5854 flat regions; native=False)"
+      ],
+      "failures": [
+        {
+          "cause": "CPU joint-tear, tiny-component and missing-coverage findings; native confirmation remains independent.",
+          "failure_list": "feedback1_treated_cpu.json",
+          "full_log_sha256": "74c1c7f042adc58cf71fb53a1c5e37244ff2e032deac74e18a8eb9cf9de066c6",
+          "findings": {
+            "joint tears": 153,
+            "uncovered_tiny_components": 8,
+            "uncovered_missing_pixels": 316
+          },
+          "flat_regions_for_director_judgment": 5854,
+          "max_shard_seconds": 7.882229749999965,
+          "timeout_count": 0
+        }
+      ],
+      "log": "/private/tmp/rr38-f1-treated-final-proof.log",
+      "log_sha256": "f82c3644b44a0eb38545461ffd2776dc967c1f604e075ea4e3836b6e7f93e854"
+    }
+  },
+  "full_godot_programs": {
+    "count": 220,
+    "all_passed": true,
+    "report": "/private/tmp/labyrinth-godot-home/rr-38-1792980760213145000-48570/Library/Application Support/Escape the Umbra Parallel rr-38-1792980760213145000-48570/program-suites.json",
+    "report_sha256": "3104013a31bec16f8f7fac1738d0ee2bc1c8886fbbf0b04eab7666bde5b56038",
+    "results": [
+      {
+        "name": "en04_enemies_test",
+        "returncode": 0,
+        "seconds": 4.088,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "en05_enemies_test",
+        "returncode": 0,
+        "seconds": 4.181,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "en06_enemies_test",
+        "returncode": 0,
+        "seconds": 9.483,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "static_facing_test",
+        "returncode": 0,
+        "seconds": 2.787,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "combat_feel_test",
+        "returncode": 0,
+        "seconds": 102.298,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "combat_pacing_mutation_test",
+        "returncode": 0,
+        "seconds": 31.177,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "event_view_test",
+        "returncode": 0,
+        "seconds": 40.847,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "event_rules_test",
+        "returncode": 0,
+        "seconds": 23.012,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "biome_test",
+        "returncode": 0,
+        "seconds": 2.857,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "health_ghost_test",
+        "returncode": 0,
+        "seconds": 6.829,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "movement_undo_test",
+        "returncode": 0,
+        "seconds": 15.715,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "threats_at_rest_test",
+        "returncode": 0,
+        "seconds": 10.199,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/encounter_rules_program",
+        "returncode": 0,
+        "seconds": 25.256,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/encounter_placement_0_program",
+        "returncode": 0,
+        "seconds": 44.922,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/encounter_placement_1_program",
+        "returncode": 0,
+        "seconds": 44.32,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/encounter_placement_summary_program",
+        "returncode": 0,
+        "seconds": 36.802,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "run_score_test",
+        "returncode": 0,
+        "seconds": 9.185,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "sfx_bank_test",
+        "returncode": 0,
+        "seconds": 10.522,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "sfx_sync_bank_test",
+        "returncode": 0,
+        "seconds": 0.979,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/sfx_sync_0_program",
+        "returncode": 0,
+        "seconds": 80.853,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/sfx_sync_1_program",
+        "returncode": 0,
+        "seconds": 81.506,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/sfx_sync_2_program",
+        "returncode": 0,
+        "seconds": 44.572,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "section_map_v2_test",
+        "returncode": 0,
+        "seconds": 44.447,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "en01_enemies_test",
+        "returncode": 0,
+        "seconds": 5.231,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "en02_enemies_test",
+        "returncode": 0,
+        "seconds": 4.367,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "en03_enemies_test",
+        "returncode": 0,
+        "seconds": 7.367,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "magic_deck_input_test",
+        "returncode": 0,
+        "seconds": 31.684,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "magic_deck_guard_mutation_test",
+        "returncode": 0,
+        "seconds": 2.4,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "opening_boon_test",
+        "returncode": 0,
+        "seconds": 16.341,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "run_end_recap_tests",
+        "returncode": 0,
+        "seconds": 9.505,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "main_menu_resume_test",
+        "returncode": 0,
+        "seconds": 7.283,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "section_transition_test",
+        "returncode": 0,
+        "seconds": 53.664,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/full_scene_presentation_program",
+        "returncode": 0,
+        "seconds": 27.835,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/full_scene_cutouts_program",
+        "returncode": 0,
+        "seconds": 33.99,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/full_scene_creature_cutouts_program",
+        "returncode": 0,
+        "seconds": 23.078,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/full_scene_audio_program",
+        "returncode": 0,
+        "seconds": 18.16,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/full_scene_navigation_program",
+        "returncode": 0,
+        "seconds": 17.758,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/full_scene_card_drag_program",
+        "returncode": 0,
+        "seconds": 40.7,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/full_scene_controls_program",
+        "returncode": 0,
+        "seconds": 67.107,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/full_scene_clock_program",
+        "returncode": 0,
+        "seconds": 29.804,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/full_scene_choices_program",
+        "returncode": 0,
+        "seconds": 35.386,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/full_scene_interaction_program",
+        "returncode": 0,
+        "seconds": 63.065,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "opening_boon_recovery_test",
+        "returncode": 0,
+        "seconds": 10.602,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/section_map_v5_program",
+        "returncode": 0,
+        "seconds": 13.449,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/section_map_legacy_hashes_0_program",
+        "returncode": 0,
+        "seconds": 30.765,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/section_map_legacy_hashes_1_program",
+        "returncode": 0,
+        "seconds": 27.724,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "section_map_v5_layout_test",
+        "returncode": 0,
+        "seconds": 35.0,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/section_map_performance_program",
+        "returncode": 0,
+        "seconds": 20.56,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "acolyte_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.317,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "bile_bloomer_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.404,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "board_hover_coalescing_test",
+        "returncode": 0,
+        "seconds": 5.168,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "board_surface_content_smoke_test",
+        "returncode": 0,
+        "seconds": 2.645,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "board_surface_data_test",
+        "returncode": 0,
+        "seconds": 1.201,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "board_surface_presentation_test",
+        "returncode": 0,
+        "seconds": 7.601,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "board_surface_probe_migration_test",
+        "returncode": 0,
+        "seconds": 6.046,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "card_draw_hand_flow_test",
+        "returncode": 0,
+        "seconds": 12.18,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "card_presentation_cache_test",
+        "returncode": 0,
+        "seconds": 3.041,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "card_proxy_pool_test",
+        "returncode": 0,
+        "seconds": 3.853,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "chainbound_gaoler_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.425,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "chainbound_gaoler_motion_test",
+        "returncode": 0,
+        "seconds": 0.57,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "chronicle_test",
+        "returncode": 0,
+        "seconds": 8.573,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "cinder_droplet_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.201,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "cinder_ooze_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.22,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "combat_analytics_context_equivalence_test",
+        "returncode": 0,
+        "seconds": 7.001,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "combat_hud_buttons_test",
+        "returncode": 0,
+        "seconds": 11.238,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "combat_hud_dialogue_input_test",
+        "returncode": 0,
+        "seconds": 6.986,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "combat_motion_timing_test",
+        "returncode": 0,
+        "seconds": 10.241,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "combat_music_integration_test",
+        "returncode": 0,
+        "seconds": 8.198,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "contextual_combat_tutorial_test",
+        "returncode": 0,
+        "seconds": 0.677,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "crawler_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.243,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "cutout_pose_application_test",
+        "returncode": 0,
+        "seconds": 3.695,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "cutout_submission_equivalence_test",
+        "returncode": 0,
+        "seconds": 4.59,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "demo_capture_settings_test",
+        "returncode": 0,
+        "seconds": 0.696,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "demo_clip_clock_test",
+        "returncode": 0,
+        "seconds": 0.813,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "demo_probe_viewport_test",
+        "returncode": 0,
+        "seconds": 4.266,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "departed_run_cleanup_test",
+        "returncode": 0,
+        "seconds": 9.162,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "dragon_committed_patterns_test",
+        "returncode": 0,
+        "seconds": 9.411,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "dragon_exchange_presentation_test",
+        "returncode": 0,
+        "seconds": 13.285,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "dragon_feedback_mechanics_test",
+        "returncode": 0,
+        "seconds": 8.736,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "dragon_pressure_mechanics_test",
+        "returncode": 0,
+        "seconds": 5.177,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "dragon_reward_feedback_test",
+        "returncode": 0,
+        "seconds": 1.884,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "dragon_spire_routes_test",
+        "returncode": 0,
+        "seconds": 1.404,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "dragon_trophy_feedback_test",
+        "returncode": 0,
+        "seconds": 1.409,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "dragon_wallet_ack_test",
+        "returncode": 0,
+        "seconds": 9.356,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "elemental_fx_hash_equivalence_test",
+        "returncode": 0,
+        "seconds": 0.59,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "elemental_spell_fx_test",
+        "returncode": 0,
+        "seconds": 2.672,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "en05_elemental_test",
+        "returncode": 0,
+        "seconds": 4.341,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "en05_live_integration_test",
+        "returncode": 0,
+        "seconds": 7.209,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "en05_probe_contract_test",
+        "returncode": 0,
+        "seconds": 4.953,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "enemy_cutout_roster_pack_test",
+        "returncode": 0,
+        "seconds": 2.621,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "enemy_route_allocation_equivalence_test",
+        "returncode": 0,
+        "seconds": 14.007,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/forced_movement_query_open_program",
+        "returncode": 0,
+        "seconds": 5.404,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/forced_movement_query_dense_program",
+        "returncode": 0,
+        "seconds": 22.183,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/forced_movement_query_heart_program",
+        "returncode": 0,
+        "seconds": 5.28,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/forced_movement_query_surface_ready_program",
+        "returncode": 0,
+        "seconds": 6.887,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "suites/forced_movement_query_blocked_program",
+        "returncode": 0,
+        "seconds": 4.398,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "frostglass_lancer_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.601,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "frostglass_lancer_motion_test",
+        "returncode": 0,
+        "seconds": 0.683,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "glossary_test",
+        "returncode": 0,
+        "seconds": 9.464,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "graftwright_console_test",
+        "returncode": 0,
+        "seconds": 2.107,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "graftwright_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 0.802,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "grave_surgeon_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.244,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "grimoire_performance_test",
+        "returncode": 0,
+        "seconds": 0.792,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "grimoire_search_rows_equivalence_test",
+        "returncode": 0,
+        "seconds": 12.446,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "guardian_cutout_motion_probe",
+        "returncode": 0,
+        "seconds": 1.474,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "guardian_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.098,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "guided_combat_tutorial_integration_test",
+        "returncode": 0,
+        "seconds": 7.859,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "gust_shrike_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.328,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "gust_shrike_cutout_test",
+        "returncode": 0,
+        "seconds": 4.396,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "harrier_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.222,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "headless_playtest_progression_test",
+        "returncode": 0,
+        "seconds": 1.873,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "humanoid_cutout_reaction_motion_probe",
+        "returncode": 0,
+        "seconds": 1.399,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "iskaldra_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.215,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "magic_deck_test",
+        "returncode": 0,
+        "seconds": 5.848,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "main_menu_input_test",
+        "returncode": 0,
+        "seconds": 20.275,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "merchant_stock_equivalence_probe",
+        "returncode": 0,
+        "seconds": 6.97,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "music_continuity_test",
+        "returncode": 0,
+        "seconds": 35.615,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "noctyrax_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.271,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "objective_glyph_equivalence_test",
+        "returncode": 0,
+        "seconds": 11.817,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "original_music_test",
+        "returncode": 0,
+        "seconds": 11.04,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "performance_phase_fast_path_test",
+        "returncode": 0,
+        "seconds": 2.524,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "performance_telemetry_test",
+        "returncode": 0,
+        "seconds": 0.459,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "pixel_fx_test",
+        "returncode": 0,
+        "seconds": 5.694,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "player_defeat_continuity_test",
+        "returncode": 0,
+        "seconds": 26.907,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "player_movement_outcome_test",
+        "returncode": 0,
+        "seconds": 12.042,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "pre_battle_deck_fit_test",
+        "returncode": 0,
+        "seconds": 7.889,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "pre_battle_pinned_hover_test",
+        "returncode": 0,
+        "seconds": 4.503,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "pre_battle_review_fixes_test",
+        "returncode": 0,
+        "seconds": 4.476,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "pre_battle_semantics_test",
+        "returncode": 0,
+        "seconds": 14.203,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "pre_battle_true_scale_test",
+        "returncode": 0,
+        "seconds": 6.188,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "pre_battle_view_test",
+        "returncode": 0,
+        "seconds": 19.339,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "prepared_card_preview_queries_test",
+        "returncode": 0,
+        "seconds": 9.279,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "prepared_pre_battle_view_equivalence_test",
+        "returncode": 0,
+        "seconds": 8.484,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "prepared_shop_equivalence_test",
+        "returncode": 0,
+        "seconds": 2.486,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "prepared_unit_canvas_equivalence_test",
+        "returncode": 0,
+        "seconds": 64.82,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "profile_read_equivalence_test",
+        "returncode": 0,
+        "seconds": 2.665,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "protagonist_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.492,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "protagonist_gear_motion_gameplay_test",
+        "returncode": 0,
+        "seconds": 50.517,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "relic_u5_test",
+        "returncode": 0,
+        "seconds": 4.372,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "relic_u6_test",
+        "returncode": 0,
+        "seconds": 4.711,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "relic_u8_test",
+        "returncode": 0,
+        "seconds": 4.698,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "retained_character_header_equivalence_test",
+        "returncode": 0,
+        "seconds": 11.415,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "retained_character_loadout_equivalence_test",
+        "returncode": 0,
+        "seconds": 8.674,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "save_pipeline_performance_test",
+        "returncode": 0,
+        "seconds": 1.082,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "save_resume_boundary_test",
+        "returncode": 0,
+        "seconds": 9.78,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "scavenger_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 0.771,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "scavenger_resource_cache_test",
+        "returncode": 0,
+        "seconds": 0.748,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "shadow_triangulation_equivalence_test",
+        "returncode": 0,
+        "seconds": 4.335,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "skill_link_geometry_equivalence_test",
+        "returncode": 0,
+        "seconds": 0.907,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "skill_progression_analytics_test",
+        "returncode": 0,
+        "seconds": 4.428,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "skill_tree_view_test",
+        "returncode": 0,
+        "seconds": 0.869,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "staged_reward_choices_equivalence_test",
+        "returncode": 0,
+        "seconds": 8.102,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "start_room_map_test",
+        "returncode": 0,
+        "seconds": 18.144,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "stone_warden_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.247,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "structural_route_equivalence_test",
+        "returncode": 0,
+        "seconds": 7.267,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "surface_analytics_batch_test",
+        "returncode": 0,
+        "seconds": 4.527,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "surface_parent_review_test",
+        "returncode": 0,
+        "seconds": 4.056,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "surface_preview_equivalence_test",
+        "returncode": 0,
+        "seconds": 17.555,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "surface_relic_test",
+        "returncode": 0,
+        "seconds": 1.264,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "surface_save_migration_test",
+        "returncode": 0,
+        "seconds": 1.432,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "tharokh_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.269,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "ui_components_gallery_fixture_test",
+        "returncode": 0,
+        "seconds": 0.694,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "ui_skin_performance_test",
+        "returncode": 0,
+        "seconds": 0.756,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "vaeloryx_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.227,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "veilbound_acolyte_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.235,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "vyraketh_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.199,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "zekarion_cutout_pack_test",
+        "returncode": 0,
+        "seconds": 1.29,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "prepared_other_character_view_test",
+        "returncode": 0,
+        "seconds": 48.047,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "retained_character_inventory_equivalence_test",
+        "returncode": 0,
+        "seconds": 78.015,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "shop_retained_content_test",
+        "returncode": 0,
+        "seconds": 2.772,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "static_floor_cache_equivalence_test",
+        "returncode": 0,
+        "seconds": 11.945,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "maquette_cutout_test",
+        "returncode": 0,
+        "seconds": 18.283,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "owned_cpu_asset_preparation_test",
+        "returncode": 0,
+        "seconds": 1.372,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "encounter_analytics_test",
+        "returncode": 0,
+        "seconds": 5.592,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "encounter_measurement_test",
+        "returncode": 0,
+        "seconds": 24.018,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "rr07/runtime_test",
+        "returncode": 0,
+        "seconds": 6.412,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "rr12/runtime_test",
+        "returncode": 0,
+        "seconds": 6.77,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "rr17/runtime_test",
+        "returncode": 0,
+        "seconds": 5.62,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "rr18/runtime_test",
+        "returncode": 0,
+        "seconds": 4.357,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "special_encounter_test",
+        "returncode": 0,
+        "seconds": 60.021,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "special_encounter_legend_test",
+        "returncode": 0,
+        "seconds": 1.497,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "warband_orders_test",
+        "returncode": 0,
+        "seconds": 21.958,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "warband_wind_lock_test",
+        "returncode": 0,
+        "seconds": 6.069,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "wbv_markers_test",
+        "returncode": 0,
+        "seconds": 7.434,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "warband_orders_probe",
+        "returncode": 0,
+        "seconds": 8.327,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "warband_test",
+        "returncode": 0,
+        "seconds": 50.419,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "warband_ui_test",
+        "returncode": 0,
+        "seconds": 18.208,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "snare_test",
+        "returncode": 0,
+        "seconds": 22.75,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "snare_ui_test",
+        "returncode": 0,
+        "seconds": 5.32,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "pass_preview_prewarm_test",
+        "returncode": 0,
+        "seconds": 33.294,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "petrify_tooltip_test",
+        "returncode": 0,
+        "seconds": 5.316,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "perf/analytics_restart_test",
+        "returncode": 0,
+        "seconds": 1.931,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "perf/background_persistence_test",
+        "returncode": 0,
+        "seconds": 0.796,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "perf/deferred_deadline_test",
+        "returncode": 0,
+        "seconds": 2.88,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "perf/transition_failure_case",
+        "returncode": 0,
+        "seconds": 132.134,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "perf/combat_frame_scenarios",
+        "returncode": 0,
+        "seconds": 19.931,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "cache_switch_regression_test",
+        "returncode": 0,
+        "seconds": 8.549,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "engine_cache_directories_test",
+        "returncode": 0,
+        "seconds": 0.512,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "battlefield_rules_probe",
+        "returncode": 0,
+        "seconds": 4.605,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "el02_evidence",
+        "returncode": 0,
+        "seconds": 1.695,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "element_retrofit_test",
+        "returncode": 0,
+        "seconds": 14.19,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "element_retrofit_probe",
+        "returncode": 0,
+        "seconds": 8.299,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "en03_enemies_probe",
+        "returncode": 0,
+        "seconds": 4.311,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "en05_enemies_probe",
+        "returncode": 0,
+        "seconds": 4.325,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "en06_enemies_probe",
+        "returncode": 0,
+        "seconds": 4.114,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "el04_rule_views_test",
+        "returncode": 0,
+        "seconds": 16.564,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "enemy_no_action_test",
+        "returncode": 0,
+        "seconds": 23.908,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "fix_11_test",
+        "returncode": 0,
+        "seconds": 17.132,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "fix_11_probe",
+        "returncode": 0,
+        "seconds": 4.562,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "fix_12_probe",
+        "returncode": 0,
+        "seconds": 12.675,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "fix_14_test",
+        "returncode": 0,
+        "seconds": 122.974,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "fix_14_matrix_test",
+        "returncode": 0,
+        "seconds": 12.943,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "fix_12_arrival_test",
+        "returncode": 0,
+        "seconds": 30.014,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "fix_12_reactions_0_test",
+        "returncode": 0,
+        "seconds": 43.078,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "fix_12_reactions_1_test",
+        "returncode": 0,
+        "seconds": 40.68,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "fix_12_cascades_test",
+        "returncode": 0,
+        "seconds": 37.347,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "fix_12_feedback_test",
+        "returncode": 0,
+        "seconds": 52.849,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "fix_12_bleed_test",
+        "returncode": 0,
+        "seconds": 39.303,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "short_card_tooltips_test",
+        "returncode": 0,
+        "seconds": 19.459,
+        "timed_out": false,
+        "reason": ""
+      },
+      {
+        "name": "rr38/runtime_checks",
+        "returncode": 0,
+        "seconds": 5.022,
+        "timed_out": false,
+        "reason": ""
+      }
+    ]
+  },
+  "sfx_and_registration_result_lines": [
+    "TEST REGISTRATION AUDIT: PASS (841 scripts; full suite=487, quarantined=29, windowed probe=325)",
+    "SFX BANK TEST RESULT: PASS (0 failures)",
+    "SFX SYNC BANK TEST RESULT: PASS (0 failures)",
+    "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)",
+    "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)",
+    "SFX SYNC HARNESS RESULT: PASS (1688 observations, 0 failures)"
+  ],
+  "requested_reference_sets": {
+    "names": [
+      "seer",
+      "thrall",
+      "mirror",
+      "capacitor",
+      "weaver",
+      "mimic",
+      "mortar",
+      "herald",
+      "gloam",
+      "lancer"
+    ],
+    "result": "No failures in final full Python or Godot reference sets; Python sole failure is the Gaoler sidecar index check."
+  },
+  "preservation": {
+    "result": "PASS",
+    "protected_inputs_unchanged": true,
+    "motion_copies_byte_exact": true,
+    "other_unit_assets_and_registries_unchanged": true,
+    "rest_rgba_unchanged_both_views": true,
+    "shadow_records": "Only two Gaoler records refreshed; other records retained."
+  },
+  "earlier_failures": [
+    {
+      "run": "bulk import default300",
+      "cause": "Known initial import volume; explicit1200 budget import completed before final suites."
+    },
+    {
+      "run": "full Godot default300",
+      "cause": "Full-suite budget requires900; default300 expired."
+    },
+    {
+      "run": "full Godot797.228s",
+      "cause": "Three short-Press fixture assertions in full_scene_cutouts_program; updated for protected stronger strike; stationary fallback retained; focused and final full suite pass."
+    },
+    {
+      "run": "full Godot801.330s and778.044s",
+      "cause": "Only perf/transition_failure_case exit124 under concurrent CPU/Python load. Isolated differential and final isolated full suite pass; timeout/assertions unchanged."
+    },
+    {
+      "run": "early kneeling CPU shards",
+      "cause": "Full255 proof-mask triangle allocation cost; opt-in128-triangle batches and conservative transparent-mask culling; final all-frame runs have zero timeouts, exact raster/tie and mutation regressions pass."
+    },
+    {
+      "run": "early production receipts",
+      "cause": "Changed proof-source bindings; fresh sealed captures and checks pass."
+    }
+  ],
+  "unresolved": [
+    {
+      "name": "TODO_DESIGN_rear_knee_underlay",
+      "cause": "Confirmed3px native rear move1 pocket samples transparent approved painting background. Requires director-painted continuation.",
+      "fixture": "feedback1_native_fixture.json",
+      "crop": "proof/logs/feedback1/rear_move1_seam_4x.png"
+    },
+    {
+      "name": "native acceptance and review reel",
+      "cause": "Windowed execution unavailable; no current native/sheets/review success or current reel claimed.",
+      "required_output": "proof/chainbound_gaoler_review.mp4"
+    },
+    {
+      "name": "broader CPU coverage and low-texture flags",
+      "cause": "All errors/crops retained in source/treated summaries/full logs; native ties and painted underlay judgment remain independent."
+    }
+  ],
+  "windowed_commands": [
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh density",
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh rest",
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh native",
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh sheets",
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh idle",
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh production",
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh review"
+  ],
+  "capture_configuration": {
+    "width": 1920,
+    "height": 1080,
+    "ui_scale_percent": 100
+  },
+  "chosen_defaults": "../rr38_chosen_defaults.json",
+  "static_validation": {
+    "git_diff_check": "PASS",
+    "proof_shell_syntax": "PASS",
+    "python_compile": "PASS",
+    "compiled_files": [
+      "experiments/cutouts/chainbound_gaoler/rr38_acceptance.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_build.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_case.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_feedback1_gates.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_frames.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_gates.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_uncovered.py",
+      "tests/test_rr38_feedback1.py",
+      "tests/test_rr38_gaoler.py",
+      "tools/humanoid_cutout/bone_contracts.py",
+      "tools/humanoid_cutout/bone_evidence.py",
+      "tools/humanoid_cutout/compiler.py",
+      "tools/humanoid_cutout/cpu_pose.py",
+      "tools/humanoid_cutout/gates.py",
+      "tools/humanoid_cutout/held_drop.py",
+      "tools/humanoid_cutout/proof.py"
+    ],
+    "log_hashes_and_result_lines": "PASS",
+    "full_cpu_failure_lists_and_hashes": "PASS",
+    "clamp_receipt_hash": "PASS"
+  }
+}

@@ -1,0 +1,1740 @@
+{
+  "int06_prior_matches_frozen": true,
+  "rooms": 54,
+  "guardian_rooms": 0,
+  "zero_counter_fields": 108,
+  "changed_rooms": [
+    {
+      "seed": 1,
+      "room_index": 0,
+      "type": "combat",
+      "coord": {
+        "x": 1,
+        "y": 0
+      },
+      "roster": [
+        "stoneback_mite",
+        "stoneback_mite",
+        "crawler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 1,
+      "type": "combat",
+      "coord": {
+        "x": 2,
+        "y": 1
+      },
+      "roster": [
+        "burrow_grub",
+        "acolyte",
+        "grave_surgeon",
+        "crawler",
+        "chainbound_gaoler",
+        "acolyte"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 2,
+      "type": "combat",
+      "coord": {
+        "x": 3,
+        "y": 3
+      },
+      "roster": [
+        "warden",
+        "warden",
+        "crawler",
+        "crawler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 3,
+      "type": "combat",
+      "coord": {
+        "x": 5,
+        "y": -4
+      },
+      "roster": [
+        "crawler",
+        "crawler",
+        "harrier",
+        "chainbound_gaoler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 4,
+      "type": "combat",
+      "coord": {
+        "x": 6,
+        "y": -4
+      },
+      "roster": [
+        "cinder_ooze",
+        "cinder_ooze",
+        "crawler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 5,
+      "type": "combat",
+      "coord": {
+        "x": 7,
+        "y": -4
+      },
+      "roster": [
+        "rime_whelp",
+        "rime_spitter",
+        "frostglass_lancer",
+        "warden",
+        "acolyte",
+        "crawler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 6,
+      "type": "combat",
+      "coord": {
+        "x": 9,
+        "y": -8
+      },
+      "roster": [
+        "crawler",
+        "crawler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 7,
+      "type": "combat",
+      "coord": {
+        "x": 10,
+        "y": -8
+      },
+      "roster": [
+        "storm_capacitor",
+        "lightning_wisp",
+        "acolyte",
+        "grave_surgeon",
+        "crawler",
+        "chainbound_gaoler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 8,
+      "type": "combat",
+      "coord": {
+        "x": 11,
+        "y": -8
+      },
+      "roster": [
+        "frostglass_lancer",
+        "frostglass_lancer",
+        "lightning_wisp",
+        "bell_tender",
+        "warden",
+        "chainbound_gaoler",
+        "crawler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 9,
+      "type": "combat",
+      "coord": {
+        "x": 13,
+        "y": -12
+      },
+      "roster": [
+        "cinder_ooze",
+        "gale_herald",
+        "roc_fledgling",
+        "harrier",
+        "chainbound_gaoler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 10,
+      "type": "combat",
+      "coord": {
+        "x": 14,
+        "y": -9
+      },
+      "roster": [
+        "acolyte",
+        "harrier",
+        "crawler",
+        "grave_surgeon"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 11,
+      "type": "combat",
+      "coord": {
+        "x": 15,
+        "y": -14
+      },
+      "roster": [
+        "warden",
+        "harrier",
+        "acolyte",
+        "crawler",
+        "grave_surgeon",
+        "chainbound_gaoler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 12,
+      "type": "combat",
+      "coord": {
+        "x": 17,
+        "y": -16
+      },
+      "roster": [
+        "frostglass_lancer",
+        "crawler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 13,
+      "type": "combat",
+      "coord": {
+        "x": 18,
+        "y": -15
+      },
+      "roster": [
+        "frostglass_lancer",
+        "frostglass_lancer",
+        "crawler",
+        "harrier",
+        "chainbound_gaoler",
+        "crawler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 14,
+      "type": "combat",
+      "coord": {
+        "x": 19,
+        "y": -15
+      },
+      "roster": [
+        "slag_mortar",
+        "ember_tick",
+        "warden",
+        "acolyte",
+        "grave_surgeon",
+        "crawler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 15,
+      "type": "combat",
+      "coord": {
+        "x": 21,
+        "y": -20
+      },
+      "roster": [
+        "bile_bloomer",
+        "hollow_mimic",
+        "wick_shade",
+        "harrier",
+        "chainbound_gaoler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 16,
+      "type": "combat",
+      "coord": {
+        "x": 22,
+        "y": -18
+      },
+      "roster": [
+        "cinder_ooze",
+        "crawler",
+        "harrier",
+        "acolyte"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "room_index": 17,
+      "type": "combat",
+      "coord": {
+        "x": 23,
+        "y": -21
+      },
+      "roster": [
+        "gloam_stalker",
+        "hollow_mimic",
+        "wick_shade",
+        "warden",
+        "acolyte"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 0,
+      "type": "combat",
+      "coord": {
+        "x": -1,
+        "y": 1
+      },
+      "roster": [
+        "gale_herald",
+        "roc_fledgling",
+        "crawler",
+        "harrier",
+        "chainbound_gaoler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 1,
+      "type": "combat",
+      "coord": {
+        "x": 2,
+        "y": 2
+      },
+      "roster": [
+        "lightning_wisp",
+        "lightning_wisp",
+        "crawler",
+        "harrier",
+        "acolyte"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 2,
+      "type": "combat",
+      "coord": {
+        "x": 3,
+        "y": 2
+      },
+      "roster": [
+        "bile_bloomer",
+        "warden",
+        "harrier",
+        "crawler",
+        "acolyte",
+        "chainbound_gaoler",
+        "crawler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 3,
+      "type": "combat",
+      "coord": {
+        "x": 5,
+        "y": -4
+      },
+      "roster": [
+        "grave_surgeon",
+        "crawler",
+        "harrier",
+        "chainbound_gaoler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 4,
+      "type": "combat",
+      "coord": {
+        "x": 6,
+        "y": -1
+      },
+      "roster": [
+        "chainbound_gaoler",
+        "chainbound_gaoler",
+        "crawler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 5,
+      "type": "combat",
+      "coord": {
+        "x": 7,
+        "y": -4
+      },
+      "roster": [
+        "hoarfrost_seer",
+        "chainbound_gaoler",
+        "warden",
+        "acolyte",
+        "crawler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 6,
+      "type": "combat",
+      "coord": {
+        "x": 9,
+        "y": -8
+      },
+      "roster": [
+        "cinder_ooze",
+        "storm_capacitor",
+        "lightning_wisp",
+        "harrier",
+        "chainbound_gaoler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 7,
+      "type": "combat",
+      "coord": {
+        "x": 10,
+        "y": -4
+      },
+      "roster": [
+        "lightning_wisp",
+        "lightning_wisp",
+        "crawler",
+        "harrier",
+        "acolyte",
+        "chainbound_gaoler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 8,
+      "type": "combat",
+      "coord": {
+        "x": 11,
+        "y": -4
+      },
+      "roster": [
+        "cinder_ooze",
+        "cinder_ooze",
+        "arc_thrall",
+        "arc_thrall",
+        "warden",
+        "chainbound_gaoler",
+        "acolyte"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 9,
+      "type": "combat",
+      "coord": {
+        "x": 13,
+        "y": -5
+      },
+      "roster": [
+        "crawler",
+        "harrier",
+        "acolyte"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 10,
+      "type": "combat",
+      "coord": {
+        "x": 14,
+        "y": -10
+      },
+      "roster": [
+        "ash_hound",
+        "ash_hound",
+        "warden",
+        "harrier",
+        "crawler",
+        "chainbound_gaoler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 11,
+      "type": "combat",
+      "coord": {
+        "x": 15,
+        "y": -12
+      },
+      "roster": [
+        "lightning_wisp",
+        "lightning_wisp",
+        "lightning_wisp",
+        "lightning_wisp",
+        "ember_tick",
+        "ember_tick",
+        "warden"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 12,
+      "type": "combat",
+      "coord": {
+        "x": 17,
+        "y": -11
+      },
+      "roster": [
+        "warden",
+        "stoneback_mite",
+        "stoneback_mite",
+        "chainbound_gaoler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 13,
+      "type": "combat",
+      "coord": {
+        "x": 18,
+        "y": -11
+      },
+      "roster": [
+        "briar_weaver",
+        "acolyte",
+        "grave_surgeon",
+        "crawler",
+        "chainbound_gaoler",
+        "crawler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 14,
+      "type": "combat",
+      "coord": {
+        "x": 19,
+        "y": -11
+      },
+      "roster": [
+        "briar_weaver",
+        "stoneback_mite",
+        "stoneback_mite",
+        "warden",
+        "acolyte",
+        "chainbound_gaoler",
+        "crawler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 15,
+      "type": "combat",
+      "coord": {
+        "x": 21,
+        "y": -20
+      },
+      "roster": [
+        "gloam_stalker",
+        "crawler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 16,
+      "type": "combat",
+      "coord": {
+        "x": 22,
+        "y": -20
+      },
+      "roster": [
+        "cinder_ooze",
+        "crawler",
+        "harrier",
+        "acolyte"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "room_index": 17,
+      "type": "combat",
+      "coord": {
+        "x": 23,
+        "y": -16
+      },
+      "roster": [
+        "warden",
+        "warden",
+        "crawler",
+        "crawler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 0,
+      "type": "combat",
+      "coord": {
+        "x": 1,
+        "y": 0
+      },
+      "roster": [
+        "grave_surgeon",
+        "crawler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 1,
+      "type": "combat",
+      "coord": {
+        "x": 1,
+        "y": 2
+      },
+      "roster": [
+        "arc_thrall",
+        "arc_thrall",
+        "acolyte",
+        "grave_surgeon",
+        "crawler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 2,
+      "type": "combat",
+      "coord": {
+        "x": 3,
+        "y": 0
+      },
+      "roster": [
+        "arc_thrall",
+        "arc_thrall",
+        "cinder_ooze",
+        "warden",
+        "acolyte",
+        "crawler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 3,
+      "type": "combat",
+      "coord": {
+        "x": 5,
+        "y": -4
+      },
+      "roster": [
+        "grave_surgeon",
+        "crawler",
+        "harrier",
+        "chainbound_gaoler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 4,
+      "type": "combat",
+      "coord": {
+        "x": 6,
+        "y": -4
+      },
+      "roster": [
+        "gale_herald",
+        "warden",
+        "harrier",
+        "crawler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 5,
+      "type": "combat",
+      "coord": {
+        "x": 7,
+        "y": -5
+      },
+      "roster": [
+        "warden",
+        "warden",
+        "crawler",
+        "crawler",
+        "harrier",
+        "chainbound_gaoler",
+        "crawler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 6,
+      "type": "combat",
+      "coord": {
+        "x": 9,
+        "y": -8
+      },
+      "roster": [
+        "warden",
+        "slag_mortar",
+        "ember_tick"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 7,
+      "type": "combat",
+      "coord": {
+        "x": 10,
+        "y": -7
+      },
+      "roster": [
+        "ember_tick",
+        "ember_tick",
+        "ember_tick",
+        "bile_bloomer",
+        "crawler",
+        "harrier",
+        "chainbound_gaoler",
+        "warden"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 8,
+      "type": "combat",
+      "coord": {
+        "x": 11,
+        "y": -8
+      },
+      "roster": [
+        "bile_bloomer",
+        "warden",
+        "harrier",
+        "crawler",
+        "acolyte"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 9,
+      "type": "combat",
+      "coord": {
+        "x": 13,
+        "y": -8
+      },
+      "roster": [
+        "warden",
+        "burrow_grub"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 10,
+      "type": "combat",
+      "coord": {
+        "x": 14,
+        "y": -13
+      },
+      "roster": [
+        "lightning_wisp",
+        "lightning_wisp",
+        "crawler",
+        "harrier",
+        "acolyte",
+        "chainbound_gaoler",
+        "warden"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 11,
+      "type": "combat",
+      "coord": {
+        "x": 15,
+        "y": -12
+      },
+      "roster": [
+        "burrow_grub",
+        "briar_weaver",
+        "warden",
+        "acolyte"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 12,
+      "type": "combat",
+      "coord": {
+        "x": 17,
+        "y": -16
+      },
+      "roster": [
+        "crawler",
+        "crawler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 13,
+      "type": "combat",
+      "coord": {
+        "x": 18,
+        "y": -15
+      },
+      "roster": [
+        "lightning_wisp",
+        "lightning_wisp",
+        "crawler",
+        "harrier",
+        "acolyte"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 14,
+      "type": "combat",
+      "coord": {
+        "x": 19,
+        "y": -17
+      },
+      "roster": [
+        "chainbound_gaoler",
+        "chainbound_gaoler",
+        "hoarfrost_seer",
+        "warden"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 15,
+      "type": "combat",
+      "coord": {
+        "x": 21,
+        "y": -20
+      },
+      "roster": [
+        "bile_bloomer",
+        "crawler",
+        "harrier",
+        "chainbound_gaoler"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 16,
+      "type": "combat",
+      "coord": {
+        "x": 22,
+        "y": -18
+      },
+      "roster": [
+        "gloam_stalker",
+        "bile_bloomer",
+        "crawler",
+        "harrier"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "seed": 421,
+      "room_index": 17,
+      "type": "combat",
+      "coord": {
+        "x": 23,
+        "y": -17
+      },
+      "roster": [
+        "gloam_stalker",
+        "wick_shade",
+        "gloam_stalker",
+        "warden",
+        "acolyte"
+      ],
+      "changes": [
+        {
+          "snapshot": 0,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        },
+        {
+          "snapshot": 1,
+          "explanation": "sum-01: additive zero pending Card Play counter",
+          "field": "/pending_summon_card_plays",
+          "before": null,
+          "after": 0
+        }
+      ]
+    }
+  ],
+  "guardian_only": false,
+  "repinned": false,
+  "decision": "No Guardian-only renewal is authorized by this evidence. Preserve the fixture; int-06 owns these integration differences.",
+  "frozen_fixture_sha256": "f3ffaf1b742b4e487a57fcee63703a394bdf8fb3aa8f5efd1cbf256547c8f76b",
+  "source_snapshots_sha256": "f1bd9d0d7d4792cc98f1e4f5ae390eeb496e28e178c084e6ef2dc668c726caff"
+}

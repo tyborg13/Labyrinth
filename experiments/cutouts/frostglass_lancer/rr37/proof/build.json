@@ -1,0 +1,628 @@
+{
+  "density_material": {
+    "mode": "regrid",
+    "grid": 1.31,
+    "treated_outline_cutoff": 3.3909999999999996,
+    "continuation_min_luma": 5,
+    "derivation": "ceil(treated visible-rest outline percentile) + one encoded RGB rounding unit"
+  },
+  "approved_painting_rgba_mismatch_pixels": 0,
+  "transparent_rgb_normalized_pixels": 0,
+  "pauldrons": {
+    "owner": "torso",
+    "bone": "torso",
+    "file": "ownership/front_pauldrons.png",
+    "sha256": "762e82ab10b314f02a70d9242e37d6313aa3dcce45066d3f8c619a3d58005f70",
+    "pixels": 1288,
+    "transfers": {
+      "head": 49,
+      "torso": 1066,
+      "arm_near": 91,
+      "arm_far": 82
+    }
+  },
+  "front_rest_mismatch_pixels": 0,
+  "rest_mismatch_pixels": 0,
+  "tucks": [
+    {
+      "piece": "head",
+      "minimum_px": 3,
+      "cover": [
+        "torso"
+      ],
+      "required_mask": "tucks/front_head.png",
+      "required_pixels": 327,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "torso",
+      "minimum_px": 3,
+      "cover": [
+        "arm_far",
+        "arm_near",
+        "cape_far",
+        "cape_near",
+        "head",
+        "pelvis"
+      ],
+      "required_mask": "tucks/front_torso.png",
+      "required_pixels": 707,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "pelvis",
+      "minimum_px": 3,
+      "cover": [
+        "cape_far",
+        "cape_near",
+        "leg_far",
+        "leg_near",
+        "tabard",
+        "torso"
+      ],
+      "required_mask": "tucks/front_pelvis.png",
+      "required_pixels": 480,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "tabard",
+      "minimum_px": 3,
+      "cover": [
+        "pelvis"
+      ],
+      "required_mask": "tucks/front_tabard.png",
+      "required_pixels": 245,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "spear",
+      "minimum_px": 3,
+      "cover": [
+        "hand_far"
+      ],
+      "required_mask": "tucks/front_spear.png",
+      "required_pixels": 64,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "arm_near",
+      "minimum_px": 3,
+      "cover": [
+        "hand_near",
+        "torso"
+      ],
+      "required_mask": "tucks/front_arm_near.png",
+      "required_pixels": 229,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "hand_near",
+      "minimum_px": 3,
+      "cover": [
+        "arm_near"
+      ],
+      "required_mask": "tucks/front_hand_near.png",
+      "required_pixels": 67,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "leg_near",
+      "minimum_px": 3,
+      "cover": [
+        "cape_near",
+        "foot_near",
+        "pelvis"
+      ],
+      "required_mask": "tucks/front_leg_near.png",
+      "required_pixels": 379,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "foot_near",
+      "minimum_px": 3,
+      "cover": [
+        "leg_near"
+      ],
+      "required_mask": "tucks/front_foot_near.png",
+      "required_pixels": 53,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "cape_far",
+      "minimum_px": 3,
+      "cover": [
+        "leg_far",
+        "pelvis",
+        "torso"
+      ],
+      "required_mask": "tucks/front_cape_far.png",
+      "required_pixels": 264,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "arm_far",
+      "minimum_px": 3,
+      "cover": [
+        "hand_far",
+        "torso"
+      ],
+      "required_mask": "tucks/front_arm_far.png",
+      "required_pixels": 152,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "hand_far",
+      "minimum_px": 3,
+      "cover": [
+        "arm_far",
+        "spear"
+      ],
+      "required_mask": "tucks/front_hand_far.png",
+      "required_pixels": 100,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "leg_far",
+      "minimum_px": 3,
+      "cover": [
+        "cape_far",
+        "foot_far",
+        "pelvis"
+      ],
+      "required_mask": "tucks/front_leg_far.png",
+      "required_pixels": 235,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "foot_far",
+      "minimum_px": 3,
+      "cover": [
+        "leg_far"
+      ],
+      "required_mask": "tucks/front_foot_far.png",
+      "required_pixels": 70,
+      "missing_pixels": 0
+    }
+  ],
+  "delivery": {
+    "joints_px.json": "3797a69b3d0724ee21d39c1b24cbc428e5cfb0d28a6b458b52bebabb1c364481",
+    "front_parts.png": "2648df39cdfb0bc9fecc4fc5ea4ccddc4f07c7ec6803c13da11acb2316bb7133",
+    "front_solo_head.png": "b482016dd1ca8b0f2e857930b42333ebde5abaea8363fd088a37bbfa577e1816",
+    "front_solo_torso.png": "978f5aa2f7adce657f1217473ed36425a37e50c94673193f0114e91bae40ce55",
+    "front_solo_pauldron_near.png": "44f08e3c4bf181fda653bd864e021183eeb9e8a04d26c58d8b1e6877a4e01612",
+    "front_solo_pauldron_far.png": "0b0e142e225a40f31a6f204b845cc39304d620763d245f6f6bd2b46146820236",
+    "front_solo_pelvis.png": "1ed992de717cc907dd0068ccd955695b31ab38fa835e1c41b507c5b9c0b1440f",
+    "front_solo_belt.png": "ca604f04774bf791f41ef6a7e90d8c9ab3a86b7c055eb0f6b6939e6eaa67b086",
+    "front_solo_tabard.png": "d8558aff2a3672ad809d237cbf809c200d8e2023138405618ee3b2453ef699b5",
+    "front_solo_spear.png": "3982fac99b10fe378db89b933c7957d30133e2c8f9861ecefd5837dddb887fc8",
+    "front_solo_cape_near.png": "88a081cc110dbf8b9712bcf59fa84b7885d0c1f5300c3b660209e5911ac5319b",
+    "front_solo_upper_near.png": "cce48ffd3980d522982197de184ab1a70256ad6256b60b09cdf31f044d52aa0f",
+    "front_solo_fore_near.png": "2bb13873095ae4a8552bf99fa2a91350a3b05eb89f08fccb42de9fdfe38fa0b2",
+    "front_solo_hand_near.png": "3fefc059050b1628066c42f6ead29cfcdb0a02350cd46ef6f602fa8918f87653",
+    "front_solo_thigh_near.png": "d411c7e3739c6e4439cd2b231161efa9834044bbf7061a1f66dec4a55bd16a21",
+    "front_solo_shin_near.png": "45f593704c632b017e3ce1059e840c85fae9a9fe825fc95732da993dbe363135",
+    "front_solo_foot_near.png": "0275ec46e65023c064b025d85d00d7cf9d9450e0e0120df7948e90434a60dff6",
+    "front_solo_cape_far.png": "bd1bc286e10f9cb8fd70fb4ff6d78ebe2961d8c13e1d52bc1cef01ab44759e44",
+    "front_solo_upper_far.png": "56af1c75b5d788bcc6f38df3914dba5a10c0e5425baba941cebb3e6076200dea",
+    "front_solo_fore_far.png": "37a853f2408684cc1b5409093bca4748251a8a48dd7636d66e129c6882579d2e",
+    "front_solo_hand_far.png": "04edb3a93d79762ef678c4496a1b1c1d8e1bef0e0f9198ab171f94083ab1ec08",
+    "front_solo_thigh_far.png": "8e4a54900737daf0be37509d63ea2d3d21cb21a574b492f5f0058f5b4dc94ad6",
+    "front_solo_shin_far.png": "49287a850cc9999df31c43d239504db2cafb2404b56686ad1c67a82b62498f06",
+    "front_solo_foot_far.png": "5314d010c77b5c442de1d397657c349b252248fceefd19e37296f3b43c69a79f"
+  },
+  "source_ownership": "experiments/cutouts/frostglass_lancer/rr37/front_baseline/layouts/front.json",
+  "source_ownership_sha256": "13d95ad0e421037bed300d2b2e71d1da53fe0572e696e7631e4bb47bbc02b463",
+  "views": {
+    "front": {
+      "density_material": {
+        "mode": "regrid",
+        "grid": 1.31,
+        "treated_outline_cutoff": 3.3909999999999996,
+        "continuation_min_luma": 5,
+        "derivation": "ceil(treated visible-rest outline percentile) + one encoded RGB rounding unit"
+      },
+      "approved_painting_rgba_mismatch_pixels": 0,
+      "transparent_rgb_normalized_pixels": 0,
+      "pauldrons": {
+        "owner": "torso",
+        "bone": "torso",
+        "file": "ownership/front_pauldrons.png",
+        "sha256": "762e82ab10b314f02a70d9242e37d6313aa3dcce45066d3f8c619a3d58005f70",
+        "pixels": 1288,
+        "transfers": {
+          "head": 49,
+          "torso": 1066,
+          "arm_near": 91,
+          "arm_far": 82
+        }
+      },
+      "front_rest_mismatch_pixels": 0,
+      "rest_mismatch_pixels": 0,
+      "tucks": [
+        {
+          "piece": "head",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/front_head.png",
+          "required_pixels": 327,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "torso",
+          "minimum_px": 3,
+          "cover": [
+            "arm_far",
+            "arm_near",
+            "cape_far",
+            "cape_near",
+            "head",
+            "pelvis"
+          ],
+          "required_mask": "tucks/front_torso.png",
+          "required_pixels": 707,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "pelvis",
+          "minimum_px": 3,
+          "cover": [
+            "cape_far",
+            "cape_near",
+            "leg_far",
+            "leg_near",
+            "tabard",
+            "torso"
+          ],
+          "required_mask": "tucks/front_pelvis.png",
+          "required_pixels": 480,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "tabard",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis"
+          ],
+          "required_mask": "tucks/front_tabard.png",
+          "required_pixels": 245,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "spear",
+          "minimum_px": 3,
+          "cover": [
+            "hand_far"
+          ],
+          "required_mask": "tucks/front_spear.png",
+          "required_pixels": 64,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "arm_near",
+          "minimum_px": 3,
+          "cover": [
+            "hand_near",
+            "torso"
+          ],
+          "required_mask": "tucks/front_arm_near.png",
+          "required_pixels": 229,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "hand_near",
+          "minimum_px": 3,
+          "cover": [
+            "arm_near"
+          ],
+          "required_mask": "tucks/front_hand_near.png",
+          "required_pixels": 67,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "leg_near",
+          "minimum_px": 3,
+          "cover": [
+            "cape_near",
+            "foot_near",
+            "pelvis"
+          ],
+          "required_mask": "tucks/front_leg_near.png",
+          "required_pixels": 379,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "foot_near",
+          "minimum_px": 3,
+          "cover": [
+            "leg_near"
+          ],
+          "required_mask": "tucks/front_foot_near.png",
+          "required_pixels": 53,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "cape_far",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far",
+            "pelvis",
+            "torso"
+          ],
+          "required_mask": "tucks/front_cape_far.png",
+          "required_pixels": 264,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "arm_far",
+          "minimum_px": 3,
+          "cover": [
+            "hand_far",
+            "torso"
+          ],
+          "required_mask": "tucks/front_arm_far.png",
+          "required_pixels": 152,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "hand_far",
+          "minimum_px": 3,
+          "cover": [
+            "arm_far",
+            "spear"
+          ],
+          "required_mask": "tucks/front_hand_far.png",
+          "required_pixels": 100,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "leg_far",
+          "minimum_px": 3,
+          "cover": [
+            "cape_far",
+            "foot_far",
+            "pelvis"
+          ],
+          "required_mask": "tucks/front_leg_far.png",
+          "required_pixels": 235,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "foot_far",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far"
+          ],
+          "required_mask": "tucks/front_foot_far.png",
+          "required_pixels": 70,
+          "missing_pixels": 0
+        }
+      ],
+      "delivery": {
+        "joints_px.json": "3797a69b3d0724ee21d39c1b24cbc428e5cfb0d28a6b458b52bebabb1c364481",
+        "front_parts.png": "2648df39cdfb0bc9fecc4fc5ea4ccddc4f07c7ec6803c13da11acb2316bb7133",
+        "front_solo_head.png": "b482016dd1ca8b0f2e857930b42333ebde5abaea8363fd088a37bbfa577e1816",
+        "front_solo_torso.png": "978f5aa2f7adce657f1217473ed36425a37e50c94673193f0114e91bae40ce55",
+        "front_solo_pauldron_near.png": "44f08e3c4bf181fda653bd864e021183eeb9e8a04d26c58d8b1e6877a4e01612",
+        "front_solo_pauldron_far.png": "0b0e142e225a40f31a6f204b845cc39304d620763d245f6f6bd2b46146820236",
+        "front_solo_pelvis.png": "1ed992de717cc907dd0068ccd955695b31ab38fa835e1c41b507c5b9c0b1440f",
+        "front_solo_belt.png": "ca604f04774bf791f41ef6a7e90d8c9ab3a86b7c055eb0f6b6939e6eaa67b086",
+        "front_solo_tabard.png": "d8558aff2a3672ad809d237cbf809c200d8e2023138405618ee3b2453ef699b5",
+        "front_solo_spear.png": "3982fac99b10fe378db89b933c7957d30133e2c8f9861ecefd5837dddb887fc8",
+        "front_solo_cape_near.png": "88a081cc110dbf8b9712bcf59fa84b7885d0c1f5300c3b660209e5911ac5319b",
+        "front_solo_upper_near.png": "cce48ffd3980d522982197de184ab1a70256ad6256b60b09cdf31f044d52aa0f",
+        "front_solo_fore_near.png": "2bb13873095ae4a8552bf99fa2a91350a3b05eb89f08fccb42de9fdfe38fa0b2",
+        "front_solo_hand_near.png": "3fefc059050b1628066c42f6ead29cfcdb0a02350cd46ef6f602fa8918f87653",
+        "front_solo_thigh_near.png": "d411c7e3739c6e4439cd2b231161efa9834044bbf7061a1f66dec4a55bd16a21",
+        "front_solo_shin_near.png": "45f593704c632b017e3ce1059e840c85fae9a9fe825fc95732da993dbe363135",
+        "front_solo_foot_near.png": "0275ec46e65023c064b025d85d00d7cf9d9450e0e0120df7948e90434a60dff6",
+        "front_solo_cape_far.png": "bd1bc286e10f9cb8fd70fb4ff6d78ebe2961d8c13e1d52bc1cef01ab44759e44",
+        "front_solo_upper_far.png": "56af1c75b5d788bcc6f38df3914dba5a10c0e5425baba941cebb3e6076200dea",
+        "front_solo_fore_far.png": "37a853f2408684cc1b5409093bca4748251a8a48dd7636d66e129c6882579d2e",
+        "front_solo_hand_far.png": "04edb3a93d79762ef678c4496a1b1c1d8e1bef0e0f9198ab171f94083ab1ec08",
+        "front_solo_thigh_far.png": "8e4a54900737daf0be37509d63ea2d3d21cb21a574b492f5f0058f5b4dc94ad6",
+        "front_solo_shin_far.png": "49287a850cc9999df31c43d239504db2cafb2404b56686ad1c67a82b62498f06",
+        "front_solo_foot_far.png": "5314d010c77b5c442de1d397657c349b252248fceefd19e37296f3b43c69a79f"
+      },
+      "source_ownership": "experiments/cutouts/frostglass_lancer/rr37/front_baseline/layouts/front.json",
+      "source_ownership_sha256": "13d95ad0e421037bed300d2b2e71d1da53fe0572e696e7631e4bb47bbc02b463"
+    },
+    "rear": {
+      "density_material": {
+        "mode": "regrid",
+        "grid": 1.5,
+        "treated_outline_cutoff": 11.693999999999999,
+        "continuation_min_luma": 13,
+        "derivation": "ceil(treated visible-rest outline percentile) + one encoded RGB rounding unit"
+      },
+      "approved_painting_rgba_mismatch_pixels": 0,
+      "transparent_rgb_normalized_pixels": 46774,
+      "pauldrons": {
+        "owner": "torso",
+        "bone": "torso",
+        "file": "ownership/rear_pauldrons.png",
+        "sha256": "875fbcbdc5cf4aadca769eb4a87cce68b550b22313786206d907d02ffbf0a21b",
+        "pixels": 1044,
+        "transfers": {
+          "head": 6,
+          "torso": 895,
+          "arm_near": 87,
+          "cape_far": 3,
+          "arm_far": 53
+        }
+      },
+      "front_rest_mismatch_pixels": 0,
+      "rest_mismatch_pixels": 0,
+      "tucks": [
+        {
+          "piece": "head",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/rear_head.png",
+          "required_pixels": 275,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "torso",
+          "minimum_px": 3,
+          "cover": [
+            "arm_far",
+            "arm_near",
+            "cape_far",
+            "cape_near",
+            "head",
+            "pelvis"
+          ],
+          "required_mask": "tucks/rear_torso.png",
+          "required_pixels": 509,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "spear",
+          "minimum_px": 3,
+          "cover": [
+            "hand_far"
+          ],
+          "required_mask": "tucks/rear_spear.png",
+          "required_pixels": 18,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "cape_near",
+          "minimum_px": 3,
+          "cover": [
+            "leg_near",
+            "pelvis",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_cape_near.png",
+          "required_pixels": 122,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "arm_near",
+          "minimum_px": 3,
+          "cover": [
+            "hand_near",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_arm_near.png",
+          "required_pixels": 82,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "leg_near",
+          "minimum_px": 3,
+          "cover": [
+            "cape_near",
+            "foot_near",
+            "pelvis"
+          ],
+          "required_mask": "tucks/rear_leg_near.png",
+          "required_pixels": 200,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "foot_near",
+          "minimum_px": 3,
+          "cover": [
+            "leg_near"
+          ],
+          "required_mask": "tucks/rear_foot_near.png",
+          "required_pixels": 66,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "cape_far",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far",
+            "pelvis",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_cape_far.png",
+          "required_pixels": 225,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "arm_far",
+          "minimum_px": 3,
+          "cover": [
+            "hand_far",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_arm_far.png",
+          "required_pixels": 120,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "hand_far",
+          "minimum_px": 3,
+          "cover": [
+            "arm_far",
+            "spear"
+          ],
+          "required_mask": "tucks/rear_hand_far.png",
+          "required_pixels": 116,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "leg_far",
+          "minimum_px": 3,
+          "cover": [
+            "cape_far",
+            "foot_far",
+            "pelvis"
+          ],
+          "required_mask": "tucks/rear_leg_far.png",
+          "required_pixels": 243,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "foot_far",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far"
+          ],
+          "required_mask": "tucks/rear_foot_far.png",
+          "required_pixels": 43,
+          "missing_pixels": 0
+        }
+      ],
+      "delivery": {
+        "joints_px.json": "3797a69b3d0724ee21d39c1b24cbc428e5cfb0d28a6b458b52bebabb1c364481",
+        "rear_parts.png": "48c686487fca7549cd22f318fb5fb5837807a37790ddc48f73244c27e3c44056",
+        "rear_solo_head.png": "e9db75cc8b4d223b94167f83c45833fe7a3a5222dd9a35f14d69b47b4c002bba",
+        "rear_solo_torso.png": "2fe4b60ed35d7866bc585939cb3021ce716edd35df263180b2b39a520df04cca",
+        "rear_solo_pauldron_near.png": "acf93dbd361cb0ab371d0c9fae54b65a0fa285038fb20cd6009231bdd45c7cbc",
+        "rear_solo_pauldron_far.png": "e76ae4b25bf32a0acaac5a433cfbc19d0058ca3e42f66b1b4e8b2790e559fe58",
+        "rear_solo_pelvis.png": "ca137caf5c0d02cbe11eb0baa007b3bcdbd29e2d547d64510e0d6fd39a0bc1c6",
+        "rear_solo_belt.png": "5b17cf9ebff87a93d5ed62c38dcaeb678ec5b9e6bd5338c1ff7e9f617a38f2c7",
+        "rear_solo_tabard.png": "8300c9f707eae145255ff0a507263b55fecb6f62557f83b10c7e9002434a1647",
+        "rear_solo_spear.png": "2273b64098e1bf68c0290fcddaea353d9c80d9a214f45f2e94e2fd565dbaae2c",
+        "rear_solo_cape_near.png": "7c265285272a5d18c51954086c5c90d44fc3bc6071a6b175aa36b976a5190c10",
+        "rear_solo_upper_near.png": "09e658999507e94d74e5e233a8b93941bdbf17d54ebfd082201f7fef015031ec",
+        "rear_solo_fore_near.png": "cf812cbf1948aa59c91023d90375fc0eb07e57948de5d1f76d01a780218dd855",
+        "rear_solo_hand_near.png": "c4a3b7d7ba967a31bd1c12e2e7c0d2e9e425217d3306422170bb042d8a8efb94",
+        "rear_solo_thigh_near.png": "3bf1b32faf97c955892323de1d8e5b3cf59ed969c3760ba65b03bf98dd911c3a",
+        "rear_solo_shin_near.png": "f6dd143e378bef39bab6a48f71ff3f521ace42110e6ebce59797b8aeb6a62a54",
+        "rear_solo_foot_near.png": "b35b1e2a7e63cb84cac8bee6fbb6a32e47ac0df6fc67bde1db97afc448da9d56",
+        "rear_solo_cape_far.png": "6e78063b10d585b1edd5a7fc7a35a2ba2895280b40c10f755eb0ac5ade9443db",
+        "rear_solo_upper_far.png": "96e05a33a8b5bdcfe137bc9a3d9bf4ff9ad04ffdd247a6be19ea105d63ca724d",
+        "rear_solo_fore_far.png": "91326e2bca8fdf089a090f6e4660056344f39303fefa30e3f71350bd4e17a53e",
+        "rear_solo_hand_far.png": "34c1c281ade9cd7840bd09c4e9926dff677541453af7bda212d2925acf797f57",
+        "rear_solo_thigh_far.png": "bc7215d07ebc0c760f00f19b0513c02d01ee34cddd982075699f4456563563b4",
+        "rear_solo_shin_far.png": "68d2e1ee3f41ba5e751d9bfb87d049d6c73720d607824ef248fcc05445742ace",
+        "rear_solo_foot_far.png": "fe581b829ffb8f9c4f0a5811cbea5ed88bc716532be26a5f5b4f2721db3a698f"
+      },
+      "source_ownership": "experiments/cutouts/frostglass_lancer/rr37/rear_baseline/layouts/rear.json",
+      "source_ownership_sha256": "0ab3c25964e5a24f1784e22ecf9f43c5b64fec657a7bb25ee2dd40c9e237d3ff"
+    }
+  },
+  "director_sha256": "65fe0b1a4892ad3a75827ba14cdd14dd8c41253f8f0ef1ebf79fb1240e7dc039",
+  "production_promoted": true,
+  "native_proof": "pending director windowed captures"
+}

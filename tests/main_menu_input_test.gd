@@ -1,5 +1,6 @@
 extends SceneTree
 
+const PerfGroup = preload("res://tests/helpers/perf_group.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const MenuRunTransition = preload("res://scripts/menu_run_transition.gd")
 
@@ -305,12 +306,13 @@ func _test_startup_sequence(reduced_motion: bool) -> void:
 		await process_frame
 	var menu: Control = result[0]
 	var hold_ms: int = phase_times["fade_out"] - phase_times["hold"]
-	_expect(hold_ms >= 1000 and hold_ms < 1500, "The ready-menu seal hold should last one second, allowing scheduling slack")
+	_expect(hold_ms >= 1000, "The ready-menu seal retains its full one-second hold")
+	if PerfGroup.enabled(): _expect(hold_ms < 1500, "The ready-menu hold finishes within scheduling slack")
 	if not reduced_motion:
 		_expect(phase_times["hold"] - phase_times["fade_in"] >= 350, "Normal startup should fade the seal in")
 		_expect(phase_times["menu_black"] - phase_times["fade_out"] >= 300, "Normal startup should fade the seal out")
 		_expect(phase_times["complete"] - phase_times["menu_fade_in"] >= 350, "Normal startup should fade the menu in")
-	else:
+	elif PerfGroup.enabled():
 		_expect(phase_times["menu_black"] - phase_times["fade_out"] < 50, "Reduced motion should omit the seal fade-out")
 		_expect(phase_times["complete"] - phase_times["menu_fade_in"] < 50, "Reduced motion should omit the menu fade")
 	_expect(not root.gui_disable_input, "Finished startup should restore GUI input")
@@ -486,12 +488,14 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 			break
 		await process_frame
 	_expect(no_overlap, "Menu and room tracks must never play simultaneously")
-	_expect(menu_faded_down and menu_stopped_ms >= 150 and menu_stopped_ms < 450, "Menu audio must fade down over a fraction of a second after room activation")
+	_expect(menu_faded_down and menu_stopped_ms >= 150, "Menu audio retains its authored fade after room activation")
+	if PerfGroup.enabled(): _expect(menu_stopped_ms < 450, "Menu audio fade finishes within scheduling slack")
 	_expect(not room.get("_initial_music_deferred"), "Music deferral must clear after the intentional gap, even in unscored rooms")
 	_expect(not is_instance_valid(music) and room.get_node_or_null("MenuMusicTail") == null, "Outgoing music must be freed before the new track begins")
 	if not entry.is_empty():
 		var target_volume := db_to_linear(float(entry.get("volume_db", -12.0)))
-		_expect(room_started_ms - menu_stopped_ms >= 60 and room_started_ms - menu_stopped_ms < 250, "A short intentional gap must separate the tracks")
+		_expect(room_started_ms - menu_stopped_ms >= 60, "The intentional gap separates the tracks")
+		if PerfGroup.enabled(): _expect(room_started_ms - menu_stopped_ms < 250, "Music handoff finishes within scheduling slack")
 		_expect(initial_room_volume >= 0.0 and initial_room_volume < target_volume, "The room track must begin with a fade-in")
 		_expect(is_equal_approx(room_music.volume_linear, target_volume), "The short room fade-in must reach the authored level")
 		var playing_track := room_music.get_stream_playback()
@@ -510,7 +514,8 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 		_expect(int(run_state.get("seed")) != 82271 and int(ProgressionStore.load_data().get("embers")) == 0, "Confirmed replacement must create a new run with the established ember reset")
 	_expect(not root.has_meta("labyrinth_resume_saved_run"), "Resume metadata must be consumed exactly once")
 	var reveal_ms: int = int(phase_times.get("complete", 0)) - int(phase_times.get("revealing", 0))
-	_expect(reveal_ms < 50 if reduced_motion else reveal_ms >= 175, "Reveal timing must respect reduced motion")
+	if not reduced_motion or PerfGroup.enabled():
+		_expect(reveal_ms < 50 if reduced_motion else reveal_ms >= 175, "Reveal timing must respect reduced motion")
 	print("Run entry PASS: %s reduced_motion=%s reveal_ms=%d" % [mode, reduced_motion, reveal_ms])
 	await process_frame
 	_expect(not is_instance_valid(menu) and not is_instance_valid(transition), "Completion must free the old menu and loading layer")

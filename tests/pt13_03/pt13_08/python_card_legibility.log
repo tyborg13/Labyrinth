@@ -1,0 +1,48 @@
+F.....
+======================================================================
+FAIL: test_before_proof_records_small_base_without_floor_failure (__main__.CardLegibilityTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-08/tests/test_card_legibility.py", line 53, in test_before_proof_records_small_base_without_floor_failure
+    output = self._run_case("--capture-plan", "CARD LEGIBILITY CAPTURE PLAN: PASS",
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-08/tests/test_card_legibility.py", line 38, in _run_case
+    self.assertEqual(child.returncode, 0, output)
+AssertionError: 124 != 0 : Running task-local command:
+  task: pt13-08
+  run: pt13-08-1793084051988972000-39814
+  HOME: /private/tmp/labyrinth-godot-home/pt13-08-1793084051988972000-39814
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-08-1793084051988972000-39814/godot.log --headless --path . --script tests/card_legibility_test.gd -- --capture-plan --before
+  timeout: 60s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Preload file "res://scripts/chainbound_gaoler_cutout/renderer.gd" does not exist.
+          at: GDScript::reload (res://scripts/run_scene.gd:18)
+SCRIPT ERROR: Parse Error: Static function "before_action()" not found in base "res://scripts/surface_variety_relic_rules.gd".
+          at: GDScript::reload (res://scripts/run_scene.gd:19220)
+ERROR: Failed to load script "res://scripts/run_scene.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+SCRIPT ERROR: Parse Error: Could not resolve class "res://scripts/run_scene.gd".
+          at: GDScript::reload (res://tests/helpers/card_legibility_audit.gd:38)
+SCRIPT ERROR: Parse Error: Could not resolve class "res://scripts/run_scene.gd".
+          at: GDScript::reload (res://tests/helpers/card_legibility_audit.gd:38)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/helpers/card_legibility_contexts.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/card_legibility_test.gd:0)
+ERROR: Failed to load script "res://tests/card_legibility_test.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+          at: _run (res://tests/card_legibility_test.gd:20)
+          GDScript backtrace (most recent call first):
+              [0] _run (res://tests/card_legibility_test.gd:20)
+error: command timed out after 60 seconds.
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 126.837s
+
+FAILED (failures=1)

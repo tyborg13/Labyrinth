@@ -1,0 +1,17 @@
+{
+  "authority": "mq-16 feedback 1; director exact body-space values",
+  "frame": {"forward": "+X", "outward_near": "+Y", "up": "+Z"},
+  "length_unit": "L: hip-joint height above the sole plane",
+  "knee_bend_degrees": 10,
+  "near_elbow_bend_degrees": 12,
+  "foot_span_over_shoulder_span": 1.25,
+  "near_step_over_leg_length": 0.22,
+  "far_hand_forward_over_leg_length": 0.20,
+  "far_hand_outward_over_leg_length": 0.10,
+  "blade_tip_clearance_over_height": 0.04,
+  "blade_down_degrees": 35,
+  "blade_outward_degrees": 20,
+  "blade_angle_space": "body",
+  "hip_lean_degrees": 5,
+  "shoulder_rise_per_span": 0.15
+}

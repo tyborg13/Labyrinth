@@ -96,19 +96,11 @@ static func run(expect: Callable) -> void:
 	shown = scene.call("_combat_preview_display_state", detonated)
 	expect.call(Ground.has_surface(shown, SURFACE_TILE, "fire"), "A later surface replacement cannot hide consumed committed Fire")
 
-	# Removed objects and lifetime terrain also need markers, even without HP.
+	# Removed HP terrain still needs its body and death mark. El-02 retired
+	# Ice Pillar and Bramble; no live lifetime-only terrain remains to preview.
 	var removed: Dictionary = before.duplicate(true)
 	removed["terrain"] = []
 	_check_crate(scene, before, removed, expect, "Removed terrain")
-	before["terrain"].append({"id": "ux05_ice", "kind": "ice_pillar", "pos": Vector2i(3, 5), "rounds_left": 1})
-	scene.set("_combat_state", before)
-	shown = scene.call("_combat_preview_display_state", removed)
-	losses = scene.call("_damage_preview_between_states", before, removed)
-	board.set("combat_state", shown)
-	board.set("presentation", {"damage_preview": losses})
-	var ice: Dictionary = (shown.get("terrain", []) as Array)[1] if (shown.get("terrain", []) as Array).size() > 1 else {}
-	expect.call(Ground.terrain_is_live(ice) and bool((losses.get("terrain_ux05_ice", {}) as Dictionary).get("lethal", false)), "Removed lifetime terrain retains its body and death mark without adding a health bar")
-	expect.call(not bool(board.call("_should_show_terrain_health_bar", ice)), "Lifetime terrain has no invented HP bar")
 	_check_privacy(scene, expect)
 	expect.call(snapshot == fixture(), "Preview regression fixture remains deterministic")
 	board.free()

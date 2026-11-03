@@ -1,0 +1,130 @@
+{
+  "views": {
+    "front": {
+      "head": {
+        "visible_pure_colour_px": 28243,
+        "solo_px": 29314
+      },
+      "seg_1": {
+        "visible_pure_colour_px": 32100,
+        "solo_px": 52297
+      },
+      "seg_2": {
+        "visible_pure_colour_px": 26075,
+        "solo_px": 50448
+      },
+      "seg_3": {
+        "visible_pure_colour_px": 27435,
+        "solo_px": 49355
+      },
+      "seg_4": {
+        "visible_pure_colour_px": 32399,
+        "solo_px": 50891
+      },
+      "seg_5": {
+        "visible_pure_colour_px": 25287,
+        "solo_px": 44652
+      },
+      "seg_6": {
+        "visible_pure_colour_px": 24565,
+        "solo_px": 42614
+      },
+      "tail": {
+        "visible_pure_colour_px": 1690,
+        "solo_px": 17996
+      },
+      "leg_near_1": {
+        "visible_pure_colour_px": 2822,
+        "solo_px": 3266
+      },
+      "leg_near_2": {
+        "visible_pure_colour_px": 2576,
+        "solo_px": 2982
+      },
+      "leg_near_3": {
+        "visible_pure_colour_px": 2361,
+        "solo_px": 2700
+      },
+      "leg_far_1": {
+        "visible_pure_colour_px": 0,
+        "solo_px": 1601
+      },
+      "leg_far_2": {
+        "visible_pure_colour_px": 0,
+        "solo_px": 1962
+      },
+      "leg_far_3": {
+        "visible_pure_colour_px": 0,
+        "solo_px": 1690
+      }
+    },
+    "rear": {
+      "head": {
+        "visible_pure_colour_px": 17617,
+        "solo_px": 29409
+      },
+      "seg_1": {
+        "visible_pure_colour_px": 28724,
+        "solo_px": 52637
+      },
+      "seg_2": {
+        "visible_pure_colour_px": 30631,
+        "solo_px": 50974
+      },
+      "seg_3": {
+        "visible_pure_colour_px": 29809,
+        "solo_px": 49609
+      },
+      "seg_4": {
+        "visible_pure_colour_px": 33313,
+        "solo_px": 50856
+      },
+      "seg_5": {
+        "visible_pure_colour_px": 26141,
+        "solo_px": 44426
+      },
+      "seg_6": {
+        "visible_pure_colour_px": 31000,
+        "solo_px": 42729
+      },
+      "tail": {
+        "visible_pure_colour_px": 14216,
+        "solo_px": 18418
+      },
+      "leg_near_1": {
+        "visible_pure_colour_px": 0,
+        "solo_px": 2608
+      },
+      "leg_near_2": {
+        "visible_pure_colour_px": 0,
+        "solo_px": 2674
+      },
+      "leg_near_3": {
+        "visible_pure_colour_px": 0,
+        "solo_px": 2510
+      },
+      "leg_far_1": {
+        "visible_pure_colour_px": 1262,
+        "solo_px": 1555
+      },
+      "leg_far_2": {
+        "visible_pure_colour_px": 1628,
+        "solo_px": 1904
+      },
+      "leg_far_3": {
+        "visible_pure_colour_px": 1428,
+        "solo_px": 1646
+      }
+    }
+  },
+  "checks": {
+    "all_three_near_legs_visible": true,
+    "every_solo_nonempty": true
+  },
+  "passed": true,
+  "authority": "mq-27 feedback 1: front near feet and rear visible legs; six labelled solos retained",
+  "prior_brief_diagnostics": {
+    "at_least_two_far_legs_visible": false
+  },
+  "TODO_DESIGN_FRONT_FAR_LEG_VISIBILITY": "Confirm occluded front far stubs under feedback 1; original two-far-leg visibility is not met."
+}

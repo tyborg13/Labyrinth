@@ -1,0 +1,3804 @@
+{
+  "schema_version": 1,
+  "revision": 7,
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "source_head": "d1e17bdafa1115d01e2a3336a8a1bd03a04bc092",
+  "runs_per_arm": 150,
+  "first_seed": 1,
+  "arms": {
+    "none": {},
+    "skybolt": {
+      "card": "skybolt",
+      "fields": {}
+    },
+    "wildfire_halo": {
+      "card": "wildfire_halo",
+      "fields": {}
+    },
+    "stormstring_shot": {
+      "card": "stormstring_shot",
+      "fields": {}
+    },
+    "V1": {
+      "card": "skybolt",
+      "fields": {
+        "action_fields": {
+          "shock_all_hits": false
+        }
+      }
+    },
+    "V2": {
+      "card": "skybolt",
+      "fields": {
+        "burn": true
+      }
+    },
+    "V3": {
+      "card": "skybolt",
+      "fields": {
+        "action_fields": {
+          "range": 5,
+          "ignore_los": null
+        }
+      }
+    },
+    "V4": {
+      "card": "skybolt",
+      "fields": {
+        "time": 9
+      }
+    },
+    "V5": {
+      "card": "skybolt",
+      "fields": {
+        "action_fields": {
+          "shock_all_hits": false
+        },
+        "burn": true
+      }
+    }
+  },
+  "workers": 6,
+  "ci_method": {
+    "type": "paired seed-cluster percentile bootstrap",
+    "resamples": 10000,
+    "seed": 3102026
+  },
+  "tool_sha256": {
+    "encounter_bot.gd": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+    "encounter_measurement_bot.gd": "d119972bd29a651340b07d5e78093952f7305499e82ed7e99d8da933eff77958",
+    "encounter_measurement_engine.gd": "c28146d2dc3264444aa117c146b5f0dfde4ee1c6a9d611ec224672dedef31a08",
+    "encounter_metric_repair.gd": "3e758b0785a4e2e952dbe0760df15b5e9ea61c381c823f0a397163c231eac6e7",
+    "encounter_sweep.gd": "e399622c17fc6138e055181e264a1ba3d2b4f7f962352101174cfa7989a28eda",
+    "encounter_sweep.py": "b00ce13a7bdb95786159e611265e3f337c93fc909f2d2ea1c2b34b8424b068de",
+    "skybolt_measurement.py": "a780f22c1003dfc0407c27b82a8a757845e247c34c54883b036fb9f2c4edc8e0",
+    "skybolt_metric_refresh.py": "615557fe4e64c67e195e3375bc9492b3b8004ae06a6533febfbf6dd7295fa63e"
+  },
+  "data_sha256": {
+    "cards.json": "688b593df92cdd2d2420d2ac0acc35e16e21f415191ab12b0f95544e7483ec48",
+    "enemies.json": "69fdc4243fabbc65ff794f3c986fbcc0b9aa3585bc1680e2113fc906cde8ffbf"
+  },
+  "measurement_adapters": [
+    "primary_only_shock_v1"
+  ],
+  "design_placeholders": [],
+  "groups": [
+    {
+      "tier": 2,
+      "cohort": "standard",
+      "arm": "none",
+      "n": 150,
+      "win_rate": 0.41333333333333333,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 9.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 8.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 4,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "file": "data/t2-standard-none.json.gz",
+      "sha256": "14b0b44ae9292d9d8ded663659339a68aa2a8800e86722703edd9b9c9b57974a"
+    },
+    {
+      "tier": 2,
+      "cohort": "standard",
+      "arm": "skybolt",
+      "n": 150,
+      "win_rate": 0.41333333333333333,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 9.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            -0.06666666666666667,
+            0.06
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.2866666666666667,
+          "ci95": [
+            -1.18,
+            0.6133333333333333
+          ]
+        }
+      },
+      "file": "data/t2-standard-skybolt.json.gz",
+      "sha256": "17add4ba49d423374b240f34a805a2c6e981cb9298abc91c7954e3d02fed2116",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 98,
+        "skybolt_hits": 98,
+        "skybolt_kills": 26,
+        "skybolt_cancelled_attacks": 30,
+        "skybolt_hits_beyond_5": 5,
+        "skybolt_hits_without_los": 15,
+        "skybolt_casts_beyond_5": 5,
+        "skybolt_casts_without_los": 15,
+        "casts_per_fight": 0.6533333333333333,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 0.30612244897959184,
+        "kills_per_fight": 0.17333333333333334
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "standard",
+      "arm": "wildfire_halo",
+      "n": 150,
+      "win_rate": 0.42,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 7.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": 0.006666666666666667,
+          "ci95": [
+            -0.06,
+            0.08
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.4533333333333333,
+          "ci95": [
+            -0.29333333333333333,
+            1.1866666666666668
+          ]
+        }
+      },
+      "file": "data/t2-standard-wildfire_halo.json.gz",
+      "sha256": "65c044eab8fe6eb3c9f2c8f719047a493c516b6bc40a739ec458ee70f8d1ca7c"
+    },
+    {
+      "tier": 2,
+      "cohort": "standard",
+      "arm": "stormstring_shot",
+      "n": 150,
+      "win_rate": 0.38666666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 9.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 2,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.02666666666666667,
+          "ci95": [
+            -0.1,
+            0.05333333333333334
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.05333333333333334,
+          "ci95": [
+            -1.0066666666666666,
+            0.8733333333333333
+          ]
+        }
+      },
+      "file": "data/t2-standard-stormstring_shot.json.gz",
+      "sha256": "72e31aad4425f8c08358cd7fb6583bd87db1858b775e9f0c0cac84079d6b90da"
+    },
+    {
+      "tier": 2,
+      "cohort": "standard",
+      "arm": "V1",
+      "n": 150,
+      "win_rate": 0.41333333333333333,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 9.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            -0.06666666666666667,
+            0.06
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.2866666666666667,
+          "ci95": [
+            -1.18,
+            0.6133333333333333
+          ]
+        }
+      },
+      "file": "data/t2-standard-V1.json.gz",
+      "sha256": "4caa5ff16f2ff79c9b1cd04b170bf952e5030831ba3fd15b82009f88aa7a0fec",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 98,
+        "skybolt_hits": 98,
+        "skybolt_kills": 26,
+        "skybolt_cancelled_attacks": 30,
+        "skybolt_hits_beyond_5": 5,
+        "skybolt_hits_without_los": 15,
+        "skybolt_casts_beyond_5": 5,
+        "skybolt_casts_without_los": 15,
+        "casts_per_fight": 0.6533333333333333,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 0.30612244897959184,
+        "kills_per_fight": 0.17333333333333334
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "standard",
+      "arm": "V2",
+      "n": 150,
+      "win_rate": 0.41333333333333333,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 9.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            -0.06666666666666667,
+            0.06
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.2866666666666667,
+          "ci95": [
+            -1.18,
+            0.6133333333333333
+          ]
+        }
+      },
+      "file": "data/t2-standard-V2.json.gz",
+      "sha256": "4350614266c58c34db46cb6f8c7e50c0fe4f1de6e6d216c2a647a2b99f0ac8ba",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 97,
+        "skybolt_hits": 97,
+        "skybolt_kills": 25,
+        "skybolt_cancelled_attacks": 30,
+        "skybolt_hits_beyond_5": 5,
+        "skybolt_hits_without_los": 15,
+        "skybolt_casts_beyond_5": 5,
+        "skybolt_casts_without_los": 15,
+        "casts_per_fight": 0.6466666666666666,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 0.30927835051546393,
+        "kills_per_fight": 0.16666666666666666
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "standard",
+      "arm": "V3",
+      "n": 150,
+      "win_rate": 0.4266666666666667,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 9.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": 0.013333333333333334,
+          "ci95": [
+            -0.05333333333333334,
+            0.08
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.4266666666666667,
+          "ci95": [
+            -1.2133333333333334,
+            0.38666666666666666
+          ]
+        }
+      },
+      "file": "data/t2-standard-V3.json.gz",
+      "sha256": "5dde87d0e8d3d9aa7b09722bfcfed827f51f1bf08710dd5f7406aef7f08e8500",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 98,
+        "skybolt_hits": 98,
+        "skybolt_kills": 24,
+        "skybolt_cancelled_attacks": 34,
+        "skybolt_hits_beyond_5": 0,
+        "skybolt_hits_without_los": 0,
+        "skybolt_casts_beyond_5": 0,
+        "skybolt_casts_without_los": 0,
+        "casts_per_fight": 0.6533333333333333,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 0.3469387755102041,
+        "kills_per_fight": 0.16
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "standard",
+      "arm": "V4",
+      "n": 150,
+      "win_rate": 0.38,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 4,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.03333333333333333,
+          "ci95": [
+            -0.10666666666666667,
+            0.03333333333333333
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.25333333333333335,
+          "ci95": [
+            -1.2733333333333334,
+            0.7533333333333333
+          ]
+        }
+      },
+      "file": "data/t2-standard-V4.json.gz",
+      "sha256": "cb3e06516171e57b9a5217147ebae28a05e58e12e51e8272ed19249b5c86f1e8",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 97,
+        "skybolt_hits": 97,
+        "skybolt_kills": 25,
+        "skybolt_cancelled_attacks": 30,
+        "skybolt_hits_beyond_5": 5,
+        "skybolt_hits_without_los": 15,
+        "skybolt_casts_beyond_5": 5,
+        "skybolt_casts_without_los": 15,
+        "casts_per_fight": 0.6466666666666666,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 0.30927835051546393,
+        "kills_per_fight": 0.16666666666666666
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "standard",
+      "arm": "V5",
+      "n": 150,
+      "win_rate": 0.41333333333333333,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 9.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            -0.06666666666666667,
+            0.06
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.2866666666666667,
+          "ci95": [
+            -1.18,
+            0.6133333333333333
+          ]
+        }
+      },
+      "file": "data/t2-standard-V5.json.gz",
+      "sha256": "dc12496eb0c0994ef23d478bf2526f8728ea023b2eaec6a26abe635cdcb13e16",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 97,
+        "skybolt_hits": 97,
+        "skybolt_kills": 25,
+        "skybolt_cancelled_attacks": 30,
+        "skybolt_hits_beyond_5": 5,
+        "skybolt_hits_without_los": 15,
+        "skybolt_casts_beyond_5": 5,
+        "skybolt_casts_without_los": 15,
+        "casts_per_fight": 0.6466666666666666,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 0.30927835051546393,
+        "kills_per_fight": 0.16666666666666666
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "warband",
+      "arm": "none",
+      "n": 150,
+      "win_rate": 0.6933333333333334,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 8.5,
+        "p10": 4.0,
+        "p90": 18.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 12.0,
+        "p10": 0.0,
+        "p90": 25.0
+      },
+      "turn_cap_reached": 9,
+      "biomes": {
+        "air": 25,
+        "earth": 23,
+        "fire": 23,
+        "ice": 27,
+        "lightning": 27,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 65,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "file": "data/t2-warband-none.json.gz",
+      "sha256": "8903325e32e679a5a481cedf12c7ab1e2e5676d8b696f63ee9e1b48c00e6da12"
+    },
+    {
+      "tier": 2,
+      "cohort": "warband",
+      "arm": "skybolt",
+      "n": 150,
+      "win_rate": 0.68,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 8.0,
+        "p10": 4.0,
+        "p90": 26.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 11.0,
+        "p10": 0.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 15,
+      "biomes": {
+        "air": 25,
+        "earth": 23,
+        "fire": 23,
+        "ice": 27,
+        "lightning": 27,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 65,
+        "win_rate": {
+          "mean": -0.013333333333333334,
+          "ci95": [
+            -0.09803921568627451,
+            0.075
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.8266666666666667,
+          "ci95": [
+            -2.414473684210526,
+            0.8028169014084507
+          ]
+        }
+      },
+      "file": "data/t2-warband-skybolt.json.gz",
+      "sha256": "63a937235c8cc101ffb9bafb9212b0b84923de194a5bdeb9710cd67fed6d8cd1",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 133,
+        "skybolt_hits": 133,
+        "skybolt_kills": 77,
+        "skybolt_cancelled_attacks": 8,
+        "skybolt_hits_beyond_5": 14,
+        "skybolt_hits_without_los": 25,
+        "skybolt_casts_beyond_5": 14,
+        "skybolt_casts_without_los": 25,
+        "casts_per_fight": 0.8866666666666667,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 0.06015037593984962,
+        "kills_per_fight": 0.5133333333333333
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "warband",
+      "arm": "wildfire_halo",
+      "n": 150,
+      "win_rate": 0.7266666666666667,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 8.0,
+        "p10": 4.0,
+        "p90": 20.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 12.0,
+        "p10": 0.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 12,
+      "biomes": {
+        "air": 25,
+        "earth": 23,
+        "fire": 23,
+        "ice": 27,
+        "lightning": 27,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 65,
+        "win_rate": {
+          "mean": 0.03333333333333333,
+          "ci95": [
+            -0.058394160583941604,
+            0.1258741258741259
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.6466666666666666,
+          "ci95": [
+            -2.3716216216216215,
+            1.0202702702702702
+          ]
+        }
+      },
+      "file": "data/t2-warband-wildfire_halo.json.gz",
+      "sha256": "0535cc0843ed7acd175393034a5f58792afd00d59c64eafb152a1af1fa48deed"
+    },
+    {
+      "tier": 2,
+      "cohort": "warband",
+      "arm": "stormstring_shot",
+      "n": 150,
+      "win_rate": 0.7066666666666667,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 8.0,
+        "p10": 4.0,
+        "p90": 15.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 12.5,
+        "p10": 0.0,
+        "p90": 25.0
+      },
+      "turn_cap_reached": 10,
+      "biomes": {
+        "air": 25,
+        "earth": 23,
+        "fire": 23,
+        "ice": 27,
+        "lightning": 27,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 65,
+        "win_rate": {
+          "mean": 0.013333333333333334,
+          "ci95": [
+            -0.07692307692307693,
+            0.1038961038961039
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.12666666666666668,
+          "ci95": [
+            -1.6153846153846154,
+            1.3311258278145695
+          ]
+        }
+      },
+      "file": "data/t2-warband-stormstring_shot.json.gz",
+      "sha256": "b64691adc5bdfd852cd6c2c3ef56635913aef39be1436e5a8599cb8565de94ef"
+    },
+    {
+      "tier": 2,
+      "cohort": "warband",
+      "arm": "V1",
+      "n": 150,
+      "win_rate": 0.68,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 8.0,
+        "p10": 4.0,
+        "p90": 26.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 11.0,
+        "p10": 0.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 15,
+      "biomes": {
+        "air": 25,
+        "earth": 23,
+        "fire": 23,
+        "ice": 27,
+        "lightning": 27,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 65,
+        "win_rate": {
+          "mean": -0.013333333333333334,
+          "ci95": [
+            -0.09803921568627451,
+            0.075
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.8266666666666667,
+          "ci95": [
+            -2.414473684210526,
+            0.8028169014084507
+          ]
+        }
+      },
+      "file": "data/t2-warband-V1.json.gz",
+      "sha256": "411ecb560436b545feb332a1868106239af0d3b7ea663e55bc53ef7643aa4645",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 133,
+        "skybolt_hits": 133,
+        "skybolt_kills": 77,
+        "skybolt_cancelled_attacks": 8,
+        "skybolt_hits_beyond_5": 14,
+        "skybolt_hits_without_los": 25,
+        "skybolt_casts_beyond_5": 14,
+        "skybolt_casts_without_los": 25,
+        "casts_per_fight": 0.8866666666666667,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 0.06015037593984962,
+        "kills_per_fight": 0.5133333333333333
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "warband",
+      "arm": "V2",
+      "n": 150,
+      "win_rate": 0.68,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 8.0,
+        "p10": 4.0,
+        "p90": 26.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 11.0,
+        "p10": 0.0,
+        "p90": 25.0
+      },
+      "turn_cap_reached": 15,
+      "biomes": {
+        "air": 25,
+        "earth": 23,
+        "fire": 23,
+        "ice": 27,
+        "lightning": 27,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 65,
+        "win_rate": {
+          "mean": -0.013333333333333334,
+          "ci95": [
+            -0.09803921568627451,
+            0.075
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.8,
+          "ci95": [
+            -2.4166666666666665,
+            0.8486842105263158
+          ]
+        }
+      },
+      "file": "data/t2-warband-V2.json.gz",
+      "sha256": "e7d2bc9d0c21839f2e44fe2b392e9b56e5009af4e36ca02403dc75d4f9d04ef3",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 130,
+        "skybolt_hits": 130,
+        "skybolt_kills": 75,
+        "skybolt_cancelled_attacks": 8,
+        "skybolt_hits_beyond_5": 14,
+        "skybolt_hits_without_los": 25,
+        "skybolt_casts_beyond_5": 14,
+        "skybolt_casts_without_los": 25,
+        "casts_per_fight": 0.8666666666666667,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 0.06153846153846154,
+        "kills_per_fight": 0.5
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "warband",
+      "arm": "V3",
+      "n": 150,
+      "win_rate": 0.6866666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 8.0,
+        "p10": 4.0,
+        "p90": 22.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 11.0,
+        "p10": 0.0,
+        "p90": 25.0
+      },
+      "turn_cap_reached": 14,
+      "biomes": {
+        "air": 25,
+        "earth": 23,
+        "fire": 23,
+        "ice": 27,
+        "lightning": 27,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 65,
+        "win_rate": {
+          "mean": -0.006666666666666667,
+          "ci95": [
+            -0.09202453987730061,
+            0.07947019867549669
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.8733333333333333,
+          "ci95": [
+            -2.5,
+            0.8164556962025317
+          ]
+        }
+      },
+      "file": "data/t2-warband-V3.json.gz",
+      "sha256": "1f74a3e47f68a993b79e3e096fa9cf332c01adb0e05a691505b66413f68e3bbf",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 133,
+        "skybolt_hits": 133,
+        "skybolt_kills": 77,
+        "skybolt_cancelled_attacks": 11,
+        "skybolt_hits_beyond_5": 1,
+        "skybolt_hits_without_los": 0,
+        "skybolt_casts_beyond_5": 1,
+        "skybolt_casts_without_los": 0,
+        "casts_per_fight": 0.8866666666666667,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 0.08270676691729323,
+        "kills_per_fight": 0.5133333333333333
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "warband",
+      "arm": "V4",
+      "n": 150,
+      "win_rate": 0.6866666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 8.0,
+        "p10": 4.0,
+        "p90": 22.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 12.0,
+        "p10": 0.0,
+        "p90": 25.0
+      },
+      "turn_cap_reached": 14,
+      "biomes": {
+        "air": 25,
+        "earth": 23,
+        "fire": 23,
+        "ice": 27,
+        "lightning": 27,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 65,
+        "win_rate": {
+          "mean": -0.006666666666666667,
+          "ci95": [
+            -0.08843537414965986,
+            0.07971014492753623
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.18,
+          "ci95": [
+            -1.7880794701986755,
+            1.4149659863945578
+          ]
+        }
+      },
+      "file": "data/t2-warband-V4.json.gz",
+      "sha256": "391155b6025dfd33f10ffe85c36e42c4ddaaf222103cb698d34cd80c2bc1c603",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 134,
+        "skybolt_hits": 134,
+        "skybolt_kills": 76,
+        "skybolt_cancelled_attacks": 8,
+        "skybolt_hits_beyond_5": 14,
+        "skybolt_hits_without_los": 27,
+        "skybolt_casts_beyond_5": 14,
+        "skybolt_casts_without_los": 27,
+        "casts_per_fight": 0.8933333333333333,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 0.05970149253731343,
+        "kills_per_fight": 0.5066666666666667
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "warband",
+      "arm": "V5",
+      "n": 150,
+      "win_rate": 0.68,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 8.0,
+        "p10": 4.0,
+        "p90": 26.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 11.0,
+        "p10": 0.0,
+        "p90": 25.0
+      },
+      "turn_cap_reached": 15,
+      "biomes": {
+        "air": 25,
+        "earth": 23,
+        "fire": 23,
+        "ice": 27,
+        "lightning": 27,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 65,
+        "win_rate": {
+          "mean": -0.013333333333333334,
+          "ci95": [
+            -0.09803921568627451,
+            0.075
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.8,
+          "ci95": [
+            -2.4166666666666665,
+            0.8486842105263158
+          ]
+        }
+      },
+      "file": "data/t2-warband-V5.json.gz",
+      "sha256": "241b364cd142ddce7c8ce394adeb1c54258776dcd80f4eb25acf53c86bb42c19",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 130,
+        "skybolt_hits": 130,
+        "skybolt_kills": 75,
+        "skybolt_cancelled_attacks": 8,
+        "skybolt_hits_beyond_5": 14,
+        "skybolt_hits_without_los": 25,
+        "skybolt_casts_beyond_5": 14,
+        "skybolt_casts_without_los": 25,
+        "casts_per_fight": 0.8666666666666667,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 0.06153846153846154,
+        "kills_per_fight": 0.5
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "guardian",
+      "arm": "none",
+      "n": 150,
+      "win_rate": 0.49333333333333335,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 3.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "air": 24,
+        "earth": 27,
+        "fire": 27,
+        "ice": 26,
+        "lightning": 22,
+        "shadow": 24
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 31,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "file": "data/t2-guardian-none.json.gz",
+      "sha256": "d6b6ac2185acdb9d428665ed029828623ac6c2ff42bc189ffe323bb36bb4fe37"
+    },
+    {
+      "tier": 2,
+      "cohort": "guardian",
+      "arm": "skybolt",
+      "n": 150,
+      "win_rate": 0.49333333333333335,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 4.0,
+        "p10": 3.0,
+        "p90": 7.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 2.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 24,
+        "earth": 27,
+        "fire": 27,
+        "ice": 26,
+        "lightning": 22,
+        "shadow": 24
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 31,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            -0.05806451612903226,
+            0.0625
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.28,
+          "ci95": [
+            -1.2708333333333333,
+            0.7702702702702703
+          ]
+        }
+      },
+      "file": "data/t2-guardian-skybolt.json.gz",
+      "sha256": "4099c12a9b7127fecd1a656618da4c709f0be797f2caf18aabd7405015c3a1cc",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 107,
+        "skybolt_hits": 109,
+        "skybolt_kills": 26,
+        "skybolt_cancelled_attacks": 46,
+        "skybolt_hits_beyond_5": 6,
+        "skybolt_hits_without_los": 1,
+        "skybolt_casts_beyond_5": 6,
+        "skybolt_casts_without_los": 1,
+        "casts_per_fight": 0.7133333333333334,
+        "hits_per_cast": 1.0186915887850467,
+        "cancelled_attacks_per_cast": 0.42990654205607476,
+        "kills_per_fight": 0.17333333333333334
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "guardian",
+      "arm": "wildfire_halo",
+      "n": 150,
+      "win_rate": 0.49333333333333335,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 2.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 2.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 24,
+        "earth": 27,
+        "fire": 27,
+        "ice": 26,
+        "lightning": 22,
+        "shadow": 24
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 31,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            -0.05405405405405406,
+            0.056338028169014086
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.15333333333333332,
+          "ci95": [
+            -0.7379310344827587,
+            1.0980392156862746
+          ]
+        }
+      },
+      "file": "data/t2-guardian-wildfire_halo.json.gz",
+      "sha256": "9e86edcaf2a42f4310093db3eea7670507a321923e14ca84178cf21f0503c0cf"
+    },
+    {
+      "tier": 2,
+      "cohort": "guardian",
+      "arm": "stormstring_shot",
+      "n": 150,
+      "win_rate": 0.4866666666666667,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 2.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 24,
+        "earth": 27,
+        "fire": 27,
+        "ice": 26,
+        "lightning": 22,
+        "shadow": 24
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 31,
+        "win_rate": {
+          "mean": -0.006666666666666667,
+          "ci95": [
+            -0.0625,
+            0.05194805194805195
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.04,
+          "ci95": [
+            -0.8472222222222222,
+            0.9871794871794872
+          ]
+        }
+      },
+      "file": "data/t2-guardian-stormstring_shot.json.gz",
+      "sha256": "14e19ca9e158bf3184848b38150a3c42d095485b85d2c0286962e2204bd1aed7"
+    },
+    {
+      "tier": 2,
+      "cohort": "guardian",
+      "arm": "V1",
+      "n": 150,
+      "win_rate": 0.49333333333333335,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 4.0,
+        "p10": 3.0,
+        "p90": 7.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 2.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 24,
+        "earth": 27,
+        "fire": 27,
+        "ice": 26,
+        "lightning": 22,
+        "shadow": 24
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 31,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            -0.05806451612903226,
+            0.0625
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.28,
+          "ci95": [
+            -1.2708333333333333,
+            0.7702702702702703
+          ]
+        }
+      },
+      "file": "data/t2-guardian-V1.json.gz",
+      "sha256": "7303b6322b1d28fd8270b1892e95d7c4f46cc2a97877df0166f3fea14c670c52",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 107,
+        "skybolt_hits": 109,
+        "skybolt_kills": 26,
+        "skybolt_cancelled_attacks": 46,
+        "skybolt_hits_beyond_5": 6,
+        "skybolt_hits_without_los": 1,
+        "skybolt_casts_beyond_5": 6,
+        "skybolt_casts_without_los": 1,
+        "casts_per_fight": 0.7133333333333334,
+        "hits_per_cast": 1.0186915887850467,
+        "cancelled_attacks_per_cast": 0.42990654205607476,
+        "kills_per_fight": 0.17333333333333334
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "guardian",
+      "arm": "V2",
+      "n": 150,
+      "win_rate": 0.49333333333333335,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 4.0,
+        "p10": 3.0,
+        "p90": 7.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 2.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 24,
+        "earth": 27,
+        "fire": 27,
+        "ice": 26,
+        "lightning": 22,
+        "shadow": 24
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 31,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            -0.05806451612903226,
+            0.0625
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.2733333333333333,
+          "ci95": [
+            -1.2635135135135136,
+            0.777027027027027
+          ]
+        }
+      },
+      "file": "data/t2-guardian-V2.json.gz",
+      "sha256": "9ffbf64577bf43608026d79a872661c25c3907a6272f377c11d2e483dca43551",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 107,
+        "skybolt_hits": 109,
+        "skybolt_kills": 26,
+        "skybolt_cancelled_attacks": 46,
+        "skybolt_hits_beyond_5": 6,
+        "skybolt_hits_without_los": 1,
+        "skybolt_casts_beyond_5": 6,
+        "skybolt_casts_without_los": 1,
+        "casts_per_fight": 0.7133333333333334,
+        "hits_per_cast": 1.0186915887850467,
+        "cancelled_attacks_per_cast": 0.42990654205607476,
+        "kills_per_fight": 0.17333333333333334
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "guardian",
+      "arm": "V3",
+      "n": 150,
+      "win_rate": 0.49333333333333335,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 4.0,
+        "p10": 3.0,
+        "p90": 7.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 2.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 24,
+        "earth": 27,
+        "fire": 27,
+        "ice": 26,
+        "lightning": 22,
+        "shadow": 24
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 31,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            -0.05806451612903226,
+            0.0625
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.28,
+          "ci95": [
+            -1.272108843537415,
+            0.7785234899328859
+          ]
+        }
+      },
+      "file": "data/t2-guardian-V3.json.gz",
+      "sha256": "6b12554ca644161c31aaf017ce2d54d8ed1a7129c9615d987fabbb1dafadf2d0",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 107,
+        "skybolt_hits": 109,
+        "skybolt_kills": 28,
+        "skybolt_cancelled_attacks": 45,
+        "skybolt_hits_beyond_5": 0,
+        "skybolt_hits_without_los": 0,
+        "skybolt_casts_beyond_5": 0,
+        "skybolt_casts_without_los": 0,
+        "casts_per_fight": 0.7133333333333334,
+        "hits_per_cast": 1.0186915887850467,
+        "cancelled_attacks_per_cast": 0.4205607476635514,
+        "kills_per_fight": 0.18666666666666668
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "guardian",
+      "arm": "V4",
+      "n": 150,
+      "win_rate": 0.5133333333333333,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 2.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 24,
+        "earth": 27,
+        "fire": 27,
+        "ice": 26,
+        "lightning": 22,
+        "shadow": 24
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 31,
+        "win_rate": {
+          "mean": 0.02,
+          "ci95": [
+            -0.031446540880503145,
+            0.0763888888888889
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.17333333333333334,
+          "ci95": [
+            -1.0482758620689656,
+            0.7346938775510204
+          ]
+        }
+      },
+      "file": "data/t2-guardian-V4.json.gz",
+      "sha256": "fca73084dfbfd259062e575eea2e6526f1e81f29b49ec183033ddb2812d5e1fe",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 107,
+        "skybolt_hits": 109,
+        "skybolt_kills": 26,
+        "skybolt_cancelled_attacks": 46,
+        "skybolt_hits_beyond_5": 6,
+        "skybolt_hits_without_los": 1,
+        "skybolt_casts_beyond_5": 6,
+        "skybolt_casts_without_los": 1,
+        "casts_per_fight": 0.7133333333333334,
+        "hits_per_cast": 1.0186915887850467,
+        "cancelled_attacks_per_cast": 0.42990654205607476,
+        "kills_per_fight": 0.17333333333333334
+      }
+    },
+    {
+      "tier": 2,
+      "cohort": "guardian",
+      "arm": "V5",
+      "n": 150,
+      "win_rate": 0.49333333333333335,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 4.0,
+        "p10": 3.0,
+        "p90": 7.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 2.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 24,
+        "earth": 27,
+        "fire": 27,
+        "ice": 26,
+        "lightning": 22,
+        "shadow": 24
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 31,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            -0.05806451612903226,
+            0.0625
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.2733333333333333,
+          "ci95": [
+            -1.2635135135135136,
+            0.777027027027027
+          ]
+        }
+      },
+      "file": "data/t2-guardian-V5.json.gz",
+      "sha256": "5f83e474d80d1b072bbf7969445d09ad16617c120a471af0c186769bd2a687a7",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 107,
+        "skybolt_hits": 109,
+        "skybolt_kills": 26,
+        "skybolt_cancelled_attacks": 46,
+        "skybolt_hits_beyond_5": 6,
+        "skybolt_hits_without_los": 1,
+        "skybolt_casts_beyond_5": 6,
+        "skybolt_casts_without_los": 1,
+        "casts_per_fight": 0.7133333333333334,
+        "hits_per_cast": 1.0186915887850467,
+        "cancelled_attacks_per_cast": 0.42990654205607476,
+        "kills_per_fight": 0.17333333333333334
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "standard",
+      "arm": "none",
+      "n": 150,
+      "win_rate": 0.32666666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 6.0,
+        "p10": 3.0,
+        "p90": 12.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 11.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "file": "data/t3-standard-none.json.gz",
+      "sha256": "0642652e43d34764b7c41efc18466f4e198fe9f60301bccf65709170f27428de"
+    },
+    {
+      "tier": 3,
+      "cohort": "standard",
+      "arm": "skybolt",
+      "n": 150,
+      "win_rate": 0.29333333333333333,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 11.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 9.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.03333333333333333,
+          "ci95": [
+            -0.11333333333333333,
+            0.04666666666666667
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.03333333333333333,
+          "ci95": [
+            -1.0266666666666666,
+            0.9533333333333334
+          ]
+        }
+      },
+      "file": "data/t3-standard-skybolt.json.gz",
+      "sha256": "0cb5ad4d91ae108c6e2073161047a08d5d2ee9dbbb60f29d29ad8b2afc9706b6",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 95,
+        "skybolt_hits": 94,
+        "skybolt_kills": 24,
+        "skybolt_cancelled_attacks": 31,
+        "skybolt_hits_beyond_5": 4,
+        "skybolt_hits_without_los": 20,
+        "skybolt_casts_beyond_5": 4,
+        "skybolt_casts_without_los": 20,
+        "casts_per_fight": 0.6333333333333333,
+        "hits_per_cast": 0.9894736842105263,
+        "cancelled_attacks_per_cast": 0.3263157894736842,
+        "kills_per_fight": 0.16
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "standard",
+      "arm": "wildfire_halo",
+      "n": 150,
+      "win_rate": 0.31333333333333335,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 11.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 10.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.013333333333333334,
+          "ci95": [
+            -0.08666666666666667,
+            0.05333333333333334
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.23333333333333334,
+          "ci95": [
+            -0.9666666666666667,
+            0.5266666666666666
+          ]
+        }
+      },
+      "file": "data/t3-standard-wildfire_halo.json.gz",
+      "sha256": "9def180fe8704002b11285ab25f77b6b39aee8f2aa9f416380e7f0840dd56227"
+    },
+    {
+      "tier": 3,
+      "cohort": "standard",
+      "arm": "stormstring_shot",
+      "n": 150,
+      "win_rate": 0.25333333333333335,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 11.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 9.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 2,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.07333333333333333,
+          "ci95": [
+            -0.14666666666666667,
+            0.0
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.30666666666666664,
+          "ci95": [
+            -0.5933333333333334,
+            1.2333333333333334
+          ]
+        }
+      },
+      "file": "data/t3-standard-stormstring_shot.json.gz",
+      "sha256": "0608878f16c7b99d0bc9b84e4dbe5e0a2141deabfd5d9544f0de3295953713bc"
+    },
+    {
+      "tier": 3,
+      "cohort": "standard",
+      "arm": "V1",
+      "n": 150,
+      "win_rate": 0.29333333333333333,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 11.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 9.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.03333333333333333,
+          "ci95": [
+            -0.11333333333333333,
+            0.04666666666666667
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.03333333333333333,
+          "ci95": [
+            -1.0266666666666666,
+            0.9533333333333334
+          ]
+        }
+      },
+      "file": "data/t3-standard-V1.json.gz",
+      "sha256": "5f8e3a15ccf2b5de5bf8725072fd984b649c85d620c1f9dbb19abbf820a395e9",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 95,
+        "skybolt_hits": 94,
+        "skybolt_kills": 24,
+        "skybolt_cancelled_attacks": 31,
+        "skybolt_hits_beyond_5": 4,
+        "skybolt_hits_without_los": 20,
+        "skybolt_casts_beyond_5": 4,
+        "skybolt_casts_without_los": 20,
+        "casts_per_fight": 0.6333333333333333,
+        "hits_per_cast": 0.9894736842105263,
+        "cancelled_attacks_per_cast": 0.3263157894736842,
+        "kills_per_fight": 0.16
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "standard",
+      "arm": "V2",
+      "n": 150,
+      "win_rate": 0.3,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 11.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 8.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.02666666666666667,
+          "ci95": [
+            -0.10666666666666667,
+            0.04666666666666667
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.07333333333333333,
+          "ci95": [
+            -1.0533333333333332,
+            0.8933333333333333
+          ]
+        }
+      },
+      "file": "data/t3-standard-V2.json.gz",
+      "sha256": "dcdb5641db3727610d22152187cb823c1da611ad11d9132ab70710780e813638",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 94,
+        "skybolt_hits": 93,
+        "skybolt_kills": 23,
+        "skybolt_cancelled_attacks": 31,
+        "skybolt_hits_beyond_5": 4,
+        "skybolt_hits_without_los": 20,
+        "skybolt_casts_beyond_5": 4,
+        "skybolt_casts_without_los": 20,
+        "casts_per_fight": 0.6266666666666667,
+        "hits_per_cast": 0.9893617021276596,
+        "cancelled_attacks_per_cast": 0.32978723404255317,
+        "kills_per_fight": 0.15333333333333332
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "standard",
+      "arm": "V3",
+      "n": 150,
+      "win_rate": 0.28,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 11.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 9.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.04666666666666667,
+          "ci95": [
+            -0.13333333333333333,
+            0.03333333333333333
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.07333333333333333,
+          "ci95": [
+            -0.8866666666666667,
+            1.0466666666666666
+          ]
+        }
+      },
+      "file": "data/t3-standard-V3.json.gz",
+      "sha256": "1aae5c22e381e13d1bdc013a755ceb845736517ca8671eece61669fd993455f6",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 95,
+        "skybolt_hits": 94,
+        "skybolt_kills": 22,
+        "skybolt_cancelled_attacks": 35,
+        "skybolt_hits_beyond_5": 0,
+        "skybolt_hits_without_los": 0,
+        "skybolt_casts_beyond_5": 0,
+        "skybolt_casts_without_los": 0,
+        "casts_per_fight": 0.6333333333333333,
+        "hits_per_cast": 0.9894736842105263,
+        "cancelled_attacks_per_cast": 0.3684210526315789,
+        "kills_per_fight": 0.14666666666666667
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "standard",
+      "arm": "V4",
+      "n": 150,
+      "win_rate": 0.26,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 11.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 11.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 2,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.06666666666666667,
+          "ci95": [
+            -0.15333333333333332,
+            0.013333333333333334
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.44666666666666666,
+          "ci95": [
+            -0.36666666666666664,
+            1.3133333333333332
+          ]
+        }
+      },
+      "file": "data/t3-standard-V4.json.gz",
+      "sha256": "a6c5e8a989add5247293472627d5605fff51fa5bcb9d0ba4f40a340e69b0410f",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 96,
+        "skybolt_hits": 95,
+        "skybolt_kills": 25,
+        "skybolt_cancelled_attacks": 31,
+        "skybolt_hits_beyond_5": 4,
+        "skybolt_hits_without_los": 21,
+        "skybolt_casts_beyond_5": 4,
+        "skybolt_casts_without_los": 21,
+        "casts_per_fight": 0.64,
+        "hits_per_cast": 0.9895833333333334,
+        "cancelled_attacks_per_cast": 0.3229166666666667,
+        "kills_per_fight": 0.16666666666666666
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "standard",
+      "arm": "V5",
+      "n": 150,
+      "win_rate": 0.3,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 11.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 8.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.02666666666666667,
+          "ci95": [
+            -0.10666666666666667,
+            0.04666666666666667
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.07333333333333333,
+          "ci95": [
+            -1.0533333333333332,
+            0.8933333333333333
+          ]
+        }
+      },
+      "file": "data/t3-standard-V5.json.gz",
+      "sha256": "e1e850edc7fce1b07e71dbfe58b20508a1ee0336eff3a6f5fec31af8d07c8cdc",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 94,
+        "skybolt_hits": 93,
+        "skybolt_kills": 23,
+        "skybolt_cancelled_attacks": 31,
+        "skybolt_hits_beyond_5": 4,
+        "skybolt_hits_without_los": 20,
+        "skybolt_casts_beyond_5": 4,
+        "skybolt_casts_without_los": 20,
+        "casts_per_fight": 0.6266666666666667,
+        "hits_per_cast": 0.9893617021276596,
+        "cancelled_attacks_per_cast": 0.32978723404255317,
+        "kills_per_fight": 0.15333333333333332
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "warband",
+      "arm": "none",
+      "n": 150,
+      "win_rate": 0.46,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 9.0,
+        "p10": 3.0,
+        "p90": 21.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 7.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 8,
+      "biomes": {
+        "air": 22,
+        "earth": 26,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 27
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 47,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "file": "data/t3-warband-none.json.gz",
+      "sha256": "79555ab8b8e2e5ccf82c84d787169a403fac90ae444ff0209c0989b7a2299a1b"
+    },
+    {
+      "tier": 3,
+      "cohort": "warband",
+      "arm": "skybolt",
+      "n": 150,
+      "win_rate": 0.4,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 7.5,
+        "p10": 3.0,
+        "p90": 22.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 12,
+      "biomes": {
+        "air": 22,
+        "earth": 26,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 27
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 47,
+        "win_rate": {
+          "mean": -0.06,
+          "ci95": [
+            -0.14012738853503184,
+            0.02631578947368421
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.7666666666666667,
+          "ci95": [
+            -0.31756756756756754,
+            1.8780487804878048
+          ]
+        }
+      },
+      "file": "data/t3-warband-skybolt.json.gz",
+      "sha256": "43eb5e9ebd3cdab8344efe70eb9dfe0014a3d84fb37a5bc243eb89adc30b3d0b",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 113,
+        "skybolt_hits": 114,
+        "skybolt_kills": 54,
+        "skybolt_cancelled_attacks": 16,
+        "skybolt_hits_beyond_5": 12,
+        "skybolt_hits_without_los": 27,
+        "skybolt_casts_beyond_5": 12,
+        "skybolt_casts_without_los": 27,
+        "casts_per_fight": 0.7533333333333333,
+        "hits_per_cast": 1.008849557522124,
+        "cancelled_attacks_per_cast": 0.1415929203539823,
+        "kills_per_fight": 0.36
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "warband",
+      "arm": "wildfire_halo",
+      "n": 150,
+      "win_rate": 0.44666666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 8.0,
+        "p10": 3.0,
+        "p90": 17.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 6,
+      "biomes": {
+        "air": 22,
+        "earth": 26,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 27
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 47,
+        "win_rate": {
+          "mean": -0.013333333333333334,
+          "ci95": [
+            -0.08280254777070063,
+            0.06015037593984962
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.02,
+          "ci95": [
+            -0.9565217391304348,
+            1.0266666666666666
+          ]
+        }
+      },
+      "file": "data/t3-warband-wildfire_halo.json.gz",
+      "sha256": "671d5a4e7e08406440d156c115e28b838da3e28ff83bde488eb9c115040f8d41"
+    },
+    {
+      "tier": 3,
+      "cohort": "warband",
+      "arm": "stormstring_shot",
+      "n": 150,
+      "win_rate": 0.44666666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 7.0,
+        "p10": 3.0,
+        "p90": 16.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 5,
+      "biomes": {
+        "air": 22,
+        "earth": 26,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 27
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 47,
+        "win_rate": {
+          "mean": -0.013333333333333334,
+          "ci95": [
+            -0.08666666666666667,
+            0.06164383561643835
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.06,
+          "ci95": [
+            -1.0,
+            0.918918918918919
+          ]
+        }
+      },
+      "file": "data/t3-warband-stormstring_shot.json.gz",
+      "sha256": "b4086fefba866ea8d4d13311991ab61fdf40fe79441d5ca5dc0d32d885af2ff5"
+    },
+    {
+      "tier": 3,
+      "cohort": "warband",
+      "arm": "V1",
+      "n": 150,
+      "win_rate": 0.4,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 7.5,
+        "p10": 3.0,
+        "p90": 22.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 12,
+      "biomes": {
+        "air": 22,
+        "earth": 26,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 27
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 47,
+        "win_rate": {
+          "mean": -0.06,
+          "ci95": [
+            -0.14012738853503184,
+            0.02631578947368421
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.7666666666666667,
+          "ci95": [
+            -0.31756756756756754,
+            1.8780487804878048
+          ]
+        }
+      },
+      "file": "data/t3-warband-V1.json.gz",
+      "sha256": "4719a572f60cddd43ce9e2799331c2ecc3886a6a6eecbae6e5d686e60a66fa8c",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 113,
+        "skybolt_hits": 114,
+        "skybolt_kills": 54,
+        "skybolt_cancelled_attacks": 16,
+        "skybolt_hits_beyond_5": 12,
+        "skybolt_hits_without_los": 27,
+        "skybolt_casts_beyond_5": 12,
+        "skybolt_casts_without_los": 27,
+        "casts_per_fight": 0.7533333333333333,
+        "hits_per_cast": 1.008849557522124,
+        "cancelled_attacks_per_cast": 0.1415929203539823,
+        "kills_per_fight": 0.36
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "warband",
+      "arm": "V2",
+      "n": 150,
+      "win_rate": 0.38666666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 7.5,
+        "p10": 3.0,
+        "p90": 21.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 10,
+      "biomes": {
+        "air": 22,
+        "earth": 26,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 27
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 47,
+        "win_rate": {
+          "mean": -0.07333333333333333,
+          "ci95": [
+            -0.1592356687898089,
+            0.014285714285714285
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.72,
+          "ci95": [
+            -0.4125874125874126,
+            1.8670886075949367
+          ]
+        }
+      },
+      "file": "data/t3-warband-V2.json.gz",
+      "sha256": "6072a5618f45fafe2c29aaf2271a7a430591a206ed3e0be476cb5796d2dcc265",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 109,
+        "skybolt_hits": 110,
+        "skybolt_kills": 53,
+        "skybolt_cancelled_attacks": 16,
+        "skybolt_hits_beyond_5": 12,
+        "skybolt_hits_without_los": 25,
+        "skybolt_casts_beyond_5": 12,
+        "skybolt_casts_without_los": 25,
+        "casts_per_fight": 0.7266666666666667,
+        "hits_per_cast": 1.0091743119266054,
+        "cancelled_attacks_per_cast": 0.14678899082568808,
+        "kills_per_fight": 0.35333333333333333
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "warband",
+      "arm": "V3",
+      "n": 150,
+      "win_rate": 0.4,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 8.0,
+        "p10": 3.0,
+        "p90": 20.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 11,
+      "biomes": {
+        "air": 22,
+        "earth": 26,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 27
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 47,
+        "win_rate": {
+          "mean": -0.06,
+          "ci95": [
+            -0.1386861313868613,
+            0.02097902097902098
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.8133333333333334,
+          "ci95": [
+            -0.3103448275862069,
+            1.95625
+          ]
+        }
+      },
+      "file": "data/t3-warband-V3.json.gz",
+      "sha256": "4ff0549414dc076599c16f46b01ba7ce83ee89aad8c56550ed7f932e44d6efb6",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 113,
+        "skybolt_hits": 114,
+        "skybolt_kills": 53,
+        "skybolt_cancelled_attacks": 15,
+        "skybolt_hits_beyond_5": 0,
+        "skybolt_hits_without_los": 0,
+        "skybolt_casts_beyond_5": 0,
+        "skybolt_casts_without_los": 0,
+        "casts_per_fight": 0.7533333333333333,
+        "hits_per_cast": 1.008849557522124,
+        "cancelled_attacks_per_cast": 0.13274336283185842,
+        "kills_per_fight": 0.35333333333333333
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "warband",
+      "arm": "V4",
+      "n": 150,
+      "win_rate": 0.35333333333333333,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 7.0,
+        "p10": 3.0,
+        "p90": 22.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 5.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 11,
+      "biomes": {
+        "air": 22,
+        "earth": 26,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 27
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 47,
+        "win_rate": {
+          "mean": -0.10666666666666667,
+          "ci95": [
+            -0.17567567567567569,
+            -0.03333333333333333
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.4533333333333333,
+          "ci95": [
+            -0.6333333333333333,
+            1.513157894736842
+          ]
+        }
+      },
+      "file": "data/t3-warband-V4.json.gz",
+      "sha256": "fbc1b53db135a8623e54c53920fc44e073bc5e6a68f8f733679d98fae72e60ba",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 117,
+        "skybolt_hits": 118,
+        "skybolt_kills": 54,
+        "skybolt_cancelled_attacks": 16,
+        "skybolt_hits_beyond_5": 13,
+        "skybolt_hits_without_los": 27,
+        "skybolt_casts_beyond_5": 13,
+        "skybolt_casts_without_los": 27,
+        "casts_per_fight": 0.78,
+        "hits_per_cast": 1.0085470085470085,
+        "cancelled_attacks_per_cast": 0.13675213675213677,
+        "kills_per_fight": 0.36
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "warband",
+      "arm": "V5",
+      "n": 150,
+      "win_rate": 0.38666666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 7.5,
+        "p10": 3.0,
+        "p90": 21.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 6.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 10,
+      "biomes": {
+        "air": 22,
+        "earth": 26,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 27
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 47,
+        "win_rate": {
+          "mean": -0.07333333333333333,
+          "ci95": [
+            -0.1592356687898089,
+            0.014285714285714285
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.72,
+          "ci95": [
+            -0.4125874125874126,
+            1.8670886075949367
+          ]
+        }
+      },
+      "file": "data/t3-warband-V5.json.gz",
+      "sha256": "75153156cd015dbd52bd551b437169760d4e954732de7320bb08ac66eaa873a2",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 109,
+        "skybolt_hits": 110,
+        "skybolt_kills": 53,
+        "skybolt_cancelled_attacks": 16,
+        "skybolt_hits_beyond_5": 12,
+        "skybolt_hits_without_los": 25,
+        "skybolt_casts_beyond_5": 12,
+        "skybolt_casts_without_los": 25,
+        "casts_per_fight": 0.7266666666666667,
+        "hits_per_cast": 1.0091743119266054,
+        "cancelled_attacks_per_cast": 0.14678899082568808,
+        "kills_per_fight": 0.35333333333333333
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "guardian",
+      "arm": "none",
+      "n": 150,
+      "win_rate": 0.5,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 23.5,
+        "p10": 3.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 23,
+        "earth": 28,
+        "fire": 29,
+        "ice": 22,
+        "lightning": 29,
+        "shadow": 19
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 42,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "file": "data/t3-guardian-none.json.gz",
+      "sha256": "29681d2cb0a138b5c70940e2e6a14923eff80441b5cc69bd7cb15f3b9b634f69"
+    },
+    {
+      "tier": 3,
+      "cohort": "guardian",
+      "arm": "skybolt",
+      "n": 150,
+      "win_rate": 0.5266666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 2.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 22.5,
+        "p10": 3.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 23,
+        "earth": 28,
+        "fire": 29,
+        "ice": 22,
+        "lightning": 29,
+        "shadow": 19
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 42,
+        "win_rate": {
+          "mean": 0.02666666666666667,
+          "ci95": [
+            -0.027777777777777776,
+            0.08108108108108109
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.76,
+          "ci95": [
+            -1.813664596273292,
+            0.21710526315789475
+          ]
+        }
+      },
+      "file": "data/t3-guardian-skybolt.json.gz",
+      "sha256": "591ad1c854dd3d2e53ee07eb04c77e1aaecb979b87949163bd91fbd1d9cb7917",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 97,
+        "skybolt_hits": 99,
+        "skybolt_kills": 14,
+        "skybolt_cancelled_attacks": 43,
+        "skybolt_hits_beyond_5": 4,
+        "skybolt_hits_without_los": 6,
+        "skybolt_casts_beyond_5": 4,
+        "skybolt_casts_without_los": 6,
+        "casts_per_fight": 0.6466666666666666,
+        "hits_per_cast": 1.0206185567010309,
+        "cancelled_attacks_per_cast": 0.44329896907216493,
+        "kills_per_fight": 0.09333333333333334
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "guardian",
+      "arm": "wildfire_halo",
+      "n": 150,
+      "win_rate": 0.49333333333333335,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 2.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 2.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 23,
+        "earth": 28,
+        "fire": 29,
+        "ice": 22,
+        "lightning": 29,
+        "shadow": 19
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 42,
+        "win_rate": {
+          "mean": -0.006666666666666667,
+          "ci95": [
+            -0.05732484076433121,
+            0.04411764705882353
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.9733333333333334,
+          "ci95": [
+            -1.8979591836734695,
+            -0.08
+          ]
+        }
+      },
+      "file": "data/t3-guardian-wildfire_halo.json.gz",
+      "sha256": "9bc43e50313a21287ab87e87e245607c7fb37b1054f01b5c7d4ef48b699b32dc"
+    },
+    {
+      "tier": 3,
+      "cohort": "guardian",
+      "arm": "stormstring_shot",
+      "n": 150,
+      "win_rate": 0.5,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 4.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 23,
+        "earth": 28,
+        "fire": 29,
+        "ice": 22,
+        "lightning": 29,
+        "shadow": 19
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 42,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            -0.0547945205479452,
+            0.05660377358490566
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.07333333333333333,
+          "ci95": [
+            -1.1,
+            0.8875
+          ]
+        }
+      },
+      "file": "data/t3-guardian-stormstring_shot.json.gz",
+      "sha256": "e0a28327a4eb88c5de32576f2e3a0ac26ede2abf2e7243fd903486a96b27e8fd"
+    },
+    {
+      "tier": 3,
+      "cohort": "guardian",
+      "arm": "V1",
+      "n": 150,
+      "win_rate": 0.5266666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 2.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 22.5,
+        "p10": 3.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 23,
+        "earth": 28,
+        "fire": 29,
+        "ice": 22,
+        "lightning": 29,
+        "shadow": 19
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 42,
+        "win_rate": {
+          "mean": 0.02666666666666667,
+          "ci95": [
+            -0.027777777777777776,
+            0.08108108108108109
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.76,
+          "ci95": [
+            -1.813664596273292,
+            0.21710526315789475
+          ]
+        }
+      },
+      "file": "data/t3-guardian-V1.json.gz",
+      "sha256": "c640bc50d144fe7810f98caff5d6d503e8f88713c885db9f9167ea148919798e",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 97,
+        "skybolt_hits": 99,
+        "skybolt_kills": 14,
+        "skybolt_cancelled_attacks": 43,
+        "skybolt_hits_beyond_5": 4,
+        "skybolt_hits_without_los": 6,
+        "skybolt_casts_beyond_5": 4,
+        "skybolt_casts_without_los": 6,
+        "casts_per_fight": 0.6466666666666666,
+        "hits_per_cast": 1.0206185567010309,
+        "cancelled_attacks_per_cast": 0.44329896907216493,
+        "kills_per_fight": 0.09333333333333334
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "guardian",
+      "arm": "V2",
+      "n": 150,
+      "win_rate": 0.5266666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 2.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 22.5,
+        "p10": 3.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 23,
+        "earth": 28,
+        "fire": 29,
+        "ice": 22,
+        "lightning": 29,
+        "shadow": 19
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 42,
+        "win_rate": {
+          "mean": 0.02666666666666667,
+          "ci95": [
+            -0.027777777777777776,
+            0.08108108108108109
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.76,
+          "ci95": [
+            -1.813664596273292,
+            0.21710526315789475
+          ]
+        }
+      },
+      "file": "data/t3-guardian-V2.json.gz",
+      "sha256": "f5cc71bfa3ed8ac02fabb52538c5c404790ae9223e08429fb86448003650bd55",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 96,
+        "skybolt_hits": 97,
+        "skybolt_kills": 13,
+        "skybolt_cancelled_attacks": 43,
+        "skybolt_hits_beyond_5": 4,
+        "skybolt_hits_without_los": 6,
+        "skybolt_casts_beyond_5": 4,
+        "skybolt_casts_without_los": 6,
+        "casts_per_fight": 0.64,
+        "hits_per_cast": 1.0104166666666667,
+        "cancelled_attacks_per_cast": 0.4479166666666667,
+        "kills_per_fight": 0.08666666666666667
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "guardian",
+      "arm": "V3",
+      "n": 150,
+      "win_rate": 0.5266666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 2.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 22.5,
+        "p10": 3.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 23,
+        "earth": 28,
+        "fire": 29,
+        "ice": 22,
+        "lightning": 29,
+        "shadow": 19
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 42,
+        "win_rate": {
+          "mean": 0.02666666666666667,
+          "ci95": [
+            -0.027777777777777776,
+            0.08108108108108109
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.78,
+          "ci95": [
+            -1.8493150684931507,
+            0.21476510067114093
+          ]
+        }
+      },
+      "file": "data/t3-guardian-V3.json.gz",
+      "sha256": "793e767ef6516983e50252ed362b14a200253e256bb3072abf201003231651ac",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 97,
+        "skybolt_hits": 99,
+        "skybolt_kills": 15,
+        "skybolt_cancelled_attacks": 43,
+        "skybolt_hits_beyond_5": 0,
+        "skybolt_hits_without_los": 0,
+        "skybolt_casts_beyond_5": 0,
+        "skybolt_casts_without_los": 0,
+        "casts_per_fight": 0.6466666666666666,
+        "hits_per_cast": 1.0206185567010309,
+        "cancelled_attacks_per_cast": 0.44329896907216493,
+        "kills_per_fight": 0.1
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "guardian",
+      "arm": "V4",
+      "n": 150,
+      "win_rate": 0.52,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 22.0,
+        "p10": 3.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 23,
+        "earth": 28,
+        "fire": 29,
+        "ice": 22,
+        "lightning": 29,
+        "shadow": 19
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 42,
+        "win_rate": {
+          "mean": 0.02,
+          "ci95": [
+            -0.03424657534246575,
+            0.07236842105263158
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.9333333333333333,
+          "ci95": [
+            -1.9863013698630136,
+            0.057692307692307696
+          ]
+        }
+      },
+      "file": "data/t3-guardian-V4.json.gz",
+      "sha256": "a8d236a47ecc3dcd9941a114ac02da9dff0a2dad3455335a9870a851605d11cf",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 96,
+        "skybolt_hits": 97,
+        "skybolt_kills": 13,
+        "skybolt_cancelled_attacks": 43,
+        "skybolt_hits_beyond_5": 4,
+        "skybolt_hits_without_los": 6,
+        "skybolt_casts_beyond_5": 4,
+        "skybolt_casts_without_los": 6,
+        "casts_per_fight": 0.64,
+        "hits_per_cast": 1.0104166666666667,
+        "cancelled_attacks_per_cast": 0.4479166666666667,
+        "kills_per_fight": 0.08666666666666667
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "guardian",
+      "arm": "V5",
+      "n": 150,
+      "win_rate": 0.5266666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.0,
+        "p10": 2.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 22.5,
+        "p10": 3.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 23,
+        "earth": 28,
+        "fire": 29,
+        "ice": 22,
+        "lightning": 29,
+        "shadow": 19
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 42,
+        "win_rate": {
+          "mean": 0.02666666666666667,
+          "ci95": [
+            -0.027777777777777776,
+            0.08108108108108109
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.76,
+          "ci95": [
+            -1.813664596273292,
+            0.21710526315789475
+          ]
+        }
+      },
+      "file": "data/t3-guardian-V5.json.gz",
+      "sha256": "6f29de0669cb3863959eb3e7a50c4fa32f3f61f2b591b54a4ea997296d486fc5",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 96,
+        "skybolt_hits": 97,
+        "skybolt_kills": 13,
+        "skybolt_cancelled_attacks": 43,
+        "skybolt_hits_beyond_5": 4,
+        "skybolt_hits_without_los": 6,
+        "skybolt_casts_beyond_5": 4,
+        "skybolt_casts_without_los": 6,
+        "casts_per_fight": 0.64,
+        "hits_per_cast": 1.0104166666666667,
+        "cancelled_attacks_per_cast": 0.4479166666666667,
+        "kills_per_fight": 0.08666666666666667
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "boss",
+      "arm": "none",
+      "n": 150,
+      "win_rate": 0.3466666666666667,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 6.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 11.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "hp_lost": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "file": "data/t3-boss-none.json.gz",
+      "sha256": "e5d8a59e42a15c567974718b3e95a933a29f106b927462ed4e6e59080fd758e5"
+    },
+    {
+      "tier": 3,
+      "cohort": "boss",
+      "arm": "skybolt",
+      "n": 150,
+      "win_rate": 0.34,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 6.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 5.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.006666666666666667,
+          "ci95": [
+            -0.08,
+            0.07333333333333333
+          ]
+        },
+        "hp_lost": {
+          "mean": -1.0,
+          "ci95": [
+            -1.9866666666666666,
+            0.006666666666666667
+          ]
+        }
+      },
+      "file": "data/t3-boss-skybolt.json.gz",
+      "sha256": "b177ac8348be1f079b8f630524701bfeba597b7956ec7f7b480a8dd864a951b7",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 94,
+        "skybolt_hits": 94,
+        "skybolt_kills": 1,
+        "skybolt_cancelled_attacks": 125,
+        "skybolt_hits_beyond_5": 1,
+        "skybolt_hits_without_los": 0,
+        "skybolt_casts_beyond_5": 1,
+        "skybolt_casts_without_los": 0,
+        "casts_per_fight": 0.6266666666666667,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 1.3297872340425532,
+        "kills_per_fight": 0.006666666666666667
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "boss",
+      "arm": "wildfire_halo",
+      "n": 150,
+      "win_rate": 0.31333333333333335,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 5.5,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 10.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.03333333333333333,
+          "ci95": [
+            -0.09333333333333334,
+            0.02666666666666667
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.3333333333333333,
+          "ci95": [
+            -1.06,
+            0.3933333333333333
+          ]
+        }
+      },
+      "file": "data/t3-boss-wildfire_halo.json.gz",
+      "sha256": "54fc62ef4a98937d3e8ffd3efb75edcee31b33991acaed776d55669532f1177a"
+    },
+    {
+      "tier": 3,
+      "cohort": "boss",
+      "arm": "stormstring_shot",
+      "n": 150,
+      "win_rate": 0.31333333333333335,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 6.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 10.0,
+        "p90": 24.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.03333333333333333,
+          "ci95": [
+            -0.10666666666666667,
+            0.03333333333333333
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.26,
+          "ci95": [
+            -1.12,
+            0.5933333333333334
+          ]
+        }
+      },
+      "file": "data/t3-boss-stormstring_shot.json.gz",
+      "sha256": "c691da9a31522d8927b5fe3f2acd8de164b46ffa2024da4bab6e54dd279bbbe9"
+    },
+    {
+      "tier": 3,
+      "cohort": "boss",
+      "arm": "V1",
+      "n": 150,
+      "win_rate": 0.34,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 6.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 5.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.006666666666666667,
+          "ci95": [
+            -0.08,
+            0.07333333333333333
+          ]
+        },
+        "hp_lost": {
+          "mean": -1.0,
+          "ci95": [
+            -1.9866666666666666,
+            0.006666666666666667
+          ]
+        }
+      },
+      "file": "data/t3-boss-V1.json.gz",
+      "sha256": "05192457063128d640f87f2c2ace3a613394dc86bdef2a0f6043c5da012cbf38",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 94,
+        "skybolt_hits": 94,
+        "skybolt_kills": 1,
+        "skybolt_cancelled_attacks": 125,
+        "skybolt_hits_beyond_5": 1,
+        "skybolt_hits_without_los": 0,
+        "skybolt_casts_beyond_5": 1,
+        "skybolt_casts_without_los": 0,
+        "casts_per_fight": 0.6266666666666667,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 1.3297872340425532,
+        "kills_per_fight": 0.006666666666666667
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "boss",
+      "arm": "V2",
+      "n": 150,
+      "win_rate": 0.34,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 6.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 5.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.006666666666666667,
+          "ci95": [
+            -0.08,
+            0.07333333333333333
+          ]
+        },
+        "hp_lost": {
+          "mean": -1.0,
+          "ci95": [
+            -1.9866666666666666,
+            0.006666666666666667
+          ]
+        }
+      },
+      "file": "data/t3-boss-V2.json.gz",
+      "sha256": "8aba69ead84291a23710e3f38cae00a43a4d9eae373863bbc9d52fb46622b02a",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 94,
+        "skybolt_hits": 94,
+        "skybolt_kills": 1,
+        "skybolt_cancelled_attacks": 125,
+        "skybolt_hits_beyond_5": 1,
+        "skybolt_hits_without_los": 0,
+        "skybolt_casts_beyond_5": 1,
+        "skybolt_casts_without_los": 0,
+        "casts_per_fight": 0.6266666666666667,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 1.3297872340425532,
+        "kills_per_fight": 0.006666666666666667
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "boss",
+      "arm": "V3",
+      "n": 150,
+      "win_rate": 0.34,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 6.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 5.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.006666666666666667,
+          "ci95": [
+            -0.08,
+            0.07333333333333333
+          ]
+        },
+        "hp_lost": {
+          "mean": -1.0,
+          "ci95": [
+            -1.9866666666666666,
+            0.006666666666666667
+          ]
+        }
+      },
+      "file": "data/t3-boss-V3.json.gz",
+      "sha256": "9a1fba3fb13a1682fe37ba1b624bb017e0cd772fb132a01e4a76716f5601f7f2",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 94,
+        "skybolt_hits": 94,
+        "skybolt_kills": 1,
+        "skybolt_cancelled_attacks": 125,
+        "skybolt_hits_beyond_5": 0,
+        "skybolt_hits_without_los": 0,
+        "skybolt_casts_beyond_5": 0,
+        "skybolt_casts_without_los": 0,
+        "casts_per_fight": 0.6266666666666667,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 1.3297872340425532,
+        "kills_per_fight": 0.006666666666666667
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "boss",
+      "arm": "V4",
+      "n": 150,
+      "win_rate": 0.32666666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 6.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 5.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.02,
+          "ci95": [
+            -0.09333333333333334,
+            0.06
+          ]
+        },
+        "hp_lost": {
+          "mean": -0.8466666666666667,
+          "ci95": [
+            -1.7866666666666666,
+            0.1
+          ]
+        }
+      },
+      "file": "data/t3-boss-V4.json.gz",
+      "sha256": "b196133e54cad5112a6c4e831d9d26db0b12f4bab4bff03f166d4e8b7cf3520f",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 94,
+        "skybolt_hits": 94,
+        "skybolt_kills": 1,
+        "skybolt_cancelled_attacks": 125,
+        "skybolt_hits_beyond_5": 1,
+        "skybolt_hits_without_los": 0,
+        "skybolt_casts_beyond_5": 1,
+        "skybolt_casts_without_los": 0,
+        "casts_per_fight": 0.6266666666666667,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 1.3297872340425532,
+        "kills_per_fight": 0.006666666666666667
+      }
+    },
+    {
+      "tier": 3,
+      "cohort": "boss",
+      "arm": "V5",
+      "n": 150,
+      "win_rate": 0.34,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 150,
+        "median": 6.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 150,
+        "median": 24.0,
+        "p10": 5.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 25,
+        "earth": 25,
+        "fire": 25,
+        "ice": 25,
+        "lightning": 25,
+        "shadow": 25
+      },
+      "paired_delta": {
+        "paired_rooms": 150,
+        "seed_clusters": 25,
+        "win_rate": {
+          "mean": -0.006666666666666667,
+          "ci95": [
+            -0.08,
+            0.07333333333333333
+          ]
+        },
+        "hp_lost": {
+          "mean": -1.0,
+          "ci95": [
+            -1.9866666666666666,
+            0.006666666666666667
+          ]
+        }
+      },
+      "file": "data/t3-boss-V5.json.gz",
+      "sha256": "be2ad0bfb778b5e764a303844fdaf5aca9b1c747aa9e323337efcbb053161cab",
+      "skybolt_usage": {
+        "n": 150,
+        "casts": 94,
+        "skybolt_hits": 94,
+        "skybolt_kills": 1,
+        "skybolt_cancelled_attacks": 125,
+        "skybolt_hits_beyond_5": 1,
+        "skybolt_hits_without_los": 0,
+        "skybolt_casts_beyond_5": 1,
+        "skybolt_casts_without_los": 0,
+        "casts_per_fight": 0.6266666666666667,
+        "hits_per_cast": 1.0,
+        "cancelled_attacks_per_cast": 1.3297872340425532,
+        "kills_per_fight": 0.006666666666666667
+      }
+    }
+  ]
+}

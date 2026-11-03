@@ -1,0 +1,230 @@
+[
+  {
+    "family": "herald",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+      "--execute-suite",
+      "herald"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "Ran 25 tests in 166.757s",
+      "OK"
+    ],
+    "transcript": "proof/logs/validate_herald_0.txt"
+  },
+  {
+    "family": "seer",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+      "--execute-suite",
+      "seer"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "Ran 86 tests in 68.728s",
+      "OK"
+    ],
+    "transcript": "proof/logs/validate_seer_0.txt"
+  },
+  {
+    "family": "thrall",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+      "--execute-suite",
+      "thrall"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "Ran 88 tests in 102.286s",
+      "OK (skipped=1)"
+    ],
+    "transcript": "proof/logs/validate_thrall_0.txt"
+  },
+  {
+    "family": "mirror",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+      "--execute-suite",
+      "mirror"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "Ran 39 tests in 50.131s",
+      "OK"
+    ],
+    "transcript": "proof/logs/validate_mirror_0.txt"
+  },
+  {
+    "family": "capacitor",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+      "--execute-suite",
+      "capacitor"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "Ran 38 tests in 133.174s",
+      "OK"
+    ],
+    "transcript": "proof/logs/validate_capacitor_0.txt"
+  },
+  {
+    "family": "weaver",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+      "--execute-suite",
+      "weaver"
+    ],
+    "exit": 1,
+    "result_lines": [
+      "Ran 30 tests in 106.305s",
+      "FAILED (errors=1)"
+    ],
+    "transcript": "proof/logs/validate_weaver_0.txt"
+  },
+  {
+    "family": "mimic",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+      "--execute-suite",
+      "mimic"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "Ran 30 tests in 42.367s",
+      "OK"
+    ],
+    "transcript": "proof/logs/validate_mimic_0.txt"
+  },
+  {
+    "family": "mortar",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+      "--execute-suite",
+      "mortar"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "Ran 66 tests in 450.719s",
+      "OK"
+    ],
+    "transcript": "proof/logs/validate_mortar_0.txt"
+  },
+  {
+    "family": "sfx",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "rr-34",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/suites/sfx_sync_0_program.gd"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)"
+    ],
+    "transcript": "proof/logs/validate_sfx_0.txt"
+  },
+  {
+    "family": "sfx",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "rr-34",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/suites/sfx_sync_1_program.gd"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)"
+    ],
+    "transcript": "proof/logs/validate_sfx_1.txt"
+  },
+  {
+    "family": "sfx",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "rr-34",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/suites/sfx_sync_2_program.gd"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "SFX SYNC HARNESS RESULT: PASS (1688 observations, 0 failures)"
+    ],
+    "transcript": "proof/logs/validate_sfx_2.txt"
+  },
+  {
+    "family": "identity",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tests/test_art_identity_gate.py"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "Ran 111 tests in 40.640s",
+      "OK"
+    ],
+    "transcript": "proof/logs/validate_identity_0.txt"
+  },
+  {
+    "family": "identity",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tests/test_icon_identity_policy.py"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "Ran 8 tests in 0.063s",
+      "OK"
+    ],
+    "transcript": "proof/logs/validate_identity_1.txt"
+  },
+  {
+    "family": "audit",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/test_registration_audit.py",
+      "--json",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/mq12/proof/registration_audit.json",
+      "--markdown",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/mq12/proof/registration_audit.md"
+    ],
+    "exit": 0,
+    "result_lines": [
+      "TEST REGISTRATION AUDIT: PASS (814 scripts; full suite=461, quarantined=29, windowed probe=324)"
+    ],
+    "transcript": "proof/logs/validate_audit_0.txt"
+  }
+]

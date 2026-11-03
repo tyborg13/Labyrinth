@@ -1,0 +1,54 @@
+{
+  "native_pixels": false,
+  "outside_changed_texels": 0,
+  "per_part_outside_changed_texels": {
+    "head": 0,
+    "hidden_head": 0,
+    "torso": 0,
+    "hidden_torso": 0,
+    "pelvis": 0,
+    "hidden_pelvis": 0,
+    "tabard": 0,
+    "hidden_tabard": 0,
+    "spear": 0,
+    "hidden_spear": 0,
+    "cape_near": 0,
+    "hidden_cape_near": 0,
+    "arm_near": 0,
+    "hidden_arm_near": 0,
+    "hand_near": 0,
+    "hidden_hand_near": 0,
+    "leg_near": 0,
+    "hidden_leg_near": 0,
+    "foot_near": 0,
+    "hidden_foot_near": 0,
+    "cape_far": 0,
+    "hidden_cape_far": 0,
+    "arm_far": 0,
+    "hidden_arm_far": 0,
+    "hand_far": 0,
+    "hidden_hand_far": 0,
+    "leg_far": 0,
+    "hidden_leg_far": 0,
+    "foot_far": 0,
+    "hidden_foot_far": 0,
+    "covered_torso": 0,
+    "covered_cape_far": 0,
+    "covered_foot_far": 0
+  },
+  "inside_changed_texels": 0,
+  "underlay_changed_texels": 0,
+  "rests": {
+    "front": {
+      "source_mismatch_pixels": 0,
+      "production_assembly_mismatch_pixels": 0,
+      "production_rest_sha256": "b24aa2be07667f97d4c357e209315b4109e2eb43209199a7d8c121323ac1d41c"
+    },
+    "rear": {
+      "source_mismatch_pixels": 0,
+      "production_assembly_mismatch_pixels": 0,
+      "production_rest_sha256": "f8738992d7e4165a19c563b9394a4b397ef08e11ede70248e8f6db9e5dd918d3"
+    }
+  },
+  "ok": true
+}

@@ -6,9 +6,35 @@ const Presentation = preload("presentation.gd")
 const Motion = preload("motion.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
 const FPS: float = 60.0
+# El-02 replaced these actions, while the approved clips and their bound
+# intent selectors remain unchanged. Aliases affect presentation selection only.
+const ELEMENT_ACTION_SELECTORS: Dictionary = {
+	"briar_weaver": {"upheaval_mark": "grow_bramble"},
+}
+
+# Echo reuses Shade Bolt while approved rig/clip files remain byte-identical.
+const INTENT_SELECTORS: Dictionary = {"hollow_mimic": {"echo": "shade_bolt"}}
 
 static func handles(type: String) -> bool:
 	return Presentation.handles(type)
+
+## An optional case adapter may insert presentation-only gestures around the
+## existing steps. The resolver snapshots and their order remain unchanged.
+static func presentation_steps(state: Dictionary, steps: Array) -> Array:
+	var result: Array = steps
+	for actor: Dictionary in state.get("enemies", []):
+		var path: String = str(Presentation.integration_for(str(actor.get("type", ""))).get("action_adapter", ""))
+		if path.is_empty(): continue
+		var adapter: Script = load(path) as Script
+		if adapter != null and adapter.has_method("presentation_steps"):
+			result = adapter.presentation_steps(actor, result)
+	return result
+
+## A declared contact cue replaces that cue's legacy action-start submission.
+## Undeclared clips retain their existing SFX schedule.
+static func contact_cue_for(step: Dictionary, actor: Dictionary) -> String:
+	var integration: Dictionary = Presentation.integration_for(str(actor.get("type", "")))
+	return str(integration.get("contact_cues", {}).get(clip_for(step, actor), ""))
 
 ## Case-owned playback takes priority over declared shared contact clips.
 ## The integration record owns the resource path ("action_adapter").
@@ -31,17 +57,21 @@ static func data_for(type: String) -> Dictionary:
 static func clip_for(effect: Dictionary, actor: Dictionary) -> String:
 	var data: Dictionary = data_for(str(actor.get("type", "")))
 	if data.is_empty() or bool(effect.get("cancelled", false)): return ""
+	# The approved cast clip keeps its asset identity; Arc Bolt uses ordinary ranged FX.
+	if str(actor.get("type", "")) == "arc_thrall" and str(effect.get("action_type", effect.get("kind", ""))) == "ranged" and str(effect.get("element", "")) == "lightning": return "tether"
 	# Compound resolver steps keep their copied action_type. A case can map
 	# their existing marker to a clip without changing gameplay descriptors.
 	var selectors: Dictionary = Presentation.integration_for(str(actor.get("type", ""))).get("step_selectors", {})
 	for flag: String in selectors:
 		if bool(effect.get(flag, false)): return str(selectors[flag])
 	var intent: String = str(effect.get("intent_id", actor.get("intent", {}).get("id", "")))
+	intent = str(INTENT_SELECTORS.get(str(actor.get("type", "")), {}).get(intent, intent))
 	var verb: String = str(effect.get("action_type", effect.get("kind", "")))
 	verb = str(Presentation.integration_for(str(actor.get("type", ""))).get("action_aliases", {}).get(verb, verb))
+	verb = str(ELEMENT_ACTION_SELECTORS.get(str(actor.get("type", "")), {}).get(verb, verb))
 	# The existing Kindle resolver emits a status snapshot. Normalize only its
 	# presentation selector; preserve the resolver step and protected clip data.
-	if str(actor.get("type", "")) == "ember_tick" and intent == "kindle" and verb == "status" and effect.has("enemy_after"):
+	if str(actor.get("type", "")) in ["ember_tick", "ember_hoarder"] and intent == "kindle" and verb == "status" and effect.has("enemy_after"):
 		verb = "kindle"
 	for clip: String in data["clips"]:
 		for selector: String in data["clips"][clip].get("intents", []):
@@ -54,14 +84,17 @@ static func seconds_for(type: String, clip: String) -> float:
 static func frames_for(type: String, clip: String) -> int:
 	return maxi(1, roundi(seconds_for(type, clip) * FPS))
 
-static func movement_frame(presentation: Dictionary, type: String, key: String, origin: Vector2, target: Vector2, direction: Vector2i, phase: float, reduced: bool) -> void:
+static func movement_frame(presentation: Dictionary, type: String, key: String, origin: Vector2, target: Vector2, direction: Vector2i, phase: float, reduced: bool, root_override: Dictionary = {}) -> void:
 	var step: float = origin.distance_to(target)
 	presentation[type + "_motion"] = {key: {"clip": "move", "direction": direction, "phase": phase, "step_distance_px": step}}
 	if reduced: return
+	if not root_override.is_empty():
+		presentation[type + "_motion"][key]["root_forward_override"] = root_override
+		presentation["unit_footprint_world_positions"] = {key: origin + (root_override["axis"] as Vector2) * float(root_override["forward_px"])}
 	# The live canvas contains authored root travel. Anchor only that texture at
 	# the segment origin; HUD/shadows follow the same eased/lifted body root.
 	presentation["unit_texture_origins"] = {key: origin}
-	presentation["unit_world_positions"] = {key: origin + Motion.root_offset(data_for(type), "move", phase, direction, step)}
+	presentation["unit_world_positions"] = {key: origin + Motion.root_offset(data_for(type), "move", phase, direction, step, root_override)}
 
 static func contact_phase(progress: float, boundary: float, contact: float) -> float:
 	if progress <= boundary: return contact * clampf(progress / maxf(boundary, 0.000001), 0.0, 1.0)

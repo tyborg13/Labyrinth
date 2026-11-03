@@ -1,0 +1,6 @@
+{
+  "input": "production:assets/units/chainbound_gaoler_cutout/renderer.gd",
+  "before_sha256": "e4942e454b7d3cd6c1980abbbf892cbcfaf9a7ba8f1ad38378812956c1c83ba6",
+  "after_sha256": "2506622fb7d5869603e6c408675f2e8ee11efd412a5daed1c0207579e9862103",
+  "reason": "fix-17 restores WALK_CYCLE_SECONDS as a data-derived static property; both public duration and walk_segment_frames use Action.frames_for. No art, motion, or frame timing change."
+}

@@ -201,8 +201,7 @@ static func text_from_data(run_id: String, outcome: String, text_data: Dictionar
 	var rng := RandomNumberGenerator.new()
 	rng.seed = run_id.hash()
 	var titles: Array = (text_data.get("titles", {}) as Dictionary).get(outcome, [])
-	var quips: Array = (text_data.get("quips", {}) as Dictionary).get(outcome, [])
-	return {"title": str(titles[rng.randi_range(0, titles.size() - 1)]) if not titles.is_empty() else str(DEFAULT_TITLES.get(outcome, DEFAULT_TITLES["defeat"])), "quip": str(quips[rng.randi_range(0, quips.size() - 1)]) if not quips.is_empty() else ""}
+	return {"title": str(titles[rng.randi_range(0, titles.size() - 1)]) if not titles.is_empty() else str(DEFAULT_TITLES.get(outcome, DEFAULT_TITLES["defeat"]))}
 
 static func location(run_state: Dictionary) -> Dictionary:
 	var room: Dictionary = Graph.room(run_state, run_state.get("current_room", Vector2i.ZERO))

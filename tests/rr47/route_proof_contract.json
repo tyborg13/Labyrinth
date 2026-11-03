@@ -1,0 +1,11 @@
+{
+  "min_images": 8,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*_calibration_f000_frame.png", "width": 1920, "height": 1080},
+    {"pattern": "*_move_2_1_-1_1_*_frame.png", "width": 1920, "height": 1080},
+    {"pattern": "*_actual_id.png"},
+    {"pattern": "*_expected_id.png"},
+    {"pattern": "*_actor_mask.png"}
+  ]
+}

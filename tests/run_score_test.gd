@@ -33,8 +33,14 @@ func _run() -> void:
 		_assert((overlay.find_child("OutcomeTitle", true, false) as Label).modulate.a == 0, "Title starts transparent")
 		overlay.skip_presentation()
 		_assert((overlay.find_child("ScoreValue", true, false) as Label).text == str(overlay.recap_model()["score"]["total"]), "Skip completes score count")
-		_assert((overlay.find_child("ChronicleButton", true, false) as Button).disabled, "Chronicle remains disabled")
-		_assert((overlay.find_child("ChronicleButton", true, false) as Button).tooltip_text == "Coming soon", "Chronicle tooltip is approved copy")
+		var chronicle: Button = overlay.find_child("ChronicleButton", true, false) as Button
+		_assert(not chronicle.disabled and chronicle.focus_mode == Control.FOCUS_ALL, "Chronicle is a live action")
+		chronicle.pressed.emit()
+		var panel: Control = overlay.find_child("RunEndChronicle", true, false) as Control
+		_assert(panel != null and panel.visible, "Chronicle opens over the recap")
+		_assert(not chronicle.is_visible_in_tree() and not (overlay.find_child("OutcomeTitle", true, false) as Label).is_visible_in_tree(), "The recap steps aside while the Chronicle is open")
+		panel.call("close")
+		_assert(chronicle.is_visible_in_tree() and chronicle.has_focus(), "Closing returns to the recap on Chronicle")
 		_assert_recap_presentation(overlay, outcome)
 		overlay.reset()
 		overlay.set_motion_enabled(false)
@@ -163,10 +169,7 @@ func _test_ledger_layout(overlay: Control) -> void:
 	await process_frame
 	_assert(bases.get_child_count() == 9 and not feats.visible and ledger.size.x == 560, "Exactly nine rows retain the single 560 px column")
 	for row: Control in bases.get_children(): _assert_row_bounds(row)
-	var no_quip: Dictionary = overlay.recap_model()
-	no_quip["quip"] = ""
-	overlay.present(no_quip)
-	_assert(not (overlay.find_child("OutcomeQuip", true, false) as Label).visible, "Missing quip omits the line")
+	_assert(overlay.find_child("OutcomeQuip", true, false) == null, "The run-end screen has no tagline")
 
 func _assert_row_bounds(row: Control) -> void:
 	var label: Label = row.get_node("ScoreLabel")
@@ -179,9 +182,6 @@ func _assert_row_bounds(row: Control) -> void:
 func _assert_recap_presentation(overlay: Control, outcome: String) -> void:
 	var column: Control = overlay.find_child("OutcomeRecap", true, false)
 	_assert(column.position == Vector2(1010, 82) and column.get_global_rect().size.x == 780 and column.global_position == Vector2(1010, 82), "Recap uses the approved viewport origin and width")
-	var quip: Label = overlay.find_child("OutcomeQuip", true, false)
-	var italic: FontVariation = quip.get_theme_font("font") as FontVariation
-	_assert(italic != null and italic.base_font == load("res://fonts/LabyrinthCrumble-Text.tres") and is_equal_approx(italic.variation_transform.get_skew(), 0.2) and quip.get_theme_font_size("font_size") == 24 and quip.get_theme_color("font_color") == Overlay.Palette.TEXT_2, "Quip uses approved Text font with synthetic 0.2 oblique")
 	var title: Label = overlay.find_child("OutcomeTitle", true, false)
 	_assert(title.get_theme_constant("shadow_offset_x") == 0 and title.get_theme_constant("shadow_offset_y") == 3, "Title drop shadow retains offset 0,3")
 	var glow: Control = overlay.find_child("TitleGlow", true, false)
@@ -197,7 +197,14 @@ func _assert_recap_presentation(overlay: Control, outcome: String) -> void:
 	_assert(rule.get_parent() == column and rule.size == Vector2(560, 14), "Gilded rule is drawn above the death shroud over 560 px")
 	var primary: Button = overlay.find_child("NewRunButton", true, false)
 	var menu: Button = overlay.find_child("MainMenuButton", true, false)
-	_assert(primary.get_node(primary.focus_neighbor_right) == menu and primary.get_node(primary.focus_neighbor_left) == menu and menu.get_node(menu.focus_neighbor_right) == primary and menu.get_node(menu.focus_neighbor_left) == primary, "Controller focus paths survive viewport reparenting and skip Chronicle")
+	var chronicle: Button = overlay.find_child("ChronicleButton", true, false)
+	_assert(primary.get_node(primary.focus_neighbor_right) == menu and primary.get_node(primary.focus_neighbor_left) == menu and menu.get_node(menu.focus_neighbor_right) == primary and menu.get_node(menu.focus_neighbor_left) == primary, "Controller left/right walk the two exits after viewport reparenting")
+	_assert(primary.get_node(primary.focus_neighbor_top) == chronicle and menu.get_node(menu.focus_neighbor_top) == chronicle and chronicle.get_node(chronicle.focus_neighbor_bottom) == primary, "Up from the exits reaches the Chronicle link and down returns")
+	var embers: Control = overlay.find_child("EmberResult", true, false)
+	_assert(chronicle.get_parent() == column and chronicle.position.x == 0 and chronicle.position.y > embers.position.y and chronicle.text == "VIEW IN THE CHRONICLE ›", "The Chronicle is a link in the recap column, below the summary")
+	var gap: float = 44.0 if outcome == "defeat" else 16.0
+	var row_center: float = (primary.get_global_rect().position.x + menu.get_global_rect().end.x) * 0.5
+	_assert(is_equal_approx(row_center, 1010.0 + (3.0 * primary.size.x + 2.0 * gap) * 0.5), "The two exits stay centred where the three-plate row stood")
 
 func _assert(condition: bool, message: String) -> void:
 	if not condition:

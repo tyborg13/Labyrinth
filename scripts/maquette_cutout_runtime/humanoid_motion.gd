@@ -4,6 +4,7 @@ extends RefCounted
 const Tracks = preload("motion.gd")
 const Anatomy = preload("humanoid_anatomy.gd")
 const Gait = preload("humanoid_gait.gd")
+const HeldFollow = preload("humanoid_held_follow.gd")
 const SOLVE_EPSILON: float = 0.000001
 
 static func channels(data: Dictionary, clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
@@ -21,6 +22,10 @@ static func channels(data: Dictionary, clip: String, phase: float, layout: Dicti
 		var bone: String = str(track["bone"])
 		if not values.has(bone): values[bone] = {}
 		var value: float = Gait.value_at(track["keys"], phase)
+		var drop: Dictionary = data.get("view_held_drops", {}).get(facing, {}).get(clip, {}).get(bone, {})
+		if track["channel"] == "angle_deg" and not drop.is_empty():
+			var drop_runtime: Script = load(str(layout["held_drop_runtime"]))
+			value = drop_runtime.angle_at(track["keys"], phase, drop)
 		if track["channel"] == "forward_px":
 			match str(track["forward_mode"]):
 				"fraction_of_step": value *= step
@@ -29,6 +34,7 @@ static func channels(data: Dictionary, clip: String, phase: float, layout: Dicti
 	if data["clips"][clip].get("gait", {}).has("flap_sway"):
 		if not values.has("flap"): values["flap"] = {}
 		values["flap"]["swing_deg"] = float(values["flap"].get("swing_deg", 0.0)) + Gait.flap_sway(data["clips"][clip], phase) * float(data["projection"][facing]["lean_sign"])
+	Tracks.apply_root_override(values, clip, layout, maxf(float(layout.get("screen_pixel_scale", 1.0)), SOLVE_EPSILON))
 	return values
 
 static func offset(value: Dictionary, forward: Vector2, pivot: Vector2, root: Vector2) -> Vector2:
@@ -57,7 +63,7 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 			result[name]["skew"] = local.get_skew()
 	return result
 
-static func world_transforms(data: Dictionary, clip: String, phase: float, layout: Dictionary, facing: String, released: bool = true) -> Dictionary:
+static func world_transforms(data: Dictionary, clip: String, phase: float, layout: Dictionary, facing: String, released: bool = true, follow_held: bool = true) -> Dictionary:
 	var values: Dictionary = channels(data, clip, phase, layout, facing)
 	var joints: Dictionary = layout["joints"]
 	var forward: Vector2 = Tracks.point(data["projection"][facing]["forward"])
@@ -78,7 +84,12 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 			var value: Dictionary = values.get(name, {})
 			var angle_deg: float = float(value.get("lean_deg", 0.0))
 			if value.has("swing_deg"): angle_deg += float(value["swing_deg"])
-			var local := Transform2D(deg_to_rad(angle_deg), origin + offset(value, forward, pivot, root))
+			var axis: Vector2 = Tracks.root_axis(clip, name, layout, forward)
+			var local := Transform2D(deg_to_rad(angle_deg), origin + offset(value, axis, pivot, root))
+			# An explicitly requested screen-space sink must not lose vertical
+			# distance to the facing's oblique forward projection.
+			if name in layout.get("screen_lift_bones", {}).get(clip, []):
+				local.origin.y -= forward.y * float(value.get("forward_px", 0.0))
 			authored[name] = local
 			result[name] = local if parent.is_empty() else (result[parent] as Transform2D) * local
 			order.append(name)
@@ -90,10 +101,14 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 	# The unrotated FK chain supplies each hand's parent-relative target. Solve
 	# only keyed hands; unkeyed arms retain their complete FK translation.
 	for side: String in ["near", "far"]:
+		var elbow_side: float = 0.0
+		var elbow_policy: Dictionary = data.get("elbow_policy", {})
+		if facing in elbow_policy.get("views", []) and side in elbow_policy.get("sides", []):
+			elbow_side = signf(forward.x)
 		var hand: String = "hand_" + side
 		var value: Dictionary = values.get(hand, {})
 		if value.has("forward_px") or value.has("lift_px") or value.has("inward_px"):
-			_solve_two_bone(result, joints, "upper_" + side, "fore_" + side, hand)
+			_solve_two_bone(result, joints, "upper_" + side, "fore_" + side, hand, false, elbow_side)
 			for name: String in ["upper_" + side, "fore_" + side, hand]: solved[name] = true
 			_propagate_descendants(result, joints, authored, order, solved)
 		var foot: String = "foot_" + side
@@ -125,11 +140,14 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 				if not gait_scales.is_empty():
 					Gait.solve(result, joints, side, float(gait_scales[side]), float(policy["bend_side"]), Gait.skinned(layout, side))
 				else:
-					_solve_two_bone(result, joints, "thigh_" + side, "shin_" + side, foot, true, float(policy["bend_side"]))
+					var bend_side: float = float(layout.get("clip_knee_bend_side", {}).get(clip, {}).get(side, policy["bend_side"]))
+					_solve_two_bone(result, joints, "thigh_" + side, "shin_" + side, foot, true, bend_side)
+					if planted and clip in layout.get("planted_foot_orientation_clips", []):
+						result[foot] = Transform2D(0.0, Tracks.point(joints[foot]["position"]))
 				for name: String in ["thigh_" + side, "shin_" + side, foot]: solved[name] = true
 				_propagate_descendants(result, joints, authored, order, solved)
 	if data["clips"][clip].has("gait"):
-		Gait.shoulder_pendulum(result, joints, data["clips"][clip]["gait"], float(data["clips"][clip]["seconds"]), phase, forward)
+		Gait.shoulder_pendulum(result, joints, data["clips"][clip]["gait"], float(data["clips"][clip]["seconds"]), phase, forward, data.get("elbow_policy", {}), facing)
 	# Held items keep their rest world orientation, independent of solved hands.
 	for chain: Dictionary in layout.get("ik_chains", []):
 		var target: String = str(chain["target"])
@@ -143,7 +161,31 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 		var attachment: Dictionary = layout["held_items"][item]
 		var hand: String = str(attachment["hand"])
 		var angle: float = deg_to_rad(float(values.get(item, {}).get("angle_deg", 0.0)))
+		var follow: Dictionary = data["clips"][clip].get("held_follow", {})
+		if follow_held and follow.get("item", "") == item and follow.get("reference_frame", "") in ["world", "moving_root", "body"]:
+			var delayed: float = phase - float(follow["lag_s"]) / float(data["clips"][clip]["seconds"])
+			var displacement: float = 0.0
+			if delayed >= 0.0:
+				var prior: Dictionary = world_transforms(data, clip, delayed, layout, facing, false, false)
+				var grip_delta: Vector2 = (prior[hand] as Transform2D).origin - Tracks.point(joints[hand]["position"])
+				if follow.get("reference_frame", "TODO_DESIGN_held_follow_reference_frame") == "moving_root":
+					grip_delta -= (prior["root"] as Transform2D).origin - root
+				displacement = grip_delta.dot(forward)
+				if follow["reference_frame"] == "body":
+					displacement = HeldFollow.body_displacement(prior, joints, attachment, hand, forward)
+			angle = deg_to_rad(float(follow["deg_per_px"]) * displacement * float(data["projection"][facing]["lean_sign"]) * float(attachment.get("angle_sign", 1.0)))
+			if follow.has("limit_deg"):
+				var limit: float = deg_to_rad(float(follow["limit_deg"]))
+				angle = clampf(angle, -limit, limit)
 		var pivot: Vector2 = (result[hand] as Transform2D).origin
+		if attachment.has("source_grip"):
+			# Optional painted grip: the hand joint can mark the wrist rather
+			# than the shaft centre. Keep this source point inside the glove
+			# while retaining the item's authored world angle.
+			var grip: Vector2 = Tracks.point(attachment["source_grip"])
+			var hand_bind: Vector2 = Tracks.point(joints[hand]["position"])
+			var item_bind: Vector2 = Tracks.point(joints[item]["position"])
+			pivot = (result[hand] as Transform2D) * (grip - hand_bind) - (grip - item_bind).rotated(angle)
 		var releases: Dictionary = data.get("view_release_at", {}).get(facing, {}).get(
 			clip, data["clips"][clip].get("release_at", {}))
 		var release: float = float(releases.get(item, INF))
@@ -154,6 +196,13 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 			var foot_local: Vector2 = Tracks.point(attachment["floor_end"]) - rest_grip
 			var floor_pivot: Vector2 = before * foot_local
 			pivot = floor_pivot - foot_local.rotated(angle)
+			var drop: Dictionary = data.get("view_held_drops", {}).get(facing, {}).get(clip, {}).get(item, {})
+			if not drop.is_empty():
+				var drop_runtime: Script = load(str(layout["held_drop_runtime"]))
+				result[item] = drop_runtime.transform(before, foot_local, float(attachment["floor_line_y"]), angle, phase, drop)
+				solved[item] = true
+				_propagate_descendants(result, joints, authored, order, solved)
+				continue
 		result[item] = Transform2D(angle, pivot)
 		solved[item] = true
 		_propagate_descendants(result, joints, authored, order, solved)
@@ -176,6 +225,7 @@ static func _solve_two_bone(world: Dictionary, joints: Dictionary, upper: String
 	var height: float = sqrt(maxf(0.0, first * first - along * along))
 	var bend_side: float = signf((c - a).cross(b - a))
 	if full_extension: bend_side = leg_bend_side
+	elif not is_zero_approx(leg_bend_side): bend_side = leg_bend_side
 	elif is_zero_approx(bend_side): bend_side = 1.0
 	var elbow: Vector2 = shoulder + axis * along + Vector2(-axis.y, axis.x) * height * bend_side
 	var wrist: Vector2 = shoulder + axis * distance

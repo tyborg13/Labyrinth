@@ -1,0 +1,93 @@
+[
+  {
+    "name": "front_cape_near_violet_39",
+    "piece": "cape_near",
+    "mask": "features/front_cape_near_39.png",
+    "sha256": "b5916b17984267e939eb207a8b8e2196e9babc9871ad1fe86f74370e5d664ca0",
+    "pixels": 48
+  },
+  {
+    "name": "front_cape_near_violet_89",
+    "piece": "cape_near",
+    "mask": "features/front_cape_near_89.png",
+    "sha256": "457e9444da9e66447eec2e96cf1d457761778870e0cabd61969d28470c8b684a",
+    "pixels": 42
+  },
+  {
+    "name": "front_cape_far_violet_51",
+    "piece": "cape_far",
+    "mask": "features/front_cape_far_51.png",
+    "sha256": "ccc95887d072eab81549b5c9ab1146076d5aba8a996511d9f6454eeb63fc7389",
+    "pixels": 28
+  },
+  {
+    "name": "front_cape_far_violet_17",
+    "piece": "cape_far",
+    "mask": "features/front_cape_far_17.png",
+    "sha256": "1bcdf914f7c764ad065c60f3220f1f2203a97c40c87bd20ebc8ce72b5f79f80d",
+    "pixels": 26
+  },
+  {
+    "name": "front_cape_near_violet_86",
+    "piece": "cape_near",
+    "mask": "features/front_cape_near_86.png",
+    "sha256": "978b11a07fe0d2f15432996b6649bf1641125dcbf0586dcff08352d51d623181",
+    "pixels": 26
+  },
+  {
+    "name": "front_cape_near_violet_67",
+    "piece": "cape_near",
+    "mask": "features/front_cape_near_67.png",
+    "sha256": "6cc8064e7c2d89bbc7752c7d9d04198872510c71b2765e77da8348207db34337",
+    "pixels": 23
+  },
+  {
+    "name": "front_cape_near_violet_97",
+    "piece": "cape_near",
+    "mask": "features/front_cape_near_97.png",
+    "sha256": "2e0ed3c61f91664a1bce3832d3c691730f3390f6a2ca22f01813961e36959af3",
+    "pixels": 23
+  },
+  {
+    "name": "front_cape_far_violet_59",
+    "piece": "cape_far",
+    "mask": "features/front_cape_far_59.png",
+    "sha256": "b609f222134666b6c4aefdfae0f0afffe4da8a1739892bbc7ec4f3391007b27b",
+    "pixels": 16
+  },
+  {
+    "name": "front_cape_far_violet_21",
+    "piece": "cape_far",
+    "mask": "features/front_cape_far_21.png",
+    "sha256": "2a703462c77f62910e21b0110879b77a48e9d37b84a1e9ddb8c9fccfe2df7adc",
+    "pixels": 9
+  },
+  {
+    "name": "front_head_violet_4",
+    "piece": "head",
+    "mask": "features/front_head_4.png",
+    "sha256": "ec8143802a6163c2df1bdfc54a3a57565a6efbd8b2a8da504df0d4a233906740",
+    "pixels": 6
+  },
+  {
+    "name": "front_cape_near_violet_23",
+    "piece": "cape_near",
+    "mask": "features/front_cape_near_23.png",
+    "sha256": "1b072453185b5f233f36fbf0a315e25131a014f36d8bf70e4aa2fd278f01034e",
+    "pixels": 5
+  },
+  {
+    "name": "front_cape_near_violet_52",
+    "piece": "cape_near",
+    "mask": "features/front_cape_near_52.png",
+    "sha256": "a317fae90306ff8ef7ca35f8cd95b88a2f7612f982532c613f4de2b859aac2c0",
+    "pixels": 5
+  },
+  {
+    "name": "front_cape_far_violet_8",
+    "piece": "cape_far",
+    "mask": "features/front_cape_far_8.png",
+    "sha256": "d14e873e90b6b43be3b601571bce3b88374159f2e272341ab14ff23eba5ea58c",
+    "pixels": 4
+  }
+]

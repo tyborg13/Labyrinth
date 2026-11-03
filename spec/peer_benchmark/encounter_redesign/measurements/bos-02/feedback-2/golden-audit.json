@@ -1,0 +1,11 @@
+{
+  "program": "tools/enc04_golden_audit.gd",
+  "current_matches_frozen": true,
+  "rooms": 54,
+  "combat_snapshots": 108,
+  "dragon_rooms": 0,
+  "repinned": false,
+  "golden_sha256": "13dfdc9e8a9d74538c961133b5e0cb092c615d0481c19dc06499d1676b29d95d",
+  "audit_snapshots": "/private/tmp/bos-02-feedback-2/golden-audit/snapshots.json",
+  "result": "BOS02 F2 GOLDEN: PASS (54 rooms/108 snapshots; 0 dragon rooms; frozen golden unchanged)"
+}

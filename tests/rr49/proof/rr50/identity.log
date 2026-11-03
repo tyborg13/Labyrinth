@@ -1,0 +1,9 @@
+test_every_polygon_matches_and_one_changed_vertex_is_caught (tests.test_rr49_submission.SubmissionTests) ... ok
+test_other_rigs_match_premerge_submissions (tests.test_int07_preservation.IntegrationPreservationTests) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 19.179s
+
+OK
+RR49 EXACT IDENTITY: PASS (8364 poses; 304685 polygon buffers; actual one-vertex mutation caught)
+INT07 OTHER RIGS: PASS (664/664 submitted states byte-identical to ff77c892c; 12 rigs; both views; every clip)

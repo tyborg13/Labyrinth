@@ -5,6 +5,7 @@ const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
 ## Isolated native part surfaces measure shimmer without occlusion being counted
 ## as resampling noise. These are data, never generic screenshot evidence.
 const Samples = preload("pixel_samples.gd")
+const RenderSettings = preload("render_settings.gd")
 const SIZE := Vector2i(512, 512)
 const ORIGIN := Vector2(128, 128)
 var surfaces: Dictionary = {}
@@ -22,6 +23,7 @@ func setup(tree: SceneTree, rigs: Dictionary, directory: String) -> void:
 			var original: Sprite2D = (rig.bones[part["bone"]] as Bone2D).get_node(NodePath(part["name"]))
 			for kind: String in ["before", "after"]:
 				var viewport := SubViewport.new()
+				RenderSettings.apply(viewport)
 				viewport.size = SIZE
 				viewport.transparent_bg = true
 				viewport.disable_3d = true

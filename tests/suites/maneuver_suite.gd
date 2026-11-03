@@ -47,7 +47,7 @@ const FIXTURES: Dictionary = {
 	"w4b_grapple": {"actions": [{"type": "blink", "range": 4, "destination_adjacent_to": ["enemy", "terrain"]}], "time": 3},
 	"w4b_voidsilk_molt": {"actions": [{"type": "blink", "range": 3, "illusion_at_origin": 4}, {"type": "draw", "amount": 1}], "time": 4},
 	"w4b_cloudstep_loop": {"actions": [{"type": "blink", "range": 3, "if_no_adjacent_enemies": [{"type": "card_play", "amount": 1}]}], "time": 3},
-	"w4b_petrify": {"actions": [{"type": "petrify", "range": 3, "block": 8}], "time": 6},
+	"w4b_petrify": {"actions": [{"type": "petrify", "range": 3}], "time": 6},
 	"w4b_crystal_mantle": {"burn": true, "actions": [{"type": "mantle", "amount": 2}], "time": 6},
 }
 
@@ -518,13 +518,24 @@ static func _test_petrify(engine: CombatEngine, expect: Callable) -> void:
 	dragon_state["enemies"][1]["type"] = "tharokh"
 	dragon_state["enemies"][1]["pos"] = Vector2i(4, 3)
 	expect.call(not engine.valid_targets_for_player_action(dragon_state, action).has(Vector2i(4, 3)), "Dragons cannot be Petrified")
+	var immune: Dictionary = ManeuverRules.apply_petrify(engine, dragon_state.duplicate(true), action, Vector2i(4, 3))
+	expect.call(not ManeuverRules.is_petrified(_unit(immune, 2)) and int(_unit(immune, 2).get("block", 0)) == 0 and (immune.get("surface_events", []) as Array).is_empty(), "Direct Petrify resolution also leaves dragons unchanged without an event")
 	var large_state: Dictionary = state.duplicate(true)
 	large_state["enemies"][1]["pos"] = Vector2i(3, 2)
 	expect.call(engine.valid_targets_for_player_action(large_state, action).has(Vector2i(4, 2)), "A non-dragon 2x2 enemy is targetable by any footprint tile")
 	var petrified: Dictionary = _resolve(engine, state, "w4b_petrify", [Vector2i(4, 5)])
+	var live_action: Dictionary = engine.card_play_actions("petrify", state)[0]
+	var live_cast: Dictionary = engine.apply_player_action(state, live_action, Vector2i(4, 5))
+	expect.call(int(_unit(live_cast, 1).get("block", 0)) == 5 and ManeuverRules.is_petrified(_unit(live_cast, 1)), "The production Petrify card grants 5 Block and the status without an action Block field")
+	var recast: Dictionary = engine.apply_player_action(live_cast, live_action, Vector2i(4, 5))
+	expect.call(int(_unit(recast, 1).get("block", 0)) == 5 and ManeuverRules.is_petrified(_unit(recast, 1)), "Recasting Petrify on a Petrified enemy adds no Block")
 	var enemy: Dictionary = _unit(petrified, 1)
-	expect.call(int(enemy.get("block", 0)) == 8 and ManeuverRules.is_petrified(enemy), "Petrify grants 8 Block and marks the enemy")
+	expect.call(int(enemy.get("block", 0)) == 5 and ManeuverRules.is_petrified(enemy), "Petrify grants 5 Block and marks the enemy")
 	expect.call(int(enemy.get("freeze", 0)) == 0, "Petrify is not Freeze")
+	var legacy: Dictionary = ManeuverRules.apply_petrify(engine, state.duplicate(true), {"block": 8}, Vector2i(4, 5))
+	expect.call(int(_unit(legacy, 1).get("block", 0)) == 5, "Petrify always grants the keyword Block even for a legacy action value")
+	var events: Array = petrified.get("surface_events", []) as Array
+	expect.call(events.size() == 1 and events[0].get("kind") == "petrified" and int(events[0].get("block", 0)) == 5 and (events[0].get("source", {}) as Dictionary).get("card_id") == "w4b_petrify", "Card Petrify records exactly one existing event with its card source")
 	var entries: Array[Dictionary] = engine.current_turn_order(petrified)
 	var marked: bool = false
 	for entry: Dictionary in entries:
@@ -536,7 +547,7 @@ static func _test_petrify(engine: CombatEngine, expect: Callable) -> void:
 	var skipped: Dictionary = engine.resolve_enemy_turn_with_steps(petrified, index)
 	var skipped_state: Dictionary = skipped["state"] as Dictionary
 	expect.call(int(skipped.get("time_cost", -1)) == intent_time and intent_time > 0, "A Petrified skip still costs its normal intent Time")
-	expect.call(int(_unit(skipped_state, 1).get("block", 0)) == 8 and _hp(skipped_state, 1) == 30, "Petrify Block survives the skipped activation")
+	expect.call(int(_unit(skipped_state, 1).get("block", 0)) == 5 and _hp(skipped_state, 1) == 30, "Petrify Block survives the skipped activation")
 	expect.call(not ManeuverRules.is_petrified(_unit(skipped_state, 1)), "Petrify is consumed by the skipped activation")
 	expect.call(_player(skipped_state).get("pos") == PLAYER and int(_player(skipped_state).get("hp", 0)) == 40, "The Petrified enemy takes no action")
 	var labels: Array = []
@@ -548,7 +559,7 @@ static func _test_petrify(engine: CombatEngine, expect: Callable) -> void:
 	var frozen_skip: Dictionary = engine.resolve_enemy_turn_with_steps(frozen, 0)
 	expect.call(int(frozen_skip.get("time_cost", -1)) == 0, "Freeze keeps its existing early return (time cost 0)")
 	var next_real: Dictionary = engine.resolve_enemy_turn_with_steps(skipped_state, engine._enemy_index_for_id(skipped_state, 1))
-	expect.call(int(_unit(next_real["state"] as Dictionary, 1).get("block", 0)) < 8, "The next real activation clears the Petrify Block like any enemy Block")
+	expect.call(int(_unit(next_real["state"] as Dictionary, 1).get("block", 0)) < 5, "The next real activation clears the Petrify Block like any enemy Block")
 	var as_frozen: Dictionary = petrified.duplicate(true)
 	as_frozen["enemies"][index]["petrify"] = 0
 	as_frozen["enemies"][index]["freeze"] = 1
@@ -633,19 +644,7 @@ static func _test_icons_rows_and_grimoire(engine: CombatEngine, expect: Callable
 	expect.call(skate_row.size() == 1 and str((skate_row[0] as Dictionary).get("icon", "")) == "skate", "A self_flag row is its purpose-built icon alone, with no placeholder label")
 	var petrify_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4b_petrify", 0))
 	expect.call(str((petrify_row[0] as Dictionary).get("icon", "")) == "petrify" and str((petrify_row[1] as Dictionary).get("kind", "")) != "text", "Petrify leads with its own icon and no placeholder label")
-	var petrify_text: Array = []
-	var foe_block_index: int = -1
-	for token_index: int in range(petrify_row.size()):
-		var petrify_token: Dictionary = petrify_row[token_index] as Dictionary
-		if str(petrify_token.get("kind", "")) == "text":
-			petrify_text.append(str(petrify_token.get("value", "")))
-		elif str(petrify_token.get("icon", "")) == "block":
-			foe_block_index = token_index
-	var foe_block_token: Dictionary = {}
-	if foe_block_index >= 0:
-		foe_block_token = petrify_row[foe_block_index] as Dictionary
-	expect.call(petrify_text.has("skips turn") and foe_block_index > 0 and str((petrify_row[foe_block_index - 1] as Dictionary).get("value", "")) == "foe gains", "Petrify's row names the skipped turn and marks the shield as the foe's Block")
-	expect.call(int(foe_block_token.get("value", 0)) == 8 and str(foe_block_token.get("recipient", "")) == "enemy" and str(foe_block_token.get("row_group", "")) == "foe_block" and ActionIcons.token_tooltip(foe_block_token).contains("not you"), "The foe's Block token keeps its marker on the same line and says the enemy gains it")
+	expect.call(petrify_row.size() == 2 and str((petrify_row[1] as Dictionary).get("icon", "")) == "range" and int((petrify_row[1] as Dictionary).get("value", 0)) == 3, "Petrify shows only its keyword icon and range 3")
 	var role_cases: Dictionary = {
 		"w4b_changing_winds": "mobility", "w4b_petrify": "attack_ranged", "w4b_skate": "mobility", "w4b_rooted_stance": "block",
 		"w4b_windbreak": "block", "w4b_unpick": "block", "w4b_smelling_salts": "mobility", "w4b_crystal_mantle": "block",

@@ -1,0 +1,6 @@
+Edit your latest image. Keep the pose, the pauldrons, arms, staff, fork, pennant, legs, sabatons, palette, size and framing exactly as they are, and change only these two things (owner notes):
+
+1. The deep navy HOOD covers the whole back of the helm. Seen from behind, the hood is drawn up over the helm's back and crown, following its tall, narrow shape to a soft point, then falling over his shoulders onto the cloak in folds. The brass helm itself is hidden. Only the two brass tines rise up through the top of the hood, unchanged: his right tine (on the viewer's RIGHT) is the taller jagged blade, and his left tine (on the viewer's LEFT) is the thinner crook.
+2. The cloak is torn exactly like the front's (the third reference shows the approved front). From about mid-back down, it splits into long, jagged, uneven streamers and tatters of very different lengths, some reaching nearly to the ankles. Their edges are ragged and notched, with gaps between the strips and a few holes. It's as shredded and flaring as the streamers that show behind him in the front painting, not a smooth cloak with a torn hem.
+
+Same hand: every colour patch at least one 4x4 block, a one-block dark outline, perfectly flat #00FF00 background, nothing touching the edge, one 1024x1024 image.

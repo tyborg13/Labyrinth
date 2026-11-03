@@ -1,0 +1,511 @@
+{
+  "schema": 1,
+  "basis": "Final Blender evaluated meshes in immutable board space",
+  "source_fit_gate": "Replaced; old painting is not a target",
+  "L_m": 2.495670992423109,
+  "L_tiles": 1.25,
+  "floor_z_m": 0.4805463140336584,
+  "rings": {
+    "seg_1": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.02,
+      "evaluated_vertices": 15362,
+      "passed": true,
+      "height_m": 0.5161711275577545,
+      "width_m": 0.6452139250857254,
+      "height_width": 0.7999999806098019,
+      "contact_vertices": 4901
+    },
+    "seg_2": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.02,
+      "evaluated_vertices": 15362,
+      "passed": true,
+      "height_m": 0.49602028727531433,
+      "width_m": 0.6200253511742653,
+      "height_width": 0.8000000102187791,
+      "contact_vertices": 4916
+    },
+    "seg_3": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.02,
+      "evaluated_vertices": 15362,
+      "passed": true,
+      "height_m": 0.4988360106945038,
+      "width_m": 0.6235450751400526,
+      "height_width": 0.7999999207474483,
+      "contact_vertices": 4968
+    },
+    "seg_4": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.02,
+      "evaluated_vertices": 15362,
+      "passed": true,
+      "height_m": 0.5171662867069244,
+      "width_m": 0.6464578962702592,
+      "height_width": 0.7999999531148384,
+      "contact_vertices": 5015
+    },
+    "seg_5": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.02,
+      "evaluated_vertices": 15362,
+      "passed": true,
+      "height_m": 0.47605130076408386,
+      "width_m": 0.5950640893512649,
+      "height_width": 0.8000000492099465,
+      "contact_vertices": 5014
+    },
+    "seg_6": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.02,
+      "evaluated_vertices": 15362,
+      "passed": true,
+      "height_m": 0.4676704704761505,
+      "width_m": 0.5845880807283281,
+      "height_width": 0.8000000100814372,
+      "contact_vertices": 4973
+    },
+    "tail": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.02,
+      "evaluated_vertices": 15362,
+      "passed": true,
+      "height_m": 0.30518797039985657,
+      "width_m": 0.3814849835069182,
+      "height_width": 0.7999999569952195,
+      "contact_vertices": 4903
+    }
+  },
+  "feet": {
+    "leg_near_1": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.01,
+      "evaluated_vertices": 1824,
+      "passed": true,
+      "axis_length_L": 0.0658809460925644,
+      "hip_width_L": 0.050000395123581426,
+      "hip_height_L": 0.04350832000888198,
+      "hip_top_L": 0.06600579276219197,
+      "hook_forward_m": 0.008961707353591919,
+      "axis_length_m": 0.16441716611660354,
+      "attached_segment": 1
+    },
+    "leg_near_2": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.01,
+      "evaluated_vertices": 1824,
+      "passed": true,
+      "axis_length_L": 0.05885885149911679,
+      "hip_width_L": 0.05000039627529478,
+      "hip_height_L": 0.03630906991540793,
+      "hip_top_L": 0.062048009811515877,
+      "hook_forward_m": 0.006244116462767124,
+      "axis_length_m": 0.1468923283336852,
+      "attached_segment": 3
+    },
+    "leg_near_3": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.01,
+      "evaluated_vertices": 1824,
+      "passed": true,
+      "axis_length_L": 0.04922292441430055,
+      "hip_width_L": 0.0500003945237851,
+      "hip_height_L": 0.03430499508344308,
+      "hip_top_L": 0.056795947719288434,
+      "hook_forward_m": 0.005928561091423035,
+      "axis_length_m": 0.12284422462300515,
+      "attached_segment": 5
+    },
+    "leg_far_1": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.01,
+      "evaluated_vertices": 1824,
+      "passed": true,
+      "axis_length_L": 0.025954801987495682,
+      "hip_width_L": 0.05000039628751723,
+      "hip_height_L": 0.024678039407857722,
+      "hip_top_L": 0.0509196978250894,
+      "hook_forward_m": 0.0038255564868450165,
+      "axis_length_m": 0.06477464643427863,
+      "attached_segment": 1
+    },
+    "leg_far_2": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.01,
+      "evaluated_vertices": 1824,
+      "passed": true,
+      "axis_length_L": 0.03711507739218935,
+      "hip_width_L": 0.050000390703547816,
+      "hip_height_L": 0.02766397108619347,
+      "hip_top_L": 0.0539056250253225,
+      "hook_forward_m": 0.0054704975336790085,
+      "axis_length_m": 0.09262702202922568,
+      "attached_segment": 3
+    },
+    "leg_far_3": {
+      "gap_m": 1.1411516787074305e-08,
+      "gap_L": 4.5725245121331394e-09,
+      "maximum_gap_L": 0.01,
+      "evaluated_vertices": 1824,
+      "passed": true,
+      "axis_length_L": 0.0290996331063098,
+      "hip_width_L": 0.050000384576144204,
+      "hip_height_L": 0.024948898939602882,
+      "hip_top_L": 0.051190557356834566,
+      "hook_forward_m": 0.004289068281650543,
+      "axis_length_m": 0.07262311023357254,
+      "attached_segment": 5
+    }
+  },
+  "head": {
+    "gap_m": 1.1411516787074305e-08,
+    "gap_L": 4.5725245121331394e-09,
+    "maximum_gap_L": 0.04,
+    "evaluated_vertices": 23842,
+    "passed": true
+  },
+  "lip_highest_m": 0.5490476305159022,
+  "lip_highest_L": 0.22000000488158025,
+  "head_up_tilt_deg": 9.404072833664821e-08,
+  "lower_edge_angle_deg": 26.847979802919646,
+  "lower_edge_contact_extrema_px": [
+    [
+      264.42468240864764,
+      929.6128757692561
+    ],
+    [
+      356.3172112032705,
+      869.625906915798
+    ],
+    [
+      464.24763637198055,
+      803.3021976018697
+    ],
+    [
+      614.227619390398,
+      749.5590258546297
+    ],
+    [
+      707.40328257591,
+      701.1450825835766
+    ],
+    [
+      783.1424461185175,
+      665.0294166249447
+    ],
+    [
+      844.121156167504,
+      618.6451677974878
+    ]
+  ],
+  "contact_centroids_px": [
+    [
+      259.3635909203597,
+      873.425140584438
+    ],
+    [
+      351.2308941726143,
+      813.2026479672118
+    ],
+    [
+      453.70692338472725,
+      749.8440659409642
+    ],
+    [
+      566.3559489904717,
+      694.4465692638132
+    ],
+    [
+      679.5549413777168,
+      647.2357432808101
+    ],
+    [
+      781.2563811950762,
+      612.0775080254768
+    ],
+    [
+      838.4844553973142,
+      584.295516199955
+    ]
+  ],
+  "neighbour_turns_deg": [
+    0.934139816109584,
+    5.998627386848866,
+    4.476339286704861,
+    5.43774834197515,
+    -5.723740994276097
+  ],
+  "spine_floor_m": [
+    [
+      1.2425744698466965,
+      0.0,
+      0.4805463140336584
+    ],
+    [
+      0.832094736681242,
+      0.0,
+      0.4805463140336584
+    ],
+    [
+      0.4805228081302768,
+      -0.04415317474622827,
+      0.4805463140336584
+    ],
+    [
+      0.10129915486182019,
+      -0.08551104046982276,
+      0.4805463140336584
+    ],
+    [
+      -0.2700240056302095,
+      -0.08697189968753334,
+      0.4805463140336584
+    ],
+    [
+      -0.6136954414047482,
+      -0.061427106634399646,
+      0.4805463140336584
+    ],
+    [
+      -0.8981131813560908,
+      -0.01286854618873357,
+      0.4805463140336584
+    ],
+    [
+      -1.083774761602106,
+      0.0,
+      0.4805463140336584
+    ],
+    [
+      -1.2425744698466965,
+      0.0,
+      0.4805463140336584
+    ]
+  ],
+  "checks": {
+    "rings_grounded_and_08_cross_section": true,
+    "feet_grounded_short_thick_and_low": true,
+    "head_grounded": true,
+    "lip_low": true,
+    "head_tilt": true,
+    "lower_edge_angle": true,
+    "length_125_tiles": true,
+    "plan_turns": true,
+    "foot_screen_clearance": true
+  },
+  "passed": true,
+  "screen_clearance": {
+    "basis": "Native 1024 solo alpha >= 1; body union excludes legs; worst lowest-foot column",
+    "maximum_below_body_px": 34,
+    "views": {
+      "front": {
+        "leg_near_1": {
+          "below_body_px": 31,
+          "lowest_pixel_samples": [
+            {
+              "x_px": 362,
+              "foot_bottom_y_px": 944,
+              "body_bottom_y_px": 913,
+              "below_body_px": 31
+            }
+          ],
+          "passed": true,
+          "visible_pure_colour_px": 2822
+        },
+        "leg_near_2": {
+          "below_body_px": 30,
+          "lowest_pixel_samples": [
+            {
+              "x_px": 556,
+              "foot_bottom_y_px": 818,
+              "body_bottom_y_px": 790,
+              "below_body_px": 28
+            },
+            {
+              "x_px": 557,
+              "foot_bottom_y_px": 818,
+              "body_bottom_y_px": 788,
+              "below_body_px": 30
+            }
+          ],
+          "passed": true,
+          "visible_pure_colour_px": 2576
+        },
+        "leg_near_3": {
+          "below_body_px": 30,
+          "lowest_pixel_samples": [
+            {
+              "x_px": 772,
+              "foot_bottom_y_px": 707,
+              "body_bottom_y_px": 679,
+              "below_body_px": 28
+            },
+            {
+              "x_px": 773,
+              "foot_bottom_y_px": 707,
+              "body_bottom_y_px": 678,
+              "below_body_px": 29
+            },
+            {
+              "x_px": 774,
+              "foot_bottom_y_px": 707,
+              "body_bottom_y_px": 677,
+              "below_body_px": 30
+            },
+            {
+              "x_px": 775,
+              "foot_bottom_y_px": 707,
+              "body_bottom_y_px": 677,
+              "below_body_px": 30
+            }
+          ],
+          "passed": true,
+          "visible_pure_colour_px": 2361
+        }
+      },
+      "rear": {
+        "leg_far_1": {
+          "below_body_px": 21,
+          "lowest_pixel_samples": [
+            {
+              "x_px": 869,
+              "foot_bottom_y_px": 676,
+              "body_bottom_y_px": 657,
+              "below_body_px": 19
+            },
+            {
+              "x_px": 870,
+              "foot_bottom_y_px": 676,
+              "body_bottom_y_px": 655,
+              "below_body_px": 21
+            }
+          ],
+          "passed": true,
+          "visible_pure_colour_px": 1262
+        },
+        "leg_far_2": {
+          "below_body_px": 30,
+          "lowest_pixel_samples": [
+            {
+              "x_px": 674,
+              "foot_bottom_y_px": 798,
+              "body_bottom_y_px": 775,
+              "below_body_px": 23
+            },
+            {
+              "x_px": 675,
+              "foot_bottom_y_px": 798,
+              "body_bottom_y_px": 773,
+              "below_body_px": 25
+            },
+            {
+              "x_px": 676,
+              "foot_bottom_y_px": 798,
+              "body_bottom_y_px": 772,
+              "below_body_px": 26
+            },
+            {
+              "x_px": 677,
+              "foot_bottom_y_px": 798,
+              "body_bottom_y_px": 771,
+              "below_body_px": 27
+            },
+            {
+              "x_px": 678,
+              "foot_bottom_y_px": 798,
+              "body_bottom_y_px": 771,
+              "below_body_px": 27
+            },
+            {
+              "x_px": 679,
+              "foot_bottom_y_px": 798,
+              "body_bottom_y_px": 770,
+              "below_body_px": 28
+            },
+            {
+              "x_px": 680,
+              "foot_bottom_y_px": 798,
+              "body_bottom_y_px": 769,
+              "below_body_px": 29
+            },
+            {
+              "x_px": 681,
+              "foot_bottom_y_px": 798,
+              "body_bottom_y_px": 768,
+              "below_body_px": 30
+            },
+            {
+              "x_px": 682,
+              "foot_bottom_y_px": 798,
+              "body_bottom_y_px": 768,
+              "below_body_px": 30
+            }
+          ],
+          "passed": true,
+          "visible_pure_colour_px": 1628
+        },
+        "leg_far_3": {
+          "below_body_px": 31,
+          "lowest_pixel_samples": [
+            {
+              "x_px": 444,
+              "foot_bottom_y_px": 900,
+              "body_bottom_y_px": 873,
+              "below_body_px": 27
+            },
+            {
+              "x_px": 445,
+              "foot_bottom_y_px": 900,
+              "body_bottom_y_px": 873,
+              "below_body_px": 27
+            },
+            {
+              "x_px": 446,
+              "foot_bottom_y_px": 900,
+              "body_bottom_y_px": 872,
+              "below_body_px": 28
+            },
+            {
+              "x_px": 447,
+              "foot_bottom_y_px": 900,
+              "body_bottom_y_px": 871,
+              "below_body_px": 29
+            },
+            {
+              "x_px": 448,
+              "foot_bottom_y_px": 900,
+              "body_bottom_y_px": 870,
+              "below_body_px": 30
+            },
+            {
+              "x_px": 449,
+              "foot_bottom_y_px": 900,
+              "body_bottom_y_px": 869,
+              "below_body_px": 31
+            }
+          ],
+          "passed": true,
+          "visible_pure_colour_px": 1428
+        }
+      }
+    },
+    "checks": {
+      "front_three_near_feet": true,
+      "all_visible_legs_both_views": true
+    },
+    "passed": true
+  }
+}

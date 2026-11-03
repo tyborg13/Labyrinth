@@ -1,0 +1,100 @@
+{
+  "ok": true,
+  "baseline_revision": "f1fae7475b2c034f85cd785f080434283c94bfee",
+  "original_reach_sha256": "d3d4e6a742bf650ce9862a68ac213593e50c612284e7f58deebb76cda7ac2b58",
+  "comparisons": [
+    {
+      "view": "front",
+      "paths": 12
+    },
+    {
+      "view": "rear",
+      "paths": 12
+    },
+    {
+      "view": "front",
+      "paths": 14
+    },
+    {
+      "view": "front",
+      "paths": 14
+    },
+    {
+      "view": "rear",
+      "paths": 14
+    },
+    {
+      "view": "front",
+      "paths": 9
+    },
+    {
+      "view": "rear",
+      "paths": 9
+    },
+    {
+      "view": "front",
+      "paths": 9
+    },
+    {
+      "view": "front",
+      "paths": 9
+    },
+    {
+      "view": "rear",
+      "paths": 9
+    },
+    {
+      "view": "front",
+      "paths": 9
+    },
+    {
+      "view": "rear",
+      "paths": 9
+    },
+    {
+      "view": "front",
+      "paths": 9
+    },
+    {
+      "view": "rear",
+      "paths": 9
+    },
+    {
+      "view": "front",
+      "paths": 9
+    },
+    {
+      "view": "rear",
+      "paths": 9
+    },
+    {
+      "view": "front",
+      "paths": 11
+    },
+    {
+      "view": "rear",
+      "paths": 11
+    },
+    {
+      "view": "rear",
+      "paths": 11
+    },
+    {
+      "view": "rear",
+      "paths": 11
+    },
+    {
+      "view": "rear",
+      "paths": 11
+    },
+    {
+      "view": "front",
+      "paths": 1
+    },
+    {
+      "view": "front",
+      "paths": 1
+    }
+  ],
+  "reports_byte_identical": 23
+}

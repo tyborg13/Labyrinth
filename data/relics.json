@@ -1008,7 +1008,7 @@
   "black_sun_dial": {
     "name": "Black Sun Dial",
     "rarity": "legendary",
-    "description": "Store up to 3 @kw(surface_consume|Expended) ground tiles. Your next attack releases them: +2 damage each. @term(surface_fire): @kw(surface_fire) beneath. @term(surface_ice): @term(chilled). @term(surface_electrified): @term(shock). @term(surface_rubble): @kw(stagger) 2.",
+    "description": "Each ground tile you @kw(surface_consume|Expend) gives your next attack +3 damage (up to +9).",
     "icon_path": "res://assets/art/relics/black_sun_dial.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -1022,9 +1022,9 @@
     ],
     "effects": [
       {
-        "type": "store_consumed_surface_release",
-        "capacity": 3,
-        "damage": 2
+        "type": "expend_next_attack_damage",
+        "damage": 3,
+        "max": 9
       }
     ]
   },
@@ -2696,7 +2696,7 @@
   "crown_of_surplus": {
     "name": "Crown of Surplus",
     "rarity": "legendary",
-    "description": "Cards without @kw(empower) gain one: pay 3 @term(time) to repeat the card's first action. @kw(rite|Rites), @kw(item|Items) and @kw(flurry) cards are excluded.",
+    "description": "Cards without @kw(empower) gain one: pay 3 @term(time) to repeat the card's first action. @kw(rite|Rites) and @kw(item|Items) are excluded.",
     "icon_path": "res://assets/art/relics/crown_of_surplus.png",
     "accent": "#d9862f",
     "design_version": 4,

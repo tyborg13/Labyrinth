@@ -1,0 +1,441 @@
+{
+  "schema": 1,
+  "authority": "Pinned director decisions: mq-21 brief and feedback 1\u20133, superseded only by mq-23 decisions 1\u20136. Never derive expectations from authoring data.",
+  "pose": {
+    "authority": "mq-21 unit brief, 2026-10-28; director exact body-space values",
+    "frame": {
+      "forward": "+X",
+      "outward_near": "+Y",
+      "up": "+Z"
+    },
+    "length_unit": "L: hip-joint height above the sole plane",
+    "knee_bend_degrees": {
+      "near": 24,
+      "far": 20
+    },
+    "near_elbow_bend_degrees": 35,
+    "foot_span_over_shoulder_span": 1.4,
+    "near_step_over_leg_length": 0.18,
+    "far_hand_forward_over_leg_length": 0.28,
+    "far_hand_outward_over_leg_length": 0.22,
+    "blade_tip_clearance_over_height": 0.04,
+    "blade_down_degrees": 30,
+    "blade_outward_degrees": 30,
+    "blade_angle_space": "body",
+    "hip_lean_degrees": 12,
+    "shoulder_rise_per_span": 0.15,
+    "head_pitch_down_degrees": 8,
+    "shoulder_raise_over_H": 0.02,
+    "shoulder_forward_over_H": 0.02,
+    "near_fist_forward_of_thigh_over_L": 0.12
+  },
+  "forms": {
+    "arms": {
+      "diameter_multiplier": 1.25,
+      "gauntlet_multiplier": 1.2,
+      "chest_shoulder_width_multiplier": 1.08
+    },
+    "grip": {
+      "finger_count": 4,
+      "guard_gap_over_H": 0.01
+    },
+    "pauldrons": {
+      "outward_tilt_up_degrees": 25,
+      "max_forward_of_chest_over_H": 0.03,
+      "centroid_toward_viewer_over_H": 0.02
+    },
+    "helm": {
+      "cross_section_sides": 8,
+      "top_width_over_base": 0.85,
+      "crest_thickness_over_H": 0.008,
+      "dome_height_over_H": 0.015,
+      "crest_front_height_over_H": 0.025,
+      "crest_rear_height_over_H": 0.032
+    },
+    "legs": {
+      "hip_size_over_H": 0.11,
+      "knee_size_over_H": 0.085,
+      "calf_size_over_H": 0.085,
+      "ankle_size_over_H": 0.065,
+      "size_is_radius": false,
+      "calf_bulge_fraction_from_knee": 0.35,
+      "depth_over_width": 0.9,
+      "knee_wing": {
+        "height_over_H": 0.035,
+        "width_over_H": 0.025,
+        "outward_projection_over_H": 0.012,
+        "raised_ridges": 2
+      },
+      "knee_cop_diameter_over_H": 0.09,
+      "sabaton_minimum_width_over_H": 0.07
+    },
+    "back_tabard": {
+      "width_over_hip_width": 0.7,
+      "torn_points": 4,
+      "tear_depth_range_over_H": [
+        0.02,
+        0.04
+      ],
+      "knee_clearance_over_H": 0.03,
+      "tear_depths_over_H": [
+        0.03,
+        0.02,
+        0.04,
+        0.025
+      ],
+      "hem_reference": "tear_roots_above_mean_knee_joint_height",
+      "tear_positions_across_width": [
+        0.15,
+        0.4,
+        0.6,
+        0.85
+      ],
+      "accepted_hem_height_m": 0.7431928514795667
+    },
+    "blade_clearance": {
+      "down_degrees": 55,
+      "outward_degrees": 30,
+      "maximum_clearance_over_H": 0.12,
+      "desired_fist_lowering_over_H": 0.05,
+      "minimum_far_elbow_bend_degrees": 10,
+      "maximum_far_shoulder_hunch_reduction_over_H": 0.01,
+      "preserve_limb_lengths": true,
+      "preserve_blade_shape_and_length": true
+    }
+  },
+  "source_spec_hash": "fa7df679eb9c8c19978d44932adc8082d79b83b937702b1108071ee3c167f5c5",
+  "source_segment_lengths_m": {
+    "near_upper_arm": 0.31866766112526435,
+    "near_forearm": 0.348747114496639,
+    "near_thigh": 0.3532170004785797,
+    "near_shin": 0.5478880689083869,
+    "far_upper_arm": 0.3717063170581433,
+    "far_forearm": 0.4067921578752341,
+    "far_thigh": 0.3532170004785796,
+    "far_shin": 0.5478880689083869
+  },
+  "reference_height_m": 2.3092783505154637,
+  "leg_length_m": 1.0,
+  "sabaton_width_over_H": 0.11607142857142858,
+  "accepted_round2": {
+    "accepted_round2_commit": "565d170a38464415b98e4935f7a8fc34e521c364",
+    "native_mesh_hashes": {
+      "back_tabard_render": "ef7021ff812d2520033259eb1de461dd76edaf9eb1a485f027de1bff681298d8",
+      "belt_render": "9edd8a8bd23d49e50abb86f1753adf1d0578d0a550458209c62e23859720e1df",
+      "cross_visor_render": "b2b6bc05f584a99b8dfa3d41a6d0b6ee6ddac6ce9af4c0f9fb6dcdede399521b",
+      "cuirass_render": "8c2c9e7de5cc413860a3276dfcd40aa01ed737019bed4deaf2b021cb68a37b6c",
+      "elbow_articulation_far_render": "af50ad702dcd91ae06793bb63bac8f5da5176569bfc171e3467b6270b8608bed",
+      "elbow_articulation_near_render": "fba1ae422b932081a752cf55f5ca2380a43567d7e9099c8e829eae5525e56da3",
+      "falchion_render": "5a07f728876e46b94f085dce28c4593d632170b036e48cfdbc05d8e84a021fcd",
+      "finger_far_0_render": "952bd48957c5ef428da8cdce677c568f7e6e603634fb91a588d69b4e3b7ab738",
+      "finger_far_1_render": "29db249fdbfc63d677503d45409b95d0136a7d9ad007bb67eb8b8e2ad511ba94",
+      "finger_far_2_render": "b898f9a420871d250c9329ad57d36577913df1a347ed98bce8957d409e188e9d",
+      "finger_far_3_render": "c613d01b78ae56482b6f62b933e3262ea0e474dc042468ab7e6cc44c0f45b40a",
+      "finger_near_0_render": "91b749dba388aaac88e3f4d5c0f47d90faf1cb3f2d9712e2be255f67f414d9d1",
+      "finger_near_1_render": "dfffeee5070749fdc97db07711bf14477b6cfb64597995daae045e7e1278c137",
+      "finger_near_2_render": "4a14a4774950bf0d535b95e41d7ecaf94894902fd1d42a5228dc39a43efd63d6",
+      "finger_near_3_render": "1e4ef7d1e5d65cfb7b6c0444ba658ec9ee051beb4c1412453961de1bcf4a4804",
+      "fore_plate_far_render": "904bb83d0e9e617b1a36a5b30c378be6bf3a8b64954ee2307cb5403a5273f459",
+      "fore_plate_near_render": "b10b20f7d17bfa8afda1ca0a13e2b511f07ccbb00a0d532997ed262a97f83c99",
+      "gauntlet_far_render": "926bf53a2d21a34370f051c6d067ddc5a37b3f710827d2d1c54f31a80b21cdc8",
+      "gauntlet_near_render": "98110d09eaad96303aaf95893125cc71f99f4785265daaca2238f7de4a3d17f7",
+      "glowing_edge_render": "645727b765f68ee561bb67b9339ac943ae03cf2ff3e0f5b97056ab9c06667c41",
+      "great_helm_render": "a5b858dcdd2b75bf5233d83bcd3077870a9e5ec42c97e06577256c21f47bf430",
+      "helm_crest_render": "57979083a6e2eddbd2b0ca80acda456d6b4a52cbf12ce7d99e0f187af4ab9382",
+      "pauldron_far_0_render": "bddcc97e38f74a08509fc55e22c9a77ad3d1b56155e69342752f53cd9b0d056b",
+      "pauldron_far_1_render": "5825774e161267f8fe84fe3425ce3704aea5f1f6d85a2c70df68876885742955",
+      "pauldron_far_2_render": "527bbf512abf840a956f4523eca19f299e8373317d7acc12528b5e80236c0dfa",
+      "pauldron_near_0_render": "4215e0743ccf4ce6e364918f6ac70885dea87d2622a016ebf62a9e77f7752190",
+      "pauldron_near_1_render": "ce2142aae51eec13edd064ec9ae176bea8441ac6050027e3ba676c2656102244",
+      "pauldron_near_2_render": "9ee128ef93ea49d9bb68b53f179f8152e0d27fb34b080bff1520dd9d60d80a91",
+      "pelvis_plate_render": "dbf8f27de6e7d02179d3cb335f902ba7a9925371feb279f0bc898234fc541965",
+      "round_strap_buckle_render": "32bf59cb128c6c0fb15720586b5e17a2c8028e5b407c929cb969769d1453bf4c",
+      "scarf_cowl_render": "0230e3c253f1879c8c04032582624e35a404bc949bd3bad22919981788b8ddfe",
+      "square_belt_buckle_render": "7f9df0cda2647b4c3f6267391cd32d79b636bb2029d9c28b4a739293fb6c0b84",
+      "strap_a_render": "a4225fa5bf25e54692ba3ef962c23152dfca1124f1b76b2dbb8425b7e6f0a4b4",
+      "strap_b_render": "6983bd20a1fdc03607466059274fd49c652519ae045d530aed76958d400c876a",
+      "tabard_render": "66dc28b0dcb554fdb9c75ef37e7521349e4057a80c04029655931303ed9e1f8b",
+      "thumb_far_render": "f2c9035e1835c19be6dece3493fae6754a7f4874618f6a7d43ecbef518cc4e58",
+      "thumb_near_render": "4cda8b9f0a3493d2c0897245b68060d514af6c9fb442d15cef847fb299a26a75",
+      "upper_plate_far_render": "e2e6cbfae95b8fba51fa832209f228ef3176e43dfd80af27f5ecebc9ade00ba9",
+      "upper_plate_near_render": "1500df51ab79d7be639eaaa21dded7f9ecb6be28080e18ebb4d76977a072f362"
+    }
+  },
+  "grip_tolerances": {
+    "finger_wrap_degrees": 270.0,
+    "wrap_angle_tolerance_degrees": 1.0,
+    "maximum_penetration_over_H": 0.004,
+    "maximum_finger_hilt_gap_over_H": 0.01,
+    "maximum_thumb_index_gap_over_H": 0.01
+  },
+  "geometry_tolerances": {
+    "segment_ratio": 0.002,
+    "angle_degrees": 1.0,
+    "dimension_over_H_or_L": 0.01,
+    "numerical_m": 1e-06
+  },
+  "accepted_far_arm": {
+    "shoulder_m": [
+      0.2617737925516601,
+      -0.33505154639175255,
+      1.6828865979381442
+    ],
+    "solve": {
+      "blade_down_degrees": 55,
+      "blade_outward_degrees": 30,
+      "far_fist_lowering_over_H": 0.031557383408030944,
+      "far_shoulder_hunch_reduction_over_H": 0.01,
+      "far_elbow_bend_degrees": 9.999999999999975,
+      "far_upper_length_m": 0.3717063170581433,
+      "far_forearm_length_m": 0.4067921578752341,
+      "tip_clearance_over_H": 0.058604689196428576,
+      "method": "Source segment lengths fixed; straighten elbow to director limit, then reduce far hunch only as permitted; accept resulting clearance."
+    }
+  },
+  "accepted_near_lame_profiles_m": {
+    "pauldron_near_1": [
+      [
+        0.34113980583333336,
+        0.1701722651038206,
+        -0.07051546144329879
+      ],
+      [
+        0.33712917166666684,
+        0.16817162287745474,
+        -0.04536082144329856
+      ],
+      [
+        0.3331185583333335,
+        0.16617099104347183,
+        -0.020206181443298776
+      ],
+      [
+        0.32989690000000005,
+        0.16456391709138724,
+        0.00494845855670123
+      ],
+      [
+        0.32989690000000005,
+        0.16456391709138724,
+        0.030103088556701296
+      ],
+      [
+        0.3283274200000001,
+        0.16378100650145266,
+        0.03404827855670112
+      ],
+      [
+        0.3238578800000001,
+        0.16155144626612872,
+        0.03739284855670122
+      ],
+      [
+        0.3171687391666667,
+        0.1582146728150618,
+        0.03962762855670099
+      ],
+      [
+        0.3092783591666668,
+        0.154278679963539,
+        0.04041236855670105
+      ],
+      [
+        0.3013879791666667,
+        0.15034268711201615,
+        0.03962762855670099
+      ],
+      [
+        0.29469881666666675,
+        0.1470059028528709,
+        0.03739284855670122
+      ],
+      [
+        0.2902292800000001,
+        0.1447763442803282,
+        0.03404827855670112
+      ],
+      [
+        0.28865979833333344,
+        0.143993432859003,
+        0.030103088556701296
+      ],
+      [
+        0.28865979833333344,
+        0.143993432859003,
+        0.00494845855670123
+      ],
+      [
+        0.29188144000000016,
+        0.1456004984971812,
+        -0.020206181443298776
+      ],
+      [
+        0.2958920725000001,
+        0.14760113989215645,
+        -0.04536082144329856
+      ],
+      [
+        0.29990268916666685,
+        0.14960177338892067,
+        -0.07051546144329879
+      ],
+      [
+        0.30147219083333343,
+        0.15038469478693356,
+        -0.07446065144329883
+      ],
+      [
+        0.30594172416666676,
+        0.15261425169669496,
+        -0.07780522144329916
+      ],
+      [
+        0.3126308758333334,
+        0.15595103055180104,
+        -0.08003999144329876
+      ],
+      [
+        0.32052125083333344,
+        0.1598870209091519,
+        -0.08082474144329876
+      ],
+      [
+        0.32841163750000013,
+        0.1638230170862373,
+        -0.08003999144329876
+      ],
+      [
+        0.3351007625000001,
+        0.1671597826390931,
+        -0.07780522144329916
+      ],
+      [
+        0.33957031083333344,
+        0.16938934703137026,
+        -0.07446065144329883
+      ]
+    ],
+    "pauldron_near_2": [
+      [
+        0.2715521816666667,
+        0.13545956542719456,
+        -0.15134020144329896
+      ],
+      [
+        0.26754154750000014,
+        0.1334589232008287,
+        -0.1261855714432989
+      ],
+      [
+        0.26353093250000015,
+        0.1314582905354551,
+        -0.10103093144329889
+      ],
+      [
+        0.2595202983333335,
+        0.12945764830908918,
+        -0.0758762914432991
+      ],
+      [
+        0.2555096833333334,
+        0.1274570156437156,
+        -0.050721651443298876
+      ],
+      [
+        0.25394017833333343,
+        0.1266740925829214,
+        -0.046776461443298833
+      ],
+      [
+        0.24947064750000006,
+        0.12444453692024593,
+        -0.04343189144329895
+      ],
+      [
+        0.2427814950000001,
+        0.12110775764944454,
+        -0.0411971214432989
+      ],
+      [
+        0.23489112000000004,
+        0.11717176729209361,
+        -0.0404123714432989
+      ],
+      [
+        0.2270007350000001,
+        0.11323577194639894,
+        -0.0411971214432989
+      ],
+      [
+        0.22031160666666671,
+        0.10989900473076175,
+        -0.04343189144329895
+      ],
+      [
+        0.21584205833333345,
+        0.10766944033848463,
+        -0.046776461443298833
+      ],
+      [
+        0.21427256000000006,
+        0.10688652060325299,
+        -0.050721651443298876
+      ],
+      [
+        0.21828319583333355,
+        0.10888716366100964,
+        -0.0758762914432991
+      ],
+      [
+        0.22229381083333352,
+        0.11088779632638318,
+        -0.10103093144329889
+      ],
+      [
+        0.22630444333333333,
+        0.11288843772135837,
+        -0.1261855714432989
+      ],
+      [
+        0.23031506333333351,
+        0.11488907288090394,
+        -0.15134020144329896
+      ],
+      [
+        0.2318845616666667,
+        0.11567199261613553,
+        -0.15528539144329878
+      ],
+      [
+        0.23635409500000013,
+        0.11790154952589693,
+        -0.15862997144329882
+      ],
+      [
+        0.2430432366666667,
+        0.12123832339265911,
+        -0.16086474144329865
+      ],
+      [
+        0.2509336266666668,
+        0.12517432123252586,
+        -0.16164948144329894
+      ],
+      [
+        0.25882401583333337,
+        0.12911031865669714,
+        -0.16086474144329865
+      ],
+      [
+        0.2655131383333334,
+        0.13244708296246704,
+        -0.15862997144329882
+      ],
+      [
+        0.2699826833333333,
+        0.13467664569196286,
+        -0.15528539144329878
+      ]
+    ]
+  }
+}

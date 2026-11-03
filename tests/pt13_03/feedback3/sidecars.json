@@ -1,0 +1,55 @@
+{
+  "guard": "PASS against prospective handoff file set; index unchanged",
+  "pairs": [
+    {
+      "source": "tests/card_legibility_test.gd",
+      "sidecar": "tests/card_legibility_test.gd.uid",
+      "uid": "uid://b17njr43hilmu"
+    },
+    {
+      "source": "tests/helpers/card_legibility_capture.gd",
+      "sidecar": "tests/helpers/card_legibility_capture.gd.uid",
+      "uid": "uid://rf2t5hl2oe3m"
+    },
+    {
+      "source": "tests/helpers/card_legibility_viewport.gd",
+      "sidecar": "tests/helpers/card_legibility_viewport.gd.uid",
+      "uid": "uid://bkriekwt05c5"
+    },
+    {
+      "source": "tests/helpers/card_legibility_contexts.gd",
+      "sidecar": "tests/helpers/card_legibility_contexts.gd.uid",
+      "uid": "uid://8hqas2v3rbn5"
+    },
+    {
+      "source": "tests/helpers/card_legibility_audit.gd",
+      "sidecar": "tests/helpers/card_legibility_audit.gd.uid",
+      "uid": "uid://c4nkabjydjhpj"
+    },
+    {
+      "source": "tests/helpers/card_legibility_settle.gd",
+      "sidecar": "tests/helpers/card_legibility_settle.gd.uid",
+      "uid": "uid://c1dmjsc4o0itj"
+    },
+    {
+      "source": "tests/helpers/card_legibility_negative.gd",
+      "sidecar": "tests/helpers/card_legibility_negative.gd.uid",
+      "uid": "uid://b0jaqh1gahbsg"
+    },
+    {
+      "source": "tests/helpers/card_reading_contexts.gd",
+      "sidecar": "tests/helpers/card_reading_contexts.gd.uid",
+      "uid": "uid://bkhmyw7bjfh03"
+    },
+    {
+      "source": "tests/helpers/scavenger_readability_evidence.gd",
+      "sidecar": "tests/helpers/scavenger_readability_evidence.gd.uid",
+      "uid": "uid://bjisq6fan4les"
+    },
+    {
+      "source": "tests/pt13_03/capture.gd",
+      "sidecar": "tests/pt13_03/capture.gd.uid",
+      "uid": "uid://csc0ekep8y33v"
+    }
+  ]
+}

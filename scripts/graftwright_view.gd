@@ -1,6 +1,8 @@
 extends Control
 class_name GraftwrightView
 
+const CardDisplay = preload("res://scripts/card_display_overrides.gd")
+
 signal graft_requested(recipient: String, donor: String, donor_index: int, target_index: int)
 signal leave_requested
 signal sound_requested(cue: String)
@@ -15,6 +17,7 @@ const Tooltip = preload("res://scripts/ui_tooltip_panel.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const Choice = preload("res://scripts/graftwright_choice.gd")
 const CardScene = preload("res://scenes/card_widget.tscn")
+const CardWidget = preload("res://scripts/card_widget.gd")
 const ThreadEffect = preload("res://scripts/graftwright_thread_effect.gd")
 const Glow = preload("res://scripts/graftwright_glow.gdshader")
 const FrameRim = preload("res://scripts/graftwright_frame_rim.gdshader")
@@ -25,8 +28,8 @@ const TypeMaterial = preload("res://scripts/graftwright_type.gdshader")
 const UiSkinScript = preload("res://scripts/ui_skin.gd")
 const ART: String = "res://assets/art/ui/graftwright/"
 const SIZE := Vector2(1920, 1080)
-const CARD_SCALE: float = 0.8
-const CARD_SIZE := Vector2(200, 281.6)
+const CARD_SIZE := Vector2(maxf(200.0, CardWidget.MIN_READABLE_CARD_SIZE.x), maxf(281.6, CardWidget.MIN_READABLE_CARD_SIZE.y))
+const CARD_SCALE: float = CARD_SIZE.x / CardWidget.BASE_CARD_SIZE.x
 const VIOLET := Color("d8a7ff")
 const IVORY := Color("f0e0c6")
 const RED := Color("f28a91")
@@ -322,10 +325,10 @@ func _build_workbench() -> void:
 		var selected: bool = i == donor_index
 		var button: Button = _card(_sacrifice_content, str(source[i]), Vector2(source_start + i * (CARD_SIZE.x + source_gap), 474), selected, VIOLET, func() -> void: select_source(index))
 		button.name = "SourceCard_%d" % i
-		if selected: _ribbon(_sacrifice_content, "CARRY FORWARD", Rect2(button.position.x - 3, 766, 206, 28), VIOLET)
+		if selected: _ribbon(_sacrifice_content, "CARRY FORWARD", Rect2(button.position.x - 3, button.position.y + CARD_SIZE.y + 10.4, CARD_SIZE.x + 6, 28), VIOLET)
 		elif donor_index >= 0:
 			button.set("muted", true)
-			_ribbon(_sacrifice_content, "LOST", Rect2(button.position.x, 766, 200, 28), RED)
+			_ribbon(_sacrifice_content, "LOST", Rect2(button.position.x, button.position.y + CARD_SIZE.y + 10.4, CARD_SIZE.x, 28), RED)
 		_source_cards.append(button)
 	for i: int in range(target.size()):
 		var index: int = i
@@ -334,7 +337,7 @@ func _build_workbench() -> void:
 		button.name = "TargetCard_%d" % i
 		var inherited: int = Rules.inherited_index(state, recipient)
 		button.disabled = inherited >= 0 and i != inherited
-		if selected: _ribbon(_content, "REPLACED", Rect2(button.position.x - 3, 766, 206, 28), RED)
+		if selected: _ribbon(_content, "REPLACED", Rect2(button.position.x - 3, button.position.y + CARD_SIZE.y + 10.4, CARD_SIZE.x + 6, 28), RED)
 		_target_cards.append(button)
 	if donor_index >= 0 and target_index >= 0:
 		_compare_strip(_card_name(str(target[target_index])), _card_name(str(source[donor_index])))
@@ -505,12 +508,12 @@ func _build_result() -> void:
 	var start: float = 1180.0 - (cards.size() * CARD_SIZE.x + (cards.size() - 1) * 24.0) * 0.5
 	for i: int in range(cards.size()):
 		var selected: bool = i == int(result.get("index", -1))
-		var card: Button = _card(_content, str(cards[i]), Vector2(start + i * 224, 480), selected, GREEN, func() -> void: pass)
+		var card: Button = _card(_content, str(cards[i]), Vector2(start + i * (CARD_SIZE.x + 24.0), 480), selected, GREEN, func() -> void: pass)
 		card.name = "ResultCard_%d" % i
 		card.set_meta("graft_action_label", "Inspect")
 		card.pressed.connect(func() -> void: _open_inspection(card))
-		if selected: _ribbon(_content, "INHERITED", Rect2(card.position.x, 772, 200, 28), GREEN)
-	var consumed: Label = _label(_content, _item_name(str(result.get("donor", ""))) + " destroyed", Rect2(810, 809, 740, 30), 18, MUTED, true)
+		if selected: _ribbon(_content, "INHERITED", Rect2(card.position.x, card.position.y + CARD_SIZE.y + 10.4, CARD_SIZE.x, 28), GREEN)
+	var consumed: Label = _label(_content, _item_name(str(result.get("donor", ""))) + " destroyed", Rect2(810, 480 + CARD_SIZE.y + 47.4, 740, 30), 18, MUTED, true)
 	consumed.name = "ConsumedEquipment"
 	_leave = _action(_content, "Continue", Rect2(997, 922, 365, 120), request_leave)
 	_leave.name = "GraftContinue"
@@ -674,6 +677,7 @@ func _card(parent: Node, id: String, position_value: Vector2, selected: bool, co
 	var card: Control = CardScene.instantiate()
 	card.size = Vector2(250, 352)
 	card.call("configure", id, false, false, true, false, false)
+	CardDisplay.bind(card, state)
 	composition.add_child(card)
 	_passive(card)
 	button.card_face = card
@@ -707,7 +711,11 @@ func _open_inspection(source: Button) -> void:
 	_inspection.gui_input.connect(func(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed: close_inspection()
 	)
-	var panel: PanelContainer = Tooltip.make_lines(_card_name(id), PackedStringArray([ActionIcons.card_rules_text(Data.card_def(id))]))
+	var definition: Dictionary = source.card_face.call("_display_card_def")
+	var rows: Array = source.card_face.display_summary_rows()
+	var panel: PanelContainer = Tooltip.make_lines(_card_name(id), PackedStringArray([CardDisplay.rules_text(id, definition, rows)]))
+	panel.set_meta("card_display_id", id)
+	panel.set_meta("card_display_rows", rows)
 	panel.name = "ExactRules"
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.hide()

@@ -1,0 +1,44 @@
+{
+  "source_manifest_sha256": "a2115a5cc5aeff0dfed780954df3ef0a1bee2ae759f4ab3aabfc734791f752ac",
+  "source_gate_log_sha256": "c777671c6bf857c8aa8547e1ec29576cf2e9cc1c60c70af39ed11afbe36355f8",
+  "required_failures": [
+    [
+      "front",
+      "cast",
+      4
+    ],
+    [
+      "front",
+      "cast",
+      12
+    ],
+    [
+      "front",
+      "lunge",
+      20
+    ],
+    [
+      "front",
+      "guard",
+      25
+    ],
+    [
+      "rear",
+      "lunge",
+      36
+    ]
+  ],
+  "rest_controls": [
+    [
+      "front",
+      "cast",
+      0
+    ],
+    [
+      "rear",
+      "cast",
+      0
+    ]
+  ],
+  "scope": "Original round-2 native PNG/layer bytes, not a reconstructed image"
+}

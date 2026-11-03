@@ -11,17 +11,17 @@ const Icons=preload("res://scripts/action_icon_library.gd")
 static func run(expect: Callable) -> void:
 	var engine:=Combat.new()
 	var fixtures:=Fixtures.new()
-	var state: Dictionary=fixtures.guardian_fixture("ashen_reaver")
+	var state: Dictionary=fixtures.guardian_fixture("storm_cantor")
 	state["enemies"][1]["hp"]=0
-	fixtures.set_cycle(engine,state,0)
+	fixtures.set_cycle(engine,state,3)
 	var threat: Dictionary=engine.enemy_threat_tiles(state,0)
 	var summons: Array=threat.get("summon",[])
-	expect.call(summons.size()==1,"Missing Guardian helper has a summon tile")
+	expect.call(summons.size()==1,"Authored Call the Spark has a summon tile")
 	for tile: Vector2i in summons:
 		expect.call(not (threat["projected_attack"] as Array).has(tile),"Summon tile is not mislabeled as an attack")
 	var result: Dictionary=engine.resolve_enemy_turn_with_steps(state,0)
 	var spawned: Array=result["state"]["enemies"].slice(state["enemies"].size())
-	expect.call(spawned.size()==1 and summons.has(spawned[0]["pos"]),"Actual replacement agrees with its summon marker")
+	expect.call(spawned.size()==1 and summons.has(spawned[0]["pos"]),"Authored Wisp arrival agrees with its summon marker")
 
 	state=fixtures.fixture("",[Vector2i(3,4)])
 	state["room_type"]="guardian"
@@ -54,7 +54,9 @@ static func run(expect: Callable) -> void:
 			var context: Dictionary={"room_type":"guardian","room_depth":depth}
 			for intent: Dictionary in Data.enemy_def(id)["intents"]:
 				var delay: int=engine._enemy_base_initiative(context,actor)+engine._enemy_intent_time_cost(intent)
-				expect.call(delay>=19,id+" cannot repeatedly double a normal 19-clock turn at depth "+str(depth))
+				var base: int = {"gallows_roc":9,"roc_fledgling":12,"storm_cantor":11,"bell_tender":12,"lightning_wisp":19}[id]
+				var depth_bonus: int = mini(4,int((depth-1)/3))
+				expect.call(delay==maxi(engine.ENEMY_MIN_INITIATIVE,base-depth_bonus)+engine._enemy_intent_time_cost(intent),id+" uses the approved Guardian pace at depth "+str(depth))
 	expect.call(engine._enemy_base_initiative({"room_type":"combat","room_depth":2},{"type":"lightning_wisp"})==7,"Ordinary Wisps retain their cadence")
 	var area: Dictionary={"kind":"aoe","action_type":"ranged","range":3,"element":"lightning","to":Vector2i(2,2),"tiles":[Vector2i(2,2),Vector2i(3,2)]}
 	expect.call(Fx.uses_authored_elemental_attack(area),"A ranged attack expanded into an area retains elemental rendering")

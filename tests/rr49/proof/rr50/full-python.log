@@ -1,0 +1,1703 @@
+ISOLATION AUDIT: 263 modules; /Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr49/proof/rr50/python-full/isolation-audit.md
+SHARD 1: 112 modules; estimated 2062.647s
+SHARD 2: 31 modules; estimated 1482.572s
+SHARD 3: 58 modules; estimated 1092.746s
+SHARD 4: 62 modules; estimated 1092.746s
+SHARD 4 COMPLETE: 668 tests; 1124.299s
+SHARD 3 COMPLETE: 566 tests; 1135.540s
+SHARD 2 COMPLETE: 213 tests; 1461.729s
+SHARD 1 COMPLETE: 1078 tests; 2065.736s
+MODULE test_arc_thrall_maquette_r2: 0.626s
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+MODULE test_art_identity_gate: 92.523s
+ADOPTED 1 source file(s)
+ADOPTED 1 source file(s)
+ADOPTED 3 source file(s)
+PROCESSED 2 file(s)
+CHECK-OK
+WROTE-ORIGINALS 1 file(s)
+stale: paint/a.png
+PROCESSED 1 file(s)
+CHECK-OK
+stale: paint/b.png
+MODULE test_board_pixel_density: 190.062s
+MODULE test_cutout_workflow: 1.307s
+MODULE test_gait01: 120.917s
+MODULE test_glacial_mirror_shoulder: 4.342s
+GODOT SIDECARS: gitignored exemptions = 2151
+FAIL: test_godot_sidecars.GodotSidecarRepositoryTests.test_tracked_sources_have_sidecars_and_sidecars_have_sources
+MODULE test_godot_sidecars: 4.165s
+INT04 COLOUR MUTATIONS: PASS (unit-head geometry, gait targets and alpha caught)
+INT04 COMPILED SPEC MUTATION: PASS (foreign unit-head recipe change caught)
+INT04 COORDINATED EDIT MUTATION: PASS (mq-05; matching spec_hash cannot authorize foreign edits)
+INT04 COORDINATED EDIT MUTATION: PASS (mq-07; matching spec_hash cannot authorize foreign edits)
+INT04 COORDINATED EDIT MUTATION: PASS (mq-08; matching spec_hash cannot authorize foreign edits)
+INT04 COORDINATED EDIT MUTATION: PASS (mq-09; matching spec_hash cannot authorize foreign edits)
+INT04 EXACT HASH MUTATION: PASS (allowlisted path still requires the pinned endpoint bytes)
+INT04 FOREIGN ADDITION MUTATION: PASS (all four units; only owned floor entries may change)
+INT04 HASH TABLE MUTATION: PASS (foreign historical bytes and own live bytes enforced)
+INT04 LIVE LANCER MUTATION: PASS (mq-05; cloth and solids use historical input)
+INT04 LIVE LANCER MUTATION: PASS (mq-07; cloth and solids use historical input)
+INT04 LIVE LANCER MUTATION: PASS (mq-08; cloth and solids use historical input)
+INT04 LIVE LANCER MUTATION: PASS (mq-09; cloth and solids use historical input)
+INT04 RECIPE DELETION MUTATION: PASS (mq-09; omitted inventory entry is rejected)
+INT04 RANGE MUTATION: PASS (committed foreign edit caught; later commits/working edits ignored)
+INT04 REGENERATION MUTATIONS: PASS (foreign historical recipe caught; native/own inputs and new modules still guarded)
+INT04 REGISTRY MUTATION: PASS (foreign historical entry caught; own live inputs pinned)
+MODULE test_int04_preservation: 26.933s
+INT05 BINDING MUTATION: PASS (top-level inputs allowed; nested payload change rejected)
+INT05 SEER RANGE MUTATION: PASS (in-range edit caught; later commits and working bytes ignored)
+MODULE test_int05_preservation: 3.407s
+INT07 PIN MUTATIONS: PASS (80/80 same-file unapproved byte changes rejected, including added caps)
+INT07 EXTENSION AUDIT: PASS (80 exact rr-44/rr-49 deltas; 26 additions; no earlier integration absorbed)
+INT07 INVENTORY AUDIT: PASS (only two approved Gaoler source bindings changed; all coverage/timing/route fields preserved)
+INT07 OTHER RIGS: PASS (664/664 submitted states byte-identical to ff77c892c; 12 rigs; both views; every clip)
+MODULE test_int07_preservation: 16.218s
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+GAOLER REBUILD: PASS (882 files)
+MODULE test_maquette_cutout: 71.173s
+MAQUETTE_REAR_TURN_EXEMPT: burrow_grub/delivery; crawler; measurements.json labels contain neither foot_near nor foot_far
+MAQUETTE_REAR_TURN_EXEMPT: ember_tick/delivery; crawler; measurements.json labels contain neither foot_near nor foot_far
+MAQUETTE_REAR_TURN: arc_thrall/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 7324}, "feet": {"far": [381.8912792931233, 766.4408759124087], "near": [650.9663096831772, 932.2087609698051]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 6022, "near": 0}, "feet": {"far": [640.0060078267101, 957.5310588105606], "near": [365.31380597014925, 778.718407960199]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: ashen_reaver/delivery; {"front": {"body_side_pixels_over_torso": {"far": 2636, "near": 7531}, "feet": {"far": [603.4073610676676, 774.6852257324575], "near": [780.4624126785528, 926.3330205400897]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 8183, "near": 3336}, "feet": {"far": [419.63512103505843, 917.662979966611], "near": [242.51466137952625, 766.0342272774706]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: briar_weaver/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 91}, "feet": {"far": [416.67600052833177, 856.8140272090873], "near": [629.6274303115483, 941.6047083626142]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 3694, "near": 0}, "feet": {"far": [614.6205017301038, 943.3117647058823], "near": [387.7181610005284, 864.3780165580412]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: chainbound_gaoler/delivery; {"front": {"body_side_pixels_over_torso": {"far": 51, "near": 12479}, "feet": {"far": [391.1721753705935, 862.499502383322], "near": [600.5055047474806, 929.0731053765946]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 2588, "near": 602}, "feet": {"far": [629.7068596237337, 886.992474674385], "near": [420.246881224447, 820.5399412936366]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: frostglass_lancer/delivery; {"front": {"body_side_pixels_over_torso": {"far": 363, "near": 1543}, "feet": {"far": [297.46833839918946, 825.2388551165147], "near": [501.7735029475644, 838.2717964629228]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 2141, "near": 0}, "feet": {"far": [724.8757423481042, 765.0095934216537], "near": [519.097794117647, 753.04375]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: frostglass_lancer/proof_r2; {"front": {"body_side_pixels_over_torso": {"far": 187, "near": 16542}, "feet": {"far": [393.8564532159591, 879.163850631833], "near": [592.9711770552321, 936.5219366747125]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 30227, "near": 419}, "feet": {"far": [629.1768214742224, 912.3647209203239], "near": [430.0423175234308, 855.0790968474865]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: gale_herald/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 30484}, "feet": {"far": [358.0113908872902, 805.4586330935252], "near": [593.3415730337078, 932.5376915219612]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 28462, "near": 14316}, "feet": {"far": [543.2776779026217, 932.0721348314606], "near": [295.37894736842105, 851.7421052631579]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: glacial_mirror/delivery; {"front": {"body_side_pixels_over_torso": {"far": 130, "near": 10655}, "feet": {"far": [377.86641299455835, 748.1117384722393], "near": [643.67326616223, 895.0453600972282]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 7100, "near": 19}, "feet": {"far": [642.8824913711954, 899.4059852525886], "near": [376.7757103767628, 755.3293201431278]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: gloam_stalker/delivery; {"front": {"body_side_pixels_over_torso": {"far": 2075, "near": 26014}, "feet": {"far": [434.2191960496875, 811.3167965434766], "near": [614.128536977492, 940.9293408360129]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 43075, "near": 7441}, "feet": {"far": [586.3248728029603, 879.4575046253469], "near": [408.0581198646689, 762.3441275978734]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: hoarfrost_seer/delivery; {"front": {"body_side_pixels_over_torso": {"far": 341, "near": 1107}, "feet": {"far": [423.7324824824825, 863.3228228228228], "near": [688.8261385199241, 950.7903225806451]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 4580, "near": 4170}, "feet": {"far": [598.7137254901961, 984.8564705882353], "near": [336.8793774319066, 934.2506485084306]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: hollow_mimic/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 4432}, "feet": {"far": [420.48188653451814, 804.2334244702665], "near": [620.8431866073519, 901.5471201123859]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 6184, "near": 0}, "feet": {"far": [597.9966266201101, 920.185062437119], "near": [395.28327469321204, 846.9659315197803]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: last_lamplighter/delivery; {"front": {"body_side_pixels_over_torso": {"far": 2, "near": 1541}, "feet": {"far": [502.59590671109, 839.4935744883389], "near": [598.8781532603522, 940.880533079486]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 1202, "near": 0}, "feet": {"far": [518.2593482905983, 980.0104166666666], "near": [421.8994383525007, 878.7263974324686]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: slag_mortar/delivery; {"front": {"body_side_pixels_over_torso": {"far": 882, "near": 3693}, "feet": {"far": [355.95605545383205, 860.7253465864504], "near": [650.1871435476075, 956.2407926534557]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 15246, "near": 0}, "feet": {"far": [668.0532365396249, 953.9786613870099], "near": [365.84287054409003, 863.3672607879924]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: storm_cantor/delivery; {"front": {"body_side_pixels_over_torso": {"far": 170, "near": 2224}, "feet": {"far": [488.5965474722565, 900.4125770653515], "near": [592.0337438423645, 986.1896551724138]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 2835, "near": 34}, "feet": {"far": [534.3583230579532, 937.423427866831], "near": [430.99458261511944, 851.5860625461709]}, "lower_foot": "far", "lower_foot_right": true}}
+DELIVERY_STAGE: PASS; tmpyv55jf76
+DELIVERY_STAGE: PASS; tmppo06drxq
+DELIVERY_STAGE: PASS; tmpv9xgqoai
+MODULE test_maquette_rear_turn: 23.871s
+MODULE test_mq09_forms: 30.324s
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5435907, "figure": "hollow_mimic", "files": 107}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3535279, "figure": "briar_weaver", "files": 77}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3882980, "figure": "slag_mortar", "files": 87}
+MQ09_FIT: PASS; hollow_mimic; front_iou=0.815673910; rear_iou=0.770515331
+MQ09_FIT: PASS; briar_weaver; front_iou=0.706400955; rear_iou=0.680170738
+MQ09_FIT: PASS; slag_mortar; front_iou=0.799598979; rear_iou=0.772701972
+MODULE test_mq09_maquettes: 9.178s
+MODULE test_mq11_accessories: 2.640s
+MQ11_ACCEPTANCE: PASS; figures=2; native_fit_shape_turn_collision_ownership_determinism_bound=true
+MODULE test_mq11_freshness: 0.700s
+MQ11_MUTATION_CAUGHT: flap_row_ordering; errors=0
+MQ11_MUTATION_CAUGHT: unowned_accessory_preservation; errors=0
+MQ11_ACCEPTANCE: PASS; figures=2; native_fit_shape_turn_collision_ownership_determinism_bound=true
+MQ11_MUTATION_CAUGHT: acceptance_freshness; errors=0
+MQ11_MUTATION_CAUGHT: shape_report_spec_binding; errors=0
+MODULE test_mq11_guard_mutations: 0.393s
+MODULE test_mq11_validation: 0.558s
+MQ12_CURRENT_PRESERVATION: PASS; figures=8; delivery_files=791
+MQ12_APPROVED_HISTORY_AND_MQ13_SUCCESSOR: PASS; historical_inputs_and_current_seals_exact=True
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5715009, "figure": "gale_herald", "files": 168}
+MQ12_GIT_VISIBLE_CURATION: PASS; gale_herald
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5785315, "figure": "gloam_stalker", "files": 174}
+MQ12_GIT_VISIBLE_CURATION: PASS; gloam_stalker
+MODULE test_mq12_preservation: 2.437s
+MODULE test_mq12_shoulders: 1.607s
+MODULE test_mq12_successor: 1.220s
+DELIVERY_STAGE: PASS; staged
+MODULE test_mq13_delivery: 4.858s
+MODULE test_mq13_evidence: 0.225s
+MQ13_BRIDGE: maquette.blend.receipt; exit=0
+MQ13_BRIDGE: build_report.json.receipt; exit=0
+MQ13_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=rear; solos=None
+MODULE test_mq13_saved_body: 0.058s
+MQ14_FIT: PASS; front_iou=0.711792466; rear_iou=0.693576133
+MODULE test_mq14_lancer: 3.405s
+MODULE test_mq15_cloth: 0.424s
+MQ15_ACCEPTANCE: FAIL; {"heights": {"front": {"head_to_sole_px": 828, "head_top_px": 181, "helm_to_sole_px": 817.6923951132571, "helm_top_px": 191.30760488674287, "sole_bottom_px": 1009}, "rear": {"head_to_sole_px": 841, "head_top_px": 127, "helm_to_sole_px": 830.7375068832291, "helm_top_px": 137.26249311677083, "sole_bottom_px": 968}}, "mass": {"barrel_chest": true, "closed_native_forms": true, "cloth": false, "gloved_grip": true, "mass": true, "no_part_holes": true, "no_see_through": false, "open_front": true}, "pose": {"feet_planted": true, "front_chain_side": true, "level_shoulders_3d": true, "native_endpoints": true, "native_joint_inventory": true, "native_projection": true, "rear_chain_side": true, "shoulder_rule": true}, "proportions": {"helm_height": true, "knee_to_sole": true, "pelvis_to_knee": true, "shoulder_width": true, "torso_height": true, "total_height": true}, "turn": {"front_lower_foot_right": true, "front_proper_rotation": true, "rear_is_half_turn": true, "rear_lower_foot_right": true, "rear_not_mirror": false, "rear_proper_rotation": true}}
+MQ15_ACCEPTANCE: PASS; {"heights": {"front": {"head_to_sole_px": 828, "head_top_px": 181, "helm_to_sole_px": 817.6923951132571, "helm_top_px": 191.30760488674287, "sole_bottom_px": 1009}, "rear": {"head_to_sole_px": 841, "head_top_px": 127, "helm_to_sole_px": 830.7375068832291, "helm_top_px": 137.26249311677083, "sole_bottom_px": 968}}, "mass": {"barrel_chest": true, "closed_native_forms": true, "cloth": true, "gloved_grip": true, "mass": true, "no_part_holes": true, "no_see_through": true, "open_front": true}, "pose": {"feet_planted": true, "front_chain_side": true, "level_shoulders_3d": true, "native_endpoints": true, "native_joint_inventory": true, "native_projection": true, "rear_chain_side": true, "shoulder_rule": true}, "proportions": {"helm_height": true, "knee_to_sole": true, "pelvis_to_knee": true, "shoulder_width": true, "torso_height": true, "total_height": true}, "turn": {"front_lower_foot_right": true, "front_proper_rotation": true, "rear_is_half_turn": true, "rear_lower_foot_right": true, "rear_not_mirror": true, "rear_proper_rotation": true}}
+MQ15_COMMIT_CURATION: PASS; bytes=5939586; files=204
+MQ15_ACCEPTANCE: PASS; {"heights": {"front": {"head_to_sole_px": 828, "head_top_px": 181, "helm_to_sole_px": 817.6923951132571, "helm_top_px": 191.30760488674287, "sole_bottom_px": 1009}, "rear": {"head_to_sole_px": 841, "head_top_px": 127, "helm_to_sole_px": 830.7375068832291, "helm_top_px": 137.26249311677083, "sole_bottom_px": 968}}, "mass": {"barrel_chest": true, "closed_native_forms": true, "cloth": true, "gloved_grip": true, "mass": true, "no_part_holes": true, "no_see_through": true, "open_front": true}, "pose": {"feet_planted": true, "front_chain_side": true, "level_shoulders_3d": true, "native_endpoints": true, "native_joint_inventory": true, "native_projection": true, "rear_chain_side": true, "shoulder_rule": true}, "proportions": {"helm_height": true, "knee_to_sole": true, "pelvis_to_knee": true, "shoulder_width": true, "torso_height": true, "total_height": true}, "turn": {"front_lower_foot_right": true, "front_proper_rotation": true, "rear_is_half_turn": true, "rear_lower_foot_right": true, "rear_not_mirror": true, "rear_proper_rotation": true}}
+MODULE test_mq15_maquette: 18.015s
+MODULE test_mq15_native_geometry: 0.312s
+MODULE test_mq15_pose_fit: 1.679s
+Packaged 24 native frames; original front and reflection audits PASS
+Packaged 24 native frames; original front and reflection audits PASS
+Packaged 24 native frames; original front and reflection audits PASS
+MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+SHRIKE PRODUCTION REEL: PASS /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-oji39lfy/shrike/png/production_reel.mp4
+SHRIKE PRODUCTION REEL: PASS /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-oji39lfy/shrike/webp/production_reel.mp4
+SHRIKE PRODUCTION REEL: PASS /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-oji39lfy/shrike/rgba/production_reel.mp4
+/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-4mddam4l/strike/png-sheet/strike_trail_front.png
+/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-4mddam4l/strike/webp-sheet/strike_trail_front.png
+/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-4mddam4l/strike/rgba-sheet/strike_trail_front.png
+Created 24 full-cycle contact sheets
+Created 24 full-cycle contact sheets
+Created 24 full-cycle contact sheets
+MODULE test_native_review_readers: 4.046s
+MODULE test_production_crop_plan: 18.674s
+PROOF GLOW MUTATION: CAUGHT (Python/Godot bindings and certificate)
+PROOF MSAA PIN REMOVAL: CAUGHT by startup assertion
+PROOF VIEWPORT SETTINGS: PASS (135 viewports; no renderer capture)
+PROOF RENDER DEFAULTS: PASS [{"canvas_item_default_texture_filter": 1, "canvas_item_default_texture_repeat": 0, "msaa_2d": 2, "snap_2d_transforms_to_pixel": false, "snap_2d_vertices_to_pixel": false, "use_hdr_2d": false}, {"canvas_item_default_texture_filter": 1, "canvas_item_default_texture_repeat": 0, "msaa_2d": 0, "snap_2d_transforms_to_pixel": false, "snap_2d_vertices_to_pixel": false, "use_hdr_2d": false}]
+PROOF MSAA MUTATION: CAUGHT (project 0/3 produce byte-identical headless transform samples)
+MODULE test_proof_render_inputs: 4.479s
+PROOF DEPENDENCY MUTATION: class_name_extends CAUGHT
+PROOF DEPENDENCY MUTATION: class_name_call CAUGHT
+PROOF DEPENDENCY MUTATION: shader_preload CAUGHT
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round4/gaoler_motion.gd
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round5/gaoler_motion.gd
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round6/gaoler_motion.gd
+PROOF CASE MOTION CLOSURE: PASS (15 case roots)
+PROOF DEPENDENCY MUTATION: case_motion_preload CAUGHT
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round4/gaoler_motion.gd
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round5/gaoler_motion.gd
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round6/gaoler_motion.gd
+PROOF CASE MOTION CLOSURE: PASS (15 case roots)
+PROOF DEPENDENCY MUTATION: archived_case_motion_preload CAUGHT
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round4/gaoler_motion.gd
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round5/gaoler_motion.gd
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round6/gaoler_motion.gd
+PROOF CASE MOTION CLOSURE: PASS (15 case roots)
+MODULE test_proof_runtime_paths: 5.192s
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+MODULE test_rr07_delivery: 3.626s
+MODULE test_rr07_production: 120.531s
+MODULE test_rr10_bone_evidence: 11.783s
+RR10 SHEETS: PASS (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr10-sheet-fixture-_ysy0i5e/sheets)
+MODULE test_rr10_feedback: 1.129s
+MODULE test_rr10_humanoid: 46.302s
+MODULE test_rr10_layout_parity: 0.866s
+MODULE test_rr10_native_exceptions: 0.039s
+MODULE test_rr10_occluded_foot: 1.035s
+MODULE test_rr10_rear: 0.804s
+MODULE test_rr10_reveal_fills: 1.533s
+MODULE test_rr10_rope: 0.961s
+MODULE test_rr10_silhouette_gates: 0.018s
+RR10 ATTACHMENT TRANSFORMS: PASS (629 poses; max wrist snap separation 1.368480 px)
+MODULE test_rr10_tucks: 1.592s
+MODULE test_rr11_humanoid: 17.615s
+MODULE test_rr13_continuations: 4.285s
+MODULE test_rr14_anatomy: 2.201s
+MODULE test_rr14_bone_guards: 1.063s
+MODULE test_rr14_continuation_domains: 0.001s
+RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)
+MODULE test_rr14_foundations: 1.254s
+RR14 SEER RANGE IDENTITY: PASS (777 files; only two input-binding objects excluded)
+MODULE test_rr14_seer_identity: 0.165s
+RR16 THRALL POSE IDENTITY: PASS (1050 exact rows)
+RR16 SEER POSE IDENTITY: PASS (1258 exact rows)
+MODULE test_rr15_action_direction: 46.836s
+MODULE test_rr15_native_cleanup: 1.947s
+MODULE test_rr15_reach: 12.342s
+MODULE test_rr15_shoulder: 1.314s
+MODULE test_rr15_view_keys: 0.640s
+RR16 CURVED REACH: FAIL AS REQUIRED (23.113249183 px at 0.500730859)
+RR16 SUPPORT MODES: PASS (4 views/configurations)
+MODULE test_rr16_feedback1: 1.142s
+MODULE test_rr16_review_fixes: 0.073s
+MODULE test_rr17_cutout: 13.127s
+MODULE test_rr17_feedback: 16.724s
+MODULE test_rr17_integration: 7.968s
+MODULE test_rr17_production: 69.982s
+MODULE test_rr18_air_policy: 0.038s
+MODULE test_rr18_humanoid: 35.823s
+MODULE test_rr18_materials: 0.011s
+RR19 SHARED CLOCK MUTATION: CAUGHT (Tick frame 20 instead of 53 at 0.900 s)
+MODULE test_rr19_overlap: 23.501s
+MODULE test_rr20_cutout: 23.679s
+MODULE test_rr20_feedback2: 8.291s
+MODULE test_rr20_production: 100.851s
+MODULE test_rr20_residue: 0.053s
+MODULE test_rr20_rest_space: 0.102s
+RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)
+MODULE test_rr21_cutout: 23.417s
+MODULE test_rr21_production: 71.491s
+MODULE test_rr21_residue: 0.049s
+Running task-local command:
+  task: rr-50-python-1
+  run: rr-50-python-1-1793280084579497000-96636
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-1-1793280084579497000-96636
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-1-1793280084579497000-96636/godot.log --headless --path . --script tests/rr21/samples.gd -- --case /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/review_clean_5hho5u8c/checkout/mq9 --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/review_clean_5hho5u8c/checkout/mq9/proof/logs/samples.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR10 BONE SAMPLES: PASS (1106 poses; headless transforms only)
+RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)
+RR21 NATIVE PROVENANCE: CURRENT
+RR21 FRONT CUT: PASS (0 errors)
+RR21 FRONT DIRECTION: PASS (621 positive checks; lash/thornwall required)
+RR21 FRONT WALK: PASS (6 swings; minimum peak 65.597 degrees; fit 0.073320 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582567 px)
+RR21 FRONT REACH: REPORT (14 keyed paths; 1000 intervals; 0 inside-minimum errors; 8 overreach reports)
+RR21 REAR CUT: PASS (0 errors)
+RR21 REAR DIRECTION: PASS (621 positive checks; lash/thornwall required)
+RR21 REAR WALK: PASS (6 swings; minimum peak 69.553 degrees; fit 0.063006 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582570 px)
+RR21 REAR REACH: REPORT (14 keyed paths; 1000 intervals; 0 inside-minimum errors; 5 overreach reports)
+RR21 RESIDUE: PASS (158 derived surfaces; zero outside declared features)
+RR21 HEADLESS GATES: PASS (0 errors)
+RR21 REVIEW PREFLIGHT: PASS (headless evidence; native pixels and encoding not run)
+Running task-local command:
+  task: rr-50-python-1
+  run: rr-50-python-1-1793280099397798000-96647
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-1-1793280099397798000-96647
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-1-1793280099397798000-96647/godot.log --headless --path . --script tests/rr21/samples.gd -- --case /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/review_clean_5hho5u8c/checkout/mq9 --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/review_clean_5hho5u8c/checkout/mq9/proof/logs/samples.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR10 BONE SAMPLES: PASS (1106 poses; headless transforms only)
+RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)
+RR21 NATIVE PROVENANCE: CURRENT
+RR21 FRONT CUT: PASS (0 errors)
+RR21 FRONT DIRECTION: PASS (621 positive checks; lash/thornwall required)
+RR21 FRONT WALK: PASS (6 swings; minimum peak 65.597 degrees; fit 0.073320 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582567 px)
+RR21 FRONT REACH: REPORT (14 keyed paths; 1000 intervals; 0 inside-minimum errors; 8 overreach reports)
+RR21 REAR CUT: PASS (0 errors)
+RR21 REAR DIRECTION: PASS (621 positive checks; lash/thornwall required)
+RR21 REAR WALK: PASS (6 swings; minimum peak 69.553 degrees; fit 0.063006 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582570 px)
+RR21 REAR REACH: REPORT (14 keyed paths; 1000 intervals; 0 inside-minimum errors; 5 overreach reports)
+RR21 RESIDUE: PASS (158 derived surfaces; zero outside declared features)
+RR21 HEADLESS GATES: PASS (0 errors)
+RR21 REVIEW PREFLIGHT: PASS (headless evidence; native pixels and encoding not run)
+MODULE test_rr21_review: 36.283s
+RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)
+MODULE test_rr21_walk: 8.384s
+MODULE test_rr23_owner_fixes: 18.012s
+MODULE test_rr24_feedback2: 11.163s
+MODULE test_rr24_policies: 0.837s
+MODULE test_rr24_thrall: 5.063s
+MODULE test_rr26_consolidation: 1.759s
+MODULE test_rr26_fragments: 9.322s
+MODULE test_rr26_hem_attachments: 1.563s
+test_rr27_thrall.ThrallStrictProvenanceTests.test_feedback_gate_rejects_changed_candidate_motion_before_rendering ... skipped: rr-27 Tether study not adopted (feedback 3; decision 2026-10-19): its feedback-1 evidence binds tool hashes that later units change, and its evaluate() requires fresh evidence first.
+RR27 POSE ROW IDENTITY: PASS (1050 rows; 0 changed raw rows)
+RR27 PAINT/REST/MOTION IDENTITY: PASS (440 protected files; 4 authorized copy-removal outputs; 0 unexpected)
+MODULE test_rr27_thrall: 12.457s
+MODULE test_rr28_continuations: 17.583s
+MODULE test_rr28_shadow: 2.082s
+RR29 RR20 RANGE MUTATION: PASS (in-range input caught; later commits and working bytes ignored)
+RR29 RR28 RANGE MUTATION: PASS (actual layout assertion rejects in-range edit; later repair cannot hide it)
+RR29 COMMITTED SCOPE MUTATION: PASS (clean committed foreign rig/case edits rejected against integration)
+MODULE test_rr29_historical_ranges: 3.994s
+RR29 REAR PROMPT TAMPERING: PASS (job revision, canonical revision and reordered chain rejected)
+MODULE test_rr29_mimic: 19.951s
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+MODULE test_rr35_cutout: 44.143s
+MODULE test_rr35_native_defects: 3.223s
+MODULE test_rr35_production: 67.866s
+RR10 SHEETS: FAIL; diagnostic saved (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr38-diagnostic-4xpb45r2/sheets)
+MODULE test_rr38_feedback1: 10.040s
+MODULE test_rr38_feedback2: 8.049s
+RR38 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-50-python-1
+  run: rr-50-python-1-1793280356864815000-97718
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-1-1793280356864815000-97718
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-1-1793280356864815000-97718/godot.log --headless --path . --script tests/rr38/samples.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-50/experiments/cutouts/chainbound_gaoler/rr38/proof/calibration-hp52jmh1/treated --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-50/experiments/cutouts/chainbound_gaoler/rr38/proof/calibration-hp52jmh1/treated/proof/logs/samples.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)
+
+RR38 CALIBRATION SHARD front/death/40: 1 frames; 1.851s
+RR38 CALIBRATION SHARD front/death/36: 3 frames; 4.290s
+RR38 CALIBRATION SHARD front/death/44: 2 frames; 3.134s
+RR38 CALIBRATION SHARD front/death/52: 1 frames; 1.817s
+RR38 CALIBRATION SHARD front/death/48: 2 frames; 3.076s
+RR38 CALIBRATION SHARD front/death/56: 3 frames; 4.364s
+RR38 CALIBRATION SHARD front/death/60: 4 frames; 5.728s
+RR38 CALIBRATION SHARD front/death/68: 2 frames; 3.163s
+RR38 CALIBRATION SHARD front/death/64: 4 frames; 5.758s
+RR38 CALIBRATION SHARD front/death/76: 2 frames; 3.130s
+RR38 CALIBRATION SHARD front/death/80: 2 frames; 3.129s
+RR38 CALIBRATION SHARD front/guard/8: 2 frames; 2.505s
+RR38 CALIBRATION SHARD front/guard/44: 3 frames; 3.467s
+RR38 CALIBRATION SHARD front/move/8: 3 frames; 3.507s
+RR38 CALIBRATION SHARD front/move/12: 4 frames; 4.555s
+RR38 CALIBRATION SHARD front/move/28: 1 frames; 1.449s
+RR38 CALIBRATION SHARD front/move/16: 4 frames; 4.484s
+RR38 CALIBRATION SHARD front/move/36: 3 frames; 3.503s
+RR38 CALIBRATION SHARD front/move/32: 4 frames; 4.521s
+RR38 CALIBRATION SHARD front/move/40: 1 frames; 1.463s
+RR38 CALIBRATION SHARD front/move/48: 2 frames; 2.454s
+RR38 CALIBRATION SHARD front/press/8: 1 frames; 1.841s
+RR38 CALIBRATION SHARD front/press/12: 2 frames; 3.128s
+RR38 CALIBRATION SHARD front/press/16: 3 frames; 4.368s
+RR38 CALIBRATION SHARD front/press/32: 1 frames; 1.826s
+RR38 CALIBRATION SHARD front/press/20: 3 frames; 4.411s
+RR38 CALIBRATION SHARD front/press/40: 2 frames; 3.125s
+RR38 CALIBRATION SHARD front/press/36: 3 frames; 4.455s
+RR38 CALIBRATION SHARD front/reel/28: 3 frames; 3.519s
+RR38 CALIBRATION SHARD front/reel/32: 4 frames; 4.509s
+RR38 CALIBRATION SHARD front/reel/36: 4 frames; 4.482s
+RR38 CALIBRATION SHARD front/reel/40: 3 frames; 3.508s
+RR38 CALIBRATION SHARD front/reel/48: 4 frames; 4.566s
+RR38 CALIBRATION SHARD front/reel/52: 4 frames; 4.546s
+RR38 CALIBRATION SHARD rear/death/32: 2 frames; 2.965s
+RR38 CALIBRATION SHARD rear/death/56: 2 frames; 3.071s
+RR38 CALIBRATION SHARD rear/death/60: 1 frames; 1.864s
+RR38 CALIBRATION SHARD rear/death/68: 2 frames; 3.132s
+RR38 CALIBRATION SHARD rear/guard/8: 2 frames; 2.422s
+RR38 CALIBRATION SHARD rear/guard/44: 2 frames; 2.408s
+RR38 CALIBRATION SHARD rear/move/12: 2 frames; 2.422s
+RR38 CALIBRATION SHARD rear/move/32: 2 frames; 2.411s
+RR38 CALIBRATION SHARD rear/move/16: 3 frames; 3.338s
+RR38 CALIBRATION SHARD rear/pin/28: 1 frames; 1.446s
+RR38 CALIBRATION SHARD rear/pin/36: 1 frames; 1.418s
+RR38 CALIBRATION SHARD rear/move/36: 4 frames; 4.298s
+RR38 CALIBRATION SHARD rear/press/8: 1 frames; 1.790s
+RR38 CALIBRATION SHARD rear/press/40: 1 frames; 1.804s
+RR38 CALIBRATION SHARD rear/reel/28: 1 frames; 1.441s
+RR38 CALIBRATION SHARD rear/reel/48: 4 frames; 4.327s
+RR38 CALIBRATION SHARD rear/reel/52: 4 frames; 4.418s
+RR38 CPU/NATIVE CALIBRATION: PASS (263/263 frame/kind signatures; 314 native errors; 0 misses)
+MODULE test_rr38_feedback3: 90.376s
+RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)
+MODULE test_rr38_gaoler: 15.403s
+MODULE test_rr42_feedback2: 4.497s
+
+test_motion_targets_and_reference_compilation_unchanged (tests.test_rr42_gaoler.GaolerPaintTests) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.062s
+
+OK
+
+RR42 TRACKED-ONLY MOTION TEST: PASS (5217 tracked files; ignored production_case absent)
+MODULE test_rr42_feedback3: 1.623s
+MODULE test_rr42_gaoler: 41.029s
+RR44 NATIVE RELEASE: PASS (4 hash-bound native layers; no recoloured pixel can earn an exemption)
+RR44 ADOPTED CAPS: PASS (visible sleeve and hidden cap retain the same approved RGBA after density)
+RR44 PRESS/FOLLOW: PASS (22px authored lift retained; body frame decision resolved)
+RR44 HELD SOURCE: PASS (boot ink removed from held item; isolated held item, detached grip and recolour rejected)
+MQ15_ACCEPTANCE: PASS; {"heights": {"front": {"head_to_sole_px": 828, "head_top_px": 181, "helm_to_sole_px": 817.6923951132571, "helm_top_px": 191.30760488674287, "sole_bottom_px": 1009}, "rear": {"head_to_sole_px": 841, "head_top_px": 127, "helm_to_sole_px": 830.7375068832291, "helm_top_px": 137.26249311677083, "sole_bottom_px": 968}}, "mass": {"barrel_chest": true, "closed_native_forms": true, "cloth": true, "gloved_grip": true, "mass": true, "no_part_holes": true, "no_see_through": true, "open_front": true}, "pose": {"feet_planted": true, "front_chain_side": true, "level_shoulders_3d": true, "native_endpoints": true, "native_joint_inventory": true, "native_projection": true, "rear_chain_side": true, "shoulder_rule": true}, "proportions": {"helm_height": true, "knee_to_sole": true, "pelvis_to_knee": true, "shoulder_width": true, "torso_height": true, "total_height": true}, "turn": {"front_lower_foot_right": true, "front_proper_rotation": true, "rear_is_half_turn": true, "rear_lower_foot_right": true, "rear_not_mirror": true, "rear_proper_rotation": true}}
+MQ15_COMMIT_CURATION: PASS; bytes=5939586; files=204
+RR44 MAQUETTE LEGACY: PASS (every historical mq-15 row and capture hash unchanged)
+RR44 PAINTED ELBOW/OWNERSHIP: PASS (exact source boundary ownership; registered paint; RGBA/depth/weight mutations fail)
+RR44 PACKED FOOTPRINTS: PASS (16 overlapping masks; both skin families, source/native origins and every UV choice identical)
+RR44 REAR OWNERSHIP: PASS (158 exact arm/glove/chain edge texels; director-opaque body cannot be claimed)
+RR44 RELEASE SOURCE: PASS (every rigid link certified; recolour, scale and pre-release mutations fail)
+MODULE test_rr44_feedback1: 23.662s
+RR44 F2 DENSITY ORACLE: PASS (13 cap crops reconstructed from their own garments; no cap PNG or production source input)
+RR44 F2 EFFECTIVE PAINT: PASS (168 frozen r1 RGBA values at existing approved UVs; recolour, clear and wrong clip rejected)
+RR44 F2 FLAT RATCHET: PASS (4202 regions; +2 allowed; +3 and new region fail)
+RR44 F2 NATIVE REPLAY FIXTURE: PASS (892 poses; 14 exact native-origin anchors)
+RR44 F2 PAINT AUTHORITY: PASS (20 exact source regions; recolour and clear rejected)
+RR44 F2 NATIVE RGBA: PASS (both hash-bound idle frames; single painted-pixel recolour fails)
+RR44 F2 NATIVE BOOT FIXTURE: PASS (rear guard 42, move 21 and reel 28 reject detached 20–39px slivers)
+RR44 F2 NATIVE GRIP FIXTURE: PASS (rear hit 15 and front reel 63 reject; full native RGBA/hash bound)
+RR44 F2 NATIVE RELEASE JOINT: PASS (hash-bound rear death 31; 6px released grip opening; body-joint mutation still fails)
+RR44 F2 PRESENTED GRIP: PASS (fresh poses; detached painted-grip mutation fails)
+RR44 F2 CAP ALIGNMENT: PASS (fresh move 13 and released death; shifted helper and missing alignment rejected)
+RR44 F2 NATIVE RIGID TRANSFORMS: PASS (front/rear native released death RGBA; no inferred second origin snap)
+RR44 F2 JOINT/OWNERSHIP: PASS (exact own-paint caps; boot/belt ownership; cap recolour fails)
+RR44 F2 FAR SLEEVE: PASS (both visible skinned contours byte-identical to hash-bound approved r1 geometry)
+MODULE test_rr44_feedback2: 15.351s
+RR44 BODY FOLLOW: PASS (generated angle active; root/pelvis/body motion alone cannot move hook)
+RR44 MOTION: PASS (both elbows, both pendulums, rigid attached chain; every authored/presented frame)
+RR44 TWO-LEG WALK MUTATION: PASS (both views; displaced planted foot fails)
+RR44 FOREIGN COMPILATION: PASS (all nine reference sets unchanged)
+RR44 HELD FOLLOW: PASS (world/moving-root implementations; zero gain, zero lag and locked chain rejected)
+RR44 ELBOW/PENDULUM MUTATIONS: PASS (inverted elbow, missing policy, static far arm rejected)
+MODULE test_rr44_motion: 53.604s
+RR46 arc_thrall PRESERVATION: PASS (412 protected files)
+MODULE test_rr46_preserve_arc_thrall: 0.080s
+RR46 briar_weaver PRESERVATION: PASS (113 protected files)
+MODULE test_rr46_preserve_briar_weaver: 0.047s
+RR46 chainbound_gaoler PRESERVATION: PASS (279 protected files)
+MODULE test_rr46_preserve_chainbound_gaoler: 0.057s
+RR46 glacial_mirror PRESERVATION: PASS (137 protected files)
+MODULE test_rr46_preserve_glacial_mirror: 0.036s
+RR46 gloam_stalker PRESERVATION: PASS (121 protected files)
+MODULE test_rr46_preserve_gloam_stalker: 0.048s
+RR46 hoarfrost_seer PRESERVATION: PASS (366 protected files)
+MODULE test_rr46_preserve_hoarfrost_seer: 0.071s
+RR46 hollow_mimic PRESERVATION: PASS (103 protected files)
+MODULE test_rr46_preserve_hollow_mimic: 0.039s
+RR49 BASELINE: PASS (52/52; source=24 idle=24 released=4; omitted-category mutations rejected)
+RR49 SUBMITTED GEOMETRY: PASS (892 fresh frames; 100 idle frames; buffer, skin, texture, duplicate-transform and missing-policy mutations rejected)
+RR49 ROOT TRANSFORM: {"checks":1184,"detached_mutation_quads":{"NE":16,"NW":16,"SE":16,"SW":16},"errors":[],"facings":4,"native":false,"quad_checks":256}
+RR10 SHEETS: PASS (0 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr49-compose-routing-yyt2zgo4/sheets)
+RR10 SHEETS: PASS (0 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr49-compose-routing-yyt2zgo4/sheets)
+RR49 SHEETS ROUTING: PASS (strict release oracle forwarded; generic default unchanged)
+MODULE test_rr49_native: 47.698s
+RR50 PAIRED RUN 1: {"fallback_median_us": 4742, "fast_median_us": 2375, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 1.99663157894737, "view": "front"}
+RR50 PAIRED RUN 1: {"fallback_median_us": 4308, "fast_median_us": 2201, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 1.95729213993639, "view": "rear"}
+RR50 ABSOLUTE RUN 1: median=1480 us; max=2333 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 PAIRED RUN 2: {"fallback_median_us": 4773, "fast_median_us": 2199, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.17053206002729, "view": "front"}
+RR50 PAIRED RUN 2: {"fallback_median_us": 4312, "fast_median_us": 2027, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.12728169708929, "view": "rear"}
+RR50 ABSOLUTE RUN 2: median=1496 us; max=2454 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 PAIRED RUN 3: {"fallback_median_us": 4793, "fast_median_us": 2213, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.16583822864889, "view": "front"}
+RR50 PAIRED RUN 3: {"fallback_median_us": 4344, "fast_median_us": 2053, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.11592791037506, "view": "rear"}
+RR50 ABSOLUTE RUN 3: median=1447 us; max=2471 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 PAIRED RUN 4: {"fallback_median_us": 4787, "fast_median_us": 2201, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.17492049068605, "view": "front"}
+RR50 PAIRED RUN 4: {"fallback_median_us": 4348, "fast_median_us": 2034, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.13765978367748, "view": "rear"}
+RR50 ABSOLUTE RUN 4: median=1442 us; max=2292 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 PAIRED RUN 5: {"fallback_median_us": 4722, "fast_median_us": 2195, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.15125284738041, "view": "front"}
+RR50 PAIRED RUN 5: {"fallback_median_us": 4298, "fast_median_us": 2038, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.10893032384691, "view": "rear"}
+RR50 ABSOLUTE RUN 5: median=1440 us; max=2304 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 CLEAN TIMING: PASS (5/5 paired and absolute guards under task runner)
+RR50 CACHE PAYLOAD: PASS {"errors":[],"ok":true,"views":[{"idle_full_bytes":3273856,"maximum_bytes":4194304,"mixed_full_bytes":3293248,"motion_full_bytes":3312640,"view":"front"},{"idle_full_bytes":2884352,"maximum_bytes":4194304,"mixed_full_bytes":2902272,"motion_full_bytes":2920192,"view":"rear"}]}
+RR50 CAPACITY MUTATION: PASS (128 exceeds 4 MiB in both views)
+RR49 COST MUTATIONS: PASS (disabled cache loses repeat hits; legacy per-mesh scalar path exceeds timing budget)
+RR49 EXACT IDENTITY: PASS (8364 poses; 304685 polygon buffers; actual one-vertex mutation caught)
+RR50 FAST-PATH MUTATION: PASS (reviewer production patch rejected; [{"fallback_median_us": 4782, "fast_median_us": 4789, "minimum_speedup": 1.6, "ok": false, "samples": 1071, "speedup": 0.998538316976404, "view": "front"}, {"fallback_median_us": 4325, "fast_median_us": 4327, "minimum_speedup": 1.6, "ok": false, "samples": 1071, "speedup": 0.999537785994916, "view": "rear"}])
+RR50 PIN AUDIT: PASS (only stable_paint.gd and stable_skin.gd; both unapproved-byte mutations rejected)
+RR49 RELOAD: PASS (5 helpers; identical front/rear buffers; legacy double-load mutation caught)
+MODULE test_rr49_submission: 148.156s
+RR22 COMPACT SAMPLES: PASS (1214 poses; full evidence in proof/logs/samples_full.json)
+MODULE test_rr22_humanoid: 20.486s
+MODULE test_rr22_source_space: 0.298s
+SWEEP SAMPLES rr30-frames: 1214 poses; 8 isolated Godot invocations
+RR30 JOINT MUTATION: CAUGHT (source fix disabled; lob0016 and lob0032; cover and dark seams)
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 53 frames
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 53 frames
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+SWEEP CHECKED rr30-frames: 862 frames/choices; 8 workers; 75.962s
+RR30 FRONT CPU COVERAGE AND JOINT GATES: PASS (431 frames; 0 errors)
+RR30 REAR CPU COVERAGE AND JOINT GATES: PASS (431 frames; 0 errors)
+MODULE test_rr30_joint_surfaces: 92.353s
+MODULE test_rr30_mortar: 15.215s
+MODULE test_rr30_proof: 0.740s
+MODULE test_rr30_stretch: 0.030s
+MODULE test_rr31_calibration: 0.735s
+RR31 CPU DIAGNOSTIC: FAIL (0/1 passed; 1 failed)
+RR31 CPU DIAGNOSTIC: UNAVAILABLE (stale proof fixture; non-blocking)
+RR31 SEAM CPU TARGETS: PASS (11/11 clean)
+RR31 NATIVE-POSE SOURCE COVERAGE: PASS (7/7 holes covered for every legal UV tie; CPU source replay)
+RR30 FRONT CPU COVERAGE: checking 1 frames
+RR30 FRONT CPU COVERAGE: checking 1 frames
+RR31 SEAM MUTATION: CAUGHT (front shoulder and rear upper-arm covers removed)
+MODULE test_rr31_finish_seams: 19.476s
+MODULE test_rr31_images: 3.386s
+RR30 FRONT STATIC COVER CUTS: 1 source texels
+RR30 REAR STATIC COVER CUTS: 1 source texels
+MODULE test_rr31_storage: 19.316s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+SWEEP SAMPLES rr37-frames: 1396 poses; 8 isolated Godot invocations
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+SWEEP CHECKED rr37-frames: 1024 frames/choices; 8 workers; 178.779s
+RR37 REJECTED NATIVE REGRESSION: PASS (6 rejected frames + 1 unchanged rear-idle control; components and joint seams detected)
+RR37 REJECTED PRODUCTION RASTER: PASS (detects 6 components > rest 1)
+MODULE test_rr37_feedback1: 182.567s
+MODULE test_rr37_feedback2: 0.033s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR37 ROUND3 UNCOVERED CPU: PASS (7 production-rest poses; not native proof)
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'front', 'clip': 'lunge', 'frame': 20, 'metrics': {'uncovered_missing_pixels': 59, 'uncovered_foreign_texels': 992, 'uncovered_outline_pixels': 9, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 91}, 'diagnostics': {'missing': {'pixels': 59, 'bbox': [269, 287, 281, 310]}, 'foreign': {'pixels': 992, 'bbox': [243, 252, 416, 412]}, 'outline': {'pixels': 9, 'bbox': [248, 306, 268, 320]}, 'procedural_leg': {'pixels': 91, 'bbox': [274, 338, 344, 404]}}}
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'rear', 'clip': 'lunge', 'frame': 36, 'metrics': {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 1477, 'uncovered_outline_pixels': 242, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 58}, 'diagnostics': {'foreign': {'pixels': 1477, 'bbox': [270, 244, 475, 428]}, 'outline': {'pixels': 242, 'bbox': [275, 275, 406, 425]}, 'outside': {'pixels': 58, 'bbox': [225, 310, 380, 369]}}}
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'front', 'clip': 'cast', 'frame': 0, 'metrics': {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0}}
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'rear', 'clip': 'cast', 'frame': 0, 'metrics': {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0}}
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'front', 'clip': 'cast', 'frame': 4, 'metrics': {'uncovered_missing_pixels': 21, 'uncovered_foreign_texels': 413, 'uncovered_outline_pixels': 8, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 26}, 'native_joint_pockets': [{'bbox': [270, 295, 275, 301], 'pixel_count': 10}], 'diagnostics': {'missing': {'pixels': 21, 'bbox': [268, 288, 278, 303]}, 'foreign': {'pixels': 413, 'bbox': [239, 265, 419, 402]}, 'outline': {'pixels': 8, 'bbox': [243, 311, 258, 329]}, 'procedural_leg': {'pixels': 26, 'bbox': [278, 369, 331, 402]}}}
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'front', 'clip': 'cast', 'frame': 12, 'metrics': {'uncovered_missing_pixels': 71, 'uncovered_foreign_texels': 970, 'uncovered_outline_pixels': 7, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 93}, 'diagnostics': {'missing': {'pixels': 71, 'bbox': [267, 287, 279, 397]}, 'foreign': {'pixels': 970, 'bbox': [236, 239, 410, 403]}, 'outline': {'pixels': 7, 'bbox': [252, 313, 260, 318]}, 'procedural_leg': {'pixels': 93, 'bbox': [272, 369, 332, 403]}}}
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'front', 'clip': 'guard', 'frame': 25, 'metrics': {'uncovered_missing_pixels': 115, 'uncovered_foreign_texels': 1276, 'uncovered_outline_pixels': 7, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 275}, 'diagnostics': {'missing': {'pixels': 115, 'bbox': [267, 290, 278, 400]}, 'foreign': {'pixels': 1276, 'bbox': [238, 244, 415, 416]}, 'outline': {'pixels': 7, 'bbox': [249, 324, 256, 329]}, 'procedural_leg': {'pixels': 275, 'bbox': [272, 339, 349, 406]}}}
+RR37 ROUND2 UNCOVERED REGRESSION: PASS (all 5 requested native failures rejected; 2 rest controls clean)
+MODULE test_rr37_feedback3: 19.534s
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+MODULE test_rr37_lancer: 53.899s
+MAQUETTE PRODUCTION LOGIC: PASS (1367 frames)
+MAQUETTE PRODUCTION LOGIC: PASS (1367 frames)
+MODULE test_rr37_production: 112.335s
+RR39 RETAINED BINDINGS: PASS (55 absent optional zero certificates; geometry and paint strict)
+SWEEP CHECKED rr39-ties: 64 frames/choices; 8 workers; 23.835s
+RR39 NATIVE UNCOVERED TIES: PASS (64 resolved: 33 outline, 31 missing; 0 remaining; exact retained native pixels)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR39 OUTSIDE-CLOAK MUTATION: PASS (reviewer texel [378,311] rejected)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR39 UNDERLAY: PASS (protected hashes; complete 2622px footprint; exact texels and air; both rests 0px)
+SWEEP CHECKED rr39-rejected: 19 frames/choices; 8 workers; 2.482s
+RR39 RR37 NATIVE REJECTION: PASS (17 rejected frames; 2 clean rest controls)
+
+test_all_64_director_errors_resolve_as_exact_source_edge_ties (tests.test_rr39_native_ties.RetainedNativeTieTests) ... ok
+test_another_layers_cpu_disagreement_cannot_be_hidden_by_a_tie (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_cpu_gate_disagreement_still_fails (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_cpu_reference_outside_real_candidates_still_fails (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_edge_colour_outside_all_candidates_still_fails (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_exact_painted_air_edge_candidate_is_reported (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_interior_real_source_colour_tie_still_fails (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_joint_pockets_still_fail (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_mesh_quad_uses_the_existing_rigid_real_texel_candidates (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_native_skin_uses_godots_truncated_unorm16_weights (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_real_source_candidate_cannot_authorize_a_detached_component (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_all_55_verified_empty_certificates_may_be_absent (tests.test_rr39_retained_bindings.RetainedBindingTests) ... ok
+test_changed_geometry_and_paint_still_fail (tests.test_rr39_retained_bindings.RetainedBindingTests) ... ok
+test_empty_claim_cannot_replace_a_nonempty_certificate (tests.test_rr39_retained_bindings.RetainedBindingTests) ... ok
+test_every_missing_nonempty_certificate_still_fails (tests.test_rr39_retained_bindings.RetainedBindingTests) ... ok
+test_zero_hash_does_not_waive_other_or_undeclared_bindings (tests.test_rr39_retained_bindings.RetainedBindingTests) ... ok
+test_outside_cloak_remnant_fails_full_vacated_footprint (tests.test_rr39_lancer.CleanupTests) ... ok
+test_processed_production_preserves_exact_partition_and_rests (tests.test_rr39_lancer.CleanupTests) ... ok
+test_production_rest_seal_has_explicit_headless_evidence (tests.test_rr39_lancer.CleanupTests) ... ok
+test_protected_sources_and_exact_full_footprint (tests.test_rr39_lancer.CleanupTests) ... ok
+test_rr37_native_frames_fail_and_rest_controls_pass (tests.test_rr39_lancer.CleanupTests) ... ok
+test_absolute_bound_paths_fail_even_with_valid_hashes (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_derive_is_opt_in_and_records_all_bound_inputs (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_each_changed_bound_input_fails (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_escaping_symlink_bound_paths_fail_even_with_valid_hashes (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_exact_source_inside_preserved_production_outside_and_true_air (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_outside_alpha_change_fails (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_parent_components_fail_even_when_the_resolved_path_is_inside (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_partition_outside_registered_mask_fails (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_resized_density_output_cannot_claim_exact_source_texels (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_density_twice_completes_record_refresh_check_and_seal (tests.test_rr39_proof_rerun.RerunTests) ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 39.582s
+
+OK
+
+RR39 CLEAN CHECKOUT: PASS (HEAD 6135c6ec6c9c2ac63a91545e27f74aa79c964ce0; 0 ignored input files; scoped fix overlay=0 files)
+MODULE test_rr39_clean_checkout: 84.006s
+MODULE test_rr39_density_partitions: 0.020s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR39 OUTSIDE-CLOAK MUTATION: PASS (reviewer texel [378,311] rejected)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR39 UNDERLAY: PASS (protected hashes; complete 2622px footprint; exact texels and air; both rests 0px)
+SWEEP CHECKED rr39-rejected: 19 frames/choices; 8 workers; 2.458s
+RR39 RR37 NATIVE REJECTION: PASS (17 rejected frames; 2 clean rest controls)
+MODULE test_rr39_lancer: 6.649s
+RR39 RETAINED BINDINGS: PASS (55 absent optional zero certificates; geometry and paint strict)
+SWEEP CHECKED rr39-ties: 64 frames/choices; 8 workers; 23.732s
+RR39 NATIVE UNCOVERED TIES: PASS (64 resolved: 33 outline, 31 missing; 0 remaining; exact retained native pixels)
+MODULE test_rr39_native_ties: 24.578s
+MODULE test_rr39_proof_rerun: 0.584s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+MODULE test_rr39_retained_bindings: 13.862s
+MODULE test_rr40_feedback: 2.925s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+SWEEP SAMPLES rr41-rounding: 1396 poses; 8 isolated Godot invocations
+RR41 BOUNDARY MUTATION: PASS (reviewer UVs [141,149], [141,150] rejected in lunge 42)
+RR41 FOUR-CHOICE SHARD: idle/0
+RR41 FOUR-CHOICE SHARD: idle/12
+RR41 FOUR-CHOICE SHARD: idle/24
+RR41 FOUR-CHOICE SHARD: idle/36
+RR41 FOUR-CHOICE SHARD: move/0
+RR41 FOUR-CHOICE SHARD: idle/48
+RR41 FOUR-CHOICE SHARD: move/12
+RR41 FOUR-CHOICE SHARD: move/24
+RR41 FOUR-CHOICE SHARD: move/36
+RR41 FOUR-CHOICE SHARD: lunge/0
+RR41 FOUR-CHOICE SHARD: move/48
+RR41 FOUR-CHOICE SHARD: lunge/12
+RR41 FOUR-CHOICE SHARD: lunge/24
+RR41 FOUR-CHOICE SHARD: lunge/36
+RR41 FOUR-CHOICE SHARD: lunge/48
+RR41 FOUR-CHOICE SHARD: jab/0
+RR41 FOUR-CHOICE SHARD: lunge/60
+RR41 FOUR-CHOICE SHARD: jab/12
+RR41 FOUR-CHOICE SHARD: jab/24
+RR41 FOUR-CHOICE SHARD: cast/0
+RR41 FOUR-CHOICE SHARD: cast/12
+RR41 FOUR-CHOICE SHARD: cast/24
+RR41 FOUR-CHOICE SHARD: cast/36
+RR41 FOUR-CHOICE SHARD: cast/48
+RR41 FOUR-CHOICE SHARD: pin/0
+RR41 FOUR-CHOICE SHARD: pin/12
+RR41 FOUR-CHOICE SHARD: pin/24
+RR41 FOUR-CHOICE SHARD: pin/36
+RR41 FOUR-CHOICE SHARD: pin/48
+RR41 FOUR-CHOICE SHARD: guard/0
+RR41 FOUR-CHOICE SHARD: pin/60
+RR41 FOUR-CHOICE SHARD: guard/24
+RR41 FOUR-CHOICE SHARD: guard/12
+RR41 FOUR-CHOICE SHARD: guard/48
+RR41 FOUR-CHOICE SHARD: guard/36
+RR41 FOUR-CHOICE SHARD: hit/0
+RR41 FOUR-CHOICE SHARD: hit/24
+RR41 FOUR-CHOICE SHARD: hit/12
+RR41 FOUR-CHOICE SHARD: death/12
+RR41 FOUR-CHOICE SHARD: death/0
+RR41 FOUR-CHOICE SHARD: death/36
+RR41 FOUR-CHOICE SHARD: death/24
+RR41 FOUR-CHOICE SHARD: death/60
+RR41 FOUR-CHOICE SHARD: death/48
+RR41 FOUR-CHOICE SHARD: death/84
+RR41 FOUR-CHOICE SHARD: death/72
+SWEEP CHECKED rr41-rounding: 2048 frames/choices; 8 workers; 408.438s
+RR41 ALL FRONT ROUNDING: PASS (2048 UV/pose cases; 512 poses x 4 choices; every clip including move; no fresh native capture)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)
+RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint
+RR41 EXTENSION RECIPE MUTATION: PASS (gait and clip targets retired on both cloaks)
+RR41 NATIVE BOUNDARY MUTATION: PASS (legal palette colour cannot choose a painted UV certificate)
+RR41 NATIVE MISSING-PAINT MUTATION: PASS (no opaque source candidate can become certified air)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR41 DIRECTOR PARTITION: FAIL (2498 painted; 1529 air; cape_far=2497 cape_near=1; outside source=398px production=403px)
+RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint
+source/hidden_cape_near: 1 director ownership/RGBA mismatches
+source/hidden_cape_far: 1 director ownership/RGBA mismatches
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR41 DIRECTOR PARTITION: FAIL (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)
+RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint
+production/hidden_cape_near: 1 director ownership/RGBA mismatches
+production/hidden_cape_far: 1 director ownership/RGBA mismatches
+RR41 OWNERSHIP SWAP: PASS (source and production independently reject far-to-near UV [112,142])
+MODULE test_rr41_feedback1: 434.705s
+RR41 DEATH82 RECOLOUR MUTATION: PASS (unpainted native hand texel still fails)
+RR41 DEATH82 ROUNDING: PASS (same phase; recorded hand UV [127,143], reconstructed UV [127,142])
+RR41 RETAINED DEATH82: PASS (old sampling rejects 1 painted texel; recorded transforms yield 0 errors)
+RR41 SOFTWARE DEATH82 REGRESSION: PASS (old oracle fails; 4 recorded rigid/mesh UV choices pass)
+MODULE test_rr41_feedback2: 11.474s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793279852069098000-95719
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279852069098000-95719
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279852069098000-95719/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-l2rrey8o/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 8; choice 1; UV (145, 159))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 8; choice 3; UV (145, 159))
+RR41 REAL PROCEDURAL MUTATION: PASS (lunge 13; choice 0; UV (155, 174))
+RR41 REAL PROCEDURAL MUTATION: PASS (lunge 13; choice 2; UV (155, 174))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 13; choice 0; UV (144, 155))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 13; choice 0; UV (155, 174))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 13; choice 2; UV (144, 155))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 13; choice 2; UV (155, 174))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 14; choice 0; UV (144, 155))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 14; choice 0; UV (155, 174))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 14; choice 2; UV (144, 155))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 14; choice 2; UV (155, 174))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 12; choice 2; UV (122, 148))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 12; choice 3; UV (122, 148))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 32; choice 2; UV (122, 148))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 32; choice 3; UV (122, 148))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 8; choice 1; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 8; choice 3; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 23; choice 1; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 23; choice 3; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 25; choice 1; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 25; choice 3; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 27; choice 1; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 27; choice 3; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 29; choice 1; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 29; choice 3; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATIONS: PASS (12 prior near-tie restorations + 14 walk restorations; none survive)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+SWEEP SAMPLES rr41-rounding: 1396 poses; 8 isolated Godot invocations
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2497 cape_near=1; outside source=398px production=403px)
+RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)
+RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint
+RR41 OWNERSHIP SWAP: PASS (source and production independently reject far-to-near UV [112,142])
+RR41 DISABLED-GUARD MUTATION: PASS (test_ownership_swap_fails_independently_in_source_and_production)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+SWEEP SAMPLES rr41-rounding: 1396 poses; 8 isolated Godot invocations
+RR41 DISABLED-GUARD MUTATION: PASS (test_boundary_recolouring_inside_independent_vacated_region_fails)
+RR41 DISABLED-GUARD MUTATION: PASS (test_retained_native_frame_rejects_old_sampling_and_accepts_original_paint)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793279957731274000-96175
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279957731274000-96175
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279957731274000-96175/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-g5f8t5qt/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793279975663589000-96249
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279975663589000-96249
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279975663589000-96249/godot.log --headless --path /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/int07-rr41-rest-mutations-20hlt2he/project --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-zi7i6nxb/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REST/DENSITY RESEAL: PASS (complete historical pose digest recovered; both rest images, zero mismatches and density bindings unchanged)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793279966104422000-96237
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279966104422000-96237
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279966104422000-96237/godot.log --headless --path /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/int07-rr41-rest-mutations-20hlt2he/project --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-k_rreb3d/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REAL RESEAL MUTATION: PASS (runtime_byte rejected)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793279992263086000-96277
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279992263086000-96277
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279992263086000-96277/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-6u1ph5xc/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793279983288883000-96271
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279983288883000-96271
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279983288883000-96271/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-wah21r16/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REAL RESEAL MUTATION: PASS (unknown_binding rejected)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793280009483794000-96353
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280009483794000-96353
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280009483794000-96353/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-wnp4p6bu/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793280000602691000-96346
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280000602691000-96346
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280000602691000-96346/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-wrckw7lc/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REAL RESEAL MUTATION: PASS (bone_transform rejected)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793280026863213000-96423
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280026863213000-96423
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280026863213000-96423/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-mozu9_50/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793280017885540000-96420
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280017885540000-96420
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280017885540000-96420/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-m_dcogwr/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REAL RESEAL MUTATION: PASS (forged_after_hash rejected)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793280035091998000-96451
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280035091998000-96451
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280035091998000-96451/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-umjubd2s/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REST/DENSITY RESEAL: PASS (complete historical pose digest recovered; both rest images, zero mismatches and density bindings unchanged)
+RR41 WALK PAINT/RECIPES: PASS (2 exact director UVs; source, production and proof; gait/clip writes retired)
+MODULE test_rr41_feedback3: 191.691s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+SWEEP SAMPLES rr41-paint: 1396 poses; 8 isolated Godot invocations
+SWEEP CHECKED rr41-paint: 512 frames/choices; 8 workers; 39.513s
+RR41 FRONT PAINT PROVENANCE: PASS (512 frames; every clip; 0 procedural leg texels)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)
+RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint
+RR41 OLD BANDED FILL MUTATION: PASS (4 lunge/pin frames rejected)
+MODULE test_rr41_lancer: 60.028s
+RR43 DIRECTOR REPLAY: PASS (raw, recipe, prompt and processed bytes exact)
+RR43 RIGID SPEAR: PASS (every front frame; shaft line through grip; hand occlusion only)
+RR43 PRESERVATION: PASS (front/rest, rr-41 lining and motion protected; exact wood transfer)
+RR43 GRIP REGISTRATION: PASS (painted grip required; retired shaft-tail backing absent)
+RR43 REAR FRINGE MUTATION: PASS (shaft outline cannot ride cloak/boot)
+RR43 SPEAR MUTATIONS: PASS (literal lower-shaft split with identical rest art, split transform/bone, erased shaft all rejected)
+MODULE test_rr43_lancer: 38.883s
+RR43 OUTLINE PARTITION: PASS (both scopes; alpha/geometry/recipes exact; no inner-edge or hidden-fill repaint)
+RR43 INNER-EDGE MUTATION: PASS (a cut boundary cannot become a new outline)
+MODULE test_rr43_outline: 16.348s
+RR45 ALL FRAMES: PASS (1024 presented frames + 2 rests; 0 depth violations)
+RR45 NATIVE NEGATIVE CONTROLS: PASS (10 real frame/piece failures; rest controls clean; stale proof rejected)
+RR45 OLD DRAW ORDER MUTATION: PASS (front and rear rejected)
+RR45 RIGID CONTINUITY: PASS (source/production routing; rr-43 all-frame gate unchanged)
+MODULE test_rr45_lancer: 35.486s
+FAIL: test_rr46_preserve_frostglass_lancer.PreservationTests.test_approved_inputs_are_byte_identical
+MODULE test_rr46_preserve_frostglass_lancer: 0.045s
+RR46 slag_mortar PRESERVATION: PASS (217 protected files)
+MODULE test_rr46_preserve_slag_mortar: 0.039s
+MODULE test_arc_thrall_proof_validation: 4.390s
+LIGHT TEARS vyraketh/left: 0 in all 16 frames
+LIGHT TEARS vyraketh/right: 0 in all 16 frames
+LIGHT TEARS noctyrax/left: 0 in all 16 frames
+LIGHT TEARS noctyrax/right: 0 in all 16 frames
+LIGHT TEARS zekarion/left: 0 in all 16 frames
+LIGHT TEARS zekarion/right: 0 in all 16 frames
+LIGHT TEARS vaeloryx/left: 0 in all 16 frames
+LIGHT TEARS vaeloryx/right: 0 in all 16 frames
+LIGHT TEARS tharokh/left: 0 in all 16 frames
+LIGHT TEARS tharokh/right: 0 in all 16 frames
+LIGHT TEARS iskaldra/left: 0 in all 16 frames
+LIGHT TEARS iskaldra/right: 0 in all 16 frames
+FIRE DISPLACEMENT MUTATION left: rejected (mean=0.569%)
+FIRE DISPLACEMENT MUTATION right: rejected (mean=0.569%)
+FORWARD PUSH MUTATION vyraketh/left: rejected (12838 tears)
+FORWARD PUSH MUTATION vyraketh/right: rejected (12701 tears)
+FORWARD PUSH MUTATION noctyrax/left: rejected (11993 tears)
+FORWARD PUSH MUTATION noctyrax/right: rejected (11972 tears)
+FORWARD PUSH MUTATION vaeloryx/left: rejected (25279 tears)
+FORWARD PUSH MUTATION vaeloryx/right: rejected (25294 tears)
+BIOME LIGHT TEST vyraketh/left: mean=10.413% range=9.143–11.225% seam=10.455% unique=16
+BIOME LIGHT TEST vyraketh/right: mean=10.441% range=9.305–11.277% seam=10.079% unique=16
+BIOME LIGHT TEST noctyrax/left: mean=6.829% range=6.034–7.412% seam=7.412% unique=16
+BIOME LIGHT TEST noctyrax/right: mean=6.862% range=6.293–7.222% seam=7.143% unique=16
+BIOME LIGHT TEST zekarion/left: mean=8.288% range=0.000–18.296% seam=11.578% unique=16
+BIOME LIGHT TEST zekarion/right: mean=8.291% range=0.000–18.254% seam=11.516% unique=16
+BIOME LIGHT TEST vaeloryx/left: mean=2.423% range=2.031–2.863% seam=2.031% unique=16
+BIOME LIGHT TEST vaeloryx/right: mean=2.499% range=2.169–2.946% seam=2.242% unique=16
+BIOME LIGHT TEST tharokh/left: mean=2.230% range=2.076–2.428% seam=2.304% unique=16
+BIOME LIGHT TEST tharokh/right: mean=2.230% range=2.114–2.335% seam=2.221% unique=16
+BIOME LIGHT TEST iskaldra/left: mean=2.036% range=1.375–2.891% seam=1.375% unique=16
+BIOME LIGHT TEST iskaldra/right: mean=2.035% range=1.530–2.694% seam=1.551% unique=16
+HOLDER CONTAMINATION REGRESSION: rejected (1 tear at [36,20])
+MODULE test_biome_light_idle: 8.890s
+CAPTURE PRODUCTION GATES: FAIL (1 errors; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-production-vgy8c1sk/combined)
+CAPTURE PRODUCTION GATES: PASS (0 errors; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-production-fp4dhv8l/combined)
+MODULE test_capture_production: 0.230s
+MODULE test_card_heuristic_illusions_terrain: 0.000s
+MODULE test_card_heuristic_maneuver: 0.001s
+MODULE test_card_heuristic_progression_context: 0.053s
+MODULE test_card_heuristic_surfaces: 0.001s
+CARD LEGIBILITY TEST RESULT: PASS (3 definitions, 3 contexts, 9 samples, 248 checks, 0 failures)
+CARD LEGIBILITY NEGATIVE FIXTURES: PASS (26 checks, 0 failures)
+CARD LEGIBILITY TEST RESULT: PASS (3 definitions, 3 contexts, 9 samples, 242 checks, 0 failures)
+CARD LEGIBILITY TEST RESULT: PASS (3 definitions, 7 contexts, 21 samples, 294 checks, 0 failures)
+MODULE test_card_legibility: 84.926s
+MODULE test_card_panel_text: 0.003s
+MODULE test_chopin_death_music: 0.050s
+test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests.test_bank_generator_is_deterministic ... skipped: requires pinned Python 3.12 audio environment
+test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests.test_normalizer_writes_full_score_and_separate_parts ... skipped: requires pinned Python 3.12 audio environment
+test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests.test_provenance_gate_rejects_mismatches_and_placeholder_licenses ... skipped: requires pinned Python 3.12 audio environment
+test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests.test_reference_render_and_verifier_match_approved_outputs ... skipped: requires pinned Python 3.12 audio environment
+test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests.test_scaffold_is_rights_locked_and_non_overwriting ... skipped: requires pinned Python 3.12 audio environment
+test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests.test_string_track_can_request_a_slow_attack_without_changing_the_default ... skipped: requires pinned Python 3.12 audio environment
+MODULE test_classical_soundtrack_pipeline: 0.002s
+DEMO VISUAL PROOF: PASS (1 clips)
+MODULE test_demo_clips: 148.520s
+MODULE test_demo_recording: 8.490s
+MODULE test_dragon_rule_measurement: 0.057s
+MODULE test_element_rule_contract: 0.003s
+MODULE test_engine_cache_proof: 0.001s
+FIX18 TRAVEL MUTATION: PASS (ignored_authored_origin rejected by retained-renderer oracle)
+FIX18 TRAVEL MUTATION: PASS (disabled_center_correction rejected by retained-renderer oracle)
+FIX18 STALE SOURCE MUTATION: PASS (all four Continue floor-containment failures observed)
+FIX18 STALE ENTRY pre_battle: {"continue": [], "layout": [], "no_animation_move": [], "resize": [], "restore": []}
+FIX18 STALE ENTRY warband: {"continue": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "layout": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "no_animation_move": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "resize": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "restore": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"]}
+FIX18 STALE ENTRY snare: {"continue": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "layout": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "no_animation_move": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "resize": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "restore": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"]}
+MODULE test_fix18_draw_origin: 111.167s
+Running task-local command:
+  task: rr-50-python-3
+  run: executable-0
+  HOME: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmplvq68who/executable-0
+  Steam: disabled
+  command: /Applications/Godot.app/Contents/MacOS/Godot --log-file /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmplvq68who/executable-0/godot.log --headless
+  timeout: 300s
+Running task-local command:
+  task: rr-50-python-3
+  run: executable-1
+  HOME: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmplvq68who/executable-1
+  Steam: disabled
+  command: 'C:\Tools\Godot.exe' --log-file /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmplvq68who/executable-1/godot.log --headless
+  timeout: 300s
+MODULE test_godot_task_runner: 5.571s
+MODULE test_guardian_rules_measurement: 0.086s
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+SHRIKE CPU MUTATION: missing_hold rejected
+SHRIKE CPU MUTATION: applied_tail rejected
+SHRIKE CPU MUTATION: reversed_tail rejected
+SHRIKE FROZEN HOVER MUTATION: caught by tests/gust_shrike_cutout_test.gd
+SHRIKE FROZEN HOVER MUTATION: caught by tests/gust_shrike_cutout_probe.gd
+MODULE test_gust_shrike_cutout: 38.001s
+MODULE test_hero_facing_tools: 0.008s
+MAQUETTE SEAM BLEED: {'view': 'front', 'added_pixels': 54, 'new_hole_pixels': 0}
+MAQUETTE SEAM BLEED: {'view': 'front', 'added_pixels': 0, 'new_hole_pixels': 0}
+MAQUETTE SEAM BLEED: {'view': 'rear', 'added_pixels': 54, 'new_hole_pixels': 0}
+MAQUETTE SEAM BLEED: {'view': 'rear', 'added_pixels': 0, 'new_hole_pixels': 0}
+MODULE test_maquette_bleed: 0.374s
+MODULE test_maquette_closed_loft: 0.002s
+MODULE test_maquette_hidden_material: 0.481s
+MAQUETTE REFERENCE MASKS: PASS (8 Godot image-operation masks = independent Pillow; no renderer claim)
+MAQUETTE NATIVE ALPHA: PASS (death/0069 and /0070: 0px mask diff; old /0070 model invented 13007px)
+MODULE test_maquette_native_alpha: 0.760s
+MODULE test_maquette_owner_proof: 3.582s
+MODULE test_maquette_regressions: 0.032s
+MAQUETTE SILHOUETTE MUTATION: orphan pixel rejected; connected reassignment preserves rest
+MAQUETTE SILHOUETTE MUTATION: widened joint gap rejected by legacy CPU and saved-surface gates; feedback8 hard gate in seam tests
+MODULE test_maquette_silhouette: 0.267s
+MQ11_CRACK_TRIANGLE_FIXTURE: top_band_only; pixels=820; visible=730; passed=true
+MQ11_CRACK_TRIANGLE_FIXTURE: hidden_over_98_percent; pixels=820; visible=16; passed=false; mask_midpoints_clear=true
+MODULE test_mq11_crack_visibility: 0.369s
+MQ12_MOTION_MUTATION_REJECTED: moved_protected_faces
+MQ12_MOTION_MUTATION_REJECTED: stationary_attachment
+MODULE test_mq12_motion: 0.011s
+CLOTH_PATTERN: panel; vertices=49; pins=49
+CLOTH_FRAME: panel; 1/1
+MODULE test_mq14_builder: 0.073s
+MQ16_CURATED_INVENTORY: PASS; files=2; bytes=6000000
+MODULE test_mq16_proof_guards: 2.965s
+MQ18_HASH_BOUND_DELIVERY: PASS
+MQ18_REPORT_PACKING: PASS; redundant ray point clouds discarded with hashes
+MODULE test_mq18_maquette: 32.930s
+MQ19_POSE_DIAGNOSTIC: NEEDS_DESIGN; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpj2p1_ip_/diagnostic.json
+MODULE test_mq19_maquette: 76.124s
+MODULE test_mq21_maquette: 14.543s
+test_old_castle_full_arrangement.OldCastleFullArrangementTests.test_complete_movement_boundaries_and_source_counts ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_full_arrangement.OldCastleFullArrangementTests.test_config_uses_cc0_symbolic_source_and_no_omr_inputs ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_full_arrangement.OldCastleFullArrangementTests.test_every_printed_system_and_opening_lament_are_anchored ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_full_arrangement.OldCastleFullArrangementTests.test_five_voice_reduction_counts_and_range ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_full_arrangement.OldCastleFullArrangementTests.test_generated_musicxml_has_stable_unique_part_ids_and_107_measures ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_full_arrangement.OldCastleFullArrangementTests.test_v01_audition_is_byte_for_byte_unchanged ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+MODULE test_old_castle_full_arrangement: 0.000s
+MODULE test_original_soundtrack_assets: 0.070s
+MODULE test_performance_pass: 0.003s
+MODULE test_process_event_art: 21.510s
+RUNNER MUTATION REJECTED: absolute runtime preload in repository project
+RUNNER MUTATION REJECTED: all 210 supplemental mode changes (including Bile Bloomer to script)
+MODULE test_program_suite_runner: 24.687s
+PT14-01 MUTATION raw_rear_guard: KILLED
+PT14-01 MUTATION static_hero_ignored: KILLED
+PT14-01 MUTATION mirrored_bounds: KILLED
+PT14-01 MUTATION hole_subtraction: KILLED
+PT14-01 MUTATION no_hero_weight: KILLED
+PT14-01 MUTATION no_margin: KILLED
+PT14-01 MUTATION coverage_ignored: KILLED
+PT14-01 MUTATION animated_bounds: KILLED
+PT14-01 MUTATION unbounded_slide: KILLED
+PT14-01 MUTATION screen_reservations: KILLED
+PT14-01 MUTATION RESULT: PASS (10/10 killed; controls pass; production untouched)
+MODULE test_pt14_01_coverage: 155.106s
+SWEEP CHECKED synthetic: 17 frames/choices; 8 workers; 0.000s
+MODULE test_python_suite_runner: 16.588s
+ISOLATION AUDIT: 1 modules; /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/perf06-feedback-ovkq9foh/wait-proof/isolation-audit.md
+SHARD 1: 1 modules; estimated 1.000s
+SHARD 1 COMPLETE: 0 tests; 0.000s
+PYTHON SUITE WALL: 0.003s; results: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/perf06-feedback-ovkq9foh/wait-proof
+ISOLATION AUDIT: 1 modules; /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/perf06-feedback-ovkq9foh/wait-proof/isolation-audit.md
+SHARD 1: 1 modules; estimated 1.000s
+SHARD 1 COMPLETE: 0 tests; 0.000s
+PYTHON SUITE WALL: 0.002s; results: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/perf06-feedback-ovkq9foh/wait-proof
+ISOLATION AUDIT: 1 modules; /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/perf06-feedback-ovkq9foh/wait-proof/isolation-audit.md
+SHARD 1: 1 modules; estimated 1.000s
+SHARD 1 COMPLETE: 0 tests; 0.000s
+PYTHON SUITE WALL: 0.002s; results: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/perf06-feedback-ovkq9foh/wait-proof
+MODULE test_python_suite_runner_feedback: 20.897s
+MODULE test_recolour_lab: 2.079s
+MODULE test_rr25_mortar_finish: 0.152s
+RR44 NATIVE SIGNATURES: PASS (1336/1336; omitted outline and removed-frame mutations rejected)
+RR44 FRESH NATIVE WITNESSES: PASS (17 frozen native poses; every required category reproduced)
+MODULE test_rr44_feedback1_calibration: 33.880s
+RR44 DIRECTOR INPUTS: PASS (both paintings/raws/recipes byte exact; replay certified)
+RR44 BASE ELBOW MUTATION: PASS (hash-bound d7ed719d9 press/hit fail in both views; four CPU crops)
+RR44 MAQUETTE STRUCTURE: PASS (unscaled limbs; level shoulders; proper rear half-turn; native acceptance checked separately)
+RR44 DEATH: PASS (approved choreography retained; lowered hand target and measured floor drop)
+RR44 SOURCE CUTS: PASS (front=0px rear=0px; masks rederived; exact painted backing)
+MODULE test_rr44_gaoler: 5.440s
+RR46 ROUTING MUTATIONS: PASS (death opt-in and occupant sorting rejected)
+RR46 SCALING MUTATIONS: PASS (move and death rejected by production schedule checks)
+FAIL: test_rr46_playback.PlaybackTests.test_historical_runtime_pin_rejects_unowned_changes
+RR46 PAINTER MUTATIONS: PASS (reversed composite; actor/prop swap; reversed production canvas order)
+RR46 MIXED DEATH CLOCKS: PASS (12 blocking/overlap cases; three speeds; 12 authored event crossings)
+FAIL: test_rr46_playback.PlaybackTests.test_motion_and_reference_inputs_are_byte_identical
+ERROR: test_rr46_playback.PlaybackTests.test_native_archive_requires_complete_painted_coverage
+RR46 PAINTED ORACLE: PASS (independent primitive composition; reverse/pair mutations; authored absence; Retina crops)
+RR46 NATIVE CASE INVENTORY: 2 boards; 20 jobs; 20 deaths; stride 2 move/retreat plus every midpoint neighbour, stride 1 death; user://rr46/native_inventory.json
+RR46 TIMING: PASS (39 actor/speed rows; production path schedule)
+RR46 RR40 GEOMETRY: PASS (fresh and prepared; native pixels=false)
+RR46 SCALED GAIT GATES: PASS (9 six-step rigs x 2 views; planted stances and apex knees; three playback clocks; Seer retains protected four-shuffle clip)
+RR46 DEPTH ORDER: PASS (36 boards; 173718 frames; 111610 old-routing failures; 30 retreat routes; native pixels=false)
+MODULE test_rr46_playback: 210.601s
+ERROR: setUpClass (test_rr47_feedback1.FeedbackOneTests)
+MODULE test_rr47_feedback1: 0.008s
+MODULE test_runner_cancellation: 0.586s
+MODULE test_sb02_movement: 36.911s
+MAQUETTE MUTATION: shale_bloomer/broken_compiler rejected by independent director oracle
+MAQUETTE MUTATION: lightning_wisp/broken_compiler rejected by independent director oracle
+MAQUETTE MUTATION: shale_bloomer/flip_raise_sign rejected in both views
+MAQUETTE MUTATION: shale_bloomer/drop_key rejected in both views
+MAQUETTE MUTATION: lightning_wisp/flip_raise_sign rejected in both views
+MAQUETTE MUTATION: lightning_wisp/drop_key rejected in both views
+MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout_test.gd
+MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout/production_capture.gd
+MODULE test_semantic_maquette_motion: 59.337s
+MODULE test_short_card_tooltips: 0.012s
+MODULE test_special_encounter_assets: 0.007s
+MODULE test_steam_performance_stats_schema: 0.000s
+AUDIT MUTATION REJECTED: aliases collected across functions (2 assertion failures)
+AUDIT MUTATION REJECTED: inferred aliases omitted (4 assertion failures)
+FAIL: test_test_registration_audit.RegistrationAuditTests.test_repository_headless_registration_guard
+AUDIT MUTATION REJECTED: string contents scanned as calls (20 assertion failures)
+MODULE test_test_registration_audit: 4.378s
+MODULE test_text_budget: 0.060s
+MODULE test_visual_pass_4_assets: 0.257s
+MODULE test_boot_splash: 0.105s
+MODULE test_button_system_inventory: 0.106s
+CAPTURE PRODUCTION GATES: FAIL (38 errors; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-iozta563/production_failure)
+RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-u77jzgf_/old_review.mp4)
+RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-u77jzgf_/new_review.mp4)
+RR10 IDLE: PASS (30 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-u77jzgf_/old_idle.mp4)
+RR10 IDLE: PASS (30 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-u77jzgf_/new_idle.mp4)
+RR10 SHEETS: PASS (4 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-u77jzgf_/old_sheets)
+RR10 SHEETS: PASS (4 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-u77jzgf_/new_sheets)
+RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-5alm4jv6/proof/seer/review.mp4)
+MODULE test_capture_director: 10.603s
+MODULE test_card_completion_stall: 0.024s
+MODULE test_card_heuristic_keywords: 0.000s
+MODULE test_card_heuristic_wave4_surfaces: 0.000s
+MODULE test_card_time_watch_asset: 0.002s
+MODULE test_combat_feel_measurements: 0.025s
+test_empower_sfx.EmpowerSfxTests.test_hash_bound_samples_meet_input_onset_and_duration ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_empower_sfx.EmpowerSfxTests.test_mix_targets_and_six_db_difference ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+MODULE test_empower_sfx: 0.001s
+MODULE test_en05_assets: 0.052s
+ENC03 BEFORE SOURCE RESTORATION: PASS
+ENCOUNTER BASELINE: PASS (2100 runs; revision 7; 15 groups); /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpgbhdbp0p/baseline.md
+MODULE test_encounter_measurement: 1.685s
+MODULE test_fix_11_labels: 0.070s
+MODULE test_gear_visual_assets: 102.519s
+MQ08_BRIDGE: receipt; exit=0
+MQ08_BRIDGE: receipt; exit=0
+MODULE test_glacial_mirror_regeneration: 1.843s
+MODULE test_glacial_mirror_registration: 0.019s
+MODULE test_icon_identity_policy: 0.084s
+MODULE test_inspection_fixture: 17.071s
+MODULE test_item_card_art_quality: 0.647s
+MODULE test_labyrinth_font_family: 0.347s
+MODULE test_labyrinth_queue_board: 0.005s
+MODULE test_labyrinth_task_queue: 0.583s
+MODULE test_main_menu_steam_branding: 0.004s
+MODULE test_main_menu_umbra_assets: 0.002s
+test_maquette_blender.NativeContractTests.test_real_blender_build_and_geometry_gates ... skipped: Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge
+test_maquette_blender.NativeContractTests.test_real_lancer_cloth_cache_replay_has_identical_raw_hashes ... skipped: Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge
+MODULE test_maquette_blender: 0.264s
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+BUILD_STAGE: append anatomy
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+MQ07_REVIEW_MUTATION_REJECTED: procedural_chain
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+MQ07_REVIEW_MUTATION_REJECTED: repose
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+MQ07_REVIEW_MUTATION_REJECTED: append_tucks
+MQ07_REVIEW_MUTATION_REJECTED: socket_contract
+MQ07_REVIEW_MUTATION_REJECTED: foot_exception
+MODULE test_maquette_builder_wiring: 0.337s
+CERTIFICATE VERDICT MUTATION: features CAUGHT
+CERTIFICATE VERDICT MUTATION: silhouette CAUGHT
+CERTIFICATE VERDICT MUTATION: joint_seams CAUGHT
+CERTIFICATE VERDICT MUTATION: seam_pose CAUGHT
+MAQUETTE CERTIFICATE MUTATION: stale support rejected before copying; fresh material gate: ["rear/shell/0014: exposed derived dark slab (1239px; {'hidden_trunk': 375, 'hidden_core': 189, 'hidden_petal_near_l': 113, 'hidden_petal_near_r': 132, 'hidden_petal_far_l': 15, 'hidden_petal_far_r': 243, 'hidden_tendril_high_r': 22, 'hidden_tendril_low_r': 37, 'root_stem_c': 17, 'hidden_root_tip_c': 96})"]
+MODULE test_maquette_certificates: 24.789s
+MODULE test_maquette_geometry: 11.591s
+MAQUETTE FADED REFERENCE: PASS (zero/cull alpha empty; one half-visible part compared; tampered transforms rejected)
+MAQUETTE SEAM MUTATION: CPU/native gap reported; independent native reference rejected
+MODULE test_maquette_joint_seams: 3.412s
+MODULE test_maquette_native_raster: 1.368s
+MODULE test_maquette_native_ties: 0.016s
+MAQUETTE PIXEL MUTATION: split_feature rejected in both views
+MAQUETTE CROP ANCHOR: PASS (504 front poses; maximum source-affine residual 0.000027135)
+MAQUETTE CONTINUITY SEARCH: {'margin': 0, 'errors': 0, 'max_detached_pixels': 0, 'max_new_hole_pixels': 5}
+MAQUETTE FEATURE DERIVATION: PASS (isolated one-pixel fixture; both approved views reconstruct exactly)
+MAQUETTE SHIMMER CPU: shale_bloomer: {'before': {'held_unexplained_pixels': 693731, 'boundary_unexplained_pixels': 64585}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 0}}
+MAQUETTE PIXEL MUTATION: shale_bloomer/unstepped_paint rejected
+MAQUETTE SHIMMER CPU: lightning_wisp: {'before': {'held_unexplained_pixels': 952496, 'boundary_unexplained_pixels': 41126}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 0}}
+MAQUETTE PIXEL MUTATION: lightning_wisp/unstepped_paint rejected
+MAQUETTE PIXEL MUTATION: independent core-crop snapping rejected in both views
+MODULE test_maquette_pixel_polish: 203.534s
+MODULE test_mq13_pose: 0.677s
+MQ16_BRIDGE_SUBMITTED: deadline; pending
+MODULE test_mq16_maquette: 17.738s
+MQ17_PRESERVATION_PACKING: PASS; original_bytes=353657; packed_bytes=94852
+MODULE test_mq17_maquette: 57.372s
+MQ20_CONTACT_SHEET: PASS; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/mq20_sheet__3d5mko2/contact_sheet.webp
+MQ20_SOURCE_GEOMETRY: FAIL; rows=89; clearance_over_H=0.0; unresolved=[]
+MODULE test_mq20_maquette: 30.664s
+MQ16_BRIDGE_SUBMITTED: missing; synthetic_no_answer
+MQ21_PROTECTED_DIRECTOR_FILES: PASS; files=2
+MQ16_CURATED_INVENTORY: PASS; files=1; bytes=20
+MQ21_CURATED_INVENTORY: PASS; {'active_revision_bytes': 43, 'historical_and_current_bytes': 6000044, 'files': 2}
+MQ21_CONTACT_SHEET: PASS; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/mq21_delivery_xide1gx0/capture/mq21_contact_sheet.webp
+MQ21_CONTACT_SHEET: PASS; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/mq21_delivery_yvpo3zmt/capture/mq21_contact_sheet.webp
+MQ21_CONTACT_SHEET: PASS; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/mq21_delivery_yvpo3zmt/capture/mq21_contact_sheet.webp
+MODULE test_mq21_delivery: 19.742s
+MODULE test_mq24_maquette: 30.096s
+MODULE test_native_frames: 7.713s
+test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests.test_v07_builder_keeps_every_prior_version_immutable ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests.test_v07_is_strictly_verified_and_promoted_without_byte_drift ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests.test_v07_preserves_the_approved_v06_music_byte_for_byte ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_every_base_event_is_an_exact_v02_crop ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_high_strings_are_sparse_exact_octave_doublings ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_midi_tracks_channels_counts_tempo_and_loop_markers ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_normalized_score_and_config_are_audition_only ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_percussion_is_quiet_regular_six_eight_background ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_prior_audition_trees_remain_byte_for_byte_unchanged ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests.test_selection_is_the_requested_contiguous_measure_span ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+MODULE test_old_castle_main_menu_arrangement: 0.000s
+MODULE test_output_gdignore: 0.024s
+MODULE test_pace_round_capture: 0.002s
+MODULE test_parallel_task: 5.229s
+MODULE test_player_ui_scrollbars: 0.030s
+MODULE test_process_biome_art: 17.285s
+CANDIDATE PT14 MAIN THREAD: initialization max=0.180 ms calls=2 events={ "rig": 0, "image": 0, "thread": 0 }
+CANDIDATE PT14 MAIN THREAD: new_run max=0.000 ms calls=0 events={ "rig": 0, "image": 0, "thread": 0 }
+CANDIDATE PT14 MAIN THREAD: equip max=0.000 ms calls=0 events={ "rig": 0, "image": 0, "thread": 0 }
+CANDIDATE PT14 MAIN THREAD: continue max=0.050 ms calls=2 events={ "rig": 0, "image": 0, "thread": 0 }
+BASELINE PT14 MAIN THREAD: initialization max=0.187 ms calls=2 events={ "rig": 0, "image": 0, "thread": 0 }
+BASELINE PT14 MAIN THREAD: new_run max=0.000 ms calls=0 events={ "rig": 0, "image": 0, "thread": 0 }
+BASELINE PT14 MAIN THREAD: equip max=0.000 ms calls=0 events={ "rig": 0, "image": 0, "thread": 0 }
+BASELINE PT14 MAIN THREAD: continue max=0.001 ms calls=1 events={ "rig": 0, "image": 0, "thread": 0 }
+PT14-04 MAIN THREAD RESULT: PASS (New Run/Continue/equip added <= 0.5 ms)
+PT14-04 DILATION MUTATION: KILLED (offline parity control passes)
+FAIL: test_pt14_04_coverage.HeroCoverage.test_runtime_boundary_and_reverts
+PT14-04 STALENESS: PASS (66 sources; exact inventory)
+PT14-04 STALENESS MUTATION recorded_hash: KILLED
+PT14-04 STALENESS MUTATION rig_art: KILLED
+PT14-04 STALENESS MUTATION rig_data: KILLED
+PT14-04 ZERO-RUNTIME MUTATION rig: KILLED
+PT14-04 ZERO-RUNTIME MUTATION image: KILLED
+PT14-04 ZERO-RUNTIME MUTATION thread: KILLED
+PT14-04 ZERO-RUNTIME RESULT: PASS (rig=0 image=0 thread=0; 3/3 mutants killed)
+MODULE test_pt14_04_coverage: 82.149s
+PT15 SILHOUETTE CHANGES: []
+PT15 SOLE SWEEP RESULT: PASS (43 types; 172 facings; 0 moved; 0 flipped; 0 slid; 0 unchanged; 0 fallbacks; 387 assertions; 0 failures)
+PT15 SILHOUETTE CHANGES: []
+PT15 SOLE SWEEP RESULT: PASS (43 types; 172 facings; 113 moved; 6 flipped; 107 slid; 56 unchanged; 3 fallbacks; 808 assertions; 0 failures)
+PT15 OWNER FEET RESULT: PASS (55 assertions; 0 failures)
+PT15 OWNER FEET RESULT: FAIL (55 assertions; 3 failures)
+PT15 BOARD SILHOUETTE CACHE MUTATION: KILLED (warm alpha rescans and sole clips detected)
+PT15 OWNER FEET RESULT: PASS (55 assertions; 0 failures)
+PT15 OWNER FEET RESULT: FAIL (55 assertions; 9 failures)
+PT15 MUTATION owner_obstacle_removed: KILLED
+PT15 OWNER FEET RESULT: FAIL (55 assertions; 8 failures)
+PT15 MUTATION sole_padding_removed: KILLED
+PT15 OWNER FEET RESULT: FAIL (55 assertions; 3 failures)
+PT15 MUTATION search_both_sides_too_early: KILLED
+PT15 OWNER FEET RESULT: FAIL (55 assertions; 13 failures)
+PT15 MUTATION zero_band: KILLED
+PT15 MUTATION RESULT: PASS (4/4 killed; control passes; production untouched)
+MODULE test_pt15_01_owner_feet: 66.583s
+MODULE test_relic_pt13_01: 0.008s
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+MODULE test_rr12_delivery: 4.655s
+MODULE test_rr12_production: 67.964s
+MODULE test_rr12_stray: 0.003s
+RR32 CPU CLIP: front/gust_bolt
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+RR32 CPU COVERAGE: PASS (1 frames; 0 error frames; NOT native proof)
+RR32 CPU SEAMS: PASS (1 frames; 0 joint tears; 0 stray components; NOT native proof)
+Counter()
+MODULE test_rr32_herald: 101.246s
+MAQUETTE PRODUCTION LOGIC: PASS (1054 frames)
+Saved /Users/borgerding/workspace/Labyrinth.worktrees/rr-50/experiments/cutouts/gale_herald/mq12/proof/logs/production_front
+MAQUETTE PRODUCTION LOGIC: PASS (1055 frames)
+Saved /Users/borgerding/workspace/Labyrinth.worktrees/rr-50/experiments/cutouts/gale_herald/mq12/proof/logs/production_rear
+RR32 FRONT PRODUCTION WALK/SUPPORTS: PASS
+RR32 REAR PRODUCTION WALK/SUPPORTS: PASS
+RR32 FRONT PRODUCTION CONTACTS/POSES: PASS
+RR32 REAR PRODUCTION CONTACTS/POSES: PASS
+MODULE test_rr32_production: 82.721s
+MODULE test_rr34_layering: 0.548s
+RR46 gale_herald PRESERVATION: PASS (135 protected files)
+MODULE test_rr46_preserve_gale_herald: 0.070s
+RR47 FINAL STILL SAVE: PASS (software fixture; native pixels=false)
+RR47 COMPOSITE FIXTURE: PASS (visible and terminal; software pixels)
+RR47 EXACT VERIFIER BRIDGE: PASS (visible/terminal maps; transparent-RGB corruption rejected)
+RR47 NATIVE FAILURE FIXTURE: PASS (16 SHA-256-bound files; Seer frames 0, 36, 40, 53; historical failing evidence)
+RR47 RETAINED ROUTING: PASS (6402 samples; 0 missing callbacks; 562 pillar-front samples; native pixels=false)
+RR47 RETAINED ROUTING: PASS (582 samples; 0 missing callbacks; 0 pillar-front samples; native pixels=false)
+RR47 RETAINED ROUTING: FAIL (582 samples; 110 missing callbacks; 0 pillar-front samples; native pixels=false)
+RR47 BASE COMPARISON: PASS (a420283fa draws; rr-46 missing-host mutation rejected; same route and callback probe)
+MODULE test_rr47_depth: 52.645s
+RR47 DIAGONAL DEPTH: PASS (2 boards; 2240 routes; 6720 samples; 25260 prop comparisons; native pixels=false)
+RR47 MIDPOINT SAMPLING: PASS (GDScript/Python agree for 120 lengths; frame 23/48 required)
+RR47 DEPTH COST MEASURED: {"after": {"calls": 2400, "position_ms_per_submission": 0.09003125, "submissions": 480, "total_ms_per_submission": 2.1672208333333334}, "before": {"calls": 2400, "position_ms_per_submission": 0.22404374999999999, "submissions": 480, "total_ms_per_submission": 2.71331875}}
+ERROR: test_rr47_feedback2.FeedbackTwoTests.test_omitting_native_midpoint_and_corner_route_fails
+RR47 REVIEW REGRESSION: PASS (21119ff68 rejected on both boards at Mimic frame 23/48)
+MODULE test_rr47_feedback2: 65.298s
+MODULE test_section_transition_clip: 0.005s
+test_sfx_lab.LayeredDesignTests.test_bytes_peak_provenance_source_preservation_and_no_deletions ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_designed_multi_root_cli_pipeline_and_relocation ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_excluded_recipe_paths_and_ambiguous_take ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_layer_without_trim_renders_full_take ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_licence_derivation_and_missing_or_invalid_sidecar_before_index ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_master_order_filters_peak_fade_length_and_errors ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_sample_exact_offset_mono_stereo_sum_and_default_length ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LayeredDesignTests.test_trim_pitch_reverse_filters_and_layer_fades ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LimiterTests.test_ceiling_linked_channels_boundary_peaks_and_input_gain ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LimiterTests.test_determinism_silence_and_short_file ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LimiterTests.test_invalid_limiter_settings_fail ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LimiterTests.test_lookahead_attack_starts_early_and_is_linear ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.LimiterTests.test_release_is_one_pole_exponential ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_approved_defaults_and_invalid_inputs ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_attack_decay_and_antiphase_spectrum ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_audition_two_cues_html_audio_and_provenance ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_build_deterministic_bytes_loudness_manifest ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_capped_take_passes_below_loudness_target ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_cli_index_slice_features_query_audition_build ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_equal_power_fades_linear_fade_in_and_crossfade ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_features_sine_noise_bands_and_short_rms ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_index_all_formats_license_hash_and_skips ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_index_and_analysis_deterministic_across_workers ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_limiter_build_stage_manifest_encoded_ceiling_and_determinism ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_lowpass_before_normalization_and_short_boundary ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_multichannel_front_pair_in_audition_and_build ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_normalize_no_clip_cap_is_recorded ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_page_javascript_offline_export_play_and_shortcuts ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_query_all_ranges_and_sort ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_refuse_excluded_paths_symlinks_and_forged_provenance ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_short_peak_caps_and_processing_parameters ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_slice_boundaries_and_identity ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_slice_silence_tiny_take_tail_floor_and_cap ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_stereo_policy_and_loop_seam ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_uncapped_take_outside_tolerance_fails_even_near_ceiling ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.SfxLabTests.test_unknown_ambiguous_modified_take_and_unsafe_cue ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.WindowMeasureTests.test_cli_default_explicit_and_short_windows_preserve_cue_gain_and_inheritance ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.WindowMeasureTests.test_default_400ms_matches_director_measure_and_100ms_uses_25ms_hops ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+test_sfx_lab.WindowMeasureTests.test_short_padding_and_window_validation ... skipped: Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.
+MODULE test_sfx_lab: 0.000s
+MODULE test_skybolt_measurement: 29.457s
+MODULE test_transition_differential: 0.038s
+MODULE test_ui_identity_lint: 2.935s
+Visual proof result manifest: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpy3vjdp_k/report.json
+MODULE test_visual_probe_runner: 0.289s
+======================================================================
+FAIL: test_tracked_sources_have_sidecars_and_sidecars_have_sources (test_godot_sidecars.GodotSidecarRepositoryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_godot_sidecars.py", line 92, in test_tracked_sources_have_sidecars_and_sidecars_have_sources
+    assert_sidecars_versioned(git_files(ROOT), root=ROOT)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_godot_sidecars.py", line 87, in assert_sidecars_versioned
+    raise AssertionError("\n\n".join(problems + [REPAIR_HINT]))
+AssertionError: Stale tracked Godot sidecars (6):
+spec/peer_benchmark/staged/rr-48/front_body_underlay.png.import
+spec/peer_benchmark/staged/rr-48/front_underlay_raw.png.import
+spec/peer_benchmark/staged/rr-48/rear_body_underlay.png.import
+spec/peer_benchmark/staged/rr-48/rear_underlay_raw.png.import
+spec/peer_benchmark/staged/rr-48/ref_front_approved_x4.png.import
+spec/peer_benchmark/staged/rr-48/ref_rear_approved_x4.png.import
+
+Run godot --headless --import (through tools/godot_task_runner.py), commit the .import/.uid sidecars with their sources, and remove stale sidecars.
+
+======================================================================
+FAIL: test_approved_inputs_are_byte_identical (test_rr46_preserve_frostglass_lancer.PreservationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr46_preserve_frostglass_lancer.py", line 8, in test_approved_inputs_are_byte_identical
+    count = assert_preserved(self, ["assets/units/frostglass_lancer_cutout"])
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr46/preservation.py", line 80, in assert_preserved
+    test.assertEqual(digest, expected, name)
+AssertionError: '391f9d639f0a49a9a92ccf6ac355ff0943e3ddb6' != '8ea3676f96a6860710c08d1ecf1a939df32e46af'
+- 391f9d639f0a49a9a92ccf6ac355ff0943e3ddb6
++ 8ea3676f96a6860710c08d1ecf1a939df32e46af
+ : assets/units/frostglass_lancer_cutout/humanoid_v2/front.json
+
+======================================================================
+FAIL: test_historical_runtime_pin_rejects_unowned_changes (test_rr46_playback.PlaybackTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr46_playback.py", line 57, in test_historical_runtime_pin_rejects_unowned_changes
+    self.assertEqual(before_rr46_runtime(path, current), expected)
+AssertionError: b'ext[3424 chars]onst ActionCaptionScrimScript = preload("res:/[1775489 chars]()\n' != b'ext[3424 chars]onst TurnBannerScript = preload("res://scripts[1777180 chars]()\n'
+
+======================================================================
+FAIL: test_motion_and_reference_inputs_are_byte_identical (test_rr46_playback.PlaybackTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr46_playback.py", line 311, in test_motion_and_reference_inputs_are_byte_identical
+    count = assert_preserved(self, paths)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr46/preservation.py", line 80, in assert_preserved
+    test.assertEqual(digest, expected, name)
+AssertionError: '4748efda9ea6418a4ab2576b1feea9ad694544b2' != '8d969bddf1fed503490e388ad2d227c4d2ecd068'
+- 4748efda9ea6418a4ab2576b1feea9ad694544b2
++ 8d969bddf1fed503490e388ad2d227c4d2ecd068
+ : spec/peer_benchmark/staged/tt-01/tooltips.json
+
+======================================================================
+FAIL: test_repository_headless_registration_guard (test_test_registration_audit.RegistrationAuditTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_test_registration_audit.py", line 411, in test_repository_headless_registration_guard
+    self.assertEqual(errors, [], "\n" + "\n".join(errors))
+AssertionError: Lists differ: ['Unregistered headless test: tests/rr49/p[414 chars].gd'] != []
+
+First list contains 5 additional elements.
+First extra element 0:
+'Unregistered headless test: tests/rr49/proof/rr50/peer-godot.logs/00/special_encounter_test.gd'
+
++ []
+- ['Unregistered headless test: '
+-  'tests/rr49/proof/rr50/peer-godot.logs/00/special_encounter_test.gd',
+-  'Unregistered headless test: '
+-  'tests/rr49/proof/rr50/peer-godot.logs/01/enemy_no_action_test.gd',
+-  'Unregistered headless test: '
+-  'tests/rr49/proof/rr50/peer-godot.logs/02/fix_11_test.gd',
+-  'Unregistered headless test: '
+-  'tests/rr49/proof/rr50/peer-godot.logs/03/fix_11_probe.gd',
+-  'Unregistered headless test: '
+-  'tests/rr49/proof/rr50/peer-godot.logs/04/hero_facing_test.gd'] : 
+Unregistered headless test: tests/rr49/proof/rr50/peer-godot.logs/00/special_encounter_test.gd
+Unregistered headless test: tests/rr49/proof/rr50/peer-godot.logs/01/enemy_no_action_test.gd
+Unregistered headless test: tests/rr49/proof/rr50/peer-godot.logs/02/fix_11_test.gd
+Unregistered headless test: tests/rr49/proof/rr50/peer-godot.logs/03/fix_11_probe.gd
+Unregistered headless test: tests/rr49/proof/rr50/peer-godot.logs/04/hero_facing_test.gd
+
+======================================================================
+ERROR: test_native_archive_requires_complete_painted_coverage (test_rr46_playback.PlaybackTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr46_playback.py", line 155, in test_native_archive_requires_complete_painted_coverage
+    inventory = load_inventory()
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr46/verify_native.py", line 46, in load_inventory
+    raise ValueError('Stale independent inventory: ' + name)
+ValueError: Stale independent inventory: assets/units/frostglass_lancer_cutout/integration.json
+
+======================================================================
+ERROR: setUpClass (test_rr47_feedback1.FeedbackOneTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr47_feedback1.py", line 51, in setUpClass
+    cls.inventory = load_inventory()
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr46/verify_native.py", line 46, in load_inventory
+    raise ValueError('Stale independent inventory: ' + name)
+ValueError: Stale independent inventory: assets/units/frostglass_lancer_cutout/integration.json
+
+======================================================================
+FAIL: test_runtime_boundary_and_reverts (test_pt14_04_coverage.HeroCoverage)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_pt14_04_coverage.py", line 204, in test_runtime_boundary_and_reverts
+    self.assertEqual(before_rr46_runtime(name, actual), expected, name)
+AssertionError: b'ext[513066 chars]itch.reset(self, next_run_state.get("combat_st[1265020 chars]()\n' != b'ext[513066 chars]itch.baseline(next_run_state.get("combat_state[1264947 chars]()\n' : scripts/run_scene.gd
+
+======================================================================
+ERROR: test_omitting_native_midpoint_and_corner_route_fails (test_rr47_feedback2.FeedbackTwoTests)
+----------------------------------------------------------------------
+Cannot update untracked timing cache /Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/python-suite.json: [Errno 1] Operation not permitted: '/Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/tmp6gtof64y'
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr47_feedback2.py", line 100, in test_omitting_native_midpoint_and_corner_route_fails
+    inventory = load_inventory()
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr46/verify_native.py", line 46, in load_inventory
+    raise ValueError('Stale independent inventory: ' + name)
+ValueError: Stale independent inventory: assets/units/frostglass_lancer_cutout/integration.json
+
+----------------------------------------------------------------------
+Ran 2525 tests in 2069.065s
+
+FAILED (failures=6, errors=3, skipped=66)
+PYTHON SUITE WALL: 2069.065s; results: /Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr49/proof/rr50/python-full

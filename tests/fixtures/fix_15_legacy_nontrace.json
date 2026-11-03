@@ -1,0 +1,623 @@
+{
+	"gloam_stalker": {
+		"analytics": [
+			{
+				"context": {
+
+				},
+				"event_type": "enemy_action_resolved",
+				"payload": {
+					"action_direction": "(0, 0)",
+					"action_type": "melee",
+					"actor_key": "enemy_1",
+					"actor_name": "Gloam Stalker",
+					"ai_role": "skirmisher",
+					"boss_mechanic": false,
+					"committed_direction": false,
+					"committed_shape": "",
+					"declared_tiles": [],
+					"element": "none",
+					"enemy_losses": [],
+					"enemy_type": "gloam_stalker",
+					"from": "(6, 4)",
+					"guardian_mechanic": false,
+					"intent_id": "ambush",
+					"interrupted": false,
+					"label": "Ambush",
+					"no_action_reason": "",
+					"path": [],
+					"path_steps": 0,
+					"presentation_kind": "melee",
+					"resolved_tiles": [],
+					"support_targets": [],
+					"target_key": "",
+					"target_losses": [
+						{
+							"amount": 7,
+							"block_loss": 0,
+							"hp_loss": 7,
+							"key": "player",
+							"kind": "player",
+							"stoneskin_loss": 0,
+							"tile": "(4, 4)"
+						}
+					],
+					"terrain_losses": [],
+					"to": "(3, 4)",
+					"triggered_traps": []
+				}
+			}
+		],
+		"steps": [
+			{
+				"actor_key": "enemy_1",
+				"actor_name": "Gloam Stalker",
+				"hidden_by_umbra": false,
+				"intent_name": "Ambush",
+				"kind": "intent",
+				"tile": "(6, 4)"
+			},
+			{
+				"action_type": "melee",
+				"actor_key": "enemy_1",
+				"actor_name": "Gloam Stalker",
+				"ai_role": "skirmisher",
+				"amount": 7,
+				"blink_after": {
+					"enemies": [
+						{
+							"bleed": 0,
+							"block": 0,
+							"chilled": false,
+							"element": "none",
+							"expose": 0,
+							"footprint": "(1, 1)",
+							"freeze": 0,
+							"frost_armor": 0,
+							"hp": 11,
+							"id": 1,
+							"immobilize": false,
+							"intent": {
+								"actions": [
+									{
+										"ambush": true,
+										"damage": 7,
+										"element": "shadow",
+										"range": 1.0,
+										"type": "melee"
+									}
+								],
+								"id": "ambush",
+								"name": "Ambush",
+								"time": 5.0,
+								"weight": 0.0
+							},
+							"max_hp": 11,
+							"pos": "(3, 4)",
+							"shock": 0,
+							"stoneskin": 0,
+							"type": "gloam_stalker"
+						}
+					],
+					"guardian_braziers": [],
+					"illusions": [
+						{
+							"chilled": false,
+							"hp": 20,
+							"id": 1,
+							"max_hp": 20,
+							"pos": "(5, 4)"
+						}
+					],
+					"loot": [],
+					"player": {
+						"bleed": 0,
+						"block": 0,
+						"chilled": false,
+						"expose": 0,
+						"freeze": 0,
+						"hp": 30,
+						"immobilize": false,
+						"max_hp": 30,
+						"pos": "(4, 4)",
+						"shock": 0,
+						"stoneskin": 0
+					},
+					"surfaces": {
+
+					},
+					"terrain": [],
+					"traps": [],
+					"umbra": {
+						"boss_eclipse_activations": 0,
+						"boss_eclipse_stage": "",
+						"enemies_revealed_total": 0,
+						"hidden_attack_damage_received_total": 0,
+						"light_sources": [],
+						"movement_interrupted_total": 0,
+						"next_light_source_id": 1,
+						"stage": "clear",
+						"stage_reduction": 0,
+						"tiles_illuminated_total": 0,
+						"truesight_activations": 0,
+						"vision_bonus": 0,
+						"vision_bonus_activations": 0
+					}
+				},
+				"en03_after": {
+					"enemies": [
+						{
+							"bleed": 0,
+							"block": 0,
+							"chilled": false,
+							"element": "none",
+							"expose": 0,
+							"footprint": "(1, 1)",
+							"freeze": 0,
+							"frost_armor": 0,
+							"hp": 11,
+							"id": 1,
+							"immobilize": false,
+							"intent": {
+								"actions": [
+									{
+										"ambush": true,
+										"damage": 7,
+										"element": "shadow",
+										"range": 1.0,
+										"type": "melee"
+									}
+								],
+								"id": "ambush",
+								"name": "Ambush",
+								"time": 5.0,
+								"weight": 0.0
+							},
+							"max_hp": 11,
+							"pos": "(3, 4)",
+							"shock": 0,
+							"stoneskin": 0,
+							"type": "gloam_stalker"
+						}
+					],
+					"guardian_braziers": [],
+					"illusions": [
+						{
+							"chilled": false,
+							"hp": 20,
+							"id": 1,
+							"max_hp": 20,
+							"pos": "(5, 4)"
+						}
+					],
+					"loot": [],
+					"player": {
+						"bleed": 0,
+						"block": 0,
+						"chilled": false,
+						"expose": 0,
+						"freeze": 0,
+						"hp": 23,
+						"immobilize": false,
+						"max_hp": 30,
+						"pos": "(4, 4)",
+						"shock": 0,
+						"stoneskin": 0
+					},
+					"surfaces": {
+
+					},
+					"terrain": [],
+					"traps": [],
+					"umbra": {
+						"boss_eclipse_activations": 0,
+						"boss_eclipse_stage": "",
+						"enemies_revealed_total": 0,
+						"hidden_attack_damage_received_total": 0,
+						"light_sources": [],
+						"movement_interrupted_total": 0,
+						"next_light_source_id": 1,
+						"stage": "clear",
+						"stage_reduction": 0,
+						"tiles_illuminated_total": 0,
+						"truesight_activations": 0,
+						"vision_bonus": 0,
+						"vision_bonus_activations": 0
+					}
+				},
+				"en03_veil": true,
+				"enemy_type": "gloam_stalker",
+				"from": "(6, 4)",
+				"intent_id": "ambush",
+				"kind": "melee",
+				"label": "Ambush",
+				"strike_step": {
+					"action_type": "melee",
+					"actor_key": "enemy_1",
+					"actor_name": "Gloam Stalker",
+					"amount": 7,
+					"block_loss": 0,
+					"center": "(4, 4)",
+					"element": "shadow",
+					"enemy_after": {
+						"bleed": 0,
+						"block": 0,
+						"chilled": false,
+						"element": "none",
+						"expose": 0,
+						"footprint": "(1, 1)",
+						"freeze": 0,
+						"frost_armor": 0,
+						"hp": 11,
+						"id": 1,
+						"immobilize": false,
+						"intent": {
+							"actions": [
+								{
+									"ambush": true,
+									"damage": 7,
+									"element": "shadow",
+									"range": 1.0,
+									"type": "melee"
+								}
+							],
+							"id": "ambush",
+							"name": "Ambush",
+							"time": 5.0,
+							"weight": 0.0
+						},
+						"max_hp": 11,
+						"pos": "(3, 4)",
+						"shock": 0,
+						"stoneskin": 0,
+						"type": "gloam_stalker"
+					},
+					"from": "(3, 4)",
+					"hp_loss": 7,
+					"impact_actor_keys": [
+						"player"
+					],
+					"kind": "melee",
+					"label": "Strike",
+					"player_from": "(4, 4)",
+					"player_to": "(4, 4)",
+					"range": 1,
+					"sfx_category": "",
+					"sfx_id": "",
+					"status_text": "",
+					"stoneskin_loss": 0,
+					"target_key": "player",
+					"target_losses": [
+						{
+							"amount": 7,
+							"block_loss": 0,
+							"hp_loss": 7,
+							"key": "player",
+							"kind": "player",
+							"stoneskin_loss": 0,
+							"tile": "(4, 4)"
+						}
+					],
+					"terrain_losses": [],
+					"tiles": [],
+					"to": "(4, 4)",
+					"triggered_traps": []
+				},
+				"surface_events": [],
+				"surfaces_after": {
+
+				},
+				"target_losses": [
+					{
+						"amount": 7,
+						"block_loss": 0,
+						"hp_loss": 7,
+						"key": "player",
+						"kind": "player",
+						"stoneskin_loss": 0,
+						"tile": "(4, 4)"
+					}
+				],
+				"to": "(3, 4)"
+			},
+			{
+				"actor_key": "enemy_1",
+				"intent": {
+					"actions": [
+						{
+							"destination": "behind_hero",
+							"range": 4.0,
+							"type": "veil_blink"
+						}
+					],
+					"id": "fade",
+					"name": "Fade",
+					"next_intent": "ambush",
+					"time": 5.0,
+					"weight": 3.0
+				},
+				"kind": "intent_refresh"
+			}
+		]
+	},
+	"storm_capacitor": {
+		"analytics": [
+			{
+				"context": {
+
+				},
+				"event_type": "enemy_action_resolved",
+				"payload": {
+					"action_direction": "(0, 0)",
+					"action_type": "gain_charge",
+					"actor_key": "enemy_1",
+					"actor_name": "Storm Capacitor",
+					"ai_role": "artillery",
+					"boss_mechanic": false,
+					"committed_direction": false,
+					"committed_shape": "",
+					"declared_tiles": [],
+					"element": "lightning",
+					"enemy_losses": [],
+					"enemy_type": "storm_capacitor",
+					"from": "(2, 4)",
+					"guardian_mechanic": false,
+					"intent_id": "charge",
+					"interrupted": false,
+					"label": "Charge",
+					"no_action_reason": "",
+					"path": [],
+					"path_steps": 0,
+					"presentation_kind": "status",
+					"resolved_tiles": [],
+					"support_targets": [],
+					"target_key": "",
+					"target_losses": [],
+					"terrain_losses": [],
+					"to": "(2, 4)",
+					"triggered_traps": []
+				}
+			}
+		],
+		"steps": [
+			{
+				"actor_key": "enemy_1",
+				"actor_name": "Storm Capacitor",
+				"hidden_by_umbra": false,
+				"intent_name": "Charge",
+				"kind": "intent",
+				"tile": "(2, 4)"
+			},
+			{
+				"action_type": "gain_charge",
+				"actor_key": "enemy_1",
+				"actor_name": "Storm Capacitor",
+				"ai_role": "artillery",
+				"chain_hits": [],
+				"element": "lightning",
+				"en06_after": {
+					"enemies": [
+						{
+							"bleed": 0,
+							"block": 0,
+							"charge": 1,
+							"chilled": false,
+							"element": "none",
+							"expose": 0,
+							"footprint": "(1, 1)",
+							"freeze": 0,
+							"frost_armor": 0,
+							"hp": 22,
+							"id": 1,
+							"immobilize": false,
+							"intent": {
+								"actions": [
+									{
+										"amount": 1.0,
+										"type": "gain_charge"
+									}
+								],
+								"id": "charge",
+								"name": "Charge",
+								"time": 4.0,
+								"weight": 1.0
+							},
+							"max_hp": 22,
+							"pos": "(2, 4)",
+							"shock": 0,
+							"stoneskin": 0,
+							"type": "storm_capacitor"
+						},
+						{
+							"bleed": 0,
+							"block": 0,
+							"chilled": false,
+							"element": "none",
+							"expose": 0,
+							"footprint": "(1, 1)",
+							"freeze": 0,
+							"frost_armor": 0,
+							"hp": 14,
+							"id": 2,
+							"immobilize": false,
+							"intent": {
+								"actions": [
+									{
+										"range": 2.0,
+										"type": "move_toward"
+									},
+									{
+										"bleed": 1,
+										"damage": 4,
+										"element": "none",
+										"range": 1.0,
+										"type": "melee"
+									}
+								],
+								"id": "skitter_strike",
+								"name": "Skitter Strike",
+								"time": 5.0,
+								"weight": 4.0
+							},
+							"max_hp": 14,
+							"pos": "(3, 4)",
+							"shock": 0,
+							"stoneskin": 0,
+							"type": "crawler"
+						},
+						{
+							"bleed": 0,
+							"block": 0,
+							"chilled": false,
+							"element": "none",
+							"expose": 0,
+							"footprint": "(1, 1)",
+							"freeze": 0,
+							"frost_armor": 0,
+							"hp": 14,
+							"id": 3,
+							"immobilize": false,
+							"intent": {
+								"actions": [
+									{
+										"range": 2.0,
+										"type": "move_toward"
+									},
+									{
+										"bleed": 1,
+										"damage": 4,
+										"element": "none",
+										"range": 1.0,
+										"type": "melee"
+									}
+								],
+								"id": "skitter_strike",
+								"name": "Skitter Strike",
+								"time": 5.0,
+								"weight": 4.0
+							},
+							"max_hp": 14,
+							"pos": "(5, 4)",
+							"shock": 0,
+							"stoneskin": 0,
+							"type": "crawler"
+						},
+						{
+							"bleed": 0,
+							"block": 0,
+							"chilled": false,
+							"element": "none",
+							"expose": 0,
+							"footprint": "(1, 1)",
+							"freeze": 0,
+							"frost_armor": 0,
+							"hp": 14,
+							"id": 4,
+							"immobilize": false,
+							"intent": {
+								"actions": [
+									{
+										"range": 2.0,
+										"type": "move_toward"
+									},
+									{
+										"bleed": 1,
+										"damage": 4,
+										"element": "none",
+										"range": 1.0,
+										"type": "melee"
+									}
+								],
+								"id": "skitter_strike",
+								"name": "Skitter Strike",
+								"time": 5.0,
+								"weight": 4.0
+							},
+							"max_hp": 14,
+							"pos": "(6, 5)",
+							"shock": 0,
+							"stoneskin": 0,
+							"type": "crawler"
+						}
+					],
+					"loot": [],
+					"player": {
+						"bleed": 0,
+						"block": 0,
+						"chilled": false,
+						"expose": 0,
+						"freeze": 0,
+						"hp": 30,
+						"immobilize": false,
+						"max_hp": 30,
+						"pos": "(4, 4)",
+						"shock": 0,
+						"stoneskin": 0
+					},
+					"surfaces": {
+
+					},
+					"terrain": [],
+					"traps": []
+				},
+				"enemy_after": {
+					"bleed": 0,
+					"block": 0,
+					"charge": 1,
+					"chilled": false,
+					"element": "none",
+					"expose": 0,
+					"footprint": "(1, 1)",
+					"freeze": 0,
+					"frost_armor": 0,
+					"hp": 22,
+					"id": 1,
+					"immobilize": false,
+					"intent": {
+						"actions": [
+							{
+								"amount": 1.0,
+								"type": "gain_charge"
+							}
+						],
+						"id": "charge",
+						"name": "Charge",
+						"time": 4.0,
+						"weight": 1.0
+					},
+					"max_hp": 22,
+					"pos": "(2, 4)",
+					"shock": 0,
+					"stoneskin": 0,
+					"type": "storm_capacitor"
+				},
+				"enemy_type": "storm_capacitor",
+				"intent_id": "charge",
+				"kind": "status",
+				"label": "Charge",
+				"surface_events": [],
+				"surfaces_after": {
+
+				},
+				"target_losses": [],
+				"tile": "(2, 4)"
+			},
+			{
+				"actor_key": "enemy_1",
+				"intent": {
+					"actions": [
+						{
+							"amount": 1.0,
+							"type": "gain_charge"
+						}
+					],
+					"id": "charge",
+					"name": "Charge",
+					"time": 4.0,
+					"weight": 1.0
+				},
+				"kind": "intent_refresh"
+			}
+		]
+	}
+}

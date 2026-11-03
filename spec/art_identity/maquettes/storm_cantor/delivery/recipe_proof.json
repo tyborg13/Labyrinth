@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "checks": {
+    "fresh_and_replay_raw_hashes": true,
+    "joint_endpoints": true,
+    "native_geometry": true
+  },
+  "spec_hash": "09ccce3afa7169cddc177c88ef244d2380e6713ad4bcf05a317510277d7ab63e",
+  "cache_revision": 8,
+  "raw_hashes_identical": true,
+  "mesh_count": 71,
+  "joint_errors": {
+    "pelvis": 1.2408273173329904e-07,
+    "torso": 1.2037019374449254e-07,
+    "head": 2.3979624922589237e-07,
+    "shoulder_near": 6.006850114687196e-08,
+    "elbow_near": 1.7120130796843852e-07,
+    "hand_near": 7.450580596923828e-08,
+    "hip_near": 2.6658610497139163e-07,
+    "knee_near": 6.734537722421519e-07,
+    "ankle_near": 2.2450863083182817e-07,
+    "shoulder_far": 1.55572690202453e-07,
+    "elbow_far": 8.429369702178807e-08,
+    "hand_far": 6.664001874625056e-08,
+    "hip_far": 1.4958095932687709e-07,
+    "knee_far": 6.724639140635236e-07,
+    "ankle_far": 1.938583229669584e-07
+  },
+  "combined_mesh_hashes": {
+    "cold": "f96b8e85d8699c0de92b0dd91d77cc4852308f6e1cd7f4fb1535a92551ffe4b1",
+    "replay": "f96b8e85d8699c0de92b0dd91d77cc4852308f6e1cd7f4fb1535a92551ffe4b1",
+    "independent_cold": "f96b8e85d8699c0de92b0dd91d77cc4852308f6e1cd7f4fb1535a92551ffe4b1"
+  },
+  "delivery_binding": {
+    "spec_hash": "09ccce3afa7169cddc177c88ef244d2380e6713ad4bcf05a317510277d7ab63e",
+    "cold_mesh_hash": "f96b8e85d8699c0de92b0dd91d77cc4852308f6e1cd7f4fb1535a92551ffe4b1",
+    "report_sha256": {
+      "build_report.json": "a3b758ecdcacb8274a61521e0376a821698b96b9228c71d2c598dad8fc3c5345",
+      "capture_checks.json": "3b8b2cdf7a4cc57686515aa1ac7bdb6b888de6705fb3892985642c53dd4a06d3",
+      "facing_report.json": "8736d62a4835dc174d2fe64c65bdfc4b8e303987a836f3469adcbfcca313c600",
+      "ownership_validation.json": "90421ed7df4d9f8f5cf3294d11301b2e1a4038e54ee67af2d5d1844b61f1b9fc",
+      "solo_coverage.json": "fc9a64f7ab52d9db2bd2fc1d8c3b24b6cbe74bf87c27e741811e3c2af1790b00",
+      "native_probe.json": "9c82f68301644246101f54fa50b6dd98c38bc244e60c4ad19026b40d51d30615",
+      "mq17_acceptance.json": "eef1a92190bce9b58f794804c940760291594d43e9ad73483c03f370a2afa792",
+      "capture_manifest.json": "bfd1d530d378708920ba819016770ca9a6ea8b468a7c84007c618dda6c7e539d"
+    },
+    "exact_native_replay_sha256": "923a254ebd516adee0d274d3e4afacda593a5ac5df09f547d3fdf853b0584700"
+  }
+}

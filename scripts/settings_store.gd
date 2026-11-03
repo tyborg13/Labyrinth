@@ -88,6 +88,7 @@ static func default_settings() -> Dictionary:
 		"ui_scale": default_ui_scale(),
 		"dialogue_speed": DIALOGUE_STANDARD,
 		"combat_speed": COMBAT_NORMAL,
+		"hero_facing": "persist",
 		"reduced_motion": false
 	}
 
@@ -115,6 +116,8 @@ static func normalize_settings(data: Variant) -> Dictionary:
 	var combat_speed: String = str(source.get("combat_speed", COMBAT_NORMAL))
 	normalized["combat_speed"] = combat_speed if combat_speed in [COMBAT_NORMAL, COMBAT_FAST, COMBAT_FASTEST] else COMBAT_NORMAL
 	normalized["reduced_motion"] = _bool_or_default(source.get("reduced_motion"), bool(defaults["reduced_motion"]))
+	var hero_facing: String = str(source.get("hero_facing", "persist"))
+	normalized["hero_facing"] = hero_facing if hero_facing in ["persist", "snap"] else "persist"
 	normalized["settings_schema"] = SETTINGS_SCHEMA
 	return normalized
 
@@ -402,3 +405,10 @@ static func _bool_or_default(value: Variant, fallback: bool) -> bool:
 	if typeof(value) == TYPE_BOOL:
 		return bool(value)
 	return fallback
+
+static func hero_facing_mode(settings: Dictionary) -> String:
+	# Hidden A/B launch override; it never adds a control to Options.
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	for index: int in range(args.size() - 1):
+		if args[index] == "--hero-facing" and args[index + 1] in ["persist", "snap"]: return args[index + 1]
+	return str(settings.get("hero_facing", "persist"))

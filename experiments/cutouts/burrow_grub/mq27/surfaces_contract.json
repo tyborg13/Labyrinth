@@ -1,0 +1,8 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "pre_battle.png", "width": 1920, "height": 1080, "regions": [{"rect": [18,18,1884,1044], "min_luma_range": 16}]},
+    {"pattern": "portrait_bind.png", "width": 1920, "height": 1080, "regions": [{"rect": [18,18,1884,1044], "min_luma_range": 16}]}
+  ]
+}

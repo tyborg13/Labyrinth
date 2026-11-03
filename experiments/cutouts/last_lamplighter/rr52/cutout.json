@@ -1,0 +1,132 @@
+{
+  "character_id": "last_lamplighter",
+  "rig": "humanoid_v2",
+  "proof_geometry": {
+    "canvas_size": 640,
+    "source_offset": 192
+  },
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "direction_clips": [
+    "snuff",
+    "mourning_hook",
+    "last_procession"
+  ],
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the protagonist's cut-out bob: the upper body drops 2 px and returns as one rigid piece (the free claw rides with it, the rr-48 ruling); the lantern arm follows a beat later as one rigid group with the lantern (the same lag curve as the Reaver's sword arm), and the lantern sways 2 degrees on its ring; the robe, legs and feet stay still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.3333333333333333,
+      "intents": [],
+      "note": "a stooped, steady procession on the protagonist's walk model: both legs step, six steps per tile, near foot leading, a low 3 px lift (a heavy, dragging tread); 3 degrees more forward lean on top of the painted stoop; both arms swing from the shoulder opposite their same-side legs, the free claw more and the lantern arm less; the lantern trails the fist and swings on its ring (held_follow in the body frame, as the Gaoler's chain); the robe trails 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 4,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 3,
+        "lane_narrowing": 0.6,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.5,
+          "down": 3.0,
+          "passing": 0.8,
+          "up": 0.4
+        },
+        "arm_swing": {
+          "model": "shoulder_pendulum",
+          "_doc": "As rr-44/rr-48: the upper arm rotates about the shoulder, opposite the same-side leg; the forearm lags and bends more on the backswing; the hand is rigid with the forearm. The lantern arm (near) swings less so the lantern stays steady; the free claw (far) swings more.",
+          "phase": "opposite_same_side_leg",
+          "near": {
+            "upper_deg": 6,
+            "forearm_lag_s": 0.08,
+            "forearm_bend_deg": {
+              "forward": 2,
+              "back": 5
+            }
+          },
+          "far": {
+            "upper_deg": 12,
+            "forearm_lag_s": 0.08,
+            "forearm_bend_deg": {
+              "forward": 3,
+              "back": 10
+            }
+          },
+          "envelope": {
+            "ramp_fraction": 0.12,
+            "ease": "smoothstep"
+          }
+        },
+        "max_fit_px": 6
+      },
+      "held_follow": {
+        "item": "lantern",
+        "grip": "hand_near",
+        "reference_frame": "body",
+        "deg_per_px": 0.6,
+        "lag_s": 0.1,
+        "limit_deg": 25,
+        "_doc": "rr-44/rr-48 body-frame follow: root travel never tilts the lantern; it returns to its painted rest at the end of every move"
+      },
+      "release_at": {}
+    },
+    "snuff": {
+      "seconds": 0.9,
+      "contact": 0.5,
+      "intents": [
+        "snuff:summon_minions"
+      ],
+      "note": "Snuff: he lifts the lantern to his chest and bows his masked head over it, as if blowing out the candle (contact: the brazier is snuffed and the Wick Shade rises here); his free claw lifts and spreads at his side, conjuring; then he straightens and lowers the lantern. No arm crosses the body.",
+      "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3).",
+      "release_at": {}
+    },
+    "mourning_hook": {
+      "seconds": 0.9,
+      "contact": 0.42,
+      "intents": [
+        "mourning_hook:ranged"
+      ],
+      "note": "Mourning Hook, after the step in (the move clip): he draws his free claw back, then flings it forward and hooks the air (contact: the line hits and the pull starts here; the hook itself is the game's VFX), then wrenches the claw back toward his chest as the target is dragged in, leaning into the fling and back with the yank; the lantern swings against the motion",
+      "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3).",
+      "release_at": {}
+    },
+    "last_procession": {
+      "seconds": 1.1,
+      "contact": 0.5,
+      "intents": [
+        "last_procession:melee"
+      ],
+      "note": "Last Procession, after the step in: he swings the lantern like a censer. Wind-up: the lantern arm draws back and up beside him and the lantern swings back on its ring (0.3); then an overhand arc down and forward onto the target (contact: the hit lands here), the lantern swinging past on its ring and settling; he leans into it, the free claw counterbalancing behind",
+      "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3).",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit, as the Reaver's: torso knocked 3 px back and 1 px down with a 3 degree lean back, the hood nods back 4 degrees; both hands carry the knockback a beat late, so the elbows only flex; the lantern kicks back 10 degrees on its ring and settles; the robe trails",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.6,
+      "terminal": true,
+      "intents": [],
+      "note": "he staggers back; the lantern slips from his fist at 0.35, drops straight to the floor under it and tips over onto its side toward his facing (the Gaoler's chain drop and the Reaver's falchion: the owner loved the weapon falling); the body slumps forward over planted feet like the Reaver (hips sink 6 px, torso folds 24 degrees, hood bows 18); the claw and the empty fist hang",
+      "budget_note": "slump instead of a kneel, as the Reaver. Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3).",
+      "release_at": {
+        "lantern": 0.35
+      }
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*_roar_peak.png", "min_count": 1, "width": 1920, "height": 1080,
+     "regions": [{"rect": [300, 120, 1300, 700], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*_idle_after.png", "min_count": 1, "width": 1920, "height": 1080,
+     "regions": [{"rect": [300, 120, 1300, 700], "min_luma_range": 8, "min_luma_stdev": 2}]}
+  ]
+}

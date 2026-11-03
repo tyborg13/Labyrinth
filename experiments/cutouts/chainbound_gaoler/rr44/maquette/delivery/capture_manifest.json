@@ -1,0 +1,372 @@
+{
+  "schema": 1,
+  "spec_hash": "a418639631060cb67fc4db8a90485f787bed35cf3a3e06843e5788be3f1281ac",
+  "mode": "full",
+  "images": {
+    "front_body.png": {
+      "sha256": "fd1e4eaa69964fc99a9185688098caf5edc86230eecc7f94e8f0b70e7cded47d",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_clay.png": {
+      "sha256": "8c46e70d16b4ace5b19e6643272ab734d6412243328ea93c06205b9ba9d06576",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_head.png": {
+      "sha256": "a5f501c4a04f7f782105dc4d96bf28a345c68f4bbb584ec0d1d7fc22ec4c942d",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_parts.png": {
+      "sha256": "8efb9071e667796504a858dc1845eb3cfe8b40888711bb52710635ab41a76b6a",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_silhouette.png": {
+      "sha256": "f8035621591ab8d3fb6f63d42ceb1d8726928eafbc79651fffbd4fe513baf7bf",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_belt.png": {
+      "sha256": "893d13886c3dbd416b8ebe791b0598adeaa441b544533a8fdaadad98999e630b",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_chain.png": {
+      "sha256": "7cb240cf8360753b333943d65167cfe9fb2007c5edbe76e95863e3e0aa6ca68b",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_coat_far.png": {
+      "sha256": "42fc65cadd89ccd2a738d497053907a8cf5ca4e76408a016fd8460015aed73a0",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_coat_near.png": {
+      "sha256": "86b8f918f5861a01f95958cd0e2f1b6b21c4847cffb24d0d3745f03e9e88a07e",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_foot_far.png": {
+      "sha256": "a4b0315d9748493b584fcb8827187b2a054f9c2b2ec1f2326f0f1fc1a83aa3d2",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_foot_near.png": {
+      "sha256": "1078a2750c44ed80fc40810d4ecb6605eb61c23a09a25e6ea9cc84481c51463f",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_fore_far.png": {
+      "sha256": "94b9ef2896c2d9b8134313c72d7c032d65b91425f9419bbc7e60e15eba6dacaf",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_fore_near.png": {
+      "sha256": "2e448b54311d1a2cf721df23a98c051c5c7decdc9beabe17d9f9afdb26529b74",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_hand_far.png": {
+      "sha256": "f79388f349a9651879b50e08edfa7cca815a6c01dd8b62126f09d3aed41d0af6",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_hand_near.png": {
+      "sha256": "c9d1b61b2ea5224d2094a05c14934a42853cb66457f6a367aa3c4c179ca086af",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_head.png": {
+      "sha256": "a5f501c4a04f7f782105dc4d96bf28a345c68f4bbb584ec0d1d7fc22ec4c942d",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_pelvis.png": {
+      "sha256": "a5dbce5c483e55e5c0d7d198b4500136e2c58a6d6fd777ce79f34fbd54251fb8",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_shin_far.png": {
+      "sha256": "43c855013d72037212942afb8376fb83000d935e77992c4c7fe8458bcdaf78de",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_shin_near.png": {
+      "sha256": "6a8670bd26cdfd2df53d5ab1119773ada7dd891f55a15996509c5591223481d5",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_tabard.png": {
+      "sha256": "4b4d1642df571f8de81d687975d777070be829e7a25f0886e88e84b284f09fa5",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_thigh_far.png": {
+      "sha256": "7a49610b0a0a43512a3851ef666252b662dc3efaec24df57d7c008143271f56d",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_thigh_near.png": {
+      "sha256": "fa1c276f58ccf0226fd99d4523df8a2bd9a9f722ad3ddb198559fe9d1fe91c8d",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_torso.png": {
+      "sha256": "943e436d7379d9db4421e7b4a8a70bcc2e52219b33f25194578386c6f0bb5380",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_upper_far.png": {
+      "sha256": "58d685bce7617d5d76a5c250269cec8098e81c250f23fb1bdd27693922eada04",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_upper_near.png": {
+      "sha256": "22d2bb28dddeceb0d8c4c5443f0b474a4ff4a7fed77e6a795cc54d32f4114a03",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_torso.png": {
+      "sha256": "7023e62f1d88c397a4e61defb291a10477519c9c56ebad9e2cc8413d2e8cd03e",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_torso_frontal_control.png": {
+      "sha256": "eea8154d12e33a0fe8bef87400680829835a3c65fc12e0e44c84629f18faae55",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_body.png": {
+      "sha256": "c64235291312cc9c9924ac52f2eee0fef82bdbf4fde38f9186a67eff9da16faa",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_clay.png": {
+      "sha256": "9e7a42513d03eed8bd4f7098f4f5c507812dfc0ac4175e34c742d864e6ee10ba",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_head.png": {
+      "sha256": "9f9a4e24d9861ba390f3a5362a6dca6d6b96271ce4285715665dcafb2f96ea2d",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_parts.png": {
+      "sha256": "ab3ddacdc503ce4335798105ef654a966756817460a9a20a3b9d7c7678f658a3",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_silhouette.png": {
+      "sha256": "5dc5c52ab99a31e143d4ca997198aa9f22f7fb9002cb477ea7b361669eb13fba",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_belt.png": {
+      "sha256": "eacc5717e6cba82f84190839a864847f8fa0de1b1a8479b75347f31737dc4611",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_chain.png": {
+      "sha256": "7b8cd1e4813dcc0b7e78b3899830aa208faacb84e874e476fcb4a870dd662702",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_coat_far.png": {
+      "sha256": "6b17736158fc0473fce4a4265f2339daaa583a56a63d30571ba4f98854eea4f8",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_coat_near.png": {
+      "sha256": "4094de02b35a011e33f55b3f4ed50bb2ece7cb8e8f1271116d201748bd3bd4ef",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_foot_far.png": {
+      "sha256": "b7fbe14fbbe488c6376174c687d99137ac588e2b7e7dc7b29b63adc078c95133",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_foot_near.png": {
+      "sha256": "0b12e6fa4a6d89073c90e01343ba35c32bd87a827fe508cb1ff1e9ab6f666bcc",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_fore_far.png": {
+      "sha256": "5993b616add8b733f22dfcfda8604efc24481c6a80801f6156715d34f3582356",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_fore_near.png": {
+      "sha256": "528353a549488e7673c2fbe7dfd590c95daa9113ad0afa1786e6f406eede28f9",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_hand_far.png": {
+      "sha256": "cfc89d883d80d63d1c9493d1e9d8445d6afeae46abf5e4b7c0e0566f9ad617f5",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_hand_near.png": {
+      "sha256": "55f7fa0726dc31e1c8cfa3a22fbeb0db5357b81a9f748123884b3e9916e65b7e",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_head.png": {
+      "sha256": "9f9a4e24d9861ba390f3a5362a6dca6d6b96271ce4285715665dcafb2f96ea2d",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_pelvis.png": {
+      "sha256": "f60fd367c6ac653d9d64bb12d96fdcf0bc1c5512c7ee40505e66a84b30ac9a1a",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_shin_far.png": {
+      "sha256": "7eef298d29b9a2421cd9338608c0b388b3ae235c6945582b90068d0979d7e1a7",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_shin_near.png": {
+      "sha256": "b28dbdf0efb53a496188854237d5af37f42b8b8a0ef3638d3480e759fd103451",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_tabard.png": {
+      "sha256": "fcd903b49b1782188ba703fc99b56b556abe6492aff7eb9b1d68857c9dfe03e0",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_thigh_far.png": {
+      "sha256": "3457b1ec8650568eedc6ad131689e777ba99644126fffa8f240a62c5ad22dff8",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_thigh_near.png": {
+      "sha256": "f5a9b3bb173a11e5c2e4682b4d7b9171d18cfc9485b41997d92a4cd62dc28b95",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_torso.png": {
+      "sha256": "160313addd6077e8915dcea8012e50d67d4253164c9ed71485db8fd14ec7c0c8",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_upper_far.png": {
+      "sha256": "b9076c139612bbfb130ff82ec9e36937391826797d7574a56cb0d6436c2af0e1",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "rear_solo_upper_near.png": {
+      "sha256": "3dfcf33ff19a3eed9d585023ef96eb29b8f80bc7e42fb47b3367f1c8b402762d",
+      "size": [
+        1024,
+        1024
+      ]
+    }
+  },
+  "joints_sha256": "db02a6b890e05c5a153c13fb31f7c11d94709e80d21a08ac5c774cdffef702bc"
+}

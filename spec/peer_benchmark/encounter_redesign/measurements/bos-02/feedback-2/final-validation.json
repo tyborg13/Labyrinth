@@ -1,0 +1,31 @@
+{
+  "result": "BOS02 F2 FINAL VALIDATION: PASS (20 scoped source files; 5 generated sidecars; complete manifest; no unrelated worktree changes; 100 matched fights; 29 standalone passes)",
+  "source_files": 20,
+  "sidecars": 5,
+  "files_in_manifest": 49,
+  "starting_head": "3cbb7047ab96dd7ce1f3ba237220afc4ed5f4c4e",
+  "final_head": "3cbb7047ab96dd7ce1f3ba237220afc4ed5f4c4e",
+  "branch": "codex/bos-02",
+  "uncommitted": true,
+  "no_unrelated_changes": true,
+  "git_diff_check_exit": 0,
+  "full_python": {
+    "tests": 2250,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 66,
+    "sole_failure": "tracked UID guard; requires director staging of five generated sidecars"
+  },
+  "full_godot": {
+    "exit_code": 124,
+    "timeout_seconds": 900,
+    "standalone_passed": 29,
+    "standalone_nonzero": 0
+  },
+  "todo_design": [],
+  "chosen_defaults": {
+    "measurement_workers": 1
+  },
+  "windowed_runs": 0,
+  "captures_generated": 0
+}

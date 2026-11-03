@@ -1,0 +1,21 @@
+00:00.377  blend            | Read blend: "/private/tmp/labyrinth_codex/mq-14/final_delivery/cold/maquette.blend"
+00:03.400  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:05.921  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:08.462  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_parts.png'
+00:10.772  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:13.089  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:15.435  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:17.789  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:20.130  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:22.478  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:24.726  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:27.154  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:29.534  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:31.979  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:34.287  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+00:36.914  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/front_0/front_silhouette.png'
+BLENDER_FACING: PASS
+MQ12_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=front; solos=['head', 'torso', 'pelvis', 'belt', 'tabard', 'cape_near', 'cape_far', 'pauldron_near', 'upper_near', 'fore_near', 'hand_near']
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit

@@ -36,14 +36,12 @@ static func run(expect: Callable) -> void:
 		var entry: Dictionary = {"kind": "enemy", "type": identity, "id": 1, "actor_key": "enemy_1", "team": "enemy", "hp": 1, "max_hp": 1, "time": 0}
 		var slot: Control = host.call("_build_turn_order_slot", entry, 0)
 		stage.add_child(slot)
-		_check_portrait(slot, expected, identity + " turn order", expect)
-		var portrait_renderer: Node = slot.find_child("MaquettePortraitRenderer", true, false)
-		if portrait_renderer != null:
-			expect.call(slot.get_meta("turn_order_portrait_texture") == (portrait_renderer.get_parent() as TextureRect).texture, "Turn order defeat retains its live maquette atlas: " + identity)
+		# por-02: the rail shows the still painted portrait, never a live renderer.
+		expect.call(slot.find_child("MaquettePortraitRenderer", true, false) == null, "Turn order shows a still portrait: " + identity)
 		var strip := LandingStrip.new()
 		stage.add_child(strip)
 		strip.call("_add_slot", entry, "TestMaquetteSlot", "before", 0.0, func(_entry: Dictionary) -> String: return Portrait.rest_path(identity))
-		_check_portrait(strip, expected, identity + " landing strip", expect)
+		expect.call(strip.find_child("MaquettePortraitRenderer", true, false) == null, "Landing strip shows a still portrait: " + identity)
 		for crop: bool in [false, true]:
 			var portrait := TextureRect.new()
 			Portrait.bind(portrait, identity, true, crop)

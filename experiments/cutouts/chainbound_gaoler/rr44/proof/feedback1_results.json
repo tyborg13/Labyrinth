@@ -1,0 +1,364 @@
+{
+  "scope": "rr-44 feedback 1; headless focused verification; bridge maquette native only",
+  "native_godot_pending": true,
+  "full_suites_run_this_round": false,
+  "log_files": [
+    {
+      "name": "source-final-state",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/source-final-state.log",
+      "sha256": "66354bfcb1a6f2ff082a6641779237933800113ff0f76d76ea01d6a042c91819",
+      "result_lines": [
+        "Ran 9 tests in 6.797s",
+        "OK",
+        "RR44 REAR OWNERSHIP: PASS (158 exact arm/glove/chain edge texels; director-opaque body cannot be claimed)",
+        "RR44 DIRECTOR INPUTS: PASS (both paintings/raws/recipes byte exact; replay certified)",
+        "RR44 BASE ELBOW MUTATION: PASS (hash-bound d7ed719d9 press/hit fail in both views; four CPU crops)",
+        "RR44 MAQUETTE STRUCTURE: PASS (unscaled limbs; level shoulders; proper rear half-turn; native fit pending)",
+        "RR44 DEATH: PASS (approved choreography retained; lowered hand target and measured floor drop)",
+        "RR44 SOURCE CUTS: PASS (front=0px rear=0px; masks rederived; exact painted backing)"
+      ]
+    },
+    {
+      "name": "verified-focused",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/verified-focused.log",
+      "sha256": "4eb22099cc1bf67d319eee6ba01e37d51e989bfaeb6525e8ef17640c2d9be750",
+      "result_lines": [
+        "Ran 12 tests in 110.880s",
+        "OK",
+        "RR44 NATIVE RELEASE: PASS (4 hash-bound native layers; no recoloured pixel can earn an exemption)",
+        "RR44 ADOPTED CAPS: PASS (visible sleeve and hidden cap retain the same approved RGBA after density)",
+        "RR44 PRESS/FOLLOW: PASS (22px authored lift retained; body frame decision resolved)",
+        "RR44 HELD SOURCE: PASS (fragmented rigid links; detached grip and recoloured pixel rejected)",
+        "MQ15_ACCEPTANCE: PASS; {\"heights\": {\"front\": {\"head_to_sole_px\": 828, \"head_top_px\": 181, \"helm_to_sole_px\": 817.6923951132571, \"helm_top_px\": 191.30760488674287, \"sole_bottom_px\": 1009}, \"rear\": {\"head_to_sole_px\": 841, \"head_top_px\": 127, \"helm_to_sole_px\": 830.7375068832291, \"helm_top_px\": 137.26249311677083, \"sole_bottom_px\": 968}}, \"mass\": {\"barrel_chest\": true, \"closed_native_forms\": true, \"cloth\": true, \"gloved_grip\": true, \"mass\": true, \"no_part_holes\": true, \"no_see_through\": true, \"open_front\": true}, \"pose\": {\"feet_planted\": true, \"front_chain_side\": true, \"level_shoulders_3d\": true, \"native_endpoints\": true, \"native_joint_inventory\": true, \"native_projection\": true, \"rear_chain_side\": true, \"shoulder_rule\": true}, \"proportions\": {\"helm_height\": true, \"knee_to_sole\": true, \"pelvis_to_knee\": true, \"shoulder_width\": true, \"torso_height\": true, \"total_height\": true}, \"turn\": {\"front_lower_foot_right\": true, \"front_proper_rotation\": true, \"rear_is_half_turn\": true, \"rear_lower_foot_right\": true, \"rear_not_mirror\": true, \"rear_proper_rotation\": true}}",
+        "MQ15_COMMIT_CURATION: PASS; bytes=5939586; files=204",
+        "RR44 MAQUETTE LEGACY: PASS (every historical mq-15 row and capture hash unchanged)",
+        "RR44 PAINTED ELBOW/OWNERSHIP: PASS (exact source boundary ownership; registered paint; RGBA/depth/weight mutations fail)",
+        "RR44 PACKED FOOTPRINTS: PASS (16 overlapping masks; both skin families, source/native origins and every UV choice identical)",
+        "RR44 REAR OWNERSHIP: PASS (158 exact arm/glove/chain edge texels; director-opaque body cannot be claimed)",
+        "RR44 RELEASE SOURCE: PASS (every rigid link certified; recolour, scale and pre-release mutations fail)",
+        "RR44 NATIVE SIGNATURES: PASS (1336/1336; omitted outline and removed-frame mutations rejected)",
+        "RR44 FRESH NATIVE WITNESSES: PASS (17 frozen native poses; every required category reproduced)"
+      ]
+    },
+    {
+      "name": "motion-final",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/motion-final.log",
+      "sha256": "0c2ee8cebd511d4c96f6af8a97e56b41792258205ea8a103ad23443ea86bc768",
+      "result_lines": [
+        "Ran 5 tests in 48.097s",
+        "OK",
+        "RR44 BODY FOLLOW: PASS (generated angle active; root/pelvis/body motion alone cannot move hook)",
+        "RR44 MOTION: PASS (both elbows, both pendulums, rigid attached chain; every authored/presented frame)",
+        "RR44 FOREIGN COMPILATION: PASS (all nine reference sets unchanged)",
+        "RR44 HELD FOLLOW: PASS (world/moving-root implementations; zero gain, zero lag and locked chain rejected)",
+        "RR44 ELBOW/PENDULUM MUTATIONS: PASS (inverted elbow, missing policy, static far arm rejected)"
+      ]
+    },
+    {
+      "name": "walk",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/walk.log",
+      "sha256": "e5eef23d32cd864a0fc77ed3be3a78c06b02f67c7fa7c38edb142bd6892c82cb",
+      "result_lines": [
+        "RR44 TWO-LEG WALK: PASS (254 poses; 0 errors)"
+      ]
+    },
+    {
+      "name": "walk-mutation",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/walk-mutation.log",
+      "sha256": "898ff8aef151ed523ad1447055bef60eba2cc6545f48e97f006009913aa0e1e1",
+      "result_lines": [
+        "Ran 1 test in 9.611s",
+        "OK",
+        "RR44 TWO-LEG WALK MUTATION: PASS (both views; displaced planted foot fails)"
+      ]
+    },
+    {
+      "name": "maquette-structure-last",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/maquette-structure-last.log",
+      "sha256": "a1d81839528692a3d3a0a15ce7129bd359ba9973bda4d691caa928fe6386bb06",
+      "result_lines": [
+        "Ran 1 test in 0.000s",
+        "FAILED (errors=1)"
+      ]
+    },
+    {
+      "name": "maquette-structure-corrected",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/maquette-structure-corrected.log",
+      "sha256": "d46921b6cfcc3c5c66a296e622a9e0fb0c3c7ea1dffdf399e0ce06a0f084c6d8",
+      "result_lines": [
+        "Ran 1 test in 0.158s",
+        "OK",
+        "RR44 MAQUETTE STRUCTURE: PASS (unscaled limbs; level shoulders; proper rear half-turn; native acceptance checked separately)"
+      ]
+    },
+    {
+      "name": "caused-regressions-final",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/caused-regressions-final.log",
+      "sha256": "bf6e1eefc619036f0b52883739b809f5490a967fb9d0b637fd939ec7869b6285",
+      "result_lines": [
+        "RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)",
+        "..RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)",
+        "RR41 REST/DENSITY RESEAL: PASS (fresh Godot rest-pose digest and both density evidence hashes byte-identical)",
+        "Ran 1 test in 0.268s",
+        "OK",
+        "RR42 TRACKED-ONLY MOTION TEST: PASS (5129 tracked files; ignored production_case absent)",
+        "Ran 11 tests in 141.661s",
+        "OK"
+      ]
+    },
+    {
+      "name": "affected-gaoler-suites",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/affected-gaoler-suites.log",
+      "sha256": "210abb7bca2f2f862b261d8f839e683ed99b9b6a2bcc9eea4509e81ce990da04",
+      "result_lines": [
+        "Ran 29 tests in 133.375s",
+        "OK",
+        "RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)"
+      ]
+    },
+    {
+      "name": "art-tests",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/art-tests.log",
+      "sha256": "4afcc485bf1eb8bcc5f0417bbfed583896afe8f4eb035e399a2300acaf23585f",
+      "result_lines": [
+        "Ran 111 tests in 116.796s",
+        "OK"
+      ]
+    },
+    {
+      "name": "current-runtime",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/current-runtime.log",
+      "sha256": "0778d4ea7304adbfa4603182118dc3bf0f459c097cc99e9323aa4adc7ecd5e74",
+      "result_lines": [
+        "RR38 RUNTIME: PASS (239 checks; headless registration, views, portraits and clocks)"
+      ]
+    },
+    {
+      "name": "current-geometry",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/current-geometry.log",
+      "sha256": "ad1a233dbfdeba20da682b7e514b9ae34fee190610ab13d9d03da7a8551dd4e5",
+      "result_lines": [
+        "V2 BOARD SPRITE GEOMETRY: {\"cases\":8,\"errors\":[],\"native\":false,\"orientation_mutations_rejected\":0,\"placement_mutations_rejected\":0}"
+      ]
+    },
+    {
+      "name": "identity-final-state",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/identity-final-state.log",
+      "sha256": "d2ea042adb2bf7a6b6b15cbfce5f8a2e3dafe432bd0f70e734e623dfbf10d7af",
+      "result_lines": [
+        "PASS assets/units/chainbound_gaoler_cutout/front/rest.png (legacy)",
+        "PASS assets/units/chainbound_gaoler_cutout/humanoid_v2/front/rest.png (legacy)",
+        "PASS assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/rest.png (legacy)",
+        "PASS assets/units/chainbound_gaoler_cutout/rear/rest.png (legacy)",
+        "ART IDENTITY CHECK: PASS (0 failures, 0 pending_reart warnings, 0 skipped replays)"
+      ]
+    },
+    {
+      "name": "preservation-final-state",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/preservation-final-state.log",
+      "sha256": "60cba8f6078c45976658986b151de5b62f949b44d8168b0d31ee2e32542e121d",
+      "result_lines": [
+        "RR44 UNRELATED RECORDS: PASS {\"foreign_rig_files_changed\": [], \"native_pixels\": false, \"protected_director_inputs_byte_exact\": true, \"unrelated_art_identity_records\": 147, \"unrelated_density_entries\": 112, \"unrelated_density_outputs\": 2187}"
+      ]
+    },
+    {
+      "name": "registration-final-state",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/registration-final-state.log",
+      "sha256": "e6b2368997a4b6285241b010334cd593ed852a6d3d8e681137e4a739752af039",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (866 scripts; full suite=506, quarantined=29, windowed probe=331)"
+      ]
+    },
+    {
+      "name": "density-final-state",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/density-final-state.log",
+      "sha256": "cc80ff4f74cf5c4b2415c1fcee4c49346e06915718549ba12d498e61a95a5286",
+      "result_lines": [
+        "RR38 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR44 DENSITY PARTITIONS: PASS (exact director paint inside; prior approved production outside)"
+      ]
+    },
+    {
+      "name": "rests-final-state",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/rests-final-state.log",
+      "sha256": "abf5d77a5f6b40e4f081214bd78288fd3e195553ffbe20ff7a7b57cf84b6f762",
+      "result_lines": [
+        "RR38 BONE SAMPLES: PASS (2 poses; headless transforms only)",
+        "RR42 REST EQUIVALENCE: PASS (front=0px rear=0px; native_pixels=False)"
+      ]
+    },
+    {
+      "name": "shadow-final-state",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/shadow-final-state.log",
+      "sha256": "98f0a9c64d82f16bf28f5543000714cd64ea2345883d756079da8b4e60536522",
+      "result_lines": [
+        "RR38 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ]
+    },
+    {
+      "name": "registration-source-audit",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/registration-source-audit.log",
+      "sha256": "c4004be03a376e4cc4f78b923a3d65552c85ce955664604d62f631002416b19b",
+      "result_lines": [
+        "MQ15_ACCEPTANCE: PASS; {\"heights\": {\"front\": {\"head_to_sole_px\": 828, \"head_top_px\": 181, \"helm_to_sole_px\": 817.6923951132571, \"helm_top_px\": 191.30760488674287, \"sole_bottom_px\": 1009}, \"rear\": {\"head_to_sole_px\": 841, \"head_top_px\": 127, \"helm_to_sole_px\": 830.7375068832291, \"helm_top_px\": 137.26249311677083, \"sole_bottom_px\": 968}}, \"mass\": {\"barrel_chest\": true, \"closed_native_forms\": true, \"cloth\": true, \"gloved_grip\": true, \"mass\": true, \"no_part_holes\": true, \"no_see_through\": true, \"open_front\": true}, \"pose\": {\"feet_planted\": true, \"front_chain_side\": true, \"level_shoulders_3d\": true, \"native_endpoints\": true, \"native_joint_inventory\": true, \"native_projection\": true, \"rear_chain_side\": true, \"shoulder_rule\": true}, \"proportions\": {\"helm_height\": true, \"knee_to_sole\": true, \"pelvis_to_knee\": true, \"shoulder_width\": true, \"torso_height\": true, \"total_height\": true}, \"turn\": {\"front_lower_foot_right\": true, \"front_proper_rotation\": true, \"rear_is_half_turn\": true, \"rear_lower_foot_right\": true, \"rear_not_mirror\": true, \"rear_proper_rotation\": true}}",
+        "RR44 REGISTRATION AUDIT: PASS (all mq-15 rows; new native far-arm projection; unchanged certified body/feet)"
+      ]
+    },
+    {
+      "name": "verified-sweep",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/verified-sweep.log",
+      "sha256": "c404494e9d5ba87f1e4ec454d2f26b6bc5cc6b76f4294633ef3ab2f67a8b5efa",
+      "result_lines": [
+        "RR44 CPU SWEEP: FAIL (892 frames; 809 findings; native_calibrated=True)"
+      ]
+    },
+    {
+      "name": "current-gates",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/current-gates.log",
+      "sha256": "34180328754fd228a0f0c083df19f50ed312d34e73ec82fc14a391d7bc08979e",
+      "result_lines": [
+        "RR44 ALL GATES: FAIL (826 errors; native=False)"
+      ]
+    },
+    {
+      "name": "current-paint-requests",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/current-paint-requests.log",
+      "sha256": "b20f6080c4a5162a60e22adffa95fc01e1d5ad32a6e7c7d26226657e8749509e",
+      "result_lines": [
+        "RR44 DIRECTOR PAINT REVIEW: 20 source regions; 743 frames with flat regions; 356 rear-strip frames; all remain flagged"
+      ]
+    },
+    {
+      "name": "current-density-check",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/current-density-check.log",
+      "sha256": "fc0805f5b885ebfa08b1ef349d1c7530594734c814cbaf6d4a218eda454d3c77",
+      "result_lines": [
+        "CHECK-OK"
+      ]
+    },
+    {
+      "name": "reseal-focused",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/reseal-focused.log",
+      "sha256": "2499bfa81f9b5e0811e2eb294fa7ac94988ae7b2e46f75dabb64a013a410c6be",
+      "result_lines": [
+        "RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)",
+        "Ran 1 test in 28.266s",
+        "OK",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)",
+        "RR41 REST/DENSITY RESEAL: PASS (fresh rest pixels and persisted density evidence unchanged; shared dependency hash refreshed)"
+      ]
+    },
+    {
+      "name": "maquette-bounded-resume",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/maquette-bounded-resume.log",
+      "sha256": "f7f95e452d001975588b2d1f9fb9ea2b2f0394c5e72d86e8e5448ec04cc7c485",
+      "result_lines": [
+        "MQ15_ACCEPTANCE: PASS; {\"heights\": {\"front\": {\"head_to_sole_px\": 828, \"head_top_px\": 181, \"helm_to_sole_px\": 817.6923951132571, \"helm_top_px\": 191.30760488674287, \"sole_bottom_px\": 1009}, \"rear\": {\"head_to_sole_px\": 841, \"head_top_px\": 127, \"helm_to_sole_px\": 830.7375068832291, \"helm_top_px\": 137.26249311677083, \"sole_bottom_px\": 968}}, \"mass\": {\"barrel_chest\": true, \"closed_native_forms\": true, \"cloth\": true, \"gloved_grip\": true, \"mass\": true, \"no_part_holes\": true, \"no_see_through\": true, \"open_front\": true}, \"pose\": {\"feet_planted\": true, \"front_chain_side\": true, \"level_shoulders_3d\": true, \"native_endpoints\": true, \"native_joint_inventory\": true, \"native_projection\": true, \"rear_chain_side\": true, \"shoulder_rule\": true}, \"proportions\": {\"helm_height\": true, \"knee_to_sole\": true, \"pelvis_to_knee\": true, \"shoulder_width\": true, \"torso_height\": true, \"total_height\": true}, \"turn\": {\"front_lower_foot_right\": true, \"front_proper_rotation\": true, \"rear_is_half_turn\": true, \"rear_lower_foot_right\": true, \"rear_not_mirror\": true, \"rear_proper_rotation\": true}}",
+        "RR44 NATIVE FIT: PASS"
+      ]
+    },
+    {
+      "name": "runtime-references",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/runtime-references.log",
+      "sha256": "ce592d9f49e4e14242cbf61932a55bd8f08d74f8bf26d28857ea80eae7ce9f35",
+      "result_lines": [
+        "RR44 REFERENCE SEER: PASS (1258 byte-identical poses; elbow report-only: 5 failing frames, 2 crops)",
+        "RR44 REFERENCE THRALL: PASS (1050 byte-identical poses; elbow report-only: 215 failing frames, 8 crops)",
+        "RR44 REFERENCE MIRROR: PASS (968 byte-identical poses; elbow report-only: 9 failing frames, 3 crops)",
+        "RR44 REFERENCE WEAVER: PASS (1106 byte-identical poses; elbow report-only: 518 failing frames, 14 crops)",
+        "RR44 REFERENCE MIMIC: PASS (1008 byte-identical poses; elbow report-only: 49 failing frames, 7 crops)",
+        "RR44 REFERENCE MORTAR: PASS (1214 byte-identical poses; elbow report-only: 626 failing frames, 16 crops)",
+        "RR44 REFERENCE HERALD: PASS (1198 byte-identical poses; elbow report-only: 10 failing frames, 3 crops)",
+        "RR44 REFERENCE GLOAM: PASS (1096 byte-identical poses; elbow report-only: 481 failing frames, 14 crops)",
+        "RR44 REFERENCE LANCER: PASS (1396 byte-identical poses; elbow report-only: 438 failing frames, 15 crops)"
+      ]
+    },
+    {
+      "name": "sealed-production-front",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/sealed-production-front.log",
+      "sha256": "fcc86c606721273f07696bdd2f01cf7def70c5bd08bbbe4819483beaaa10b1dd",
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1440 frames)"
+      ]
+    },
+    {
+      "name": "sealed-production-front-gates",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/sealed-production-front-gates.log",
+      "sha256": "c9a057d3289587bef5de5ea416be8e42023154a267468493c04a0fd1bbaf1e54",
+      "result_lines": [
+        "RR38 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+      ]
+    },
+    {
+      "name": "sealed-production-rear",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/sealed-production-rear.log",
+      "sha256": "81fd93d0094a786981dab50f86d2431c296cae0e4f82477c2bd7359ad5baea97",
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1440 frames)"
+      ]
+    },
+    {
+      "name": "sealed-production-rear-gates",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/sealed-production-rear-gates.log",
+      "sha256": "c9a057d3289587bef5de5ea416be8e42023154a267468493c04a0fd1bbaf1e54",
+      "result_lines": [
+        "RR38 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+      ]
+    },
+    {
+      "name": "verified-floor-move",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/verified-floor-move.log",
+      "sha256": "87acf83052df3dc2cc021a64af0a15a3326d5fbf9dc399744e5585925029b10e",
+      "result_lines": [
+        "RR44 FLOOR WITNESS move: 4 poses; 4 flagged; peaks={'move.arm_swing.near.upper_deg': 10, 'move.arm_swing.far.upper_deg': 7}; production unchanged"
+      ]
+    },
+    {
+      "name": "verified-floor-press",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/verified-floor-press.log",
+      "sha256": "b78a48693858ebc652c0664233e1167cb1c3b484e3d25f6cc54776b8626b53d6",
+      "result_lines": [
+        "RR44 FLOOR WITNESS press: 4 poses; 4 flagged; peaks={'press.hand_near.lift_px': 14}; production unchanged"
+      ]
+    },
+    {
+      "name": "verified-floor-reel",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/verified-floor-reel.log",
+      "sha256": "d00cc29cb50f0e89b4e6c8b7d3f11c182d014a4de691a686e242d2fec399875a",
+      "result_lines": [
+        "RR44 FLOOR WITNESS reel: 4 poses; 4 flagged; peaks={'reel.hand_far.lift_px': 4, 'reel.hand_far.forward_px': 5}; production unchanged"
+      ]
+    },
+    {
+      "name": "verified-floor-pin",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/verified-floor-pin.log",
+      "sha256": "f90a2afba4911610a1634da9f78c9de4ae815b8c9416179d4cb7922da6998c00",
+      "result_lines": [
+        "RR44 FLOOR WITNESS pin: 4 poses; 4 flagged; peaks={'pin.hand_far.lift_px': 2, 'pin.hand_far.forward_px': 3}; production unchanged"
+      ]
+    },
+    {
+      "name": "verified-floor-guard",
+      "path": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/verified-floor-guard.log",
+      "sha256": "5bbd7fde5a209e8c32a0e3e77535b136f535222e47bf2376cf431e88b1e76f5f",
+      "result_lines": [
+        "RR44 FLOOR WITNESS guard: 4 poses; 4 flagged; peaks={'guard.hand_far.lift_px': 4}; production unchanged"
+      ]
+    }
+  ],
+  "resource_audit": {
+    "command": "python3 tools/run_python_suite.py --shards 4 --audit-only --output-dir /private/tmp/rr44-f1-final-resource-audit",
+    "exit_code": 0,
+    "modules": 228,
+    "report": "experiments/cutouts/chainbound_gaoler/rr44/proof/logs/feedback1/isolation-audit.md"
+  }
+}

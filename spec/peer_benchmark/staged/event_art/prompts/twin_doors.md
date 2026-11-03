@@ -1,0 +1,1 @@
+Subject: two identical narrow doors side by side in a bare stone wall. The left door glows faintly orange at its edges with heat haze. The right door is rimed with pale blue frost. A scrap of paper nailed to the wall between them, blank at this distance. Mood: an uneasy, even choice.

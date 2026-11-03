@@ -87,7 +87,8 @@
      ],
      "order": {
       "id": "thornmother_wall",
-      "text": "Her Thornwall grows 5 tiles long and always rises between you and her."
+      "text": "After every second Thornmother turn, the marked tiles rise as Outcrops.",
+      "battlefield_instance": "thornmother"
      }
     },
     "fire": {
@@ -102,7 +103,9 @@
      ],
      "order": {
       "id": "slagmaster_barrage",
-      "text": "Barrage: Lob Slag marks two plus-shapes at once. Slag hits whatever is under it."
+      "text": "After every second Slagmaster turn, its Fire spreads 1 tile toward you.",
+      "battlefield_instance": "slagmaster",
+      "lob_crosses": 2
      }
     },
     "air": {
@@ -117,7 +120,8 @@
      ],
      "order": {
       "id": "stormcaller_wind",
-      "text": "Its wind never drops: a gust slides everyone else 1 tile every round."
+      "text": "After each of the Stormcaller's turns, its wind Pushes everyone 1 tile.",
+      "battlefield_instance": "stormcaller"
      }
     },
     "ice": {
@@ -132,7 +136,8 @@
      ],
      "order": {
       "id": "oracle_icewall",
-      "text": "Its Icefall lands as a wall of ice pillars between you and it."
+      "text": "After every second Oracle turn, Frostbite hits everyone on Ice for 2 and Freezes them.",
+      "battlefield_instance": "oracle"
      }
     },
     "lightning": {
@@ -147,7 +152,8 @@
      ],
      "order": {
       "id": "dynamo_tether",
-      "text": "While both Thralls stand, Arc Burst fires at 2 Charge instead of 3."
+      "text": "When the Dynamo discharges, lightning strikes every Electrified tile for 4.",
+      "battlefield_instance": "dynamo"
      }
     },
     "shadow": {
@@ -162,7 +168,8 @@
      ],
      "order": {
       "id": "prior_veil",
-      "text": "Veil: while it lives, its followers more than 2 tiles from you stay hidden."
+      "text": "After every second Prior turn, its followers hidden in the dark Blink 3 tiles toward you.",
+      "battlefield_instance": "prior"
      }
     }
    }
@@ -202,21 +209,26 @@
      "hunters": "burrow_grub",
      "pressure": {
       "id": "rubble_lane",
-      "text": "Each round, Rubble rises across one tile of the shortest lane."
+      "text": "After each of your turns, a marked tile on your way out rises as an Outcrop.",
+      "min_steps_from_hero": 2,
+      "battlefield_instance": "snare_earth"
      }
     },
     "fire": {
      "hunters": "ash_hound",
      "pressure": {
       "id": "fire_rows",
-      "text": "Fire spreads one row from the entry each round."
+      "text": "After each of your turns, the Fire spreads 1 tile away from the entry.",
+      "battlefield_instance": "snare_fire"
      }
     },
     "air": {
      "hunters": "gust_shrike",
      "pressure": {
       "id": "headwind",
-      "text": "A headwind slides everything 1 tile toward the entry after each enemy turn."
+      "text": "After each of your turns, a headwind Pushes everyone 1 tile toward the entry.",
+      "tiles": 1,
+      "battlefield_instance": "snare_air"
      }
     },
     "ice": {
@@ -224,14 +236,16 @@
      "start_hunters": 3,
      "pressure": {
       "id": "frost_thresholds",
-      "text": "The tile in front of each sealing door turns to Ice."
+      "text": "After each of your turns, Frostbite hits everyone on Ice for 1 and Freezes them.",
+      "battlefield_instance": "snare_ice"
      }
     },
     "lightning": {
      "hunters": "arc_thrall",
      "pressure": {
       "id": "live_tethers",
-      "text": "Crossing a live tether hurts and Shocks you."
+      "text": "After each of your turns, lightning strikes every Electrified tile for 3.",
+      "battlefield_instance": "snare_lightning"
      }
     },
     "shadow": {
@@ -241,174 +255,120 @@
      ],
      "pressure": {
       "id": "umbra_rings",
-      "text": "The Umbra closes one ring of the room every two rounds."
+      "text": "After each of your turns, enemies hidden in the dark Blink 2 tiles toward you.",
+      "every_player_turns": 2,
+      "min_radius": 1,
+      "battlefield_instance": "snare_shadow"
      }
     }
    }
   },
   "ember_hoarder": {
-   "enabled": false,
+   "enabled": true,
+   "first_layout_revision": 7,
    "name": "Ember Hoarder",
    "emblem": "res://assets/art/icons/map/ember_hoarder.png",
-   "tooltip_line": "Catch the thief before it escapes with its hoard.",
-   "objective": "stop_hoarder",
+   "tooltip_line": "Catch the Ember Hoarder before it slips away with its hoard.",
+   "objective": "defeat_leader",
+   "objective_title": "Defeat the Ember Hoarder before it escapes!",
+   "objective_hud_title": "Defeat the Hoarder",
+   "objective_description": "Catch the Hoarder before it slips away.",
+   "rule_line": "The Hoarder slips away with its hoard after your %s turn.",
+   "rule_panel": {
+    "kicker": "BATTLEFIELD",
+    "turns_left": " · %d TURNS LEFT",
+    "turns_left_one": " · 1 TURN LEFT",
+    "name": "Slip Away",
+    "icon": "res://assets/art/icons/map/ember_hoarder.png"
+   },
+   "break_line": "The brood scatters!",
    "bonus": {
-    "kind": "hoard",
+    "kind": "hoard_embers",
     "standard_fight_embers": 1.0,
-    "label": "The hoard"
+    "label": "The Hoarder's hoard",
+    "reward_line": "The Hoarder's hoard: +%d embers"
    },
    "hoarder": {
-    "unit": "ember_tick",
+    "unit": "ember_hoarder",
     "title": "Ember Hoarder",
-    "hp_by_tier": [
-     16,
-     20,
-     24
-    ],
-    "move_tiles": 3,
-    "attacks": false,
-    "spill_embers_per_hit": 3,
-    "start_distance": [
-     2,
-     3
-    ],
-    "scale": 1.0,
-    "marks": [
-     "spark_trail",
-     "gold_nameplate"
+    "hp_multiplier": 3.0,
+    "keep_distance": {
+     "trigger_range": 2,
+     "step_tiles": 1
+    },
+    "slips_away_after_player_turns_by_tier": [
+     5,
+     4,
+     4
     ]
    },
-   "variants": {
-    "earth": {
-     "gang": [
-      "warden",
-      "stoneback_mite",
-      "stoneback_mite"
-     ],
-     "how": "The Warden blocks the lane; Driving Claw shoves you back."
-    },
-    "fire": {
-     "gang": [
-      "ash_hound",
-      "ash_hound",
-      "cinder_ooze"
-     ],
-     "how": "The Ooze slides Fire across the lane and the Hounds flank you."
-    },
-    "air": {
-     "gang": [
-      "chainbound_gaoler",
-      "roc_fledgling",
-      "roc_fledgling"
-     ],
-     "how": "Manacle Pin roots you to the spot."
-    },
-    "ice": {
-     "gang": [
-      "glacial_mirror",
-      "rime_spitter",
-      "rime_spitter"
-     ],
-     "how": "The Mirror walls off the lane and the Spitters lay Ice."
-    },
-    "lightning": {
-     "gang": [
-      "arc_thrall",
-      "arc_thrall"
-     ],
-     "how": "Their tether beam fences off the Hoarder's path."
-    },
-    "shadow": {
-     "gang": [
-      "wick_shade",
-      "wick_shade",
-      "gloam_stalker"
-     ],
-     "how": "Hooking Grasp pulls you back, and the Stalker ambushes from behind."
-    }
+   "brood": {
+    "unit": "ember_tick",
+    "count": 3
    }
   },
   "last_light": {
-   "enabled": false,
+   "objective_title": "Survive until dawn!",
+   "objective_hud_title": "Survive until dawn",
+   "enabled": true,
+   "first_layout_revision": 7,
    "name": "Last Light",
    "emblem": "res://assets/art/icons/map/last_light.png",
-   "tooltip_line": "Keep the brazier lit until the dark recedes.",
+   "tooltip_line": "Survive until dawn in the dark. Keep the braziers lit.",
    "objective": "survive",
+   "objective_description": "Survive until dawn.",
    "bonus": {
-    "kind": "heal_per_flame",
+    "kind": "heal_per_lit_brazier",
     "amount": 2,
-    "label": "Kindled"
+    "max": 6,
+    "label": "Kindled",
+    "reward_line": "+2 Health per brazier still lit at dawn"
    },
-   "brazier": {
-    "flames": 3,
-    "light_radius_by_flames": {
-     "3": 2,
-     "2": 1,
-     "1": 0
-    },
-    "fire_relights": true
+   "time_target_by_depth": [60, 66, 72],
+   "sight_radius": 3,
+   "braziers": {
+    "count": 3,
+    "distance_from_start": 3,
+    "tooltip": "Brazier: lights 2 tiles around it. A Wick Shade's Snuff puts it out; step onto it to relight it."
    },
-   "hold_player_turns": 5,
+   "wick_shades": 2,
+   "battlefield_instance": "last_light",
    "variants": {
     "earth": {
      "attackers": [
       "burrow_grub",
       "stoneback_mite"
-     ],
-     "twist": {
-      "id": "grub_erupt_beside",
-      "text": "Grubs burrow and erupt right beside the brazier."
-     }
+     ]
     },
     "fire": {
      "attackers": [
       "ember_tick",
       "ash_hound"
-     ],
-     "twist": {
-      "id": "ticks_feed_flame",
-      "text": "A Tick that dies beside the brazier relights a flame."
-     }
+     ]
     },
     "air": {
      "attackers": [
       "gust_shrike",
       "gale_herald"
-     ],
-     "twist": {
-      "id": "gusts_dim_flame",
-      "text": "Each gust of Call the Wind that reaches the brazier costs a flame unless you stand in the way."
-     }
+     ]
     },
     "ice": {
      "attackers": [
       "rime_whelp",
       "hoarfrost_seer"
-     ],
-     "twist": {
-      "id": "icefall_ring",
-      "text": "Icefall rings the brazier with pillars."
-     }
+     ]
     },
     "lightning": {
      "attackers": [
       "lightning_wisp",
       "bell_tender"
-     ],
-     "twist": {
-      "id": "electrified_vigil",
-      "text": "Tenders electrify the floor around the brazier."
-     }
+     ]
     },
     "shadow": {
      "attackers": [
       "wick_shade",
       "veilbound_acolyte"
-     ],
-     "twist": {
-      "id": "two_braziers",
-      "text": "Two braziers; the snuffers always go for the dimmer one."
-     }
+     ]
     }
    }
   }

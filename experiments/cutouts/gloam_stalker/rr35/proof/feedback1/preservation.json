@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "errors": [],
+  "protected_files_checked": 2959,
+  "generic_changes": [
+    "tools/humanoid_cutout/anatomy.schema.json",
+    "tools/humanoid_cutout/walk_gates.py"
+  ],
+  "authorized_director_replacements": {
+    "spec/peer_benchmark/staged/rr-35/motion_tracks.json": {
+      "supplied_sha256": "269d73dec57b05143695005fa6b2a6f255dd20969a90801e915a6e1518d9f030",
+      "final_sha256": "b758aeb606a69c659ee8035ea6ef652978e9e6ff152715b74259ace039dd2a5e"
+    }
+  },
+  "accepted_cut_pngs_checked": 311,
+  "accepted_cut_pngs_unchanged": true,
+  "foreign_records_unchanged": {
+    "spec/art_identity/registry.json": true,
+    "spec/assets/board_pixel_density/registry.json": true,
+    "spec/assets/board_pixel_density/outputs.json": true
+  },
+  "other_unit_git_changes": []
+}

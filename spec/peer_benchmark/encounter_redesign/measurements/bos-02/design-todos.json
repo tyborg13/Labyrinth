@@ -1,0 +1,19 @@
+{
+  "TODO_DESIGN_DRAGON_GRIMOIRE_COPY": {
+    "placeholder": "TODO_DESIGN_DRAGON_GRIMOIRE_COPY",
+    "file": "data/grimoire.json",
+    "entries": [
+      "enemy:zekarion",
+      "combat:worldspines",
+      "combat:cinder_marks",
+      "combat:hollow_gale",
+      "enemy:tharokh",
+      "enemy:vyraketh",
+      "enemy:vaeloryx",
+      "enemy:iskaldra",
+      "enemy:noctyrax"
+    ],
+    "reason": "Existing player reference copy still describes the removed neighborhood, spire-pulse, Dive-wake, trail-Talon or fixed player-field riders. This file is outside bos-02 ownership, and replacement reference prose was not provided. The approved rule-panel sentences are already installed verbatim.",
+    "required_owner_action": "Supply and integrate approved replacement reference copy in its owning unit. No inferred player prose was written."
+  }
+}

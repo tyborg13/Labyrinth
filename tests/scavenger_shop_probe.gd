@@ -8,9 +8,11 @@ const ProbeSettings = preload("res://scripts/settings_store.gd")
 const StatChip = preload("res://scripts/ui_stat_chip.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const ShopSignage = preload("res://scripts/scavenger_signage.gd")
+const Ware = preload("res://scripts/scavenger_ware.gd")
 
 const OUTPUT_DIR := "user://scavenger_shop_probe"
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
+const NAVIGATION_STEP_LIMIT: int = 64
 const SHELF_CENTER_X: Array[float] = [815.0, 1075.0, 1335.0]
 
 var _failed: bool = false
@@ -18,6 +20,9 @@ var _probe_viewport: SubViewport
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	if DisplayServer.get_name() == "headless":
+		print("HEADLESS SEMANTICS ONLY: no renderer captures")
+		process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	root.mode = Window.MODE_WINDOWED
 	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
@@ -232,17 +237,25 @@ func _capture_states() -> void:
 	shop = instance.find_child("ScavengerShopView", true, false) as Control
 	shop.call("_set_pack_mode", true)
 	await _settle()
+	# deck-01 migrates reserve Magic into the deck on load. Exercise the actual
+	# loaded pack: spells use the separate Purge action, Items/Gear are sold.
+	state = instance.get("_run_state") as Dictionary
 	var sellable: Array = run_engine.merchant_sellable_ids(state, RunEngine.MERCHANT_SCAVENGER)
+	if sellable.any(func(id: Variant) -> bool: return run_engine.merchant_item_kind(str(id)) == RunEngine.MERCHANT_ITEM_KIND_MAGIC):
+		_fail("Magic in the deck should use Purge rather than Sell From Pack")
+	var purge: Button = shop.find_child("ScavengerPurge", true, false) as Button
+	if purge == null or purge.disabled:
+		_fail("Owned Magic should expose the separate Purge service")
 	if sellable.is_empty():
 		_fail("Probe state should expose owned wares in Sell From Pack")
 		return
 	var sell_id: String = ""
 	for index: int in range(sellable.size()):
-		if run_engine.merchant_item_kind(str(sellable[index])) == RunEngine.MERCHANT_ITEM_KIND_MAGIC:
+		if run_engine.merchant_item_kind(str(sellable[index])) == RunEngine.MERCHANT_ITEM_KIND_ITEM:
 			sell_id = str(sellable[index])
 			break
 	if sell_id.is_empty():
-		_fail("Probe state should expose owned Magic in Sell From Pack")
+		_fail("Probe state should expose an owned Item in Sell From Pack")
 		return
 	var sell_source: Control = _offer_source(shop, sell_id, true)
 	var sell_page_guard: int = 0
@@ -254,17 +267,14 @@ func _capture_states() -> void:
 		await _settle()
 		sell_page_guard += 1
 		sell_source = _offer_source(shop, sell_id, true)
-	if sell_source == null or not (sell_source is Button) or not str(sell_source.name).begins_with("SellMagicOffer_"):
-		_fail("Owned Magic should use the same raster-backed sell tile as Items and Gear")
+	if not sell_source is Ware or str(sell_source.get_meta("shop_item_id", "")) != sell_id:
+		_fail("Owned Items should use the raster-backed sell tile")
 		return
-	var sell_cards: Array[Node] = _canonical_cards(sell_source)
-	if sell_cards.size() != 1 or str(sell_cards[0].get("card_id")) != sell_id:
-		_fail("The raster-backed Magic sell tile should still contain its canonical real CardWidget")
 	if not bool(sell_source.get("pack")):
-		_fail("Magic sell tiles should retain the same pack material as other sell wares")
+		_fail("Sell tiles should retain their pack material")
 	sell_source.grab_focus()
 	await _settle()
-	_assert_detail_card(shop, sell_id, "Sell Magic focus")
+	_assert_detail_card(shop, sell_id, "Sell Item focus")
 	trade_action = shop.find_child("ScavengerTradeActionButton", true, false) as Button
 	if trade_action == null or not trade_action.text.begins_with("Sell ·"):
 		_fail("Sell drawer selection should produce one explicit Sell For action")
@@ -282,6 +292,10 @@ func _capture_states() -> void:
 	if sale_focus == null or not shop.is_ancestor_of(sale_focus) or not sale_focus.is_visible_in_tree():
 		_fail("A completed sale should recover controller focus inside the rebuilt shop")
 	await _save("post_sale.png")
+	if OS.get_cmdline_user_args().has("--pack-sale-only"):
+		instance.queue_free()
+		await process_frame
+		return
 
 	var reduced_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
 	reduced_settings["reduced_motion"] = true
@@ -434,12 +448,24 @@ func _navigate_controller_to(scope: Control, target: Control, context: String) -
 	if scope == null or target == null:
 		_fail("%s should have a valid focus scope and target" % context)
 		return
-	var start: Control = _probe_viewport.gui_get_focus_owner()
-	if start == target:
-		return
-	if start == null or not (start == scope or scope.is_ancestor_of(start)):
-		_fail("%s should begin with focus inside the Scavenger shop" % context)
-		return
+	# Focusing a ware selects it, rebuilding detail links; the Purge service
+	# also rewires Browse/Sell/Leave on focus changes. Follow the current graph
+	# one real D-pad event at a time instead of replaying a stale whole route.
+	for step: int in range(NAVIGATION_STEP_LIMIT):
+		var start: Control = _probe_viewport.gui_get_focus_owner()
+		if start == target: return
+		if start == null or not (start == scope or scope.is_ancestor_of(start)):
+			_fail("%s should begin with focus inside the Scavenger shop" % context)
+			return
+		var target_route: Array = _controller_route(scope, start, target)
+		if target_route.is_empty():
+			_fail("%s should be reachable through native directional focus" % context)
+			return
+		await _press_controller_button(int(target_route[0]))
+	if _probe_viewport.gui_get_focus_owner() != target:
+		_fail("%s should land on %s through real D-pad input" % [context, target.name])
+
+func _controller_route(scope: Control, start: Control, target: Control) -> Array:
 	var pending: Array[Control]
 	pending.append(start)
 	var visited: Dictionary = {start.get_instance_id(): true}
@@ -464,13 +490,7 @@ func _navigate_controller_to(scope: Control, target: Control, context: String) -
 				pending.clear()
 				break
 			pending.append(neighbor)
-	if target_route.is_empty():
-		_fail("%s should be reachable through native directional focus" % context)
-		return
-	for button_index_var: Variant in target_route:
-		await _press_controller_button(int(button_index_var))
-	if _probe_viewport.gui_get_focus_owner() != target:
-		_fail("%s should land on %s through real D-pad input" % [context, target.name])
+	return target_route
 
 func _controller_focus_edges() -> Array[Dictionary]:
 	var result: Array[Dictionary]
@@ -546,10 +566,12 @@ func _settle() -> void:
 	await process_frame
 
 func _save(filename: String) -> void:
-	await RenderingServer.frame_post_draw
+	await process_frame
 	var shop: Control = _probe_viewport.find_child("ScavengerShopView", true, false) as Control
 	if shop != null and shop.is_visible_in_tree():
 		_assert_banner_clearance(shop, filename)
+	if DisplayServer.get_name() == "headless": return
+	await RenderingServer.frame_post_draw
 	var image: Image = _probe_viewport.get_texture().get_image()
 	if image == null or image.get_size() != VIEWPORT_SIZE:
 		_fail("Proof must render natively into a 1920x1080 SubViewport")

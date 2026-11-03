@@ -1,0 +1,336 @@
+[
+  {
+    "campaign": "default",
+    "name": "replay-default-seed-1",
+    "evidence": "/private/tmp/labyrinth_codex/qa-23/replay-default-seed-1/seed-000001/evidence.json",
+    "child_returncode": 0,
+    "outcome": "replay_point",
+    "decisions": 1,
+    "sections": [
+      "0"
+    ],
+    "findings": [
+      {
+        "category": "platform certificate diagnostic",
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      }
+    ]
+  },
+  {
+    "campaign": "default",
+    "name": "replay-default-seed-2",
+    "evidence": "/private/tmp/labyrinth_codex/qa-23/replay-default-seed-2/seed-000002/evidence.json",
+    "child_returncode": 0,
+    "outcome": "embrace",
+    "decisions": 964,
+    "sections": [
+      "0",
+      "1",
+      "2"
+    ],
+    "findings": [
+      {
+        "category": "platform certificate diagnostic",
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      }
+    ]
+  },
+  {
+    "campaign": "default",
+    "name": "replay-default-seed-5",
+    "evidence": "/private/tmp/labyrinth_codex/qa-23/replay-default-seed-5/seed-000005/evidence.json",
+    "child_returncode": 1,
+    "outcome": "embrace",
+    "decisions": 2709,
+    "sections": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "findings": [
+      {
+        "category": "platform certificate diagnostic",
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      },
+      {
+        "category": "aggregate tree-growth flag",
+        "error": "tree_nodes grew more than 25% from section 0 to section 5 (1548 -> 5380)",
+        "location": "res://tools/run_hunt.gd:259"
+      },
+      {
+        "category": "protected contact payload",
+        "error": "SCRIPT ERROR: Invalid access to property or key 'actor_key' on a base object of type 'Dictionary'.",
+        "location": "res://scripts/maquette_cutout_runtime/contact_actions.gd:18"
+      },
+      {
+        "category": "protected contact runner status",
+        "error": "Godot runner exited 1 (native Godot exit 0; runner detected script errors)",
+        "location": "process exit"
+      }
+    ]
+  },
+  {
+    "campaign": "default",
+    "name": "replay-default-seed-12",
+    "evidence": "/private/tmp/labyrinth_codex/qa-23/replay-default-seed-12/seed-000012/evidence.json",
+    "child_returncode": 0,
+    "outcome": "fight_limit",
+    "decisions": 1217,
+    "sections": [
+      "0",
+      "1",
+      "2"
+    ],
+    "findings": [
+      {
+        "category": "platform certificate diagnostic",
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      },
+      {
+        "category": "hunt exploration budget",
+        "error": "Fight exploration budget reached 400 decisions",
+        "location": "res://tools/run_hunt.gd:259"
+      }
+    ]
+  },
+  {
+    "campaign": "default",
+    "name": "replay-default-seed-2-original",
+    "evidence": "/private/tmp/labyrinth_codex/qa-23/replay-default-seed-2-original/seed-000002/evidence.json",
+    "child_returncode": 0,
+    "outcome": "embrace",
+    "decisions": 3407,
+    "sections": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "findings": [
+      {
+        "category": "platform certificate diagnostic",
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      },
+      {
+        "category": "aggregate tree-growth flag",
+        "error": "tree_nodes grew more than 25% from section 0 to section 5 (1542 -> 6765)",
+        "location": "res://tools/run_hunt.gd:258"
+      }
+    ]
+  },
+  {
+    "campaign": "no-embrace",
+    "name": "replay-no-embrace-seed-1",
+    "evidence": "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-1/seed-000001/evidence.json",
+    "child_returncode": 0,
+    "outcome": "replay_point",
+    "decisions": 2530,
+    "sections": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "findings": [
+      {
+        "category": "platform certificate diagnostic",
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      },
+      {
+        "category": "aggregate tree-growth flag",
+        "error": "tree_nodes grew more than 25% from section 0 to section 5 (1533 -> 5905)",
+        "location": "res://tools/run_hunt.gd:259"
+      }
+    ]
+  },
+  {
+    "campaign": "no-embrace",
+    "name": "replay-no-embrace-seed-2",
+    "evidence": "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-2/seed-000002/evidence.json",
+    "child_returncode": 0,
+    "outcome": "replay_point",
+    "decisions": 2584,
+    "sections": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "findings": [
+      {
+        "category": "platform certificate diagnostic",
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      },
+      {
+        "category": "aggregate tree-growth flag",
+        "error": "tree_nodes grew more than 25% from section 0 to section 5 (1542 -> 7985)",
+        "location": "res://tools/run_hunt.gd:259"
+      }
+    ]
+  },
+  {
+    "campaign": "no-embrace",
+    "name": "replay-no-embrace-seed-3",
+    "evidence": "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-3/seed-000003/evidence.json",
+    "child_returncode": 0,
+    "outcome": "replay_point",
+    "decisions": 2539,
+    "sections": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "findings": [
+      {
+        "category": "platform certificate diagnostic",
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      },
+      {
+        "category": "fixed polygon rejection",
+        "error": "ERROR: Invalid polygon data, triangulation failed.",
+        "location": "res://scripts/combat_art_treatment.gd:186"
+      },
+      {
+        "category": "aggregate tree-growth flag",
+        "error": "tree_nodes grew more than 25% from section 0 to section 5 (1549 -> 5447)",
+        "location": "res://tools/run_hunt.gd:259"
+      }
+    ]
+  },
+  {
+    "campaign": "no-embrace",
+    "name": "replay-no-embrace-seed-4",
+    "evidence": "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-4/seed-000004/evidence.json",
+    "child_returncode": 0,
+    "outcome": "replay_point",
+    "decisions": 2365,
+    "sections": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "findings": [
+      {
+        "category": "platform certificate diagnostic",
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      }
+    ]
+  },
+  {
+    "campaign": "no-embrace",
+    "name": "replay-no-embrace-seed-3-polygon-confirm",
+    "evidence": "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-3-polygon-confirm/seed-000003/evidence.json",
+    "child_returncode": 0,
+    "outcome": "victory",
+    "decisions": 2931,
+    "sections": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "findings": [
+      {
+        "category": "platform certificate diagnostic",
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      },
+      {
+        "category": "aggregate tree-growth flag",
+        "error": "tree_nodes grew more than 25% from section 0 to section 5 (1549 -> 5447)",
+        "location": "res://tools/run_hunt.gd:258"
+      }
+    ]
+  },
+  {
+    "campaign": "no-embrace",
+    "name": "replay-no-embrace-seed-3-fixed",
+    "evidence": "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-3-fixed/seed-000003/evidence.json",
+    "child_returncode": 0,
+    "outcome": "victory",
+    "decisions": 2931,
+    "sections": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "findings": [
+      {
+        "category": "platform certificate diagnostic",
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      },
+      {
+        "category": "aggregate tree-growth flag",
+        "error": "tree_nodes grew more than 25% from section 0 to section 5 (1549 -> 5447)",
+        "location": "res://tools/run_hunt.gd:258"
+      }
+    ]
+  },
+  {
+    "campaign": "no-embrace",
+    "name": "replay-no-embrace-seed-4-fixed",
+    "evidence": "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-4-fixed/seed-000004/evidence.json",
+    "child_returncode": 1,
+    "outcome": "victory",
+    "decisions": 3038,
+    "sections": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "findings": [
+      {
+        "category": "platform certificate diagnostic",
+        "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+        "location": "platform/macos/os_macos.mm:1014"
+      },
+      {
+        "category": "aggregate tree-growth flag",
+        "error": "tree_nodes grew more than 25% from section 0 to section 5 (1548 -> 7482)",
+        "location": "res://tools/run_hunt.gd:258"
+      },
+      {
+        "category": "protected contact payload",
+        "error": "SCRIPT ERROR: Invalid access to property or key 'actor_key' on a base object of type 'Dictionary'.",
+        "location": "res://scripts/maquette_cutout_runtime/contact_actions.gd:18"
+      },
+      {
+        "category": "protected contact runner status",
+        "error": "Godot runner exited 1 (native Godot exit 0; runner detected script errors)",
+        "location": "process exit"
+      }
+    ]
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*pair_normal_*_end.png", "width": 1920, "height": 1080},
+    {"pattern": "*pair_fast_*_end.png", "width": 1920, "height": 1080},
+    {"pattern": "*pair_fastest_*_end.png", "width": 1920, "height": 1080}
+  ],
+  "TODO_DESIGN_SEER_SIX_STEP_GAIT": "Protected production Seer move has four shuffles and no gait declaration. Playback preserves it; authoring six steps requires design-owner data."
+}

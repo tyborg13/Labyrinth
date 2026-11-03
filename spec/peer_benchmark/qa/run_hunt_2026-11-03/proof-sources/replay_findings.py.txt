@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+"""One fresh, single-process replay for every campaign finding seed."""
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+import json
+import os
+import subprocess
+import sys
+import time
+
+PROJECT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-23')
+EVIDENCE = Path('/private/tmp/labyrinth_codex/qa-23')
+LAUNCHER = EVIDENCE / 'run_hunt_task.py'
+CENSUS_SCRIPT = EVIDENCE / 'run_hunt_census.gd'
+REPLAY_PROCESSES = 1
+MAX_ACTIVE_REPLAYS = 2
+
+def run(plan):
+    name = plan['campaign'] + '-seed-' + str(plan['seed'])
+    output = EVIDENCE / ('replay-' + name)
+    command = [sys.executable, str(LAUNCHER), '--seed', str(plan['seed']),
+        '--runs', '1', '--processes', str(REPLAY_PROCESSES), '--stop-after', str(plan['stop_after']),
+        '--script', str(CENSUS_SCRIPT), '--output-dir', str(output)]
+    if plan['campaign'] == 'no-embrace':
+        command.append('--no-embrace')
+    started = time.time()
+    print('QA23 REPLAY START:', name, 'stop_after=' + str(plan['stop_after']), flush=True)
+    with (EVIDENCE / ('replay-' + name + '.log')).open('w') as log:
+        result = subprocess.run(command, cwd=PROJECT, env=dict(os.environ, LABYRINTH_CEL_LOOK='off'),
+            stdout=log, stderr=subprocess.STDOUT)
+    record = dict(plan, argv=command, output=str(output), returncode=result.returncode,
+        started=started, wall_seconds=time.time()-started)
+    (EVIDENCE / ('replay-' + name + '-execution.json')).write_text(json.dumps(record, indent=2)+'\n')
+    print('QA23 REPLAY END:', name, 'exit=' + str(result.returncode), flush=True)
+    return record
+
+def main():
+    plans = []
+    for campaign in ('default', 'no-embrace'):
+        groups = json.loads((EVIDENCE / ('campaign-' + campaign) / 'findings.json').read_text())
+        seeds = defaultdict(lambda: dict(stop_after=1, findings=[]))
+        for group in groups:
+            seed = group['context']['seed']
+            entry = seeds[seed]
+            entry['stop_after'] = max(entry['stop_after'], int(group['context'].get('decision', 0))+1)
+            entry['findings'].append(dict(error=group['error'], location=group['location']))
+        plans.extend(dict(campaign=campaign, seed=seed, **entry) for seed,entry in sorted(seeds.items()))
+    (EVIDENCE / 'replay-plan.json').write_text(json.dumps(plans, indent=2)+'\n')
+    with ThreadPoolExecutor(max_workers=MAX_ACTIVE_REPLAYS) as pool:
+        results = list(pool.map(run, plans))
+    (EVIDENCE / 'replay-results.json').write_text(json.dumps(results, indent=2)+'\n')
+    print('QA23 REPLAY COORDINATOR: completed=' + str(len(results)), flush=True)
+    return int(any(row['returncode'] for row in results))
+
+if __name__ == '__main__':
+    sys.exit(main())

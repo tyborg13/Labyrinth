@@ -531,9 +531,12 @@ func _apply_steam_user_directory() -> void:
 	var user_dir_name: String = steam_user_dir_name()
 	if user_dir_name.is_empty():
 		return
+	var original_user_dir: String = ProjectSettings.globalize_path("user://")
 	ProjectSettings.set_setting("application/config/use_custom_user_dir", true)
 	ProjectSettings.set_setting("application/config/custom_user_dir_name", user_dir_name)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://"))
+	var cache_report: Dictionary = preload("res://scripts/engine_cache_directories.gd").preserve(original_user_dir, ProjectSettings.globalize_path("user://"))
+	print("ENGINE CACHE SWITCH: " + JSON.stringify(cache_report))
 
 func _normalized_init_result(raw_result: Variant) -> Dictionary:
 	var result: Dictionary = {

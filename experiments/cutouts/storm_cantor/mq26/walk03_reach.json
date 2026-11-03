@@ -1,0 +1,100 @@
+{
+  "task": "walk-03",
+  "baseline": "d5c39432a",
+  "selected_steps_per_tile": 5,
+  "steps_per_second": 12,
+  "seconds_per_tile": 0.4166666666666667,
+  "frames_per_tile": 25,
+  "native_pixels": false,
+  "candidate_gates": {
+    "4": {
+      "ok": false,
+      "maximum_frame_travel_px": 4.091164030870008,
+      "views": {
+        "front": {
+          "ok": true,
+          "errors": [],
+          "minimum_peak_bend_deg": 41.21859554767879,
+          "maximum_fit_px": 5.142309359356091,
+          "maximum_total_pelvis_drop_px": 7.757938109417736,
+          "maximum_rigid_air_px": 0.0,
+          "maximum_stance_frame_change_px": 0.0,
+          "maximum_stance_target_error_px": 0.5913639649523295,
+          "sample_counts": {
+            "frames": 82,
+            "stance": 106,
+            "rigid_air": 0
+          },
+          "rigid_air_failures": [],
+          "maximum_target_error_px": 0.669678204600651
+        },
+        "rear": {
+          "ok": false,
+          "errors": [
+            "rear/move/0.55: pelvis fit 6.746851 px > 6"
+          ],
+          "minimum_peak_bend_deg": 36.023184870820415,
+          "maximum_fit_px": 6.746850619879112,
+          "maximum_total_pelvis_drop_px": 9.366003886722183,
+          "maximum_rigid_air_px": 0.0,
+          "maximum_stance_frame_change_px": 0.0,
+          "maximum_stance_target_error_px": 0.5913508875488865,
+          "sample_counts": {
+            "frames": 82,
+            "stance": 106,
+            "rigid_air": 0
+          },
+          "rigid_air_failures": [],
+          "maximum_target_error_px": 0.6249811554153941
+        }
+      },
+      "errors": [
+        "rear/move/0.55: pelvis fit 6.746851 px > 6"
+      ]
+    },
+    "5": {
+      "ok": true,
+      "maximum_frame_travel_px": 3.2729312246965185,
+      "views": {
+        "front": {
+          "ok": true,
+          "errors": [],
+          "minimum_peak_bend_deg": 32.133665830006464,
+          "maximum_fit_px": 2.630354711142502,
+          "maximum_total_pelvis_drop_px": 3.564180313663396,
+          "maximum_rigid_air_px": 0.0,
+          "maximum_stance_frame_change_px": 0.0,
+          "maximum_stance_target_error_px": 0.49549924355145075,
+          "sample_counts": {
+            "frames": 91,
+            "stance": 124,
+            "rigid_air": 0
+          },
+          "rigid_air_failures": [],
+          "maximum_target_error_px": 0.6556057139934021
+        },
+        "rear": {
+          "ok": true,
+          "errors": [],
+          "minimum_peak_bend_deg": 37.04513537256915,
+          "maximum_fit_px": 3.932399465593946,
+          "maximum_total_pelvis_drop_px": 4.645999465593945,
+          "maximum_rigid_air_px": 0.0,
+          "maximum_stance_frame_change_px": 0.0,
+          "maximum_stance_target_error_px": 0.49611976896889076,
+          "sample_counts": {
+            "frames": 91,
+            "stance": 124,
+            "rigid_air": 0
+          },
+          "rigid_air_failures": [],
+          "maximum_target_error_px": 0.6375667097451245
+        }
+      },
+      "errors": []
+    }
+  },
+  "retimed_director_channels": [],
+  "compiled_sha256": "9b99b7b9e7a3cbf61392da5f2bab35dedc585d7ceb82d02d446ae8b074c7a128",
+  "evidence_root": "/private/tmp/labyrinth_codex/walk-03"
+}

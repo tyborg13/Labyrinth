@@ -1,0 +1,556 @@
+{
+  "scope": "Source projection of complete lantern and iron legs; cloth excluded from envelopes.",
+  "required_minimum_over_H": 0.03,
+  "steps": [
+    {
+      "stance": 1.3,
+      "fist_outward_over_L": 0.3,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.11743332856692335,
+        "thigh_plate_far": 0.11742363583607626,
+        "shin_plate_far": 0.12453600507809512,
+        "knee_cop_far": 0.12501300716991937,
+        "pointed_sabaton_far": 0.12875698646758613
+      },
+      "spec_hash": "cc2d804d04d254bcbfcba8060da46d9e3b52f2aab76310e8886a1241a10d82bf"
+    },
+    {
+      "stance": 1.3,
+      "fist_outward_over_L": 0.32,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.11532996081811571,
+        "thigh_plate_far": 0.12355294676340543,
+        "shin_plate_far": 0.13020719814195353,
+        "knee_cop_far": 0.130778428166501,
+        "pointed_sabaton_far": 0.13377965970191275
+      },
+      "spec_hash": "14e440d075d68820a51538b86aa931b21be0738067fb671c2c02f8761e8338f6"
+    },
+    {
+      "stance": 1.3,
+      "fist_outward_over_L": 0.34,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.11588092537970938,
+        "thigh_plate_far": 0.1326433835107635,
+        "shin_plate_far": 0.14269470584954883,
+        "knee_cop_far": 0.14024981853902788,
+        "pointed_sabaton_far": 0.14541749572610385
+      },
+      "spec_hash": "5c29d84bca753837b52a5c63ef5cac2959519ca5fcfdf46a655b1aec7121df34"
+    },
+    {
+      "stance": 1.3,
+      "fist_outward_over_L": 0.36,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.11377755763090182,
+        "thigh_plate_far": 0.13883248696041886,
+        "shin_plate_far": 0.14846012684613047,
+        "knee_cop_far": 0.14603804479908614,
+        "pointed_sabaton_far": 0.15072576190245862
+      },
+      "spec_hash": "545e20bf87751846826665de4768ad722b8a31ed51a4a74ac0b7504f05f57f4c"
+    },
+    {
+      "stance": 1.3,
+      "fist_outward_over_L": 0.38,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.11167418988209422,
+        "thigh_plate_far": 0.14502159041007429,
+        "shin_plate_far": 0.1542255478427121,
+        "knee_cop_far": 0.1518789599806912,
+        "pointed_sabaton_far": 0.15611970643410591
+      },
+      "spec_hash": "f7584d213c450716efc127a9c45b4ba564099715e0031343532ac45d575cc230"
+    },
+    {
+      "stance": 1.3,
+      "fist_outward_over_L": 0.4,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.00021549743550488006,
+        "knee_cop_near": 0.0037211756738237045,
+        "pointed_sabaton_near": 0.10957082213328659,
+        "thigh_plate_far": 0.15121069385972968,
+        "shin_plate_far": 0.1599909688392938,
+        "knee_cop_far": 0.15776700110942865,
+        "pointed_sabaton_far": 0.16159074964624595
+      },
+      "spec_hash": "83901e9daa7122a173b92794c194b6196df173c9390577edba0e1cd5f94e07c8"
+    },
+    {
+      "stance": 1.3,
+      "fist_outward_over_L": 0.42,
+      "minimum_over_H": 0.0010637675889315498,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0010637675889315498,
+        "shin_plate_near": 0.005347301908928076,
+        "knee_cop_near": 0.009486596670405358,
+        "pointed_sabaton_near": 0.10746745438447898,
+        "thigh_plate_far": 0.15739979730938503,
+        "shin_plate_far": 0.16575638983587546,
+        "knee_cop_far": 0.16369708302678485,
+        "pointed_sabaton_far": 0.1671201859172678
+      },
+      "spec_hash": "fa2653aec014c61d7fc9ca51eec6935b0a190beb02ada48a1aa8225706c4984c"
+    },
+    {
+      "stance": 1.3,
+      "fist_outward_over_L": 0.44,
+      "minimum_over_H": 0.006971019634479301,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.006971019634479301,
+        "shin_plate_near": 0.010479106382351304,
+        "knee_cop_near": 0.015252017666987043,
+        "pointed_sabaton_near": 0.10536408663567139,
+        "thigh_plate_far": 0.16358890075904045,
+        "shin_plate_far": 0.17152181083245713,
+        "knee_cop_far": 0.16966479759238007,
+        "pointed_sabaton_far": 0.1726556077039497
+      },
+      "spec_hash": "bc1b15d0db0ad54c6b83dc77a20b33741ceaea00eeca6233baa3e0cbabe66be5"
+    },
+    {
+      "stance": 1.2,
+      "fist_outward_over_L": 0.3,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.11396404431887883,
+        "thigh_plate_far": 0.11346701203869082,
+        "shin_plate_far": 0.11599206946013932,
+        "knee_cop_far": 0.12017055800712798,
+        "pointed_sabaton_far": 0.12060878656302639
+      },
+      "spec_hash": "e53b0d2288883abf7866d03fc5c4e2dff28c0498fa990a136e4c9c4a232d63f6"
+    },
+    {
+      "stance": 1.2,
+      "fist_outward_over_L": 0.32,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.11186067657007123,
+        "thigh_plate_far": 0.11951310463669958,
+        "shin_plate_far": 0.12154232062882751,
+        "knee_cop_far": 0.12593597900370962,
+        "pointed_sabaton_far": 0.1255066592256623
+      },
+      "spec_hash": "ab2b821c0f6822466f0168a2180344a36a9187d8f27f6c773bf70179d368fc83"
+    },
+    {
+      "stance": 1.2,
+      "fist_outward_over_L": 0.34,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.11261517035682662,
+        "thigh_plate_far": 0.12897447911230145,
+        "shin_plate_far": 0.13433580462912498,
+        "knee_cop_far": 0.13569031029435424,
+        "pointed_sabaton_far": 0.13736875464045453
+      },
+      "spec_hash": "541cb18aca04d0a9440b7131ed1f8e1663e98a5916121d086b4ceb20f0f064c3"
+    },
+    {
+      "stance": 1.2,
+      "fist_outward_over_L": 0.36,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.11051180260801904,
+        "thigh_plate_far": 0.13508951247763423,
+        "shin_plate_far": 0.14006681382134561,
+        "knee_cop_far": 0.14146483159670695,
+        "pointed_sabaton_far": 0.14252423640353315
+      },
+      "spec_hash": "854b789ad9cb2f7a1e33ac328e52240956a737f9fcfe693caaec9d22a538309b"
+    },
+    {
+      "stance": 1.2,
+      "fist_outward_over_L": 0.38,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0022799760910451835,
+        "pointed_sabaton_near": 0.10840843485921144,
+        "thigh_plate_far": 0.14120454584296707,
+        "shin_plate_far": 0.14583214129560013,
+        "knee_cop_far": 0.14728952243645815,
+        "pointed_sabaton_far": 0.14778105890648022
+      },
+      "spec_hash": "cac07ae927ec1185e5393e6ac7a02abd2cf5c0e299711a819446593580da4316"
+    },
+    {
+      "stance": 1.2,
+      "fist_outward_over_L": 0.4,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.004785723392056116,
+        "knee_cop_near": 0.008045397087626848,
+        "pointed_sabaton_near": 0.10630506711040384,
+        "thigh_plate_far": 0.1473195792082999,
+        "shin_plate_far": 0.1515975622921818,
+        "knee_cop_far": 0.15316399204318457,
+        "pointed_sabaton_far": 0.1531287855982686
+      },
+      "spec_hash": "77b5cf109a74cba21530f1ba7b55365991e0c1798e6e3cfb6d798af06d4fbfc9"
+    },
+    {
+      "stance": 1.2,
+      "fist_outward_over_L": 0.42,
+      "minimum_over_H": 0.004007898588328747,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.004007898588328747,
+        "shin_plate_near": 0.010012970516301688,
+        "knee_cop_near": 0.0138108180842085,
+        "pointed_sabaton_near": 0.10421843180496507,
+        "thigh_plate_far": 0.1534465912088347,
+        "shin_plate_far": 0.15736298328876344,
+        "knee_cop_far": 0.1590827259504283,
+        "pointed_sabaton_far": 0.15855821891106744
+      },
+      "spec_hash": "1f61d6ed1eb479991b2adfcd440f422f5c199d8f52003d89ad05211ae7c00ab3"
+    },
+    {
+      "stance": 1.2,
+      "fist_outward_over_L": 0.44,
+      "minimum_over_H": 0.009974566320254886,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.009974566320254886,
+        "shin_plate_near": 0.015240217640547291,
+        "knee_cop_near": 0.019576239080790186,
+        "pointed_sabaton_near": 0.10240820186671035,
+        "thigh_plate_far": 0.15959868338412672,
+        "shin_plate_far": 0.1631284042853451,
+        "knee_cop_far": 0.16504096197975524,
+        "pointed_sabaton_far": 0.1640612143248783
+      },
+      "spec_hash": "9cda8505d2602dd3ecd69aca6ac02818c65792887b4f7b83be659e2fc2eaebe1"
+    },
+    {
+      "stance": 1.1,
+      "fist_outward_over_L": 0.3,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.11063671741188523,
+        "thigh_plate_far": 0.1094793905577786,
+        "shin_plate_far": 0.10796564272313369,
+        "knee_cop_far": 0.11552770483652773,
+        "pointed_sabaton_far": 0.11317813064520733
+      },
+      "spec_hash": "f441a674a15b24e78efd2326fa7fba300024abdc68026583a655b82a8a2be192"
+    },
+    {
+      "stance": 1.1,
+      "fist_outward_over_L": 0.32,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.1085333496630776,
+        "thigh_plate_far": 0.11544270764418782,
+        "shin_plate_far": 0.11339952698205755,
+        "knee_cop_far": 0.12129312583310937,
+        "pointed_sabaton_far": 0.11782730919735525
+      },
+      "spec_hash": "9d27539da9a6094ef6e0cf1060383dae46ba815b37e4750f4e241acc7794fa0c"
+    },
+    {
+      "stance": 1.1,
+      "fist_outward_over_L": 0.34,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.10934941533394388,
+        "thigh_plate_far": 0.12505898051804648,
+        "shin_plate_far": 0.1261005102173998,
+        "knee_cop_far": 0.1311321626890358,
+        "pointed_sabaton_far": 0.12954394142127706
+      },
+      "spec_hash": "51acaadd0f7cbca85fd1df6f68bcc158648ce86b48d3d50443aed89929d105ca"
+    },
+    {
+      "stance": 1.1,
+      "fist_outward_over_L": 0.36,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0008412441084531957,
+        "pointed_sabaton_near": 0.10724604758513627,
+        "thigh_plate_far": 0.13110068450062146,
+        "shin_plate_far": 0.1317454995942744,
+        "knee_cop_far": 0.13689830742284348,
+        "pointed_sabaton_far": 0.1345674111157973
+      },
+      "spec_hash": "01bdf02d6f5f9344f9db2a61b44132e89eee770fdaf530ad477f200f2ddb4594"
+    },
+    {
+      "stance": 1.1,
+      "fist_outward_over_L": 0.38,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.004261792672402708,
+        "knee_cop_near": 0.006606665105034871,
+        "pointed_sabaton_near": 0.10514267983632866,
+        "thigh_plate_far": 0.13717527200295743,
+        "shin_plate_far": 0.13746095753984441,
+        "knee_cop_far": 0.14270181338607874,
+        "pointed_sabaton_far": 0.13966190446282786
+      },
+      "spec_hash": "bb6bc400f9e5f7805b2f905231adf1f25f85bfe9035eea1fd76dd51f5cadffe5"
+    },
+    {
+      "stance": 1.1,
+      "fist_outward_over_L": 0.4,
+      "minimum_over_H": 0.0010233741708919634,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0010233741708919634,
+        "shin_plate_near": 0.009582378317229983,
+        "knee_cop_near": 0.012372086101616536,
+        "pointed_sabaton_near": 0.10317219520851059,
+        "thigh_plate_far": 0.14328231300411362,
+        "shin_plate_far": 0.1432238331269311,
+        "knee_cop_far": 0.14855830071147383,
+        "pointed_sabaton_far": 0.14486409900361683
+      },
+      "spec_hash": "2ae749f6f91d9f486dd78a00151bd6b77ee34c96f8ddd37f2ea83e71c858ff12"
+    },
+    {
+      "stance": 1.1,
+      "fist_outward_over_L": 0.42,
+      "minimum_over_H": 0.007046707427646621,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.007046707427646621,
+        "shin_plate_near": 0.014902963962057245,
+        "knee_cop_near": 0.018137507098198186,
+        "pointed_sabaton_near": 0.10156960142185507,
+        "thigh_plate_far": 0.14941782821571786,
+        "shin_plate_far": 0.14898925412351274,
+        "knee_cop_far": 0.1544617430791705,
+        "pointed_sabaton_far": 0.15016280165288898
+      },
+      "spec_hash": "36def61e4e36fb111e9e1fcc9bf6e7f65e572a42296df978024c64a68df38156"
+    },
+    {
+      "stance": 1.1,
+      "fist_outward_over_L": 0.44,
+      "minimum_over_H": 0.01307004068440132,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.01307004068440132,
+        "shin_plate_near": 0.020223549606884536,
+        "knee_cop_near": 0.023902928094779875,
+        "pointed_sabaton_near": 0.10029235699634569,
+        "thigh_plate_far": 0.15557844887954222,
+        "shin_plate_far": 0.15475467512009441,
+        "knee_cop_far": 0.1604069563267137,
+        "pointed_sabaton_far": 0.1555481501610663
+      },
+      "spec_hash": "39a95ee57a931f220887cd77cd73577d4e7411abd59096da4466c0de191e51be"
+    },
+    {
+      "stance": 1.0,
+      "fist_outward_over_L": 0.3,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.10742188071546557,
+        "thigh_plate_far": 0.10551547823301204,
+        "shin_plate_far": 0.10039331032286263,
+        "knee_cop_far": 0.11104317300920413,
+        "pointed_sabaton_far": 0.10637384791966469
+      },
+      "spec_hash": "5a1a814596528a132cf7e005592d5a73dd073a3847e1ffbc6d7b37c8693fdccd"
+    },
+    {
+      "stance": 1.0,
+      "fist_outward_over_L": 0.32,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.10531851296665802,
+        "thigh_plate_far": 0.11146193102341134,
+        "shin_plate_far": 0.10571480695470038,
+        "knee_cop_far": 0.11680859400578578,
+        "pointed_sabaton_far": 0.11079408017221277
+      },
+      "spec_hash": "14950a4b88397323e1f5347e17fdd2baf3420b08c98d2eebe230a50bb0a2494f"
+    },
+    {
+      "stance": 1.0,
+      "fist_outward_over_L": 0.34,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0,
+        "knee_cop_near": 0.0,
+        "pointed_sabaton_near": 0.10608366031106108,
+        "thigh_plate_far": 0.12101181202021674,
+        "shin_plate_far": 0.11801195275658219,
+        "knee_cop_far": 0.12657538148849354,
+        "pointed_sabaton_far": 0.12183648783214779
+      },
+      "spec_hash": "c82d8e1623b79fe78dfef2381abe95aca09078e9cd64c794a6b0acc48de9b0c0"
+    },
+    {
+      "stance": 1.0,
+      "fist_outward_over_L": 0.36,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.0037652073564851574,
+        "knee_cop_near": 0.005170403605339939,
+        "pointed_sabaton_near": 0.10401055462759416,
+        "thigh_plate_far": 0.1270541864573905,
+        "shin_plate_far": 0.12355368759221333,
+        "knee_cop_far": 0.13234080248507518,
+        "pointed_sabaton_far": 0.1267700008979997
+      },
+      "spec_hash": "5efe79be0478bc125126e0dd3da3cadd82c96cdfc4e8e3d5eec7bd9e9cd6be7b"
+    },
+    {
+      "stance": 1.0,
+      "fist_outward_over_L": 0.38,
+      "minimum_over_H": 0.0,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.0,
+        "shin_plate_near": 0.00917706648668749,
+        "knee_cop_near": 0.010935824601921613,
+        "pointed_sabaton_near": 0.1022394304159917,
+        "thigh_plate_far": 0.13313442132841527,
+        "shin_plate_far": 0.12917935841308498,
+        "knee_cop_far": 0.13812054310587324,
+        "pointed_sabaton_far": 0.1317909272121079
+      },
+      "spec_hash": "6b8a8780889264aa4eed0aeb9446d522439502628e6a54971615c986f545f0d9"
+    },
+    {
+      "stance": 1.0,
+      "fist_outward_over_L": 0.4,
+      "minimum_over_H": 0.004081483436542961,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.004081483436542961,
+        "shin_plate_near": 0.01458892561688984,
+        "knee_cop_near": 0.016701245598503278,
+        "pointed_sabaton_near": 0.10084658374804788,
+        "thigh_plate_far": 0.13924755720199977,
+        "shin_plate_far": 0.13487846292335873,
+        "knee_cop_far": 0.1439540969808443,
+        "pointed_sabaton_far": 0.13683243798655514
+      },
+      "spec_hash": "758206d8171c277b9201824f146e2948c2fff9090ffee68ae44c1dee361f26ae"
+    },
+    {
+      "stance": 1.0,
+      "fist_outward_over_L": 0.42,
+      "minimum_over_H": 0.010158680096342113,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.010158680096342113,
+        "shin_plate_near": 0.020000784747092184,
+        "knee_cop_near": 0.02246666659508493,
+        "pointed_sabaton_near": 0.09969102434304536,
+        "thigh_plate_far": 0.14538944400872422,
+        "shin_plate_far": 0.1406354012471478,
+        "knee_cop_far": 0.14983784517086732,
+        "pointed_sabaton_far": 0.14197658933826146
+      },
+      "spec_hash": "de2f400cef428e95b5ca219e602edc5f6ccad0dcde1b5e85d6f052cd8035f71e"
+    },
+    {
+      "stance": 1.0,
+      "fist_outward_over_L": 0.44,
+      "minimum_over_H": 0.016235876756141316,
+      "passed": false,
+      "per_leg_piece_over_H": {
+        "thigh_plate_near": 0.016235876756141316,
+        "shin_plate_near": 0.025412643971281484,
+        "knee_cop_near": 0.028232087591666618,
+        "pointed_sabaton_near": 0.09892019626254521,
+        "thigh_plate_far": 0.1515565863622472,
+        "shin_plate_far": 0.14640082224372947,
+        "knee_cop_far": 0.15576609981474426,
+        "pointed_sabaton_far": 0.14722325887262444
+      },
+      "spec_hash": "e020b0dbe12c6977ec3302eb4ac5175f67c1603121ab76f7472925c34cb698ce"
+    }
+  ],
+  "selected": {
+    "stance": 1.1,
+    "fist_outward_over_L": 0.36,
+    "mode": "depth_overlap"
+  },
+  "other_pose_values_unchanged": true
+}

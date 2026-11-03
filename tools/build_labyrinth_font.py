@@ -54,6 +54,12 @@ COPYRIGHT = (
     "Licensed under the SIL Open Font License, Version 1.1."
 )
 
+# Bitter narrows its word space as weight rises (0.22 em at Thin, 0.16 at Black),
+# while the traced, chipped glyphs here run a little wider than Bitter's. Under
+# the game's outlines that closed words up ("DEFEATALL ENEMIES", "1Card Play").
+# Every cut uses a quarter-em word space instead, usual for a serif text face.
+WORD_SPACE_ADVANCE = 250
+
 ASCII = "".join(chr(codepoint) for codepoint in range(32, 127))
 PROJECT_SYMBOLS = "·→∞±–—◆↻←›•×−…“”‘’"
 SUPPORTED_CHARS = ASCII + PROJECT_SYMBOLS
@@ -506,7 +512,7 @@ def _build_cut(
     glyphs = {".notdef": _notdef_glyph(), "space": TTGlyphPen(None).glyph()}
     metrics: dict[str, tuple[int, int]] = {
         ".notdef": (700, 80),
-        "space": (round(font.getlength(" ") * UNITS_PER_EM / RASTER_EM), 0),
+        "space": (WORD_SPACE_ADVANCE, 0),
     }
     cmap = {ord(" "): "space"}
     total_chips = 0

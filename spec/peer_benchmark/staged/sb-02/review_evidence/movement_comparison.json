@@ -1,0 +1,896 @@
+{
+  "parent": [
+    {
+      "max_us": 2642,
+      "n": 100,
+      "p50_us": 902,
+      "p95_us": 1647,
+      "phases": {
+        "assign_and_assets": {
+          "count": 120,
+          "total_usec": 54208,
+          "usec_per_call": 451.733333333333
+        },
+        "derived_caches": {
+          "count": 120,
+          "total_usec": 3359,
+          "usec_per_call": 27.9916666666667
+        },
+        "diff": {
+          "count": 120,
+          "total_usec": 7650,
+          "usec_per_call": 63.75
+        },
+        "hud_layout": {
+          "count": 120,
+          "total_usec": 21705,
+          "usec_per_call": 180.875
+        },
+        "redraw_routing": {
+          "count": 120,
+          "total_usec": 4342,
+          "usec_per_call": 36.1833333333333
+        },
+        "retained_sync": {
+          "count": 120,
+          "total_usec": 20099,
+          "usec_per_call": 167.491666666667
+        },
+        "roster_acolyte": {
+          "count": 120,
+          "total_usec": 63,
+          "usec_per_call": 0.525
+        },
+        "roster_bile_bloomer": {
+          "count": 120,
+          "total_usec": 58,
+          "usec_per_call": 0.483333333333333
+        },
+        "roster_cinder_droplet": {
+          "count": 120,
+          "total_usec": 51,
+          "usec_per_call": 0.425
+        },
+        "roster_crawler": {
+          "count": 120,
+          "total_usec": 54,
+          "usec_per_call": 0.45
+        },
+        "roster_frostglass": {
+          "count": 120,
+          "total_usec": 59,
+          "usec_per_call": 0.491666666666667
+        },
+        "roster_gaoler": {
+          "count": 120,
+          "total_usec": 65,
+          "usec_per_call": 0.541666666666667
+        },
+        "roster_grave_surgeon": {
+          "count": 120,
+          "total_usec": 53,
+          "usec_per_call": 0.441666666666667
+        },
+        "roster_guardian": {
+          "count": 120,
+          "total_usec": 46,
+          "usec_per_call": 0.383333333333333
+        },
+        "roster_harrier": {
+          "count": 120,
+          "total_usec": 51,
+          "usec_per_call": 0.425
+        },
+        "roster_illusion": {
+          "count": 120,
+          "total_usec": 48,
+          "usec_per_call": 0.4
+        },
+        "roster_iskaldra": {
+          "count": 120,
+          "total_usec": 59,
+          "usec_per_call": 0.491666666666667
+        },
+        "roster_lightning_wisp": {
+          "count": 120,
+          "total_usec": 306,
+          "usec_per_call": 2.55
+        },
+        "roster_noctyrax": {
+          "count": 120,
+          "total_usec": 54,
+          "usec_per_call": 0.45
+        },
+        "roster_tharokh": {
+          "count": 120,
+          "total_usec": 54,
+          "usec_per_call": 0.45
+        },
+        "roster_vaeloryx": {
+          "count": 120,
+          "total_usec": 50,
+          "usec_per_call": 0.416666666666667
+        },
+        "roster_veilbound_acolyte": {
+          "count": 120,
+          "total_usec": 58,
+          "usec_per_call": 0.483333333333333
+        },
+        "roster_vyraketh": {
+          "count": 120,
+          "total_usec": 54,
+          "usec_per_call": 0.45
+        },
+        "roster_warden": {
+          "count": 120,
+          "total_usec": 76,
+          "usec_per_call": 0.633333333333333
+        },
+        "roster_zekarion": {
+          "count": 120,
+          "total_usec": 47,
+          "usec_per_call": 0.391666666666667
+        },
+        "signatures": {
+          "count": 120,
+          "total_usec": 1212,
+          "usec_per_call": 10.1
+        }
+      }
+    },
+    {
+      "max_us": 1605,
+      "n": 100,
+      "p50_us": 891,
+      "p95_us": 1092,
+      "phases": {
+        "assign_and_assets": {
+          "count": 120,
+          "total_usec": 50335,
+          "usec_per_call": 419.458333333333
+        },
+        "derived_caches": {
+          "count": 120,
+          "total_usec": 3004,
+          "usec_per_call": 25.0333333333333
+        },
+        "diff": {
+          "count": 120,
+          "total_usec": 6962,
+          "usec_per_call": 58.0166666666667
+        },
+        "hud_layout": {
+          "count": 120,
+          "total_usec": 18789,
+          "usec_per_call": 156.575
+        },
+        "redraw_routing": {
+          "count": 120,
+          "total_usec": 3902,
+          "usec_per_call": 32.5166666666667
+        },
+        "retained_sync": {
+          "count": 120,
+          "total_usec": 19427,
+          "usec_per_call": 161.891666666667
+        },
+        "roster_acolyte": {
+          "count": 120,
+          "total_usec": 45,
+          "usec_per_call": 0.375
+        },
+        "roster_bile_bloomer": {
+          "count": 120,
+          "total_usec": 61,
+          "usec_per_call": 0.508333333333333
+        },
+        "roster_cinder_droplet": {
+          "count": 120,
+          "total_usec": 58,
+          "usec_per_call": 0.483333333333333
+        },
+        "roster_crawler": {
+          "count": 120,
+          "total_usec": 51,
+          "usec_per_call": 0.425
+        },
+        "roster_frostglass": {
+          "count": 120,
+          "total_usec": 54,
+          "usec_per_call": 0.45
+        },
+        "roster_gaoler": {
+          "count": 120,
+          "total_usec": 51,
+          "usec_per_call": 0.425
+        },
+        "roster_grave_surgeon": {
+          "count": 120,
+          "total_usec": 57,
+          "usec_per_call": 0.475
+        },
+        "roster_guardian": {
+          "count": 120,
+          "total_usec": 53,
+          "usec_per_call": 0.441666666666667
+        },
+        "roster_harrier": {
+          "count": 120,
+          "total_usec": 54,
+          "usec_per_call": 0.45
+        },
+        "roster_illusion": {
+          "count": 120,
+          "total_usec": 59,
+          "usec_per_call": 0.491666666666667
+        },
+        "roster_iskaldra": {
+          "count": 120,
+          "total_usec": 40,
+          "usec_per_call": 0.333333333333333
+        },
+        "roster_lightning_wisp": {
+          "count": 120,
+          "total_usec": 280,
+          "usec_per_call": 2.33333333333333
+        },
+        "roster_noctyrax": {
+          "count": 120,
+          "total_usec": 69,
+          "usec_per_call": 0.575
+        },
+        "roster_tharokh": {
+          "count": 120,
+          "total_usec": 41,
+          "usec_per_call": 0.341666666666667
+        },
+        "roster_vaeloryx": {
+          "count": 120,
+          "total_usec": 54,
+          "usec_per_call": 0.45
+        },
+        "roster_veilbound_acolyte": {
+          "count": 120,
+          "total_usec": 50,
+          "usec_per_call": 0.416666666666667
+        },
+        "roster_vyraketh": {
+          "count": 120,
+          "total_usec": 57,
+          "usec_per_call": 0.475
+        },
+        "roster_warden": {
+          "count": 120,
+          "total_usec": 67,
+          "usec_per_call": 0.558333333333333
+        },
+        "roster_zekarion": {
+          "count": 120,
+          "total_usec": 48,
+          "usec_per_call": 0.4
+        },
+        "signatures": {
+          "count": 120,
+          "total_usec": 351,
+          "usec_per_call": 2.925
+        }
+      }
+    }
+  ],
+  "base": [
+    {
+      "max_us": 2430,
+      "n": 100,
+      "p50_us": 807,
+      "p95_us": 1361,
+      "phases": {
+        "assign_and_assets": {
+          "count": 120,
+          "total_usec": 54067,
+          "usec_per_call": 450.558333333333
+        },
+        "derived_caches": {
+          "count": 120,
+          "total_usec": 3557,
+          "usec_per_call": 29.6416666666667
+        },
+        "diff": {
+          "count": 120,
+          "total_usec": 7647,
+          "usec_per_call": 63.725
+        },
+        "hud_layout": {
+          "count": 120,
+          "total_usec": 11210,
+          "usec_per_call": 93.4166666666667
+        },
+        "redraw_routing": {
+          "count": 120,
+          "total_usec": 4647,
+          "usec_per_call": 38.725
+        },
+        "retained_sync": {
+          "count": 120,
+          "total_usec": 22344,
+          "usec_per_call": 186.2
+        },
+        "roster_acolyte": {
+          "count": 120,
+          "total_usec": 52,
+          "usec_per_call": 0.433333333333333
+        },
+        "roster_bile_bloomer": {
+          "count": 120,
+          "total_usec": 52,
+          "usec_per_call": 0.433333333333333
+        },
+        "roster_cinder_droplet": {
+          "count": 120,
+          "total_usec": 48,
+          "usec_per_call": 0.4
+        },
+        "roster_crawler": {
+          "count": 120,
+          "total_usec": 55,
+          "usec_per_call": 0.458333333333333
+        },
+        "roster_frostglass": {
+          "count": 120,
+          "total_usec": 70,
+          "usec_per_call": 0.583333333333333
+        },
+        "roster_gaoler": {
+          "count": 120,
+          "total_usec": 63,
+          "usec_per_call": 0.525
+        },
+        "roster_grave_surgeon": {
+          "count": 120,
+          "total_usec": 50,
+          "usec_per_call": 0.416666666666667
+        },
+        "roster_guardian": {
+          "count": 120,
+          "total_usec": 55,
+          "usec_per_call": 0.458333333333333
+        },
+        "roster_harrier": {
+          "count": 120,
+          "total_usec": 51,
+          "usec_per_call": 0.425
+        },
+        "roster_illusion": {
+          "count": 120,
+          "total_usec": 67,
+          "usec_per_call": 0.558333333333333
+        },
+        "roster_iskaldra": {
+          "count": 120,
+          "total_usec": 55,
+          "usec_per_call": 0.458333333333333
+        },
+        "roster_lightning_wisp": {
+          "count": 120,
+          "total_usec": 316,
+          "usec_per_call": 2.63333333333333
+        },
+        "roster_noctyrax": {
+          "count": 120,
+          "total_usec": 61,
+          "usec_per_call": 0.508333333333333
+        },
+        "roster_tharokh": {
+          "count": 120,
+          "total_usec": 59,
+          "usec_per_call": 0.491666666666667
+        },
+        "roster_vaeloryx": {
+          "count": 120,
+          "total_usec": 50,
+          "usec_per_call": 0.416666666666667
+        },
+        "roster_veilbound_acolyte": {
+          "count": 120,
+          "total_usec": 56,
+          "usec_per_call": 0.466666666666667
+        },
+        "roster_vyraketh": {
+          "count": 120,
+          "total_usec": 53,
+          "usec_per_call": 0.441666666666667
+        },
+        "roster_warden": {
+          "count": 120,
+          "total_usec": 79,
+          "usec_per_call": 0.658333333333333
+        },
+        "roster_zekarion": {
+          "count": 120,
+          "total_usec": 48,
+          "usec_per_call": 0.4
+        },
+        "signatures": {
+          "count": 120,
+          "total_usec": 386,
+          "usec_per_call": 3.21666666666667
+        }
+      }
+    },
+    {
+      "max_us": 999,
+      "n": 100,
+      "p50_us": 795,
+      "p95_us": 902,
+      "phases": {
+        "assign_and_assets": {
+          "count": 120,
+          "total_usec": 48024,
+          "usec_per_call": 400.2
+        },
+        "derived_caches": {
+          "count": 120,
+          "total_usec": 2867,
+          "usec_per_call": 23.8916666666667
+        },
+        "diff": {
+          "count": 120,
+          "total_usec": 6576,
+          "usec_per_call": 54.8
+        },
+        "hud_layout": {
+          "count": 120,
+          "total_usec": 9425,
+          "usec_per_call": 78.5416666666667
+        },
+        "redraw_routing": {
+          "count": 120,
+          "total_usec": 3791,
+          "usec_per_call": 31.5916666666667
+        },
+        "retained_sync": {
+          "count": 120,
+          "total_usec": 18400,
+          "usec_per_call": 153.333333333333
+        },
+        "roster_acolyte": {
+          "count": 120,
+          "total_usec": 47,
+          "usec_per_call": 0.391666666666667
+        },
+        "roster_bile_bloomer": {
+          "count": 120,
+          "total_usec": 49,
+          "usec_per_call": 0.408333333333333
+        },
+        "roster_cinder_droplet": {
+          "count": 120,
+          "total_usec": 44,
+          "usec_per_call": 0.366666666666667
+        },
+        "roster_crawler": {
+          "count": 120,
+          "total_usec": 61,
+          "usec_per_call": 0.508333333333333
+        },
+        "roster_frostglass": {
+          "count": 120,
+          "total_usec": 61,
+          "usec_per_call": 0.508333333333333
+        },
+        "roster_gaoler": {
+          "count": 120,
+          "total_usec": 61,
+          "usec_per_call": 0.508333333333333
+        },
+        "roster_grave_surgeon": {
+          "count": 120,
+          "total_usec": 51,
+          "usec_per_call": 0.425
+        },
+        "roster_guardian": {
+          "count": 120,
+          "total_usec": 45,
+          "usec_per_call": 0.375
+        },
+        "roster_harrier": {
+          "count": 120,
+          "total_usec": 47,
+          "usec_per_call": 0.391666666666667
+        },
+        "roster_illusion": {
+          "count": 120,
+          "total_usec": 56,
+          "usec_per_call": 0.466666666666667
+        },
+        "roster_iskaldra": {
+          "count": 120,
+          "total_usec": 53,
+          "usec_per_call": 0.441666666666667
+        },
+        "roster_lightning_wisp": {
+          "count": 120,
+          "total_usec": 256,
+          "usec_per_call": 2.13333333333333
+        },
+        "roster_noctyrax": {
+          "count": 120,
+          "total_usec": 58,
+          "usec_per_call": 0.483333333333333
+        },
+        "roster_tharokh": {
+          "count": 120,
+          "total_usec": 47,
+          "usec_per_call": 0.391666666666667
+        },
+        "roster_vaeloryx": {
+          "count": 120,
+          "total_usec": 48,
+          "usec_per_call": 0.4
+        },
+        "roster_veilbound_acolyte": {
+          "count": 120,
+          "total_usec": 45,
+          "usec_per_call": 0.375
+        },
+        "roster_vyraketh": {
+          "count": 120,
+          "total_usec": 56,
+          "usec_per_call": 0.466666666666667
+        },
+        "roster_warden": {
+          "count": 120,
+          "total_usec": 56,
+          "usec_per_call": 0.466666666666667
+        },
+        "roster_zekarion": {
+          "count": 120,
+          "total_usec": 47,
+          "usec_per_call": 0.391666666666667
+        },
+        "signatures": {
+          "count": 120,
+          "total_usec": 326,
+          "usec_per_call": 2.71666666666667
+        }
+      }
+    }
+  ],
+  "candidate": [
+    {
+      "max_us": 4382,
+      "n": 100,
+      "p50_us": 3554,
+      "p95_us": 3955,
+      "phases": {
+        "assign_and_assets": {
+          "count": 120,
+          "total_usec": 51057,
+          "usec_per_call": 425.475
+        },
+        "derived_caches": {
+          "count": 120,
+          "total_usec": 3205,
+          "usec_per_call": 26.7083333333333
+        },
+        "diff": {
+          "count": 120,
+          "total_usec": 7905,
+          "usec_per_call": 65.875
+        },
+        "hud_build": {
+          "count": 120,
+          "total_usec": 316283,
+          "usec_per_call": 2635.69166666667
+        },
+        "hud_build_reserved": {
+          "count": 120,
+          "total_usec": 38517,
+          "usec_per_call": 320.975
+        },
+        "hud_build_units": {
+          "count": 120,
+          "total_usec": 59997,
+          "usec_per_call": 499.975
+        },
+        "hud_layout": {
+          "count": 120,
+          "total_usec": 337158,
+          "usec_per_call": 2809.65
+        },
+        "hud_signature": {
+          "count": 120,
+          "total_usec": 7208,
+          "usec_per_call": 60.0666666666667
+        },
+        "hud_source": {
+          "count": 120,
+          "total_usec": 4027,
+          "usec_per_call": 33.5583333333333
+        },
+        "hud_units": {
+          "count": 120,
+          "total_usec": 490,
+          "usec_per_call": 4.08333333333333
+        },
+        "redraw_routing": {
+          "count": 120,
+          "total_usec": 4561,
+          "usec_per_call": 38.0083333333333
+        },
+        "retained_sync": {
+          "count": 120,
+          "total_usec": 24123,
+          "usec_per_call": 201.025
+        },
+        "roster_acolyte": {
+          "count": 120,
+          "total_usec": 45,
+          "usec_per_call": 0.375
+        },
+        "roster_bile_bloomer": {
+          "count": 120,
+          "total_usec": 52,
+          "usec_per_call": 0.433333333333333
+        },
+        "roster_cinder_droplet": {
+          "count": 120,
+          "total_usec": 50,
+          "usec_per_call": 0.416666666666667
+        },
+        "roster_crawler": {
+          "count": 120,
+          "total_usec": 64,
+          "usec_per_call": 0.533333333333333
+        },
+        "roster_frostglass": {
+          "count": 120,
+          "total_usec": 70,
+          "usec_per_call": 0.583333333333333
+        },
+        "roster_gaoler": {
+          "count": 120,
+          "total_usec": 69,
+          "usec_per_call": 0.575
+        },
+        "roster_grave_surgeon": {
+          "count": 120,
+          "total_usec": 50,
+          "usec_per_call": 0.416666666666667
+        },
+        "roster_guardian": {
+          "count": 120,
+          "total_usec": 58,
+          "usec_per_call": 0.483333333333333
+        },
+        "roster_harrier": {
+          "count": 120,
+          "total_usec": 58,
+          "usec_per_call": 0.483333333333333
+        },
+        "roster_illusion": {
+          "count": 120,
+          "total_usec": 50,
+          "usec_per_call": 0.416666666666667
+        },
+        "roster_iskaldra": {
+          "count": 120,
+          "total_usec": 51,
+          "usec_per_call": 0.425
+        },
+        "roster_lightning_wisp": {
+          "count": 120,
+          "total_usec": 350,
+          "usec_per_call": 2.91666666666667
+        },
+        "roster_noctyrax": {
+          "count": 120,
+          "total_usec": 62,
+          "usec_per_call": 0.516666666666667
+        },
+        "roster_tharokh": {
+          "count": 120,
+          "total_usec": 43,
+          "usec_per_call": 0.358333333333333
+        },
+        "roster_vaeloryx": {
+          "count": 120,
+          "total_usec": 59,
+          "usec_per_call": 0.491666666666667
+        },
+        "roster_veilbound_acolyte": {
+          "count": 120,
+          "total_usec": 46,
+          "usec_per_call": 0.383333333333333
+        },
+        "roster_vyraketh": {
+          "count": 120,
+          "total_usec": 52,
+          "usec_per_call": 0.433333333333333
+        },
+        "roster_warden": {
+          "count": 120,
+          "total_usec": 75,
+          "usec_per_call": 0.625
+        },
+        "roster_zekarion": {
+          "count": 120,
+          "total_usec": 53,
+          "usec_per_call": 0.441666666666667
+        },
+        "signatures": {
+          "count": 120,
+          "total_usec": 397,
+          "usec_per_call": 3.30833333333333
+        }
+      }
+    },
+    {
+      "max_us": 5626,
+      "n": 100,
+      "p50_us": 3823,
+      "p95_us": 5102,
+      "phases": {
+        "assign_and_assets": {
+          "count": 120,
+          "total_usec": 55451,
+          "usec_per_call": 462.091666666667
+        },
+        "derived_caches": {
+          "count": 120,
+          "total_usec": 3455,
+          "usec_per_call": 28.7916666666667
+        },
+        "diff": {
+          "count": 120,
+          "total_usec": 8624,
+          "usec_per_call": 71.8666666666667
+        },
+        "hud_build": {
+          "count": 120,
+          "total_usec": 344274,
+          "usec_per_call": 2868.95
+        },
+        "hud_build_reserved": {
+          "count": 120,
+          "total_usec": 41890,
+          "usec_per_call": 349.083333333333
+        },
+        "hud_build_units": {
+          "count": 120,
+          "total_usec": 64993,
+          "usec_per_call": 541.608333333333
+        },
+        "hud_layout": {
+          "count": 120,
+          "total_usec": 367269,
+          "usec_per_call": 3060.575
+        },
+        "hud_signature": {
+          "count": 120,
+          "total_usec": 7959,
+          "usec_per_call": 66.325
+        },
+        "hud_source": {
+          "count": 120,
+          "total_usec": 4262,
+          "usec_per_call": 35.5166666666667
+        },
+        "hud_units": {
+          "count": 120,
+          "total_usec": 502,
+          "usec_per_call": 4.18333333333333
+        },
+        "redraw_routing": {
+          "count": 120,
+          "total_usec": 5286,
+          "usec_per_call": 44.05
+        },
+        "retained_sync": {
+          "count": 120,
+          "total_usec": 27010,
+          "usec_per_call": 225.083333333333
+        },
+        "roster_acolyte": {
+          "count": 120,
+          "total_usec": 63,
+          "usec_per_call": 0.525
+        },
+        "roster_bile_bloomer": {
+          "count": 120,
+          "total_usec": 61,
+          "usec_per_call": 0.508333333333333
+        },
+        "roster_cinder_droplet": {
+          "count": 120,
+          "total_usec": 57,
+          "usec_per_call": 0.475
+        },
+        "roster_crawler": {
+          "count": 120,
+          "total_usec": 56,
+          "usec_per_call": 0.466666666666667
+        },
+        "roster_frostglass": {
+          "count": 120,
+          "total_usec": 64,
+          "usec_per_call": 0.533333333333333
+        },
+        "roster_gaoler": {
+          "count": 120,
+          "total_usec": 69,
+          "usec_per_call": 0.575
+        },
+        "roster_grave_surgeon": {
+          "count": 120,
+          "total_usec": 64,
+          "usec_per_call": 0.533333333333333
+        },
+        "roster_guardian": {
+          "count": 120,
+          "total_usec": 48,
+          "usec_per_call": 0.4
+        },
+        "roster_harrier": {
+          "count": 120,
+          "total_usec": 52,
+          "usec_per_call": 0.433333333333333
+        },
+        "roster_illusion": {
+          "count": 120,
+          "total_usec": 61,
+          "usec_per_call": 0.508333333333333
+        },
+        "roster_iskaldra": {
+          "count": 120,
+          "total_usec": 63,
+          "usec_per_call": 0.525
+        },
+        "roster_lightning_wisp": {
+          "count": 120,
+          "total_usec": 402,
+          "usec_per_call": 3.35
+        },
+        "roster_noctyrax": {
+          "count": 120,
+          "total_usec": 63,
+          "usec_per_call": 0.525
+        },
+        "roster_tharokh": {
+          "count": 120,
+          "total_usec": 55,
+          "usec_per_call": 0.458333333333333
+        },
+        "roster_vaeloryx": {
+          "count": 120,
+          "total_usec": 48,
+          "usec_per_call": 0.4
+        },
+        "roster_veilbound_acolyte": {
+          "count": 120,
+          "total_usec": 61,
+          "usec_per_call": 0.508333333333333
+        },
+        "roster_vyraketh": {
+          "count": 120,
+          "total_usec": 51,
+          "usec_per_call": 0.425
+        },
+        "roster_warden": {
+          "count": 120,
+          "total_usec": 86,
+          "usec_per_call": 0.716666666666667
+        },
+        "roster_zekarion": {
+          "count": 120,
+          "total_usec": 58,
+          "usec_per_call": 0.483333333333333
+        },
+        "signatures": {
+          "count": 120,
+          "total_usec": 428,
+          "usec_per_call": 3.56666666666667
+        }
+      }
+    }
+  ]
+}

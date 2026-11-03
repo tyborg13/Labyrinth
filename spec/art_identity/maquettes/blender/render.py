@@ -38,7 +38,7 @@ def material(name, colour, mode):
     return mat
 
 
-def render(spec, objects, output, engine='cycles', silhouettes_only=False, gallery=False, fit_only=False, preview=False, views=('front', 'rear'), ownership_only=False, solo_parts=None):
+def render(spec, objects, output, engine='cycles', silhouettes_only=False, gallery=False, fit_only=False, preview=False, views=('front', 'rear'), ownership_only=False, solo_parts=None, solos_only=False, image_modes=None, capture_facing=True):
     from bpy_extras.object_utils import world_to_camera_view
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
@@ -166,6 +166,10 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
     solo_counts = {}
     view_owner_hashes = {}
     for view in views:
+        from .render_plan import plan
+        passes = plan(view, ownership_only=ownership_only, silhouettes_only=silhouettes_only,
+                      fit_only=fit_only, preview=preview, solo_parts=solo_parts,
+                      solos_only=solos_only, image_modes=image_modes, facing=capture_facing)
         matrix, target, basis, scale = camera(spec, view)
         root.matrix_world = Matrix(matrix.tolist())
         cam.location = Vector(target) + Vector(basis[2]) * RENDER_DEFAULTS['distance']
@@ -177,7 +181,7 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
         if view == 'rear' and spec.get('rear_capture'):
             from .capture_frame import pan_capture
             pan_capture(spec, view, objects, scene, cam, capture, output, RENDER_DEFAULTS['size'])
-        if view == 'front':
+        if passes['facing']:
             from .facing_probe import probe
             facing = probe(spec, objects, output, root, cam, capture)
         if fit_only:
@@ -188,7 +192,7 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
             move_capture(f'{view}_silhouette.png', f'{view}_head.png')
             capture(view, 'silhouette')
         if not fit_only:
-            for mode in (('parts',) if ownership_only else (('silhouette',) if silhouettes_only else ('parts', 'clay', 'silhouette'))):
+            for mode in passes['image_modes']:
                 capture(view, mode)
             if preview and 'fit' in spec:
                 capture(view, 'silhouette', included_parts=set(spec['labels']) - set(spec['fit']['weapon_parts']))
@@ -206,7 +210,8 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
                     image = bpy.data.images.load(str(output / f'{view}_solo_{part}.png'), check_existing=False)
                     solo_counts[view][part] = sum(a >= .5 for a in image.pixels[3::4])
                     bpy.data.images.remove(image)
-                capture(view, 'silhouette')
+                if passes['final_silhouette']:
+                    capture(view, 'silhouette')
         if gallery and not fit_only:
             gallery_dir = output / 'piece_gallery'
             gallery_dir.mkdir(exist_ok=True)

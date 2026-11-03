@@ -1,0 +1,18 @@
+{
+  "knee_bend_degrees": 8,
+  "hip_lean_degrees": 8,
+  "head_additional_pitch_degrees": 5,
+  "ankle_span_over_shoulders": 0.9,
+  "near_step_over_L": 0.18,
+  "fist_height_over_H": 0.52,
+  "fist_forward_of_hip_over_L": 0.05,
+  "fist_outward_of_hip_over_L": 0.22,
+  "near_elbow_bend_degrees": 15,
+  "near_pole_outward_degrees": 20,
+  "far_upper_out_degrees": 6,
+  "far_elbow_bend_degrees": 15,
+  "far_finger_length_over_H": 0.07,
+  "far_finger_knuckle_degrees": 20,
+  "far_wrist_ahead_of_thigh_over_L": 0.03,
+  "shoulder_rise_per_projected_span": 0.15
+}

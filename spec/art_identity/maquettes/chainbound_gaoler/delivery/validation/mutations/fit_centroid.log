@@ -1,0 +1,14 @@
+test_six_pixel_head_shift_is_rejected (tests.test_mq15_pose_fit.FitTests) ... FAIL
+
+======================================================================
+FAIL: test_six_pixel_head_shift_is_rejected (tests.test_mq15_pose_fit.FitTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_pose_fit.py", line 21, in test_six_pixel_head_shift_is_rejected
+    self.assertFalse(g.centroid_passed([FIXTURE_DEFAULTS['head_shift_px'],0],5))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

@@ -218,10 +218,11 @@ static func _test_real_card_source_survives_saved_ground(engine: CombatEngine, e
 	var card_id: String = "cinder_fusillade"
 	state["deck"]["hand"] = [card_id]
 	var actions: Array = engine.card_play_actions(card_id, state)
-	expect.call(actions.size() == 2, "Real Flurry source fixture expands the two available card plays")
+	# flu-01 retired Flurry: the real card now resolves its approved single shot.
+	expect.call(actions.size() == 1 and engine.card_plays_spent_for_actions(actions) == 1, "Real Cinder Fusillade source fixture resolves one action for one card play")
 	var total_damage: int = 0
 	for action: Dictionary in actions:
-		expect.call(str(action.get("_card_id", "")) == card_id, "Every expanded Flurry action keeps its stable card ID")
+		expect.call(str(action.get("_card_id", "")) == card_id, "Every real card action keeps its stable card ID")
 		total_damage += int(action.get("damage", 0))
 	state["enemies"][0]["hp"] = total_damage + GameData.fixed_point_amount(2)
 	for action: Dictionary in actions:

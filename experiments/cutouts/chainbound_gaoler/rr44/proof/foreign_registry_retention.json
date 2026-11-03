@@ -1,0 +1,14 @@
+{
+  "spec/art_identity/registry.json": {
+    "non_gaoler_records_identical": true,
+    "retained_sha256": "c4bc7fe7d44ed78c22f2d820ae5a432183ff6b2297d4816e97d01475c3c2b9c7"
+  },
+  "spec/assets/board_pixel_density/registry.json": {
+    "non_gaoler_records_identical": true,
+    "retained_sha256": "0ac0a6c6fd377da2bd9690fe254daaeadb135b64c9ba6d7d3cd9a53f63296759"
+  },
+  "spec/assets/board_pixel_density/outputs.json": {
+    "non_gaoler_records_identical": true,
+    "retained_sha256": "dbb46d04413b6fe6dce55ed465e45231f4b53f35ab315bc60a9b6374bebe4ee3"
+  }
+}

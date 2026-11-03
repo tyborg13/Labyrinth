@@ -3,6 +3,7 @@ const Combat = preload("res://scripts/combat_engine.gd")
 const Rooms = preload("res://scripts/room_generator.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
 const Map = preload("res://scripts/section_map_graph.gd")
+const LEGACY_SNUFF_CAP: int = 2
 var failures: Array[String] = []
 func check(ok: bool, message: String) -> void:
 	if not ok: failures.append(message)
@@ -11,6 +12,7 @@ static func run(expect: Callable) -> void:
 	suite._run()
 	for failure: String in suite.failures: expect.call(false, failure)
 	expect.call(suite.failures.is_empty(), "Guardian encounter, relic and versioned map contracts")
+	preload("res://tests/suites/guardian_tuning_suite.gd").run(expect)
 
 func _run() -> void:
 	_test_relics()
@@ -183,11 +185,25 @@ func _test_encounter_edges() -> void:
 	check(state["enemies"].size()==4 and state["enemies"][3]["summoned"],"Cantor replaces missing wisp with scheduled summoned actor")
 	var summoned_id: int = state["enemies"][3]["id"]
 	check(summoned_id>state["enemies"][2]["id"],"summon has a new stable id")
+	var wisp_cap: int = int(data.enemy_def("storm_cantor")["intents"][3]["actions"][0]["guardian_cap"])
+	# The living Tender and first Wisp fill the separate two-helper cohort cap.
+	# Open that slot before exercising the authored two-Wisp kind cap.
 	set_cycle(engine,state,3)
 	state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
-	check(state["enemies"].size()==4,"Cantor skips an occupied summon slot without exceeding helper cap")
+	check(state["enemies"].size()==4,"Cantor respects the total helper cap while the Tender lives")
+	state = engine._damage_enemy(state,2,100)
+	for count: int in range(1,wisp_cap):
+		set_cycle(engine,state,3)
+		state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
+		check(state["enemies"].size()==4+count,"Cantor fills its authored Wisp cap")
+	set_cycle(engine,state,3)
+	state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
+	check(state["enemies"].size()==3+wisp_cap,"Cantor skips an occupied summon slot without exceeding helper cap")
 	for status: String in ["freeze","shock"]:
 		state = guardian_fixture("last_lamplighter")
+		# An already-authored old-save Snuff can still have cap two. Preserve the
+		# cleanup regression with a living original and an outage-linked Shade.
+		state["enemies"][0]["intent"]["actions"][0]["guardian_cap"]=LEGACY_SNUFF_CAP
 		state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
 		check(not state["guardian_braziers"][0]["lit"] and state["guardian_braziers"][1]["lit"],"Snuff preserves one light")
 		check(state["enemies"].size()==3,"Snuff adds one temporary shade beside original")
@@ -402,10 +418,10 @@ func _test_inspection_rules() -> void:
 	var data = preload("res://scripts/game_data.gd")
 	for info: Dictionary in Guardians.DEFINITIONS.values():
 		var summary: String = Guardians.inspection_summary({"type":info["id"]})
-		check(summary.contains("Replaces") and not summary.contains("Defeat") and not summary.contains("Embers"), "Guardian supplemental inspection explains only its replacement rule for "+str(info["id"]))
+		check(summary.is_empty(), "Guardian inspection no longer promises automatic replacements for "+str(info["id"]))
 		for helper: String in info["helpers"]:
 			var detail: String = Guardians.inspection_summary({"type":helper,"guardian_helper":true})
-			check(not detail.is_empty() and detail.length()<100, "Guardian helper inspection is a terse encounter-specific note for "+helper)
+			check(not detail.contains("Replaced") and not detail.contains("replaces"), "Guardian helper inspection does not promise automatic replacements for "+helper)
 	check(Guardians.inspection_summary({"type":"lightning_wisp"}).is_empty(), "ordinary Wisps do not inherit Guardian reinforcement rules")
 	check(Guardians.inspection_summary({"type":"wick_shade","guardian_helper":true}).contains("Stays through Last Procession"), "Shade inspection distinguishes temporary and starting helpers")
 	var snuff: Dictionary = data.enemy_def("last_lamplighter")["intents"][0]
@@ -419,13 +435,13 @@ func _test_inspection_rules() -> void:
 	check(summon_text.contains("Summon") and not summon_text.contains("Shock"), "Snuff summary identifies summoning rather than Shock")
 
 	var peal_text: String = icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("storm_cantor")["intents"][1]["actions"]))
-	check(peal_text.contains("Conducted hits:") and not peal_text.contains("Shape Ground"), "Peal describes its actual conducted-hit condition")
+	check(peal_text.contains("Move") and not peal_text.contains("Conducted hits:"), "Peal retains Move while its impact belongs to the beat")
 	check(icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("rime_spitter")["intents"][0]["actions"])).contains("At lane end"), "Rime Needle row identifies terminal Ice")
 	check(icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("ashen_reaver")["intents"][2]["actions"])).contains("Expose"), "Executioner row identifies self-Expose")
 	check(icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("rimejaw")["intents"][0]["actions"])).contains("Trail"), "Rime Trail row identifies trailing Ice")
 
 	var upheaval_text: String = icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("craghide")["intents"][0]["actions"]))
-	check(upheaval_text.contains("Raise Terrain") and not upheaval_text.contains("Stoneskin"), "Upheaval identifies terrain creation rather than armor")
+	check(upheaval_text.contains("Move") and not upheaval_text.contains("Raise Terrain"), "Crag Heave keeps Move while its raise belongs to the beat")
 	var burst_text: String = icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("craghide")["intents"][1]["actions"]))
 	check(burst_text.contains("All outcrops") and burst_text.contains("within 2") and not burst_text.contains("Spire"), "Groundsplit identifies surviving outcrops")
 	var rooms := Rooms.new()
@@ -473,6 +489,9 @@ func _test_pressure_and_replacements() -> void:
 			state["enemies"][0]["type"]=id
 			state["enemies"][0]["guardian_helper"]=true
 			state["guardian_id"]="ashen_reaver"
+			# Only intents the helper can be offered here (spx-08: the Shade's Snuff
+			# needs a brazier the hero can relight, which no Guardian arena has).
+			if preload("res://scripts/enemy_mechanics/snuff.gd").available_intents(state,[intent]).is_empty(): continue
 			state["enemies"][0]["intent"]=rules.commit(engine,state,0,intent)
 			var before_distance: int = 3
 			var resolved: Dictionary = engine._resolve_enemy_intent(state,0,state["enemies"][0]["intent"])
@@ -480,23 +499,15 @@ func _test_pressure_and_replacements() -> void:
 			check(resolved["player"]["hp"]<24 or distance<before_distance or not resolved["surfaces"].is_empty(),id+" every intent advances, attacks or extends the cohort network")
 	for info: Dictionary in Guardians.DEFINITIONS.values():
 		var state: Dictionary = guardian_fixture(info["id"])
-		var starting_count: int = state["enemies"].size()-1
 		state["enemies"][1]["hp"]=0
-		# The previously declared move does not gain an unannounced summon.
-		check(not str(state["enemies"][0]["intent"]).contains("guardian_reinforcement"),info["id"]+" helper death cannot rewrite the revealed intent")
 		for round_index: int in range(5):
+			# Slot two is never an authored summon, for any Guardian.
 			set_cycle(engine,state,2)
-			check(str(state["enemies"][0]["intent"]).contains("guardian_reinforcement"),info["id"]+" next declaration announces a missing helper")
+			check(not str(state["enemies"][0]["intent"]).contains("guardian_reinforcement"),info["id"]+" declares no automatic replacement")
 			state["player"]["hp"]=100
 			var before_count: int = state["enemies"].size()
 			state=engine._resolve_enemy_intent(state,0,state["enemies"][0]["intent"])
-			check(state["enemies"].size()==before_count+1,info["id"]+" returns one missing helper")
-			var living: int = 0
-			for count: int in rules.living_helpers(state).values(): living+=count
-			check(living==starting_count and living<=2,info["id"]+" retains pressure within a two-helper cap")
-			var play_bonus: int = int(state.get("death_bonus_card_plays_this_turn",0))
-			state=engine._damage_enemy(state,state["enemies"].size()-1,100)
-			check(int(state.get("death_bonus_card_plays_this_turn",0))==play_bonus and state["room_embers"]==0,info["id"]+" returned helpers cannot farm plays or Embers")
+			check(state["enemies"].size()==before_count,info["id"]+" activation never replaces a missing helper")
 	var flanks: Dictionary = fixture("",[Vector2i(6,4),Vector2i(4,3)])
 	flanks["guardian_id"]="ashen_reaver"
 	flanks["player"]["pos"]=Vector2i(4,4)
@@ -564,20 +575,16 @@ func _test_connected_cohort() -> void:
 	state["enemies"][1]["intent"]=rules.commit(engine,state,1,join)
 	state=engine._resolve_enemy_intent(state,1,state["enemies"][1]["intent"])
 	check(surfaces.connected_component(state,Vector2i(2,4)).has(Vector2i(6,4)),"Tender extends Cantor's existing network to the player")
-	# A closer isolated conductor must not distract Peal from the useful network.
-	surfaces.place(state,Vector2i(1,4),"electrified")
+	# Peal is now only Move 1. The data-installed beat strikes the network.
 	var peal: Dictionary = data.enemy_def("storm_cantor")["intents"][1].duplicate(true)
-	peal["actions"].pop_front()
-	state["enemies"][0]["intent"]=rules.commit(engine,state,0,peal)
-	check(engine.enemy_intent_plan(state,0)["projected_attack"].has(Vector2i(6,4)),"Peal previews its full connected damage network")
-	var outcome: Dictionary = engine.resolve_enemy_turn_with_steps(state,0)
-	check(outcome["state"]["player"]["hp"]==18 and outcome["state"]["player"]["shock"]==1,"Peal conducts one six-damage Shock hit to the distant player")
-	var shown_network: bool = false
-	for step: Dictionary in outcome["steps"]:
-		if str(step.get("intent_id",""))=="peal":
-			shown_network=(step.get("tiles",[]) as Array).has(Vector2i(6,4)) and not str(step.get("status_text","")).is_empty()
-	check(shown_network,"Peal animates the affected network and explicitly reports Shock")
-	check(surfaces.connected_component(outcome["state"],Vector2i(2,4)).has(Vector2i(6,4)),"electrified network remains available to the Wisp's next attack")
+	check(peal["actions"].size()==1 and peal["actions"][0]["range"]==1,"Peal has no bespoke conductor impact")
+	preload("res://scripts/battlefield_rules/dispatcher.gd").install(engine,state,preload("res://scripts/battlefield_rules/dispatcher.gd").instance_for("storm_cantor",1))
+	preload("res://tests/suites/battlefield_rules_suite.gd").mature_fuel(state)
+	var before: int = state["player"]["hp"]
+	state = preload("res://scripts/battlefield_rules/dispatcher.gd").fire(engine,state)
+	var beat_damage: int = int(preload("res://scripts/battlefield_rules/dispatcher.gd").instance_for("storm_cantor")["dials"]["damage"])
+	check(state["player"]["hp"]==before-beat_damage,"Cantor's beat strikes the distant network for its authored damage")
+	check(surfaces.connected_component(state,Vector2i(2,4)).has(Vector2i(6,4)),"electrified network remains available to the Wisp's next attack")
 
 func _test_displaced_patterns_and_occupied_summons() -> void:
 	var engine := Combat.new()
@@ -599,17 +606,17 @@ func _test_displaced_patterns_and_occupied_summons() -> void:
 				for tile: Vector2i in step.get("tiles",[]):
 					if not shown.has(tile): shown.append(tile)
 		check(shown==plan["projected_attack"],id+" displaced preview matches resolved action tiles")
-	for info: Dictionary in Guardians.DEFINITIONS.values():
-		var state: Dictionary = guardian_fixture(info["id"])
+	for id: String in ["storm_cantor", "last_lamplighter"]:
+		var state: Dictionary = guardian_fixture(id)
 		state["enemies"][1]["hp"]=0
-		set_cycle(engine,state,0)
+		set_cycle(engine,state,3 if id=="storm_cantor" else 0)
 		var reserved: Array = engine.enemy_intent_plan(state,0).get("projected_summon",[])
-		check(not reserved.is_empty(),str(info["id"])+" announces replacement")
+		check(not reserved.is_empty(),id+" announces replacement")
 		if reserved.is_empty(): continue
 		state["player"]["pos"]=reserved[0]
 		var plan: Dictionary = engine.enemy_intent_plan(state,0)
 		var fallback: Array = plan.get("projected_summon",[])
-		check(not fallback.is_empty() and not fallback.has(state["player"]["pos"]),str(info["id"])+" redirects occupied summon reservation")
+		check(not fallback.is_empty() and not fallback.has(state["player"]["pos"]),id+" redirects occupied summon reservation")
 		var result: Dictionary = engine.resolve_enemy_turn_with_steps(state,0)
 		var spawned: Array = result["state"]["enemies"].slice(state["enemies"].size())
-		check(spawned.size()==1 and fallback.has(spawned[0]["pos"]),str(info["id"])+" summon resolves on the replacement preview")
+		check(spawned.size()==1 and fallback.has(spawned[0]["pos"]),id+" summon resolves on the replacement preview")

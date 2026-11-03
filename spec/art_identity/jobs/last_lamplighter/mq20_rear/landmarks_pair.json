@@ -1,0 +1,14 @@
+{
+ "front": {
+  "far": [
+   95,
+   69
+  ],
+  "near": [
+   159,
+   79
+  ],
+  "kind": "shoulders",
+  "note": "Shoulder joints from the mq-20 joints_px.json mapped onto the processed sprite by the silhouette bounding boxes (the same method as mq-18's front)."
+ }
+}

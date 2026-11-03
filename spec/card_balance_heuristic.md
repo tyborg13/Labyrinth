@@ -54,6 +54,12 @@ These assumptions are baked into the current coefficients:
   readable.
 - Killing an enemy with a card grants `+1` card play for the turn, so high
   damage gets a modest execute-tempo premium.
+- Every enemy `summon_minions` move that brings at least one enemy onto the
+  board grants `+1` Card Play on the next hero activation, per move rather than
+  per enemy, stacking without a cap. Blocked/capped summons, death spawns,
+  Survive waves grant none. Automatic Guardian replacements were retired in bos-03. Frozen still
+  forfeits these plays. This is encounter-level economy, excluded from intrinsic
+  card coefficients; compare realized card-play cohorts around summon moves.
 - Card targeting uses one board decision, with automatic riders and combined
   movement approaches. A Push/Pull target is legal anywhere within maximum
   range when the action deals damage, moves the target at least one tile, or
@@ -64,9 +70,11 @@ These assumptions are baked into the current coefficients:
   and whatever stopped it take 2 damage per lost tile (walls take none). The
   collision value below prices that at roughly one collision per three
   forced-movement plays, so relics that add distance also add damage value.
-- Flurry cards snapshot all card plays available when they begin, repeat their
-  printed actions and health cost once per snapped play, and spend all snapped
-  plays. The physical card's top-level Time cost is paid once. Plays gained
+- Flurry is dormant (flu-01): no shipped card carries `flurry`; the six former
+  Flurry cards resolve once for one Card Play. Engine, analytics and scorer
+  support remain for synthetic tests and a possible return. The preserved engine
+  path snapshots all available card plays, repeats printed actions and health
+  cost once per snapped play, and spends all snapped plays. The physical card's top-level Time cost is paid once. Plays gained
   during resolution remain available after the Flurry commits.
 - Fatigue starts at `2` health and increases by `1` health each reshuffle.
 - Rules v5 uses shared board surfaces, with Rubble under one elemental layer.
@@ -154,9 +162,11 @@ Encounter calibration is also important:
 
 - The first combat remains a `Kill All` onboarding encounter. Layout revision
   `6+` standard fights always use `Kill All`. Revisions `3–5` retain the seeded
-  `50/25/25` mix of `Kill All`, `Kill the Leader`, and `Reach the Exit`. `Survive` is temporarily out of rotation;
-  its former seeded slots use `Kill All`, while its implementation and saved
-  encounters remain supported. Boss rooms always use `Kill the
+  `50/25/25` mix of `Kill All`, `Kill the Leader`, and `Reach the Exit`. `Survive` is out of the standard rotation;
+  its former seeded slots use `Kill All`. The Last Light special (spx-08) is the
+  one current `Survive` room: sight 3, three radius-2 braziers the Wick Shades'
+  Snuff puts out and the hero relights by stepping, Shadowstep after each player
+  turn, and +2 Health per brazier lit at dawn (cap 6) on top of the special bonus. Boss rooms always use `Kill the
   Leader` without applying the generic leader health/defense bonus on top of
   authored boss stats. Survival targets initiative clock
   `42/46/50` at local depths `1/2/3` and schedules one reinforcement every `16`
@@ -233,10 +243,10 @@ Encounter calibration is also important:
   `0/0/1/1/2/2`. This keeps late fights viable without returning to multi-card
   health sponges.
 - Zekarion's 2x2 footprint makes attack reach feel larger than printed range.
-  Overload snapshots the announced Electrified centers and their orthogonal neighborhoods and resolves without
-  conduction, while advancing Storm Claw changes close-range pressure. Other
-  lightning attacks can conduct through connected surfaces, so movement safety
-  depends on each intent's announced geometry and conduction rules.
+  Overload keeps a direct bolt for 3 and fires Lightning Storm across every
+  Electrified tile for 5 with Chain 1 (Chain 2 at half Health). Advancing Storm
+  Lash keeps its shot for 4 and Electrified ground. Movement safety depends on
+  each intent's announced geometry and conduction rules.
 - Large enemies use actor-level direct targeting: if any visible footprint tile
   satisfies an attack's range and line-of-sight rules, the full footprint
   accepts the click and resolves against the same actor. This is input
@@ -354,12 +364,12 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Heal: `0.90` per point
 - Draw: `0.85` per card
 - Card Play: `0.75` per added card play this turn
-- Flurry: score the printed action package and health cost at the baseline `2`
+- Dormant Flurry support (synthetic cards only): score the printed action package and health cost at the baseline `2`
   available plays, but score printed time only once. For each extra copy, add
   `0.85` for saving a card/draw, `0.75` for saving a separate time payment, and
   `0.25` for target-by-target retargeting, then subtract `0.55` for committing
   another available play to the same printed package. This deliberately makes
-  the single-card/single-time compression visible in the score so Flurry cards
+  the single-card/single-time compression visible in the score so hypothetical Flurry cards
   must be under-rate before their copies are counted.
 - High-damage kill-card-play premium: up to `0.45`, scaled by damage,
   playability, and target count
@@ -680,23 +690,37 @@ Bleed and passive Fire do not receive Chill/Frozen direct-attack multipliers.
 
 Fresh maps replace one middle-group fight per section with an optional named
 Guardian; the 66-room / 40-fight opportunity budget is unchanged. Each has a
-36–44 HP leader and one or two 4–6 HP helpers, all occupying one tile. Guardian
-repeat clocks retain initiative 9–12 plus Time 4–7 except Roc and Cantor, now
-initiative 20 plus Time 4–7. Their helpers use initiative 19 plus Time 4;
-Cantor Wisps receive this encounter-specific base while ordinary Wisps remain
-7 + 4. Other helpers retain initiative 8–10 plus Time 4–6. At maximum depth
-acceleration the two revised leaders still take at least 20 clock units and
-their helpers at least 19, versus an ordinary two-Time-5 player turn at 19. The ordinary local and
+30–66 HP leader and one or two initial 4–6 HP helpers, all occupying one tile.
+Guardian repeat clocks use initiative 9–12 plus Time 4–7: Cantor is 11 and Roc
+is 9. Bell Tender and Roc Fledgling use Guardian initiative 12; Cantor Wisps
+use Guardian initiative 19 while ordinary Wisps remain 7 + 4. Other helpers
+retain initiative 8–10 plus Time 4–6. The ordinary local and
 completed-section HP, damage and support curves apply without a generic leader
 multiplier. Original non-summoned helpers grant one player-card defeat play and zero Embers;
-all summoned replacements and original Wisps/Shades grant neither. Each Guardian
-announces at most one missing roster helper per activation, with at most two
-helpers alive. Helpers advance on each intent and prefer complementary safe
-flanks, keeping Guardian approach and strike tiles clear for replacements.
+all summoned replacements and original Wisps/Shades grant neither. Initial
+helpers are finite. Only authored Call the Spark and Snuff renew Wisps and
+Shades, within their data-authored living-kind caps; each successful authored
+summon grants one Card Play. Helpers advance on each intent and prefer
+complementary safe flanks, keeping Guardian approach and strike tiles clear.
 Reaver marks up to nine Fire tiles and leaves Fire after missed sword strikes.
-Cantor/Tender extend one shared network toward the player; Peal uses its full
-connected area. Craghide outcrop bursts reach two tiles. Only explicitly authored
-directional ground patterns retain orientation; ordinary attacks track live targets.
+Cantor/Tender extend one shared network toward the player; Peal fires the
+Lightning Storm beat. Each Guardian installs its own data-authored cadence and
+dials. Frostbite deals zero damage and Freezes Chilled actors on Ice. Roc is
+Anchored in its own wind. Craghide's beat raises owned 2-HP Outcrops, counted by
+Groundsplit. Only hidden Wick Shades Shadowstep; the Lamplighter does not.
+The director's final feedback-3 ladder retains Rimejaw HP 34 / Pounce 6; Cantor HP 66 /
+Lay the Choir 6 fresh linked tiles / Broken Rhythm 11 / Wisp cap 2 / Peal 3 with Chain 2 /
+Guardian Bell Tender Staff Bolt 4 (ordinary Staff Bolt stays 3);
+and Lamplighter HP 30 / Procession 6 / Shade cap 1 / Mourning Hook 3 /
+Guardian-only Shade melee 1. Lamplighter still starts with one Shade: the ladder
+stopped at rung 6, so its Procession-5 and empty-start rungs are not applied.
+Lay the Choir now spends its remaining tile budget after reaching its target,
+extending through adjacent legal nonconductive tiles. Walls, terrain, range, sight
+and exhausted ground still limit placement; Bell Tender keeps its connector cap.
+Ordinary Shade melee remains 2. These enemy intents have no intrinsic player-card
+score in this heuristic. The matched ladders and band flags are recorded in
+`peer_benchmark/encounter_redesign/measurements/bos-03-feedback-3/ladders.md`.
+Only explicitly authored directional ground patterns retain orientation; ordinary attacks track live targets.
 Displacement translates their approach and footprint; blockers/traps shorten the approach
 and a surviving caster strikes from its actual arrival. Player dodges do not re-aim
 the attack. Occupied summon reservations relocate within the existing summon range,
@@ -727,42 +751,41 @@ from occupant damage and inherits the initiating attack's reach for Detonate;
 these coefficients remain unchanged. No additional Fire, forced contact or
 owned Gauntlet is assumed in intrinsic card scores.
 
-### Dragon pressure revision (`dragon_pressure_v3`)
+### Dragon element rules (bos-02; `dragon_pressure_v3` compatibility revision)
 
-The user rejected `dragon_feedback_v2` for **all six** bosses: ordinary attacks
-plus free sidesteps remained sufficient. Base HP and normal repeat intervals stay
-unchanged, while all six first warnings now resolve at clock 12. The new context
-is simultaneous body and field pressure with bounded, player-removable fuel.
+The six dragons retain their initiative, primary intent cycles and clock-12
+openings. Director feedback 1 tunes base HP, primary damage and boss-only
+lieutenant counts through cumulative 50-sample ladders; the first in-band rung
+is retained, or the last authorized rung when none qualifies. Each fight now installs one source-owned battlefield rule
+from data. The approved context is in
+[the dragon rules](peer_benchmark/encounter_redesign/boss_rules_draft.md) and the
+[Round 0 measurement report](peer_benchmark/encounter_redesign/measurements/bos-02/measurement.md) and
+[director tuning ladders](peer_benchmark/encounter_redesign/measurements/bos-02/feedback-1/measurement.md) and
+[final Zekarion ladder](peer_benchmark/encounter_redesign/measurements/bos-02/feedback-2/measurement.md).
 
-Fire uses seven-cell bands, adjacent cinder heat during Breath and pursuit during
-Crownfire. Earth pairs four 4-HP spires and adds persistent 4-damage pulses: radius 1
-during Claw, then radius 2 during Breath before radius-2 / 8-damage Faultline
-consumes them. The Breath increase contests the formerly cheap sidestep while
-keeping selective spire destruction and ordinary guard effective.
-Ice puts Shatter immediately after two-layer Mantle (three with fuel), then crossed
-Ice lanes and live three-step Talon pursuit plus a surviving-trail burst. The
-extra pursuit step contests the observed one-step post-Whiteout refuge; Root
-and guard still counter the bite. Air retains actual Dive wake for
-Gale and exchanges its stronger outer Eye ring for a weaker close strike.
-Lightning's seven-cell bands threaten orthogonal neighbors during retained
-Overload alongside a live shot. Noctyrax holds a sweep around the player's
-declared position during Eclipse (radius 3) and later attacks (radii 2 / 1);
-relighting removes darkness but not that fixed, guardable sweep.
+| Dragon | Rule and half-Health change | Lieutenants and retained pressure |
+|---|---|---|
+| Vyraketh | Wildfire spreads Fire in all four directions on Cinder Breath; every second source turn at half Health. | HP 52; Cinder Maw 8, Breath 6; one finite Cinder Droplet. Seven-cell Fire renewal retires source-owned spread Fire; Crownfire detonates only remembered marks. The adjacent-heat rider is removed. |
+| Tharokh | Guarded `line_between` Upheaval, length 5 / Health 4, every second hero turn; every hero turn at half Health. | HP 72; two finite Burrow Grubs. Rule Outcrops replace the separate spire kind. Stonewake keeps range 4 with damage 6; Claw damage is 14 and Bedrock damage 10; Claw/Breath pulses and paired raises are removed. Faultline 8 consumes only source-owned stone at radius 1, then keeps shot 4. Flagged lanes preserve their stone and see through it as before. |
+| Iskaldra | Frostbite 3 on Rime Talon; every second source turn at half Health. | Two finite Rime Spitters. Mantle, Shatterstorm and Whiteout's previous-trail replacement remain. Mantle absorbs the beat; Freeze immunity remains. Talon's surviving-trail rider is removed. |
+| Vaeloryx | Clockwise Gust after every source turn, Push 1; Push 2 at half Health. | HP 50; one finite Gust Shrike. Skyhook 4, swept Dive 6, Gale 6 / Push 1, and Eye 8 / inner bite 4 remain. The recorded wake and Gale wake hit are removed. |
+| Zekarion | Lightning Storm 5 / Chain 1 on Overload; Chain 2 at half Health. | HP 50; Skybreak 5, Storm Lash 4. Two Wisps and Call Wisps remain. Overload retains shot 3; its neighborhood hit and Lash's charge pulse are removed. |
+| Noctyrax | Void Claw Shadowstep Blinks hidden Veilbound Acolytes 3; no half-Health change. | HP 64; Void Claw 10. Acolytes, Last Eclipse replacement, darkness and braziers remain. The three player-anchored sweeps are removed. |
 
-These changes raise the contextual value of surface replacement, selective
-terrain damage, defense, control and movement. None grants guaranteed prepared
-board uptime or changes a printed card's intrinsic coefficients. The scorer's
-`dragon_feedback_rules` records the same assumptions. Native acquired-build
-studies must show repeated real opportunity costs, not merely larger tile counts
-or one movement card used during otherwise free offense. See
-[dragon encounter rules](dragon_boss_encounters.md) for exact actions and saved
-warning compatibility.
+The ordinary completed-sequence curves still scale boss HP and primary attacks;
+rule dials retain these authored values. Beat Fire, Ice and Outcrops belong to
+the source. Bosses and helpers share their rule's consequences under existing
+immunities and force rules. The `dragon_feedback_rules` and
+`boss_encounter_roles` scorer metadata mirror this context. No printed-card
+coefficient or guaranteed prepared-board uptime changes. The director supplies
+the tier-3 policy-v2 tuning ladders; the measurements choose only the first
+in-band rung or the final authorized rung.
 
 The prior trophy/card balance remains: Worldheart converts at most 2 leftover
 Block per turn, its half-gain Stoneskin pulse stays capped at 4; Gust Step Moves 1
 before range-2 Pull 2 / damage 3 at Time 4, scored 2.71 (previous order 2.61).
-New helpers still wait beyond the next queued player activation. Trophy and
-prepared-field benefits remain outside intrinsic printed-card scores.
+Newly summoned helpers still wait beyond the next queued player activation.
+Trophy and prepared-field benefits remain outside intrinsic printed-card scores.
 
 ### Dragon trophy Time and relay context
 
@@ -834,7 +857,9 @@ tests `tests/test_card_heuristic_maneuver.py`):
   Block and lasts until broken).
 - Petrify `3.60` control (a skipped activation, about Stagger of one enemy
   cycle, `12 x 0.30`) at ranged playability, minus `block x 0.25 x 0.50` for the
-  Block it grants the enemy.
+  Block it grants the enemy. The keyword includes 5 Block by default
+  (`PETRIFY_BLOCK`); an explicit action `block` overrides this scorer default
+  for future variants.
 - Move riders: `block_per_tile` prices `0.67 x range` tiles of Block;
   `straight_line` keeps `0.75` of the Move's tiles; `trail_light` is Illuminate
   with `1 + 0.35` per extra lit tile; `if_started_on_surface` rewards at `0.25`
@@ -908,7 +933,7 @@ The scorer records the same assumptions in `section_enemies_e1_en02`.
 
 | Enemy | HP / base initiative / Embers | Authored weighted cadence at local depth 2 | Closest existing comparison | Shared risk and counterplay |
 | --- | --- | --- | --- | --- |
-| Hoarfrost Seer | 12 / 12 / 11 | Initial 17; repeat 16.667 including forced Icefall landing | Frostglass Lancer 12 / 11 / 11; Acolyte 12 / 12 / 10 | Range-5 three-tile delayed line, 5 damage per tile, then 3-turn impassable pillars; leave the line, push enemies onto marks, use pillars to stop sight and cause 2 collision damage |
+| Hoarfrost Seer | 12 / 12 / 11 | Initial 17; repeat 16.667 including forced Icefall landing | Frostglass Lancer 12 / 11 / 11; Acolyte 12 / 12 / 10 | Range-5 three-tile delayed line, 5 damage per tile, then Ice ground (el-02); leave the marks or place enemies on them |
 | Gale Herald | 14 / 13 / 11 | 18.167 | Chainbound Gaoler 14 / 13 / 12 | Two enemy-turn boundaries of shared Push 1, including Call's own turn; downwind-first ordering, ordinary collision/surface/trap rules; stand upwind or kill the Herald |
 
 Cadence is base initiative plus authored intent time, before initial index
@@ -917,26 +942,27 @@ mark / bolt / withdraw. Mark always adds a zero-random-weight landing slot:
 mean time is `(3*(6+4)+2*4+1*4)/(3*2+2+1) = 4.667`. Herald mean time is
 `(3*6+2*4+1*5)/6 = 5.167`. Illegal ranged intents and out-of-range marks are
 removed before a seeded weighted roll. These are roster assumptions, not new
-card coefficients. At each enemy-turn boundary, wind pushes resolve before
-terrain expiry; a last-round pillar still blocks and shatters on collision. Ice
-Pillars have no attack durability and cannot be targeted or damaged by attacks.
-Construct wind immunity reads only the enemy definition's `construct: true`.
-Freeze does not suppress that boundary. Enemy kills retain existing reward
+card coefficients. Gust resolves after the source's turn, including skipped turns.
+Only Anchored protects a unit; rank and construct labels confer no exemption.
+The immobile forced-movement guard still applies. Icefall leaves Ice ground;
+Bramble and Ice Pillar terrain are retired in el-02.
+Enemy kills retain existing reward
 rules and never gain a player-card kill bonus. Per director feedback 1, enc-01
 has landed; the director adds these enemies to spawn pools after merge.
-### Section wave E1: en-03 (staged, encounter tables pending enc-01)
+### Section wave E1: en-03
 
 | Enemy | HP / initiative / Embers | Authored cadence before spawn stagger | Reach and counterplay | Closest comparison |
 | --- | --- | --- | --- | --- |
-| Arc Thrall | 10 / 11 / 9 | Tether 16 (3/5), Arc Jab 15 (2/5); weighted 15.6 | Pairs; clear cardinal beam ≤6, strictly between endpoints; align Move ≤3 then 4 lightning + Shock 1, all units. Displace/kill partner or move off beam; push enemies into it. Jab Move 2 + melee 3 + Shock 1. | Lightning Wisp's Shock pressure, with a held partner and friendly-fire lane rather than a direct shot. |
-| Gloam Stalker | 11 / 10 / 10 | Fade 15 (3/5), Slash 14 (2/5); Fade forces Ambush 15. Including that forced step, (3×30 + 2×14)/8 = 14.75 per activation. | Fade Blink ≤4 behind the hero + Veil; distant single-target targeting denied, adjacent attacks/area/secondary chains/surfaces/collisions work. Ambush re-Blinks if needed, melee 7, ends Veil; Slash Move 2 + melee 4. Move away, block, or use area damage. | Tunnel Crawler's melee closure, with positional Blink and a revealed high-damage follow-up. |
+| Arc Thrall | 10 / 11 / 9 | Arc Bolt 16 (3/5), Arc Jab 15 (2/5); weighted 15.6 | Arc Bolt: Move 2 + ranged lightning 3, range 3, leaving Electrified on the target tile. Arc Jab unchanged: Move 2 + melee 3 + Shock 1. No pairing constraint. | Storm Lash uses the same movement and ranged primitives; Lightning Wisp provides the existing Shock comparison for Jab. |
+| Gloam Stalker | 11 / 10 / 10 | Fade 15 (3/5), Slash 14 (2/5); Fade forces Ambush 15. Including that forced step, (3×30 + 2×14)/8 = 14.75 per activation. | Fade Blink ≤4 behind the hero; no Veiled status or targeting restriction. Ambush re-Blinks if needed, melee 7; Slash Move 2 + melee 4. Normal movement, blocking and attacks remain available during wind-up. | Tunnel Crawler's melee closure, with positional Blink and a revealed high-damage follow-up. |
 
-The entries use protected director values from `peer_benchmark/staged/enemies/wave_e1.json`.
-The cadence calculations are authored-weight comparisons, not estimates of uptime:
-Tether availability, movement blockers, Shock/Freeze and blocked Blink destinations
-reduce realized pressure. Enemy kills preserve the existing Ember-drop rule and do
-not grant player-card kill bonuses. New verb geometry, Veil targeting and forced
-intent timing are encounter assumptions; intrinsic card coefficients are unchanged.
+The Thrall follows owner-approved `thrall-rework-v1` (2026-10-30); the Stalker
+retains its protected staged values with the approved removal of Veiled. The
+cadence calculations are authored-weight comparisons, not estimates of uptime. Arc Bolt uses ordinary ranged damage
+scaling and the existing Electrified surface rider. Movement blockers, range,
+line of sight, Shock/Freeze and blocked Blink destinations reduce realized
+pressure. Enemy kills preserve existing Ember drops without player-card kill
+bonuses. Intrinsic card coefficients are unchanged.
 The matching rows are exported by `tools/card_heuristic.py` under `en03_enemies`.
 ## Section regulars: EN01 (director roster v1)
 
@@ -967,50 +993,57 @@ are encounter comparisons, without new intrinsic card coefficients.
 
 | Enemy | HP / initiative / Embers | Authored weighted cadence | Reach and counterplay | Existing comparison |
 | --- | --- | --- | --- | --- |
-| Glacial Mirror | 20 / 15 / 13 | 20.5 | Reflect returns distant single-target ranged damage before its Block; melee/adjacent/area/surface/chain/push work. Four-tile Refraction deals 4 ice + Chilled to both teams; Crystal Guard 6 to least-Block adjacent ally, itself only without allies. Construct wind immunity. | Warden's heavy support role; Frostglass Lancer's oriented ice pressure. |
-| Gust Shrike | 9 / 9 / 8 | 13.5 | Flying ignores ground costs/contact, crosses Bramble/Ice Pillars but cannot land there; ordinary Push. Dive line <=4 with approach <=2; strictly intermediate units Push 1 right, ordinary collisions/no opposite-side fallback. Hero never pushed; air damage 4 only on adjacent landing. Occupied landing stops at last free path tile without hero damage. Talon Rake Move 2 + melee 3 + Bleed 1; Hover away 2 + Block 3. | Harrier's mobile melee role at light HP/cadence. |
+| Glacial Mirror | 20 / 15 / 13 | 20.5 | Reflect returns distant single-target ranged damage before its Block; melee/adjacent/area/surface/chain/push work. Four-tile Refraction deals 4 ice + Chilled to both teams; Crystal Guard 6 to least-Block adjacent ally, itself only without allies. Only Anchored prevents Gust. | Warden's heavy support role; Frostglass Lancer's oriented ice pressure. |
+| Gust Shrike | 9 / 9 / 8 | 13.5 | Flying ignores ground costs/contact; ordinary terrain blocks its route and ordinary Push still applies. Move Toward 4 then shared swept_path AoE 4 Air / Push 1; actual held route and existing one-tile reach. Shared Push away from source includes hero; allies block movement without side pushes. Talon Rake Move 2 + melee 3 + Bleed 1; Hover away 2 + Block 3. | Harrier's mobile melee role at light HP/cadence. |
 
 Cadence is `base_initiative + sum(weight*time)/sum(weight)` before spawn
 stagger and legality filtering. Neither entry is added to encounter pools by
 this unit: the director owns `ice_mirror` and `air_shrikes` after merge.
-Director feedback 1 fixes Dive's right-hand rotation to `(dx, dy) -> (-dy, dx)`
-on the x-right/y-down board grid for both aligned and approaching birds.
-Blocked landing can deny the hero strike; the tactical forecast shows this
-outcome rather than assuming full hit uptime. Reflection and line/collision friendly fire preserve the
-existing Ember reward rule and never add a player-card bonus. Existing enemy
-action analytics remain sufficient.
+sta-01 replaces the special line/side-push resolver with the shared swept-path
+shape used by Razor Dive. Normal hover previews, movement blockers, actual-path
+clipping and Push collision rules apply. AoE targets hero/illusions; no friendly
+side pushes remain. Existing enemy action analytics remain authoritative.
+Intrinsic player-card coefficients are unchanged; `tools/card_heuristic.py`
+exports these encounter assumptions alongside the unchanged cadence values.
 
 ## Director-authored section enemies E2: en-04
 
-Protected source: `peer_benchmark/staged/enemies/wave_e2.json`; assumptions are
-mirrored by `tools/card_heuristic.py` under `section_enemies_e2_en04`. No
-intrinsic card coefficient or director-authored number is retuned.
+Original protected source: `peer_benchmark/staged/enemies/wave_e2.json`; enc-03
+overrides only Slag Mortar availability, Lob weight and Brace movement in
+`data/enemies.json`. Assumptions are mirrored by `tools/card_heuristic.py` under
+`section_enemies_e2_en04`; intrinsic card coefficients are unchanged.
 
 | Enemy | HP / base initiative / Embers | Authored mean cadence at local depth 2 | Comparison and positional counterplay |
 | --- | --- | --- | --- |
-| Briar Weaver | 14 / 12 / 11 | 17.5 when all three intents are legal: 12 + (3×6 + 2×5 + 5)/6 | Hoarfrost Seer 12 / 12 / 11 and its terrain control. Immediate front-line Bramble, 3 enemy-turn boundaries, no sight block; walk around before closure, push enemies into it for 2 + Bleed 1. Lash 3 + Bleed 1 within 3; heal most wounded other ally within 3 for 4, otherwise Lash. |
-| Slag Mortar | 18 / 14 / 13 | Range 3–6: 19.75 initially, 19 steady including forced landing: 14 + (3×(6+4)+5)/7. Within 2: 19 (Scatter/Brace both Time 5). | Hoarfrost Seer delayed geometry and Warden 20 / 14 / 12 heavy anchor. Lob snapshots a cross ignoring sight; centre 5, arms 3, then Fire. Leave the cross, push enemies onto it, close within 2 to deny new marks. Brace Block 6 + Retreat 2; Scatter ranged 3 + Push 1. |
+| Briar Weaver | 14 / 12 / 11 | 17.5 when all three intents are legal: 12 + (3×6 + 2×5 + 5)/6 | Hoarfrost Seer 12 / 12 / 11 and its terrain control. Thornwall marks three front-line tiles, then on the Weaver's next turn Upheaval raises health-3 Outcrops with ordinary displacement; move before the rise or destroy the Outcrops. Lash 3 + Bleed 1 within 3; heal most wounded other ally within 3 for 4, otherwise Lash. |
+| Slag Mortar | 18 / 14 / 13 | enc-03, range 2–6: 20 initially (14+6), 19 steady including forced landing: 14+(6+4)/2. Adjacent: 19 (Scatter/Brace both Time 5). | Hoarfrost Seer delayed geometry and Warden 20 / 14 / 12 heavy anchor. Lob snapshots a cross ignoring sight; centre 5, arms 3, then Fire, retaining depth scaling. Leave the cross, push enemies onto it, become adjacent to deny new marks. Adjacent Brace Block 6 without movement; adjacent Scatter ranged 3 + Push 1. The Warband captain retains only its existing keep_distance retreat. |
 
-The Mortar's first ranged mean is 19.75 (14 + (3×6+5)/4), while its
-steady mean including forced landings is 19. Both near and far behaviors
-remove impossible choices before the seeded roll; the table's close cycle
-is 19. A hypothetical all-choice weighted mean is 19.5 initially and 19
-including forced landings, but Lob and Scatter are mutually exclusive in a
-real state. Bramble's grow turn spends its first boundary, as Ice Pillars do.
-Wind collides against a last-round tangle before expiry. Bramble has lifetime,
-not HP; collision never destroys it. Friendly-fire rewards use existing
-Ember rules and never player-card bonus credit. Mark state and terrain rounds
-round-trip through the existing save decoder. No new analytics event is needed.
+enc-03 changes Lob weight 3→4, minimum range 3→2, and gates both Brace and
+Scatter to adjacency. At distance 2–6 only Lob is eligible, so the weight does
+not change its conditional share: the mark/land cycle is 20/18 Time, mean 19.
+Adjacent authored weights remain Scatter 2 and Brace 1; both cost 19 Time with
+base initiative. Removing Brace's Retreat 2 removes that movement; the captain's
+separate keep_distance step remains. Damage, health, Fire and both lob turns
+retain their existing values and scaling. Intrinsic card coefficients are
+unchanged; the matched revision-7 encounter report is in
+[enc-03](peer_benchmark/enc-03/measurement.md).
+Thornwall now marks once and uses the shared Upheaval resolver on
+the Weaver's next turn; Outcrops have health 3 and ordinary durability, sight,
+displacement and collision rules. Friendly-fire rewards retain existing Ember
+rules and never player-card bonus credit. Pending marks round-trip through the
+save decoder; retired terrain is removed at load. Existing primitive analytics
+remain sufficient; encounter beats use `battlefield_rule_fired`.
 The design owner adds encounter groups after merge.
 ## Section regulars: EN06 (director wave E2)
 
-Protected values come from `peer_benchmark/staged/enemies/wave_e2.json` and
-`peer_benchmark/briefs/en-06.md`; no intrinsic card coefficients change.
+Baseline values come from `peer_benchmark/staged/enemies/wave_e2.json` and
+`peer_benchmark/briefs/en-06.md`; owner-approved mim-01 replaces the Mimic
+copy mechanic with Echo/Retaliate. No intrinsic card coefficients change.
 
 | Enemy | HP / initiative / Embers | Authored local-depth-2 cadence | Existing comparison | Pressure and counterplay |
 | --- | --- | --- | --- | --- |
 | Storm Capacitor | 22 / 16 / 13 | Three 20-Time Charge turns, then a 21-Time Discharge; mean 20.25 | Stone Warden's durable anchor; Lightning Wisp's electrical reach | Persistent Charge 0–3; nearest target within 4, then eight-neighbour hops for 6/5/4/3. Every tie prefers the hero, then lowest current HP, tile y, tile x. Immobile and anchored; becoming Shocked removes one Charge. Kill before three pips, Shock, or separate units; chain can kill allies under the existing friendly-fire reward rules. |
-| Hollow Mimic | 14 / 12 / 11 | Authored weighted mean 17; fallback Shade Bolt uses time 4 | Veilbound Acolyte's ranged pressure; Gloam Stalker's positioning | Selected copy snapshots the first damaging action of the last damaging card this combat, takes base damage/shape/range/element, and copies no riders. Special targeting uses one ranged hit at range 4 with the copied damage/name. Approach up to 2; Shade Bolt 4/range 4 if unavailable; Recede moves away 2 and grants Block 4. Kill first or feed a smaller attack. Seeded rolls filter impossible attacks. |
+| Hollow Mimic | 14 / 12 / 11 | Authored weighted mean 17 | Veilbound Acolyte's ranged pressure; Gloam Stalker's positioning | Echo: 3 shadow damage at range 4, then Retaliate 3 until its next turn. Melee or adjacent hero attacks trigger it once; Block/Stoneskin absorb it without Chill/Freeze/Expose bonuses. Distant ranged/area attacks avoid Retaliate. Shade Bolt 4/range 4; Recede moves away 2 without Block. |
 
 The scorer's `en06_enemies` context mirrors these assumptions. The director owns
 encounter additions after merge. Existing enemy-action events, source attribution,
@@ -1040,3 +1073,32 @@ are mirrored by `tools/card_heuristic.py --show-assumptions`; intrinsic card
 coefficients remain objective-neutral and unchanged. No card mechanic changed,
 so no card score is recalibrated. Compare realized AOE/execute/control value by
 the existing objective cohort. Variant orders are outside this unit.
+
+## Ember Hoarder (spx-09)
+
+The Ember Hoarder room is the Hoarder plus three Ember Ticks at every tier, in
+the Warband captain's back-line formation. The Hoarder is an Ember Tick with
+3× the room's scaled Ember Tick Health, no Stoneskin, Kindle (weight 1) and
+Scurry (`move_away` 2, Time 4, weight 2), and no attack. It takes the captain's
+keep-away step when the hero is within 2. After the hero's 5th turn (tier 1) or
+4th (tiers 2–3) it dissolves silently and the fight continues as Defeat All with
+standard rewards. Killing it first wins at once: the brood flees without death
+effects and its own death burst fires. A catch pays the shared special reward
+plus one standard fight's Embers. These assumptions are mirrored by
+`tools/card_heuristic.py --show-assumptions`; no card mechanic changed, so no
+intrinsic card score is recalibrated. Compare realized burst/execute and
+movement value by the existing objective cohort and `hoarder_result`.
+
+
+## mrk-01 — Marked vocabulary consolidation
+
+Icefall (Hoarfrost Seer), Lob Slag (Slag Mortar), and Burrow/Erupt (Burrow
+Grub) retain their names as moves but share the single glossary keyword
+**Marked**: “These tiles take the hit on this enemy's next turn.” Their old
+names resolve as aliases. No number, shape, range, target, activation timing,
+surface, status, element rule or hit reaction changes. Existing comparison
+rows above remain applicable. `tools/card_heuristic.py` labels these three
+assumption records with `keyword: marked`; intrinsic scoring coefficients
+and combat assumptions are unchanged, so no changed mechanic needs rescoring.
+Permanent timing, shape and old-save checks live in `tests/mrk01_marked_test.gd`;
+`tests/enc03_slag_test.gd` checks resolved damage and barrage presentation.

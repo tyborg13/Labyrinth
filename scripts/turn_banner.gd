@@ -73,10 +73,9 @@ func show_banner(text: String, accent: Color, reduced_motion: bool) -> void:
 
 # Yield immediately to more specific information (e.g. an enemy action label).
 func dismiss(_reduced_motion: bool = false) -> void:
-	if not visible:
-		return
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
+	_tween = null
 	# Hide at once: the incoming action label is the more specific information
 	# and should never share the band with the fading banner.
 	hide()

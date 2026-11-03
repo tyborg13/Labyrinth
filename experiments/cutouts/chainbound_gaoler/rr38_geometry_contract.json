@@ -1,0 +1,233 @@
+{
+  "min_images": 45,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*prepared_unit_canvas.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*frostglass_lancer_NE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*frostglass_lancer_NW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*frostglass_lancer_SE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*frostglass_lancer_SW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*gloam_stalker_NE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*gloam_stalker_NW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*gloam_stalker_SE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*gloam_stalker_SW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*gale_herald_NE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*gale_herald_NW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*gale_herald_SE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*gale_herald_SW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*hoarfrost_seer_NE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*hoarfrost_seer_NW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*hoarfrost_seer_SE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*hoarfrost_seer_SW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*arc_thrall_NE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*arc_thrall_NW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*arc_thrall_SE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*arc_thrall_SW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*glacial_mirror_NE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*glacial_mirror_NW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*glacial_mirror_SE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*glacial_mirror_SW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*storm_capacitor_NE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*storm_capacitor_NW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*storm_capacitor_SE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*storm_capacitor_SW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*briar_weaver_NE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*briar_weaver_NW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*briar_weaver_SE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*briar_weaver_SW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*hollow_mimic_NE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*hollow_mimic_NW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*hollow_mimic_SE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*hollow_mimic_SW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*slag_mortar_NE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*slag_mortar_NW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*slag_mortar_SE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*slag_mortar_SW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*chainbound_gaoler_NE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*chainbound_gaoler_NW.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*chainbound_gaoler_SE.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*chainbound_gaoler_SW.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

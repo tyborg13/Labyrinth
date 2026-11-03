@@ -1,5 +1,7 @@
 # Turn Clock
 
+Flurry is dormant (flu-01). The play-slot accounting below remains an engine contract tested with synthetic cards; no shipped card spends plays this way.
+
 The initiative clock orders the hero and every enemy by scheduled Time. This
 document owns the player-side scheduling rule and how the HUD presents it.
 Card scoring assumptions live in [card_balance_heuristic.md](card_balance_heuristic.md);

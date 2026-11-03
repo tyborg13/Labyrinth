@@ -1,0 +1,44 @@
+Running task-local command:
+  task: rr-50-1793277827591310000-83979-fix_11_test
+  run: rr-50-1793277827591310000-83979-fix_11_t-1793278465825229000-86290
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979-fix_11_t-1793278465825229000-86290
+  Steam: disabled
+  command: /Applications/Godot.app/Contents/MacOS/Godot --log-file '/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/230/godot.log' --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-50 --script '/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/230/fix_11_test.gd'
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Identifier "GameData" not declared in the current scope.
+          at: GDScript::reload (res://tests/suites/enemy_no_action_suite.gd:36)
+SCRIPT ERROR: Parse Error: Identifier "GameData" not declared in the current scope.
+          at: GDScript::reload (res://tests/suites/enemy_no_action_suite.gd:128)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/suites/fix_11_suite.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/fix_11_test.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/230/fix_11_test.gd:0)
+ERROR: Failed to load script "/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/230/fix_11_test.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+PROGRAM SUITE PATHS: {"log_file":"/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/230/godot.log","user_data":"/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979-fix_11_t-1793278465825229000-86290/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979-fix_11_t-1793278465825229000-86290","user_file":"/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979-fix_11_t-1793278465825229000-86290/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979-fix_11_t-1793278465825229000-86290/program-suite-isolation.json"}
+SCRIPT ERROR: Invalid call. Nonexistent function 'entries' in base 'GDScript'.
+          at: run (res://tests/suites/fix_11_suite.gd:64)
+          GDScript backtrace (most recent call first):
+              [0] run (res://tests/suites/fix_11_suite.gd:64)
+              [1] _run (res://tests/fix_11_test.gd:13)
+FIX-11 CLOCK: reason=true mode=steady drawn_frames=66 next_actor_frame=66
+FIX-11 CLOCK: reason=true mode=stall drawn_frames=66 next_actor_frame=66
+FIX-11 CLOCK: reason=true mode=hidden drawn_frames=0 next_actor_frame=69
+FIX-11 CLOCK: reason=false mode=steady drawn_frames=54 next_actor_frame=54
+FIX-11 CLOCK: reason=false mode=stall drawn_frames=54 next_actor_frame=54
+FIX-11 CLOCK: reason=false mode=hidden drawn_frames=0 next_actor_frame=57
+FIX-11 TEST RESULT: PASS (36 checks, 0 failures)
+WARNING: 1 RID of type "CanvasItem" was leaked.
+     at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2690)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 33 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+error: Godot reported script or test failures despite exit code 0.

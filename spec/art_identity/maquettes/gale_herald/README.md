@@ -1,23 +1,11 @@
-# gale_herald — mq-04 curated maquette
+# gale_herald — mq-12 curated maquette
 
-Round 4: closed native cloth cowl with a continuous pointed mask; source-fitted, broadly folded tattered banner cloth. Only the two banner cloth states differ per view. The body, rig, joints, horn, plates and legs are common.
+Feedback 1 preserves the accepted level-shoulder pose and updates the far shoulder garment attachments. The canonical `measurements.json` and sealed `delivery/` contain this revision. Native sheets, joint/overlap tables, gate results, exact bridge commands and chosen defaults are in [r2/README.md](r2/README.md).
 
-`measurements.json` is the canonical build specification and measured input. It records the protected identity references, their SHA-256 values, source contours, part labels and native solver settings. `spec_native.json` is generated compiler output: it is **not tracked** and is regenerated inside the clean build tree. The builder does not need a pre-existing generated specification.
+`measurements.json` preserves all authored source measurements, labels, solver settings and identity hashes. Gloam’s front fit minimum is the director-approved 0.65; all other fit minima remain unchanged. Generated native specifications, Blender models and caches are not tracked inputs. `COMMIT_MANIFEST.txt` lists every retained file; discarded proof is SHA-256 inventoried before removal.
 
-`COMMIT_MANIFEST.txt` is the complete list to track in this figure tree. `delivery/` contains native 1024 front/rear clays, part maps, unoccluded part solos, joints, capture manifests and compact native proof. `discarded_proof_sha256.json` records the exact hashes and byte lengths of deleted historical builds, caches, replay copies, candidates and old proof. No saved Blender model is required as an input.
+The native source fold pattern is preserved, with a source-bounded translation field at the far shoulder. Both views use one posed body turned 180 degrees. Original native clay PNG bytes are retained; mask packing preserves alpha and every visible RGBA value. Fresh regeneration and native preservation evidence are in `r2/validation/`.
 
-Feedback 5: staging copies native PNG bytes unchanged. Regeneration canonicalises temporary copies of both front/rear clays and part maps; it never rewrites delivery PNGs. Existing round-4 PNG files are retained unchanged. Delivery verification requires passing build, capture, facing, collision and ownership reports, with their exact file hashes sealed into the matching cold-build proof. Native source-file hashes remain in provenance.
+Historical mq-04 shared review files remain in Herald’s `delivery/review/`. Protected Lancer r3 reference clays remain byte-for-byte in Gloam’s `delivery/reference/lancer_r3/`. The current authoritative measurements and gates for these two revised figures are in their `r2/review/` folders.
 
-From the worktree root, regenerate from an empty, input-only project:
-
-```sh
-python3 -B -m spec.art_identity.maquettes.blender.regenerate_delivery spec/art_identity/maquettes/gale_herald --out spec/art_identity/maquettes/gale_herald/regenerated --verify --preview --discard-build
-```
-
-Omit `--preview` to regenerate all solos and maps. Every Blender invocation goes through `bridge_client.py`, with a 900 s execution budget and the bridge's separate 120 s start deadline. The approved external CC0 base bundle is the binary dependency named in `blender/contract.py`; its hash is recorded by regeneration. Cloth uses the native Blender solver and the Lancer collision margins. No Godot/GDScript or windowed proof is involved.
-
-The current design-owner gates are front IoU >= 0.70 and rear >= 0.65 (feedback 2). Per-part visible/solo pixel coverage is in the shared review CSV; every label must have genuine part-colour pixels or a recorded occlusion. Review sheets compare all four clays with the protected Lancer r3 at the same 2.4 m orthographic scale, copying native 1024 cells without rescaling.
-
-Shared review: `../gale_herald/delivery/review/fit_table.md`, `fit_overlay_contact_sheet.png` and `per_part_coverage.csv`. The same-scale five-figure clay comparison is `../arc_thrall/delivery/review/clay_comparison_lancer_r3.png`. Approved Lancer comparison inputs are retained byte-for-byte in `../gloam_stalker/delivery/reference/lancer_r3/`.
-
-Fresh feedback-5 regeneration: `delivery/regeneration.json` compares all four clay/map images and validates native build/capture/facing/collision/ownership against the retained cold proof. Clean input hashes, native discarded-build hashes and bridge log are shared at `../gale_herald/delivery/validation/feedback5_regeneration/gale_herald/`.
+Feedback 2 repairs historical preservation, independently audits native motion, and retains Git-visible proof receipts. See [r2/feedback2.md](r2/feedback2.md). Approved recipes and delivery bytes remain unchanged.

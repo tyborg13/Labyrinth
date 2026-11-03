@@ -1,0 +1,110 @@
+{
+  "source": "bos-02 feedback 1 director copy, verbatim",
+  "entries": {
+    "enemy:zekarion": {
+      "body": [
+        "Storm dragon supported by Lightning Wisps. Skybreak and Storm Lash leave Electrified ground.",
+        "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 1. At half Health the Chain grows to 2. Stay off charged ground, or lure its Wisps onto it."
+      ],
+      "identity": {
+        "id": "enemy:zekarion",
+        "title": "Zekarion, the Raging Tempest",
+        "section": "creatures"
+      }
+    },
+    "combat:worldspines": {
+      "body": [
+        "Tharokh marks a line of tiles between you and it. After every second turn of yours, the marked tiles rise as Outcrops: stone that blocks movement until it is broken. At half Health they rise after each of your turns.",
+        "Outcrops block Tharokh and its Burrow Grubs too. Break one to open a route."
+      ],
+      "identity": {
+        "id": "combat:worldspines",
+        "title": "Worldspines",
+        "section": "combat",
+        "icon": "worldspines"
+      }
+    },
+    "combat:cinder_marks": {
+      "body": [
+        "Meteorfall strikes marked tiles and leaves Fire. When Vyraketh breathes, every Fire tile spreads 1 tile in all four directions.",
+        "Crownfire detonates Vyraketh's own marked Fire while it pursues you. Replace the Fire to deny the blast, or lure the dragon into it.",
+        "The Meteorfall card marks a line of tiles the same way. The marks stay through enemy turns; at the start of your next turn, before you draw, each marked tile takes the damage (anyone standing there, including you) and becomes Fire.",
+        "Marks the shown tiles. When it lands, they take the shown damage and become Fire."
+      ],
+      "identity": {
+        "id": "combat:cinder_marks",
+        "title": "Meteorfall and Crownfire",
+        "section": "combat",
+        "icon": "detonate"
+      }
+    },
+    "combat:hollow_gale": {
+      "body": [
+        "Hollow Gale strikes everywhere within 2 tiles of Vaeloryx and Pushes struck actors away.",
+        "After each Vaeloryx turn, its wind Pushes everyone 1 tile, then turns a quarter clockwise.",
+        "Eye of the Storm threatens a wide ring after the dragon retreats. Escape the outer edge, or step into the eye and face a weaker bite."
+      ],
+      "identity": {
+        "id": "combat:hollow_gale",
+        "title": "Hollow Gale",
+        "section": "combat",
+        "icon": "gale_force"
+      }
+    },
+    "enemy:tharokh": {
+      "body": [
+        "Earth dragon that walls you in, with Burrow Grubs at its side.",
+        "After every second turn of yours, Tharokh's marked tiles rise as Outcrops. At half Health they rise after each of your turns. Break through before the wall closes."
+      ],
+      "identity": {
+        "id": "enemy:tharokh",
+        "title": "Tharokh, the Worldspine",
+        "section": "creatures"
+      }
+    },
+    "enemy:vyraketh": {
+      "body": [
+        "Fire dragon that lays marked Fire, with Cinder Droplets that leave more of it.",
+        "When Vyraketh breathes, every Fire tile spreads 1 tile in all four directions. At half Health its Fire spreads after every second Vyraketh turn. Crownfire detonates its own marked Fire, and its bite renews the marks."
+      ],
+      "identity": {
+        "id": "enemy:vyraketh",
+        "title": "Vyraketh, the Cinder Crown",
+        "section": "creatures"
+      }
+    },
+    "enemy:vaeloryx": {
+      "body": [
+        "Air dragon that strikes from the sky and dives at you, with Gust Shrikes riding its wind.",
+        "After each Vaeloryx turn, its wind Pushes everyone 1 tile, then turns a quarter clockwise. At half Health it Pushes 2 tiles. Its retreating storm combines a wide ring with a weaker close bite."
+      ],
+      "identity": {
+        "id": "enemy:vaeloryx",
+        "title": "Vaeloryx, the Hollow Gale",
+        "section": "creatures"
+      }
+    },
+    "enemy:iskaldra": {
+      "body": [
+        "Ice dragon protected by visible Crystal Mantle layers, with Rime Spitters laying Ice around it.",
+        "When Iskaldra uses Rime Talon, Frostbite hits everyone on Ice for 3 and Freezes them. At half Health, Frostbite hits after every second Iskaldra turn instead. Break Mantle layers to shrink Shatterstorm's reach."
+      ],
+      "identity": {
+        "id": "enemy:iskaldra",
+        "title": "Iskaldra, the Rime Tyrant",
+        "section": "creatures"
+      }
+    },
+    "enemy:noctyrax": {
+      "body": [
+        "Shadow dragon and final boss of the twenty-fourth depth, with Veilbound Acolytes hiding in its darkness.",
+        "When Noctyrax uses Void Claw, hidden Veilbound Acolytes Blink 3 tiles toward you. Night Coil snuffs a brazier; enter its tile to relight it. Light blocks Eclipse's darkness."
+      ],
+      "identity": {
+        "id": "enemy:noctyrax",
+        "title": "Noctyrax, the Last Eclipse",
+        "section": "creatures"
+      }
+    }
+  }
+}

@@ -8,7 +8,7 @@ const Run = preload("res://scripts/run_engine.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Parallel = preload("res://scripts/parallel_runtime.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
-const Icefall = preload("res://scripts/enemy_mechanics/icefall.gd")
+const Icefall = preload("res://scripts/enemy_mechanics/marked_strike.gd")
 const IcefallView = preload("res://scripts/enemy_mechanics/icefall_view.gd")
 const Wind = preload("res://scripts/enemy_mechanics/wind.gd")
 const WindView = preload("res://scripts/enemy_mechanics/wind_view.gd")
@@ -39,7 +39,7 @@ func _initialize() -> void:
 	var profile: Dictionary = Store.default_data()
 	profile["ui_scale"] = 1.0
 	Store.save_data(profile)
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output_directory()))
 	call_deferred("_capture_cases")
 
 func _cases() -> Array[Dictionary]:
@@ -54,7 +54,7 @@ func _cases() -> Array[Dictionary]:
 	var ice_step: Dictionary = Icefall.animation_step(_engine, ice, after_ice, 0, action)
 	ice_step["icefall_puff_seconds"] = IcefallView.PUFF_SECONDS
 	result.append({"name": "02_icicles_mid_fall", "state": ice.duplicate(true), "presentation": {"effect": ice_step, "effect_progress": MID_FALL_ELAPSED_SECONDS / (IcefallView.FALL_SECONDS + float(ice_step["icefall_puff_seconds"]))}})
-	result.append({"name": "03_ice_pillars", "state": after_ice, "presentation": {}})
+	result.append({"name": "03_ice_ground", "state": after_ice, "presentation": {}})
 	var gale: Dictionary = Suite.fixture(_engine, "gale_herald")
 	# A damaging surface beside the hero binds the proof to the brief's scenario.
 	Surfaces.place(gale, Vector2i(6, 5), "fire")
@@ -107,7 +107,7 @@ func _capture_cases() -> void:
 		await process_frame
 		await RenderingServer.frame_post_draw
 		var image: Image = _canvas.get_texture().get_image()
-		var path: String = "%s/%s.png" % [OUTPUT_DIR, case["name"]]
+		var path: String = "%s/%s.png" % [_output_directory(), case["name"]]
 		if image.get_size() != VIEWPORT_SIZE or image.save_png(path) != OK:
 			_failed = true
 			push_error("EN02 capture failed: %s" % path)
@@ -116,3 +116,6 @@ func _capture_cases() -> void:
 	await process_frame
 	print("EN02 ENEMIES PROBE: %s" % ["FAIL" if _failed else "PASS"])
 	quit(1 if _failed else 0)
+
+func _output_directory() -> String:
+	return OUTPUT_DIR

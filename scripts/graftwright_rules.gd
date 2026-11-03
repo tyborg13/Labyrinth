@@ -3,16 +3,6 @@ class_name GraftwrightRules
 
 const Data = preload("res://scripts/game_data.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
-const MIN_COMBATS: int = 3
-
-static func completed_combats(state: Dictionary) -> int:
-	var count: int = 0
-	for value: Variant in (state.get("rooms", {}) as Dictionary).values():
-		if typeof(value) != TYPE_DICTIONARY: continue
-		var room: Dictionary = value as Dictionary
-		if str(room.get("type", "")) in ["combat", "guardian", "boss"] and bool(room.get("cleared", false)):
-			count += 1
-	return count
 
 static func owned(state: Dictionary) -> Array[String]:
 	var result: Array[String]
@@ -30,11 +20,11 @@ static func equipped_slot(state: Dictionary, id: String) -> String:
 	return ""
 
 static func room_error(state: Dictionary) -> String:
+	# The section map owns the fight prerequisite; arrival never gates a graft.
 	if str(state.get("mode", "")) != "graftwright": return "Visit the Graftwright to inherit a card."
 	var room: Dictionary = Graph.room(state, state.get("current_room", Vector2i.ZERO))
 	if str(room.get("type", "")) != "graftwright": return "Visit the Graftwright to inherit a card."
 	if bool(room.get("graft_used", false)): return "The work is complete."
-	if completed_combats(state) < MIN_COMBATS: return "Complete three combats first."
 	return ""
 
 static func pair_error(state: Dictionary, recipient: String, donor: String) -> String:

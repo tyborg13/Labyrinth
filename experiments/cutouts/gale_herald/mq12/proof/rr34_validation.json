@@ -1,0 +1,478 @@
+{
+  "unit": "rr-34",
+  "risk_tier": "low",
+  "status": "implementation and requested headless verification completed; broad-suite failures recorded; native proof pending design owner",
+  "acceptance": [
+    {
+      "requirement": 1,
+      "status": "headless passed; native pending",
+      "front_depths": {
+        "leg_far": 3,
+        "tabard": 5,
+        "leg_near": 6
+      },
+      "scope": "Only far thigh/tabard depths exchanged; other piece ordering preserved. Existing hidden cloth coverage retained; no new paint."
+    },
+    {
+      "requirement": 2,
+      "status": "passed",
+      "rear_depths": {
+        "leg_far": 7,
+        "tabard": 13,
+        "leg_near": 3
+      },
+      "finding": "Rear painting and layout already agree; no mirror defect. All rear bytes unchanged."
+    },
+    {
+      "requirement": 3,
+      "status": "source rests and Herald gates passed; broad suite failures recorded",
+      "source_rest_mismatch_px": {
+        "front": 0,
+        "rear": 0
+      },
+      "gate_exceptions_added": []
+    }
+  ],
+  "protected_motion_sha256": "3a55e2f5fab1ca0b348624fe83611806e7c77a59aa3ef7ee73d01462431739fe",
+  "protected_paintings_sha256": {
+    "front": "970e518b1f655c28af031ea028a9864616d90cbfd5ee39999ca149450ce1d850",
+    "rear": "fccf4582cf40e468641fb358d8ba5d9fcba76bbb1e9a8436a118405671b91ca0"
+  },
+  "paint_geometry_motion_and_other_figures_changed": false,
+  "layer_regression": {
+    "exit": 0,
+    "result_lines": [
+      "Ran 4 tests in 0.592s",
+      "OK"
+    ],
+    "transcript": "logs/rr34_layering.txt"
+  },
+  "live_rig_regression": {
+    "exit": 0,
+    "result_lines": [
+      "RR32 RUNTIME: PASS (963 checks; registration and contact clocks)"
+    ],
+    "sampling": "All compiled production clips, 60 Hz including endpoints; actual front Polygon2D depths checked after every pose."
+  },
+  "strict_gates": {
+    "exit": 0,
+    "result_lines": [
+      "RR32 FRONT CUT: PASS (0 errors)",
+      "RR32 FRONT BONES: PASS (0 errors)",
+      "RR32 FRONT DIRECTION: PASS (0 errors)",
+      "RR32 FRONT WALK: PASS (0 errors)",
+      "RR32 FRONT SUPPORTS: PASS (0 errors)",
+      "RR32 FRONT REACH: REPORT (9 paths; 1000 intervals; 0 errors; 3 overreach reports)",
+      "RR32 REAR CUT: PASS (0 errors)",
+      "RR32 REAR BONES: PASS (0 errors)",
+      "RR32 REAR DIRECTION: PASS (0 errors)",
+      "RR32 REAR WALK: PASS (0 errors)",
+      "RR32 REAR SUPPORTS: PASS (0 errors)",
+      "RR32 REAR REACH: REPORT (9 paths; 1000 intervals; 0 errors; 5 overreach reports)",
+      "RR32 HEADLESS GATES: PASS (0 errors)"
+    ],
+    "transcript": "logs/rr34_gates.txt"
+  },
+  "cpu_sweep": {
+    "ok": true,
+    "native_pixels": false,
+    "frames": 796,
+    "expected_frames": 796,
+    "error_frames": 0,
+    "samples_sha256": "1e3f8da4abeaa83ea2b4f80f15e69a36cabc0db3bdb3eef26ac80b11370b8242",
+    "result_lines": [
+      "RR32 CPU COVERAGE: PASS (796 frames; 0 error frames; NOT native proof)",
+      "RR32 CPU SEAMS: PASS (796 frames; 0 joint tears; 0 stray components; NOT native proof)"
+    ],
+    "receipt": "seam_cpu/rr34/coverage.json",
+    "sha256": "743c378a2ede062fe249903586980b5e27dccd0b7de460ad8d2c99817ab034bd",
+    "transcript": "logs/rr34_cpu.txt"
+  },
+  "cpu_representatives": {
+    "exit": 0,
+    "frames": 9,
+    "inspected": true,
+    "native_pixels": false,
+    "capture_directory": "seam_cpu/rr34/representatives",
+    "result_lines": [
+      "RR32 CPU COVERAGE: PASS (9 frames; 0 error frames; NOT native proof)",
+      "RR32 CPU SEAMS: PASS (9 frames; 0 joint tears; 0 stray components; NOT native proof)"
+    ]
+  },
+  "focused_sets": {
+    "exit": 1,
+    "results": [
+      {
+        "family": "herald",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+          "--execute-suite",
+          "herald"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "Ran 25 tests in 166.757s",
+          "OK"
+        ],
+        "transcript": "proof/logs/validate_herald_0.txt"
+      },
+      {
+        "family": "seer",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+          "--execute-suite",
+          "seer"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "Ran 86 tests in 68.728s",
+          "OK"
+        ],
+        "transcript": "proof/logs/validate_seer_0.txt"
+      },
+      {
+        "family": "thrall",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+          "--execute-suite",
+          "thrall"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "Ran 88 tests in 102.286s",
+          "OK (skipped=1)"
+        ],
+        "transcript": "proof/logs/validate_thrall_0.txt"
+      },
+      {
+        "family": "mirror",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+          "--execute-suite",
+          "mirror"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "Ran 39 tests in 50.131s",
+          "OK"
+        ],
+        "transcript": "proof/logs/validate_mirror_0.txt"
+      },
+      {
+        "family": "capacitor",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+          "--execute-suite",
+          "capacitor"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "Ran 38 tests in 133.174s",
+          "OK"
+        ],
+        "transcript": "proof/logs/validate_capacitor_0.txt"
+      },
+      {
+        "family": "weaver",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+          "--execute-suite",
+          "weaver"
+        ],
+        "exit": 1,
+        "result_lines": [
+          "Ran 30 tests in 106.305s",
+          "FAILED (errors=1)"
+        ],
+        "transcript": "proof/logs/validate_weaver_0.txt"
+      },
+      {
+        "family": "mimic",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+          "--execute-suite",
+          "mimic"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "Ran 30 tests in 42.367s",
+          "OK"
+        ],
+        "transcript": "proof/logs/validate_mimic_0.txt"
+      },
+      {
+        "family": "mortar",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/rr32_validate.py",
+          "--execute-suite",
+          "mortar"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "Ran 66 tests in 450.719s",
+          "OK"
+        ],
+        "transcript": "proof/logs/validate_mortar_0.txt"
+      },
+      {
+        "family": "sfx",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "rr-34",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/suites/sfx_sync_0_program.gd"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)"
+        ],
+        "transcript": "proof/logs/validate_sfx_0.txt"
+      },
+      {
+        "family": "sfx",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "rr-34",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/suites/sfx_sync_1_program.gd"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)"
+        ],
+        "transcript": "proof/logs/validate_sfx_1.txt"
+      },
+      {
+        "family": "sfx",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/godot_task_runner.py",
+          "--task-id",
+          "rr-34",
+          "--stream",
+          "--",
+          "godot",
+          "--headless",
+          "--path",
+          ".",
+          "--script",
+          "tests/suites/sfx_sync_2_program.gd"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "SFX SYNC HARNESS RESULT: PASS (1688 observations, 0 failures)"
+        ],
+        "transcript": "proof/logs/validate_sfx_2.txt"
+      },
+      {
+        "family": "identity",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tests/test_art_identity_gate.py"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "Ran 111 tests in 40.640s",
+          "OK"
+        ],
+        "transcript": "proof/logs/validate_identity_0.txt"
+      },
+      {
+        "family": "identity",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tests/test_icon_identity_policy.py"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "Ran 8 tests in 0.063s",
+          "OK"
+        ],
+        "transcript": "proof/logs/validate_identity_1.txt"
+      },
+      {
+        "family": "audit",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "tools/test_registration_audit.py",
+          "--json",
+          "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/mq12/proof/registration_audit.json",
+          "--markdown",
+          "/Users/borgerding/workspace/Labyrinth.worktrees/rr-34/experiments/cutouts/gale_herald/mq12/proof/registration_audit.md"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "TEST REGISTRATION AUDIT: PASS (814 scripts; full suite=461, quarantined=29, windowed probe=324)"
+        ],
+        "transcript": "proof/logs/validate_audit_0.txt"
+      }
+    ],
+    "transcript": "logs/rr34_focused.txt",
+    "failed_families": [
+      "weaver"
+    ]
+  },
+  "full_godot": {
+    "exit": 1,
+    "result_line": "TEST RESULT: FAIL (33 failure(s))",
+    "programs": 206,
+    "program_seconds": 677.44,
+    "failed_programs": [
+      "threats_at_rest_test",
+      "objective_glyph_equivalence_test",
+      "special_encounter_test",
+      "warband_test"
+    ],
+    "main_failure_lines": [
+      "ERROR: solo/out_of_range actually resolves Thornwall before checking the regression",
+      "ERROR: solo/out_of_range keeps the authored Lash intent when Thornwall and Root Mend are unavailable",
+      "ERROR: solo/out_of_range shows the existing cancelled attack badge without inventing an unreachable threat",
+      "ERROR: solo/out_of_range unreachable Lash still pays its authored Time",
+      "ERROR: solo/out_of_range unreachable Lash creates no fabricated hit analytics",
+      "ERROR: solo/out_of_range the displayed Lash resolves real damage",
+      "ERROR: solo/out_of_range reachable Lash keeps its analytics attribution",
+      "ERROR: solo/blocked_sight actually resolves Thornwall before checking the regression",
+      "ERROR: solo/blocked_sight keeps the authored Lash intent when Thornwall and Root Mend are unavailable",
+      "ERROR: solo/blocked_sight shows the existing cancelled attack badge without inventing an unreachable threat",
+      "ERROR: solo/blocked_sight unreachable Lash still pays its authored Time",
+      "ERROR: solo/blocked_sight unreachable Lash creates no fabricated hit analytics",
+      "ERROR: solo/blocked_sight the displayed Lash resolves real damage",
+      "ERROR: solo/blocked_sight reachable Lash keeps its analytics attribution",
+      "ERROR: squad/out_of_range actually resolves Thornwall before checking the regression",
+      "ERROR: squad/out_of_range keeps the authored Lash intent when Thornwall and Root Mend are unavailable",
+      "ERROR: squad/out_of_range shows the existing cancelled attack badge without inventing an unreachable threat",
+      "ERROR: squad/out_of_range unreachable Lash still pays its authored Time",
+      "ERROR: squad/out_of_range unreachable Lash creates no fabricated hit analytics",
+      "ERROR: squad/out_of_range the displayed Lash resolves real damage",
+      "ERROR: squad/out_of_range reachable Lash keeps its analytics attribution",
+      "ERROR: squad/blocked_sight actually resolves Thornwall before checking the regression",
+      "ERROR: squad/blocked_sight keeps the authored Lash intent when Thornwall and Root Mend are unavailable",
+      "ERROR: squad/blocked_sight shows the existing cancelled attack badge without inventing an unreachable threat",
+      "ERROR: squad/blocked_sight unreachable Lash still pays its authored Time",
+      "ERROR: squad/blocked_sight unreachable Lash creates no fabricated hit analytics",
+      "ERROR: squad/blocked_sight the displayed Lash resolves real damage",
+      "ERROR: squad/blocked_sight reachable Lash keeps its analytics attribution",
+      "ERROR: Removed lifetime terrain retains its body and death mark without adding a health bar",
+      "ERROR: Program sub-suite failed: threats_at_rest_test (exit 1)",
+      "ERROR: Program sub-suite failed: objective_glyph_equivalence_test (exit 1)",
+      "ERROR: Program sub-suite failed: special_encounter_test (exit 1)",
+      "ERROR: Program sub-suite failed: warband_test (exit 1)"
+    ],
+    "transcript": "logs/rr34_full_godot.txt",
+    "program_receipt": "logs/rr34_full_godot_programs.json"
+  },
+  "full_python": {
+    "exit": 1,
+    "result_lines": [
+      "Ran 1732 tests in 2519.764s",
+      "FAILED (errors=2, skipped=66)"
+    ],
+    "error_classes": [
+      "setUpClass (test_rr07_production.ProductionTests)",
+      "setUpClass (test_rr21_production.ProductionTests)"
+    ],
+    "transcript": "logs/rr34_full_python.txt",
+    "errors_transcript": "logs/rr34_full_python_errors.txt"
+  },
+  "windowed": {
+    "status": "not run: sandbox has no macOS window-server access; no windowed run attempted",
+    "commands": [
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && sh experiments/cutouts/gale_herald/rr34_proof.sh rest",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && sh experiments/cutouts/gale_herald/rr34_proof.sh native",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && sh experiments/cutouts/gale_herald/rr34_proof.sh sheets",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && sh experiments/cutouts/gale_herald/rr34_proof.sh review"
+    ],
+    "capture_paths": [
+      "proof/native_rest/rest_pair.png",
+      "proof/native/",
+      "proof/contact_sheets/",
+      "proof/gale_herald_review.mp4"
+    ],
+    "inspection_fixture": "Not requested by unit; owner handles inspection."
+  },
+  "TODO_DESIGN": {},
+  "chosen_defaults": {
+    "LAYER_PROOF_FPS": 60,
+    "MUTATION_DEPTH_DELTA": 1,
+    "MUTATION_MESH_DEPTH": 0,
+    "FULL_GODOT_TIMEOUT_SECONDS": 900
+  },
+  "workflow": "No commits, branch changes, pushes, peer review, queue edits, or publication. All work remains uncommitted.",
+  "headless_commands": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && python3 experiments/cutouts/gale_herald/rr34_layering.py",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && LABYRINTH_TASK_ID=rr-34 python3 -m unittest tests.test_rr34_layering -v",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && LABYRINTH_TASK_ID=rr-34 PYTHONPATH=tools python3 experiments/cutouts/gale_herald/rr32_evidence.py --refresh",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && python3 tools/godot_task_runner.py --task-id rr-34 --stream -- godot --headless --path . --script tests/rr32/runtime_checks.gd",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && python3 experiments/cutouts/gale_herald/rr32_gates.py",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && python3 experiments/cutouts/gale_herald/rr32_coverage.py --output experiments/cutouts/gale_herald/mq12/proof/seam_cpu/rr34",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && python3 experiments/cutouts/gale_herald/rr32_coverage.py --representatives --output experiments/cutouts/gale_herald/mq12/proof/seam_cpu/rr34/representatives",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && LABYRINTH_TASK_ID=rr-34 python3 experiments/cutouts/gale_herald/rr32_validate.py --family all",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && python3 tools/godot_task_runner.py --task-id rr-34 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && LABYRINTH_TASK_ID=rr-34 python3 -m unittest discover -s tests -p 'test_*.py' -v",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && python3 tools/output_gdignore.py",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && sh -n experiments/cutouts/gale_herald/rr34_proof.sh",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-34 && git diff --check"
+  ],
+  "open_issues": [
+    "No window-server access: native rest/native/sheets/review remain design-owner commands; no native pixel success claimed.",
+    "Weaver reference: tests.test_rr21_production.ProductionTests.setUpClass fails (thornwall has too few sampled/changing states and no real contact). Source/assertions unchanged.",
+    "Full Godot: TEST RESULT: FAIL (33 failure(s)); unchanged Weaver/Lash and removed-terrain main assertions, plus threats_at_rest_test, objective_glyph_equivalence_test, special_encounter_test (missing imported emblem resources), and warband_test (tether_beam).",
+    "Full Python: FAILED (errors=2, skipped=66); unchanged test_rr07_production.ProductionTests (Thrall tether incomplete/missing contact) and test_rr21_production.ProductionTests (Weaver Thornwall incomplete/missing contact)."
+  ],
+  "production_provenance": {
+    "exit": 0,
+    "result_line": "RR34 PRODUCTION PROVENANCE: PASS (132 file hashes; 0 mismatches)",
+    "transcript": "logs/rr34_provenance.txt"
+  },
+  "final_audit": {
+    "unrelated_files_changed": [],
+    "protected_paint_motion_rear_files_changed": [],
+    "cpu_and_bone_evidence_current": true,
+    "branch": "codex/rr-34",
+    "committed": false,
+    "files_changed": [
+      "assets/units/gale_herald_cutout/front.json",
+      "assets/units/gale_herald_cutout/humanoid_v2/front.json",
+      "assets/units/gale_herald_cutout/integration.json",
+      "experiments/cutouts/gale_herald/README.md",
+      "experiments/cutouts/gale_herald/mq12/layouts/front.json",
+      "experiments/cutouts/gale_herald/mq12/proof/registration_audit.json",
+      "experiments/cutouts/gale_herald/mq12/proof/registration_audit.md",
+      "experiments/cutouts/gale_herald/mq12/proof/rr34_validation.json",
+      "experiments/cutouts/gale_herald/mq12/proof/samples.json",
+      "experiments/cutouts/gale_herald/mq12/proof/validation_run.json",
+      "experiments/cutouts/gale_herald/rr32_build.py",
+      "experiments/cutouts/gale_herald/rr32_repair_checks.py",
+      "experiments/cutouts/gale_herald/rr32_validate.py",
+      "experiments/cutouts/gale_herald/rr34_layering.py",
+      "experiments/cutouts/gale_herald/rr34_proof.sh",
+      "tests/rr32/runtime_checks.gd",
+      "tests/test_rr32_herald.py",
+      "tests/test_rr34_layering.py"
+    ]
+  }
+}

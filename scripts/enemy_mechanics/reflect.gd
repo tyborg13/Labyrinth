@@ -5,7 +5,7 @@ const Glossary = preload("res://scripts/glossary.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
-const Tether = preload("res://scripts/enemy_mechanics/tether.gd")
+const Snapshots = preload("res://scripts/enemy_mechanics/actor_snapshot.gd")
 static var TOOLTIP: String = Glossary.name_for("reflect") + "\n" + Glossary.definition("reflect")
 const PREVIEW_TOOLTIP: String = "Reflected: you take this damage."
 
@@ -80,7 +80,7 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 	if engine._enemy_cannot_continue_after_bleed(state, index): return state
 	context["refraction_started"] = true
 	var tiles: Array[Vector2i] = line(engine, state, index, action)
-	# Reuse Tether's all-actor batch and ordinary friendly-fire/death accounting.
+	# Preserve all-actor friendly-fire/death accounting.
 	state = damage_line(engine, state, index, action, tiles)
 	for actor: Dictionary in engine._surface_actor_records(state):
 		if engine._surface_unit_intersects(actor["unit"], tiles) and int(actor["unit"].get("freeze", 0)) <= 0:
@@ -93,7 +93,7 @@ static func step(engine: RefCounted, before: Dictionary, after: Dictionary, inde
 	var losses: Array[Dictionary] = engine._actor_target_losses(before, after)
 	losses.append_array(engine._enemy_target_losses(before, after))
 	var tiles: Array[Vector2i] = line(engine, before, index, action)
-	return {"kind": "aoe", "action_type": "refraction", "cancelled": not bool(context.get("refraction_started", true)), "element": "ice", "actor_key": engine._enemy_key(before["enemies"][index]), "from": before["enemies"][index]["pos"], "to": tiles.back() if not tiles.is_empty() else engine.INVALID_TILE, "tiles": tiles, "target_losses": losses, "impact_actor_keys": engine._target_loss_keys(losses), "en05_after": Tether.snapshot(after), "label": "Refraction"}
+	return {"kind": "aoe", "action_type": "refraction", "cancelled": not bool(context.get("refraction_started", true)), "element": "ice", "actor_key": engine._enemy_key(before["enemies"][index]), "from": before["enemies"][index]["pos"], "to": tiles.back() if not tiles.is_empty() else engine.INVALID_TILE, "tiles": tiles, "target_losses": losses, "impact_actor_keys": engine._target_loss_keys(losses), "en05_after": Snapshots.snapshot(after), "label": "Refraction"}
 
 # All units on the authored line share the existing friendly-fire rules.
 static func damage_line(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, tiles: Array[Vector2i]) -> Dictionary:

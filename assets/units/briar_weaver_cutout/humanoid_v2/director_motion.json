@@ -41,12 +41,12 @@
     }
    },
    "move": {
-    "seconds": 0.9,
+    "seconds": 0.4166666666666667,
     "intents": [],
     "note": "a hunched creep on the protagonist's model: both legs step, six small steps per tile rest to rest, the near foot leading; 7 px lift (the hunch already bends the stance knee, so the swing must bend more); the pelvis settles 2.5 px after each landing; a 3 degree lean; the claws sway 3 px opposite the stepping leg; the leaf tatters trail 2 px",
     "gait": {
      "model": "protagonist_walk",
-     "steps_per_tile": 6,
+     "steps_per_tile": 5,
      "lead": "near",
      "stance_fraction": 0.6,
      "lift_px": 7,

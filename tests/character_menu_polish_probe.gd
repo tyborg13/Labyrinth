@@ -3,6 +3,7 @@ extends "res://tests/loadout_material_polish_probe.gd"
 const CHARACTER_OUTPUT: String = "user://probes/character_menu_vp4"
 const Menu = preload("res://scripts/character_menu_view.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
+const GROUPING_FIXTURE_MAGIC := ["pale_spark"]
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -42,6 +43,7 @@ func _initialize() -> void:
 	_require((dialog.find_child("ProgressionLevelLabel", true, false) as Label).text == "THE REAVER · LEVEL 1", "Level lives in the Reaver eyebrow")
 	_require((dialog.find_child("ProgressionSkillPointsLabel", true, false) as Label).get_theme_color("font_color") == Palette.GOLD_BRIGHT, "Skill points use the gold stat-chip value")
 	await _assert_review_header(dialog)
+	dialog = _instance.get("_upgrade_dialog") as Control
 	_assert_body_fit(dialog)
 	_assert_gear_components(dialog)
 	_assert_wrapper_states(dialog)
@@ -85,6 +87,7 @@ func _initialize() -> void:
 	_instance.set("_run_state", state)
 	_instance.call("_rebuild_progression_overlay")
 	await _settle()
+	dialog = _instance.get("_upgrade_dialog") as Control
 	_require((_instance.get("_item_equipped_tiles") as Dictionary).size() == 2, "Full item loadout retains both native endpoints")
 	_assert_wrapper_states(dialog)
 	await _save_screenshot("05_items_full.png")
@@ -92,6 +95,7 @@ func _initialize() -> void:
 	_instance.set("_run_state", state)
 	_instance.call("_rebuild_progression_overlay")
 	await _settle()
+	dialog = _instance.get("_upgrade_dialog") as Control
 	var item_slots: Dictionary = _instance.get("_item_equipped_tiles") as Dictionary
 	for tile: Control in item_slots.values():
 		_require(tile.find_child("ItemCardArtChip", true, false) != null, "Empty item row contains an empty socket")
@@ -100,22 +104,31 @@ func _initialize() -> void:
 	_click_now(dialog.find_child("CharacterMagicTab", true, false) as Control)
 	_require(str(_instance.get("_progression_overlay_mode")) == "magic", "Pointer tab activation is immediate")
 	await _settle()
+	dialog = _instance.get("_upgrade_dialog") as Control
 	_assert_body_fit(dialog)
 	_assert_wrapper_states(dialog)
 	_require(dialog.get_global_rect() == bounds, "Tab switching preserves outer bounds")
 	var attuned: Dictionary = _instance.get("_magic_attuned_tiles") as Dictionary
+	_require(not attuned.is_empty(), "Magic exposes the owned deck spells")
 	for tile: Control in attuned.values():
-		_require(is_equal_approx(tile.size.y, 34.0), "Attuned slots use 34px strips")
+		_require(is_equal_approx(tile.size.x, Menu.Strip.LIST_WIDTH), "Magic spells use the compact deck-strip width")
+		_require(str(tile.get("source_kind")) == "deck", "Magic rows inspect deck ownership instead of attuned slots")
 	_viewport.gui_release_focus()
 	await _save_screenshot("07_magic_idle.png")
-	_instance.call("_controller_activate_magic_tile", "attuned", 0, str((attuned[0] as Control).get("card_id")))
-	_require(bool((attuned[0] as Control).get_node("CharacterCardStrip").get("selected")), "Two-step swap uses the shared strip selected state")
-	await _save_screenshot("08_magic_swap_selected.png")
-	_instance.call("_clear_controller_magic_selection")
+	var spell: Control = attuned.get(0) as Control
+	_require(spell != null, "Magic has an initial deck inspection endpoint")
+	if spell == null: return
+	_click_now(spell)
+	await _settle()
+	_require(_instance.get("_controller_loadout_tooltip") != null and spell.has_focus(), "Pointer activation inspects the deck spell at its native endpoint")
+	await _save_screenshot("08_magic_deck_inspection.png")
 	_router.call("set_forced_state_for_test", "controller", "xbox")
 	await _press_controller_button(JOY_BUTTON_RIGHT_SHOULDER)
 	await _settle()
 	_require(str(_instance.get("_progression_overlay_mode")) == "skills", "Controller RB traverses native tabs")
+	# Prepared tab dialogs can replace the previous chrome; the graph itself is
+	# retained. Always assert against the currently adopted dialog.
+	dialog = _instance.get("_upgrade_dialog") as Control
 	var tree: Control = _instance.get("_skill_tree_view") as Control
 	_require(tree.is_ancestor_of(_viewport.gui_get_focus_owner()), "Skills retains graph focus")
 	_require((tree.find_child("SkillDetailAction", true, false) as Button).text == "No Skill Points", "No-points learning stays quiet and unavailable")
@@ -135,6 +148,7 @@ func _initialize() -> void:
 	_instance.set("_run_state", state)
 	_instance.call("_rebuild_progression_overlay")
 	await _settle()
+	dialog = _instance.get("_upgrade_dialog") as Control
 	_require((dialog.find_child("ProgressionDefianceChip", true, false).get_node("Caption") as Label).text == "DEFIANCE · NEXT 8", "Defiance caption refreshes the next level threshold")
 	var learn: Button = tree.find_child("SkillDetailAction", true, false) as Button
 	_require(not learn.disabled and learn.text == "Learn  ·  1 Point", "Points enable the native primary Learn action")
@@ -158,8 +172,9 @@ func _initialize() -> void:
 	await _settle()
 	_require(not bool(_instance.call("_magic_overlay_can_change")), "Combat menu retains its lock")
 	attuned = _instance.get("_magic_attuned_tiles") as Dictionary
+	_require(not attuned.is_empty(), "Combat Magic retains deck inspection endpoints")
 	for tile: Control in attuned.values():
-		_require(bool(tile.get_node("CharacterCardStrip").get("locked")), "Combat spells use the shared locked strip state")
+		_require(tile.focus_mode == Control.FOCUS_ALL and not bool(tile.get_node("CharacterCardStrip").get("locked")), "Combat spells remain focusable for read-only inspection")
 	await _save_screenshot("12_combat_locked.png")
 	_instance.queue_free()
 	await process_frame
@@ -169,6 +184,112 @@ func _initialize() -> void:
 		print("CHARACTER PROOF: HEADLESS ASSERTIONS ONLY; NO SCREENSHOTS")
 	print("CHARACTER MENU POLISH: PASS")
 	quit(0)
+
+# Keep this unit on deck-01 behavior without changing the older shared probe.
+func _exercise_loadout_material(instance: Node, base_state: Dictionary) -> void:
+	var state: Dictionary = base_state.duplicate(true)
+	# Keep the existing one-original/one-retired-ID grouping proof without the
+	# obsolete swap that used to replace a starting spell with Bone Dart.
+	state["attuned_magic_cards"] = GROUPING_FIXTURE_MAGIC.duplicate()
+	var equipment_inventory: Array = (state.get("equipment_inventory", []) as Array).duplicate()
+	if not equipment_inventory.has("iron_cleaver"):
+		equipment_inventory.append("iron_cleaver")
+	state["equipment_inventory"] = equipment_inventory
+	var collected_equipment: Array = (state.get("collected_equipment", []) as Array).duplicate()
+	if not collected_equipment.has("iron_cleaver"):
+		collected_equipment.append("iron_cleaver")
+	state["collected_equipment"] = collected_equipment
+	var item_inventory: Array = (state.get("item_inventory", []) as Array).duplicate()
+	if not item_inventory.has("mossglass_elixir"):
+		item_inventory.append("mossglass_elixir")
+	state["item_inventory"] = item_inventory
+	# Legacy reserve ownership migrates into the deck on load (deck-01).
+	var magic_inventory: Array = (state.get("magic_inventory", []) as Array).duplicate()
+	if not magic_inventory.has("bone_dart"):
+		magic_inventory.append("bone_dart")
+	state["magic_inventory"] = magic_inventory
+	instance.call("_load_run_state", state)
+	instance.call("_close_dialogue")
+	await _settle()
+
+	instance.call("_close_large_map")
+	instance.call("_open_character_overlay", "equipment")
+	await _settle()
+	var gear_tiles: Dictionary = instance.get("_equipment_inventory_tiles") as Dictionary
+	var gear_slots: Dictionary = instance.get("_equipment_slot_panels") as Dictionary
+	var initial_gear_focus: Control = _viewport.gui_get_focus_owner()
+	_require(
+		gear_slots.values().has(initial_gear_focus) or gear_tiles.values().has(initial_gear_focus),
+		"Opening Character with a controller should immediately focus a meaningful gear tile instead of the Close button"
+	)
+	var gear_tile: Control = gear_tiles.get("iron_cleaver") as Control
+	_require(gear_tile != null and gear_tile.focus_mode == Control.FOCUS_ALL, "Spare gear should be controller-focusable outside combat")
+	if gear_tile == null: return
+	gear_tile.grab_focus()
+	await _settle()
+	var gear_tooltip: Control = instance.get("_controller_loadout_tooltip") as Control
+	_require(gear_tooltip != null and gear_tooltip.visible, "Focused gear should reveal its full controller mechanics tooltip")
+	await _save_screenshot("character_room_loadout_focus.png")
+	gear_tile.call("_gui_input", _controller_accept_event())
+	await _settle()
+	await create_timer(0.35).timeout
+	var equipped: Dictionary = (instance.get("_run_state") as Dictionary).get("equipped_equipment", {}) as Dictionary
+	_require(str(equipped.get("weapon", "")) == "iron_cleaver", "A on spare gear should equip it with no pointer drag")
+
+	var current_items: Array = (instance.get("_run_state") as Dictionary).get("item_inventory", []) as Array
+	var item_index: int = current_items.find("mossglass_elixir")
+	_require(item_index >= 0, "Controller loadout fixture should retain its consumable")
+	var item_tiles: Dictionary = instance.get("_item_inventory_tiles") as Dictionary
+	var item_tile: Control = item_tiles.get(item_index) as Control
+	_require(item_tile != null and item_tile.focus_mode == Control.FOCUS_ALL, "Consumables should be controller-focusable")
+	if item_tile == null: return
+	item_tile.call("_gui_input", _controller_accept_event())
+	await _settle()
+	await create_timer(0.25).timeout
+	var equipped_items: Array = (instance.get("_run_state") as Dictionary).get("equipped_items", []) as Array
+	_require(equipped_items.has("mossglass_elixir"), "A on a consumable should equip it with no pointer drag")
+
+	instance.call("_switch_character_overlay_mode", "magic")
+	await _settle()
+	var loaded: Dictionary = instance.get("_run_state") as Dictionary
+	_require((loaded.get("magic_inventory", []) as Array).is_empty(), "Legacy reserve spells migrate into the deck")
+	_require((instance.get("_magic_inventory_tiles") as Dictionary).is_empty(), "Deck-only Magic has no reserve swap endpoints")
+	var deck_tiles: Dictionary = instance.get("_magic_attuned_tiles") as Dictionary
+	var initial_magic_focus: Control = _viewport.gui_get_focus_owner()
+	_require(initial_magic_focus != null and deck_tiles.values().has(initial_magic_focus), "Switching to Magic with a controller should focus a deck spell")
+	var spell: Control = null
+	for tile: Control in deck_tiles.values():
+		if str(tile.get("card_id")) == "bone_dart": spell = tile
+	_require(spell != null, "Migrated spell should expose a deck inspection endpoint")
+	if spell == null: return
+	spell.grab_focus()
+	instance.call("_restore_controller_loadout_tooltip_for_focus_owner")
+	await _settle()
+	_require(spell.has_focus(), "Magic handoff proof starts with the deck spell focused")
+	var tooltip: Control = instance.get("_controller_loadout_tooltip") as Control
+	_require(tooltip != null and tooltip.visible, "Focused deck magic reveals its full mechanics tooltip")
+	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_STEAM_DECK)
+	await _settle()
+	_require(instance.get("_controller_loadout_tooltip") == null, "Pointer modality clears controller-only loadout tooltips")
+	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+	await _settle()
+	tooltip = instance.get("_controller_loadout_tooltip") as Control
+	_require(spell.has_focus(), "Pointer/controller handoff preserves the focused deck spell")
+	_require(tooltip != null and tooltip.visible, "Returning to controller restores the focused spell inspection")
+	var before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	await _press_controller_button(JOY_BUTTON_A)
+	tooltip = instance.get("_controller_loadout_tooltip") as Control
+	_require(spell.has_focus() and tooltip != null and tooltip.visible, "Controller A inspects the deck spell at its native endpoint")
+	_require(str(instance.get("_controller_magic_source_kind")).is_empty(), "Deck inspection never starts a retired reserve swap")
+	_require(instance.get("_run_state") == before, "Inspecting a deck spell preserves run state")
+	await _save_screenshot("character_magic_deck_focus.png")
+	instance.call("_close_card_upgrade_overlay")
+	await _settle()
+	var clean_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	clean_state["notice"] = ""
+	instance.set("_run_state", clean_state)
+	instance.call("_refresh_ui")
+	await _settle()
 
 func _assert_body_fit(dialog: Control) -> void:
 	var body: Control = dialog.find_child("CharacterBodyFrame", true, false) as Control
@@ -187,7 +308,8 @@ func _assert_gear_components(dialog: Control) -> void:
 	_require(dialog.find_child("CharacterInkPool", true, false) != null, "Paper doll uses the unit-0 ink pool")
 	var deck: Control = dialog.find_child("CurrentDeckPanel", true, false) as Control
 	for grid: Node in deck.find_children("CharacterDeckGrid", "", true, false):
-		_require((grid as GridContainer).columns == 2, "Each deck source uses a two-column strip grid")
+		for badge: Node in grid.get_children():
+			_require(is_equal_approx((badge as Control).size.x, Menu.Strip.LIST_WIDTH), "Deck strips match the fight preview's strip width")
 	var pale_spark_strips: int = 0
 	for strip: Node in deck.find_children("CharacterCardStrip", "", true, false):
 		if str(strip.get_node("CardBadgeName").text) == "Pale Spark":

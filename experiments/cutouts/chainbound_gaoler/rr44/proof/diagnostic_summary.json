@@ -1,0 +1,144 @@
+{
+  "result": "FAIL; native calibration and director judgments pending",
+  "native_pixels": false,
+  "frames": 892,
+  "flagged_frames": 807,
+  "coverage_errors": [],
+  "every_flagged_frame_has_crop": true,
+  "finding_counts": {
+    "missing": 755,
+    "painted_exposure": 795,
+    "flat_region": 745,
+    "detached": 469,
+    "floating": 471,
+    "tiny": 236,
+    "seam": 138,
+    "rear_striped_panel": 359
+  },
+  "clips": {
+    "front/idle": {
+      "frames": 50,
+      "flagged_frames": 36
+    },
+    "front/move": {
+      "frames": 51,
+      "flagged_frames": 51
+    },
+    "front/reel": {
+      "frames": 66,
+      "flagged_frames": 63
+    },
+    "front/pin": {
+      "frames": 48,
+      "flagged_frames": 41
+    },
+    "front/press": {
+      "frames": 51,
+      "flagged_frames": 49
+    },
+    "front/guard": {
+      "frames": 54,
+      "flagged_frames": 52
+    },
+    "front/hit": {
+      "frames": 30,
+      "flagged_frames": 16
+    },
+    "front/death": {
+      "frames": 96,
+      "flagged_frames": 95
+    },
+    "rear/idle": {
+      "frames": 50,
+      "flagged_frames": 36
+    },
+    "rear/move": {
+      "frames": 51,
+      "flagged_frames": 49
+    },
+    "rear/reel": {
+      "frames": 66,
+      "flagged_frames": 64
+    },
+    "rear/pin": {
+      "frames": 48,
+      "flagged_frames": 46
+    },
+    "rear/press": {
+      "frames": 51,
+      "flagged_frames": 46
+    },
+    "rear/guard": {
+      "frames": 54,
+      "flagged_frames": 52
+    },
+    "rear/hit": {
+      "frames": 30,
+      "flagged_frames": 16
+    },
+    "rear/death": {
+      "frames": 96,
+      "flagged_frames": 95
+    }
+  },
+  "views": {
+    "front": {
+      "elbow_errors": [],
+      "pendulum_errors": [],
+      "held_follow_errors": [
+        "TODO_DESIGN_held_follow_reference_frame"
+      ],
+      "source_errors": [
+        "tuck: insufficient continuation: arm_far",
+        "tuck: insufficient continuation: arm_near",
+        "tuck: insufficient continuation: chain",
+        "tuck: insufficient continuation: hand_far",
+        "tuck: insufficient continuation: head",
+        "tuck: insufficient continuation: leg_far",
+        "tuck: insufficient continuation: leg_near",
+        "tuck: insufficient continuation: pelvis",
+        "tuck: insufficient continuation: torso",
+        "tuck: missing actual texels: arm_far",
+        "tuck: missing actual texels: arm_near",
+        "tuck: missing actual texels: chain",
+        "tuck: missing actual texels: hand_far",
+        "tuck: missing actual texels: head",
+        "tuck: missing actual texels: leg_far",
+        "tuck: missing actual texels: leg_near",
+        "tuck: missing actual texels: pelvis",
+        "tuck: missing actual texels: torso"
+      ]
+    },
+    "rear": {
+      "elbow_errors": [],
+      "pendulum_errors": [],
+      "held_follow_errors": [
+        "TODO_DESIGN_held_follow_reference_frame"
+      ],
+      "source_errors": [
+        "tuck: insufficient continuation: arm_far",
+        "tuck: insufficient continuation: chain",
+        "tuck: insufficient continuation: coat_far",
+        "tuck: insufficient continuation: coat_near",
+        "tuck: insufficient continuation: foot_far",
+        "tuck: insufficient continuation: hand_far",
+        "tuck: insufficient continuation: leg_near",
+        "tuck: insufficient continuation: pelvis",
+        "tuck: insufficient continuation: torso",
+        "tuck: missing actual texels: arm_far",
+        "tuck: missing actual texels: chain",
+        "tuck: missing actual texels: coat_far",
+        "tuck: missing actual texels: coat_near",
+        "tuck: missing actual texels: hand_far",
+        "tuck: missing actual texels: leg_near",
+        "tuck: missing actual texels: pelvis",
+        "tuck: missing actual texels: torso"
+      ]
+    }
+  },
+  "rear_strip_flagged_frames": 359,
+  "retained_shards": 103,
+  "new_shards": 125,
+  "new_shard_process_failures": 0,
+  "source_inputs_protected": true
+}

@@ -9,7 +9,8 @@ const DEFAULT_BIOME: String = "fire"
 const DEFAULT_TIER: int = 2
 # Debug-only endurance for unattended boundary captures; never production tuning.
 const FIXTURE_PLAYER_HP: int = 100
-const CASES: Array = ["encounter", "first_turn", "first_seal", "kept_open", "escape"]
+const PRESSURE_PROOF_TURN: int = 3
+const CASES: Array = ["encounter", "first_turn", "first_seal", "kept_open", "escape", "pressure_turn3"]
 
 static func validate(options: Dictionary) -> String:
 	if not Library.definition("umbral_snare")["variants"].has(str(options.get("snare_biome", DEFAULT_BIOME))): return "Unknown Snare biome"
@@ -98,4 +99,15 @@ static func stage(combat: RefCounted, state: Dictionary, study: String) -> void:
 		for enemy: Dictionary in battle["enemies"]:
 			if enemy["pos"] == battle["player"]["pos"]: enemy["pos"] = state["current_room_layout"]["player_start"]
 		battle = combat.apply_player_movement(battle, exit["target_tile"])
+	elif study == "pressure_turn3":
+		for turn: int in range(PRESSURE_PROOF_TURN - 1):
+			battle = combat.advance_to_next_player_turn_with_steps(combat.finish_player_activation(battle))["state"]
+			assert(combat.combat_outcome(battle) == "", "Pressure fixture survives to player turn three")
+		if Rules.Pressure.id(battle) == "live_tethers": _prepare_proof_thralls(combat, battle)
 	state["combat_state"] = battle
+
+static func _prepare_proof_thralls(combat: RefCounted, battle: Dictionary) -> void:
+	for thrall: Dictionary in battle["enemies"]:
+		if str(thrall["type"]) != "arc_thrall" or int(thrall["hp"]) <= 0: continue
+		var intents: Array = combat._scaled_enemy_intents(combat.GameData.enemy_def("arc_thrall")["intents"], int(battle["room_depth"]), battle, thrall)
+		thrall["intent"] = combat._intent_by_id(intents, "arc_bolt")

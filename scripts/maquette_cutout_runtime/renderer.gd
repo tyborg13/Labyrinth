@@ -19,15 +19,19 @@ var active: bool = true
 var reduced_motion: bool = false
 var screen_pixel_scale: float = 1.0
 var step_distance_px: float = 0.0
+var root_forward_override: Dictionary = {}
 var _idle_seconds: float = 0.0
 var _recovering_hit: bool = false
 var _pose_signature: Array = []
 var _render_signature: Array = []
+var _fresh_subclass_state: Dictionary = {}
+var _canvas_geometry_cache: Dictionary = {}
 
 func _ready() -> void:
+	_capture_prepared_subclass_state()
 	viewport = SubViewport.new()
 	viewport.name = "MaquetteCanvas"
-	viewport.size = CANVAS_SIZE
+	viewport.size = borrow_canvas_geometry()["size"]
 	viewport.transparent_bg = true
 	viewport.disable_3d = true
 	viewport.world_2d = World2D.new()
@@ -41,6 +45,16 @@ func _ready() -> void:
 		if not rig.load_rig(): push_error("Maquette cutout could not load: " + str(rig.load_errors))
 		rigs[view] = rig
 	_apply_pose()
+
+## Optional transparent capacity; the logical painted canvas remains 255px.
+func canvas_geometry() -> Dictionary:
+	return {"offset": SOURCE_OFFSET, "size": CANVAS_SIZE}
+
+## Capacity is immutable for a concrete adapter. Draw consumers borrow this
+## declaration; they must not allocate or mutate a geometry dictionary per unit.
+func borrow_canvas_geometry() -> Dictionary:
+	if _canvas_geometry_cache.is_empty(): _canvas_geometry_cache = canvas_geometry()
+	return _canvas_geometry_cache
 
 func _rig_views() -> Array[String]:
 	var result: Array[String]
@@ -61,6 +75,44 @@ func seed_idle_phase(value: float) -> void:
 	_idle_seconds = fposmod(value, 1.0) * float(motion_data()["clips"]["idle"]["seconds"])
 	_apply_pose()
 
+## Prepared canvases enter the roster in exactly the same state as new().
+## Reset both signatures so a warmed rear pose cannot survive adoption.
+func reset_prepared_state() -> void:
+	_reset_prepared_subclass_state()
+	facing = "front"
+	mirrored = false
+	clip = "idle"
+	phase = 0.0
+	active = true
+	reduced_motion = false
+	screen_pixel_scale = 1.0
+	step_distance_px = 0.0
+	root_forward_override = {}
+	_idle_seconds = 0.0
+	_recovering_hit = false
+	_pose_signature = []
+	_render_signature = []
+	_apply_pose()
+
+## Capture subclass constructor values without changing protected adapters.
+## Exclude shared fields: viewport/rig ownership survives adoption, while the
+## shared playback fields have their explicit reset above.
+func _capture_prepared_subclass_state() -> void:
+	var shared: Script = load("res://scripts/maquette_cutout_runtime/renderer.gd")
+	var shared_fields: Dictionary = {}
+	for property: Dictionary in shared.get_script_property_list(): shared_fields[property["name"]] = true
+	for property: Dictionary in get_script().get_script_property_list():
+		var field: String = str(property["name"])
+		if int(property["usage"]) & PROPERTY_USAGE_SCRIPT_VARIABLE and not shared_fields.has(field):
+			_fresh_subclass_state[field] = get(field)
+	_fresh_subclass_state = _fresh_subclass_state.duplicate(true)
+
+## Subclasses can override this hook for custom ownership/reset needs. The
+## default restores their fresh value state before the shared pose applies.
+func _reset_prepared_subclass_state() -> void:
+	var fresh: Dictionary = _fresh_subclass_state.duplicate(true)
+	for field: String in fresh: set(field, fresh[field])
+
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	active = enabled
 	reduced_motion = reduce
@@ -75,6 +127,7 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	phase = clampf(float(motion.get("phase", 0.0)), 0.0, 1.0)
 	screen_pixel_scale = float(motion.get("screen_pixel_scale", screen_pixel_scale))
 	step_distance_px = float(motion.get("step_distance_px", 0.0))
+	root_forward_override = motion.get("root_forward_override", {})
 	if clip not in ["hit", "death"]:
 		var delta: Vector2i = motion.get("direction", Vector2i.ZERO)
 		if delta != Vector2i.ZERO:
@@ -102,18 +155,25 @@ func _apply_pose() -> void:
 	var progress: float = _shown_phase()
 	# Preserve the requested director/seed clock for existing consumers. The
 	# actual painted cache uses the stepped clock; held frames need no redraw.
-	_pose_signature = [facing, mirrored, shown, progress, screen_pixel_scale, step_distance_px]
-	var signature: Array = [facing, mirrored, shown, Pixels.phase_for(motion_data(), shown, progress), screen_pixel_scale, step_distance_px]
+	_pose_signature = [facing, mirrored, shown, progress, screen_pixel_scale, step_distance_px, root_forward_override]
+	var signature: Array = [facing, mirrored, shown, Pixels.phase_for(motion_data(), shown, progress), screen_pixel_scale, step_distance_px, root_forward_override]
 	if signature == _render_signature: return
+	var registration_changed: bool = _render_signature.is_empty() or _render_signature[0] != facing or _render_signature[1] != mirrored
 	_render_signature = signature
+	if registration_changed and get_parent() != null and get_parent().has_method("_invalidate_maquette_pixel_centers"):
+		get_parent().call("_invalidate_maquette_pixel_centers")
 	for view: String in rigs:
 		var rig: Node2D = rigs[view]
 		rig.visible = view == facing
 		if not rig.visible: continue
-		rig.position = Vector2(SOURCE_OFFSET.x + SOURCE_SIZE.x, SOURCE_OFFSET.y) if mirrored else SOURCE_OFFSET
-		rig.scale = Vector2(-1, 1) if mirrored else Vector2.ONE
+		rig.transform = Pixels.canvas_transform(canvas_geometry()["offset"], SOURCE_SIZE, mirrored)
 		rig.layout["screen_pixel_scale"] = screen_pixel_scale
 		rig.layout["step_distance_px"] = step_distance_px
+		var override: Dictionary = root_forward_override.duplicate(false)
+		if not override.is_empty() and mirrored:
+			var axis: Vector2 = override["axis"]
+			override["axis"] = Vector2(-axis.x, axis.y)
+		rig.layout["root_forward_override"] = override
 		rig.apply_pose(shown, progress)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
@@ -123,7 +183,7 @@ func texture() -> Texture2D:
 func source_socket() -> Vector2:
 	var rig: Node2D = rigs.get(facing)
 	var bone: Bone2D = rig.bones.get("core")
-	return bone.global_position - SOURCE_OFFSET if bone != null else SOURCE_SIZE / 2.0
+	return bone.global_position - (canvas_geometry()["offset"] as Vector2) if bone != null else SOURCE_SIZE / 2.0
 
 func snapshot() -> Dictionary:
 	return {"art": character_id + "_maquette", "clip": clip, "shown_clip": _shown_clip(), "phase": _shown_phase(),

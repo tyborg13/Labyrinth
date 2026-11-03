@@ -147,11 +147,11 @@ const AUTHORED_TEXT := {
   "echoing_blade": "When a @kw(follow_up) bonus applies, @kw(quicken) 1. Your next card this turn deals 2 more damage.",
   "alchemists_retort": "Your @kw(item|Items)' damage, @term(block), @kw(heal) and @term(stoneskin) are increased by half, rounded up.",
   "storm_crown": "Your @kw(chain) attacks rebound: after the last hop, the bolt travels back along its route, hitting each enemy again for half damage, rounded down.",
-  "black_sun_dial": "Store up to 3 @kw(surface_consume|Expended) ground tiles. Your next attack releases them: +2 damage each. @term(surface_fire): @kw(surface_fire) beneath. @term(surface_ice): @term(chilled). @term(surface_electrified): @term(shock). @term(surface_rubble): @kw(stagger) 2.",
+  "black_sun_dial": "Each ground tile you @kw(surface_consume|Expend) gives your next attack +3 damage (up to +9).",
   "fivefold_knot": "Each element you play this combat ties a knot. 3 knots: your attacks @kw(pierce). 4: also @kw(chain) 1. 5: every card grants 3 @term(block).",
   "borrowed_hourglass": "The first time each combat you end your turn with a @term(card_play) unused, take another turn at once. This turn's @term(time) is added to it.",
   "unclouded_sun": "When you @kw(move), the centers of your @term(illuminate|Lights) count as next to each other.",
-  "crown_of_surplus": "Cards without @kw(empower) gain one: pay 3 @term(time) to repeat the card's first action. @kw(rite|Rites), @kw(item|Items) and @kw(flurry) cards are excluded.",
+  "crown_of_surplus": "Cards without @kw(empower) gain one: pay 3 @term(time) to repeat the card's first action. @kw(rite|Rites) and @kw(item|Items) are excluded.",
   "mirror_triptych": "Up to 3 @term(illusion|Illusions) repeat your first attack each turn for half damage, rounded down. Each hits the nearest reachable enemy and loses 1 @term(health).",
   "liturgy_of_ash": "@kw(rite) cards don't use a @term(card_play).",
   "pyre_keepers_urn": "At the start of your turn, return your last @kw(exhaust|Exhausted) card to your hand, unless it is a @kw(rite) or heals.",
@@ -367,6 +367,10 @@ static func _test_authored_copy(expect: Callable) -> void:
 	var approved: Dictionary = {}
 	for row: Dictionary in JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/text/relic_rewrite.json")):
 		approved[str(row["id"])] = str(row["description"])
+	# Owner playtest 13 supersedes the historical UX-04 wording for this relic.
+	approved["black_sun_dial"] = "Each ground tile you @kw(surface_consume|Expend) gives your next attack +3 damage (up to +9)."
+	# Flurry retired (flu-01) supersedes the historical wording for this relic.
+	approved["crown_of_surplus"] = "Cards without @kw(empower) gain one: pay 3 @term(time) to repeat the card's first action. @kw(rite|Rites) and @kw(item|Items) are excluded."
 	for relic_id: String in AUTHORED_TEXT:
 		var text: String = AUTHORED_TEXT[relic_id]
 		expect.call(approved[relic_id] == text, "U1 exact copy/%s: authored text matches the approved UX-04 record" % relic_id)

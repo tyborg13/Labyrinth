@@ -143,7 +143,10 @@ def camera_view(spec: dict, view: str):
     data = views[view]
     matrix = np.asarray(data["object_to_world"], dtype=float)
     target = np.asarray(data["target"], dtype=float)
-    parameters = np.array([data[k] for k in ["azimuth_deg", "elevation_deg", "ortho_scale", "distance"]], dtype=float)
+    # Native orthographic deliveries omit distance; their renderer fixes it
+    # at 30 (blender/render.py RENDER_DEFAULTS). It affects depth, not pixels.
+    parameters = np.array([data[k] for k in ["azimuth_deg", "elevation_deg", "ortho_scale"]] +
+                          [data.get("distance", 30)], dtype=float)
     if (matrix.shape != (4, 4) or target.shape != (3,) or not np.isfinite(matrix).all()
             or not np.isfinite(target).all() or not np.isfinite(parameters).all()
             or not np.array_equal(matrix[3], [0, 0, 0, 1]) or abs(np.linalg.det(matrix[:3, :3])) < 1e-12

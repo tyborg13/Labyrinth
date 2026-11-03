@@ -7,6 +7,8 @@ const Compass = preload("res://scripts/enemy_intent_compass.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
+const ChipPlacement = preload("res://scripts/intent_chip_placement.gd")
+const HudGroups = preload("res://scripts/board_hud_group_placement.gd")
 
 const MEDALLION_DIAMETER: float = 32.0
 const PLATE_HEIGHT: float = 22.0
@@ -50,7 +52,7 @@ func presentation_for_state(engine: RefCounted, committed: Dictionary, preview: 
 	var started: int = Time.get_ticks_usec() if engine._runtime_performance_instrumentation_enabled else 0
 	# Focus changes only opacity. Never resolve the board again to isolate a badge.
 	var definitions: Array
-	for enemy: Dictionary in committed.get("enemies", []): definitions.append(Data.enemy_def(str(enemy.get("type", ""))))
+	for enemy: Dictionary in committed.get("enemies", []): definitions.append(Data.enemies().get(str(enemy.get("type", "")), {}))
 	var inputs: Array = [committed, preview, definitions, engine._relic_effects(preview), engine.get_script()]
 	var key: int = hash(inputs)
 	if key != _cache_key or _cache.is_empty() or _cache_inputs != inputs:
@@ -76,7 +78,7 @@ func presentation_for_state(engine: RefCounted, committed: Dictionary, preview: 
 
 func _orders_for(engine: RefCounted, state: Dictionary) -> Dictionary:
 	var definitions: Array
-	for enemy: Dictionary in state.get("enemies", []): definitions.append(Data.enemy_def(str(enemy.get("type", ""))))
+	for enemy: Dictionary in state.get("enemies", []): definitions.append(Data.enemies().get(str(enemy.get("type", "")), {}))
 	return _orders_memo.resolve([state, definitions, engine._relic_effects(state), engine.get_script()], func() -> Dictionary: return enemy_orders(engine, state))
 
 static func enemy_orders(engine: RefCounted, state: Dictionary) -> Dictionary:
@@ -135,7 +137,7 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 		intent = preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(known_preview, enemy, intent)
 		if intent.is_empty():
 			continue
-		var primary: Dictionary = preload("res://scripts/enemy_mechanics/lob.gd").presentation_action(engine, known_preview, enemy, primary_action(intent))
+		var primary: Dictionary = preload("res://scripts/enemy_mechanics/marked_strike.gd").presentation_action(engine, known_preview, enemy, primary_action(intent))
 		if primary.is_empty():
 			continue
 		var actor_key: String = "enemy_%d" % id
@@ -149,8 +151,7 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 			# Command is measured at the attack origin after movement, using the
 			# same action as the threat plan and resolver. Retain repeat identity.
 			repeated_action = primary
-			primary = preload("res://scripts/enemy_mechanics/lob.gd").presentation_action(engine, known_preview, enemy, threat["projected_attack_action"])
-		elif str(primary.get("type", "")) == "mirror_last_attack": primary = threat.get("projected_attack_action", primary)
+			primary = preload("res://scripts/enemy_mechanics/marked_strike.gd").presentation_action(engine, known_preview, enemy, threat["projected_attack_action"])
 		var acting: bool = orders.has(actor_key)
 		var attacking: bool = is_attack(primary)
 		var cancelled: bool = projected.is_empty() or int(projected.get("hp", 0)) <= 0
@@ -178,17 +179,19 @@ static func primary_action(intent: Dictionary) -> Dictionary:
 
 static func is_attack(action: Dictionary) -> bool:
 	var kind: String = str(action.get("type", ""))
-	return kind in Compass.MELEE_TYPES or kind in Compass.RANGED_TYPES or kind in Compass.AREA_TYPES or kind in ["push", "grow_bramble"]
+	return kind in Compass.MELEE_TYPES or kind in Compass.RANGED_TYPES or kind in Compass.AREA_TYPES or kind in ["push", "upheaval_mark"]
 
 static func descriptor(action: Dictionary, intent: Dictionary = {}, repeated_action: Dictionary = {}) -> Dictionary:
 	var kind: String = str(action.get("type", ""))
+	if kind in ["lob_mark", "lob_land"]:
+		return {"icon": "lob", "number": Icons.token_value_text({"value": action["center_damage"]}), "secondary_icon": "", "secondary_number": "", "family": "attack"}
 	var number: String = ""
 	for field: String in ["damage", "amount", "count"]:
 		if action.has(field):
 			# Shared EN06 formatter: JSON numeric fields must never print as 4.0.
 			number = ("+" if kind == "gain_charge" else "") + Icons.token_value_text({"value": action[field]})
 			break
-	if kind in ["lob_mark", "lob_land", "grow_bramble"]: number = Icons.token_value_text({"value": Compass.value_for_action(action)})
+	if kind in ["lob_mark", "lob_land", "upheaval_mark"]: number = Icons.token_value_text({"value": Compass.value_for_action(action)})
 	if kind in Compass.MOVEMENT_TYPES: number = ""
 	var hits: int = int(action.get("hits", 1))
 	if hits > 1 and not number.is_empty():
@@ -208,7 +211,7 @@ static func descriptor(action: Dictionary, intent: Dictionary = {}, repeated_act
 	var secondary: Dictionary = secondary_rider(riders)
 	return {"icon": Icons.action_icon_key(action), "number": number,
 		"secondary_icon": str(secondary.get("icon", "")), "secondary_number": Icons.token_value_text(secondary),
-		"family": "movement" if kind in Compass.MOVEMENT_TYPES else Compass.FAMILY_SUPPORT if kind == "grow_bramble" else "attack" if is_attack(action) else Compass.family_for_action(action)}
+		"family": "movement" if kind in Compass.MOVEMENT_TYPES else Compass.FAMILY_SUPPORT if kind == "upheaval_mark" else "attack" if is_attack(action) else Compass.family_for_action(action)}
 
 static func secondary_rider(riders: Array) -> Dictionary:
 	for icon: String in SECONDARY_PRIORITY:
@@ -218,7 +221,7 @@ static func secondary_rider(riders: Array) -> Dictionary:
 
 static func is_area_intent(intent: Dictionary) -> bool:
 	for action: Dictionary in intent.get("actions", []):
-		if is_attack(action) and (str(action.get("type", "")) in Compass.AREA_TYPES or str(action.get("type", "")) == "grow_bramble" or action.has("pattern") or action.has("pattern_footprint")):
+		if is_attack(action) and (str(action.get("type", "")) in Compass.AREA_TYPES or str(action.get("type", "")) == "upheaval_mark" or action.has("pattern") or action.has("pattern_footprint")):
 			return true
 	return false
 
@@ -252,18 +255,56 @@ static func health_rect(board: Control, unit: Dictionary) -> Rect2:
 		if global_frame.has_area():
 			var inverse: Transform2D = board.get_global_transform_with_canvas().affine_inverse() if board.is_inside_tree() else Transform2D.IDENTITY
 			return inverse * global_frame
-	return (board.get("_hud_health_rects_cache") as Dictionary).get(str(unit.get("key", "")), board.call("_unit_health_bar_rect", unit, board.call("_unit_center", unit)))
+	var cached: Dictionary = board.get("_hud_health_rects_cache")
+	var key: String = str(unit.get("key", ""))
+	if cached.has(key): return cached[key]
+	var anchor: Rect2 = board.call("_unit_health_bar_rect", unit, board.call("_unit_center", unit))
+	return board.get("_status_plate_layout").resolve(board, unit, anchor)["frame"]
 
-static func place_chip(anchor: Vector2, badge: Dictionary, font: Font, obstacles: Array, previous: Array) -> Dictionary:
+static func order_anchor_rect(board: Control, unit: Dictionary) -> Rect2:
+	if bool(unit.get("boss_bar", false)):
+		var global_frame: Rect2 = (board.get("presentation") as Dictionary).get("boss_health_frame_global_rect", Rect2())
+		if global_frame.has_area():
+			return board.get_global_transform_with_canvas().affine_inverse() * global_frame if board.is_inside_tree() else global_frame
+	return board.call("_unit_health_bar_rect", unit, board.call("_unit_center", unit))
+
+static func place_chip(anchor: Vector2, badge: Dictionary, font: Font, obstacles: Array, previous: Array, bounds: Rect2 = Rect2(), silhouettes: Array = []) -> Dictionary:
 	var center: Vector2 = anchor + FEET_OFFSET
 	var rect: Rect2 = chip_rect(center, badge, font)
-	if not _overlaps(rect, obstacles, previous):
-		return {"center": center, "rect": rect, "placement": "lower_right", "above_everything": false}
 	var left_center := Vector2(anchor.x - FEET_OFFSET.x - (rect.end.x - center.x), anchor.y + FEET_OFFSET.y)
 	var left_rect: Rect2 = chip_rect(left_center, badge, font)
-	if not _overlaps(left_rect, obstacles, previous):
-		return {"center": left_center, "rect": left_rect, "placement": "lower_left", "above_everything": false}
-	return {"center": center, "rect": rect, "placement": "lower_right", "above_everything": true}
+	var owner_key: String = str(badge.get("key", ""))
+	var prefer_left: bool = ChipPlacement.coverage(rect, silhouettes, owner_key) - ChipPlacement.coverage(left_rect, silhouettes, owner_key) > rect.get_area() * ChipPlacement.SIDE_MARGIN
+	var sole_obstacle: Rect2 = ChipPlacement.owner_sole_obstacle(silhouettes, owner_key)
+	if sole_obstacle.has_area():
+		obstacles = obstacles.duplicate()
+		obstacles.append(sole_obstacle)
+	for left: bool in [prefer_left, not prefer_left]:
+		var candidate: Rect2 = left_rect if left else rect
+		if (not bounds.has_area() or bounds.encloses(candidate)) and not _overlaps(candidate, obstacles, previous):
+			return {"center": left_center if left else center, "rect": candidate, "placement": "lower_left" if left else "lower_right", "above_everything": false}
+		# Exhaust this home's local search before trying the other side. The
+		# original homes, 24px radius and solver tie-breaking stay unchanged.
+		var clear: Dictionary = ChipPlacement.find_clear(rect, left_rect, obstacles, previous, bounds, left, true)
+		if not clear.is_empty():
+			return {"center": center + (clear["rect"] as Rect2).position - rect.position, "rect": clear["rect"], "placement": clear["placement"], "above_everything": false}
+	return {"center": left_center if prefer_left else center, "rect": left_rect if prefer_left else rect, "placement": "lower_left" if prefer_left else "lower_right", "above_everything": true}
+
+static func fixed_order_rects(board: Control, units: Array, badges: Array = []) -> Array[Rect2]:
+	var result: Array[Rect2]
+	if badges.is_empty(): badges = (board.get("presentation") as Dictionary).get("threats_at_rest", {}).get("badges", [])
+	if badges.is_empty(): return result
+	var by_key: Dictionary = {}
+	for unit: Dictionary in units: by_key[str(unit.get("key", ""))] = unit
+	for badge: Dictionary in badges:
+		var unit: Dictionary = by_key.get(str(badge.get("key", "")), {})
+		if unit.is_empty() or bool(unit.get("death_animation", false)): continue
+		# Health frames remain anchored. Do not consult last submission's cache
+		# while building this submission's fixed geometry.
+		var frame: Rect2 = order_anchor_rect(board, unit)
+		var rect: Rect2 = order_rect(frame, str(badge.get("order", "")), Typography.ui_font())
+		if rect.has_area(): result.append(rect)
+	return result
 
 static func _overlaps(rect: Rect2, obstacles: Array, previous: Array) -> bool:
 	for occupied: Rect2 in obstacles:
@@ -272,31 +313,88 @@ static func _overlaps(rect: Rect2, obstacles: Array, previous: Array) -> bool:
 		if rect.intersects(chip["rect"]): return true
 	return false
 
+static func boss_health_rect(board: Control) -> Rect2:
+	var frame: Rect2 = (board.get("presentation") as Dictionary).get("boss_health_frame_global_rect", Rect2())
+	return health_rect(board, {"boss_bar": true}) if frame.has_area() else Rect2()
+
+static func death_health_rect(board: Control, unit: Dictionary) -> Rect2:
+	# Match CombatBoardView._draw_death_health_bars: only the fading frame is
+	# drawn, without status/defense pills, text, crests or an order disc.
+	if not bool(unit.get("death_animation", false)): return Rect2()
+	if not (board.call("_umbra_actor_clip_for_unit", unit) as Dictionary).is_empty(): return Rect2()
+	if bool((board.call("_enemy_render_definition", str(unit.get("type", ""))) as Dictionary).get("boss_bar", false)): return Rect2()
+	var tint: Color = board.call("_death_animation_tint", unit)
+	if tint.a <= 0.0: return Rect2()
+	var dead: Dictionary = unit.duplicate(false)
+	dead["hp"] = 0
+	var anchor: Rect2 = board.call("_unit_health_bar_rect", unit, board.call("_unit_center", unit))
+	return board.get("_status_plate_layout").resolve(board, dead, anchor)["frame"]
+
+static func terrain_health_rects(board: Control) -> Array[Rect2]:
+	var result: Array[Rect2]
+	var textures: Dictionary = board.get("_terrain_textures")
+	for terrain: Dictionary in (board.get("combat_state") as Dictionary).get("terrain", []):
+		var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
+		if tile.x < 0 or not bool(board.call("_board_tile_is_visible_to_player", tile)): continue
+		if not bool(board.call("_should_show_terrain_health_bar", terrain)): continue
+		var kind: String = board.call("_terrain_art_kind", str(terrain.get("kind", "")))
+		var texture: Texture2D = textures.get(kind, null)
+		# The renderer draws neither the prop nor its bar without its texture.
+		if texture == null: continue
+		var body: Rect2 = board.call("_terrain_rect_for_tile", tile, texture, kind)
+		if body.size.y <= 0.0: continue
+		var size: Vector2 = board.TERRAIN_HEALTH_BAR_SIZE
+		result.append(Rect2(Vector2(body.get_center().x - size.x * 0.5, body.position.y - board.TERRAIN_HEALTH_BAR_TOP_OFFSET), size))
+	return result
+
 static func layouts(board: Control, badges: Array) -> Array[Dictionary]:
 	var result: Array[Dictionary]
+	if badges.is_empty(): return result
 	var font: Font = Typography.ui_font()
 	var sorted_badges: Array = badges.duplicate(true)
 	sorted_badges.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return _first_order(str(a.get("order", ""))) < _first_order(str(b.get("order", ""))))
 	var units: Array = board.call("_visible_units")
-	# These are the actual renderer's prop bounds, already clipped by Umbra.
-	var props: Array = board.call("_foreground_obstruction_candidates")
+	# sb-01: the same plates/pills that reserve callout and intent space.
+	var hud_rects: Array[Rect2]
+	hud_rects.append_array(HudGroups.screen_reservations(board))
+	hud_rects.append_array(fixed_order_rects(board, units, sorted_badges))
+	hud_rects.append_array(terrain_health_rects(board))
+	var boss_frame: Rect2 = boss_health_rect(board)
+	if boss_frame.has_area(): hud_rects.append(boss_frame)
+	var units_by_key: Dictionary = board.call("_units_by_key", units)
+	var hud_entries: Array = board.get("_hud_layout_entries_cache")
+	if hud_entries.is_empty(): hud_entries = board.call("_build_hud_layout_data", board.call("_hud_layout_units"))["entries"]
+	var hud_by_key: Dictionary = {}
+	for entry: Dictionary in hud_entries:
+		var actor: Dictionary = units_by_key.get(str(entry.get("actor_key", "")), {})
+		if not actor.is_empty() and not (board.call("_umbra_actor_clip_for_unit", actor) as Dictionary).is_empty(): continue
+		var layout: Dictionary = entry.get("layout", {})
+		hud_by_key[str(entry.get("actor_key", ""))] = layout
+		for line: Rect2 in layout.get("line_rects", []): hud_rects.append(line)
+	for actor: Dictionary in board.call("_hud_layout_units"):
+		if bool(actor.get("death_animation", false)):
+			var death_frame: Rect2 = death_health_rect(board, actor)
+			if death_frame.has_area(): hud_rects.append(death_frame)
+			continue
+		if actor.get("role") == "npc" or not (board.call("_umbra_actor_clip_for_unit", actor) as Dictionary).is_empty(): continue
+		var health: Rect2 = health_rect(board, actor)
+		if not bool(actor.get("boss_bar", false)): hud_rects.append_array(board.call("_health_bar_collision_rects", actor, health))
+		elif health.has_area() and not hud_rects.has(health): hud_rects.append(health)
+		var crest: Rect2 = board.call("_leader_marker_rect", actor, health, hud_by_key.get(str(actor.get("key", "")), {}).get("intent_rect", Rect2()))
+		if crest.has_area(): hud_rects.append(crest)
+	# HUD and the owner's sole contact reserve chip space. Coverage chooses a
+	# side using cached rest silhouettes; animated bounds made the board jitter.
+	var silhouettes: Array[Dictionary] = ChipPlacement.rest_silhouettes(board, units)
 	for badge: Dictionary in sorted_badges:
 		var unit: Dictionary = {}
-		var obstacles: Array[Rect2]
 		for candidate: Dictionary in units:
 			if str(candidate.get("key", "")) == str(badge["key"]) and str(candidate.get("role", "")) == "enemy":
 				unit = candidate
-			else:
-				obstacles.append(board.call("_unit_draw_rect", candidate))
 		if unit.is_empty() or bool(unit.get("death_animation", false)): continue
-		for prop: Dictionary in props:
-			var tile: Vector2i = prop.get("tile", Vector2i(-1, -1))
-			if bool(board.call("_board_tile_is_visible_to_player", tile)):
-				obstacles.append(prop.get("rect", Rect2()))
 		var layout: Dictionary = badge.duplicate(true)
-		layout.merge(place_chip(board.call("_unit_center", unit), badge, font, obstacles, result), true)
-		layout["order_rect"] = order_rect(health_rect(board, unit), str(badge.get("order", "")), font)
+		layout.merge(place_chip(board.call("_unit_center", unit), badge, font, hud_rects, result, board.call("_enemy_hud_viewport_bounds"), silhouettes), true)
+		layout["order_rect"] = order_rect(order_anchor_rect(board, unit), str(badge.get("order", "")), font)
 		result.append(layout)
 	return result
 

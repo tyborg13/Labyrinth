@@ -2272,5 +2272,47 @@
   "tabard_basis": "Two real waist panels, front and back, both always present on the same model; the rear blue waist cloth in the identity painting is not a view-specific body change.",
   "implementation_issues": {},
   "hood_basis": "Feedback 4: closed simulated cowl without a cut aperture; one solid pointed mask overlays the front.",
-  "banner_fold_basis": "Feedback 4: two broad rest folds across each strip, resolved by native cloth; ragged lower edge. Rear source contours remeasured; shoulder attachment and per-view screen-right wind retained."
+  "banner_fold_basis": "Feedback 4: two broad rest folds across each strip, resolved by native cloth; ragged lower edge. Rear source contours remeasured; shoulder attachment and per-view screen-right wind retained.",
+  "pose_constraints": [
+    {
+      "chain": [
+        "shoulder_far",
+        "elbow_far",
+        "hand_far"
+      ],
+      "shoulder_front_px": [
+        363.9999999999999,
+        381.50000000000017
+      ],
+      "shoulder_height_joint": "shoulder_near",
+      "translate_with_hand": [
+        "hand_tip_far"
+      ],
+      "arm_mode": "minimum_hand_displacement"
+    }
+  ],
+  "deferred_surface_pose": {
+    "upper_plate_far": "shoulder_far",
+    "fore_plate_far": "elbow_far"
+  },
+  "shoulder_revision_contract": {
+    "authority": "mq-12; spec/peer_benchmark/humanoid_cutout_rig.md section 3",
+    "target_front_px": [
+      363.9999999999999,
+      381.50000000000017
+    ],
+    "slope": 0.15,
+    "tolerance_px": 10,
+    "source_recipe": "delivery/review/mq12_before_recipe.json",
+    "protected_surfaces": "All except the named far-arm pieces; original garments are solved before correction."
+  },
+  "shoulder_garment_motion": {
+    "shoulder_yoke": "far_top",
+    "tunic": "far_top",
+    "banner_far_front": "root",
+    "banner_far_rear": "root",
+    "tabard": "far_top",
+    "tabard_back": "far_top"
+  },
+  "feedback_1_authority": "Director feedback 1: round-0 poses locked; far shoulder garment attachments ride with the shoulder, blending to unchanged near side and remote edges. Gloam front fit minimum 0.65."
 }

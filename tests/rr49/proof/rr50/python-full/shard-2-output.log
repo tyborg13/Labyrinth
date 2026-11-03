@@ -1,0 +1,606 @@
+RR22 COMPACT SAMPLES: PASS (1214 poses; full evidence in proof/logs/samples_full.json)
+MODULE test_rr22_humanoid: 20.486s
+MODULE test_rr22_source_space: 0.298s
+SWEEP SAMPLES rr30-frames: 1214 poses; 8 isolated Godot invocations
+RR30 JOINT MUTATION: CAUGHT (source fix disabled; lob0016 and lob0032; cover and dark seams)
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 54 frames
+RR30 FRONT CPU COVERAGE: checking 53 frames
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 FRONT CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 54 frames
+RR30 REAR CPU COVERAGE: checking 53 frames
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+RR30 REAR CPU COVERAGE: 50 frames; 0 failures
+SWEEP CHECKED rr30-frames: 862 frames/choices; 8 workers; 75.962s
+RR30 FRONT CPU COVERAGE AND JOINT GATES: PASS (431 frames; 0 errors)
+RR30 REAR CPU COVERAGE AND JOINT GATES: PASS (431 frames; 0 errors)
+MODULE test_rr30_joint_surfaces: 92.353s
+MODULE test_rr30_mortar: 15.215s
+MODULE test_rr30_proof: 0.740s
+MODULE test_rr30_stretch: 0.030s
+MODULE test_rr31_calibration: 0.735s
+RR31 CPU DIAGNOSTIC: FAIL (0/1 passed; 1 failed)
+RR31 CPU DIAGNOSTIC: UNAVAILABLE (stale proof fixture; non-blocking)
+RR31 SEAM CPU TARGETS: PASS (11/11 clean)
+RR31 NATIVE-POSE SOURCE COVERAGE: PASS (7/7 holes covered for every legal UV tie; CPU source replay)
+RR30 FRONT CPU COVERAGE: checking 1 frames
+RR30 FRONT CPU COVERAGE: checking 1 frames
+RR31 SEAM MUTATION: CAUGHT (front shoulder and rear upper-arm covers removed)
+MODULE test_rr31_finish_seams: 19.476s
+MODULE test_rr31_images: 3.386s
+RR30 FRONT STATIC COVER CUTS: 1 source texels
+RR30 REAR STATIC COVER CUTS: 1 source texels
+MODULE test_rr31_storage: 19.316s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+SWEEP SAMPLES rr37-frames: 1396 poses; 8 isolated Godot invocations
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 FRONT PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 FRONT CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR39 FRONT PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR37 REAR PRODUCTION FRAMES: PASS (64 frames; 0 failures; software raster, native runtime poses)
+RR39 REAR CAST UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR LUNGE UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR GUARD UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR JAB UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+RR39 REAR PIN UNCOVERED: {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0} (headless native-equivalent)
+SWEEP CHECKED rr37-frames: 1024 frames/choices; 8 workers; 178.779s
+RR37 REJECTED NATIVE REGRESSION: PASS (6 rejected frames + 1 unchanged rear-idle control; components and joint seams detected)
+RR37 REJECTED PRODUCTION RASTER: PASS (detects 6 components > rest 1)
+MODULE test_rr37_feedback1: 182.567s
+MODULE test_rr37_feedback2: 0.033s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR37 ROUND3 UNCOVERED CPU: PASS (7 production-rest poses; not native proof)
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'front', 'clip': 'lunge', 'frame': 20, 'metrics': {'uncovered_missing_pixels': 59, 'uncovered_foreign_texels': 992, 'uncovered_outline_pixels': 9, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 91}, 'diagnostics': {'missing': {'pixels': 59, 'bbox': [269, 287, 281, 310]}, 'foreign': {'pixels': 992, 'bbox': [243, 252, 416, 412]}, 'outline': {'pixels': 9, 'bbox': [248, 306, 268, 320]}, 'procedural_leg': {'pixels': 91, 'bbox': [274, 338, 344, 404]}}}
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'rear', 'clip': 'lunge', 'frame': 36, 'metrics': {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 1477, 'uncovered_outline_pixels': 242, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 58}, 'diagnostics': {'foreign': {'pixels': 1477, 'bbox': [270, 244, 475, 428]}, 'outline': {'pixels': 242, 'bbox': [275, 275, 406, 425]}, 'outside': {'pixels': 58, 'bbox': [225, 310, 380, 369]}}}
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'front', 'clip': 'cast', 'frame': 0, 'metrics': {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 0}}
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'rear', 'clip': 'cast', 'frame': 0, 'metrics': {'uncovered_missing_pixels': 0, 'uncovered_foreign_texels': 0, 'uncovered_outline_pixels': 0, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0}}
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'front', 'clip': 'cast', 'frame': 4, 'metrics': {'uncovered_missing_pixels': 21, 'uncovered_foreign_texels': 413, 'uncovered_outline_pixels': 8, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 26}, 'native_joint_pockets': [{'bbox': [270, 295, 275, 301], 'pixel_count': 10}], 'diagnostics': {'missing': {'pixels': 21, 'bbox': [268, 288, 278, 303]}, 'foreign': {'pixels': 413, 'bbox': [239, 265, 419, 402]}, 'outline': {'pixels': 8, 'bbox': [243, 311, 258, 329]}, 'procedural_leg': {'pixels': 26, 'bbox': [278, 369, 331, 402]}}}
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'front', 'clip': 'cast', 'frame': 12, 'metrics': {'uncovered_missing_pixels': 71, 'uncovered_foreign_texels': 970, 'uncovered_outline_pixels': 7, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 93}, 'diagnostics': {'missing': {'pixels': 71, 'bbox': [267, 287, 279, 397]}, 'foreign': {'pixels': 970, 'bbox': [236, 239, 410, 403]}, 'outline': {'pixels': 7, 'bbox': [252, 313, 260, 318]}, 'procedural_leg': {'pixels': 93, 'bbox': [272, 369, 332, 403]}}}
+RR37 ROUND2 UNCOVERED NATIVE: {'view': 'front', 'clip': 'guard', 'frame': 25, 'metrics': {'uncovered_missing_pixels': 115, 'uncovered_foreign_texels': 1276, 'uncovered_outline_pixels': 7, 'uncovered_tiny_components': 0, 'uncovered_outside_surface_pixels': 0, 'uncovered_procedural_leg_texels': 275}, 'diagnostics': {'missing': {'pixels': 115, 'bbox': [267, 290, 278, 400]}, 'foreign': {'pixels': 1276, 'bbox': [238, 244, 415, 416]}, 'outline': {'pixels': 7, 'bbox': [249, 324, 256, 329]}, 'procedural_leg': {'pixels': 275, 'bbox': [272, 339, 349, 406]}}}
+RR37 ROUND2 UNCOVERED REGRESSION: PASS (all 5 requested native failures rejected; 2 rest controls clean)
+MODULE test_rr37_feedback3: 19.534s
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+MODULE test_rr37_lancer: 53.899s
+MAQUETTE PRODUCTION LOGIC: PASS (1367 frames)
+MAQUETTE PRODUCTION LOGIC: PASS (1367 frames)
+MODULE test_rr37_production: 112.335s
+RR39 RETAINED BINDINGS: PASS (55 absent optional zero certificates; geometry and paint strict)
+SWEEP CHECKED rr39-ties: 64 frames/choices; 8 workers; 23.835s
+RR39 NATIVE UNCOVERED TIES: PASS (64 resolved: 33 outline, 31 missing; 0 remaining; exact retained native pixels)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR39 OUTSIDE-CLOAK MUTATION: PASS (reviewer texel [378,311] rejected)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR39 UNDERLAY: PASS (protected hashes; complete 2622px footprint; exact texels and air; both rests 0px)
+SWEEP CHECKED rr39-rejected: 19 frames/choices; 8 workers; 2.482s
+RR39 RR37 NATIVE REJECTION: PASS (17 rejected frames; 2 clean rest controls)
+
+test_all_64_director_errors_resolve_as_exact_source_edge_ties (tests.test_rr39_native_ties.RetainedNativeTieTests) ... ok
+test_another_layers_cpu_disagreement_cannot_be_hidden_by_a_tie (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_cpu_gate_disagreement_still_fails (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_cpu_reference_outside_real_candidates_still_fails (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_edge_colour_outside_all_candidates_still_fails (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_exact_painted_air_edge_candidate_is_reported (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_interior_real_source_colour_tie_still_fails (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_joint_pockets_still_fail (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_mesh_quad_uses_the_existing_rigid_real_texel_candidates (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_native_skin_uses_godots_truncated_unorm16_weights (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_real_source_candidate_cannot_authorize_a_detached_component (tests.test_rr39_native_ties.TiePolicyTests) ... ok
+test_all_55_verified_empty_certificates_may_be_absent (tests.test_rr39_retained_bindings.RetainedBindingTests) ... ok
+test_changed_geometry_and_paint_still_fail (tests.test_rr39_retained_bindings.RetainedBindingTests) ... ok
+test_empty_claim_cannot_replace_a_nonempty_certificate (tests.test_rr39_retained_bindings.RetainedBindingTests) ... ok
+test_every_missing_nonempty_certificate_still_fails (tests.test_rr39_retained_bindings.RetainedBindingTests) ... ok
+test_zero_hash_does_not_waive_other_or_undeclared_bindings (tests.test_rr39_retained_bindings.RetainedBindingTests) ... ok
+test_outside_cloak_remnant_fails_full_vacated_footprint (tests.test_rr39_lancer.CleanupTests) ... ok
+test_processed_production_preserves_exact_partition_and_rests (tests.test_rr39_lancer.CleanupTests) ... ok
+test_production_rest_seal_has_explicit_headless_evidence (tests.test_rr39_lancer.CleanupTests) ... ok
+test_protected_sources_and_exact_full_footprint (tests.test_rr39_lancer.CleanupTests) ... ok
+test_rr37_native_frames_fail_and_rest_controls_pass (tests.test_rr39_lancer.CleanupTests) ... ok
+test_absolute_bound_paths_fail_even_with_valid_hashes (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_derive_is_opt_in_and_records_all_bound_inputs (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_each_changed_bound_input_fails (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_escaping_symlink_bound_paths_fail_even_with_valid_hashes (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_exact_source_inside_preserved_production_outside_and_true_air (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_outside_alpha_change_fails (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_parent_components_fail_even_when_the_resolved_path_is_inside (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_partition_outside_registered_mask_fails (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_resized_density_output_cannot_claim_exact_source_texels (tests.test_rr39_density_partitions.PartitionTests) ... ok
+test_density_twice_completes_record_refresh_check_and_seal (tests.test_rr39_proof_rerun.RerunTests) ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 39.582s
+
+OK
+
+RR39 CLEAN CHECKOUT: PASS (HEAD 6135c6ec6c9c2ac63a91545e27f74aa79c964ce0; 0 ignored input files; scoped fix overlay=0 files)
+MODULE test_rr39_clean_checkout: 84.006s
+MODULE test_rr39_density_partitions: 0.020s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR39 OUTSIDE-CLOAK MUTATION: PASS (reviewer texel [378,311] rejected)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR39 UNDERLAY: PASS (protected hashes; complete 2622px footprint; exact texels and air; both rests 0px)
+SWEEP CHECKED rr39-rejected: 19 frames/choices; 8 workers; 2.458s
+RR39 RR37 NATIVE REJECTION: PASS (17 rejected frames; 2 clean rest controls)
+MODULE test_rr39_lancer: 6.649s
+RR39 RETAINED BINDINGS: PASS (55 absent optional zero certificates; geometry and paint strict)
+SWEEP CHECKED rr39-ties: 64 frames/choices; 8 workers; 23.732s
+RR39 NATIVE UNCOVERED TIES: PASS (64 resolved: 33 outline, 31 missing; 0 remaining; exact retained native pixels)
+MODULE test_rr39_native_ties: 24.578s
+MODULE test_rr39_proof_rerun: 0.584s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+MODULE test_rr39_retained_bindings: 13.862s
+MODULE test_rr40_feedback: 2.925s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+SWEEP SAMPLES rr41-rounding: 1396 poses; 8 isolated Godot invocations
+RR41 BOUNDARY MUTATION: PASS (reviewer UVs [141,149], [141,150] rejected in lunge 42)
+RR41 FOUR-CHOICE SHARD: idle/0
+RR41 FOUR-CHOICE SHARD: idle/12
+RR41 FOUR-CHOICE SHARD: idle/24
+RR41 FOUR-CHOICE SHARD: idle/36
+RR41 FOUR-CHOICE SHARD: move/0
+RR41 FOUR-CHOICE SHARD: idle/48
+RR41 FOUR-CHOICE SHARD: move/12
+RR41 FOUR-CHOICE SHARD: move/24
+RR41 FOUR-CHOICE SHARD: move/36
+RR41 FOUR-CHOICE SHARD: lunge/0
+RR41 FOUR-CHOICE SHARD: move/48
+RR41 FOUR-CHOICE SHARD: lunge/12
+RR41 FOUR-CHOICE SHARD: lunge/24
+RR41 FOUR-CHOICE SHARD: lunge/36
+RR41 FOUR-CHOICE SHARD: lunge/48
+RR41 FOUR-CHOICE SHARD: jab/0
+RR41 FOUR-CHOICE SHARD: lunge/60
+RR41 FOUR-CHOICE SHARD: jab/12
+RR41 FOUR-CHOICE SHARD: jab/24
+RR41 FOUR-CHOICE SHARD: cast/0
+RR41 FOUR-CHOICE SHARD: cast/12
+RR41 FOUR-CHOICE SHARD: cast/24
+RR41 FOUR-CHOICE SHARD: cast/36
+RR41 FOUR-CHOICE SHARD: cast/48
+RR41 FOUR-CHOICE SHARD: pin/0
+RR41 FOUR-CHOICE SHARD: pin/12
+RR41 FOUR-CHOICE SHARD: pin/24
+RR41 FOUR-CHOICE SHARD: pin/36
+RR41 FOUR-CHOICE SHARD: pin/48
+RR41 FOUR-CHOICE SHARD: guard/0
+RR41 FOUR-CHOICE SHARD: pin/60
+RR41 FOUR-CHOICE SHARD: guard/24
+RR41 FOUR-CHOICE SHARD: guard/12
+RR41 FOUR-CHOICE SHARD: guard/48
+RR41 FOUR-CHOICE SHARD: guard/36
+RR41 FOUR-CHOICE SHARD: hit/0
+RR41 FOUR-CHOICE SHARD: hit/24
+RR41 FOUR-CHOICE SHARD: hit/12
+RR41 FOUR-CHOICE SHARD: death/12
+RR41 FOUR-CHOICE SHARD: death/0
+RR41 FOUR-CHOICE SHARD: death/36
+RR41 FOUR-CHOICE SHARD: death/24
+RR41 FOUR-CHOICE SHARD: death/60
+RR41 FOUR-CHOICE SHARD: death/48
+RR41 FOUR-CHOICE SHARD: death/84
+RR41 FOUR-CHOICE SHARD: death/72
+SWEEP CHECKED rr41-rounding: 2048 frames/choices; 8 workers; 408.438s
+RR41 ALL FRONT ROUNDING: PASS (2048 UV/pose cases; 512 poses x 4 choices; every clip including move; no fresh native capture)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)
+RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint
+RR41 EXTENSION RECIPE MUTATION: PASS (gait and clip targets retired on both cloaks)
+RR41 NATIVE BOUNDARY MUTATION: PASS (legal palette colour cannot choose a painted UV certificate)
+RR41 NATIVE MISSING-PAINT MUTATION: PASS (no opaque source candidate can become certified air)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR41 DIRECTOR PARTITION: FAIL (2498 painted; 1529 air; cape_far=2497 cape_near=1; outside source=398px production=403px)
+RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint
+source/hidden_cape_near: 1 director ownership/RGBA mismatches
+source/hidden_cape_far: 1 director ownership/RGBA mismatches
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR41 DIRECTOR PARTITION: FAIL (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)
+RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint
+production/hidden_cape_near: 1 director ownership/RGBA mismatches
+production/hidden_cape_far: 1 director ownership/RGBA mismatches
+RR41 OWNERSHIP SWAP: PASS (source and production independently reject far-to-near UV [112,142])
+MODULE test_rr41_feedback1: 434.705s
+RR41 DEATH82 RECOLOUR MUTATION: PASS (unpainted native hand texel still fails)
+RR41 DEATH82 ROUNDING: PASS (same phase; recorded hand UV [127,143], reconstructed UV [127,142])
+RR41 RETAINED DEATH82: PASS (old sampling rejects 1 painted texel; recorded transforms yield 0 errors)
+RR41 SOFTWARE DEATH82 REGRESSION: PASS (old oracle fails; 4 recorded rigid/mesh UV choices pass)
+MODULE test_rr41_feedback2: 11.474s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793279852069098000-95719
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279852069098000-95719
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279852069098000-95719/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-l2rrey8o/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 8; choice 1; UV (145, 159))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 8; choice 3; UV (145, 159))
+RR41 REAL PROCEDURAL MUTATION: PASS (lunge 13; choice 0; UV (155, 174))
+RR41 REAL PROCEDURAL MUTATION: PASS (lunge 13; choice 2; UV (155, 174))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 13; choice 0; UV (144, 155))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 13; choice 0; UV (155, 174))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 13; choice 2; UV (144, 155))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 13; choice 2; UV (155, 174))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 14; choice 0; UV (144, 155))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 14; choice 0; UV (155, 174))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 14; choice 2; UV (144, 155))
+RR41 REAL PROCEDURAL MUTATION: PASS (guard 14; choice 2; UV (155, 174))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 12; choice 2; UV (122, 148))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 12; choice 3; UV (122, 148))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 32; choice 2; UV (122, 148))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 32; choice 3; UV (122, 148))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 8; choice 1; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 8; choice 3; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 23; choice 1; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 23; choice 3; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 25; choice 1; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 25; choice 3; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 27; choice 1; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 27; choice 3; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 29; choice 1; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATION: PASS (move 29; choice 3; UV (131, 201))
+RR41 REAL PROCEDURAL MUTATIONS: PASS (12 prior near-tie restorations + 14 walk restorations; none survive)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+SWEEP SAMPLES rr41-rounding: 1396 poses; 8 isolated Godot invocations
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2497 cape_near=1; outside source=398px production=403px)
+RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)
+RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint
+RR41 OWNERSHIP SWAP: PASS (source and production independently reject far-to-near UV [112,142])
+RR41 DISABLED-GUARD MUTATION: PASS (test_ownership_swap_fails_independently_in_source_and_production)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+SWEEP SAMPLES rr41-rounding: 1396 poses; 8 isolated Godot invocations
+RR41 DISABLED-GUARD MUTATION: PASS (test_boundary_recolouring_inside_independent_vacated_region_fails)
+RR41 DISABLED-GUARD MUTATION: PASS (test_retained_native_frame_rejects_old_sampling_and_accepts_original_paint)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793279957731274000-96175
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279957731274000-96175
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279957731274000-96175/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-g5f8t5qt/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793279975663589000-96249
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279975663589000-96249
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279975663589000-96249/godot.log --headless --path /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/int07-rr41-rest-mutations-20hlt2he/project --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-zi7i6nxb/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REST/DENSITY RESEAL: PASS (complete historical pose digest recovered; both rest images, zero mismatches and density bindings unchanged)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793279966104422000-96237
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279966104422000-96237
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279966104422000-96237/godot.log --headless --path /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/int07-rr41-rest-mutations-20hlt2he/project --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-k_rreb3d/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REAL RESEAL MUTATION: PASS (runtime_byte rejected)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793279992263086000-96277
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279992263086000-96277
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279992263086000-96277/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-6u1ph5xc/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793279983288883000-96271
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279983288883000-96271
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793279983288883000-96271/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-wah21r16/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REAL RESEAL MUTATION: PASS (unknown_binding rejected)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793280009483794000-96353
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280009483794000-96353
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280009483794000-96353/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-wnp4p6bu/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793280000602691000-96346
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280000602691000-96346
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280000602691000-96346/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-wrckw7lc/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REAL RESEAL MUTATION: PASS (bone_transform rejected)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793280026863213000-96423
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280026863213000-96423
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280026863213000-96423/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-mozu9_50/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793280017885540000-96420
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280017885540000-96420
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280017885540000-96420/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-m_dcogwr/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REAL RESEAL MUTATION: PASS (forged_after_hash rejected)
+Running task-local command:
+  task: rr-50-python-2
+  run: rr-50-python-2-1793280035091998000-96451
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280035091998000-96451
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-2-1793280035091998000-96451/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-umjubd2s/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REST/DENSITY RESEAL: PASS (complete historical pose digest recovered; both rest images, zero mismatches and density bindings unchanged)
+RR41 WALK PAINT/RECIPES: PASS (2 exact director UVs; source, production and proof; gait/clip writes retired)
+MODULE test_rr41_feedback3: 191.691s
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+SWEEP SAMPLES rr41-paint: 1396 poses; 8 isolated Godot invocations
+SWEEP CHECKED rr41-paint: 512 frames/choices; 8 workers; 39.513s
+RR41 FRONT PAINT PROVENANCE: PASS (512 frames; every clip; 0 procedural leg texels)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)
+RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint
+RR41 OLD BANDED FILL MUTATION: PASS (4 lunge/pin frames rejected)
+MODULE test_rr41_lancer: 60.028s
+RR43 DIRECTOR REPLAY: PASS (raw, recipe, prompt and processed bytes exact)
+RR43 RIGID SPEAR: PASS (every front frame; shaft line through grip; hand occlusion only)
+RR43 PRESERVATION: PASS (front/rest, rr-41 lining and motion protected; exact wood transfer)
+RR43 GRIP REGISTRATION: PASS (painted grip required; retired shaft-tail backing absent)
+RR43 REAR FRINGE MUTATION: PASS (shaft outline cannot ride cloak/boot)
+RR43 SPEAR MUTATIONS: PASS (literal lower-shaft split with identical rest art, split transform/bone, erased shaft all rejected)
+MODULE test_rr43_lancer: 38.883s
+RR43 OUTLINE PARTITION: PASS (both scopes; alpha/geometry/recipes exact; no inner-edge or hidden-fill repaint)
+RR43 INNER-EDGE MUTATION: PASS (a cut boundary cannot become a new outline)
+MODULE test_rr43_outline: 16.348s
+RR45 ALL FRAMES: PASS (1024 presented frames + 2 rests; 0 depth violations)
+RR45 NATIVE NEGATIVE CONTROLS: PASS (10 real frame/piece failures; rest controls clean; stale proof rejected)
+RR45 OLD DRAW ORDER MUTATION: PASS (front and rear rejected)
+RR45 RIGID CONTINUITY: PASS (source/production routing; rr-43 all-frame gate unchanged)
+MODULE test_rr45_lancer: 35.486s
+FAIL: test_rr46_preserve_frostglass_lancer.PreservationTests.test_approved_inputs_are_byte_identical
+MODULE test_rr46_preserve_frostglass_lancer: 0.045s
+RR46 slag_mortar PRESERVATION: PASS (217 protected files)
+MODULE test_rr46_preserve_slag_mortar: 0.039s

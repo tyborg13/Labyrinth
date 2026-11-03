@@ -1,0 +1,457 @@
+{
+  "unit": "rr-32",
+  "revision": "director feedback 1",
+  "status": "requested focused headless checks passed; native proof pending",
+  "director_sha256": "3a55e2f5fab1ca0b348624fe83611806e7c77a59aa3ef7ee73d01462431739fe",
+  "protected_import_byte_identical": true,
+  "paint_and_anatomy_unchanged_files": 347,
+  "earlier_rig_and_case_tracked_bytes_unchanged": true,
+  "TODO_DESIGN": {},
+  "new_runtime_defaults": {},
+  "test_defaults_added": {
+    "mutation_cloth_lift_px": 6
+  },
+  "implementation": {
+    "idle": "only torso/upper_far lift; whole horn-arm FK and three rigid groups",
+    "horn_hand_reach": "hand_far targeted only in call_the_wind; other clips follow torso FK",
+    "death_banners": "protected terminal lift -4 px; strict 4 px gate unchanged",
+    "gust_direction": "strict signed torso-forward dot with channel-neutral FK; every action retains required coverage",
+    "import_tool": "rr32_motion_import.py; existing paint/density/anatomy/layout bytes preserved"
+  },
+  "herald_tests": [
+    {
+      "family": "herald",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-32/experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "herald"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 18 tests in 127.251s",
+        "OK"
+      ],
+      "transcript": "proof/logs/validate_herald_0.txt"
+    }
+  ],
+  "reference_rigs": [
+    {
+      "family": "seer",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "seer"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 86 tests in 63.267s",
+        "OK"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback1/seer.txt"
+    },
+    {
+      "family": "thrall",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "thrall"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 88 tests in 103.154s",
+        "OK (skipped=1)"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback1/thrall.txt"
+    },
+    {
+      "family": "mirror",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "mirror"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 39 tests in 53.311s",
+        "OK"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback1/mirror.txt"
+    },
+    {
+      "family": "capacitor",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "capacitor"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 38 tests in 120.254s",
+        "OK"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback1/capacitor.txt"
+    },
+    {
+      "family": "weaver",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "weaver"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 33 tests in 176.352s",
+        "OK"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback1/weaver.txt"
+    },
+    {
+      "family": "mimic",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "mimic"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 30 tests in 41.580s",
+        "OK"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback1/mimic.txt"
+    },
+    {
+      "family": "mortar",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "experiments/cutouts/gale_herald/rr32_validate.py",
+        "--execute-suite",
+        "mortar"
+      ],
+      "exit": 0,
+      "result_lines": [
+        "Ran 66 tests in 539.066s",
+        "OK"
+      ],
+      "transcript": "experiments/cutouts/gale_herald/mq12/proof/logs/feedback1/mortar.txt"
+    }
+  ],
+  "strict_gate_result_lines": [
+    "RR32 FRONT CUT: PASS (0 errors)",
+    "RR32 FRONT BONES: PASS (0 errors)",
+    "RR32 FRONT DIRECTION: PASS (0 errors)",
+    "RR32 FRONT WALK: PASS (0 errors)",
+    "RR32 FRONT SUPPORTS: PASS (0 errors)",
+    "RR32 FRONT REACH: REPORT (9 paths; 1000 intervals; 0 errors; 3 overreach reports)",
+    "RR32 REAR CUT: PASS (0 errors)",
+    "RR32 REAR BONES: PASS (0 errors)",
+    "RR32 REAR DIRECTION: PASS (0 errors)",
+    "RR32 REAR WALK: PASS (0 errors)",
+    "RR32 REAR SUPPORTS: PASS (0 errors)",
+    "RR32 REAR REACH: REPORT (9 paths; 1000 intervals; 0 errors; 5 overreach reports)",
+    "RR32 HEADLESS GATES: PASS (0 errors)"
+  ],
+  "samples": {
+    "poses": 1198,
+    "bindings_current": true,
+    "native_pixels": false
+  },
+  "production": {
+    "front": {
+      "ok": true,
+      "native_pixels": false,
+      "director_sha256": "3a55e2f5fab1ca0b348624fe83611806e7c77a59aa3ef7ee73d01462431739fe",
+      "frames": 1305,
+      "clip_counts": {
+        "idle": 50,
+        "move": 151,
+        "call_the_wind": 210,
+        "gust_bolt": 153,
+        "still_air": 156,
+        "hit": 80,
+        "death": 505
+      },
+      "facing_inventory": [
+        "front"
+      ],
+      "motion": {
+        "ok": true,
+        "errors": [],
+        "views": {
+          "front": {
+            "walk": {
+              "ok": true,
+              "errors": [],
+              "swings": [
+                {
+                  "side": "near",
+                  "start": 0.0,
+                  "end": 0.08000000000000002,
+                  "from": 0.0,
+                  "to": 0.2,
+                  "peak_frame": 2,
+                  "peak_bend_deg": 59.085200830435035,
+                  "apex_frame": 2,
+                  "apex_swing_bend_deg": 59.085200830435035,
+                  "apex_stance_bend_deg": 29.998681539528512
+                },
+                {
+                  "side": "far",
+                  "start": 0.12,
+                  "end": 0.28,
+                  "from": 0.0,
+                  "to": 0.4,
+                  "peak_frame": 10,
+                  "peak_bend_deg": 68.57024445984966,
+                  "apex_frame": 11,
+                  "apex_swing_bend_deg": 62.349931203424596,
+                  "apex_stance_bend_deg": 41.750888439279315
+                },
+                {
+                  "side": "near",
+                  "start": 0.32,
+                  "end": 0.48,
+                  "from": 0.2,
+                  "to": 0.6,
+                  "peak_frame": 21,
+                  "peak_bend_deg": 62.02924297087888,
+                  "apex_frame": 21,
+                  "apex_swing_bend_deg": 62.02924297087888,
+                  "apex_stance_bend_deg": 34.80846254649913
+                },
+                {
+                  "side": "far",
+                  "start": 0.52,
+                  "end": 0.68,
+                  "from": 0.4,
+                  "to": 0.8,
+                  "peak_frame": 31,
+                  "peak_bend_deg": 71.82908515833711,
+                  "apex_frame": 32,
+                  "apex_swing_bend_deg": 67.78240573048168,
+                  "apex_stance_bend_deg": 41.750888439279315
+                },
+                {
+                  "side": "near",
+                  "start": 0.72,
+                  "end": 0.88,
+                  "from": 0.6,
+                  "to": 1.0,
+                  "peak_frame": 43,
+                  "peak_bend_deg": 56.18777814215598,
+                  "apex_frame": 42,
+                  "apex_swing_bend_deg": 55.52828867264129,
+                  "apex_stance_bend_deg": 34.808498149972316
+                },
+                {
+                  "side": "far",
+                  "start": 0.92,
+                  "end": 1.0,
+                  "from": 0.8,
+                  "to": 1.0,
+                  "peak_frame": 51,
+                  "peak_bend_deg": 70.47619947198227,
+                  "apex_frame": 51,
+                  "apex_swing_bend_deg": 70.47619947198227,
+                  "apex_stance_bend_deg": 27.070248051182492
+                }
+              ],
+              "minimum_peak_bend_deg": 56.18777814215598,
+              "maximum_fit_px": 0.17126293900022915,
+              "maximum_total_pelvis_drop_px": 2.997943341611675,
+              "maximum_rigid_air_px": 0.0,
+              "maximum_stance_frame_change_px": 0.0,
+              "maximum_stance_target_error_px": 0.559994869499515,
+              "sample_counts": {
+                "frames": 108,
+                "stance": 132,
+                "rigid_air": 0
+              },
+              "rigid_air_failures": []
+            },
+            "supports": {
+              "errors": [],
+              "maximum_jab_frame_change_px": 0.0,
+              "maximum_jab_target_error_px": 0.0,
+              "ok": true,
+              "sample_counts": {
+                "jab": 1038
+              },
+              "rigid_air_failures": []
+            }
+          }
+        }
+      },
+      "full_report": "proof/logs/production_front/logic_frames.json",
+      "sha256": "359d342b505ef6e27c98bcbe552dc70245c2a84f96b6d95a9a4ac4292e5040e4"
+    },
+    "rear": {
+      "ok": true,
+      "native_pixels": false,
+      "director_sha256": "3a55e2f5fab1ca0b348624fe83611806e7c77a59aa3ef7ee73d01462431739fe",
+      "frames": 1304,
+      "clip_counts": {
+        "idle": 50,
+        "move": 151,
+        "call_the_wind": 209,
+        "gust_bolt": 153,
+        "still_air": 156,
+        "hit": 80,
+        "death": 505
+      },
+      "facing_inventory": [
+        "rear"
+      ],
+      "motion": {
+        "ok": true,
+        "errors": [],
+        "views": {
+          "rear": {
+            "walk": {
+              "ok": true,
+              "errors": [],
+              "swings": [
+                {
+                  "side": "near",
+                  "start": 0.0,
+                  "end": 0.08000000000000002,
+                  "from": 0.0,
+                  "to": 0.2,
+                  "peak_frame": 2,
+                  "peak_bend_deg": 66.99112991717713,
+                  "apex_frame": 2,
+                  "apex_swing_bend_deg": 66.99112991717713,
+                  "apex_stance_bend_deg": 18.232887742267124
+                },
+                {
+                  "side": "far",
+                  "start": 0.12,
+                  "end": 0.28,
+                  "from": 0.0,
+                  "to": 0.4,
+                  "peak_frame": 10,
+                  "peak_bend_deg": 48.755737583061915,
+                  "apex_frame": 11,
+                  "apex_swing_bend_deg": 47.84844076780391,
+                  "apex_stance_bend_deg": 46.74854182156253
+                },
+                {
+                  "side": "near",
+                  "start": 0.32,
+                  "end": 0.48,
+                  "from": 0.2,
+                  "to": 0.6,
+                  "peak_frame": 22,
+                  "peak_bend_deg": 69.61383222752943,
+                  "apex_frame": 21,
+                  "apex_swing_bend_deg": 66.62426547851129,
+                  "apex_stance_bend_deg": 23.151241719015648
+                },
+                {
+                  "side": "far",
+                  "start": 0.52,
+                  "end": 0.68,
+                  "from": 0.4,
+                  "to": 0.8,
+                  "peak_frame": 32,
+                  "peak_bend_deg": 51.331313945471756,
+                  "apex_frame": 32,
+                  "apex_swing_bend_deg": 51.331313945471756,
+                  "apex_stance_bend_deg": 43.591382050218144
+                },
+                {
+                  "side": "near",
+                  "start": 0.72,
+                  "end": 0.88,
+                  "from": 0.6,
+                  "to": 1.0,
+                  "peak_frame": 43,
+                  "peak_bend_deg": 62.88407386999765,
+                  "apex_frame": 42,
+                  "apex_swing_bend_deg": 60.25511056591889,
+                  "apex_stance_bend_deg": 23.551351606915482
+                },
+                {
+                  "side": "far",
+                  "start": 0.92,
+                  "end": 1.0,
+                  "from": 0.8,
+                  "to": 1.0,
+                  "peak_frame": 51,
+                  "peak_bend_deg": 47.46798216155,
+                  "apex_frame": 51,
+                  "apex_swing_bend_deg": 47.46798216155,
+                  "apex_stance_bend_deg": 31.35971375749131
+                }
+              ],
+              "minimum_peak_bend_deg": 47.46798216155,
+              "maximum_fit_px": 0.10058931195946741,
+              "maximum_total_pelvis_drop_px": 2.997943341611699,
+              "maximum_rigid_air_px": 0.0,
+              "maximum_stance_frame_change_px": 0.0,
+              "maximum_stance_target_error_px": 0.5599713125230531,
+              "sample_counts": {
+                "frames": 108,
+                "stance": 132,
+                "rigid_air": 0
+              },
+              "rigid_air_failures": []
+            },
+            "supports": {
+              "errors": [],
+              "maximum_jab_frame_change_px": 0.0,
+              "maximum_jab_target_error_px": 0.0,
+              "ok": true,
+              "sample_counts": {
+                "jab": 1036
+              },
+              "rigid_air_failures": []
+            }
+          }
+        }
+      },
+      "full_report": "proof/logs/production_rear/logic_frames.json",
+      "sha256": "26a1a38707243578124b371ff49f1059483f846a01533a0a17a14cc743581a7f"
+    }
+  },
+  "reach": {
+    "front": {
+      "paths": 9,
+      "intervals": 1000,
+      "errors": [],
+      "overreach_reports": [
+        "front/death/hand_near: maximum reach 79.917479 px > 73.581160 px at 1.000000",
+        "front/move/foot_far: maximum reach 55.323644 px > 48.634416 px at 0.272000",
+        "front/move/foot_near: maximum reach 79.281402 px > 78.116711 px at 0.879000"
+      ]
+    },
+    "rear": {
+      "paths": 9,
+      "intervals": 1000,
+      "errors": [],
+      "overreach_reports": [
+        "rear/death/hand_near: maximum reach 63.191145 px > 61.239872 px at 1.000000",
+        "rear/gust_bolt/hand_near: maximum reach 62.682388 px > 61.239872 px at 0.450000",
+        "rear/move/foot_far: maximum reach 84.263341 px > 79.568899 px at 0.921000",
+        "rear/move/foot_near: maximum reach 70.411050 px > 68.417065 px at 0.727000",
+        "rear/move/hand_near: maximum reach 61.879409 px > 61.239872 px at 0.480000"
+      ]
+    }
+  },
+  "native_proof": {
+    "attempted": false,
+    "ready": false,
+    "commands": "experiments/cutouts/gale_herald/README.md: Proof for the design owner",
+    "capture_root": "experiments/cutouts/gale_herald/mq12/proof",
+    "reason": "No macOS window-server access, per unit instructions."
+  },
+  "full_suites": "not run; focused checks only, as requested",
+  "changes": "uncommitted; no publication or peer review performed",
+  "previous_validation": "proof/initial_validation.json"
+}

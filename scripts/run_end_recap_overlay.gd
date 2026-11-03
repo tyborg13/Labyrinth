@@ -2,9 +2,12 @@ extends Control
 class_name RunEndRecapOverlay
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const ButtonFeedback = preload("res://scripts/ui_button_feedback.gd")
+const ChroniclePanel = preload("res://scripts/chronicle_panel.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const ThemedButtonOrnament = preload("res://scripts/themed_button_ornament.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const RunScoreRules = preload("res://scripts/run_score_rules.gd")
@@ -22,9 +25,11 @@ signal main_menu_pressed
 const DEFEAT_WINDOW_CENTER_NORMALIZED: Vector2 = Vector2(0.325, 0.470)
 const COLUMN_ORIGIN: Vector2 = Vector2(1010.0, 82.0)
 const COLUMN_WIDTH: float = 780.0
+const ACTION_GAP: float = 16.0
+const DEFEAT_ACTION_GAP: float = 44.0 # The selected stone slab's arrows stand 38 px outside it.
 const SCORE_WIDTH: float = 560.0
 const ROW_MIN_HEIGHT: float = 38.0
-const ROWS_TOP: float = 288.0
+const ROWS_TOP: float = 246.0
 const TITLE_FADE_SECONDS: float = 0.3
 const COPY_DELAY_SECONDS: float = 0.25
 const ROW_REVEAL_SECONDS: float = 0.11
@@ -33,13 +38,46 @@ const BEST_POP_SECONDS: float = 0.25
 const SINGLE_COLUMN_ROW_LIMIT: int = 9
 const SPLIT_SCORE_WIDTH: float = 380.0
 const SCORE_COLUMN_GAP: float = 20.0
-const QUIP_SKEW: float = 0.2
 const TITLE_GLOW_RADIUS: int = 18
 const TITLE_GLOW_ALPHA: float = 0.25
 const RULE_DIAMOND_SIDE: float = 9.0
 const SCORE_VALUE_MIN_WIDTH: float = 64.0
 const SCORE_DETAIL_GAPS: float = 12.0
 const LABEL_DETAIL_GAP: float = 8.0
+const CHRONICLE_LINK_TEXT: String = "VIEW IN THE CHRONICLE ›"
+const CHRONICLE_LINK_GAP: float = 48.0 # Summary baseline to the link's capitals.
+const CHRONICLE_LINK_HIT_PAD: float = 10.0 # Taller pointer target; the ink is unchanged.
+const EYEBROW_SIZE: int = 18 # The SCORE heading's size; the link shares its style.
+
+# The Chronicle opens over this screen instead of leaving it, so it is a quiet
+# link in the recap column rather than a third plate beside the exits.
+class ChronicleLink:
+	extends Button
+	var focus_marker: Texture2D
+	# Hover and focus both select it, the same selection the slabs use.
+	func engaged() -> bool:
+		return bool(get_meta("umbra_selected", false))
+	func refresh() -> void:
+		var ink: Color = Palette.GOLD_BRIGHT if engaged() else Palette.GOLD
+		for state: String in ["font_color", "font_focus_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color"]:
+			add_theme_color_override(state, ink)
+		queue_redraw()
+	func _draw() -> void:
+		if not engaged():
+			return
+		var font: Font = get_theme_font("font")
+		var font_size: int = get_theme_font_size("font_size")
+		var baseline: float = (size.y - font.get_height(font_size)) * 0.5 + font.get_ascent(font_size)
+		# The underline runs under the words; the chevron stays a pointer. Letter
+		# spacing trails the final glyph, so the line stops at that glyph's ink.
+		var trailing: float = float((font as FontVariation).spacing_glyph) if font is FontVariation else 0.0
+		var width: float = font.get_string_size(text.rstrip(" ›"), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x - trailing
+		draw_rect(Rect2(0, roundf(baseline + 4.0), width, 1.0), Palette.GOLD_BRIGHT)
+		if has_focus() and focus_marker != null:
+			# The slabs' own focus arrow, at the link's cap height.
+			var marker_height: float = 24.0
+			var marker_size := Vector2(marker_height * focus_marker.get_width() / focus_marker.get_height(), marker_height)
+			draw_texture_rect(focus_marker, Rect2(Vector2(-marker_size.x - 8.0, baseline - font_size * 0.36 - marker_height * 0.5), marker_size), false)
 
 class GildedRule:
 	extends Control
@@ -119,7 +157,6 @@ var _column: Control
 var _kicker: Label
 var _title: Label
 var _title_glow: Control
-var _quip: Label
 var _cause: Label
 var _portrait: RoundPortrait
 var _ledger: Control
@@ -131,7 +168,8 @@ var _total_value: Label
 var _best: Label
 var _embers: RichTextLabel
 var _new_run_button: Button
-var _chronicle_button: Button
+var _chronicle_button: ChronicleLink
+var _chronicle: Control
 var _main_menu_button: Button
 var _run_host: Node
 var _clock_run_id: String = ""
@@ -363,23 +401,17 @@ func _build_children() -> void:
 		glow.add_theme_color_override("font_shadow_color", Color.TRANSPARENT)
 		_title_glow.add_child(glow)
 	_column.add_child(_title)
-	var italic := FontVariation.new()
-	italic.base_font = TEXT_FONT
-	# Synthetic italic implements the approved CSS font-style on the same font.
-	italic.variation_transform = Transform2D(0.0, Vector2.ONE, QUIP_SKEW, Vector2.ZERO)
-	_quip = _label("OutcomeQuip", "", italic, 24, Palette.TEXT_2, Rect2(0, 142, COLUMN_WIDTH, 35))
-	_column.add_child(_quip)
 	_portrait = RoundPortrait.new()
 	_portrait.name = "KillerPortrait"
-	_portrait.position = Vector2(0, 188)
+	_portrait.position = Vector2(0, 146)
 	_portrait.size = Vector2(44, 44)
 	_column.add_child(_portrait)
-	_cause = _label("OutcomeCause", "", TEXT_FONT, 20, Palette.TEXT, Rect2(56, 190, COLUMN_WIDTH - 56, 44))
+	_cause = _label("OutcomeCause", "", TEXT_FONT, 20, Palette.TEXT, Rect2(56, 148, COLUMN_WIDTH - 56, 44))
 	_cause.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_column.add_child(_cause)
 	var rule := GildedRule.new()
 	rule.name = "GildedRule"
-	rule.position = Vector2(0, 256)
+	rule.position = Vector2(0, 214)
 	rule.size = Vector2(SCORE_WIDTH, 14)
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_column.add_child(rule)
@@ -402,7 +434,8 @@ func _build_children() -> void:
 	_total.name = "ScoreTotal"
 	_total.size = Vector2(SCORE_WIDTH, 66)
 	_column.add_child(_total)
-	_total.add_child(_label("ScoreHeading", "SCORE", _spaced_font(4), 18, Palette.GOLD, Rect2(0, 30, 150, 28)))
+	var eyebrow_font: FontVariation = _spaced_font(4)
+	_total.add_child(_label("ScoreHeading", "SCORE", eyebrow_font, EYEBROW_SIZE, Palette.GOLD, Rect2(0, 30, 150, 28)))
 	_total_value = _label("ScoreValue", "0", DISPLAY_FONT, 52, Palette.GOLD_BRIGHT, Rect2(250, 0, 190, 66))
 	_total_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_total.add_child(_total_value)
@@ -425,21 +458,48 @@ func _build_children() -> void:
 	_embers.add_theme_color_override("default_color", Palette.TEXT_2)
 	_embers.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_column.add_child(_embers)
+	_chronicle_button = _chronicle_link(eyebrow_font)
 	_new_run_button = _button("NewRunButton", "Rise Again")
-	_chronicle_button = _button("ChronicleButton", "Chronicle")
-	_chronicle_button.disabled = true
-	_chronicle_button.tooltip_text = "Coming soon"
-	_chronicle_button.focus_mode = Control.FOCUS_NONE
 	_main_menu_button = _button("MainMenuButton", "Main Menu")
 	_new_run_button.pressed.connect(func() -> void: new_run_pressed.emit())
+	_chronicle_button.pressed.connect(_open_chronicle)
 	_main_menu_button.pressed.connect(func() -> void: main_menu_pressed.emit())
-	_new_run_button.focus_neighbor_left = _new_run_button.get_path_to(_main_menu_button)
-	_new_run_button.focus_neighbor_right = _new_run_button.get_path_to(_main_menu_button)
-	_main_menu_button.focus_neighbor_left = _main_menu_button.get_path_to(_new_run_button)
-	_main_menu_button.focus_neighbor_right = _main_menu_button.get_path_to(_new_run_button)
+	# Left/right walk the two exits; up reaches the link and down comes back.
 	for button: Button in [_new_run_button, _main_menu_button]:
+		var other: Button = _main_menu_button if button == _new_run_button else _new_run_button
+		button.focus_neighbor_left = button.get_path_to(other)
+		button.focus_neighbor_right = button.get_path_to(other)
+		button.focus_neighbor_top = button.get_path_to(_chronicle_button)
+		button.focus_neighbor_bottom = button.get_path_to(button)
+	var stay: NodePath = _chronicle_button.get_path_to(_chronicle_button)
+	_chronicle_button.focus_neighbor_left = stay
+	_chronicle_button.focus_neighbor_top = stay
+	_chronicle_button.focus_neighbor_right = stay
+	_chronicle_button.focus_neighbor_bottom = _chronicle_button.get_path_to(_new_run_button)
+	for button: Button in [_new_run_button, _chronicle_button, _main_menu_button]:
 		button.focus_entered.connect(_select_action.bind(button))
 		button.mouse_entered.connect(_select_action.bind(button))
+	_chronicle_button.focus_exited.connect(_chronicle_button.refresh)
+	_chronicle_button.mouse_exited.connect(_on_chronicle_link_exited)
+
+func _chronicle_link(font: Font) -> ChronicleLink:
+	var link := ChronicleLink.new()
+	link.name = "ChronicleButton"
+	link.text = CHRONICLE_LINK_TEXT
+	link.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	link.add_theme_font_override("font", font)
+	link.add_theme_font_size_override("font_size", EYEBROW_SIZE)
+	var bare := StyleBoxEmpty.new()
+	bare.content_margin_top = CHRONICLE_LINK_HIT_PAD
+	bare.content_margin_bottom = CHRONICLE_LINK_HIT_PAD
+	for state: String in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
+		link.add_theme_stylebox_override(state, bare)
+	link.focus_marker = AssetLoader.load_texture_source_first(ThemedButtonOrnament.UMBRA_FOCUS_MARKER_LEFT_PATH)
+	ButtonFeedback.bind_button(link)
+	_column.add_child(link)
+	link.size = link.get_combined_minimum_size()
+	link.refresh()
+	return link
 
 func _button(node_name: String, text: String) -> Button:
 	var button := Button.new()
@@ -451,9 +511,19 @@ func _button(node_name: String, text: String) -> Button:
 	return button
 
 func _select_action(button: Button) -> void:
-	for action: Button in [_new_run_button, _main_menu_button]:
+	for action: Button in [_new_run_button, _chronicle_button, _main_menu_button]:
 		action.set_meta("umbra_selected", action == button)
 		action.queue_redraw()
+	if button != _chronicle_button:
+		_chronicle_button.focus_neighbor_bottom = _chronicle_button.get_path_to(button)
+	_chronicle_button.refresh()
+
+# Leaving the link hands the selection back to the exit that keys would press.
+func _on_chronicle_link_exited() -> void:
+	if _chronicle_button.has_focus() or not _chronicle_button.is_visible_in_tree():
+		return
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	_select_action(_main_menu_button if focused == _main_menu_button else _new_run_button)
 
 func _add_score_row(data: Dictionary, parent: VBoxContainer, width: float) -> void:
 	var row := Control.new()
@@ -514,8 +584,6 @@ func _apply_model() -> void:
 	for layer: Label in _title_glow.get_children():
 		layer.text = _title.text
 		layer.add_theme_color_override("font_outline_color", Color(glow_color, layer_alpha))
-	_quip.text = str(_model.get("quip", ""))
-	_quip.visible = not _quip.text.is_empty()
 	_cause.text = str(_model.get("cause", ""))
 	var killer: Dictionary = _model.get("killer", {}) as Dictionary
 	var enemy_type: String = str(killer.get("enemy_type", ""))
@@ -551,12 +619,13 @@ func _apply_model() -> void:
 	var embers_copy: String = str(_model.get("embers_text", ""))
 	var amount: String = RunScoreRules.grouped_number(int(_model.get("ember_amount", 0)))
 	_embers.text = embers_copy.replace(amount, "[font=res://fonts/LabyrinthCrumble-UI.tres][font_size=22][color=#e8893a]%s[/color][/font_size][/font]" % amount) if embers_copy.contains(amount) else embers_copy
-	for button: Button in [_new_run_button, _chronicle_button, _main_menu_button]:
+	_chronicle_button.position = Vector2(0, _chronicle_link_top())
+	_select_action(_new_run_button)
+	for button: Button in [_new_run_button, _main_menu_button]:
 		var variant: String = UiSkin.VARIANT_UMBRA if _is_defeat() else UiSkin.VARIANT_LARGE
 		_ui_skin.apply_button_stylebox_overrides(button, variant)
 		_ui_skin.apply_button_text_overrides(button)
-		button.set_meta("umbra_selected", button == _new_run_button)
-		var width: float = (COLUMN_WIDTH - 2.0 * 16.0) / 3.0
+		var width: float = (COLUMN_WIDTH - 2.0 * ACTION_GAP) / 3.0
 		var button_height: float = (width + 4.0) / (1024.0 / 224.0) - 10.0 if _is_defeat() else width / 3.25
 		button.size = Vector2(width, button_height)
 		button.custom_minimum_size = button.size
@@ -569,11 +638,43 @@ func _layout() -> void:
 	_column.position = COLUMN_ORIGIN * factor
 	_column.size = Vector2(COLUMN_WIDTH, 900)
 	_column.scale = Vector2.ONE * factor
-	var x: float = COLUMN_ORIGIN.x
-	for button: Button in [_new_run_button, _chronicle_button, _main_menu_button]:
+	# The two exits keep their plate size and gap, centred where three plates stood.
+	var gap: float = DEFEAT_ACTION_GAP if _is_defeat() else ACTION_GAP
+	var plate: float = _new_run_button.size.x
+	var x: float = COLUMN_ORIGIN.x + (3.0 * plate + 2.0 * gap) * 0.5 - (2.0 * plate + gap) * 0.5
+	for button: Button in [_new_run_button, _main_menu_button]:
 		button.position = Vector2(x, 952) * factor
 		button.scale = Vector2.ONE * factor
-		x += button.size.x + 16
+		x += plate + gap
+
+# The link's capitals stand CHRONICLE_LINK_GAP below the summary's last baseline.
+func _chronicle_link_top() -> float:
+	var summary_baseline: float = _embers.position.y + _embers.get_content_height() - TEXT_FONT.get_descent(19)
+	# Capitals rise about 0.7 em; the rest of the ascent sits above them.
+	var above_caps: float = _chronicle_button.get_theme_font("font").get_ascent(EYEBROW_SIZE) - EYEBROW_SIZE * 0.7
+	return summary_baseline + CHRONICLE_LINK_GAP - CHRONICLE_LINK_HIT_PAD - above_caps
+
+func _open_chronicle() -> void:
+	skip_presentation()
+	if _chronicle == null:
+		_chronicle = ChroniclePanel.new()
+		_chronicle.name = "RunEndChronicle"
+		_chronicle.closed.connect(_on_chronicle_closed)
+		add_child(_chronicle)
+	_set_recap_shown(false)
+	_chronicle.open()
+
+func _on_chronicle_closed() -> void:
+	_set_recap_shown(true)
+	_chronicle_button.grab_focus()
+
+# The Chronicle's frame is shorter than the screen, so the recap would show around it.
+func _set_recap_shown(shown: bool) -> void:
+	if _column == null:
+		return
+	_column.visible = shown
+	for button: Button in [_new_run_button, _main_menu_button]:
+		button.visible = shown
 
 func present(model: Dictionary, death_site_normalized: Vector2 = DEFEAT_WINDOW_CENTER_NORMALIZED) -> void:
 	var fingerprint: String = JSON.stringify(model)
@@ -612,9 +713,8 @@ func _update_presentation() -> void:
 	_title.modulate.a = clampf(_elapsed / TITLE_FADE_SECONDS, 0, 1)
 	_title_glow.modulate.a = _title.modulate.a
 	var copy_shown: bool = _elapsed >= TITLE_FADE_SECONDS + COPY_DELAY_SECONDS
-	_quip.modulate.a = 1.0 if copy_shown else 0.0
-	_cause.modulate.a = _quip.modulate.a
-	_portrait.modulate.a = _quip.modulate.a
+	_cause.modulate.a = 1.0 if copy_shown else 0.0
+	_portrait.modulate.a = _cause.modulate.a
 	var row_start: float = TITLE_FADE_SECONDS + COPY_DELAY_SECONDS
 	for index: int in range(_row_controls.size()):
 		var shown: bool = _elapsed >= row_start + float(index) * ROW_REVEAL_SECONDS
@@ -666,6 +766,9 @@ func reset() -> void:
 	_model.clear()
 	_model_fingerprint = ""
 	visible = false
+	if _chronicle != null:
+		_chronicle.visible = false
+	_set_recap_shown(true)
 	set_process(false)
 	if _death_shroud != null:
 		_death_shroud.reset()

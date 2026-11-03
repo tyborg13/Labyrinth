@@ -1,0 +1,5079 @@
+{
+  "rig": "humanoid_v2",
+  "units": "source_px",
+  "creature": "ashen_reaver",
+  "director_sha256": "bd73148007e974725c5136a2fb88fa605447b57f72ec27e4e2ed278f2823adfd",
+  "projection": {
+    "front": {
+      "forward": [
+        -0.8944271909999159,
+        0.4472135954999579
+      ],
+      "lean_sign": -1
+    },
+    "rear": {
+      "forward": [
+        0.8944271909999159,
+        0.4472135954999579
+      ],
+      "lean_sign": 1
+    }
+  },
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the protagonist's cut-out bob: the upper body drops 2 px and returns as one rigid piece; the falchion arm follows a beat later as one rigid group with the blade (the Thrall's pre-computed sword-lag curve on upper_far); the free fist, loincloths, legs and feet stay still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.85,
+      "intents": [],
+      "note": "a heavy armoured advance on the protagonist's model, from the fighter's crouch: both legs step, six steps per tile, near foot leading, a 5 px lift; a 4 degree forward lean; both arms swing from the shoulder like pendulums, opposite their same-side legs, the forearm trailing; the sword arm swings less and the falchion trails the fist (held_follow); the loincloths trail 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 5,
+        "lane_narrowing": 0.6,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.5,
+          "down": 3.0,
+          "passing": 0.8,
+          "up": 0.4
+        },
+        "arm_swing": {
+          "model": "shoulder_pendulum",
+          "_doc": "As rr-44: the upper arm rotates about the shoulder toward the facing and away from it, opposite the same-side leg; the forearm follows with a lag and bends more on the backswing; the hand is rigid with the forearm. The falchion arm swings less.",
+          "phase": "opposite_same_side_leg",
+          "near": {
+            "upper_deg": 14,
+            "forearm_lag_s": 0.08,
+            "forearm_bend_deg": {
+              "forward": 3,
+              "back": 10
+            }
+          },
+          "far": {
+            "upper_deg": 9,
+            "forearm_lag_s": 0.08,
+            "forearm_bend_deg": {
+              "forward": 2,
+              "back": 6
+            }
+          },
+          "envelope": {
+            "ramp_fraction": 0.12,
+            "ease": "smoothstep"
+          }
+        },
+        "max_fit_px": 6
+      },
+      "held_follow": {
+        "_doc": "The blade trails the swinging fist: falchion.angle_deg(t) = deg_per_px x (the grip's displacement along the facing, in source px, from its rest position, at t - lag_s; 0 before the clip starts). The fist swinging forward tips the point back and up a little.",
+        "item": "falchion",
+        "grip": "hand_far",
+        "deg_per_px": 0.5,
+        "lag_s": 0.06,
+        "reference_frame": "root",
+        "reference_bone": "pelvis"
+      },
+      "release_at": {}
+    },
+    "rake": {
+      "seconds": 1.0,
+      "contact": 0.5,
+      "intents": [
+        "raking_flame:surface"
+      ],
+      "note": "after the step in (the move clip), he drags the falchion's burning edge along the ground ahead: the blade lifts and draws back a little, then the sword arm drives forward and down so the point scrapes the floor in front of him (contact: the fire line starts here) and keeps dragging forward through 0.7, the body leaning in and the hips dropping into the crouch; then he rises back to the guard. The free fist pulls back for balance; its elbow only flexes (elbow_policy).",
+      "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1).",
+      "release_at": {}
+    },
+    "sweep": {
+      "seconds": 0.95,
+      "contact": 0.45,
+      "intents": [
+        "hooked_sweep:aoe"
+      ],
+      "note": "after the step in, a wide hooked sweep: the falchion is drawn back and up across his shoulder with a lean back (wind-up), then swung through the whole front arc at waist height (contact: the hit, the fire and the push land here), following through low on the far side with the body turned into it; held a beat, then back to the guard. The free fist swings opposite for balance.",
+      "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1).",
+      "release_at": {}
+    },
+    "fall": {
+      "seconds": 1.3,
+      "contact": 0.5,
+      "intents": [
+        "executioners_fall:ranged"
+      ],
+      "note": "after the step in, the executioner's chop: he raises the falchion to shoulder height with the point up and back over his shoulder, leaning back (0.3), then brings it down hard in front of him so the blade strikes the floor ahead (contact: the fire line runs out from here), the body folded over it and the hips low; he stays bent over the planted blade through 0.85, open to a counter-attack (the move leaves him exposed), then heaves himself back up to the guard. The free fist pulls back to the hip through the chop.",
+      "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1).",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, the helm nods back 4 degrees; both hands carry the knockback a beat late (the arms hang loose and catch up), so the elbows only flex; the falchion's point dips 6 degrees as the body is knocked back, then settles; the loincloths flick 2 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.6,
+      "terminal": true,
+      "intents": [],
+      "note": "staggers back; the falchion slips from his grip at 0.3, drops straight to the floor under the fist and tips over to lie flat along the floor (the Gaoler's chain-drop model: the owner loved the weapon falling); the body slumps forward over planted feet (hips sink 6 px, torso folds 24 degrees, helm bowed 18 degrees), no kneel: plate legs cannot fold that far without tearing; both arms hang limp as the body folds; the loincloths settle; terminal pose held, then the existing fade",
+      "budget_note": "slump instead of a kneel (director decision, as rr-42); Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1).",
+      "release_at": {
+        "falchion": 0.3
+      }
+    }
+  },
+  "view_tracks": {
+    "front": {
+      "idle": [
+        {
+          "source": "torso.lift_px",
+          "bone": "torso",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.91,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "upper_far.lift_px",
+          "bone": "upper_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.05,
+              "value": 0.38,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.1,
+              "value": 1.17,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.15,
+              "value": 1.47,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.2,
+              "value": 0.83,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": 0.15,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.35,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.4,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": -0.11,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.65,
+              "value": -0.25,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -0.31,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -0.3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": -0.24,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -0.15,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.9,
+              "value": -0.04,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "move": [
+        {
+          "source": "torso.lean_deg",
+          "bone": "torso",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.12,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.88,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_tip.forward_px",
+          "bone": "loincloth_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.15,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.9,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_back_tip.forward_px",
+          "bone": "loincloth_back_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.15,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.9,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "root.forward_px",
+          "bone": "root",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "linear"
+            },
+            {
+              "at": 1,
+              "value": 1,
+              "interpolation": "linear"
+            }
+          ],
+          "forward_mode": "fraction_of_step"
+        },
+        {
+          "source": "foot_near.forward_px",
+          "bone": "foot_near",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.08000000000000002,
+              "value": 0.2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.32,
+              "value": 0.2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.48,
+              "value": 0.6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.72,
+              "value": 0.6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.88,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1.0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "world_step"
+        },
+        {
+          "source": "foot_near.lift_px",
+          "bone": "foot_near",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.04000000000000001,
+              "value": 5,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.08000000000000002,
+              "value": 0.0,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.32,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.4,
+              "value": 5,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.48,
+              "value": 0.0,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.72,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": 5,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.88,
+              "value": 0.0,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 1.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "world_step"
+        },
+        {
+          "source": "foot_near.lane_px",
+          "bone": "foot_near",
+          "channel": "lane_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.08000000000000002,
+              "value": -15.6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.32,
+              "value": -15.6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.48,
+              "value": -15.6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.72,
+              "value": -15.6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.88,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "world_step"
+        },
+        {
+          "source": "foot_far.forward_px",
+          "bone": "foot_far",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.12,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": 0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.52,
+              "value": 0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.68,
+              "value": 0.8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.92,
+              "value": 0.8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1.0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "world_step"
+        },
+        {
+          "source": "foot_far.lift_px",
+          "bone": "foot_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.12,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.2,
+              "value": 5,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.28,
+              "value": 0.0,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.52,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6000000000000001,
+              "value": 5,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.68,
+              "value": 0.0,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.92,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.96,
+              "value": 5,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 1.0,
+              "value": 0.0,
+              "interpolation": "sine_power"
+            }
+          ],
+          "forward_mode": "world_step"
+        },
+        {
+          "source": "foot_far.lane_px",
+          "bone": "foot_far",
+          "channel": "lane_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.12,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": 3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.52,
+              "value": 3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.68,
+              "value": 3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.92,
+              "value": 3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "world_step"
+        },
+        {
+          "source": "pelvis.lift_px",
+          "bone": "pelvis",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.012800000000000002,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.04000000000000001,
+              "value": -0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.06400000000000002,
+              "value": -0.2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.08000000000000002,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.11200000000000002,
+              "value": -3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18000000000000002,
+              "value": -0.8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.24000000000000005,
+              "value": -0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.312,
+              "value": -3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.38,
+              "value": -0.8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.44,
+              "value": -0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.48,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.512,
+              "value": -3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5800000000000001,
+              "value": -0.8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.64,
+              "value": -0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.68,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7120000000000001,
+              "value": -3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.78,
+              "value": -0.8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8400000000000001,
+              "value": -0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.88,
+              "value": -0.75,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8992,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.94,
+              "value": -0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.976,
+              "value": -0.2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "rake": [
+        {
+          "source": "hand_far.forward_px",
+          "bone": "hand_far",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": -6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 16,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 22,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_far.lift_px",
+          "bone": "hand_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": 8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -10,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -10,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "falchion.angle_deg",
+          "bone": "falchion",
+          "channel": "angle_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": 18,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -14,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -18,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.lean_deg",
+          "bone": "torso",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.forward_px",
+          "bone": "torso",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "pelvis.lift_px",
+          "bone": "pelvis",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "head.lean_deg",
+          "bone": "head",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.forward_px",
+          "bone": "hand_near",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_tip.forward_px",
+          "bone": "loincloth_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_back_tip.forward_px",
+          "bone": "loincloth_back_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "sweep": [
+        {
+          "source": "hand_far.forward_px",
+          "bone": "hand_far",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": -12,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 20,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 14,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": 14,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_far.lift_px",
+          "bone": "hand_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": 10,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": -8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "falchion.angle_deg",
+          "bone": "falchion",
+          "channel": "angle_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": 35,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": -8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": -28,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -28,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.lean_deg",
+          "bone": "torso",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.forward_px",
+          "bone": "torso",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "pelvis.lift_px",
+          "bone": "pelvis",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "head.lean_deg",
+          "bone": "head",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.forward_px",
+          "bone": "hand_near",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.lift_px",
+          "bone": "hand_near",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_tip.forward_px",
+          "bone": "loincloth_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_back_tip.forward_px",
+          "bone": "loincloth_back_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "fall": [
+        {
+          "source": "hand_far.forward_px",
+          "bone": "hand_far",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 18,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 18,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_far.lift_px",
+          "bone": "hand_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 24,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -12,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -12,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "falchion.angle_deg",
+          "bone": "falchion",
+          "channel": "angle_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 35,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -35,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -35,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.lean_deg",
+          "bone": "torso",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.forward_px",
+          "bone": "torso",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 7,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 7,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "pelvis.lift_px",
+          "bone": "pelvis",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "head.lean_deg",
+          "bone": "head",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.forward_px",
+          "bone": "hand_near",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.lift_px",
+          "bone": "hand_near",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_tip.forward_px",
+          "bone": "loincloth_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.9,
+              "value": 1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_back_tip.forward_px",
+          "bone": "loincloth_back_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.9,
+              "value": 1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "hit": [
+        {
+          "source": "torso.forward_px",
+          "bone": "torso",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.lift_px",
+          "bone": "torso",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.lean_deg",
+          "bone": "torso",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "head.lean_deg",
+          "bone": "head",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.2,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "falchion.angle_deg",
+          "bone": "falchion",
+          "channel": "angle_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.22,
+              "value": -6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.forward_px",
+          "bone": "hand_near",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.35,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.lift_px",
+          "bone": "hand_near",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_far.forward_px",
+          "bone": "hand_far",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.35,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_far.lift_px",
+          "bone": "hand_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_tip.forward_px",
+          "bone": "loincloth_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_back_tip.forward_px",
+          "bone": "loincloth_back_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "death": [
+        {
+          "source": "falchion.angle_deg",
+          "bone": "falchion",
+          "channel": "angle_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": -55,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.72,
+              "value": -82,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": -78,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -80,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "pelvis.lift_px",
+          "bone": "pelvis",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": -6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -6,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "pelvis.forward_px",
+          "bone": "pelvis",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 2,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.lean_deg",
+          "bone": "torso",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -12,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": -24,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -24,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.forward_px",
+          "bone": "torso",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": 8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 8,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "head.lean_deg",
+          "bone": "head",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -11,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": -18,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -18,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_far.lift_px",
+          "bone": "hand_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.35,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -6,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.lift_px",
+          "bone": "hand_near",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -6,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_tip.lift_px",
+          "bone": "loincloth_tip",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -3,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_back_tip.lift_px",
+          "bone": "loincloth_back_tip",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -3,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ]
+    },
+    "rear": {
+      "idle": [
+        {
+          "source": "torso.lift_px",
+          "bone": "torso",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.91,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "upper_far.lift_px",
+          "bone": "upper_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.05,
+              "value": 0.38,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.1,
+              "value": 1.17,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.15,
+              "value": 1.47,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.2,
+              "value": 0.83,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": 0.15,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.35,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.4,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": -0.11,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.65,
+              "value": -0.25,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -0.31,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -0.3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": -0.24,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -0.15,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.9,
+              "value": -0.04,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "move": [
+        {
+          "source": "torso.lean_deg",
+          "bone": "torso",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.12,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.88,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_tip.forward_px",
+          "bone": "loincloth_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.15,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.9,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_back_tip.forward_px",
+          "bone": "loincloth_back_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.15,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.9,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "root.forward_px",
+          "bone": "root",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "linear"
+            },
+            {
+              "at": 1,
+              "value": 1,
+              "interpolation": "linear"
+            }
+          ],
+          "forward_mode": "fraction_of_step"
+        },
+        {
+          "source": "foot_near.forward_px",
+          "bone": "foot_near",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.08000000000000002,
+              "value": 0.2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.32,
+              "value": 0.2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.48,
+              "value": 0.6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.72,
+              "value": 0.6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.88,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1.0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "world_step"
+        },
+        {
+          "source": "foot_near.lift_px",
+          "bone": "foot_near",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.04000000000000001,
+              "value": 5,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.08000000000000002,
+              "value": 0.0,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.32,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.4,
+              "value": 5,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.48,
+              "value": 0.0,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.72,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": 5,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.88,
+              "value": 0.0,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 1.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "world_step"
+        },
+        {
+          "source": "foot_near.lane_px",
+          "bone": "foot_near",
+          "channel": "lane_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.08000000000000002,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.32,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.48,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.72,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.88,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "world_step"
+        },
+        {
+          "source": "foot_far.forward_px",
+          "bone": "foot_far",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.12,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": 0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.52,
+              "value": 0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.68,
+              "value": 0.8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.92,
+              "value": 0.8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1.0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "world_step"
+        },
+        {
+          "source": "foot_far.lift_px",
+          "bone": "foot_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.12,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.2,
+              "value": 5,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.28,
+              "value": 0.0,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.52,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6000000000000001,
+              "value": 5,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.68,
+              "value": 0.0,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 0.92,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.96,
+              "value": 5,
+              "interpolation": "sine_power"
+            },
+            {
+              "at": 1.0,
+              "value": 0.0,
+              "interpolation": "sine_power"
+            }
+          ],
+          "forward_mode": "world_step"
+        },
+        {
+          "source": "foot_far.lane_px",
+          "bone": "foot_far",
+          "channel": "lane_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.12,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": -1.7999999999999998,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.52,
+              "value": -1.7999999999999998,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.68,
+              "value": -1.7999999999999998,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.92,
+              "value": -1.7999999999999998,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "world_step"
+        },
+        {
+          "source": "pelvis.lift_px",
+          "bone": "pelvis",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.012800000000000002,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.04000000000000001,
+              "value": -0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.06400000000000002,
+              "value": -0.2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.08000000000000002,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.11200000000000002,
+              "value": -3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18000000000000002,
+              "value": -0.8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.24000000000000005,
+              "value": -0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.312,
+              "value": -3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.38,
+              "value": -0.8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.44,
+              "value": -0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.48,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.512,
+              "value": -3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5800000000000001,
+              "value": -0.8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.64,
+              "value": -0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.68,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7120000000000001,
+              "value": -3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.78,
+              "value": -0.8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8400000000000001,
+              "value": -0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.88,
+              "value": -0.75,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8992,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.94,
+              "value": -0.4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.976,
+              "value": -0.2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1.0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "rake": [
+        {
+          "source": "hand_far.forward_px",
+          "bone": "hand_far",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": -6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 16,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 22,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_far.lift_px",
+          "bone": "hand_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": 8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -10,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -10,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "falchion.angle_deg",
+          "bone": "falchion",
+          "channel": "angle_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": -18,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 14,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 18,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.lean_deg",
+          "bone": "torso",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.forward_px",
+          "bone": "torso",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "pelvis.lift_px",
+          "bone": "pelvis",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "head.lean_deg",
+          "bone": "head",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.forward_px",
+          "bone": "hand_near",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_tip.forward_px",
+          "bone": "loincloth_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_back_tip.forward_px",
+          "bone": "loincloth_back_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "sweep": [
+        {
+          "source": "hand_far.forward_px",
+          "bone": "hand_far",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": -12,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 20,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 14,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": 14,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_far.lift_px",
+          "bone": "hand_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": 10,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": -8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "falchion.angle_deg",
+          "bone": "falchion",
+          "channel": "angle_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": -35,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 28,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": 28,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.lean_deg",
+          "bone": "torso",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.forward_px",
+          "bone": "torso",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "pelvis.lift_px",
+          "bone": "pelvis",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "head.lean_deg",
+          "bone": "head",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.forward_px",
+          "bone": "hand_near",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.28,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.lift_px",
+          "bone": "hand_near",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_tip.forward_px",
+          "bone": "loincloth_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_back_tip.forward_px",
+          "bone": "loincloth_back_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "fall": [
+        {
+          "source": "hand_far.forward_px",
+          "bone": "hand_far",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 18,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 18,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_far.lift_px",
+          "bone": "hand_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 24,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -12,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -12,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "falchion.angle_deg",
+          "bone": "falchion",
+          "channel": "angle_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": -35,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 35,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 35,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.lean_deg",
+          "bone": "torso",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.forward_px",
+          "bone": "torso",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 7,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 7,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "pelvis.lift_px",
+          "bone": "pelvis",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "head.lean_deg",
+          "bone": "head",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.forward_px",
+          "bone": "hand_near",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.lift_px",
+          "bone": "hand_near",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_tip.forward_px",
+          "bone": "loincloth_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.9,
+              "value": 1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_back_tip.forward_px",
+          "bone": "loincloth_back_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.9,
+              "value": 1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "hit": [
+        {
+          "source": "torso.forward_px",
+          "bone": "torso",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.lift_px",
+          "bone": "torso",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.lean_deg",
+          "bone": "torso",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "head.lean_deg",
+          "bone": "head",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.2,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "falchion.angle_deg",
+          "bone": "falchion",
+          "channel": "angle_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.22,
+              "value": 6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.forward_px",
+          "bone": "hand_near",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.35,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.lift_px",
+          "bone": "hand_near",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_far.forward_px",
+          "bone": "hand_far",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.35,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_far.lift_px",
+          "bone": "hand_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.18,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_tip.forward_px",
+          "bone": "loincloth_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_back_tip.forward_px",
+          "bone": "loincloth_back_tip",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "death": [
+        {
+          "source": "falchion.angle_deg",
+          "bone": "falchion",
+          "channel": "angle_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 55,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.72,
+              "value": 82,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": 78,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 80,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "pelvis.lift_px",
+          "bone": "pelvis",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": -6,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -6,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "pelvis.forward_px",
+          "bone": "pelvis",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 2,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.lean_deg",
+          "bone": "torso",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": -3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 12,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": 24,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 24,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "torso.forward_px",
+          "bone": "torso",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": -1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": 8,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 8,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "head.lean_deg",
+          "bone": "head",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": -4,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 11,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": 18,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 18,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_far.lift_px",
+          "bone": "hand_far",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.35,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -6,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "hand_near.lift_px",
+          "bone": "hand_near",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -6,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_tip.lift_px",
+          "bone": "loincloth_tip",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -3,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "loincloth_back_tip.lift_px",
+          "bone": "loincloth_back_tip",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -3,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ]
+    }
+  },
+  "TODO_DESIGN": {},
+  "elbow_policy": {
+    "_doc": "As rr-44 (owner 2026-10-27): a real elbow only flexes; the forearm folds from the upper arm's line toward the side the figure faces. The two-bone solve always takes this side and never infers it from a near-straight rest. 'max_hyperextension_deg' is the gate.",
+    "bend": "flex_toward_facing",
+    "views": [
+      "front",
+      "rear"
+    ],
+    "sides": [
+      "near",
+      "far"
+    ],
+    "max_hyperextension_deg": 2
+  },
+  "knee_policy": {
+    "near_straight_deg": 6,
+    "by_view": {
+      "front": {
+        "near": {
+          "near_straight_deg": 6,
+          "crouched_stance_deg": 0.24407000190622574
+        },
+        "far": {
+          "near_straight_deg": 6,
+          "crouched_stance_deg": 36.12442672509261
+        }
+      },
+      "rear": {
+        "near": {
+          "near_straight_deg": 6,
+          "crouched_stance_deg": 14.015077684067307
+        },
+        "far": {
+          "near_straight_deg": 6,
+          "crouched_stance_deg": 17.799808063901356
+        }
+      }
+    }
+  },
+  "legs": {
+    "near": {
+      "front": {
+        "bend_side": 1
+      },
+      "rear": {
+        "bend_side": 1
+      }
+    },
+    "far": {
+      "front": {
+        "bend_side": 1
+      },
+      "rear": {
+        "bend_side": -1
+      }
+    }
+  },
+  "view_held_drops": {
+    "front": {
+      "death": {
+        "falchion": {
+          "start": 0.3,
+          "land": 0.45,
+          "ease": "in",
+          "to": "floor_line",
+          "pivot_after_land": "floor_contact",
+          "note": "as rr-44's chain.drop: translate straight down from release until the falchion's lowest texel touches the unit's floor line (measured per facing from the rig), then falchion.angle_deg pivots about the floor contact so the blade lies flat",
+          "floor_limit_deg": 15.945395900922854,
+          "rotation_sign": -1.0
+        }
+      }
+    },
+    "rear": {
+      "death": {
+        "falchion": {
+          "start": 0.3,
+          "land": 0.45,
+          "ease": "in",
+          "to": "floor_line",
+          "pivot_after_land": "floor_contact",
+          "note": "as rr-44's chain.drop: translate straight down from release until the falchion's lowest texel touches the unit's floor line (measured per facing from the rig), then falchion.angle_deg pivots about the floor contact so the blade lies flat",
+          "floor_limit_deg": -11.309932474020195,
+          "rotation_sign": -1.0
+        }
+      }
+    }
+  },
+  "budget_clamps": [
+    {
+      "view": "front",
+      "clip": "rake",
+      "source": "torso.lean_deg",
+      "at": 0.5,
+      "target": -10,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "rake",
+      "source": "torso.lean_deg",
+      "at": 0.7,
+      "target": -11,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.28,
+      "target": 5,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.45,
+      "target": -8,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.6,
+      "target": -9,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.75,
+      "target": -9,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "source": "falchion.angle_deg",
+      "at": 0.3,
+      "target": 70,
+      "clamped": 35,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "source": "falchion.angle_deg",
+      "at": 0.5,
+      "target": -40,
+      "clamped": -35,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "source": "falchion.angle_deg",
+      "at": 0.85,
+      "target": -40,
+      "clamped": -35,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "source": "torso.lean_deg",
+      "at": 0.3,
+      "target": 6,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "source": "torso.lean_deg",
+      "at": 0.5,
+      "target": -14,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "source": "torso.lean_deg",
+      "at": 0.85,
+      "target": -14,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "rake",
+      "source": "torso.lean_deg",
+      "at": 0.5,
+      "target": 10,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "rake",
+      "source": "torso.lean_deg",
+      "at": 0.7,
+      "target": 11,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.28,
+      "target": -5,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.45,
+      "target": 8,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.6,
+      "target": 9,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.75,
+      "target": 9,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "source": "falchion.angle_deg",
+      "at": 0.3,
+      "target": -70,
+      "clamped": -35,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "source": "falchion.angle_deg",
+      "at": 0.5,
+      "target": 40,
+      "clamped": 35,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "source": "falchion.angle_deg",
+      "at": 0.85,
+      "target": 40,
+      "clamped": 35,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "source": "torso.lean_deg",
+      "at": 0.3,
+      "target": -6,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "source": "torso.lean_deg",
+      "at": 0.5,
+      "target": 14,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "source": "torso.lean_deg",
+      "at": 0.85,
+      "target": 14,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    }
+  ],
+  "painted_budget_clamps": []
+}

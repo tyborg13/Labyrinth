@@ -9,6 +9,7 @@ import sys
 import tempfile
 import time
 import unittest
+from tools.python_suite_groups import perf_test
 from unittest import mock
 import zlib
 
@@ -53,6 +54,22 @@ def write_solid_png(path: Path, width: int, height: int, value: int = 80) -> Non
 
 
 class VisualProbeRunnerTests(unittest.TestCase):
+    def test_cel_default_and_explicit_modes(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as directory:
+            args = VISUAL.build_parser().parse_args(['tests/cel_look_probe.gd', '--godot-home-root', directory])
+            args.probe_args = []
+            for value in (None, 'all', 'actors', 'off', ''):
+                with self.subTest(value=value), mock.patch.dict(os.environ):
+                    os.environ.pop('LABYRINTH_CEL_LOOK', None)
+                    if value is not None:
+                        os.environ['LABYRINTH_CEL_LOOK'] = value
+                    with mock.patch.object(VISUAL, 'run_process_with_watchdogs',
+                            return_value=subprocess.CompletedProcess([], 0, '', '')) as run:
+                        VISUAL.run_probe(args, 'cel-env', 'opengl3')
+                    self.assertEqual(run.call_args.kwargs['env']['LABYRINTH_CEL_LOOK'],
+                                     'off' if value is None else value)
+
     def test_short_fail_fast_defaults_remain_configurable(self) -> None:
         defaults = VISUAL.build_parser().parse_args(["tests/ui_probe.gd"])
         self.assertEqual(defaults.timeout, 30.0)
@@ -77,7 +94,7 @@ class VisualProbeRunnerTests(unittest.TestCase):
         self.assertEqual(custom.gui_lease_timeout, 18.0)
         self.assertEqual(custom.attempts, 3)
 
-    def test_startup_watchdog_stops_process_before_total_timeout(self) -> None:
+    def _test_startup_watchdog_stops_process_before_total_timeout(self) -> float:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             started_at = time.monotonic()
@@ -90,9 +107,11 @@ class VisualProbeRunnerTests(unittest.TestCase):
                     startup_log=root / "never-created.log",
                     startup_timeout=0.1,
                 )
-            self.assertLess(time.monotonic() - started_at, 1.5)
+            elapsed = time.monotonic() - started_at
 
-    def test_total_watchdog_stops_an_initialized_hung_process(self) -> None:
+        return elapsed
+
+    def _test_total_watchdog_stops_an_initialized_hung_process(self) -> float:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             started_at = time.monotonic()
@@ -105,7 +124,9 @@ class VisualProbeRunnerTests(unittest.TestCase):
                     startup_log=None,
                     startup_timeout=0.0,
                 )
-            self.assertLess(time.monotonic() - started_at, 1.5)
+            elapsed = time.monotonic() - started_at
+
+        return elapsed
 
     @unittest.skipUnless(os.name == "posix", "POSIX process-group interruption coverage")
     def test_interruption_reaps_the_spawned_process(self) -> None:
@@ -303,6 +324,20 @@ class VisualProbeRunnerTests(unittest.TestCase):
             )
             VISUAL.resolve_probe_rendering_mode(args, project, platform="linux", environment={})
             self.assertTrue(args.headless)
+
+    def test_startup_watchdog_stops_process_before_total_timeout(self) -> None:
+        self._test_startup_watchdog_stops_process_before_total_timeout()
+
+    @perf_test
+    def test_startup_watchdog_stops_process_before_total_timeout_wall_budget(self) -> None:
+        self.assertLess(self._test_startup_watchdog_stops_process_before_total_timeout(), 1.5)
+
+    def test_total_watchdog_stops_an_initialized_hung_process(self) -> None:
+        self._test_total_watchdog_stops_an_initialized_hung_process()
+
+    @perf_test
+    def test_total_watchdog_stops_an_initialized_hung_process_wall_budget(self) -> None:
+        self.assertLess(self._test_total_watchdog_stops_an_initialized_hung_process(), 1.5)
 
 
 if __name__ == "__main__":

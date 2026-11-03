@@ -7,24 +7,29 @@ const Motion = preload("motion.gd")
 const Humanoid = preload("humanoid_motion.gd")
 const Gait = preload("humanoid_gait.gd")
 
-static func apply(rig: Node2D, clip: String) -> void:
+static func apply(rig: Node2D, clip: String, phase_value: float = 0.0) -> void:
 	var source: Transform2D = rig.global_transform.affine_inverse()
 	var world: Dictionary = {}
-	var gait: bool = Motion.data_for(rig.layout).get("clips", {}).get(clip, {}).has("gait")
+	var authored_world: Dictionary = {}
+	var data: Dictionary = Motion.data_for(rig.layout)
+	var travel: Vector2 = Pixels.movement_offset(rig.layout, clip)
+	var gait: bool = data.get("clips", {}).get(clip, {}).has("gait")
 	preload("humanoid_continuations.gd").apply(rig, gait, clip)
 	var targets: Dictionary = rig.layout["_gait_world_targets"] if gait else {}
 	for name: String in rig.bones:
 		var bone: Bone2D = rig.bones[name]
 		var pose: Transform2D = source * bone.global_transform
+		if data.has("elbow_policy"): authored_world[name] = pose
 		var bind: Vector2 = Motion.point(rig.layout["joints"][name]["position"])
 		var angle: float = snappedf(pose.get_rotation(), Pixels.ROTATION_STEP)
 		# The simultaneous limits and 1.5-degree presentation require the nearest
 		# in-limit step (4 degrees therefore presents at 3, never at 4.5).
 		if name == "torso":
-			var limit: float = deg_to_rad(25.0 if clip == "death" else 4.0)
+			var limit: float = deg_to_rad(float(rig.layout.get("presentation_angle_limits_deg", {}).get(clip, {}).get(name, 25.0 if clip == "death" else 4.0)))
 			limit = floorf(limit / Pixels.ROTATION_STEP) * Pixels.ROTATION_STEP
 			angle = clampf(angle, -limit, limit)
-		world[name] = Transform2D(angle, bind + (pose.origin - bind).round())
+		world[name] = Transform2D(angle, bind + (pose.origin - bind - travel).round() + travel)
+		if name == "root" and clip == "move" and not rig.layout.get("root_forward_override", {}).is_empty(): world[name] = Transform2D(angle, pose.origin)
 		if targets.has(name):
 			world[name] = Transform2D(angle, Gait.snapped_world_target(targets[name], bind, rig.global_transform))
 		if gait and (name.begins_with("thigh_") or name.begins_with("shin_")) and Gait.skinned(rig.layout, name.get_slice("_", 1)):
@@ -41,12 +46,15 @@ static func apply(rig: Node2D, clip: String) -> void:
 		var relative: float = wrapf(head.get_rotation() - torso.get_rotation(), -PI, PI)
 		if absf(relative) > limit:
 			world["head"] = Transform2D(torso.get_rotation() + clampf(relative, -limit, limit), head.origin)
+	if data.has("elbow_policy"):
+		preload("humanoid_elbows.gd").apply(world, authored_world, rig.layout["joints"], data["elbow_policy"], rig.facing, Motion.point(data["projection"][rig.facing]["forward"]))
 	for name: String in rig.bones:
 		var parent: String = Humanoid.parent_name(rig.layout["joints"][name])
 		var local: Transform2D = world[name]
 		if not parent.is_empty(): local = (world[parent] as Transform2D).affine_inverse() * local
 		(rig.bones[name] as Bone2D).transform = local
 	var replaced: Dictionary = {}
+	var finals: Dictionary = {}
 	for mesh: Dictionary in rig.layout.get("joint_meshes", []): replaced[mesh["replaces_part"]] = true
 	for part: Dictionary in rig.layout["parts"]:
 		if replaced.has(part["name"]): continue
@@ -55,6 +63,10 @@ static func apply(rig: Node2D, clip: String) -> void:
 		var pose: Transform2D = world[part["bone"]]
 		var bind: Vector2 = Motion.point(rig.layout["joints"][part["bone"]]["position"])
 		var reference: Vector2 = Motion.point(part.get("presentation_anchor", part["offset"]))
-		var anchor: Transform2D = Pixels.snapped_transform(pose * Transform2D(0.0, reference - bind))
+		var anchor: Transform2D = Pixels.snapped_transform(pose * Transform2D(0.0, reference - bind), NAN, travel)
 		var final: Transform2D = anchor * Transform2D(0.0, Motion.point(part["offset"]) - reference)
+		finals[part["name"]] = final
 		sprite.transform = pose.affine_inverse() * final
+	preload("humanoid_held_follow.gd").present_grips(rig, world, finals, clip, phase_value)
+	preload("humanoid_joint_caps.gd").apply(rig, finals, clip, phase_value)
+	preload("humanoid_joint_caps.gd").apply_references(rig, world, finals)

@@ -14,6 +14,8 @@ const VICTORY_UNFURL_SECONDS: float = 0.30
 const VICTORY_SETTLE_SECONDS: float = 0.08
 const VICTORY_HOLD_SECONDS: float = 0.26
 const VICTORY_FADE_SECONDS: float = 0.22
+const HUD_CLEAR_SECONDS: float = 0.24
+const HUD_CLEAR_HAND_SINK_PIXELS: float = 110.0
 const BANNER_UNFURL_SECONDS: float = 0.30
 const CARD_BACK_ENTRY_SECONDS: float = 0.22
 const CARD_BACK_ENTRY_STAGGER_SECONDS: float = 0.075
@@ -103,6 +105,30 @@ static func victory_sequence_seconds(reduced_motion: bool) -> float:
 		return hold_seconds
 	return VICTORY_UNFURL_SECONDS + VICTORY_SETTLE_SECONDS + hold_seconds + VICTORY_FADE_SECONDS
 
+
+# Winning clears the stage: the fight's controls leave as VICTORY lands, so the word and the board have the screen.
+# Returns each control's resting look for restore_combat_hud, which runs once the reward refresh has hidden them.
+static func clear_combat_hud(controls: Array[Control], hand: Control, reduced_motion: bool) -> Dictionary:
+	var resting: Dictionary = {}
+	for control: Control in controls:
+		if control == null or not control.is_visible_in_tree():
+			continue
+		resting[control] = control.modulate
+		if reduced_motion:
+			control.modulate.a = 0.0
+			continue
+		var clear: Tween = control.create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		clear.tween_property(control, "modulate:a", 0.0, HUD_CLEAR_SECONDS)
+		if control == hand:
+			clear.tween_property(control, "position:y", control.position.y + HUD_CLEAR_HAND_SINK_PIXELS, HUD_CLEAR_SECONDS)
+	return resting
+
+static func restore_combat_hud(resting: Dictionary, hand: Control) -> void:
+	for control: Variant in resting:
+		if is_instance_valid(control):
+			(control as Control).modulate = resting[control]
+	if resting.has(hand):
+		(hand.get_parent() as Container).queue_sort()
 
 static func play_victory(overlay: Control, reduced_motion: bool) -> void:
 	var label: Label = victory_label(overlay)

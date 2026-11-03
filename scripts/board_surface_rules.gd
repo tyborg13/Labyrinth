@@ -2,6 +2,7 @@ extends RefCounted
 class_name BoardSurfaceRules
 
 const PathUtils = preload("res://scripts/path_utils.gd")
+const BeatFuel = preload("res://scripts/battlefield_rules/fuel.gd")
 const ELEMENTAL_KINDS: Array = ["fire", "ice", "electrified"]
 const RULES_VERSION: int = 5
 const FIRE_ENTRY_DAMAGE: int = 2
@@ -35,9 +36,12 @@ static func has_rubble(state: Dictionary, tile: Vector2i) -> bool:
 static func has_surface(state: Dictionary, tile: Vector2i, surface: String) -> bool:
 	return has_rubble(state, tile) if kind(surface) == "rubble" else element_at(state, tile) == kind(surface)
 
-static func is_conductive(state: Dictionary, tile: Vector2i) -> bool:
+static func is_conductive(state: Dictionary, tile: Vector2i, rule_beat: bool = false) -> bool:
 	var element: String = element_at(state, tile)
-	return element == "electrified" or (element == "fire" and bool((state.get("surface_rule_overrides", {}) as Dictionary).get("conductive_fire", false)))
+	var conductive: bool = element == "electrified" or (element == "fire" and bool((state.get("surface_rule_overrides", {}) as Dictionary).get("conductive_fire", false)))
+	# Rule lightning cannot borrow fresh ground as a relay or component member.
+	# Ordinary attacks retain immediate conduction and their existing riders.
+	return conductive and (not rule_beat or BeatFuel.eligible(state, surface_at(state, tile).get("elemental_source", {})))
 
 static func tiles(state: Dictionary, surface: String = "") -> Array[Vector2i]:
 	var result: Array[Vector2i]
@@ -49,8 +53,14 @@ static func tiles(state: Dictionary, surface: String = "") -> Array[Vector2i]:
 	return result
 
 static func terrain_is_live(terrain: Dictionary) -> bool:
-	# Temporary Ice Pillars have lifetime, not attack durability.
-	return int(terrain.get("rounds_left", 0)) > 0 if str(terrain.get("kind", "")) in ["ice_pillar", "bramble"] else int(terrain.get("hp", 0)) > 0
+	return int(terrain.get("hp", 0)) > 0
+
+static func fuel_tiles(state: Dictionary, surface: String) -> Array[Vector2i]:
+	var result: Array[Vector2i]
+	var layer: String = "rubble_source" if kind(surface) == "rubble" else "elemental_source"
+	for tile: Vector2i in tiles(state, surface):
+		if BeatFuel.eligible(state, surface_at(state, tile).get(layer, {})): result.append(tile)
+	return result
 
 static func can_place(state: Dictionary, tile: Vector2i) -> bool:
 	if not PathUtils.is_passable(state.get("grid", []), tile):
@@ -77,6 +87,7 @@ static func place(state: Dictionary, tile: Vector2i, surface: String, source: Di
 		return state
 	if has_surface(state, tile, normalized):
 		return state
+	source = BeatFuel.stamped(state, source)
 	var surfaces: Dictionary = state.get("surfaces", {}) as Dictionary
 	var entry: Dictionary = surface_at(state, tile).duplicate(true)
 	var previous: String = ("rubble" if bool(entry.get("rubble", false)) else "") if normalized == "rubble" else str(entry.get("elemental", ""))
@@ -99,7 +110,7 @@ static func place(state: Dictionary, tile: Vector2i, surface: String, source: Di
 			if element_at(state, tile + direction).is_empty(): place(state, tile + direction, normalized, spread_source)
 	return state
 
-static func remove(state: Dictionary, tile: Vector2i, surface_or_layer: String = "all", reason: String = "") -> Dictionary:
+static func remove(state: Dictionary, tile: Vector2i, surface_or_layer: String = "all", reason: String = "", removal_source: Dictionary = {}) -> Dictionary:
 	var surfaces: Dictionary = state.get("surfaces", {}) as Dictionary
 	var entry: Dictionary = surface_at(state, tile).duplicate(true)
 	if entry.is_empty():
@@ -125,8 +136,9 @@ static func remove(state: Dictionary, tile: Vector2i, surface_or_layer: String =
 		surfaces[tile_key(tile)] = entry
 	state["surfaces"] = surfaces
 	state["surface_revision"] = int(state.get("surface_revision", 0)) + 1
+	var source: Dictionary = state.get("damage_context", {}) as Dictionary if removal_source.is_empty() else removal_source
 	for removed_kind: String in removed:
-		record_event(state, {"kind": "surface_removed", "tile": tile, "surface": removed_kind, "reason": reason, "rubble_underlay": rubble_underlay, "source": (state.get("damage_context", {}) as Dictionary).duplicate(true)})
+		record_event(state, {"kind": "surface_removed", "tile": tile, "surface": removed_kind, "reason": reason, "rubble_underlay": rubble_underlay, "source": source.duplicate(true)})
 	sync_chilled(state)
 	return state
 

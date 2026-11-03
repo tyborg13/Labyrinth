@@ -14,9 +14,6 @@ func _initialize() -> void:
 	_test_cinder_breath_corner_pressure()
 	_test_held_approach_and_damage()
 	_test_footprint_trap_prediction()
-	_test_worldspine_choices()
-	_test_worldspine_pressure_order()
-	_test_worldspine_approach_flank()
 	var opening: Dictionary = BossSuite._boss_combat_state("tharokh", 4)
 	expect(int(opening["turn_queue"][0]["time"]) == 12, "Stonewake must resolve after the first ordinary two-card turn")
 	_test_air_evade_and_displacement()
@@ -45,8 +42,9 @@ func _test_kindle_holds_ground() -> void:
 	state = BossSuite._resolve_boss_turn(state)
 	expect(_same_tiles(Surface.tiles(state, "fire"), declared), "Meteorfall must ignite its displayed cells")
 	expect(state["enemies"][0]["intent"]["id"] == "cinderfall", "Breath must challenge routes while Meteorfall Fire remains")
+	preload("res://tests/suites/battlefield_rules_suite.gd").mature_fuel(state)
 	state = BossSuite._resolve_boss_turn(state)
-	expect(_same_tiles(Surface.tiles(state, "fire"), declared), "The breath must retain the previous Fire as secondary pressure")
+	expect(Surface.tiles(state, "fire").size() > declared.size(), "The breath spreads its previous Fire through Wildfire")
 	for tile: Vector2i in declared: Surface.place(state, tile, "ice")
 	state = BossSuite._resolve_boss_turn(state)
 	expect(state["enemies"][0]["intent"]["id"] == "cinder_maw", "Denied Crownfire must advance to pursuit, not restart setup")
@@ -108,7 +106,7 @@ func _test_cinder_breath_corner_pressure() -> void:
 		expect(plan["projected_attack"].has(corner), "Cinder Breath must threaten the stationary player at each close diagonal corner: %s" % corner)
 		var hp: int = state["player"]["hp"]
 		var hit: Dictionary = BossSuite._resolve_boss_turn(state.duplicate(true))
-		expect(int(hit["player"]["hp"]) == hp - 8, "Remaining on a declared breath shoulder must take the displayed eight damage")
+		expect(int(hit["player"]["hp"]) == hp - 6, "Remaining on a declared breath shoulder must take the approved six damage")
 		state["player"]["pos"] = Vector2i(7,7)
 		expect(_same_tiles(combat.enemy_intent_plan(state,0)["projected_attack"],plan["projected_attack"]), "The broadened breath must retain its declared direction when the player escapes")
 		var escaped: Dictionary = BossSuite._resolve_boss_turn(state)
@@ -144,7 +142,7 @@ func _test_held_approach_and_damage() -> void:
 	expect((combat.enemy_intent_plan(hit,0)["projected_attack"] as Array).has(hit["player"]["pos"]), "A player who stays in front must be shown in Worldspine Claw's damage cells")
 	var before: int = hit["player"]["hp"]
 	hit = BossSuite._resolve_boss_turn(hit)
-	expect(int(hit["player"]["hp"]) == before - 12, "Standing in the displayed Worldspine Claw must take its advertised 12 damage")
+	expect(int(hit["player"]["hp"]) == before - 14, "Standing in the displayed Worldspine Claw must take its approved 14 damage")
 	var frozen: Dictionary = combat.enemy_intent_plan(state, 0, {}, true, true)
 	expect((frozen["projected_attack"] as Array).is_empty(), "Disabling the dragon must remove its damage preview")
 
@@ -169,125 +167,11 @@ func _declare(state: Dictionary, cycle: int) -> void:
 	rng.seed = 93
 	Combat.new()._assign_enemy_intent(state,0,rng)
 
-func _test_worldspine_choices() -> void:
-	var combat := Combat.new()
-	var state: Dictionary = _empty_arena("tharokh")
-	_declare(state,0)
-	var marks: Array = state["enemies"][0]["intent"]["actions"][0]["declared_tiles"]
-	expect(marks.size()==4, "Stonewake must mark four destructible obstacles in an open arena")
-	var denied: Dictionary = state.duplicate(true)
-	denied["player"]["pos"] = marks[0]
-	denied = BossSuite._resolve_boss_turn(denied)
-	expect(combat._terrain_index_at_tile(denied,marks[0])<0, "Occupying a Stonewake mark must deny its spire, never trap the player inside terrain")
-	state = BossSuite._resolve_boss_turn(state)
-	expect(combat._dragon_spires(state).size()==4, "Stonewake must resolve its shown obstacle count")
-	var blockers: Dictionary = combat._enemy_path_blockers(state,state["enemies"][0],true,false)
-	var exits: int = 0
-	for direction: Vector2i in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:
-		if combat._enemy_can_occupy_anchor(state,state["enemies"][0],state["enemies"][0]["pos"]+direction,blockers): exits += 1
-	expect(exits>=2,"Worldspines must leave two exits for the dragon's whole footprint")
-	_declare(state,0)
-	state = BossSuite._resolve_boss_turn(state)
-	expect(combat._dragon_spires(state).size()==4,"Repeated Stonewake must not exceed its live cap")
-	_declare(state,3)
-	var intact: Array = combat._terrain_burst_tiles(state,2)
-	var spire: Dictionary = {}
-	var smallest: int = intact.size()
-	for candidate: Dictionary in combat._dragon_spires(state):
-		var trial: Dictionary = state.duplicate(true)
-		trial = combat._damage_terrain_indices(trial,[combat._terrain_index_at_tile(trial,candidate["pos"])],100)
-		var size: int = combat._terrain_burst_tiles(trial,2).size()
-		if size < smallest:
-			smallest = size
-			spire = candidate
-	expect(not spire.is_empty(),"At least one deliberately selected Worldspine must open unique Faultline space")
-	if spire.is_empty(): return
-	state = combat._damage_terrain_indices(state,[combat._terrain_index_at_tile(state,spire["pos"])],100)
-	var broken: Array = combat._terrain_burst_tiles(state,2)
-	expect(broken.size()<intact.size(),"Breaking a Worldspine must immediately remove its unique Faultline cells")
-	expect(Surface.has_surface(state,spire["pos"],"rubble"),"Destroyed Worldspines leave shared Rubble")
-	state = BossSuite._resolve_boss_turn(state)
-	expect(combat._dragon_spires(state).is_empty(),"Faultline must break the surviving spires after resolving")
-
-func _test_worldspine_pressure_order() -> void:
-	var combat := Combat.new()
-	var state: Dictionary = _empty_arena("tharokh")
-	_declare(state,0)
-	state["player"]["pos"] = Vector2i(7,7)
-	state = BossSuite._resolve_boss_turn(state)
-	expect(state["enemies"][0]["intent"]["id"]=="worldspine_claw","Stonewake must lead into Claw while its spires remain")
-	state = BossSuite._resolve_boss_turn(state)
-	expect(state["enemies"][0]["intent"]["id"]=="bedrock_breath","Claw must lead into Bedrock before consuming the Worldspines")
-	var spires_before: int = combat._dragon_spires(state).size()
-	expect(spires_before>0,"Living Worldspines must constrain the Bedrock warning")
-	var lane: Array = combat.enemy_threat_tiles(state,0)["attack"]
-	expect(not lane.is_empty(),"Bedrock must retain a visible lane alongside its spires")
-	state = BossSuite._resolve_boss_turn(state)
-	expect(state["enemies"][0]["intent"]["id"]=="faultline","Bedrock must lead directly into the rupture warning")
-	expect(not combat._dragon_spires(state).is_empty(),"Bedrock must leave living Worldspines for Faultline counterplay")
-	var rubble: Array = Surface.tiles(state,"rubble")
-	expect(not rubble.is_empty(),"Bedrock Rubble must persist during the Faultline warning")
-	var lane_rubble: bool = false
-	for tile: Vector2i in lane:
-		if rubble.has(tile): lane_rubble = true
-	expect(lane_rubble,"Rubble in the announced lane must create movement friction before Faultline")
-	state = BossSuite._resolve_boss_turn(state)
-	expect(combat._dragon_spires(state).is_empty() and state["enemies"][0]["intent"]["id"]=="stonewake","Faultline must consume the remaining spires and advance the full cycle")
-
-func _tharokh_native_approach_layout(close: bool = false) -> Dictionary:
-	var state: Dictionary = _empty_arena("tharokh")
-	# Geometry from the depth-8 native cohort; no acquired damage or clock is
-	# simulated here. The close state follows the first Claw clearing two crates.
-	var terrain_tiles: Array[Vector2i]
-	terrain_tiles.append_array([Vector2i(2,2), Vector2i(2,1)])
-	if not close: terrain_tiles.append_array([Vector2i(5,5), Vector2i(4,5)])
-	for tile: Vector2i in terrain_tiles:
-		state["terrain"].append({"id":"native_crate_%d_%d" % [tile.x,tile.y],"kind":"wooden_crate","pos":tile,"hp":3,"max_hp":3})
-	for tile: Vector2i in [Vector2i(5,1), Vector2i(6,4)]:
-		state["traps"].append({"id":"native_trap_%d_%d" % [tile.x,tile.y],"pos":tile,"element":"earth","damage":6,"base_damage":6})
-	if close:
-		state["player"]["pos"] = Vector2i(2,3)
-	else:
-		state["traps"].append({"id":"native_trap_3_2","pos":Vector2i(3,2),"element":"earth","damage":6,"base_damage":6})
-	return state
-
-func _test_worldspine_approach_flank() -> void:
-	var combat := Combat.new()
-	var state: Dictionary = _tharokh_native_approach_layout()
-	_declare(state,0)
-	var marks: Array = state["enemies"][0]["intent"]["actions"][0]["declared_tiles"].duplicate()
-	expect(marks.size()==4 and marks.has(Vector2i(2,3)),"The distant approach must reserve its legal flank in a full four-spire field")
-	var pair_found: bool = false
-	for index: int in range(marks.size()):
-		for other: int in range(index+1,marks.size()):
-			if preload("res://scripts/path_utils.gd").manhattan(marks[index],marks[other])==2: pair_found=true
-	expect(pair_found,"Paired spires must overlap radius-one pressure instead of maximizing every separation")
-	state = BossSuite._resolve_boss_turn(state)
-	expect(combat._dragon_spires(state).size()==4,"Stonewake's own attack must preserve its declared four-spire field")
-	state["player"]["pos"] = Vector2i(3,4)
-	var boss_hp: int = int(state["enemies"][0]["hp"])
-	# An inline self-centered ring strike: the live Cleaver Sweep became a
-	# facing-aimed arc in the card pool overhaul and no longer targets the hero's tile.
-	var sweep: Dictionary = {"type":"aoe","damage":6,"range":0,"pattern":[[0,-1],[1,0],[0,1],[-1,0]],"rotate":false,"element":"none"}
-	state = combat.apply_player_action(state,sweep,state["player"]["pos"])
-	expect(int(state["enemies"][0]["hp"])<boss_hp and not combat._dragon_spires(state).is_empty(),"One stationary boss Sweep must not incidentally clear the entire field")
-	# Inspect actual field geometry apart from the independent live shot. A
-	# selective break must remove its own fuel even if another pair overlaps it.
-	var before: Array[Vector2i] = combat._terrain_burst_tiles(state,1)
-	for spire: Dictionary in combat._dragon_spires(state).duplicate():
-		var tile: Vector2i = spire["pos"]
-		state = combat._damage_terrain_indices(state,[combat._terrain_index_at_tile(state,tile)],4)
-	expect(combat._terrain_burst_tiles(state,1).is_empty() and not before.is_empty(),"Breaking the field must remove all pulse pressure while leaving the boss's independent attacks")
-	var blocked: Dictionary = _tharokh_native_approach_layout()
-	for tile: Vector2i in [Vector2i(2,3),Vector2i(2,5)]:
-		blocked["terrain"].append({"id":"blocked_flank_%d_%d" % [tile.x,tile.y],"kind":"wooden_crate","pos":tile,"hp":3,"max_hp":3})
-	_declare(blocked,0)
-	var fallback: Array = blocked["enemies"][0]["intent"]["actions"][0]["declared_tiles"]
-	expect(not fallback.is_empty() and not fallback.has(Vector2i(2,3)) and not fallback.has(Vector2i(2,5)),"Blocked approach flanks must fall back to legal paired floor")
-
 func _test_air_evade_and_displacement() -> void:
 	var combat := Combat.new()
 	var state: Dictionary = _empty_arena("vaeloryx")
+	state.erase("battlefield_rule")
+	state.erase("wind")
 	_declare(state,0)
 	var hook: Dictionary = combat.enemy_intent_plan(state,0)
 	expect(hook["projected_attack"].has(state["player"]["pos"]),"Opening Skyhook must reach the player's current tile after its approach")
@@ -299,7 +183,7 @@ func _test_air_evade_and_displacement() -> void:
 	var threatened: Array = combat.enemy_threat_tiles(state,0)["attack"]
 	expect(threatened.has(Vector2i(3,4)) and threatened.has(Vector2i(6,4)),"Gale must threaten the whole close perimeter, including the rear")
 	var stayed: Dictionary = BossSuite._resolve_boss_turn(state.duplicate(true))
-	expect(stayed["player"]["hp"]==hp-6 and stayed["player"]["pos"]==Vector2i(1,4),"Staying in Gale must take six damage and two tiles of displacement")
+	expect(stayed["player"]["hp"]==hp-6 and stayed["player"]["pos"]==Vector2i(2,4),"Staying in Gale must take six damage and the approved one tile of displacement")
 	state["player"]["pos"] = Vector2i(1,4)
 	expect(not combat.enemy_threat_tiles(state,0)["attack"].has(Vector2i(1,4)),"Moving beyond the close perimeter must escape Gale")
 	state = BossSuite._resolve_boss_turn(state)
@@ -322,6 +206,9 @@ func _test_air_evade_and_displacement() -> void:
 func _test_swept_dive() -> void:
 	var combat := Combat.new()
 	var state: Dictionary = _empty_arena("vaeloryx")
+	state.erase("battlefield_rule")
+	state.erase("wind")
+	state["enemies"] = [state["enemies"][0]]
 	_declare(state,1)
 	var intent: Dictionary = state["enemies"][0]["intent"]
 	intent["committed_plan"]["path"] = [Vector2i(4,3),Vector2i(3,3),Vector2i(2,3)]
@@ -331,7 +218,7 @@ func _test_swept_dive() -> void:
 	var result: Dictionary = combat.resolve_enemy_turn_with_steps(state,0)
 	var attack_steps: Array = result["steps"].filter(func(step: Dictionary)->bool: return str(step.get("intent_id",""))=="razor_dive" and str(step.get("action_type",""))=="aoe")
 	expect(attack_steps.size()==1 and _same_tiles(attack_steps[0]["tiles"],preview["projected_attack"]),"Dive's rendered impact cells must exactly match its predicted traveled route")
-	expect(result["state"]["player"]["hp"]==state["player"]["hp"]-8,"Dive may hit a player only once across overlapping route cells")
+	expect(result["state"]["player"]["hp"]==state["player"]["hp"]-6,"Dive applies the approved six damage once across overlapping route cells")
 	state["terrain"] = [{"id":"dive_blocker","pos":Vector2i(3,3),"hp":99,"max_hp":99}]
 	preview = combat.enemy_intent_plan(state,0)
 	expect(preview["destination"]==Vector2i(4,3) and not preview["projected_attack"].has(Vector2i(1,4)),"Blocking Dive's path must remove damage around its unreachable landing")
@@ -395,31 +282,17 @@ func _test_storm_marks_conduction_and_cap() -> void:
 	expect(not marks.has(Vector2i(3,4)) and combat.enemy_threat_tiles(connected,0)["attack"].has(Vector2i(3,4)),"Skybreak must advertise conducted damage beyond its fixed marks")
 	var marked_hp: int = connected["player"]["hp"]
 	connected = BossSuite._resolve_boss_turn(connected)
-	expect(connected["player"]["hp"]==marked_hp-6,"Skybreak's conducted warning must match its six damage")
+	expect(connected["player"]["hp"]==marked_hp-5,"Skybreak's conducted warning must match its approved five damage")
 	state = BossSuite._resolve_boss_turn(state)
 	expect(_same_tiles(Surface.tiles(state,"electrified"),marks),"Skybreak must leave Electrified on its fixed strike cells")
 	state["surfaces"] = {}
 	for tile: Vector2i in [Vector2i(1,4),Vector2i(2,4),Vector2i(6,6)]: Surface.place(state,tile,"electrified")
 	state["player"]["pos"] = Vector2i(1,4)
-	# A persisted v2 warning retains its exact-cell, consuming contract.
-	_declare(state,2)
-	var legacy: Dictionary = state["enemies"][0]["intent"]["actions"][0]
-	legacy.erase("snapshot_radius")
-	legacy["consume_surface"] = "electrified"
-	state["enemies"][0]["intent"]["actions"] = [legacy]
-	var snapshot: Array = combat.enemy_threat_tiles(state,0)["attack"]
-	expect(snapshot.size()==3 and snapshot.has(Vector2i(6,6)),"Overload must announce all Electrified cells, including disconnected charges")
-	Surface.place(state,Vector2i(3,4),"electrified")
-	expect(not combat.enemy_threat_tiles(state,0)["attack"].has(Vector2i(3,4)),"Charges added after the Overload warning must not enlarge it through conduction")
-	var broken: Dictionary = state.duplicate(true)
-	Surface.place(broken,Vector2i(1,4),"fire")
-	expect(not combat.enemy_threat_tiles(broken,0)["attack"].has(Vector2i(1,4)),"Replacing an announced charge must remove that Overload threat")
+	# The real elemental beat replaces the old snapshotted neighborhood.
+	preload("res://tests/suites/battlefield_rules_suite.gd").mature_fuel(state)
 	var hp: int = state["player"]["hp"]
-	var struck: Dictionary = BossSuite._resolve_boss_turn(state)
-	expect(struck["player"]["hp"]==hp-6,"Overload must hit an actor once for six damage")
-	expect(Surface.tiles(struck,"electrified")==[Vector2i(3,4)],"Overload must consume only the surviving announced charges")
-	broken = BossSuite._resolve_boss_turn(broken)
-	expect(broken["player"]["hp"]==hp,"Replacing the player's charge must avoid the Overload hit")
+	var struck: Dictionary = combat.BattlefieldRules.fire(combat, state.duplicate(true))
+	expect(struck["player"]["hp"] == hp - 5, "Overload's Lightning Storm hits Electrified for five")
 	_declare(struck,3)
 	expect((combat.enemy_threat_tiles(struck,0)["summon"] as Array).is_empty(),"A full Wisp cap must not preview another summon")
 	struck = BossSuite._resolve_boss_turn(struck)
@@ -491,11 +364,11 @@ func _test_eclipse_refuges() -> void:
 	state["player"]["pos"] = snuffed
 	expect(combat.enemy_threat_tiles(state,0)["attack"].has(snuffed),"An unlit brazier must be inside the current Eclipse warning")
 	state = combat.surface_actor_arrival(state,"player",-1,refuge)
-	expect(combat.enemy_threat_tiles(state,0)["attack"].has(snuffed),"Relighting removes darkness, but the announced refuge sweep must remain")
+	expect(not combat.enemy_threat_tiles(state,0)["attack"].has(snuffed),"Relighting removes the Eclipse darkness threat")
 	var hp: int = state["player"]["hp"]
 	state["enemies"][1]["hp"] = 0
 	state = BossSuite._resolve_boss_turn(state)
-	expect(state["player"]["hp"]==hp-5,"The relit refuge trades eight darkness damage for the weaker five-damage sweep")
+	expect(state["player"]["hp"]==hp,"The relit refuge avoids Eclipse with the bespoke sweep removed")
 	var living: int = 0
 	for helper: Dictionary in state["enemies"]:
 		if helper["type"]=="veilbound_acolyte" and helper["hp"]>0: living+=1

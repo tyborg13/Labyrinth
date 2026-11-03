@@ -304,7 +304,7 @@ func before_step(step: Dictionary, activation_steps: Array = []) -> void:
 		_actor = actor
 		if not bool(step.get("hidden_by_umbra",false)):
 			_caption_prefix = str(step.get("actor_name","Enemy"))
-			_caption = "%s: %s" % [_caption_prefix,str(step.get("intent_name",""))]
+			_caption = str(step.get("turn_caption", "%s: %s" % [_caption_prefix,str(step.get("intent_name",""))]))
 		_mark("caption")
 		if not debug_baseline and activation_has_action(actor, activation_steps):
 			# Show the printed intent throughout the lead, including the first
@@ -314,6 +314,12 @@ func before_step(step: Dictionary, activation_steps: Array = []) -> void:
 			var deadline: int = _banner_clock + int(BANNER_LEAD_SECONDS * 1000000.0) if first_enemy else presentation_usec() + int(ENEMY_ACTION_LEAD_SECONDS * 1000000.0)
 			await _wait_until(deadline)
 		_change_phase("intent")
+	elif kind == "intent_callout" and step.has("turn_caption") and not bool(step.get("hidden_by_umbra", false)):
+		# Frozen/Petrified skip the intent step entirely. Establish their caption
+		# before the callout, preserving the existing activation/lead clock.
+		_caption_prefix = str(step.get("actor_name", "Enemy"))
+		_caption = str(step["turn_caption"])
+		scene.call("_set_action_banner", _caption)
 	elif kind == "move":
 		_change_phase("walk")
 	elif is_action_step(step):
@@ -526,6 +532,10 @@ func _release_flashes() -> void:
 		_change_phase("hit reaction / damage number")
 
 func overlap_defeats(before: Dictionary, after: Dictionary, skip_terrain: bool) -> bool:
+	# Burst journals own a sequential impact timeline, including enemy-phase
+	# Bleed/reaction deaths. Retained dissolves cannot present those events.
+	if (after.get("death_burst_events", []) as Array).size() > (before.get("death_burst_events", []) as Array).size():
+		return false
 	if not enemies_active or not (scene.call("_defeated_player_units_between_states", before, after) as Array).is_empty():
 		return false
 	# Terrain destruction retains its existing blocking dependency until its
@@ -549,12 +559,21 @@ func overlap_defeats(before: Dictionary, after: Dictionary, skip_terrain: bool) 
 			entry["sequence"] = sequence
 			entry["duration"] = int(sequence["hold_end_usec"])
 		_deaths.append(entry)
+		_release_held_bodies(units)
 	var order_before: Array[Dictionary]
 	order_before.assign(scene.call("_turn_order_entries_from_state", before))
 	var order_after: Array[Dictionary]
 	order_after.assign(scene.call("_turn_order_entries_from_state", after))
 	present_turn_order(order_before, order_after, scene.call("_turn_order_defeated_actor_keys", before, after))
 	return true
+
+# The retained frame still lists each victim at its held hit pose. Refreshed with
+# the dissolve, that later entry draws over it: the body stands until it vanishes.
+func _release_held_bodies(units: Array[Dictionary]) -> void:
+	if not _last_presentation.has("death_animation_units"): return
+	var dying: Dictionary = {}
+	for unit: Dictionary in units: dying[str(unit.get("key", ""))] = true
+	_last_presentation["death_animation_units"] = (_last_presentation["death_animation_units"] as Array).filter(func(held: Dictionary) -> bool: return not dying.has(str(held.get("key", ""))))
 
 func overlap_surface(before: Dictionary, after: Dictionary, base: Dictionary) -> bool:
 	if not enemies_active:

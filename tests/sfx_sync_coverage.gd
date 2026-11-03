@@ -3,6 +3,7 @@ extends RefCounted
 const REPORT: String = "res://spec/peer_benchmark/staged/sfx/sync_baseline.json"
 const ROUTER: String = "scripts/sfx_cue_router.gd"
 const RUN: String = "scripts/run_scene.gd"
+const CONTACT_COVERAGE: String = "res://tests/fixtures/cutout_contact_sfx_coverage.json"
 
 # The full suite needs only Godot. Encoded audio hashes bind the expensive
 # sound-lab measurements to the exact bytes; source coverage is identified by
@@ -80,6 +81,9 @@ static func verify_request(row: Dictionary, cues: Dictionary, failures: Array[St
 
 static func verify(rows: Array[Dictionary], silences: Array[Dictionary], cues: Dictionary, failures: Array[String]) -> void:
 	var report: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(REPORT))
+	# Additive cue × site requirements leave the approved baseline untouched.
+	var contacts: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(CONTACT_COVERAGE))
+	report["cue_site_pairs"].append_array(contacts["cue_site_pairs"])
 	var sites: Dictionary = inventory(cues)
 	var visited: Dictionary = {}
 	var pairs: Dictionary = {}

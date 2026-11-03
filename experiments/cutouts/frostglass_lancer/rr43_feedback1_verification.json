@@ -1,0 +1,1339 @@
+{
+  "unit": "rr-43",
+  "round": "feedback1",
+  "head": "d1d4d00740b4ceb70d288eea8f7d7260dff9f9d4",
+  "uncommitted": true,
+  "no_windowed_runs": true,
+  "acceptance": {
+    "1": "Exact protected recipe/processed PNG replay, re-registered job/provenance/sheet, all 17 rear metric rows PASS or INFO; consistency in band.",
+    "2": "Same 82 ownership masks and source/production geometry/recipes; only whole-silhouette RGB changes. Both assemblies 0px mismatch. Hidden/interior paint preserved except the outer edge.",
+    "3": "Front art, rr-41 lining, front spear/grip/continuity, compiled motion/timing and staged inputs protected; both current 512-frame inventories have zero failures.",
+    "4": "Generic gate tool byte-identical; existing native recipe still rejects extra outline/match steps.",
+    "5": "Successful headless import before full suites. Exact totals and persistent base comparisons below; no out-of-unit fixes.",
+    "6": "All six windowed commands and capture paths in rr37/rr43/FEEDBACK1.md; owner executes and judges."
+  },
+  "artifacts_sha256": {
+    "spec/art_identity/jobs/frostglass_lancer/mq14_rear_v2/processed.png": "85845e1e0c66ab760afd6671390dfab71f5a20c7e62c3e8b1420b74250c7e8b7",
+    "spec/art_identity/jobs/frostglass_lancer/mq14_rear_v2/review_sheet.png": "14fbb17da86a12e39c1402c767ae84b02fa9d5cf158e7b6e68238f732453bbc2",
+    "experiments/cutouts/frostglass_lancer/rr37/rr43/rear_outline_manifest.json": "429afe4dda2ce0f915634731d553aa1b72f7c64f4dc5fab0bfdbddc5f62a48d9",
+    "experiments/cutouts/frostglass_lancer/rr37/proof/logs/production_frames.json": "f90ff0f831812d2452e827f7d21597720b87fb8a2fa2e6709ad436af536d919f",
+    "experiments/cutouts/frostglass_lancer/rr37/proof/rr43_gameplay_logic/manifest.json": "10000b24e4001c1544498c52e1e0f609665d1a62ad415975b824b27a4c07ed8b",
+    "experiments/cutouts/frostglass_lancer/rr37/proof/rr43_gameplay_logic/sprite_geometry/geometry.json": "d3f3c328ca81aac06258a480b54520668c3467c6ad437cca1114780711d5c610"
+  },
+  "gate_metrics": [
+    {
+      "metric": "rear.height",
+      "value": 227,
+      "band": null,
+      "status": "INFO"
+    },
+    {
+      "metric": "rear.width",
+      "value": 159,
+      "band": null,
+      "status": "INFO"
+    },
+    {
+      "metric": "rear.height_drawn",
+      "value": 227.0,
+      "band": [
+        226,
+        255
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.symmetry",
+      "value": 0.7137578998541565,
+      "band": [
+        null,
+        0.86
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.thin_abs",
+      "value": 0.005533943345570114,
+      "band": [
+        null,
+        0.06
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.thin_rel",
+      "value": 0.07435209029642209,
+      "band": [
+        null,
+        0.12
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.feature_px",
+      "value": 5.501545086757465,
+      "band": [
+        4.4,
+        null
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.regions",
+      "value": 603,
+      "band": null,
+      "status": "INFO"
+    },
+    {
+      "metric": "rear.chroma",
+      "value": 0.12949255533674758,
+      "band": [
+        null,
+        0.2
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.value",
+      "value": 0.23073612834537136,
+      "band": [
+        0.12,
+        0.4
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.edge_light_share",
+      "value": 0.0,
+      "band": [
+        null,
+        0.06
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.orphan_share",
+      "value": 0.1583474878088872,
+      "band": null,
+      "status": "INFO"
+    },
+    {
+      "metric": "rear.run_length",
+      "value": 1.8232767232767233,
+      "band": null,
+      "status": "INFO"
+    },
+    {
+      "metric": "rear.art_scale",
+      "value": 1.0,
+      "band": [
+        0.75,
+        1.2
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.fit_scale",
+      "value": 1.0,
+      "band": null,
+      "status": "INFO"
+    },
+    {
+      "metric": "rear_consistency.chroma_delta",
+      "value": 0.006822991973786954,
+      "band": [
+        0,
+        0.03
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear_consistency.value_delta",
+      "value": 0.017374465827681623,
+      "band": [
+        0,
+        0.03
+      ],
+      "status": "PASS"
+    }
+  ],
+  "checks": {
+    "import": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/import.log",
+      "sha256": "3287aa3db63951a8be71a2cb107f714cb38a4437e1c1fdbc1d9cbb7124f18517",
+      "exact_result_lines": []
+    },
+    "record-steps": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/record-steps.log",
+      "sha256": "a3be34426d2286cffadbbb4fc3f9bb2c1c892dca9b797979a4ba8989bdb691ba",
+      "exact_result_lines": []
+    },
+    "process": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/process.log",
+      "sha256": "f7d315b6dbb8ce2bc0f40c16db090f094da4b69f58bdff3850a59b78ecca56fa",
+      "exact_result_lines": []
+    },
+    "replay": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/replay.log",
+      "sha256": "44d3a61891ba0a240a11b15f3ede21f14c9e059a85980e8cc650fee8619a4c1c",
+      "exact_result_lines": [
+        "ART IDENTITY REPLAY: PASS spec/art_identity/jobs/frostglass_lancer/mq14_rear_v2/kit.json"
+      ]
+    },
+    "art-registry": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/art-registry.log",
+      "sha256": "43dd3a7a6acc357b1a1b3ec499256d3a4c7ca8b96024de65df5b84266941b250",
+      "exact_result_lines": [
+        "ART IDENTITY CHECK: PASS (0 failures, 0 pending_reart warnings, 0 skipped replays)"
+      ]
+    },
+    "art-tests": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/art-tests.log",
+      "sha256": "6884ff7f3437c7fdd48c901b44ee41a4c05eb25296d85c7da535c692980ad247",
+      "exact_result_lines": [
+        "Ran 111 tests in 133.837s",
+        "OK"
+      ]
+    },
+    "references": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/references.log",
+      "sha256": "4c67bf0a6b2a0dd111ddaf23356e9443e349f2fccda7b29a593eafb3bab1ffc5",
+      "exact_result_lines": [
+        ".........................................................................................................................RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)",
+        "RR22 COMPACT SAMPLES: PASS (1214 poses; full evidence in proof/logs/samples_full.json)",
+        "Ran 168 tests in 617.369s",
+        "OK",
+        "RR32 CPU COVERAGE: PASS (1 frames; 0 error frames; NOT native proof)",
+        "RR32 CPU SEAMS: PASS (1 frames; 0 joint tears; 0 stray components; NOT native proof)"
+      ]
+    },
+    "focused-final": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/focused-final.log",
+      "sha256": "a03e57d1cd2ac82df5d7ce1978c15ede323265198b1f87ec26ab115b87c3a6aa",
+      "exact_result_lines": [
+        "Ran 14 tests in 149.654s",
+        "OK",
+        "RR43 DIRECTOR REPLAY: PASS (raw, recipe, prompt and processed bytes exact)",
+        "RR43 RIGID SPEAR: PASS (every front frame; shaft line through grip; hand occlusion only)",
+        "RR43 PRESERVATION: PASS (front/rest, rr-41 lining and motion protected; exact wood transfer)",
+        "RR43 GRIP REGISTRATION: PASS (painted grip required; retired shaft-tail backing absent)",
+        "RR43 REAR FRINGE MUTATION: PASS (shaft outline cannot ride cloak/boot)",
+        "RR43 SPEAR MUTATIONS: PASS (literal lower-shaft split with identical rest art, split transform/bone, erased shaft all rejected)",
+        "RR43 OUTLINE PARTITION: PASS (both scopes; alpha/geometry/recipes exact; no inner-edge or hidden-fill repaint)",
+        "RR43 INNER-EDGE MUTATION: PASS (a cut boundary cannot become a new outline)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)"
+      ]
+    },
+    "historical": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/historical.log",
+      "sha256": "af4e4875af62c721b5b3b12999519169c01e1f44717e5348aabdf164d246c425",
+      "exact_result_lines": [
+        "test_all_64_director_errors_resolve_as_exact_source_edge_ties (tests.test_rr39_native_ties.RetainedNativeTieTests) ... RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR39 OUTSIDE-CLOAK MUTATION: PASS (reviewer texel [378,311] rejected)",
+        "RR39 RR37 NATIVE REJECTION: PASS (17 rejected frames; 2 clean rest controls)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR39 RETAINED BINDINGS: PASS (55 absent optional zero certificates; geometry and paint strict)",
+        "Ran 11 tests in 214.156s",
+        "OK",
+        "RR39 NATIVE UNCOVERED TIES: PASS (64 resolved: 33 outline, 31 missing; 0 remaining; exact retained native pixels)"
+      ]
+    },
+    "source-gates": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/source-gates.log",
+      "sha256": "5a5d5a1d1a0999f815d768b706b8cf85d9a97aba909b9fab50ff9934735e6ce4",
+      "exact_result_lines": [
+        "RR37 ALL GATES: PASS (0 unique errors; native=False)"
+      ]
+    },
+    "production-gates": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/production-gates.log",
+      "sha256": "5a5d5a1d1a0999f815d768b706b8cf85d9a97aba909b9fab50ff9934735e6ce4",
+      "exact_result_lines": [
+        "RR37 ALL GATES: PASS (0 unique errors; native=False)"
+      ]
+    },
+    "material": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/material.log",
+      "sha256": "fda410ea8877e4eb9912c68098e352e87561125206b15aa068c0943fe8361fa8",
+      "exact_result_lines": [
+        "RR37 D1: PASS (54 frames; native=False; defects=0)",
+        "RR37 D2: PASS (54 frames; native=False; defects=0)",
+        "RR37 D3: PASS (54 frames; native=False; defects=0)",
+        "RR37 D4: PASS (54 frames; native=False; defects=0)",
+        "RR37 D5: PASS (54 frames; native=False; defects=0)"
+      ]
+    },
+    "preservation": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/preservation.log",
+      "sha256": "56ea2875ee1b6720d751f5474750caa7cf75caefa4ef6c63214bfde1261232c4",
+      "exact_result_lines": [
+        "RR37 PRESERVATION: PASS (5563 protected files; other rigs byte-identical)"
+      ]
+    },
+    "density": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/density.log",
+      "sha256": "8fb2a1ab0282e1f033f4e93ad1bba9cf2245c459c35d87383b199bf0c9ac531a",
+      "exact_result_lines": [
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)",
+        "RR37 DENSITY PAINT: PASS (both views adopted/processed; native rest pending director)"
+      ]
+    },
+    "rest-samples": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/rest-samples.log",
+      "sha256": "01fd4d61cfe6a8554a12ee2f7bd3eb5133341c4359b1f6bfd72d07db948b5026",
+      "exact_result_lines": [
+        "RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR41 PRODUCTION REST SEAL: PASS (front=0px rear=0px; native-equivalent CPU; windowed proof pending)",
+        "RR37 COMPACT SAMPLES: PASS (1396 poses; full transforms in ignored logs)",
+        "RR37 COMPACT SAMPLES: PASS (1396 poses; full transforms in ignored logs)"
+      ]
+    },
+    "samples-final": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/samples-final.log",
+      "sha256": "b4911ac6b9a98c8e0aaa6c82180c9d66a39999ee1c585f3b5fae1c3abb951909",
+      "exact_result_lines": [
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR37 COMPACT SAMPLES: PASS (1396 poses; full transforms in ignored logs)",
+        "RR37 COMPACT SAMPLES: PASS (1396 poses; full transforms in ignored logs)"
+      ]
+    },
+    "shadow": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/shadow.log",
+      "sha256": "29b91204ffab48174318c7f53b58d27b88843ae3a11120a800d46b81964c2837",
+      "exact_result_lines": [
+        "RR37 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ]
+    },
+    "audit": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/audit.log",
+      "sha256": "1b266f41ac1d17f7f4077a7601f939d69333476a6a90670984731e5f1a8f0146",
+      "exact_result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (854 scripts; full suite=500, quarantined=29, windowed probe=325)"
+      ]
+    },
+    "density-check": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/density-check.log",
+      "sha256": "fc0805f5b885ebfa08b1ef349d1c7530594734c814cbaf6d4a218eda454d3c77",
+      "exact_result_lines": [
+        "CHECK-OK"
+      ]
+    },
+    "native-load": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/native-load.log",
+      "sha256": "1f528652220f820c2ecea343311a953ab3ddeacd909c94f334f85a288280e852",
+      "exact_result_lines": [
+        "RR37 NATIVE PROBE LOAD: PASS"
+      ]
+    },
+    "preview": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/preview.log",
+      "sha256": "8a3b2293c5eaa75701e764ec8031cc355567f345667735d93f1626f8d1698fdc",
+      "exact_result_lines": [
+        "RR43 SOFTWARE PREVIEWS: PASS (16 fixed-camera frames; /Users/borgerding/workspace/Labyrinth.worktrees/rr-43/experiments/cutouts/frostglass_lancer/rr37/proof/rr43_software; NOT native proof)"
+      ]
+    },
+    "gameplay": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/gameplay.log",
+      "sha256": "070db13eccb126c9b074b1301dcf5f0e671f01c0bf934acc3a15db88d6d0198b",
+      "exact_result_lines": [
+        "FROSTGLASS GAMEPLAY PROBE: PASS"
+      ]
+    },
+    "briar-current": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/briar-current.log",
+      "sha256": "901bc6234605a163bf395aa8b9de8b51b52f5adc2cd3efa8495123ca49269f03",
+      "exact_result_lines": [
+        "Ran 2 tests in 0.002s",
+        "FAILED (errors=2)"
+      ]
+    },
+    "briar-base": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/briar-base.log",
+      "sha256": "dfdfec339b095149735b8e5f32641dadab5a6adfdf6a4d4c75ab38a29ebb3a8e",
+      "exact_result_lines": [
+        "Ran 2 tests in 0.001s",
+        "FAILED (errors=2)"
+      ]
+    },
+    "base-import": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/base-import.log",
+      "sha256": "c0839f42ad468eafd7d5909f44d8fe818a5a91a3181d22eeb71b736e093c8602",
+      "exact_result_lines": []
+    },
+    "base-prepare": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/base-prepare.log",
+      "sha256": "2ae099b9f45bd63330d6f7409b8c315728b90bf34565a31e6ff0e15510e61b8a",
+      "exact_result_lines": []
+    },
+    "no-action": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/no-action.log",
+      "sha256": "80f76538e4176d7ddab24da24432d76b641a417014f88810d76650c71bf2a397",
+      "exact_result_lines": [
+        "ENEMY NO ACTION TEST RESULT: PASS (1043 assertions; 0 failures)"
+      ]
+    },
+    "fix11-test": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/fix11-test.log",
+      "sha256": "9eb3a4b849bb711de6ac32db4d8eef715d9eaba4bec9de53c56b1ccf89ca2aa4",
+      "exact_result_lines": [
+        "FIX-11 TEST RESULT: PASS (162 checks, 0 failures)"
+      ]
+    },
+    "fix11-probe": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/fix11-probe.log",
+      "sha256": "74daf832f64f749fac56404288b95a2ad5e3e316261695fa73ca648b8030f391",
+      "exact_result_lines": []
+    },
+    "fix11-probe-check": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/fix11-probe-check.log",
+      "sha256": "9cf65109269b9fe7067779303f6a227fab30704bc6d3f20e2f137d6c491388dd",
+      "exact_result_lines": [
+        "FIX-11 PROBE CONTRACT: PASS (128 checks; 1920x1080, UI scale 100%)"
+      ]
+    },
+    "spx": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/spx.log",
+      "sha256": "6db1ff8581545c63e12f3ed43f1a9fa3ecded265fec9b130d8a28915ccb3c7ee",
+      "exact_result_lines": [
+        "SPX special encounter suite: 0 failures"
+      ]
+    },
+    "retained-inventory": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/retained-inventory.log",
+      "sha256": "83671acb61d0a30f8304c7e78cfa317b155654278943e28991d606f71b2aa6b0",
+      "exact_result_lines": [
+        "CHARACTER RETENTION RESULT: {\"cases\":120,\"differences\":0,\"errors\":[],\"orphan_nodes\":0,\"preparation_frames\":4143}"
+      ]
+    },
+    "reseal": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/reseal.log",
+      "sha256": "b7ad746c098de94d806d52993bac79290a4261a2bc987c1ca5e5912a0fb9305b",
+      "exact_result_lines": [
+        "RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR39 PRODUCTION REST SEAL: PASS (front=0px rear=0px; native-equivalent CPU; windowed proof pending)"
+      ]
+    },
+    "reseal-test": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/reseal-test.log",
+      "sha256": "16eb75262e750aaa3ed261f30c43cde57d2716b7506d35db1f4ec1c08ae02ef7",
+      "exact_result_lines": [
+        "RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)",
+        "OK",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)",
+        "RR41 REST/DENSITY RESEAL: PASS (fresh Godot rest-pose digest and both density evidence hashes byte-identical)"
+      ]
+    },
+    "manifest-seal": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/manifest-seal.log",
+      "sha256": "57d1c4915b3278f531a5dea16d4826a29ace5f695cc7e1d1463bbda0cdc89245",
+      "exact_result_lines": [
+        "RR43 OUTLINE MANIFEST: PASS (source/production invariants exact; production rest=0px)"
+      ]
+    },
+    "outline-final": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/outline-final.log",
+      "sha256": "107cfc15cd6fb5adaa45a7627b7858ebb31cf14322f0c11c0ac2bf5b00711019",
+      "exact_result_lines": [
+        "Ran 5 tests in 25.218s",
+        "OK",
+        "RR43 OUTLINE PARTITION: PASS (both scopes; alpha/geometry/recipes exact; no inner-edge or hidden-fill repaint)",
+        "RR43 INNER-EDGE MUTATION: PASS (a cut boundary cannot become a new outline)"
+      ]
+    },
+    "movement-retry": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/movement-retry.log",
+      "sha256": "9d69996018ffbe7ad20902889fe7df470cccc0276436740be94fe989cfdb101a",
+      "exact_result_lines": [
+        "OK"
+      ]
+    },
+    "movement-base": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/movement-base.log",
+      "sha256": "884cc2f8aa277fb9cebbe9774d4c01280a2df2e1646b5c953ed5b284b219829b",
+      "exact_result_lines": [
+        "OK"
+      ]
+    },
+    "movement-final-isolated": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/movement-final-isolated.log",
+      "sha256": "695833eb44c6d609bc3f7ce7da2295066a057d2c99cebc4d46140f1dd88a174b",
+      "exact_result_lines": [
+        "OK"
+      ]
+    },
+    "full-python-final": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/full-python-final.log",
+      "sha256": "889c4e5833ac85a08847c288705cc6dc9beb7311b8454f71d2c04f6835102e59",
+      "exact_result_lines": [
+        "CHECK-OK",
+        "CHECK-OK",
+        "RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-wtqms_gy/old_review.mp4)",
+        "RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-wtqms_gy/new_review.mp4)",
+        "RR10 IDLE: PASS (30 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-wtqms_gy/old_idle.mp4)",
+        "RR10 IDLE: PASS (30 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-wtqms_gy/new_idle.mp4)",
+        "RR10 SHEETS: PASS (4 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-wtqms_gy/old_sheets)",
+        "RR10 SHEETS: PASS (4 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-wtqms_gy/new_sheets)",
+        "RR10 REVIEW: PASS (84 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-director-_rdny7vx/proof/seer/review.mp4)",
+        "CAPTURE PRODUCTION GATES: PASS (0 errors; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-production-9nix0m69/combined)",
+        "DEMO VISUAL PROOF: PASS (1 clips)",
+        "ENCOUNTER BASELINE: PASS (2100 runs; revision 7; 15 groups); /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpqny6t9qr/baseline.md",
+        "INT04 COLOUR MUTATIONS: PASS (unit-head geometry, gait targets and alpha caught)",
+        "INT04 COMPILED SPEC MUTATION: PASS (foreign unit-head recipe change caught)",
+        "INT04 COORDINATED EDIT MUTATION: PASS (mq-05; matching spec_hash cannot authorize foreign edits)",
+        "INT04 COORDINATED EDIT MUTATION: PASS (mq-07; matching spec_hash cannot authorize foreign edits)",
+        "INT04 COORDINATED EDIT MUTATION: PASS (mq-08; matching spec_hash cannot authorize foreign edits)",
+        "INT04 COORDINATED EDIT MUTATION: PASS (mq-09; matching spec_hash cannot authorize foreign edits)",
+        "INT04 EXACT HASH MUTATION: PASS (allowlisted path still requires the pinned endpoint bytes)",
+        "INT04 FOREIGN ADDITION MUTATION: PASS (all four units; only owned floor entries may change)",
+        "INT04 HASH TABLE MUTATION: PASS (foreign historical bytes and own live bytes enforced)",
+        "INT04 LIVE LANCER MUTATION: PASS (mq-05; cloth and solids use historical input)",
+        "INT04 LIVE LANCER MUTATION: PASS (mq-07; cloth and solids use historical input)",
+        "INT04 LIVE LANCER MUTATION: PASS (mq-08; cloth and solids use historical input)",
+        "INT04 LIVE LANCER MUTATION: PASS (mq-09; cloth and solids use historical input)",
+        "INT04 RECIPE DELETION MUTATION: PASS (mq-09; omitted inventory entry is rejected)",
+        "INT04 RANGE MUTATION: PASS (committed foreign edit caught; later commits/working edits ignored)",
+        "INT04 REGENERATION MUTATIONS: PASS (foreign historical recipe caught; native/own inputs and new modules still guarded)",
+        "INT04 REGISTRY MUTATION: PASS (foreign historical entry caught; own live inputs pinned)",
+        "INT05 BINDING MUTATION: PASS (top-level inputs allowed; nested payload change rejected)",
+        "INT05 SEER RANGE MUTATION: PASS (in-range edit caught; later commits and working bytes ignored)",
+        "GAOLER REBUILD: PASS (882 files)",
+        "test_feature_derivation_runs_end_to_end_on_isolated_approved_paint_fixture (test_maquette_pixel_polish.PixelPresentationTests) ... MAQUETTE FADED REFERENCE: PASS (zero/cull alpha empty; one half-visible part compared; tampered transforms rejected)",
+        "MAQUETTE REFERENCE MASKS: PASS (8 Godot image-operation masks = independent Pillow; no renderer claim)",
+        "MAQUETTE NATIVE ALPHA: PASS (death/0069 and /0070: 0px mask diff; old /0070 model invented 13007px)",
+        "MAQUETTE CROP ANCHOR: PASS (504 front poses; maximum source-affine residual 0.000027135)",
+        "test_current_deliveries_pass_hash_bound_fit_pose_and_native_gates (test_mq09_maquettes.DeliveryTests) ... MAQUETTE FEATURE DERIVATION: PASS (isolated one-pixel fixture; both approved views reconstruct exactly)",
+        "MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)",
+        "MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)",
+        "MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)",
+        "MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)",
+        "MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)",
+        "MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)",
+        "SHRIKE PRODUCTION REEL: PASS /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-3bbdapzg/shrike/png/production_reel.mp4",
+        "SHRIKE PRODUCTION REEL: PASS /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-3bbdapzg/shrike/webp/production_reel.mp4",
+        "SHRIKE PRODUCTION REEL: PASS /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-3bbdapzg/shrike/rgba/production_reel.mp4",
+        "PROOF VIEWPORT SETTINGS: PASS (135 viewports; no renderer capture)",
+        "PROOF RENDER DEFAULTS: PASS [{\"canvas_item_default_texture_filter\": 1, \"canvas_item_default_texture_repeat\": 0, \"msaa_2d\": 2, \"snap_2d_transforms_to_pixel\": false, \"snap_2d_vertices_to_pixel\": false, \"use_hdr_2d\": false}, {\"canvas_item_default_texture_filter\": 1, \"canvas_item_default_texture_repeat\": 0, \"msaa_2d\": 0, \"snap_2d_transforms_to_pixel\": false, \"snap_2d_vertices_to_pixel\": false, \"use_hdr_2d\": false}]",
+        "PROOF CASE MOTION CLOSURE: PASS (15 case roots)",
+        "PROOF CASE MOTION CLOSURE: PASS (15 case roots)",
+        "PROOF CASE MOTION CLOSURE: PASS (15 case roots)",
+        "RR10 SHEETS: PASS (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr10-sheet-fixture-ox25bdrz/sheets)",
+        "RR10 ATTACHMENT TRANSFORMS: PASS (629 poses; max wrist snap separation 1.368480 px)",
+        "RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)",
+        "RR14 SEER RANGE IDENTITY: PASS (777 files; only two input-binding objects excluded)",
+        "RR16 THRALL POSE IDENTITY: PASS (1050 exact rows)",
+        "RR16 SEER POSE IDENTITY: PASS (1258 exact rows)",
+        "RR16 SUPPORT MODES: PASS (4 views/configurations)",
+        "RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)",
+        "RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)",
+        "RR22 COMPACT SAMPLES: PASS (1214 poses; full evidence in proof/logs/samples_full.json)",
+        "RR27 POSE ROW IDENTITY: PASS (1050 rows; 0 changed raw rows)",
+        "RR27 PAINT/REST/MOTION IDENTITY: PASS (440 protected files; 4 authorized copy-removal outputs; 0 unexpected)",
+        "RR29 RR20 RANGE MUTATION: PASS (in-range input caught; later commits and working bytes ignored)",
+        "RR29 RR28 RANGE MUTATION: PASS (actual layout assertion rejects in-range edit; later repair cannot hide it)",
+        "RR29 COMMITTED SCOPE MUTATION: PASS (clean committed foreign rig/case edits rejected against integration)",
+        "RR29 REAR PROMPT TAMPERING: PASS (job revision, canonical revision and reordered chain rejected)",
+        "RR30 FRONT CPU COVERAGE AND JOINT GATES: PASS (431 frames; 0 errors)",
+        "RR30 REAR CPU COVERAGE AND JOINT GATES: PASS (431 frames; 0 errors)",
+        "test_all_eleven_cpu_observations_are_clean (test_rr31_finish_seams.SourceSeamTests) ... RR31 SEAM CPU TARGETS: PASS (11/11 clean)",
+        "test_all_legal_native_uv_choices_cover_the_seven_observed_holes (test_rr31_finish_seams.SourceSeamTests) ... RR31 NATIVE-POSE SOURCE COVERAGE: PASS (7/7 holes covered for every legal UV tie; CPU source replay)",
+        "RR32 CPU COVERAGE: PASS (1 frames; 0 error frames; NOT native proof)",
+        "RR32 CPU SEAMS: PASS (1 frames; 0 joint tears; 0 stray components; NOT native proof)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1305 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1305 frames)",
+        "test_actual_board_walk_and_planted_supports (test_rr32_production.HeraldProductionTests) ... RR32 FRONT PRODUCTION WALK/SUPPORTS: PASS",
+        "RR32 REAR PRODUCTION WALK/SUPPORTS: PASS",
+        "test_contacts_existing_sounds_outcomes_and_poses_both_views (test_rr32_production.HeraldProductionTests) ... RR32 FRONT PRODUCTION CONTACTS/POSES: PASS",
+        "RR32 REAR PRODUCTION CONTACTS/POSES: PASS",
+        "test_production_rest_and_actual_runtime_headless_frames (test_rr37_feedback1.FeedbackTests) ... RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR37 FRONT PRODUCTION FRAMES: PASS (512 frames; 0 failures; software raster, native runtime poses)",
+        "RR37 REAR PRODUCTION FRAMES: PASS (512 frames; 0 failures; software raster, native runtime poses)",
+        "test_rejected_round2_native_frames_fail_every_requested_pose (test_rr37_feedback3.UncoveredTests) ... RR37 REJECTED NATIVE REGRESSION: PASS (6 rejected frames + 1 unchanged rear-idle control; components and joint seams detected)",
+        "RR37 REJECTED PRODUCTION RASTER: PASS (detects 6 components > rest 1)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 ROUND3 UNCOVERED CPU: PASS (7 production-rest poses; not native proof)",
+        "test_committed_tree_ties_without_ignored_inputs (test_rr39_clean_checkout.CleanCheckoutTests) ... RR37 ROUND2 UNCOVERED REGRESSION: PASS (all 5 requested native failures rejected; 2 rest controls clean)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1634 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1634 frames)",
+        "RR39 RETAINED BINDINGS: PASS (55 absent optional zero certificates; geometry and paint strict)",
+        "RR39 NATIVE UNCOVERED TIES: PASS (64 resolved: 33 outline, 31 missing; 0 remaining; exact retained native pixels)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR39 OUTSIDE-CLOAK MUTATION: PASS (reviewer texel [378,311] rejected)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR39 UNDERLAY: PASS (protected hashes; complete 2622px footprint; exact texels and air; both rests 0px)",
+        "RR39 RR37 NATIVE REJECTION: PASS (17 rejected frames; 2 clean rest controls)",
+        "Ran 31 tests in 158.408s",
+        "OK",
+        "RR39 CLEAN CHECKOUT: PASS (HEAD d1d4d00740b4ceb70d288eea8f7d7260dff9f9d4; 0 ignored input files; scoped fix overlay=0 files)",
+        "test_all_64_director_errors_resolve_as_exact_source_edge_ties (test_rr39_native_ties.RetainedNativeTieTests) ... RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR39 OUTSIDE-CLOAK MUTATION: PASS (reviewer texel [378,311] rejected)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR39 UNDERLAY: PASS (protected hashes; complete 2622px footprint; exact texels and air; both rests 0px)",
+        "RR39 RR37 NATIVE REJECTION: PASS (17 rejected frames; 2 clean rest controls)",
+        "RR39 RETAINED BINDINGS: PASS (55 absent optional zero certificates; geometry and paint strict)",
+        "test_every_front_pose_and_rounding_choice_has_no_unpainted_exposure (test_rr41_feedback1.FeedbackTests) ... RR39 NATIVE UNCOVERED TIES: PASS (64 resolved: 33 outline, 31 missing; 0 remaining; exact retained native pixels)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR41 BOUNDARY MUTATION: PASS (reviewer UVs [141,149], [141,150] rejected in lunge 42)",
+        "test_all_review_walk_and_near_tie_restorations_fail (test_rr41_feedback3.WalkingTests) ... RR41 ALL FRONT ROUNDING: PASS (2048 UV/pose cases; 512 poses x 4 choices; every clip including move; no fresh native capture)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)",
+        "RR41 EXTENSION RECIPE MUTATION: PASS (gait and clip targets retired on both cloaks)",
+        "RR41 NATIVE BOUNDARY MUTATION: PASS (legal palette colour cannot choose a painted UV certificate)",
+        "RR41 NATIVE MISSING-PAINT MUTATION: PASS (no opaque source candidate can become certified air)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR41 OWNERSHIP SWAP: PASS (source and production independently reject far-to-near UV [112,142])",
+        "RR41 DEATH82 RECOLOUR MUTATION: PASS (unpainted native hand texel still fails)",
+        "RR41 DEATH82 ROUNDING: PASS (same phase; recorded hand UV [127,143], reconstructed UV [127,142])",
+        "RR41 RETAINED DEATH82: PASS (old sampling rejects 1 painted texel; recorded transforms yield 0 errors)",
+        "RR41 SOFTWARE DEATH82 REGRESSION: PASS (old oracle fails; 4 recorded rigid/mesh UV choices pass)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (guard 8; choice 1; UV (145, 159))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (guard 8; choice 3; UV (145, 159))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (lunge 13; choice 0; UV (155, 174))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (lunge 13; choice 2; UV (155, 174))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (guard 13; choice 0; UV (144, 155))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (guard 13; choice 0; UV (155, 174))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (guard 13; choice 2; UV (144, 155))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (guard 13; choice 2; UV (155, 174))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (guard 14; choice 0; UV (144, 155))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (guard 14; choice 0; UV (155, 174))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (guard 14; choice 2; UV (144, 155))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (guard 14; choice 2; UV (155, 174))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 12; choice 2; UV (122, 148))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 12; choice 3; UV (122, 148))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 32; choice 2; UV (122, 148))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 32; choice 3; UV (122, 148))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 8; choice 1; UV (131, 201))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 8; choice 3; UV (131, 201))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 23; choice 1; UV (131, 201))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 23; choice 3; UV (131, 201))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 25; choice 1; UV (131, 201))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 25; choice 3; UV (131, 201))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 27; choice 1; UV (131, 201))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 27; choice 3; UV (131, 201))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 29; choice 1; UV (131, 201))",
+        "RR41 REAL PROCEDURAL MUTATION: PASS (move 29; choice 3; UV (131, 201))",
+        "test_disabling_each_adopted_guard_is_detected (test_rr41_feedback3.WalkingTests) ... RR41 REAL PROCEDURAL MUTATIONS: PASS (12 prior near-tie restorations + 14 walk restorations; none survive)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2497 cape_near=1; outside source=398px production=403px)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)",
+        "RR41 OWNERSHIP SWAP: PASS (source and production independently reject far-to-near UV [112,142])",
+        "RR41 DISABLED-GUARD MUTATION: PASS (test_ownership_swap_fails_independently_in_source_and_production)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR41 DISABLED-GUARD MUTATION: PASS (test_boundary_recolouring_inside_independent_vacated_region_fails)",
+        "RR41 DISABLED-GUARD MUTATION: PASS (test_retained_native_frame_rejects_old_sampling_and_accepts_original_paint)",
+        "RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)",
+        "test_every_frame_of_every_front_clip_uses_paint (test_rr41_lancer.LegLiningTests) ... RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)",
+        "RR41 REST/DENSITY RESEAL: PASS (fresh Godot rest-pose digest and both density evidence hashes byte-identical)",
+        "RR41 WALK PAINT/RECIPES: PASS (2 exact director UVs; source, production and proof; gait/clip writes retired)",
+        "RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "Ran 2004 tests in 7835.722s",
+        "FAILED (failures=1, errors=2, skipped=66)",
+        "RR41 FRONT PAINT PROVENANCE: PASS (512 frames; every clip; 0 procedural leg texels)",
+        "RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)",
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)",
+        "RR41 OLD BANDED FILL MUTATION: PASS (4 lunge/pin frames rejected)",
+        "RR43 DIRECTOR REPLAY: PASS (raw, recipe, prompt and processed bytes exact)",
+        "RR43 RIGID SPEAR: PASS (every front frame; shaft line through grip; hand occlusion only)",
+        "RR43 PRESERVATION: PASS (front/rest, rr-41 lining and motion protected; exact wood transfer)",
+        "RR43 GRIP REGISTRATION: PASS (painted grip required; retired shaft-tail backing absent)",
+        "RR43 REAR FRINGE MUTATION: PASS (shaft outline cannot ride cloak/boot)",
+        "RR43 SPEAR MUTATIONS: PASS (literal lower-shaft split with identical rest art, split transform/bone, erased shaft all rejected)",
+        "RR43 OUTLINE PARTITION: PASS (both scopes; alpha/geometry/recipes exact; no inner-edge or hidden-fill repaint)",
+        "RR43 INNER-EDGE MUTATION: PASS (a cut boundary cannot become a new outline)"
+      ]
+    },
+    "full-godot-final": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/full-godot-final.log",
+      "sha256": "61929c59349e325c5bce2e73070dc7b010b27de393aa0d7c3bc40d283a9d1cf0",
+      "exact_result_lines": [
+        "Map 02 metrics: PASS (50 seeds x 6 sections)",
+        "Section map structural rejection: PASS (2500 proposals, 50 exhausted batches, 536ms)",
+        "Map 02 probe setup: PASS (9 full-visibility sections; no captures)",
+        "TEST REGISTRATION AUDIT: PASS (854 scripts; full suite=500, quarantined=29, windowed probe=325)",
+        "MAIN BODY RUNTIME: 365.269 seconds",
+        "MAIN BODY ASSERTIONS: 495562",
+        "EN04 ENEMIES TEST RESULT: PASS (353 checks, 0 failures)",
+        "PROGRAM SUITE en04_enemies_test: PASS",
+        "EN05 ENEMIES TEST RESULT: PASS (171 checks, 0 failures)",
+        "PROGRAM SUITE en05_enemies_test: PASS",
+        "EN06 ENEMIES TEST RESULT: PASS (178 checks, 0 failures)",
+        "PROGRAM SUITE en06_enemies_test: PASS",
+        "STATIC FACING TEST RESULT: PASS (2 checks, 0 failures)",
+        "PROGRAM SUITE static_facing_test: PASS",
+        "FLOATING COMBAT TEXT TEST RESULT: PASS",
+        "COMBAT FEEL TEST RESULT: PASS",
+        "PROGRAM SUITE combat_feel_test: PASS",
+        "COMBAT PACING MUTATION TEST RESULT: PASS",
+        "PROGRAM SUITE combat_pacing_mutation_test: PASS",
+        "PROGRAM SUITE event_view_test: PASS",
+        "PROGRAM SUITE event_rules_test: PASS",
+        "BIOME RESULT: PASS (503 checks, 0 failures)",
+        "PROGRAM SUITE biome_test: PASS",
+        "HEALTH GHOST TRACKER SUITE: PASS",
+        "HEALTH BAR THEME SUITE: PASS",
+        "HEALTH GHOST LONG-FRAME REGRESSION: PASS",
+        "HEALTH GHOST INTEGRATION SUITE: PASS",
+        "HEALTH GHOST TEST RESULT: PASS",
+        "PROGRAM SUITE health_ghost_test: PASS",
+        "PROGRAM SUITE movement_undo_test: PASS",
+        "THREATS AT REST TEST RESULT: PASS (612 assertions; includes compass suite)",
+        "PROGRAM SUITE threats_at_rest_test: PASS",
+        "PROGRAM SUITE suites/encounter_rules_program: PASS",
+        "PROGRAM SUITE suites/encounter_placement_0_program: PASS",
+        "PROGRAM SUITE suites/encounter_placement_1_program: PASS",
+        "PROGRAM SUITE suites/encounter_placement_summary_program: PASS",
+        "RUN SCORE TEST RESULT: PASS",
+        "PROGRAM SUITE run_score_test: PASS",
+        "SFX BANK TEST RESULT: PASS (0 failures)",
+        "PROGRAM SUITE sfx_bank_test: PASS",
+        "SFX SYNC BANK TEST RESULT: PASS (0 failures)",
+        "PROGRAM SUITE sfx_sync_bank_test: PASS",
+        "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)",
+        "PROGRAM SUITE suites/sfx_sync_0_program: PASS",
+        "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)",
+        "PROGRAM SUITE suites/sfx_sync_1_program: PASS",
+        "SFX SYNC HARNESS RESULT: PASS (1688 observations, 0 failures)",
+        "PROGRAM SUITE suites/sfx_sync_2_program: PASS",
+        "PROGRAM SUITE section_map_v2_test: PASS",
+        "EN01 ENEMIES TEST RESULT: PASS",
+        "PROGRAM SUITE en01_enemies_test: PASS",
+        "EN02 ENEMIES TEST RESULT: PASS (225 checks, 0 failures)",
+        "PROGRAM SUITE en02_enemies_test: PASS",
+        "EN03 ENEMIES TEST RESULT: PASS (211 checks, 0 failures)",
+        "PROGRAM SUITE en03_enemies_test: PASS",
+        "PURGE WHOLE-ROW SCROLL CHECKS: PASS",
+        "PURGE INTERLEAVED FOCUS CHECKS (15 identities): PASS",
+        "PURGE INTERLEAVED FOCUS CHECKS (20 identities): PASS",
+        "MAGIC DECK INPUT TEST: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE magic_deck_input_test: PASS",
+        "MAGIC DECK GUARD MUTATIONS: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE magic_deck_guard_mutation_test: PASS",
+        "OPENING BOON TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE opening_boon_test: PASS",
+        "RUN END RECAP TEST RESULT: PASS",
+        "PROGRAM SUITE run_end_recap_tests: PASS",
+        "TEST RESULT: PASS \u2014 main menu resume safety",
+        "PROGRAM SUITE main_menu_resume_test: PASS",
+        "PROGRAM SUITE section_transition_test: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE suites/full_scene_presentation_program: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE suites/full_scene_cutouts_program: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE suites/full_scene_creature_cutouts_program: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE suites/full_scene_audio_program: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE suites/full_scene_navigation_program: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE suites/full_scene_card_drag_program: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE suites/full_scene_controls_program: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE suites/full_scene_clock_program: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE suites/full_scene_choices_program: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE suites/full_scene_interaction_program: PASS",
+        "OPENING BOON RECOVERY TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE opening_boon_recovery_test: PASS",
+        "Map 02 metrics: PASS (50 seeds x 6 sections)",
+        "Section map structural rejection: PASS (2500 proposals, 50 exhausted batches, 517ms)",
+        "Map 02 probe setup: PASS (9 full-visibility sections; no captures)",
+        "SECTION MAP V5 PROGRAM RESULT: PASS (10426 checks, 0 failures)",
+        "PROGRAM SUITE suites/section_map_v5_program: PASS",
+        "SECTION MAP LEGACY HASHES PROGRAM RESULT: PASS (201 checks, 0 failures)",
+        "PROGRAM SUITE suites/section_map_legacy_hashes_0_program: PASS",
+        "SECTION MAP LEGACY HASHES PROGRAM RESULT: PASS (201 checks, 0 failures)",
+        "PROGRAM SUITE suites/section_map_legacy_hashes_1_program: PASS",
+        "Map 02 pre-ready history selection: PASS",
+        "Section map v5 no-overlap suite: PASS",
+        "PROGRAM SUITE section_map_v5_layout_test: PASS",
+        "Section map type rejection: PASS (49 budget-exhausted, 1 structural-exhausted, 1 fallback)",
+        "Section map fast performance: PASS (21 seeds x 6 sections; max attempt 64/64 nodes; fallback 0; max section 177.278ms; max run 488.347ms)",
+        "SECTION MAP PERFORMANCE PROGRAM RESULT: PASS (7947 checks, 0 failures)",
+        "PROGRAM SUITE suites/section_map_performance_program: PASS",
+        "ACOLYTE CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "ACOLYTE CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE acolyte_cutout_pack_test: PASS",
+        "BILE BLOOMER CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "BILE BLOOMER CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE bile_bloomer_cutout_pack_test: PASS",
+        "TEST RESULT: PASS \u2014 board hover input-batch coalescing",
+        "PROGRAM SUITE board_hover_coalescing_test: PASS",
+        "PROGRAM SUITE board_surface_content_smoke_test: PASS",
+        "PROGRAM SUITE board_surface_data_test: PASS",
+        "TEST RESULT: PASS board surface presentation",
+        "PROGRAM SUITE board_surface_presentation_test: PASS",
+        "TEST RESULT: PASS migrated presentation probe scripts",
+        "PROGRAM SUITE board_surface_probe_migration_test: PASS",
+        "CARD DRAW HAND FLOW TEST RESULT: PASS",
+        "PROGRAM SUITE card_draw_hand_flow_test: PASS",
+        "TEST RESULT: PASS card presentation cache 35 raw and imported byte-identical images, source and algorithm invalidation",
+        "PROGRAM SUITE card_presentation_cache_test: PASS",
+        "TEST RESULT: PASS \u2014 bounded card proxy reuse and reset semantics",
+        "PROGRAM SUITE card_proxy_pool_test: PASS",
+        "GAOLER CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "GAOLER CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE chainbound_gaoler_cutout_pack_test: PASS",
+        "GAOLER MOTION TEST: PASS",
+        "PROGRAM SUITE chainbound_gaoler_motion_test: PASS",
+        "CHRONICLE TEST RESULT: PASS",
+        "PROGRAM SUITE chronicle_test: PASS",
+        "CINDER DROPLET CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "CINDER DROPLET CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE cinder_droplet_cutout_pack_test: PASS",
+        "CINDER OOZE CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "CINDER OOZE CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE cinder_ooze_cutout_pack_test: PASS",
+        "TEST RESULT: PASS \u2014 44 analytics-context/boundary comparisons (0 failures)",
+        "PROGRAM SUITE combat_analytics_context_equivalence_test: PASS",
+        "COMBAT HUD BUTTONS TEST: PASS",
+        "PROGRAM SUITE combat_hud_buttons_test: PASS",
+        "COMBAT HUD DIALOGUE INPUT TEST: PASS",
+        "PROGRAM SUITE combat_hud_dialogue_input_test: PASS",
+        "COMBAT MOTION TIMING TEST RESULT: PASS",
+        "PROGRAM SUITE combat_motion_timing_test: PASS",
+        "COMBAT MUSIC INTEGRATION TEST: PASS",
+        "PROGRAM SUITE combat_music_integration_test: PASS",
+        "CONTEXTUAL COMBAT TUTORIAL TEST: PASS",
+        "PROGRAM SUITE contextual_combat_tutorial_test: PASS",
+        "CRAWLER CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "CRAWLER CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE crawler_cutout_pack_test: PASS",
+        "PROGRAM SUITE cutout_pose_application_test: PASS",
+        "CUTOUT SUBMISSION EQUIVALENCE: PASS",
+        "PROGRAM SUITE cutout_submission_equivalence_test: PASS",
+        "DEMO CAPTURE SETTINGS TEST: PASS",
+        "DEMO MOVIE GUARD TEST: PASS",
+        "PROGRAM SUITE demo_capture_settings_test: PASS",
+        "DEMO MOVIE CLOCK TEST: PASS (3 cue events)",
+        "PROGRAM SUITE demo_clip_clock_test: PASS",
+        "DEMO PROBE VIEWPORT TEST: PASS (1920x1080; board tile (4, 4); GUI hover; Retina stretch)",
+        "PROGRAM SUITE demo_probe_viewport_test: PASS",
+        "PROGRAM SUITE departed_run_cleanup_test: PASS",
+        "PROGRAM SUITE dragon_committed_patterns_test: PASS",
+        "TEST RESULT: PASS Dragon exchange presentation []",
+        "PROGRAM SUITE dragon_exchange_presentation_test: PASS",
+        "PROGRAM SUITE dragon_feedback_mechanics_test: PASS",
+        "DRAGON PRESSURE MECHANICS TEST: PASS (318 checks)",
+        "PROGRAM SUITE dragon_pressure_mechanics_test: PASS",
+        "Dragon reward feedback logic: PASS",
+        "PROGRAM SUITE dragon_reward_feedback_test: PASS",
+        "DRAGON SPIRE ROUTES TEST: PASS (26 checks)",
+        "PROGRAM SUITE dragon_spire_routes_test: PASS",
+        "DRAGON TROPHY FEEDBACK: PASS",
+        "PROGRAM SUITE dragon_trophy_feedback_test: PASS",
+        "DRAGON WALLET ACK TEST: PASS (108 checks)",
+        "PROGRAM SUITE dragon_wallet_ack_test: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE elemental_fx_hash_equivalence_test: PASS",
+        "ELEMENTAL SPELL FX TEST RESULT: PASS",
+        "PROGRAM SUITE elemental_spell_fx_test: PASS",
+        "EN05 ELEMENTAL INTEGRATION: PASS (12 checks, 0 failures; neutral, ice, air)",
+        "PROGRAM SUITE en05_elemental_test: PASS",
+        "EN05 LIVE INTEGRATION: PASS (14 checks, 0 failures; headless logic only)",
+        "PROGRAM SUITE en05_live_integration_test: PASS",
+        "EN05 PROBE CONTRACT: PASS (script loads; 11 native capture requirements; no renderer capture attempted)",
+        "WAVE E2 THREATS PROBE CONTRACT: PASS (script loads; 13 native capture requirements; no renderer capture attempted)",
+        "PROGRAM SUITE en05_probe_contract_test: PASS",
+        "ENEMY CUTOUT ROSTER PACK BUILD TEST RESULT: PASS",
+        "PROGRAM SUITE enemy_cutout_roster_pack_test: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE enemy_route_allocation_equivalence_test: PASS",
+        "TEST RESULT: PASS \u2014 2470 forced-movement query comparisons (0 failures)",
+        "PROGRAM SUITE suites/forced_movement_query_open_program: PASS",
+        "TEST RESULT: PASS \u2014 7978 forced-movement query comparisons (0 failures)",
+        "PROGRAM SUITE suites/forced_movement_query_dense_program: PASS",
+        "TEST RESULT: PASS \u2014 2200 forced-movement query comparisons (0 failures)",
+        "PROGRAM SUITE suites/forced_movement_query_heart_program: PASS",
+        "TEST RESULT: PASS \u2014 3910 forced-movement query comparisons (0 failures)",
+        "PROGRAM SUITE suites/forced_movement_query_surface_ready_program: PASS",
+        "TEST RESULT: PASS \u2014 868 forced-movement query comparisons (0 failures)",
+        "PROGRAM SUITE suites/forced_movement_query_blocked_program: PASS",
+        "FROSTGLASS CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "FROSTGLASS CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE frostglass_lancer_cutout_pack_test: PASS",
+        "FROSTGLASS MOTION TEST: PASS",
+        "PROGRAM SUITE frostglass_lancer_motion_test: PASS",
+        "GLOSSARY TEST RESULT: PASS (6724 checks, 0 failures)",
+        "PROGRAM SUITE glossary_test: PASS",
+        "GRAFTWRIGHT CONSOLE TEST: PASS",
+        "PROGRAM SUITE graftwright_console_test: PASS",
+        "GRAFTWRIGHT PRODUCTION PACK: PASS",
+        "PROGRAM SUITE graftwright_cutout_pack_test: PASS",
+        "GRAVE SURGEON CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "GRAVE SURGEON CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE grave_surgeon_cutout_pack_test: PASS",
+        "GRIMOIRE PERFORMANCE RESULT: PASS",
+        "PROGRAM SUITE grimoire_performance_test: PASS",
+        "PROGRAM SUITE grimoire_search_rows_equivalence_test: PASS",
+        "GUARDIAN MOTION: PASS 0",
+        "PROGRAM SUITE guardian_cutout_motion_probe: PASS",
+        "GUARDIAN PACK BUILD: PASS",
+        "PROGRAM SUITE guardian_cutout_pack_test: PASS",
+        "GUIDED COMBAT TUTORIAL INTEGRATION TEST: PASS",
+        "PROGRAM SUITE guided_combat_tutorial_integration_test: PASS",
+        "GUST SHRIKE CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "GUST SHRIKE CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE gust_shrike_cutout_pack_test: PASS",
+        "GUST SHRIKE CUTOUT: PASS (101 checks, 0 failures; headless logic only)",
+        "PROGRAM SUITE gust_shrike_cutout_test: PASS",
+        "HARRIER CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "HARRIER CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE harrier_cutout_pack_test: PASS",
+        "HEADLESS PLAYTEST PROGRESSION TEST: PASS",
+        "PROGRAM SUITE headless_playtest_progression_test: PASS",
+        "HUMANOID REACTION MOTION: PASS 0",
+        "PROGRAM SUITE humanoid_cutout_reaction_motion_probe: PASS",
+        "ISKALDRA CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "ISKALDRA CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE iskaldra_cutout_pack_test: PASS",
+        "MAGIC DECK TEST: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE magic_deck_test: PASS",
+        "TEST RESULT: PASS \u2014 main menu input and startup transitions",
+        "PROGRAM SUITE main_menu_input_test: PASS",
+        "PROGRAM SUITE merchant_stock_equivalence_probe: PASS",
+        "MUSIC CONTINUITY TEST: PASS",
+        "PROGRAM SUITE music_continuity_test: PASS",
+        "NOCTYRAX CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "NOCTYRAX CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE noctyrax_cutout_pack_test: PASS",
+        "PROGRAM SUITE objective_glyph_equivalence_test: PASS",
+        "ORIGINAL MUSIC ROUTING/PLAYBACK TEST: PASS",
+        "PROGRAM SUITE original_music_test: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE performance_phase_fast_path_test: PASS",
+        "PERFORMANCE TELEMETRY TEST RESULT: PASS",
+        "PROGRAM SUITE performance_telemetry_test: PASS",
+        "PIXEL FX TEST RESULT: PASS (11797 checks, 0 failures)",
+        "PROGRAM SUITE pixel_fx_test: PASS",
+        "PLAYER DEFEAT CONTINUITY: PASS",
+        "PROGRAM SUITE player_defeat_continuity_test: PASS",
+        "PLAYER MOVEMENT OUTCOME: PASS",
+        "PROGRAM SUITE player_movement_outcome_test: PASS",
+        "PRE-BATTLE DECK FIT TEST: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE pre_battle_deck_fit_test: PASS",
+        "PRE-BATTLE PINNED HOVER TEST: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE pre_battle_pinned_hover_test: PASS",
+        "PRE-BATTLE REVIEW FIXES TEST: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE pre_battle_review_fixes_test: PASS",
+        "PRE-BATTLE SEMANTICS TEST: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE pre_battle_semantics_test: PASS",
+        "PRE-BATTLE TRUE SCALE TEST: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE pre_battle_true_scale_test: PASS",
+        "PRE-BATTLE VIEW TEST: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE pre_battle_view_test: PASS",
+        "PROGRAM SUITE prepared_card_preview_queries_test: PASS",
+        "PROGRAM SUITE prepared_pre_battle_view_equivalence_test: PASS",
+        "PROGRAM SUITE prepared_shop_equivalence_test: PASS",
+        "PROGRAM SUITE prepared_unit_canvas_equivalence_test: PASS",
+        "TEST RESULT: PASS \u2014 profile read and repair equivalence (0 failures)",
+        "PROGRAM SUITE profile_read_equivalence_test: PASS",
+        "PROTAGONIST CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "PROTAGONIST CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE protagonist_cutout_pack_test: PASS",
+        "PROTAGONIST GEAR MOTION GAMEPLAY TEST RESULT: PASS",
+        "PROGRAM SUITE protagonist_gear_motion_gameplay_test: PASS",
+        "RELIC U5 TEST RESULT: PASS",
+        "PROGRAM SUITE relic_u5_test: PASS",
+        "RELIC U6 TEST RESULT: PASS",
+        "PROGRAM SUITE relic_u6_test: PASS",
+        "RELIC U8 TEST RESULT: PASS",
+        "PROGRAM SUITE relic_u8_test: PASS",
+        "PROGRAM SUITE retained_character_header_equivalence_test: PASS",
+        "PROGRAM SUITE retained_character_loadout_equivalence_test: PASS",
+        "TEST RESULT: PASS \u2014 save pipeline compatibility and cleanup",
+        "PROGRAM SUITE save_pipeline_performance_test: PASS",
+        "TEST RESULT: PASS \u2014 committed save/resume boundary matrix",
+        "PROGRAM SUITE save_resume_boundary_test: PASS",
+        "SCAVENGER PRODUCTION PACK: PASS",
+        "PROGRAM SUITE scavenger_cutout_pack_test: PASS",
+        "SCAVENGER RESOURCE CACHE TEST: PASS",
+        "PROGRAM SUITE scavenger_resource_cache_test: PASS",
+        "PROGRAM SUITE shadow_triangulation_equivalence_test: PASS",
+        "PROGRAM SUITE skill_link_geometry_equivalence_test: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE skill_progression_analytics_test: PASS",
+        "TEST RESULT: PASS",
+        "PROGRAM SUITE skill_tree_view_test: PASS",
+        "PROGRAM SUITE staged_reward_choices_equivalence_test: PASS",
+        "PROGRAM SUITE start_room_map_test: PASS",
+        "WARDEN CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "WARDEN CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE stone_warden_cutout_pack_test: PASS",
+        "PROGRAM SUITE structural_route_equivalence_test: PASS",
+        "TEST RESULT: PASS surface analytics batch and partial append recovery",
+        "PROGRAM SUITE surface_analytics_batch_test: PASS",
+        "Surface parent review checks: PASS",
+        "PROGRAM SUITE surface_parent_review_test: PASS",
+        "PROGRAM SUITE surface_preview_equivalence_test: PASS",
+        "Surface relic checks: PASS",
+        "PROGRAM SUITE surface_relic_test: PASS",
+        "Surface migration checks: PASS",
+        "PROGRAM SUITE surface_save_migration_test: PASS",
+        "THAROKH CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "THAROKH CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE tharokh_cutout_pack_test: PASS",
+        "TEST RESULT: PASS ui_components_gallery_fixture",
+        "PROGRAM SUITE ui_components_gallery_fixture_test: PASS",
+        "UI SKIN PERFORMANCE TEST: PASS",
+        "PROGRAM SUITE ui_skin_performance_test: PASS",
+        "VAELORYX CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "VAELORYX CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE vaeloryx_cutout_pack_test: PASS",
+        "VEILBOUND ACOLYTE CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "VEILBOUND ACOLYTE CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE veilbound_acolyte_cutout_pack_test: PASS",
+        "VYRAKETH CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "VYRAKETH CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE vyraketh_cutout_pack_test: PASS",
+        "ZEKARION CUTOUT PACK TEST RESULT: PASS (build, editor=true)",
+        "ZEKARION CUTOUT PACK TEST RESULT: PASS (verify, editor=true)",
+        "PROGRAM SUITE zekarion_cutout_pack_test: PASS",
+        "PROGRAM SUITE prepared_other_character_view_test: PASS",
+        "CHARACTER RETENTION RESULT: {\"cases\":139,\"differences\":0,\"errors\":[],\"orphan_nodes\":0,\"preparation_frames\":6576}",
+        "PROGRAM SUITE retained_character_inventory_equivalence_test: PASS",
+        "SHOP RETAINED CONTENT TEST RESULT: PASS",
+        "PROGRAM SUITE shop_retained_content_test: PASS",
+        "BUG_01 CAPTURE END_TO_END SMOKE: PASS (ClockedBoard + ClockedReference; GPU readback/fences mocked)",
+        "BUG_01 DIFF DUMP CHECKS: PASS (strict RGBA metrics, masks, crops, JSON, fresh fixture, isolated mutation)",
+        "RESTORED EMPTY BOARD LOGIC: PASS (native pixel proof requires window server)",
+        "PROGRAM SUITE static_floor_cache_equivalence_test: PASS",
+        "MAQUETTE CUTOUT: PASS (40178 checks, 0 failures; headless logic only)",
+        "PROGRAM SUITE maquette_cutout_test: PASS",
+        "PROGRAM SUITE owned_cpu_asset_preparation_test: PASS",
+        "ENCOUNTER CALLER METADATA: PASS (UI/headless; combat, Guardian, boss; start/end/rewards)",
+        "ENCOUNTER ANALYTICS: PASS (0 failures)",
+        "PROGRAM SUITE encounter_analytics_test: PASS",
+        "ENCOUNTER RUN SAVE: PASS (3 seeds; ProgressionStore; complete state equality)",
+        "ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)",
+        "ENCOUNTER SMALL SWEEP: PASS (revision 5; 84 rooms; seeds 1..15)",
+        "ENCOUNTER SMALL SWEEP: PASS (revision 6; 120 rooms; seeds 1..25)",
+        "ENCOUNTER SMALL SWEEP: PASS (revision 7; 120 rooms; seeds 1..21)",
+        "ENCOUNTER BOT DODGE/DEFENSE: PASS",
+        "SKYBOLT OVERRIDES: PASS (60 checks; 0 failures)",
+        "ENCOUNTER BOT DETERMINISM: PASS (3 explicit objective fixtures, repeated seeded rooms)",
+        "ENCOUNTER MEASUREMENT: PASS (2662 checks; 0 failures)",
+        "PROGRAM SUITE encounter_measurement_test: PASS",
+        "RR07 RUNTIME: PASS (30676 checks, 0 failures; headless logic only)",
+        "PROGRAM SUITE rr07/runtime_test: PASS",
+        "RR12 RUNTIME: PASS (44988 checks, 0 failures; headless logic only)",
+        "PROGRAM SUITE rr12/runtime_test: PASS",
+        "RR17 RUNTIME: PASS (58 checks, 0 failures; headless logic only)",
+        "PROGRAM SUITE rr17/runtime_test: PASS",
+        "RR18 RUNTIME: PASS (5964 checks; headless logic only)",
+        "PROGRAM SUITE rr18/runtime_test: PASS",
+        "SPX special encounter suite: 0 failures",
+        "PROGRAM SUITE special_encounter_test: PASS",
+        "PROGRAM SUITE special_encounter_legend_test: PASS",
+        "WARBAND ORDERS TEST RESULT: PASS (287 checks, 0 failures)",
+        "PROGRAM SUITE warband_orders_test: PASS",
+        "SPX07 WIND LOCK RESULT: PASS (114 checks, 0 failures)",
+        "PROGRAM SUITE warband_wind_lock_test: PASS",
+        "WBV MARKERS RESULT: PASS (0 failures)",
+        "PROGRAM SUITE wbv_markers_test: PASS",
+        "ELEMENT RETROFIT PROBE CONTRACT: PASS (31 states, 1920x1080, UI scale 100%)",
+        "PROGRAM SUITE warband_orders_probe: PASS",
+        "PROGRAM SUITE warband_test: PASS",
+        "PROGRAM SUITE warband_ui_test: PASS",
+        "PROGRAM SUITE snare_test: PASS",
+        "PROGRAM SUITE snare_ui_test: PASS",
+        "PASS PREVIEW PREWARM RESULT: PASS (242 checks, 0 failures)",
+        "PROGRAM SUITE pass_preview_prewarm_test: PASS",
+        "PETRIFY BADGE/TURN-ORDER TEST RESULT: PASS",
+        "PROGRAM SUITE petrify_tooltip_test: PASS",
+        "PERF03 ANALYTICS KILL/RESTART RESULT: PASS (0 failures; verify)",
+        "PERF03 ANALYTICS KILL/RESTART RESULT: PASS (0 failures; parent)",
+        "PROGRAM SUITE perf/analytics_restart_test: PASS",
+        "PERF03 CHECKPOINT FAILURE RETENTION/RETRY: PASS",
+        "PERF03 CHECKPOINT ORDER/OWNERSHIP: PASS",
+        "PERF03 CHECKPOINT CRASH SAFETY: PASS (3 transaction boundaries)",
+        "PERF03 ANALYTICS ORDER/FIELDS/APPEND/IDEMPOTENCY: PASS",
+        "PERF03 EXIT/RUN-END FLUSH: PASS",
+        "PERF03 DEFERRED PERSISTENCE RESULT: PASS (0 failures)",
+        "PROGRAM SUITE perf/background_persistence_test: PASS",
+        "PERF03 DEADLINE RESULT: PASS (0 failures)",
+        "PROGRAM SUITE perf/deferred_deadline_test: PASS",
+        "PERF03 TRANSITION DIFFERENTIAL desktop: PASS",
+        "PERF03 TRANSITION DIFFERENTIAL save_quit: PASS",
+        "PERF03 TRANSITION DIFFERENTIAL RESULT: PASS",
+        "PROGRAM SUITE perf/transition_failure_0_test: PASS",
+        "PERF03 TRANSITION DIFFERENTIAL continue: PASS",
+        "PERF03 TRANSITION DIFFERENTIAL run_end: PASS",
+        "PERF03 TRANSITION DIFFERENTIAL RESULT: PASS",
+        "PROGRAM SUITE perf/transition_failure_1_test: PASS",
+        "PERF03 TRANSITION DIFFERENTIAL run_end_victory: PASS",
+        "PERF03 TRANSITION DIFFERENTIAL run_end_defeat: PASS",
+        "PERF03 TRANSITION DIFFERENTIAL RESULT: PASS",
+        "PROGRAM SUITE perf/transition_failure_2_test: PASS",
+        "PERF03 TRANSITION DIFFERENTIAL new_run: PASS",
+        "PERF03 TRANSITION DIFFERENTIAL RESULT: PASS",
+        "PROGRAM SUITE perf/transition_failure_3_test: PASS",
+        "PERF03 FRAME RESULT: PASS (0 failures) report=user://perf-03-equivalence.json",
+        "PERF03 BUDGET RESULT: PASS (0 misses)",
+        "PROGRAM SUITE perf/combat_frame_scenarios: PASS",
+        "STEAM SERVICE TEST RESULT: PASS",
+        "STEAM CACHE SWITCH REGRESSION RESULT: PASS",
+        "CACHE SWITCH STEAM/SETTINGS TEST RESULT: PASS (209 assertions)",
+        "PROGRAM SUITE cache_switch_regression_test: PASS",
+        "ENGINE CACHE DIRECTORIES TEST RESULT: PASS (112 assertions)",
+        "PROGRAM SUITE engine_cache_directories_test: PASS",
+        "EL01 GUST PROBE CONTRACT: PASS (5 states, 1920x1080, UI scale 100%)",
+        "PROGRAM SUITE battlefield_rules_probe: PASS",
+        "EL02 EVIDENCE CHECK: PASS (spx-01 policy and tier presets)",
+        "PROGRAM SUITE el02_evidence: PASS",
+        "ELEMENT RETROFIT TEST RESULT: PASS (939 checks, 0 failures)",
+        "PROGRAM SUITE element_retrofit_test: PASS",
+        "ELEMENT RETROFIT PROBE CONTRACT: PASS (31 states, 1920x1080, UI scale 100%)",
+        "PROGRAM SUITE element_retrofit_probe: PASS",
+        "EN03 ENEMIES PROBE CONTRACT: PASS (1920x1080, UI scale 100%)",
+        "PROGRAM SUITE en03_enemies_probe: PASS",
+        "EN05 ENEMIES PROBE CONTRACT: PASS (1920x1080, UI scale 100%)",
+        "PROGRAM SUITE en05_enemies_probe: PASS",
+        "EN06 ENEMIES PROBE CONTRACT: PASS (1920x1080, UI scale 100%)",
+        "PROGRAM SUITE en06_enemies_probe: PASS",
+        "EL04 RULE VIEWS RESULT: PASS (0 failures)",
+        "PROGRAM SUITE el04_rule_views_test: PASS",
+        "ENEMY NO ACTION TEST RESULT: PASS (1046 assertions; 0 failures)",
+        "PROGRAM SUITE enemy_no_action_test: PASS",
+        "FIX-11 TEST RESULT: PASS (162 checks, 0 failures)",
+        "PROGRAM SUITE fix_11_test: PASS",
+        "FIX-11 PROBE CONTRACT: PASS (128 checks; 1920x1080, UI scale 100%)",
+        "PROGRAM SUITE fix_11_probe: PASS",
+        "FIX-12 PROBE CONTRACT: PASS (24025 checks; 1920x1080, UI scale 100%)",
+        "PROGRAM SUITE fix_12_probe: PASS",
+        "FIX-14 TEST RESULT: PASS (2539 checks, 0 failures)",
+        "PROGRAM SUITE fix_14_test: PASS",
+        "FIX-14 MATRIX TEST RESULT: PASS (20854 checks, 0 failures)",
+        "PROGRAM SUITE fix_14_matrix_test: PASS",
+        "FIX-12 ARRIVAL TEST RESULT: PASS (1293 checks, 0 failures)",
+        "PROGRAM SUITE fix_12_arrival_test: PASS",
+        "FIX-12 REACTIONS_0 TEST RESULT: PASS (163 checks, 0 failures)",
+        "PROGRAM SUITE fix_12_reactions_0_test: PASS",
+        "FIX-12 REACTIONS_1 TEST RESULT: PASS (142 checks, 0 failures)",
+        "PROGRAM SUITE fix_12_reactions_1_test: PASS",
+        "FIX-12 CASCADES TEST RESULT: PASS (178 checks, 0 failures)",
+        "PROGRAM SUITE fix_12_cascades_test: PASS",
+        "FIX-12 FEEDBACK TEST RESULT: PASS (215 checks, 0 failures)",
+        "PROGRAM SUITE fix_12_feedback_test: PASS",
+        "FIX-12 BLEED TEST RESULT: PASS (143 checks, 0 failures)",
+        "PROGRAM SUITE fix_12_bleed_test: PASS",
+        "TT01 GRIMOIRE DISCOVERY: PASS (39 entries; 10 default, 29 discovered; 31 independent encounters)",
+        "SHORT CARD TOOLTIPS TEST RESULT: PASS (845 checks, 0 failures)",
+        "PROGRAM SUITE short_card_tooltips_test: PASS",
+        "CARD PANEL TEXT TEST RESULT: PASS (2175 definitions, 7913 panels, 8146 checks, 0 failures)",
+        "PROGRAM SUITE card_panel_text_test: PASS",
+        "BOARD STATUS PLATES TEST RESULT: PASS (31612 assertions; 0 failures)",
+        "PROGRAM SUITE board_status_plates_test: PASS",
+        "STATUS CAPTURE PROBE RESULT: PASS",
+        "PROGRAM SUITE status_capture_probe: PASS",
+        "STATUS PERFORMANCE PROBE RESULT: PASS",
+        "STATUS MOVEMENT PROBE RESULT: PASS",
+        "PROGRAM SUITE status_plates_performance_probe: PASS",
+        "FULL SUITE RUNTIME: 856.690 seconds (budget 900 seconds)",
+        "TEST RESULT: PASS"
+      ]
+    },
+    "replay-final": {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/replay-final.log",
+      "sha256": "44d3a61891ba0a240a11b15f3ede21f14c9e059a85980e8cc650fee8619a4c1c",
+      "exact_result_lines": [
+        "ART IDENTITY REPLAY: PASS spec/art_identity/jobs/frostglass_lancer/mq14_rear_v2/kit.json"
+      ]
+    }
+  },
+  "full_python": {
+    "tests": 2004,
+    "duration": "7835.722s",
+    "result": "FAILED (failures=1, errors=2, skipped=66)"
+  },
+  "full_godot": {
+    "result": "TEST RESULT: PASS",
+    "programs": 226,
+    "nonzero": [],
+    "program_report": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/godot-final/program-suites.json"
+  },
+  "fix11_probe_initial_command": "Initial headless invocation omitted the registered --check-only argument and exited 1 at its deliberate real-renderer guard. The correct registered headless contract then passed 128 checks. No windowed run was attempted.",
+  "first_python_attempt": {
+    "result_lines": [
+      "Ran 2004 tests in 9041.569s",
+      "FAILED (failures=2, errors=2, skipped=66)"
+    ],
+    "diagnostics": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/python-attempt1.json",
+    "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/full-python-attempt1.log",
+    "followups": [
+      "Rest proof resealed; idempotence test passed in 23.076s.",
+      "Movement timing test passed without edits in 11.994s."
+    ],
+    "note": "Complete full Python rerun follows successful sequential Godot run."
+  },
+  "first_godot_attempt": {
+    "result": "error: command timed out after 900 seconds.",
+    "note": "Concurrent load; retained-inventory child hit 180s; 33 others interrupted/unstarted. No assertion changes. Retained-inventory focused rerun passed; full rerun follows without concurrent Python.",
+    "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/godot-attempt1/full-godot.log",
+    "program_report": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr43_feedback1/godot-attempt1/program-suites.json"
+  },
+  "round0_godot_followup": {
+    "special_encounter_test": {
+      "returncode": 0,
+      "timed_out": false
+    },
+    "enemy_no_action_test": {
+      "returncode": 0,
+      "timed_out": false
+    },
+    "fix_11_test": {
+      "returncode": 0,
+      "timed_out": false
+    },
+    "fix_11_probe": {
+      "returncode": 0,
+      "timed_out": false
+    }
+  },
+  "base_comparison": {
+    "commit": "a49de4cd38174b1597e7cdf25196a9c124a8c812",
+    "path": "/private/tmp/labyrinth_codex/rr43-f1-base-a49-pahz8dxl/checkout",
+    "method": "git archive into test-owned temporary directory; no task branch/ref/index changes",
+    "current_head": "d1d4d0074",
+    "imports": {
+      "current_exit": 0,
+      "base_exit": 0
+    },
+    "test_program_sha256": {
+      "current": "5a92a7933b1a38587d672cb0be792882031075c05565e2605b980e1c3ded9398",
+      "base": "5a92a7933b1a38587d672cb0be792882031075c05565e2605b980e1c3ded9398"
+    },
+    "same_program": true,
+    "normalized_errors_equal": true,
+    "normalized_errors": [
+      "ERROR: test_native_preflight_requires_current_capture_and_never_rebinds_it (tests.test_rr21_review.ReviewTests)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<CHECKOUT>/tests/test_rr21_review.py\", line 160, in test_native_preflight_requires_current_capture_and_never_rebinds_it\n    with tempfile.TemporaryDirectory(prefix='review_stale_', dir=CASE / 'proof/logs') as folder:\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/tempfile.py\", line 779, in __init__\n    self.name = mkdtemp(suffix, prefix, dir)\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/tempfile.py\", line 359, in mkdtemp\n    _os.mkdir(file, 0o700)\nFileNotFoundError: [Errno 2] No such file or directory: '<CHECKOUT>/experiments/cutouts/briar_weaver/mq9/proof/logs/review_stale_<RANDOM>'",
+      "ERROR: test_review_from_clean_proof_state_regenerates_real_direction_evidence (tests.test_rr21_review.ReviewTests)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<CHECKOUT>/tests/test_rr21_review.py\", line 141, in test_review_from_clean_proof_state_regenerates_real_direction_evidence\n    with tempfile.TemporaryDirectory(prefix='review_clean_', dir=CASE / 'proof/logs') as folder:\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/tempfile.py\", line 779, in __init__\n    self.name = mkdtemp(suffix, prefix, dir)\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/tempfile.py\", line 359, in mkdtemp\n    _os.mkdir(file, 0o700)\nFileNotFoundError: [Errno 2] No such file or directory: '<CHECKOUT>/experiments/cutouts/briar_weaver/mq9/proof/logs/review_clean_<RANDOM>'"
+    ],
+    "exact_result_lines": {
+      "current": [
+        "Ran 2 tests in 0.002s",
+        "FAILED (errors=2)"
+      ],
+      "base": [
+        "Ran 2 tests in 0.001s",
+        "FAILED (errors=2)",
+        "RR43 BASE BRIAR EXIT: 1"
+      ]
+    },
+    "logs": {
+      "current": "/tmp/rr43-f1-briar-current.log",
+      "base": "/tmp/rr43-f1-briar-base.log"
+    },
+    "first_full_python_normalized_errors_equal": true,
+    "final_full_python_normalized_errors_equal": true
+  },
+  "frame_inventories": {
+    "front": {
+      "frames": 512,
+      "failures": 0,
+      "action_canvas_edge_pixels": 0
+    },
+    "rear": {
+      "frames": 512,
+      "failures": 0,
+      "action_canvas_edge_pixels": 0
+    }
+  },
+  "sprite_geometry": {
+    "cases": 80,
+    "errors": [],
+    "native": false
+  },
+  "software_previews": {
+    "inspected": 16,
+    "native_pixels": false,
+    "folder": "experiments/cutouts/frostglass_lancer/rr37/proof/rr43_software"
+  },
+  "TODO_DESIGN": [],
+  "chosen_defaults": {
+    "godot_full_outer_timeout_seconds": 1200,
+    "godot_full_inner_budget_seconds": 900,
+    "timeout_rationale": "The first outer 900s cap interrupted result emission; 1200s permits the unchanged 900s suite assertion and complete child report to finish. This does not extend any assertion or child timeout.",
+    "baseline_zip_timestamp": "1980-01-01 standard ZIP epoch; deterministic test/proof packaging",
+    "other_defaults": "Reused accepted round-0 named proof/test values; no player-facing values chosen."
+  },
+  "movement_timing_followup": {
+    "full_suite_cap_us": 4000,
+    "full_suite_mixed_cold_max_us": 4252,
+    "candidate_isolated_result": [
+      "Ran 1 test in 10.571s",
+      "OK"
+    ],
+    "base_isolated_result": [
+      "Ran 1 test in 12.654s",
+      "OK"
+    ],
+    "base_commit": "a49de4cd38174b1597e7cdf25196a9c124a8c812",
+    "same_test_and_probe_sources": true,
+    "note": "The full-discovery failure was not reproduced by either isolated run; no outside-unit code or assertion was changed."
+  },
+  "open_issues": [
+    "Out-of-unit SB-02 movement timing assertion failed in full discovery (4252us > 4000us), while isolated candidate/base runs passed. It remains unchanged.",
+    "Two Briar Weaver setup errors reproduced identically after import at base a49de4cd3; no out-of-unit edits.",
+    "Fresh native renderer captures and director sheet judgment remain with the owner."
+  ],
+  "all_full_suites_passed": false,
+  "sample_bindings": {
+    "source": {
+      "poses": 1396,
+      "current": true
+    },
+    "production": {
+      "poses": 1396,
+      "current": true
+    }
+  },
+  "preservation_final": {
+    "director_inputs_gate_runtime_byte_identical_to_feedback_head": 8,
+    "branch": "codex/rr-43",
+    "head": "d1d4d00740b4ceb70d288eea8f7d7260dff9f9d4"
+  },
+  "changed_files_manifest": "experiments/cutouts/frostglass_lancer/rr37/rr43/changed_files_feedback1.txt",
+  "changed_files_count": 235
+}

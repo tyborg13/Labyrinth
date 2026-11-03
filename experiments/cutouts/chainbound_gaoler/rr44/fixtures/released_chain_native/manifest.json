@@ -1,0 +1,39 @@
+{
+  "native_pixels": true,
+  "source_fixture_sha256": "8245c825fb7d9eba06d5474dbf0fa5dd3f1ecc07cd9c15892b6b8aae7d5cb8dd",
+  "native_manifest_sha256": "4083fcb7a84d7f9877538e1e0fe265c3c1df778344212a4f0786790b34846106",
+  "frames": [
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 31,
+      "file": "front_death_031_native.png",
+      "sha256": "065c164e6ff22b86f919514a21d2c86e91e6b78bb0c48ecfa5575850dc8c1cbe",
+      "original_stored_sha256": "d155448830f70ca7144b8f9d7586beed03519d9661579810ee192751d0baa5d2"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 63,
+      "file": "front_death_063_native.png",
+      "sha256": "3bcbc4ea33e26777ebb0141f79a0f5a37ae77e06620a8a1cb5329e150eac3062",
+      "original_stored_sha256": "f099011bd1158a53681c6c18d1f302bf9321b7509b4e265e1635ed698e5de2c4"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 31,
+      "file": "rear_death_031_native.png",
+      "sha256": "53f3b9cebcec715ebb705af7d741bbe6cf9885cb003d2df57a2646e639fd3cae",
+      "original_stored_sha256": "454f0d951fd05bb0e8ee7c5341f1d7b92affcf81cd50b6a6fcf7341f5ef9d193"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 63,
+      "file": "rear_death_063_native.png",
+      "sha256": "ba26af8a94d847334e4d264efeb130bb28839c7fbda053f67ed6339b02b292a4",
+      "original_stored_sha256": "f429efeafd8073b90fe08afd422819456269507f0c589b5533b194b787829c85"
+    }
+  ]
+}

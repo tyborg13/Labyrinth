@@ -18,7 +18,7 @@ const DEFAULT_SEED: int = 7262026
 const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
 const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "pale_spark", "sidestep_slash"]
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
-const VALID_SCENARIOS: Array = ["snare", "warband", "dragon", "guardian","start", "pre_battle", "combat", "reach_exit", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "graftwright", "boss", "victory", "defeat"]
+const VALID_SCENARIOS: Array = ["snare", "warband", "last_light", "ember_hoarder", "dragon", "guardian","start", "pre_battle", "combat", "reach_exit", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "graftwright", "boss", "victory", "defeat", "event"]
 const INSPECTION_TERRAIN_KINDS: Array = ["wooden_box", "wooden_crate", "powder_keg"]
 const VALID_UMBRA_STAGES: Array = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]
 const MAX_ROUTE_DEPTH: int = RunEngine.MAX_DEPTH - 1
@@ -64,6 +64,11 @@ func _initialize() -> void:
 	if not ProgressionStore.save_data(progression):
 		_fail("Could not save progression.json")
 		return
+	var settings: Dictionary = preload("res://scripts/settings_store.gd").load_settings()
+	settings["hero_facing"] = _options["hero_facing"]
+	if not preload("res://scripts/settings_store.gd").save_settings(settings):
+		_fail("Could not save hero_facing setting")
+		return
 	if not ProgressionStore.save_run_state(run_state):
 		_fail("Could not save current_run.save")
 		return
@@ -89,6 +94,7 @@ func _initialize() -> void:
 func _parse_args() -> Dictionary:
 	var parsed: Dictionary = {
 		"scenario": "combat",
+		"hero_facing": "persist",
 		"dragon_id": "vyraketh",
 		"dragon_depth": 4,
 		"dragon_case": "encounter",
@@ -129,6 +135,7 @@ func _parse_args() -> Dictionary:
 		"route_depth": 0,
 		"route_depth_provided": false,
 		"min_enemies": 0,
+		"event_id": "",
 		"enemy_types": "",
 		"enemy_positions": "",
 		"enemy_intents": "",
@@ -148,9 +155,16 @@ func _parse_args() -> Dictionary:
 				parsed["allow_live_user_dir"] = true
 			"--umbra-warning":
 				parsed["umbra_warning"] = true
+			"--hero-facing":
+				index += 1
+				parsed["hero_facing"] = _required_arg(args, index, arg)
+				if parsed["hero_facing"] not in ["persist", "snap"]: _fail("--hero-facing requires persist or snap")
 			"--scenario":
 				index += 1
 				parsed["scenario"] = _required_arg(args, index, arg)
+			"--event-id":
+				index += 1
+				parsed["event_id"] = _required_arg(args, index, arg)
 			"--dragon-id", "--dragon-case", "--dragon-build":
 				index += 1
 				parsed[arg.trim_prefix("--").replace("-", "_")] = _required_arg(args, index, arg)
@@ -295,7 +309,10 @@ func _parse_args() -> Dictionary:
 			"--summary":
 				index += 1
 				parsed["summary"] = _required_arg(args, index, arg)
-			"--snare-biome", "--snare-tier", "--snare-case", "--warband-biome", "--warband-tier", "--warband-case":
+			"--snare-biome", "--snare-tier", "--snare-case", "--warband-biome", "--warband-tier", "--warband-case", "--last-light-biome", "--last-light-tier", "--last-light-case":
+				index += 1
+				parsed[arg.trim_prefix("--").replace("-", "_")] = _required_arg(args, index, arg)
+			"--hoarder-biome", "--hoarder-tier", "--hoarder-case":
 				index += 1
 				parsed[arg.trim_prefix("--").replace("-", "_")] = _required_arg(args, index, arg)
 			"--biome":
@@ -348,12 +365,18 @@ func _print_help() -> void:
 	print("  --dragon-case encounter|pre_battle|reward --dragon-build balanced|skirmisher")
 	print("  Uses a seeded natural arena, plausible acquired loadout, normal stats and shuffled deck.")
 	print("Snare options: --scenario snare --snare-biome fire --snare-tier 2 --seed 83")
-	print("  --snare-case encounter|first_turn|first_seal|kept_open|escape")
+	print("  --snare-case encounter|first_turn|first_seal|kept_open|escape|pressure_turn3")
 	print("Warband options: --scenario warband --warband-biome air --warband-tier 2 --seed 83")
 	print("  --warband-case encounter|pre_battle|keep_distance|break")
+	print("Last Light options: --scenario last_light --last-light-biome shadow --last-light-tier 2 --seed 83")
+	print("  --last-light-case pre_battle|encounter")
+	print("Ember Hoarder options: --scenario ember_hoarder --hoarder-biome fire --hoarder-tier 2 --seed 83")
+	print("  --hoarder-case pre_battle|encounter")
+	print("Event options: --scenario event --event-id hanged_knight")
 	print("Guardian options: --scenario guardian --guardian-id rimejaw --guardian-case map_choice")
 	print("  --lost-embers N (a prior run's lost Embers, staged on the Guardian's node)")
 	print("Pre-battle options:")
+	print("  --hero-facing persist|snap (default persist)")
 	print("  --min-enemies N")
 	print("Safety:")
 	print("  The script refuses to write live user:// saves unless LABYRINTH_USER_DIR_NAME is set or --allow-live-user-dir is passed.")
@@ -389,7 +412,7 @@ func _build_progression() -> Dictionary:
 		progression = ProgressionStore.prepare_for_new_run(progression)
 		progression = ProgressionStore.record_first_umbra_reach(progression, int(progression.get("run_counter", 1)))
 		progression = ProgressionStore.prepare_for_new_run(progression)
-	elif str(_options.get("scenario", "")) in ["guardian", "dragon", "warband", "snare"]:
+	elif str(_options.get("scenario", "")) in ["guardian", "dragon", "warband", "snare", "last_light", "ember_hoarder"]:
 		progression = preload("res://scripts/contextual_combat_tutorial.gd").dismiss_tutorial(progression)
 	elif str(_options.get("scenario", "")) == "guided_tutorial":
 		# Mirror RunScene._start_run so the saved profile and embedded run snapshot
@@ -420,6 +443,22 @@ func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 				_fail(error)
 				return {}
 			return _apply_combat_overrides(fixture.build(_run_engine, _combat_engine, _apply_loadout(_run_engine.create_new_run(int(_options["seed"]), progression)), _options))
+		"last_light":
+			var fixture = preload("res://tools/last_light_inspection.gd")
+			var error: String = fixture.validate(_options)
+			if not error.is_empty():
+				_fail(error)
+				return {}
+			var special_state: Dictionary = fixture.build(_run_engine, _combat_engine, _apply_loadout(_run_engine.create_new_run(int(_options["seed"]), progression)), _options)
+			return _apply_combat_overrides(special_state) if str(special_state.get("mode", "")) == "combat" else _apply_room_overrides(special_state)
+		"ember_hoarder":
+			var fixture = preload("res://tools/hoarder_inspection.gd")
+			var error: String = fixture.validate(_options)
+			if not error.is_empty():
+				_fail(error)
+				return {}
+			var special_state: Dictionary = fixture.build(_run_engine, _combat_engine, _apply_loadout(_run_engine.create_new_run(int(_options["seed"]), progression)), _options)
+			return _apply_combat_overrides(special_state) if str(special_state.get("mode", "")) == "combat" else _apply_room_overrides(special_state)
 		"warband":
 			var fixture = preload("res://tools/warband_inspection.gd")
 			var error: String = fixture.validate(_options)
@@ -470,6 +509,8 @@ func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 			return _build_room_mode_run(progression, "campfire")
 		"treasure":
 			return _build_room_mode_run(progression, "treasure")
+		"event":
+			return _build_event_run(progression)
 		"graftwright":
 			return _build_graftwright_run(progression)
 		"blacksmith", "arcanist", "scavenger":
@@ -705,6 +746,21 @@ func _build_reward_run(progression: Dictionary) -> Dictionary:
 	if str(_options.get("notice", "")).is_empty():
 		state["notice"] = "Inspection fixture: post-combat reward reveal."
 	return state
+
+# An event room on its real choices page: --event-id picks one, otherwise the seed does.
+func _build_event_run(progression: Dictionary) -> Dictionary:
+	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
+	var id: String = str(_options.get("event_id", ""))
+	if not id.is_empty() and GameData.event_def(id).is_empty():
+		_fail("Unknown --event-id %s" % id)
+		return state
+	for room: Dictionary in (state["rooms"] as Dictionary).values():
+		if str(room.get("type", "")) != "event": continue
+		state["current_room"] = room["coord"]
+		if not id.is_empty(): room["event_id"] = id
+		state["mode"] = "event"
+		break
+	return _apply_room_overrides(EventRules.enter_event(state))
 
 func _build_room_mode_run(progression: Dictionary, mode: String) -> Dictionary:
 	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))

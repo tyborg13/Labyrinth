@@ -7,6 +7,12 @@ func _initialize() -> void:
 		var index: int = args.find("--write-proof-contract")
 		if index + 1 < args.size(): _write_contract(args[index + 1])
 		else: quit(1)
+	elif args.has("--feedback-1-only"):
+		_run_feedback_1.call_deferred()
+	elif args.has("--ui-only"):
+		_run_ui.call_deferred()
+	elif args.has("--empty-card-pools-only"):
+		_run_empty_card_pools.call_deferred()
 	elif args.has("--probe"):
 		_probe.call_deferred()
 	else:
@@ -18,6 +24,32 @@ func _run() -> void:
 	)
 	for failure: String in failures: push_error(failure)
 	print("Event rules suite: %d failures" % failures.size())
+	quit(0 if failures.is_empty() else 1)
+
+func _run_feedback_1() -> void:
+	var engine := preload("res://scripts/run_engine.gd").new()
+	var expect: Callable = func(ok: bool, message: String) -> void:
+		if not ok and not failures.has(message): failures.append(message)
+	preload("res://tests/helpers/recent_event_checks.gd").run(engine, expect)
+	preload("res://tests/helpers/event_preview_checks.gd")._named_lines(engine, expect)
+	for failure: String in failures: push_error(failure)
+	print("Event feedback 1 suite: %d failures" % failures.size())
+	quit(0 if failures.is_empty() else 1)
+
+func _run_ui() -> void:
+	Suite._ui(preload("res://scripts/run_engine.gd").new(), func(ok: bool, message: String) -> void:
+		if not ok and not failures.has(message): failures.append(message)
+	)
+	for failure: String in failures: push_error(failure)
+	print("Event cached preview UI suite: %d failures" % failures.size())
+	quit(0 if failures.is_empty() else 1)
+
+func _run_empty_card_pools() -> void:
+	preload("res://tests/helpers/event_preview_checks.gd").empty_card_pools(preload("res://scripts/run_engine.gd").new(), func(ok: bool, message: String) -> void:
+		if not ok and not failures.has(message): failures.append(message)
+	)
+	for failure: String in failures: push_error(failure)
+	print("Event empty card preview suite: %d failures" % failures.size())
 	quit(0 if failures.is_empty() else 1)
 
 # Debug-only real-renderer proof mode; the design owner runs this windowed.

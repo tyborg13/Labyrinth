@@ -6,9 +6,17 @@ const Materials = preload("res://scripts/scavenger_materials.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const SEGMENT_LABEL_INSET: float = 48.0
+const TRAILING_GAP: float = 12.0
+# With a trailing price, caption and price both clear the strap's 48 px brass ends.
+const TRAILING_EDGE: float = 60.0
+# A resting tab and the quiet Leave plate share one dimmed frame.
+const QUIET_TINT := Color(0.75, 0.72, 0.65)
 var surface: String = "action"
 var reduced_motion: bool = false
+## Optional inline control after the caption (the Purge price); it lifts and dims with the label.
+var trailing: Control = null
 var _label: Label
+var _last_reserve: float = -1.0
 var _lift: float = 0.0
 var _held: bool = false
 var _keyboard: bool = false
@@ -50,19 +58,25 @@ func _process(delta: float) -> void:
 	_label.size.y = size.y - 14
 	_label.position.y = 7 - _lift
 	_label.modulate = Color(1.1, 1.05, 0.94) if active else Color(1, 1, 1, 0.44 if disabled else 1.0)
+	if is_instance_valid(trailing):
+		trailing.position = Vector2(size.x - _label.position.x - trailing.size.x, (size.y - trailing.size.y) * 0.5 - _lift)
+		trailing.modulate = _label.modulate
 	queue_redraw()
 
 # The hidden shop prepares the same label that its visible process uses.
 func prepare_label() -> void:
 	if not is_instance_valid(_label): return
 	var font_size: int = get_theme_font_size("font_size")
-	if _last_text != text or _last_size != size or _last_font != font_size:
+	var reserve: float = trailing.size.x + Typography.scaled_value(self, TRAILING_GAP) if is_instance_valid(trailing) else 0.0
+	if _last_text != text or _last_size != size or _last_font != font_size or _last_reserve != reserve:
 		_last_text = text
 		_last_size = size
 		_last_font = font_size
+		_last_reserve = reserve
 		var inset: float = 9.0 if size.x < 100 else 38.0 if surface == "action" else Typography.scaled_value(self, SEGMENT_LABEL_INSET) if surface == "segment" else 15.0
+		if is_instance_valid(trailing): inset = maxf(inset, TRAILING_EDGE)
 		_label.position = Vector2(inset, 7)
-		_label.size = Vector2(size.x - inset * 2, size.y - 14)
+		_label.size = Vector2(size.x - inset * 2 - reserve, size.y - 14)
 		Materials.shade(_label, font_size, _label.size.y)
 		_label.text = text
 
@@ -78,10 +92,10 @@ func _draw() -> void:
 		glow.set_corner_radius_all(10)
 		draw_style_box(glow, rect.grow(-9))
 	if surface == "segment":
-		if selected or active or _held:
-			Materials.paint(self, "dialogue", rect, Color(0.70, 0.62, 0.5) if _held else Color(1.25, 1.04, 0.74) if selected else Color(1.1, 1.03, 0.9))
+		# Every tab keeps its frame: the chosen one lit and raised, the other resting like Leave.
+		Materials.paint(self, "dialogue", rect, Color(0.70, 0.62, 0.5) if _held else Color(1.25, 1.04, 0.74) if selected else Color(1.1, 1.03, 0.9) if active else QUIET_TINT)
 	elif surface == "quiet":
-		Materials.paint(self, "dialogue", rect, Color(1.05, 1.0, 0.9) if active else Color(0.75, 0.72, 0.65))
+		Materials.paint(self, "dialogue", rect, Color(1.05, 1.0, 0.9) if active else QUIET_TINT)
 	else:
 		Materials.paint(self, "tray" if size.x < 100 else surface, rect, Color(0.70, 0.62, 0.5) if _held else Color(1.25, 1.12, 0.93) if active else Color(1, 1, 1, 0.42 if disabled else 1.0))
 	if selected:

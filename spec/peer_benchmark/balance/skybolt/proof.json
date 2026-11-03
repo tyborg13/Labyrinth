@@ -1,0 +1,357 @@
+{
+  "task_id": "meas-03",
+  "risk_tier": "low",
+  "status": "complete",
+  "inspection": {
+    "applicable": false,
+    "reason": "Offline measurement only; no runtime, UI, gameplay data, assets or saves changed.",
+    "windowed_commands": [],
+    "captures": []
+  },
+  "commands": {
+    "focused_godot": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 tools/godot_task_runner.py --task-id meas-03 --timeout 180 --stream -- godot --headless --path . --script tests/skybolt_measurement_test.gd",
+    "existing_godot": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 tools/godot_task_runner.py --task-id meas-03 --timeout 300 --stream -- godot --headless --path . --script tests/encounter_measurement_test.gd",
+    "existing_python": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 -m unittest discover -s tests -p test_encounter_measurement.py -v",
+    "new_python": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 -m unittest discover -s tests -p test_skybolt_measurement.py -v",
+    "sweep": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 -u tools/skybolt_measurement.py",
+    "rebuild_report": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 tools/skybolt_measurement.py --report-only",
+    "resume_sweep": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 -u tools/skybolt_measurement.py --resume-dir /private/tmp/labyrinth_codex/meas-03/sweep-sh7vjtba --refresh-skybolt-metrics",
+    "sidecar_import": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 tools/godot_task_runner.py --task-id meas-03 --timeout 300 --stream -- godot --headless --path . --import",
+    "refresh_counters": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 -u tools/skybolt_metric_refresh.py --checkpoint-dir /private/tmp/labyrinth_codex/meas-03/sweep-sh7vjtba",
+    "one_arm_example": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 tools/godot_task_runner.py --task-id meas-03 --timeout 7200 --stream -- godot --headless --path . --script tools/encounter_measurement_bot.gd -- --revision 7 --cohort standard --tier 2 --runs 150 --seed 1 --add-card skybolt --card-overrides '{\"time\":9}' --output /private/tmp/labyrinth_codex/meas-03/replay-v4.json"
+  },
+  "observed_results": [
+    "SKYBOLT OVERRIDES: PASS (29 checks; 0 failures)",
+    "ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)",
+    "ENCOUNTER RUN SAVE: PASS (3 seeds; ProgressionStore; complete state equality)",
+    "ENCOUNTER SMALL SWEEP: PASS (revision 5; 84 rooms; seeds 1..15)",
+    "ENCOUNTER SMALL SWEEP: PASS (revision 6; 120 rooms; seeds 1..25)",
+    "ENCOUNTER SMALL SWEEP: PASS (revision 7; 120 rooms; seeds 1..21)",
+    "ENCOUNTER BOT DODGE/DEFENSE: PASS",
+    "ENCOUNTER BOT DETERMINISM: PASS (3 explicit objective fixtures, repeated seeded rooms)",
+    "ENCOUNTER MEASUREMENT: PASS (2602 checks; 0 failures)",
+    "Existing Python: Ran 14 tests in 2.390s; OK",
+    "New Python (excluding unfinished report): Ran 5 tests in 13.793s; OK",
+    "Godot sidecar guard: Ran 19 tests in 2.162s; OK",
+    "Sidecar import: exit 124; error: command timed out after 300 seconds.",
+    "Current instrumented none vs frozen revision-7 standard tier 2: EXACT MATCH (150 fights)",
+    "TEST REGISTRATION AUDIT: PASS (792 scripts; full suite=440, quarantined=29, windowed probe=323)",
+    "SKYBOLT OVERRIDES: PASS (32 checks; 0 failures)",
+    "ENCOUNTER MEASUREMENT: PASS (2634 checks; 0 failures)",
+    "SKYBOLT OVERRIDES: PASS (38 checks; 0 failures)",
+    "ENCOUNTER MEASUREMENT: PASS (2640 checks; 0 failures)",
+    "Four completed none cohorts exactly reproduce frozen revision-7 outcomes: tier-2 standard/warband and tier-3 guardian/boss (600 fights)",
+    "SKYBOLT OVERRIDES: PASS (44 checks; 0 failures)",
+    "ENCOUNTER MEASUREMENT: PASS (2646 checks; 0 failures)",
+    "New Python including refresh success/outcome rejection: Ran 5 tests in 41.504s; OK",
+    "PRIMARY-ONLY CORRECTIONS: PASS (5 affected checkpoints replaced)",
+    "SKYBOLT SUPPLEMENTAL CHECKPOINTS: PASS (27 arm/cohort checkpoints)",
+    "SKYBOLT METRIC REFRESH: PASS (42 arm/cohort checkpoints; 3471 nonzero-cast fights refreshed)"
+  ],
+  "chosen_defaults": {
+    "BOOTSTRAP_RESAMPLES": 10000,
+    "BOOTSTRAP_SEED": 3102026,
+    "WORKERS": 6,
+    "SUPPLEMENTAL_WORKERS": 6,
+    "SUPPLEMENTAL_COHORTS": [
+      "boss",
+      "guardian",
+      "warband"
+    ],
+    "supplemental_note": "Additional isolated processes fill disjoint tier-3 checkpoints; the main driver validates/resumes their complete prefixes. The summary workers field describes the main driver.",
+    "CLI_TIMEOUT_SECONDS": 180,
+    "SUBPROCESS_TIMEOUT_SECONDS": 200,
+    "MEASUREMENT_FIXTURE": {
+      "size": 11,
+      "player": [
+        1,
+        3
+      ],
+      "far_enemy": [
+        8,
+        3
+      ],
+      "wall": [
+        5,
+        3
+      ],
+      "second_enemy": [
+        4,
+        3
+      ],
+      "second_id": 2,
+      "hp": 30,
+      "conductor_aim": [
+        5,
+        3
+      ],
+      "conduction_primary": [
+        4,
+        3
+      ],
+      "conduction_wall": [
+        3,
+        3
+      ]
+    },
+    "LOG_ROOT": "/private/tmp/labyrinth_codex/meas-03",
+    "CORRECTION_WORKERS": 3,
+    "CHECKPOINT_SETTLE_SECONDS": 2,
+    "skybolt_primary_target_initial": [
+      -1,
+      -1
+    ],
+    "duplicate_card_id_prefix": "__measurement_added_",
+    "METRIC_REFRESH_WORKERS": 9,
+    "METRIC_LOCK_POLL_MSEC": 200,
+    "METRIC_REFRESH_POLL_SECONDS": 1,
+    "paired_hp_delta_statistic": "mean",
+    "CI_method": "paired map-seed cluster percentile bootstrap",
+    "skybolt_cast_origin_initial": [
+      -1,
+      -1
+    ],
+    "PROGRESS_POLL_MS": 50000,
+    "METRIC_REFRESH_FIXTURE": {
+      "seed": 1,
+      "hp_lost": 3,
+      "casts": 1,
+      "hits": 2,
+      "corrected_beyond_5_hits": 1,
+      "corrected_no_los_hits": 2
+    },
+    "STATISTICS_FIXTURES": {
+      "seeds": [
+        1,
+        2
+      ],
+      "baseline_hp": [
+        10,
+        5
+      ],
+      "arm_hp": [
+        2,
+        5
+      ],
+      "correlated_sections": [
+        0,
+        1
+      ]
+    }
+  },
+  "checkpoint_directory": "/private/tmp/labyrinth_codex/meas-03/sweep-sh7vjtba",
+  "design_placeholders": [],
+  "scope_notes": [
+    "Full suites excluded by the unit brief (measurement tooling only).",
+    "Commit, peer review, inspection handoff and publication belong to the design owner.",
+    "The initial existing-Python run failed the historical live-tool hash comparison; it now validates the unchanged recorded hashes against the original revision-7 integration snapshot, with current-tool provenance separately covered.",
+    "The optional import bootstrap generated both new script .uid sidecars before timing out in the large historical art tree. It was not used as parser proof and was not retried. The sidecar guard passed; no tracked asset/import settings changed.",
+    "Attempting to interrupt the optional import runner returned: zsh:kill:1: kill 87962 failed: operation not permitted. Its own 300-second runner timeout subsequently terminated it.",
+    "The Skybolt domain assertions are called by the registered encounter_measurement_test.gd suite. The focused wrapper shares those assertions; no shared manifest edits are required.",
+    "Primary-only Shock is an explicit director decision. An offline-only adapter now suppresses Shock on conducted targets for V1/V5; production carries shock:1 regardless of the flag. Five pre-adapter arm checkpoints are being replaced by complete fresh runs. Each valid V1/V5 result records primary_only_shock_adapter:true; resume/report validation rejects pre-adapter results.",
+    "The initial sweep freezes its tooling hashes and will intentionally invalidate its final report after this adapter change. After all checkpoint corrections finish, replay/resume every completed checkpoint under the final tools to validate sampling and generate the final report; no stale report will be handed off.",
+    "The generic duplicate-card override creates one private in-memory prototype, excluded from rewards, so preset copies retain their complete original definition. Its namespace is technical only. The initial new regression compared a raw definition to a resolved combat definition (id/action metadata); the check now compares resolved definitions against the native engine and separately verifies raw data/file identity.",
+    "Conducted-hit keyword source_pos is a force/hop origin. The collector now tracks the actual pre-cast origin. Old nonzero-cast records are selectively replayed; every outcome/turn/HP/kill/decision/preview field and every non-geometric usage counter must match exactly before only range/LOS counters are replaced. Zero-cast records retain all numerical values. origin_metric:caster_v1 identifies corrected counters. Per-file leases serialize refresh with concurrent resume validation.",
+    "The first sweep correctly refused to generate a report after tool updates: RuntimeError: Tool changed during measurement: encounter_measurement_bot.gd. All corrected checkpoints are being revalidated by a fresh final-tool run; the obsolete report was never generated.",
+    "The new duplicate-copy regression initially failed: SKYBOLT OVERRIDES: FAIL (37 checks; 1 failures). Its raw-versus-resolved comparison was corrected; the native engine control, separate raw definition check, actual card payment, and byte-identical source checks now pass.",
+    "Final-tool checkpoint validation and report generation completed successfully after every correction and metric refresh. The earlier tooling-hash invalidation is resolved; all final hashes match current sources. All headless processes are finished."
+  ],
+  "pre_adapter_tool_sha256": {
+    "encounter_bot.gd": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+    "encounter_measurement_bot.gd": "15c111b258ff441d66d5b50dd944e1d5bf0e17fd8e57bbb070d4a48a7da162ac",
+    "encounter_measurement_engine.gd": "5989f4a928499d585fc6d3b35256eecc595e893518acd9198a7a0905b1dad6e2",
+    "encounter_sweep.gd": "e399622c17fc6138e055181e264a1ba3d2b4f7f962352101174cfa7989a28eda",
+    "encounter_sweep.py": "b00ce13a7bdb95786159e611265e3f337c93fc909f2d2ea1c2b34b8424b068de",
+    "skybolt_measurement.py": "859ff0128fae94a5069f9cb49f40abc44ea325645f7ecfb9948b4892bab561c5"
+  },
+  "pre_adapter_affected_checkpoints": [
+    "t3-boss-V1",
+    "t2-standard-V5",
+    "t3-boss-V5",
+    "t2-standard-V1",
+    "t2-warband-V1"
+  ],
+  "acceptance_criteria": {
+    "1": "Named-card and field-override options append one copy, including isolated duplicates; policy SHA and authored file bytes unchanged.",
+    "2": "All nine arms measured. V1/V5 use a measurement-only primary-target Shock adapter; Exhaust, range/LOS and Time overrides use production resolution.",
+    "3": "Revision 7, seven cohort/tier groups, 150 paired fights for each of nine arms; first seed 1; all ordered identities and entrances validated.",
+    "4": "Win rates, turn/HP distributions, paired win/HP deltas and seed-cluster 95% CIs, plus all requested Skybolt usage counters; caster-origin metrics verified.",
+    "5": "report.md contains seven cohort tables, one Skybolt table and one comparison paragraph without a recommendation."
+  },
+  "latest_results": [
+    "SKYBOLT MEASUREMENT: PASS (63 arms/cohorts; 9450 paired fights)",
+    "SKYBOLT METRIC REFRESH: PASS (42 arm/cohort checkpoints; 3471 nonzero-cast fights refreshed)",
+    "SKYBOLT OVERRIDES: PASS (44 checks; 0 failures)",
+    "ENCOUNTER MEASUREMENT: PASS (2646 checks; 0 failures)",
+    "New Python: Ran 6 tests in 19.565s; OK",
+    "Existing Python: Ran 14 tests in 1.273s; OK",
+    "Sidecar Python: Ran 19 tests in 1.291s; OK",
+    "TEST REGISTRATION AUDIT: PASS (792 scripts; full suite=440, quarantined=29, windowed probe=323)",
+    "All seven none cohorts reproduce frozen revision-7 outcomes exactly (1050 fights)",
+    "Report reconstruction and all 63 raw hashes recompute exactly",
+    "git diff --check: exit 0; scripts/data/assets: no changes"
+  ],
+  "open_issues": [
+    "Optional full asset import timed out after 300 seconds in the historical art tree (exit 124). All four new script UIDs were produced; focused script execution and sidecar checks passed."
+  ],
+  "artifacts": {
+    "report.md": {
+      "path": "spec/peer_benchmark/balance/skybolt/report.md",
+      "sha256": "d28c532da8af0034992d9fd78e02afa6437a2d4e3232b830bfe0513d18a6a41c"
+    },
+    "summary.json": {
+      "path": "spec/peer_benchmark/balance/skybolt/summary.json",
+      "sha256": "e4230db57925d9b4c86869959e231b16a6f5ed1307b15c84b4012ad5f1318298"
+    }
+  },
+  "raw_files": 63,
+  "changed_files": [
+    "spec/peer_benchmark/balance/skybolt/data/t2-guardian-V1.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-guardian-V2.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-guardian-V3.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-guardian-V4.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-guardian-V5.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-guardian-none.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-guardian-skybolt.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-guardian-stormstring_shot.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-guardian-wildfire_halo.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-standard-V1.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-standard-V2.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-standard-V3.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-standard-V4.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-standard-V5.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-standard-none.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-standard-skybolt.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-standard-stormstring_shot.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-standard-wildfire_halo.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-warband-V1.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-warband-V2.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-warband-V3.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-warband-V4.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-warband-V5.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-warband-none.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-warband-skybolt.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-warband-stormstring_shot.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t2-warband-wildfire_halo.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-boss-V1.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-boss-V2.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-boss-V3.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-boss-V4.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-boss-V5.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-boss-none.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-boss-skybolt.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-boss-stormstring_shot.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-boss-wildfire_halo.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-guardian-V1.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-guardian-V2.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-guardian-V3.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-guardian-V4.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-guardian-V5.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-guardian-none.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-guardian-skybolt.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-guardian-stormstring_shot.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-guardian-wildfire_halo.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-standard-V1.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-standard-V2.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-standard-V3.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-standard-V4.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-standard-V5.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-standard-none.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-standard-skybolt.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-standard-stormstring_shot.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-standard-wildfire_halo.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-warband-V1.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-warband-V2.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-warband-V3.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-warband-V4.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-warband-V5.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-warband-none.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-warband-skybolt.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-warband-stormstring_shot.json.gz",
+    "spec/peer_benchmark/balance/skybolt/data/t3-warband-wildfire_halo.json.gz",
+    "spec/peer_benchmark/balance/skybolt/proof.json",
+    "spec/peer_benchmark/balance/skybolt/report.md",
+    "spec/peer_benchmark/balance/skybolt/summary.json",
+    "tests/encounter_measurement_test.gd",
+    "tests/skybolt_measurement_test.gd",
+    "tests/skybolt_measurement_test.gd.uid",
+    "tests/suites/skybolt_measurement_suite.gd",
+    "tests/suites/skybolt_measurement_suite.gd.uid",
+    "tests/test_encounter_measurement.py",
+    "tests/test_skybolt_measurement.py",
+    "tools/encounter_measurement_bot.gd",
+    "tools/encounter_measurement_engine.gd",
+    "tools/encounter_measurement_engine.gd.uid",
+    "tools/encounter_metric_repair.gd",
+    "tools/encounter_metric_repair.gd.uid",
+    "tools/encounter_sweep.py",
+    "tools/skybolt_measurement.py",
+    "tools/skybolt_metric_refresh.py"
+  ],
+  "branch": "codex/meas-03",
+  "committed": false,
+  "peer_review": "Not run; assigned to the design owner.",
+  "feedback_1": {
+    "reviewed_commit": "2285dad8dedec2c3c047b6f57c2d0199ecfdf6dd",
+    "status": "complete; changes uncommitted",
+    "acceptance": {
+      "1": "Overrides enter the authored definition before production fixed-point, progression and Tempo resolution. Four production parity fixtures cover Quicken 2 with Time 9, Empower, Follow-up, and both keywords together; complete prepared/actions/resolved-state equality and exact paid Time pass. Start stamping also handles keywords added by overrides.",
+      "2": "CLI integration rejects altered skybolt_hits through non-geometric counter parity and mismatched resume override fields with nonzero exit. Output remains byte-identical for both failures; the altered input checkpoint also remains byte-identical."
+    },
+    "commands": {
+      "focused_godot": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 tools/godot_task_runner.py --task-id meas-03 --timeout 180 --stream -- godot --headless --path . --script tests/skybolt_measurement_test.gd",
+      "existing_godot": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 tools/godot_task_runner.py --task-id meas-03 --timeout 300 --stream -- godot --headless --path . --script tests/encounter_measurement_test.gd",
+      "existing_python": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 -m unittest discover -s tests -p test_encounter_measurement.py -v",
+      "new_python": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 -m unittest discover -s tests -p test_skybolt_measurement.py -v",
+      "registration_audit": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-03 && python3 tools/test_registration_audit.py --json /private/tmp/labyrinth_codex/meas-03/feedback1-registration.json --markdown /private/tmp/labyrinth_codex/meas-03/feedback1-registration.md"
+    },
+    "observed_results": [
+      "SKYBOLT OVERRIDES: PASS (60 checks; 0 failures)",
+      "ENCOUNTER RUN SAVE: PASS (3 seeds; ProgressionStore; complete state equality)",
+      "ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)",
+      "ENCOUNTER SMALL SWEEP: PASS (revision 5; 84 rooms; seeds 1..15)",
+      "ENCOUNTER SMALL SWEEP: PASS (revision 6; 120 rooms; seeds 1..25)",
+      "ENCOUNTER SMALL SWEEP: PASS (revision 7; 120 rooms; seeds 1..21)",
+      "ENCOUNTER BOT DODGE/DEFENSE: PASS",
+      "ENCOUNTER BOT DETERMINISM: PASS (3 explicit objective fixtures, repeated seeded rooms)",
+      "ENCOUNTER MEASUREMENT: PASS (2662 checks; 0 failures)",
+      "Existing Python: Ran 14 tests in 1.237s; OK",
+      "Skybolt Python: Ran 6 tests in 25.381s; OK",
+      "TEST REGISTRATION AUDIT: PASS (792 scripts; full suite=440, quarantined=29, windowed probe=323)",
+      "FEEDBACK 1 FROZEN EVIDENCE: PASS (report, summary, 63 raw files, card data and policy unchanged)"
+    ],
+    "logs": {
+      "focused_godot": "/private/tmp/labyrinth-godot-home/meas-03-1792768869805222000-65495/godot.log",
+      "existing_godot": "/private/tmp/labyrinth-godot-home/meas-03-1792768893457451000-65538/godot.log",
+      "registration_json": "/private/tmp/labyrinth_codex/meas-03/feedback1-registration.json",
+      "registration_markdown": "/private/tmp/labyrinth_codex/meas-03/feedback1-registration.md"
+    },
+    "source_sha256": {
+      "tools/encounter_measurement_engine.gd": "2be40fbae1e97b66eeb7fdf34f5217bba4514e54d2b88b6cf20db618331dbbcb",
+      "tools/encounter_measurement_bot.gd": "1527ee04fef72a7a06b4c0cbfcb0555e880034e7dc132253b47d93c0cde98a95",
+      "tests/suites/skybolt_measurement_suite.gd": "daa5f96db8048b276dcd82a485e505c8312d0483d16340e2332f5098b7375881",
+      "tests/test_skybolt_measurement.py": "a750675c0fd05ab5366ff1d98b2d7a407b355510f00f1cdc9f782484896bbce1"
+    },
+    "frozen_artifacts": {
+      "data/cards.json": "688b593df92cdd2d2420d2ac0acc35e16e21f415191ab12b0f95544e7483ec48",
+      "tools/encounter_bot.gd": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+      "spec/peer_benchmark/balance/skybolt/report.md": "d28c532da8af0034992d9fd78e02afa6437a2d4e3232b830bfe0513d18a6a41c",
+      "spec/peer_benchmark/balance/skybolt/summary.json": "e4230db57925d9b4c86869959e231b16a6f5ed1307b15c84b4012ad5f1318298"
+    },
+    "raw_files_unchanged": 63,
+    "report_tool_provenance": "Frozen tool hashes validated against the reviewed measurement commit, rather than post-measurement tooling fixes. Report reconstruction and current policy/data hashes remain checked.",
+    "chosen_defaults": {
+      "PRICING_FIXTURE": {
+        "time": 9,
+        "quicken": 2,
+        "finished_for_follow_up": 1
+      }
+    },
+    "design_placeholders": [],
+    "open_issues": [],
+    "full_measurement_rerun": false,
+    "full_suite_run": false,
+    "windowed_commands": [],
+    "captures": []
+  }
+}

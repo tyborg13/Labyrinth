@@ -3,6 +3,7 @@ extends RefCounted
 const Fixtures = preload("res://tests/suites/card_keywords_suite.gd")
 const Departures = preload("res://tests/suites/empower_charge_departure_suite.gd")
 const Settings = preload("res://scripts/settings_store.gd")
+const Ui = preload("res://scripts/card_empower_controller.gd")
 const PROOF_SIZE := Vector2i(1920, 1080)
 const FIXTURE_SEED: int = 60501
 const SETTLE_FRAMES: int = 5
@@ -22,6 +23,8 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 			await _routed_toggles(tree, expect, source, reduced)
 	for source: String in ["mouse", "keyboard", "controller"]:
 		await _blocked_health(tree, expect, source)
+	await _unplayable_rollback(tree, expect)
+	await _blocked_contexts(tree, expect)
 	await _automatic_clears(tree, expect)
 	Settings.apply_settings(original_settings, tree.root, false)
 	tree.root.size = original_size
@@ -173,7 +176,13 @@ static func _blocked_health(tree: SceneTree, expect: Callable, source: String) -
 	scene.call("_mark_combat_preview_state_changed")
 	scene.call("_refresh_ui")
 	await _prepare_input(tree, scene, source)
+	expect.call(Ui.can_attempt(scene, 0) and not Ui.available(scene, 0), "%s: health block allows invalid feedback but never offers Empower" % source)
+	scene.call("_refresh_controller_prompts")
+	await settle(tree)
+	var prompts: Array = scene.get("_controller_prompt_bar").prompts_snapshot()
+	expect.call(not prompts.any(func(prompt: Dictionary) -> bool: return prompt["label"] in ["Empower", "Unempower"]), "%s: health block hides the controller Empower prompt" % source)
 	var seal: Button = (scene.call("_hand_card_control", 0) as Node).get_node("EmpowerSeal") as Button
+	expect.call(not seal.get_node("Badge").visible, "%s: health block hides the keyboard/controller Empower badge" % source)
 	var original_tooltip: String = seal.tooltip_text
 	var bank: Node = scene.get("_sfx_bank")
 	bank.set_test_clock(BLOCKED_CLOCK_MS)
@@ -203,3 +212,39 @@ static func _blocked_health(tree: SceneTree, expect: Callable, source: String) -
 	router.call("set_modality", "pointer")
 	scene.queue_free()
 	await settle(tree)
+
+static func _unplayable_rollback(tree: SceneTree, expect: Callable) -> void:
+	for charged: bool in [false, true]:
+		var scene: Node = await Fixtures._live_instance(tree, expect, ["kwtest_empower_block"], FIXTURE_SEED)
+		await scene.call("_on_card_pressed", 0)
+		if charged: scene.get("_empower_charge").toggle(0)
+		var state: Dictionary = scene.get("_combat_state")
+		state["cards_played_this_turn"] = int(state.get("cards_per_turn", 3))
+		scene.call("_mark_combat_preview_state_changed")
+		var preview: Dictionary = scene.call("_card_preview_for_index", 0)
+		expect.call(not bool(preview.get("playable", false)) and Ui.can_attempt(scene, 0), "Rollback fixture reaches the unplayable preview guard")
+		var events: Array[Dictionary]
+		_listen(scene, events)
+		await Ui.toggle(scene, 0, "keyboard")
+		expect.call(bool(scene.call("_hand_card_empowered", 0)) == charged, "Unplayable rollback preserves charge in both directions: charged=%s" % charged)
+		expect.call(events.is_empty(), "Unplayable rollback requests no charge, uncharge or invalid sound: charged=%s" % charged)
+		print("EMPOWER ROLLBACK SFX charged=%s: %d cues" % [charged, events.size()])
+		scene.queue_free()
+		await settle(tree)
+
+static func _blocked_contexts(tree: SceneTree, expect: Callable) -> void:
+	for guard: String in ["animation", "modal", "skill_selection"]:
+		var scene: Node = await Fixtures._live_instance(tree, expect, ["kwtest_empower_block"], FIXTURE_SEED)
+		expect.call(Ui.can_attempt(scene, 0), "%s: guard fixture starts attemptable" % guard)
+		match guard:
+			"animation": scene.set("_animation_lock", true)
+			"modal": scene.set("_dialogue_active", true)
+			"skill_selection": scene.set("_combat_skill_card_selection_zone", "hand")
+		var events: Array[Dictionary]
+		_listen(scene, events)
+		expect.call(not Ui.can_attempt(scene, 0), "%s: can_attempt rejects the blocked context" % guard)
+		await Ui.toggle(scene, 0, "keyboard")
+		expect.call(not bool(scene.call("_hand_card_empowered", 0)) and events.is_empty(), "%s: rejected attempt preserves charge and requests no sound" % guard)
+		print("EMPOWER CONTEXT SFX %s: %d cues" % [guard, events.size()])
+		scene.queue_free()
+		await settle(tree)

@@ -1,0 +1,8 @@
+.MQ13_BRIDGE: maquette.blend.receipt; exit=0
+MQ13_BRIDGE: build_report.json.receipt; exit=0
+.............................
+----------------------------------------------------------------------
+Ran 30 tests in 3.901s
+
+OK
+DELIVERY_STAGE: PASS; staged

@@ -18,18 +18,28 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = ROOT / "spec/peer_benchmark/encounter_redesign/measurements"
 MEASUREMENT_TIMEOUT_SECONDS = 7200
-CURRENT_REVISION = 6
+CURRENT_REVISION = 7
+SUPPORTED_REVISIONS = (5, 6, 7)
+TASK_ID = "meas-02"
 LEGACY_REVISION = 5
 COHORTS = ("standard", "warband")
+AVAILABLE_COHORTS = (*COHORTS, "guardian", "boss")
+BIOMES = ("fire", "earth", "ice", "air", "lightning", "shadow")
+
+
+def expected_bins(revision: int) -> set[tuple[str, int, str]]:
+    return {(cohort, tier, biome) for cohort in AVAILABLE_COHORTS
+            if revision >= 6 or cohort != "warband"
+            for tier in ((3,) if cohort == "boss" else (1, 2, 3)) for biome in BIOMES}
 
 
 def output_for_revision(revision: int) -> Path:
     return DEFAULT_OUTPUT / f"revision{revision}"
 
 
-def run_engine(script: str, arguments: list[str], log: Path) -> float:
+def run_engine(script: str, arguments: list[str], log: Path, *, task_id: str = TASK_ID) -> float:
     command = [sys.executable, str(ROOT / "tools/godot_task_runner.py"),
-               "--task-id", "spx-01", "--timeout", str(MEASUREMENT_TIMEOUT_SECONDS),
+               "--task-id", task_id, "--timeout", str(MEASUREMENT_TIMEOUT_SECONDS),
                "--stream", "--", "godot", "--headless", "--path", str(ROOT),
                "--script", script, "--", *arguments]
     started = time.monotonic()
@@ -105,8 +115,8 @@ def markdown(groups: list[dict]) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seeds", type=int, default=2000, help="accepted distinct seeds per cohort/tier/biome")
-    parser.add_argument("--revision", type=int, choices=(5, 6), default=CURRENT_REVISION,
-                        help="6: standard + Warband; 5: legacy standard objective cohorts")
+    parser.add_argument("--revision", type=int, choices=SUPPORTED_REVISIONS, default=CURRENT_REVISION,
+                        help="5+: standard, Guardian and dragon; 6+: also Warband")
     parser.add_argument("--first-seed", type=int, default=1)
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--resume", action="store_true", help="resume an interrupted composition.jsonl checkpoint")
@@ -124,8 +134,8 @@ def main() -> None:
     rows = [json.loads(line) for line in raw.read_text().splitlines()]
     bins = Counter((r["cohort"], r["tier"], r["biome"]) for r in rows)
     identities = {(r["cohort"], r["tier"], r["biome"], r["seed"]) for r in rows}
-    expected_bins = 36 if args.revision == CURRENT_REVISION else 18
-    if len(bins) != expected_bins or set(bins.values()) != {args.seeds} or len(identities) != len(rows):
+    expected = expected_bins(args.revision)
+    if set(bins) != expected or set(bins.values()) != {args.seeds} or len(identities) != len(rows):
         raise RuntimeError("Incomplete or duplicate cohort/tier/biome seed coverage")
     groups = summarize(rows)
     compressed = output / "composition.jsonl.gz"

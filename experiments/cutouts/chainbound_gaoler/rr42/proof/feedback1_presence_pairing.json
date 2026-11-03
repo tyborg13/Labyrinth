@@ -1,0 +1,240 @@
+{
+  "native_pixels": false,
+  "before_fix": [
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 11,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_press_011_4x.png"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 12,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_press_012_4x.png"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 15,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_press_015_4x.png"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 16,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_press_016_4x.png"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 20,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_press_020_4x.png"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 34,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_press_034_4x.png"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 35,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_press_035_4x.png"
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 8,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_guard_008_4x.png"
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 9,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_guard_009_4x.png"
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 46,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_guard_046_4x.png"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 71,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_death_071_4x.png"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 72,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_death_072_4x.png"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 73,
+      "kinds": [
+        "procedural"
+      ],
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_texels": 0,
+        "painted_missing_texels": 1
+      },
+      "crop": "proof/logs/rr42_crops/front_death_073_4x.png"
+    }
+  ],
+  "correction": "A required texel and that same layer alpha use the same UV choice. Other layers retain independent choices. No source mask, paint, rounding family or calibrated geometric metric changes."
+}

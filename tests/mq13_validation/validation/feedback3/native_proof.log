@@ -1,0 +1,7 @@
+MQ13_BRIDGE: binding_bridge; exit=0
+MQ13_SAVED_BODY_RESUME_MUTATION: PASS; changed_body_rejected=True; original_restored=True
+MQ13_BRIDGE: observations_bridge; exit=0
+MQ13_BRIDGE: front_capture_bridge; exit=0
+Traceback (most recent call last):
+  File "<stdin>", line 51, in <module>
+AssertionError: front_parts.png

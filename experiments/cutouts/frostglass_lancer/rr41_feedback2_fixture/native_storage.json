@@ -1,0 +1,481 @@
+{
+  "version": 1,
+  "files": {
+    "front_death/pose_0082.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "front_death/pose_0082.png"
+    },
+    "pieces/death/0082/front/head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/head.png"
+    },
+    "pieces/death/0082/front/hidden_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_head.png"
+    },
+    "pieces/death/0082/front/torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/torso.png"
+    },
+    "pieces/death/0082/front/hidden_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_torso.png"
+    },
+    "pieces/death/0082/front/pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/pelvis.png"
+    },
+    "pieces/death/0082/front/hidden_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_pelvis.png"
+    },
+    "pieces/death/0082/front/tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/tabard.png"
+    },
+    "pieces/death/0082/front/hidden_tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_tabard.png"
+    },
+    "pieces/death/0082/front/spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/spear.png"
+    },
+    "pieces/death/0082/front/hidden_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_spear.png"
+    },
+    "pieces/death/0082/front/cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/cape_near.png"
+    },
+    "pieces/death/0082/front/hidden_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_cape_near.png"
+    },
+    "pieces/death/0082/front/arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/arm_near.png"
+    },
+    "pieces/death/0082/front/hidden_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_arm_near.png"
+    },
+    "pieces/death/0082/front/hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hand_near.png"
+    },
+    "pieces/death/0082/front/hidden_hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_hand_near.png"
+    },
+    "pieces/death/0082/front/leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/leg_near.png"
+    },
+    "pieces/death/0082/front/hidden_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_leg_near.png"
+    },
+    "pieces/death/0082/front/foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/foot_near.png"
+    },
+    "pieces/death/0082/front/hidden_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_foot_near.png"
+    },
+    "pieces/death/0082/front/cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/cape_far.png"
+    },
+    "pieces/death/0082/front/hidden_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_cape_far.png"
+    },
+    "pieces/death/0082/front/arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/arm_far.png"
+    },
+    "pieces/death/0082/front/hidden_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_arm_far.png"
+    },
+    "pieces/death/0082/front/hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hand_far.png"
+    },
+    "pieces/death/0082/front/hidden_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_hand_far.png"
+    },
+    "pieces/death/0082/front/leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/leg_far.png"
+    },
+    "pieces/death/0082/front/hidden_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_leg_far.png"
+    },
+    "pieces/death/0082/front/foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/foot_far.png"
+    },
+    "pieces/death/0082/front/hidden_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/hidden_foot_far.png"
+    },
+    "pieces/death/0082/front/covered_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/covered_torso.png"
+    },
+    "pieces/death/0082/front/covered_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/covered_cape_far.png"
+    },
+    "pieces/death/0082/front/covered_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/death/0082/front/covered_foot_far.png"
+    }
+  }
+}

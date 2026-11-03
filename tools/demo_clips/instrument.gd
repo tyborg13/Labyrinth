@@ -19,7 +19,7 @@ static func install(clock: RefCounted) -> Node:
 	scene.set_script(script)
 	scene.set("_demo_clock", clock)
 	var callouts: String = FileAccess.get_file_as_string("res://scripts/intent_callouts.gd")
-	callouts = callouts.replace("Time.get_ticks_usec()", 'int(scene.get("_demo_clock").usec)')
+	callouts = callouts.replace("Time.get_ticks_usec()", 'int(load("res://tools/demo_clips/clock.gd").current.usec)')
 	scene.set("_demo_callouts", Sources.compile_script("scripts/intent_callouts.gd", callouts))
 	# The harness seeds registered cues; lazy legacy cues need the same seed.
 	var bank_source: String = FileAccess.get_file_as_string("res://scripts/sfx_bank.gd")

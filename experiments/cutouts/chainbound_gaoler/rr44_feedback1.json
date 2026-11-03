@@ -1,0 +1,7 @@
+{
+  "authority": "Director feedback 1 after rr44 native round 0",
+  "held_follow_reference_frame": "body",
+  "held_follow_definition": "Painted grip displacement in the torso's rest frame. Remove the body transform, including root/pelvis translation and body lean, so only shoulder pendulum and forearm lag contribute. Project on the facing axis in that frame.",
+  "press_hand_near_lift_floor_px": 14,
+  "press_hand_near_lift_maximum_px": 22
+}

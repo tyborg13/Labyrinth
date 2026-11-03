@@ -1,0 +1,55 @@
+{
+  "new_non_player_defaults": {
+    "proof_sample_origin": [
+      0,
+      0
+    ],
+    "cull_guard_texels": 1,
+    "mutation_depth": -100,
+    "plate_mutation_offset_px": 255,
+    "transparent_source_rgba": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "reused_rr33_defaults": {
+    "native_size": [
+      1920,
+      1080
+    ],
+    "ui_scale": 1,
+    "pose_size": [
+      512,
+      512
+    ],
+    "native_origin": [
+      128,
+      128
+    ],
+    "native_fps": 60,
+    "representative_frames": 6,
+    "idle_comparison_loops": 5,
+    "native_timeout_seconds": 3600,
+    "production_timeout_seconds": 900,
+    "test_timeout_seconds": 180,
+    "mutation_px": 10,
+    "texture_fixture_px": 8,
+    "mutation_phase": 0.4,
+    "mutation_degrees": 5,
+    "construction_pass_limit": 16,
+    "raster_coverage_margin_px": 1
+  },
+  "measured_not_chosen": [
+    "native projected joints/bend signs/stance bends",
+    "painting plate ownership traces",
+    "painted blade tips nearest native hand_tip",
+    "invisible approved source pixel (173,170)"
+  ],
+  "player_facing_defaults_chosen": [],
+  "feedback1_new_defaults": [],
+  "feedback1_values_source": "Director explicit 1px stepping rules; caps reached, then tuning stopped.",
+  "feedback2_new_defaults": [],
+  "feedback2_values_source": "Director supplied protected motion, per-view slash thresholds and rear near-leg minimum-reach exception."
+}

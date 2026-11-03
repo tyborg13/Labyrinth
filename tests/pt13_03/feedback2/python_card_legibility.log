@@ -1,0 +1,9 @@
+test_before_proof_records_small_base_without_floor_failure (test_card_legibility.CardLegibilityTest) ... ok
+test_sabatons_and_no_self_shrink (test_card_legibility.CardLegibilityTest) ... ok
+test_seven_reading_contexts_share_minimum (test_card_legibility.CardLegibilityTest) ... ok
+test_windows_safe_typed_arrays (test_card_legibility.CardLegibilityTest) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 32.006s
+
+OK

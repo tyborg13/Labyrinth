@@ -1,0 +1,154 @@
+{
+  "task_id": "enc-03",
+  "feedback_round": 1,
+  "status": "focused checks pass; director owns native proof",
+  "committed": false,
+  "design_decision": "Actual resolved scaled centre/arm values on all lob surfaces; no base-data fallback.",
+  "TODO_DESIGN": [],
+  "chosen_defaults": {
+    "scaled_damage_test_depths": [
+      6,
+      18
+    ]
+  },
+  "measurements": {
+    "accepted": true,
+    "rerun": false,
+    "archived_hashes_unchanged": 12
+  },
+  "checks": [
+    {
+      "name": "Slag scaled presentation and AI",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/enc03_slag_test.gd",
+      "exit_code": 0,
+      "status": "pass",
+      "log": "output/enc-03/feedback-1/focused.log",
+      "result_lines": [
+        "ENC03 SLAG TEST: PASS (697 checks; 0 failures)"
+      ]
+    },
+    {
+      "name": "EN04 integration",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/en04_enemies_test.gd",
+      "exit_code": 0,
+      "status": "pass",
+      "log": "output/enc-03/feedback-1/en04.log",
+      "result_lines": [
+        "EN04 ENEMIES TEST RESULT: PASS (420 checks, 0 failures)"
+      ]
+    },
+    {
+      "name": "Intent preview",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/enemy_intent_preview_test.gd",
+      "exit_code": 0,
+      "status": "pass",
+      "log": "output/enc-03/feedback-1/intent-preview.log",
+      "result_lines": [
+        "ENEMY INTENT PREVIEW TEST RESULT: PASS"
+      ]
+    },
+    {
+      "name": "Threats at rest and compass",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/threats_at_rest_test.gd",
+      "exit_code": 0,
+      "status": "pass",
+      "log": "output/enc-03/feedback-1/threats-at-rest.log",
+      "result_lines": [
+        "THREATS AT REST TEST RESULT: PASS (16251 assertions; includes compass suite)"
+      ]
+    },
+    {
+      "name": "Before baseline fixture",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/enc03_proof.py --phase before --check-only",
+      "exit_code": 0,
+      "status": "pass",
+      "log": "output/enc-03/feedback-1/probe-before.log",
+      "result_lines": [
+        "ENC03 LIVE HUD: aiming turn1 depth18 text='Lob Slag 7 / 5  Range 3\u20136' marks=0",
+        "ENC03 LIVE HUD: landing turn2 depth18 text='Lob Slag 7 / 5  Fire' marks=9",
+        "ENC03 LOB PROBE: PASS (3 states; 0 failures)",
+        "ENC03 BEFORE SOURCE RESTORATION: PASS"
+      ]
+    },
+    {
+      "name": "After scaled fixture",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/enc03_proof.py --phase after --check-only",
+      "exit_code": 0,
+      "status": "pass",
+      "log": "output/enc-03/feedback-1/probe-after.log",
+      "result_lines": [
+        "ENC03 LIVE HUD: aiming turn1 depth18 text='Lob Slag 7' marks=9",
+        "ENC03 LIVE HUD: landing turn2 depth18 text='Lob Slag 7' marks=9",
+        "ENC03 LOB PROBE: PASS (3 states; 0 failures)"
+      ]
+    },
+    {
+      "name": "UI identity lint",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tests/test_ui_identity_lint.py",
+      "exit_code": 0,
+      "status": "pass",
+      "log": "output/enc-03/feedback-1/ui-identity.log",
+      "result_lines": [
+        "Ran 25 tests in 5.445s",
+        "OK"
+      ]
+    },
+    {
+      "name": "Proof helper and reporting tests",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 -m unittest discover -s tests -p test_encounter_measurement.py",
+      "exit_code": 0,
+      "status": "pass",
+      "log": "output/enc-03/feedback-1/python-focused.log",
+      "result_lines": [
+        "Ran 18 tests in 2.751s",
+        "OK"
+      ]
+    }
+  ],
+  "baseline_hud_failures": [
+    {
+      "test": "tests/combat_hud_badges_test.gd",
+      "line": 60,
+      "assertion": "Intents starts off with its semantic label intact",
+      "baseline_commit": "e3034e24fd8193daf717c691ba8939094927ac51",
+      "baseline_log": "output/enc-03/baseline-hud-badges.log",
+      "current_round_0_log": "output/enc-03/hud-badges.log"
+    },
+    {
+      "test": "tests/combat_hud_badges_test.gd",
+      "line": 65,
+      "assertion": "ON retains semantic text and brightens the plate",
+      "baseline_commit": "e3034e24fd8193daf717c691ba8939094927ac51",
+      "baseline_log": "output/enc-03/baseline-hud-badges.log",
+      "current_round_0_log": "output/enc-03/hud-badges.log"
+    },
+    {
+      "test": "tests/combat_hud_badges_test.gd",
+      "line": 191,
+      "assertion": "Controller focus must expose the complete inspection tooltip",
+      "baseline_commit": "e3034e24fd8193daf717c691ba8939094927ac51",
+      "baseline_log": "output/enc-03/baseline-hud-badges.log",
+      "current_round_0_log": "output/enc-03/hud-badges.log"
+    }
+  ],
+  "windowed_proof": {
+    "capture_paths": [],
+    "expected_image_names": [
+      "before_pre_battle_1920x1080.png",
+      "before_aiming_1920x1080.png",
+      "before_landing_1920x1080.png",
+      "after_pre_battle_1920x1080.png",
+      "after_aiming_1920x1080.png",
+      "after_landing_1920x1080.png"
+    ],
+    "windowed_commands": [
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/enc03_proof.py --phase before",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/enc03_proof.py --phase after"
+    ],
+    "inspection_fixture_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/inspection_fixture.py --task-id enc-03 --run-id enc-03-fire-warband --manifest output/enc-03/fire-warband-inspection.json --scenario warband --warband-biome fire --warband-tier 2 --warband-case pre_battle --launch"
+  },
+  "open_issues": [
+    "Native screenshots, visual judgment and verified inspection fixture remain with the director.",
+    "The three HUD badge failures predate this unit at the recorded baseline commit."
+  ]
+}

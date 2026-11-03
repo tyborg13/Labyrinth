@@ -1,0 +1,44 @@
+{
+  "rule": "Feedback 3: remove only the UV-traced generated far-shoulder fill texel; preserve required domains, immutable proof masks, crop and mesh.",
+  "native_manifest_sha256": "36be5f9b74f761b4b32fcf45acd78ca466d41f60af7f07f05432df8db4c6fed7",
+  "native_witnesses": [
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 29,
+      "xy": [
+        286,
+        252
+      ],
+      "source_xy": [
+        104,
+        62
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 33,
+      "xy": [
+        282,
+        252
+      ],
+      "source_xy": [
+        104,
+        62
+      ]
+    }
+  ],
+  "source_pixels": {
+    "front": {
+      "hidden_arm_far": [
+        [
+          104,
+          62
+        ]
+      ]
+    }
+  },
+  "status": "REJECTED: required arm tuck fails after deleting this texel. Not applied to source or production.",
+  "independent_failure": "tuck: missing actual texels: arm_far"
+}

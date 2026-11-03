@@ -90,11 +90,11 @@ def presented(bone, part, layout, anchors):
     return snapped(painted(bone, reference, layout)) @ relative
 
 
-def render(image, transform, bounds=None, with_ties=False):
+def render(image, transform, bounds=None, with_ties=False, *, tie_epsilon=None):
     value = transform.copy()
     value[:2, 2] += PROOF_DEFAULTS['source_offset']
     size = PROOF_DEFAULTS['canvas_size']
-    return nearest_quad(image, value, bounds or (0, 0, size, size), with_ties=with_ties)
+    return nearest_quad(image, value, bounds or (0, 0, size, size), with_ties=with_ties,tie_epsilon=tie_epsilon)
 
 
 def changed(first, second):

@@ -1,0 +1,484 @@
+{
+  "schema": 2,
+  "spec_hash": "83a7327e73df81d660ba5f57c2651510644b337cdd32c977e5621f06bbaa8b76",
+  "board_frame": {
+    "yaw_radians": -0.0,
+    "pivot": [
+      -5.240664411863456e-17,
+      0.013258252147247684,
+      0.8764303551856266
+    ],
+    "matrix": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        -0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "forward": [
+      1,
+      0,
+      0
+    ]
+  },
+  "context_key": "3103ab22a4ffbc2ec17d6762dbe786d4d2b1b30d7ebd961220ea950712d6296e",
+  "blender": "5.2.1 LTS",
+  "mesh_hashes": {
+    "hood_render": "3bf5632727e58236b6536b55574c593407fe6a6ff61125fee7c59d332ea01b7b",
+    "torso_cloth_render": "46f34fc6ad0b7b7c7aba7e58dd9d60b69141bcea9a307d5630a8890fde600283",
+    "claw_near_render": "b1d086c5901d12c69e6b3a120e99e3e836efed8c0a218ed091f050e9e2312834",
+    "claw_far_render": "0392894204c0f84143bce40b4d0b4459a2262e365328d5877d5075862be81293",
+    "cloak_render": "d2a75691013cefb893563abeec626f4abee39a93b3537516365def0d779c9726",
+    "front_cloak_render": "3dc91fd247e8713def8796a6b1b419fdfbbfcd922495c97721ee31164a75863f",
+    "back_carapace_render": "bda1d220e9de931959f97f865067cd6dc67b41757adbc0fabb498ee6f8b81c3b",
+    "body_foot_far": "ff43ec1041a8d242625ffc1aa61f469450870e35b949694454f812525926bc96",
+    "body_foot_near": "f4c7f286cb0cad04934e7dba72faa24cd705fc2fe7b02eb1b1829c3ca663a3cd",
+    "body_fore_far": "5b1333914d8e6b207af2f953fa8672ec767c95594b9398dd10dc69d86d937b0f",
+    "body_fore_near": "855521c06161c90ea336e092e0922cc8508369490b9eedb565670741dd120e88",
+    "body_head": "5a42a7f3bd7b6d8f3fd9b550ce2b20a920b816b22ca2507ffa6cb7fa44d38e9a",
+    "body_shin_far": "3eae30620d07005ced68615903fc208d280efa2a444fc8cb2d6756ad0085f55b",
+    "body_shin_near": "37fac049ae576dae3ea60a8be596477268006889e51b820bf6489445621cb845",
+    "body_thigh_far": "d57994f0bbf6e4377551daffda96297aa4d92992900a9e37ba32fcc53f9a4b2c",
+    "body_thigh_near": "eaff9193805b1e4a360a8c1f75789175ee8d39eb901ea6fcbbd28153501cc7d7",
+    "body_upper_far": "cb2e193ffb869aad65c5fed1c423e4ba9ff5143496c41d836300d01c2d58dac7",
+    "body_upper_near": "5e53229721d04694d8e3a71889a1f0ef8b9c04c39e5f1498bc8a888603061724"
+  },
+  "combined_mesh_hash": "10fc9db64a7618b65f8f8dd20566d53e1ee5efb40ceff4d9bba6ccaae45e01de",
+  "checks": {
+    "labels_cover_every_face": true,
+    "view_piece_ownership": true,
+    "polygon_material_ownership": true,
+    "body_weight_ownership": true,
+    "cloth_collision_margin": true,
+    "collar_front_no_wider_than_back": true,
+    "plate_corners_preserved": true,
+    "armour_conforms_to_body": true,
+    "native_shoulder_attachment_motion": true,
+    "sculpted_blade_roots_attached": true,
+    "native_cloth_drape": true,
+    "native_cloth_stability": true,
+    "native_cloth_contact_stability": true,
+    "source_fit_native_skinning": true,
+    "board_facing_axis": true,
+    "front_chest_attachment_axes": true
+  },
+  "cloth": {
+    "hood": {
+      "minimum_signed_distance": 0.034299660474061966,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "torso_cloth": {
+      "minimum_signed_distance": 0.05973037704825401,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "cloak": {
+      "minimum_signed_distance": 0.04710047319531441,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "front_cloak": {
+      "minimum_signed_distance": 0.06002235785126686,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "hood__back_carapace": {
+      "minimum_signed_distance": 0.012282850220799446,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "torso_cloth__back_carapace": {
+      "minimum_signed_distance": 0.039632488042116165,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "cloak__back_carapace": {
+      "minimum_signed_distance": 0.014999985694885254,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "front_cloak__back_carapace": {
+      "minimum_signed_distance": 0.16854546964168549,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    }
+  },
+  "geometry_details": {
+    "metric_accessories": {},
+    "rounded_hoods": {
+      "hood_render": {
+        "head_bounds": [
+          [
+            -0.03234003484249115,
+            -0.1820681095123291,
+            1.679695725440979
+          ],
+          [
+            0.20518285036087036,
+            0.024959266185760498,
+            2.0246949195861816
+          ]
+        ],
+        "head_width": 0.2070273756980896,
+        "opening_width": 0.12421642541885375,
+        "opening_width_ratio": 0.6,
+        "opening_height": 0.24375,
+        "collision_allowance": 0.043000000000000003,
+        "opening_rows": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "defaults": {
+          "revision": 1,
+          "skull_rows": 25,
+          "columns": 48,
+          "shoulder_rows": 8,
+          "crown_pin_rows": 3
+        }
+      }
+    },
+    "sewn_rest": {
+      "torso_cloth_render": {
+        "connected": true,
+        "nonmanifold_edges": 0,
+        "boundary_loops": 2,
+        "source": "native anatomy union / sewn shoulder rest surface",
+        "regions": [
+          "torso"
+        ],
+        "pins": 306,
+        "vertices": 2373,
+        "removed_sampling_islands": [],
+        "defaults": {
+          "revision": 1,
+          "voxel_size": 0.022,
+          "smoothing_iterations": 4,
+          "smoothing_factor": 0.5,
+          "upper_cuff_pins": 2
+        }
+      }
+    },
+    "rigid_clearance": {
+      "back_carapace_render": {
+        "targets": [
+          "hood",
+          "torso_cloth",
+          "cloak",
+          "front_cloak"
+        ],
+        "source_closed_plates": 4,
+        "retained_faces_per_plate": [
+          63,
+          50,
+          96,
+          174
+        ],
+        "clearance": 0.015,
+        "cloth_unchanged": true,
+        "method": "Native exact boolean difference against expanded convex garment envelopes"
+      }
+    },
+    "collar_widths": {},
+    "corner_errors": {},
+    "conformance": {},
+    "shoulder_garment_motion": {
+      "torso_cloth": {
+        "field": "far_top",
+        "delta": [
+          -0.22638465541425543,
+          -0.22638465541425554,
+          0.09742785792574926
+        ],
+        "vertices": 18104,
+        "fixed_vertices": 13221,
+        "fully_translated_vertices": 92,
+        "renderer_near_fixed_vertices": 0,
+        "maximum_displacement_m": 0.3346523747324414,
+        "fixed_vertex_error_m": 0.0,
+        "head_cover_floor_z": null,
+        "independent_audit": {
+          "deformation_error_m": 6.465891205474314e-08,
+          "attachment_displacement_error_m": 2.080772891187238e-08,
+          "protected_face_error_m": 0.0,
+          "remote_vertex_error_m": 0.0,
+          "expected_moving_vertices": 4883,
+          "audited_attachment_vertices": 92,
+          "protected_face_vertices": 13220,
+          "passed": true
+        },
+        "passed": true
+      },
+      "cloak": {
+        "field": "far_top",
+        "delta": [
+          -0.22638465541425543,
+          -0.22638465541425554,
+          0.09742785792574926
+        ],
+        "vertices": 40424,
+        "fixed_vertices": 11869,
+        "fully_translated_vertices": 705,
+        "renderer_near_fixed_vertices": 6056,
+        "maximum_displacement_m": 0.3346523747324414,
+        "fixed_vertex_error_m": 0.0,
+        "head_cover_floor_z": null,
+        "independent_audit": {
+          "deformation_error_m": 6.641024598652923e-08,
+          "attachment_displacement_error_m": 2.1791351371543974e-08,
+          "protected_face_error_m": 0.0,
+          "remote_vertex_error_m": 0.0,
+          "expected_moving_vertices": 28555,
+          "audited_attachment_vertices": 705,
+          "protected_face_vertices": 11866,
+          "passed": true
+        },
+        "passed": true
+      },
+      "front_cloak": {
+        "field": "far_top",
+        "delta": [
+          -0.22638465541425543,
+          -0.22638465541425554,
+          0.09742785792574926
+        ],
+        "vertices": 40530,
+        "fixed_vertices": 36298,
+        "fully_translated_vertices": 0,
+        "renderer_near_fixed_vertices": 29433,
+        "maximum_displacement_m": 0.16784661298032055,
+        "fixed_vertex_error_m": 0.0,
+        "head_cover_floor_z": null,
+        "independent_audit": {
+          "deformation_error_m": 6.12509674031452e-08,
+          "attachment_displacement_error_m": 0.0,
+          "protected_face_error_m": 0.0,
+          "remote_vertex_error_m": 0.0,
+          "expected_moving_vertices": 4232,
+          "audited_attachment_vertices": 0,
+          "protected_face_vertices": 36297,
+          "passed": true
+        },
+        "passed": true
+      },
+      "back_carapace": {
+        "field": "far_side",
+        "delta": [
+          -0.22638465541425543,
+          -0.22638465541425554,
+          0.09742785792574926
+        ],
+        "vertices": 531,
+        "fixed_vertices": 390,
+        "fully_translated_vertices": 141,
+        "renderer_near_fixed_vertices": 0,
+        "maximum_displacement_m": 0.3346523747324414,
+        "fixed_vertex_error_m": 0.0,
+        "head_cover_floor_z": null,
+        "independent_audit": {
+          "deformation_error_m": 2.0330364507776937e-08,
+          "attachment_displacement_error_m": 2.0330364507776937e-08,
+          "protected_face_error_m": 0.0,
+          "remote_vertex_error_m": 0.0,
+          "expected_moving_vertices": 141,
+          "audited_attachment_vertices": 141,
+          "protected_face_vertices": 390,
+          "passed": true
+        },
+        "passed": true
+      },
+      "hood": {
+        "field": "far_skirt",
+        "delta": [
+          -0.22638465541425543,
+          -0.22638465541425554,
+          0.09742785792574926
+        ],
+        "vertices": 47114,
+        "fixed_vertices": 43292,
+        "fully_translated_vertices": 0,
+        "renderer_near_fixed_vertices": 0,
+        "maximum_displacement_m": 0.32827653111638233,
+        "fixed_vertex_error_m": 0.0,
+        "head_cover_floor_z": 1.679695725440979,
+        "independent_audit": {
+          "deformation_error_m": 6.358336040367587e-08,
+          "attachment_displacement_error_m": 0.0,
+          "protected_face_error_m": 0.0,
+          "remote_vertex_error_m": 0.0,
+          "expected_moving_vertices": 3822,
+          "audited_attachment_vertices": 0,
+          "protected_face_vertices": 43292,
+          "passed": true
+        },
+        "passed": true
+      }
+    },
+    "blade_attachments": {
+      "claw_near_render": {
+        "region": "fore_near",
+        "root_displacement": 0.09992022154176865,
+        "root_contact_gap": 0.0,
+        "passed": true
+      },
+      "claw_far_render": {
+        "region": "fore_far",
+        "root_displacement": 0.28835195126428115,
+        "root_contact_gap": 0.0,
+        "passed": true
+      }
+    },
+    "cloth_simulation": {
+      "hood": {
+        "frames": 64,
+        "vertices": 1480,
+        "pins": 106,
+        "free_vertices": 1374,
+        "maximum_solver_displacement": 0.2428725507927947,
+        "maximum_free_solver_displacement": 0.2428725507927947,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.008464645594358444,
+        "maximum_contact_displacement_allowed": 0.17200000000000001
+      },
+      "torso_cloth": {
+        "frames": 24,
+        "vertices": 2323,
+        "pins": 296,
+        "free_vertices": 2027,
+        "maximum_solver_displacement": 0.02059773477067926,
+        "maximum_free_solver_displacement": 0.02059773477067926,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.00644960580393672,
+        "maximum_contact_displacement_allowed": 0.252
+      },
+      "cloak": {
+        "frames": 96,
+        "vertices": 1319,
+        "pins": 64,
+        "free_vertices": 1255,
+        "maximum_solver_displacement": 0.701254948659765,
+        "maximum_free_solver_displacement": 0.701254948659765,
+        "maximum_pin_error": 1.862645149230957e-09,
+        "maximum_contact_displacement": 0.014792037196457386,
+        "maximum_contact_displacement_allowed": 0.252
+      },
+      "front_cloak": {
+        "frames": 96,
+        "vertices": 1323,
+        "pins": 64,
+        "free_vertices": 1259,
+        "maximum_solver_displacement": 0.35773990831242436,
+        "maximum_free_solver_displacement": 0.35773990831242436,
+        "maximum_pin_error": 3.725290298461914e-09,
+        "maximum_contact_displacement": 0.011703209951519966,
+        "maximum_contact_displacement_allowed": 0.252
+      }
+    },
+    "source_outline_fit": {
+      "regions": [
+        "foot_far",
+        "foot_near",
+        "shin_far",
+        "shin_near",
+        "thigh_far",
+        "thigh_near"
+      ],
+      "vertices": 3536,
+      "profile_views": {
+        "foot_near": [
+          "front"
+        ],
+        "foot_far": [
+          "rear"
+        ],
+        "shin_near": [
+          "front",
+          "rear"
+        ],
+        "shin_far": [
+          "front",
+          "rear"
+        ],
+        "thigh_near": [
+          "front",
+          "rear"
+        ],
+        "thigh_far": [
+          "front",
+          "rear"
+        ]
+      },
+      "maximum_skinning_error": 2.2426762719561173e-07,
+      "maximum_displacement": 0.37512754501539336,
+      "native_corrective_shape": "source_outline_fit"
+    },
+    "facing": {
+      "forward_world": [
+        0.99991375207901,
+        -0.0006395464879460633,
+        0.0
+      ],
+      "anatomical_forward_world": [
+        0.99991375207901,
+        -0.0006395464879460633,
+        -0.01312288548797369
+      ],
+      "front_forward_screen": [
+        -0.7074980223552629,
+        0.35329678351912075
+      ],
+      "rear_forward_screen": [
+        0.7074980223552629,
+        -0.35329678351912075
+      ],
+      "board_axis_cosine": 0.9999998691915557,
+      "passed": true
+    },
+    "front_chest_attachment_axes": {}
+  },
+  "passed": true
+}

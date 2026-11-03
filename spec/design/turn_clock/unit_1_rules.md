@@ -1,5 +1,7 @@
 # Unit 1: Wait rule, copy, analytics, specs
 
+Implementation status (flu-01): Flurry is dormant. Its payment and no-Wait cases below are preserved engine contracts exercised by synthetic tests, not shipped cards.
+
 Read [spec/turn_clock.md](../../turn_clock.md) first. It is the rule. This brief
 says how to land it.
 

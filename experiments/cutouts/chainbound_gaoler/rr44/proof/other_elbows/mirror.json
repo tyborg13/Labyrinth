@@ -1,0 +1,324 @@
+{
+  "rig": "mirror",
+  "case": "glacial_mirror/rr18",
+  "runtime_byte_identical": true,
+  "samples": 968,
+  "native_pixels": false,
+  "report_only": true,
+  "threshold_deg": 2,
+  "failures": [
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 42,
+      "kind": "presented",
+      "phase": 0.792452830188679,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.1147254481413067,
+      "points": [
+        [
+          -31.0,
+          112.425003051758
+        ],
+        [
+          -42.25,
+          142.964996337891
+        ],
+        [
+          -53.0424995422363,
+          175.970001220703
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 20,
+      "kind": "presented",
+      "phase": 0.224719101123595,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.296664757127509,
+      "points": [
+        [
+          67.0,
+          60.4249992370605
+        ],
+        [
+          54.75,
+          89.9649963378906
+        ],
+        [
+          42.9574966430664,
+          121.970001220703
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 30,
+      "kind": "presented",
+      "phase": 0.337078651685393,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.027578371749785,
+      "points": [
+        [
+          63.0,
+          68.4250030517578
+        ],
+        [
+          52.75,
+          98.9649963378906
+        ],
+        [
+          42.9575004577637,
+          131.970001220703
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 31,
+      "kind": "presented",
+      "phase": 0.348314606741573,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.0275658531567418,
+      "points": [
+        [
+          63.0000038146973,
+          69.4250030517578
+        ],
+        [
+          52.7500076293945,
+          99.9649963378906
+        ],
+        [
+          42.9575042724609,
+          132.970001220703
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 58,
+      "kind": "presented",
+      "phase": 0.651685393258427,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.6105720584701535,
+      "points": [
+        [
+          56.0,
+          87.4250183105469
+        ],
+        [
+          49.75,
+          119.964996337891
+        ],
+        [
+          44.9575004577637,
+          152.970016479492
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 71,
+      "kind": "presented",
+      "phase": 0.797752808988764,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.6204086813994234,
+      "points": [
+        [
+          50.0,
+          103.425003051758
+        ],
+        [
+          47.75,
+          135.964996337891
+        ],
+        [
+          46.9575042724609,
+          169.970016479492
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 37,
+      "kind": "presented",
+      "phase": 0.415730337078652,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.4709827790107672,
+      "points": [
+        [
+          192.0,
+          86.5749893188477
+        ],
+        [
+          201.25,
+          126.70499420166
+        ],
+        [
+          209.04248046875,
+          168.712493896484
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 53,
+      "kind": "presented",
+      "phase": 0.595505617977528,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.555024357467668,
+      "points": [
+        [
+          86.5,
+          60.9999961853027
+        ],
+        [
+          67.4999847412109,
+          97.0
+        ],
+        [
+          50.4999771118164,
+          126.0
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 63,
+      "kind": "presented",
+      "phase": 0.707865168539326,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.074595632693614,
+      "points": [
+        [
+          194.0,
+          101.575004577637
+        ],
+        [
+          197.249984741211,
+          142.705017089844
+        ],
+        [
+          199.04248046875,
+          184.712509155273
+        ]
+      ],
+      "passed": false
+    }
+  ],
+  "witnesses": [
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 42,
+      "kind": "presented",
+      "phase": 0.792452830188679,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.1147254481413067,
+      "points": [
+        [
+          -31.0,
+          112.425003051758
+        ],
+        [
+          -42.25,
+          142.964996337891
+        ],
+        [
+          -53.0424995422363,
+          175.970001220703
+        ]
+      ],
+      "passed": false,
+      "crop": "mirror_front_move_042_cpu_4x.webp",
+      "sha256": "8d05035dc6e276ee9823a28061f6784cb9f9d2d3d36afdf7138013a29c5d561e"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 71,
+      "kind": "presented",
+      "phase": 0.797752808988764,
+      "family": "canonical",
+      "side": "far",
+      "signed_flexion_deg": -2.6204086813994234,
+      "points": [
+        [
+          50.0,
+          103.425003051758
+        ],
+        [
+          47.75,
+          135.964996337891
+        ],
+        [
+          46.9575042724609,
+          169.970016479492
+        ]
+      ],
+      "passed": false,
+      "crop": "mirror_front_death_071_cpu_4x.webp",
+      "sha256": "232ecb709b94fc47d3637dfa05bb6ede4011814b02ad8b43113c053acd9dabec"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 53,
+      "kind": "presented",
+      "phase": 0.595505617977528,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.555024357467668,
+      "points": [
+        [
+          86.5,
+          60.9999961853027
+        ],
+        [
+          67.4999847412109,
+          97.0
+        ],
+        [
+          50.4999771118164,
+          126.0
+        ]
+      ],
+      "passed": false,
+      "crop": "mirror_rear_death_053_cpu_4x.webp",
+      "sha256": "4721fc53d60b4c5eaaa558f2fbd8e9d4ad73d52399054c6434fffc0c9463df04"
+    }
+  ],
+  "unchanged_files": {
+    "experiments/cutouts/glacial_mirror/rr18/compiled_motion.json": "e23767d8978e1024eec4fa706293d8a2da59b77777aaa65533b5dda3837639c3",
+    "experiments/cutouts/glacial_mirror/rr18/layouts/front.json": "7368872c3f2e10e87f6cfb2291f21984314d96291d8297c6a0415f05e846f463",
+    "experiments/cutouts/glacial_mirror/rr18/layouts/rear.json": "e74433bdf3b654ef6d1b901045ee16c4205281454e3cf64f0075c6824c7d2180"
+  }
+}

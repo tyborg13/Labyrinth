@@ -1,0 +1,8 @@
+....................
+----------------------------------------------------------------------
+Ran 20 tests in 14.655s
+
+OK
+MQ12_CURRENT_PRESERVATION: PASS; figures=8; delivery_files=791
+MQ12_MOTION_MUTATION_REJECTED: moved_protected_faces
+MQ12_MOTION_MUTATION_REJECTED: stationary_attachment

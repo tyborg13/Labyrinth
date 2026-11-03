@@ -1,6 +1,7 @@
 extends RefCounted
 ## Production step-routing regressions for support, bleed, and clipped Umbra.
 const Pacing = preload("res://scripts/combat_pacing.gd")
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Motion = preload("res://tests/suites/combat_motion_timing_suite.gd")
 const FIXTURE_SUPPORT_AMOUNT: int = 3
@@ -12,10 +13,16 @@ const FIXTURE_NEXT_TILE: Vector2i = Vector2i(6, 3)
 const FIXTURE_HIDDEN_TILE: Vector2i = Vector2i(6, 4)
 const FIXTURE_HIDDEN_RANGE: int = 6
 const CLOCK_TOLERANCE_SECONDS: float = 0.08
+const USEC_PER_SECOND: int = 1000000
 const CLEANUP_FRAMES: int = 20
 const Clocks = preload("res://tests/suites/combat_enemy_action_clock_suite.gd")
 
 static func run(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _run_scoped(scope, tree, expect)
+	)
+
+static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	await Clocks.run(tree, expect)
 	await ally_support(tree, expect)
 	await _bleed_settle(tree, expect, false)
@@ -24,11 +31,13 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	print("COMBAT ACTION PACING SUITE: complete")
 
 static func ally_support(tree: SceneTree, expect: Callable, pacing_script: Script = Pacing) -> void:
-	var scene: Node = await _scene(tree)
-	scene.get("_combat_pacing").free()
-	var pacing: Node = pacing_script.new()
-	scene.set("_combat_pacing", pacing)
-	pacing.install(scene)
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _ally_support_scoped(scope, tree, expect, pacing_script)
+	)
+
+static func _ally_support_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable, pacing_script: Script = Pacing) -> void:
+	var scene: Node = await _scene(tree, pacing_script)
+	var pacing: Node = scene.get("_combat_pacing")
 	var engine := Combat.new()
 	var base: Dictionary = scene.get("_combat_state").duplicate(true)
 	var caster: Dictionary = base["enemies"][0]
@@ -130,7 +139,7 @@ static func _clipped_umbra_settle(tree: SceneTree, expect: Callable, reduced: bo
 	print("COMBAT PACING CLIPPED UMBRA reduced=%s: settles=%d" % [reduced, _rows(pacing, "post-action settle").size()])
 	await _dispose(tree, scene)
 
-static func _scene(tree: SceneTree) -> Node:
+static func _scene(tree: SceneTree, pacing_script: Script = Pacing) -> Node:
 	var scene: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
 	scene.get("_combat_pacing").free()
 	scene.set_script(Clocks.ObservedScene)
@@ -138,6 +147,11 @@ static func _scene(tree: SceneTree) -> Node:
 	await tree.process_frame
 	Motion._install_fixture(scene, false)
 	scene.set("_turn_order_bar", null)
+	# The production timeline integrates its clock source, including time spent
+	# descheduled by a busy host. Inject fixed frame deltas without replacing
+	# the production waits, step routing, or timeline completion evidence.
+	scene.get("_combat_pacing").free()
+	scene.set("_combat_pacing", TestClock.install_pacing(scene, pacing_script))
 	return scene
 
 static func _start(scene: Node, state: Dictionary) -> void:
@@ -168,5 +182,11 @@ static func _expect_one_settle(pacing: Node, expect: Callable, message: String) 
 	if settles.size() == 1: _expect_clock_duration(settles[0], 0.15, expect, message + " settles for 0.15 s")
 
 static func _expect_clock_duration(row: Dictionary, seconds: float, expect: Callable, message: String) -> void:
-	var duration: float = float(row["clock_end"]) - float(row["clock_start"])
-	expect.call(duration >= seconds and duration <= seconds + CLOCK_TOLERANCE_SECONDS, message + " (%.3f s)" % duration)
+	# Timeline seconds serialize an integer-microsecond clock. Recover that
+	# precision before comparing exact authored boundaries (e.g. 0.15 s).
+	var duration_usec: int = roundi((float(row["clock_end"]) - float(row["clock_start"])) * USEC_PER_SECOND)
+	var minimum_usec: int = roundi(seconds * USEC_PER_SECOND)
+	var maximum_usec: int = roundi((seconds + CLOCK_TOLERANCE_SECONDS) * USEC_PER_SECOND)
+	var duration: float = float(duration_usec) / USEC_PER_SECOND
+	expect.call(duration_usec >= minimum_usec and duration_usec <= maximum_usec, message + " (%.3f s)" % duration)
+	print("COMBAT PACING GAME CLOCK: %s (%.3f s; bounds %.3f–%.3f s)" % [message, duration, seconds, seconds + CLOCK_TOLERANCE_SECONDS])

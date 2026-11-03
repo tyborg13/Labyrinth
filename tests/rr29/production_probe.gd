@@ -49,6 +49,8 @@ func _run() -> void:
 	CaptureStorage.setup(_output)
 	_logic = args.has("--logic-only")
 	_data = preload("res://scripts/maquette_cutout_runtime/motion.gd").data_for({"motion_data": "res://experiments/cutouts/hollow_mimic/rr29/compiled_motion.json"})
+	_data = _data.duplicate(true)
+	_data["clips"].erase("mirror") # Retired gameplay clip; authored bytes stay intact.
 	if _data.is_empty() or (DisplayServer.get_name() == "headless" and not _logic):
 		push_error("Production capture requires a registered creature and windowed renderer (or --logic-only)")
 		quit(1)
@@ -71,7 +73,7 @@ func _run() -> void:
 	_failures.append_array(preload("res://tests/rr10/capture_contract.gd").errors(_frames, _data, _scene.proof_completions, not _logic))
 	for error: String in _failures: push_error(error)
 	var bindings: Dictionary = preload("res://tests/rr10/bindings.gd").for_case("res://experiments/cutouts/hollow_mimic/rr29")
-	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": false, "production_promoted": true,
+	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": false, "production_promoted": true, "retired_clips": ["mirror"],
 		"size": [1920, 1080], "ui_scale": 1.0, "walk_samples": _walk_samples, "inputs": bindings, "frames": _frames, "completions": _scene.proof_completions, "errors": _failures}
 	if not _logic or OS.get_cmdline_user_args().has("--validate-crop"):
 		report.merge(CaptureStorage.metadata())
@@ -218,12 +220,8 @@ func fixture(intent: String) -> Dictionary:
 	var enemy_pos: Vector2i = PROOF_ENEMY_TILE
 	var hero_pos: Vector2i = PROOF_HERO_TILES[_proof_view]
 	var actors: Array[Dictionary]
-	actors.assign([Fixtures.enemy(_type, 1, enemy_pos, "shade_bolt" if intent == "mirror" else intent)])
+	actors.assign([Fixtures.enemy(_type, 1, enemy_pos, "echo" if intent == "mirror" else intent)])
 	var state: Dictionary = Fixtures.state(actors, hero_pos)
-	if intent == "mirror":
-		var mimic = preload("res://scripts/enemy_mechanics/mimic.gd")
-		state[mimic.HISTORY_KEY] = _mirror_card
-		state["enemies"][0]["intent"] = Combat.new()._surface_prepare_enemy_intent(state, state["enemies"][0], Data.enemy_def(_type)["intents"][0])
 	return state
 
 func install(state: Dictionary) -> void:

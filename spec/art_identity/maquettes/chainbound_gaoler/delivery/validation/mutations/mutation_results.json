@@ -1,0 +1,265 @@
+{
+  "passed": true,
+  "mutations": {
+    "determinism": {
+      "caught": true,
+      "exit": 1,
+      "regression": "test_cold_replay_divergence_cannot_hide_behind_summary_pass"
+    },
+    "cache_replay": {
+      "caught": true,
+      "exit": 1,
+      "regression": "test_exact_cache_replay_cannot_differ"
+    },
+    "hash_binding": {
+      "caught": true,
+      "exit": 1,
+      "regression": "test_hash_binding_rejects_changed_even_passing_report"
+    },
+    "custom_native_reports": {
+      "caught": true,
+      "exit": 1,
+      "regression": "test_extra_native_report_is_required_before_sealing"
+    },
+    "native_facing_control": {
+      "caught": true,
+      "exit": 1,
+      "regression": "test_native_facing_requires_a_rejected_frontal_control"
+    },
+    "true_turn": {
+      "caught": true,
+      "exit": 1,
+      "regression": "test_a_mirrored_rear_is_rejected_independently_of_its_hash"
+    },
+    "proportion_limits": {
+      "caught": true,
+      "exit": 1,
+      "regression": "test_proportions_are_measured_against_the_declared_limit"
+    },
+    "ownership": {
+      "caught": true,
+      "exit": 1,
+      "regression": "test_ownership_requires_each_nonempty_native_solo"
+    },
+    "native_weights": {
+      "caught": true,
+      "exit": 1,
+      "regression": "test_native_weight_guard_cannot_be_omitted"
+    },
+    "shoulder_level": {
+      "caught": true,
+      "exit": 1,
+      "regression": "test_measured_native_shoulder_level_is_required"
+    },
+    "native_height_parity": {
+      "caught": true,
+      "exit": 1,
+      "regression": "test_rear_native_height_has_a_real_three_percent_guard"
+    },
+    "proportion_recomputation": {
+      "caught": true,
+      "exit": 1,
+      "regression": "test_forged_proportion_table_cannot_be_resealed_as_acceptance"
+    },
+    "mass_helm_width": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_each_mass_row_has_its_own_enforced_limit"
+    },
+    "mass_chain_fist": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_each_mass_row_has_its_own_enforced_limit"
+    },
+    "mass_near_fist": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_each_mass_row_has_its_own_enforced_limit"
+    },
+    "mass_near_shin": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_each_mass_row_has_its_own_enforced_limit"
+    },
+    "mass_near_boot": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_each_mass_row_has_its_own_enforced_limit"
+    },
+    "mass_upper_near_minimum": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_each_mass_row_has_its_own_enforced_limit"
+    },
+    "mass_fore_near_minimum": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_each_mass_row_has_its_own_enforced_limit"
+    },
+    "mass_upper_far_minimum": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_each_mass_row_has_its_own_enforced_limit"
+    },
+    "mass_fore_far_minimum": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_each_mass_row_has_its_own_enforced_limit"
+    },
+    "mass_no_see_through": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_no_see_through_rejects_both_background_and_pants"
+    },
+    "mass_holes": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_holes_wider_than_one_pixel_fail"
+    },
+    "mass_open_front": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_open_front_and_rear_cannot_be_closed_by_coat_tails"
+    },
+    "mass_lower_leg_visible": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_far_shin_and_boot_must_both_show_below_tabard"
+    },
+    "mass_closed_forms_passed": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_closed_topology_guard_rejects_a_torn_collar"
+    },
+    "mass_pants_above_belt": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_pants_cannot_show_above_the_belt_even_outside_collar_band"
+    },
+    "mass_chest_passed": {
+      "caught": true,
+      "exit": 1,
+      "regression": "MassGuardTests.test_barrel_chest_has_an_eighty_percent_minimum"
+    },
+    "cloth_front_coat_near_width": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_every_cloth_width_and_hem_guard_is_enforced"
+    },
+    "cloth_front_coat_near_hem": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_every_cloth_width_and_hem_guard_is_enforced"
+    },
+    "cloth_front_coat_far_width": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_every_cloth_width_and_hem_guard_is_enforced"
+    },
+    "cloth_front_coat_far_hem": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_every_cloth_width_and_hem_guard_is_enforced"
+    },
+    "cloth_front_tabard_width": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_every_cloth_width_and_hem_guard_is_enforced"
+    },
+    "cloth_front_tabard_hem": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_every_cloth_width_and_hem_guard_is_enforced"
+    },
+    "cloth_rear_coat_near_width": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_every_cloth_width_and_hem_guard_is_enforced"
+    },
+    "cloth_rear_coat_near_hem": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_every_cloth_width_and_hem_guard_is_enforced"
+    },
+    "cloth_rear_coat_far_width": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_every_cloth_width_and_hem_guard_is_enforced"
+    },
+    "cloth_rear_coat_far_hem": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_every_cloth_width_and_hem_guard_is_enforced"
+    },
+    "cloth_ragged_points": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_ragged_hems_require_the_directors_point_counts"
+    },
+    "grip_complete_gloved_grip": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_each_gloved_grip_guard_rejects_its_failure"
+    },
+    "grip_four_wrapped_fingers": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_each_gloved_grip_guard_rejects_its_failure"
+    },
+    "grip_knuckles_forward_of_palm": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_each_gloved_grip_guard_rejects_its_failure"
+    },
+    "grip_thumb_over_fingers": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_each_gloved_grip_guard_rejects_its_failure"
+    },
+    "grip_top_link_in_grip_envelope": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_each_gloved_grip_guard_rejects_its_failure"
+    },
+    "grip_correct_hand_ownership": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_cloth.ClothTests.test_each_gloved_grip_guard_rejects_its_failure"
+    },
+    "fit_centroid": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_pose_fit.FitTests.test_six_pixel_head_shift_is_rejected"
+    },
+    "fit_translation_search": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_pose_fit.FitTests.test_translation_search_cannot_be_dropped"
+    },
+    "fit_iou_limit": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_pose_fit.FitTests.test_iou_threshold_is_enforced"
+    },
+    "native_mesh_binding": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_native_geometry.NativeGeometryTests.test_changed_native_mesh_with_old_copied_hash_is_rejected"
+    },
+    "grip_thumb_lateral_overlap": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_native_geometry.NativeGeometryTests.test_thumb_needs_lateral_and_vertical_overlap_and_a_bounded_gap"
+    },
+    "grip_thumb_vertical_overlap": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_native_geometry.NativeGeometryTests.test_thumb_needs_lateral_and_vertical_overlap_and_a_bounded_gap"
+    },
+    "grip_thumb_gap": {
+      "caught": true,
+      "exit": 1,
+      "regression": "tests.test_mq15_native_geometry.NativeGeometryTests.test_thumb_needs_lateral_and_vertical_overlap_and_a_bounded_gap"
+    }
+  }
+}

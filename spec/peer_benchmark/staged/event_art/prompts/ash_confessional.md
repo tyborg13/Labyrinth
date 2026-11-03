@@ -1,0 +1,1 @@
+Subject: a lone confessional booth of charred black wood standing in empty darkness, its lattice screen glowing faintly from within with ember light, ash drifting around it. Mood: solitary, intimate, unnerving.

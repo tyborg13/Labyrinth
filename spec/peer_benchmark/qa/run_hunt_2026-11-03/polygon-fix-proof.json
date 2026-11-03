@@ -1,0 +1,15 @@
+{
+  "baseline_head": "65b9d0d43636c1d5bd72944c38518c5a8540e5cb",
+  "source": "scripts/combat_art_treatment.gd",
+  "baseline_sha256": "0eda4992babc1dbf0dbcf430ee817cc6935ce71f7317a7299ae78b247058686f",
+  "fixed_sha256": "7b2c7a0e6927d1cc8e9c307f2c80008cfc38f4a7a561240869921d505fc57f89",
+  "regression": "tests/combat_art_treatment_probe.gd",
+  "regression_sha256": "58d5aec3cabbc7e5bfcc3e2e93cd498e4a3e4731d4a37d5bf083fae4e4554101",
+  "before_result": "/private/tmp/labyrinth_codex/qa-23/quad-regression-baseline.json",
+  "before_line": "ART TREATMENT SLIVER REGRESSION: FAIL (6 checks, 1 failures)",
+  "after_result": "/private/tmp/labyrinth_codex/qa-23/quad-regression-after.json",
+  "after_line": "ART TREATMENT SLIVER REGRESSION: PASS (6 checks, 0 failures)",
+  "fix": "Omit only quads rejected by native Geometry2D triangulation before submitting them to the canvas; existing successful drawing path and all parameters remain unchanged",
+  "scope_assumption": "qa-22 protected-file list unavailable despite request; direct art-treatment probe selected, existing assertions retained",
+  "windowed_proof": "Prepared for design owner; not run by this worker"
+}

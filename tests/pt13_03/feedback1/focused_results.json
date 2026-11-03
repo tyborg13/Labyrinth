@@ -1,0 +1,298 @@
+[
+  {
+    "suite": "card_widget_tooltip_item_preview",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/card_legibility_test.gd",
+      "--",
+      "--focused-shared"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "CARD WIDGET/TOOLTIP/ITEM PREVIEW FOCUSED RESULT: PASS (385 checks, 0 failures)"
+    ]
+  },
+  {
+    "suite": "scavenger_regression",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/scavenger_regression_test.gd"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "SCAVENGER / MERCHANT / LOADOUT REGRESSION: PASS"
+    ]
+  },
+  {
+    "suite": "graftwright",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/graftwright_test.gd"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "Graftwright suite: 0 failures"
+    ]
+  },
+  {
+    "suite": "graftwright_console",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/graftwright_console_test.gd"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "GRAFTWRIGHT CONSOLE TEST: PASS"
+    ]
+  },
+  {
+    "suite": "pile_viewer",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/pile_viewer_test.gd"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "PILE VIEWER TEST: PASS",
+      "TEST RESULT: PASS"
+    ]
+  },
+  {
+    "suite": "grimoire",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/grimoire_search_test.gd"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "GRIMOIRE SEARCH TEST RESULT: PASS"
+    ]
+  },
+  {
+    "suite": "grimoire_equivalence",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/grimoire_search_rows_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "GRIMOIRE ROW RETENTION RESULT: {\"cases\":50,\"differences\":0,\"errors\":[],\"orphan_nodes\":0,\"reused_rows\":371}"
+    ]
+  },
+  {
+    "suite": "magic_deck",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/magic_deck_test.gd"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "MAGIC DECK TEST: PASS",
+      "TEST RESULT: PASS"
+    ]
+  },
+  {
+    "suite": "campfire_purge_deck_input",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/magic_deck_input_test.gd"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "PURGE WHOLE-ROW SCROLL CHECKS: PASS",
+      "MAGIC DECK INPUT TEST: PASS",
+      "TEST RESULT: PASS"
+    ]
+  },
+  {
+    "suite": "purge_guard_mutations",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/magic_deck_guard_mutation_test.gd"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "TEST RESULT: PASS"
+    ]
+  },
+  {
+    "suite": "reading_layouts",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/card_legibility_test.gd",
+      "--",
+      "--reading-layouts"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "CARD READING LAYOUT RESULT: PASS (345 checks, 0 failures)"
+    ]
+  },
+  {
+    "suite": "scavenger_visual",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/scavenger_visual_pass_4_test.gd"
+    ],
+    "returncode": 1,
+    "passed": false,
+    "result_lines": [
+      "SCAVENGER VISUAL PASS 4: FAIL"
+    ]
+  }
+]

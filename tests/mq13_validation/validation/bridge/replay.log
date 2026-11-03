@@ -1,0 +1,16 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-e480ca589b494ee198d699218d8ad58a
+BLENDER_BRIDGE_STARTED: mq03-e480ca589b494ee198d699218d8ad58a
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 10582 anatomy vertices
+BUILD_STAGE: hood
+BUILD_STAGE: torso_cloth
+BUILD_STAGE: claw_near
+BUILD_STAGE: claw_far
+BUILD_STAGE: cloak
+BUILD_STAGE: front_cloak
+BUILD_STAGE: back_carapace
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_MAQUETTE: PASS
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=20.8; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-e480ca589b494ee198d699218d8ad58a.log

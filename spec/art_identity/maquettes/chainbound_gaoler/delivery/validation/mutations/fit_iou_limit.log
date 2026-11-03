@@ -1,0 +1,14 @@
+test_iou_threshold_is_enforced (tests.test_mq15_pose_fit.FitTests) ... FAIL
+
+======================================================================
+FAIL: test_iou_threshold_is_enforced (tests.test_mq15_pose_fit.FitTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_pose_fit.py", line 50, in test_iou_threshold_is_enforced
+    self.assertFalse(g.iou_passed(FIXTURE_DEFAULTS['iou_below_limit'],.82))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

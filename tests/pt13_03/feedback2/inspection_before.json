@@ -1,0 +1,68 @@
+{
+	"branch": "focus_without_click",
+	"observations": [
+		{
+			"detail_visible": true,
+			"focus_owner": "MagicOffer_grave_mortar",
+			"measurement": {
+				"icon_px": 46.0,
+				"minimum_text_px": 24.0,
+				"overflow_px": {
+					"x": 0.0,
+					"y": 0.0
+				},
+				"shrunk": false,
+				"text_px": {
+					"footer": null,
+					"rules": null,
+					"token_number": 24.0
+				}
+			},
+			"offer": "grave_mortar",
+			"route": "Control.grab_focus -> focus_entered -> _focus_item -> _select_item -> _sync_detail -> _render_detail_card"
+		},
+		{
+			"detail_visible": true,
+			"focus_owner": "MagicOffer_icicle_lance",
+			"measurement": {
+				"icon_px": 46.0,
+				"minimum_text_px": 24.0,
+				"overflow_px": {
+					"x": 0.0,
+					"y": 0.0
+				},
+				"shrunk": false,
+				"text_px": {
+					"footer": null,
+					"rules": null,
+					"token_number": 24.0
+				}
+			},
+			"offer": "icicle_lance",
+			"route": "Control.grab_focus -> focus_entered -> _focus_item -> _select_item -> _sync_detail -> _render_detail_card"
+		},
+		{
+			"detail_visible": true,
+			"focus_owner": "MagicOffer_stonefist",
+			"measurement": {
+				"icon_px": 28.0,
+				"minimum_text_px": 17.0,
+				"overflow_px": {
+					"x": 0.0,
+					"y": 0.0
+				},
+				"shrunk": false,
+				"text_px": {
+					"footer": null,
+					"rules": 17.0,
+					"token_number": 17.0
+				}
+			},
+			"offer": "stonefist",
+			"route": "Control.grab_focus -> focus_entered -> _focus_item -> _select_item -> _sync_detail -> _render_detail_card"
+		}
+	],
+	"pressed_signals": 0,
+	"run_state_unchanged": true,
+	"shop_sha256": "e9d13be39c22b2ef2f9b6eecf6f354fe1e63f5b7174752f676602e97cd132f07"
+}

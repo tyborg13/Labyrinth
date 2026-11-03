@@ -2,19 +2,27 @@ extends Control
 
 class_name CombatBoardView
 
+var _prop_command_cache := preload("res://scripts/board_prop_command_cache.gd").new()
+
+const SceneDirtyTiles = preload("res://scripts/board_scene_dirty_tiles.gd")
 const BrambleView = preload("res://scripts/enemy_mechanics/bramble_view.gd")
 const LobView = preload("res://scripts/enemy_mechanics/lob_view.gd")
 const IcefallView = preload("res://scripts/enemy_mechanics/icefall_view.gd")
 const WindView = preload("res://scripts/enemy_mechanics/wind_view.gd")
+const StatusPlates = preload("res://scripts/board_status_plates.gd")
 
 const EMPTY_FEEL_FRAME: Dictionary = {}
 const BurrowView = preload("res://scripts/enemy_mechanics/burrow_view.gd")
+const TileGlow = preload("res://scripts/tile_glow.gd")
+const BurstTraitText = preload("res://scripts/enemy_mechanics/burst_trait_text.gd")
 const DeathBurstView = preload("res://scripts/enemy_mechanics/death_burst_view.gd")
 const KindleView = preload("res://scripts/enemy_mechanics/kindle_view.gd")
 
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ScenePropRedraws = preload("res://scripts/board_scene_prop_redraws.gd")
 const PropMossGeometry = preload("res://scripts/board_prop_moss_geometry.gd")
+const PreviewRedraws = preload("res://scripts/board_preview_redraws.gd")
+const FixedVisualRects = preload("res://scripts/board_fixed_visual_rects.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const UiPaletteTokens = preload("res://scripts/ui_palette.gd")
 const HeroStrikeTrail = preload("res://scripts/hero_strike_trail.gd")
@@ -54,8 +62,6 @@ const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd
 const BileBloomerPool = preload("res://scripts/bile_bloomer_cutout/pool.gd")
 const BileBloomerFx = preload("res://scripts/bile_bloomer_cutout/bloom_fx.gd")
 var _bile_bloomer_renderers: Dictionary = {}
-const GaolerCutout = preload("res://scripts/chainbound_gaoler_cutout/renderer.gd")
-var _gaoler_renderers: Dictionary = {}
 const MaquettePresentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
 const ShaleMaquette = preload("res://scripts/maquette_cutout_runtime/shale_bloomer_renderer.gd")
 const WispMaquette = preload("res://scripts/maquette_cutout_runtime/lightning_wisp_renderer.gd")
@@ -64,8 +70,6 @@ const GustShrikePresentation = preload("res://scripts/gust_shrike_cutout/present
 var _gust_shrike_renderers: Dictionary = {}
 var _cinder_droplet_renderers: Dictionary = {}
 var _cinder_ooze_renderers: Dictionary = {}
-const FrostglassCutout = preload("res://scripts/frostglass_lancer_cutout/renderer.gd")
-var _frostglass_renderers: Dictionary = {}
 const GraveSurgeonCutout = preload("res://scripts/grave_surgeon_cutout/renderer.gd")
 const GraveSurgeonAttackFx = preload("res://scripts/grave_surgeon_cutout/attack_fx.gd")
 var _grave_surgeon_renderers: Dictionary = {}
@@ -73,6 +77,9 @@ var _harrier_renderers: Dictionary = {}
 var _iskaldra_renderers: Dictionary = {}
 var _lightning_wisp_renderers: Dictionary = {}
 var _rr07_renderers: Dictionary = MaquettePresentation.renderer_roster()
+# Shared with retained layers in the owner's pixel space. Vector4 stores the
+# aligned centre (xy) and logical tile (zw), without per-lookup records/arrays.
+var _maquette_pixel_centers_cache: Dictionary = {}
 const NoctyraxCutout = preload("res://scripts/noctyrax_cutout/renderer.gd")
 var _noctyrax_renderers: Dictionary = {}
 var _tharokh_renderers: Dictionary = {}
@@ -92,6 +99,8 @@ const ElementData = preload("res://scripts/element_data.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const BoardSurfaceFireLayer = preload("res://scripts/board_surface_fire_layer.gd")
 const BoardSurfaceIceLayer = preload("res://scripts/board_surface_ice_layer.gd")
+const BoardTileTooltip = preload("res://scripts/board_tile_tooltip.gd")
+const BoardTileTooltipCache = preload("res://scripts/board_tile_tooltip_cache.gd")
 const BoardSurfaceRubbleLayer = preload("res://scripts/board_surface_rubble_layer.gd")
 const BoardSurfaceElectricLayer = preload("res://scripts/board_surface_electric_layer.gd")
 const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
@@ -108,9 +117,16 @@ const BoardFraming = preload("res://scripts/board_framing.gd")
 const ActorPresentation = preload("res://scripts/actor_presentation.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const HealthGhostTracker = preload("res://scripts/health_ghost_tracker.gd")
+const StatusPopTracker = preload("res://scripts/status_pop_tracker.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const LEADER_MARKER_GOLD := Color("e4b65f")
+const LEADER_CREST_SIZE: float = 34.0
+const LEADER_CREST_SEAT: float = 6.0
+const LEADER_CREST_RING: float = 2.0
+const LEADER_CREST_ICON_RATIO: float = 0.94
 const SnareRules = preload("res://scripts/snare_room_rules.gd")
+const SnarePressureView = preload("res://scripts/snare_pressure_view.gd")
+const BattlefieldRuleView = preload("res://scripts/battlefield_rule_view.gd")
 const SnareSealChip = preload("res://scripts/snare_seal_chip.gd")
 const SNARE_SEALED_DOOR_MODULATE := Color(UiPaletteTokens.UMBRA.r * 0.6, UiPaletteTokens.UMBRA.g * 0.6, UiPaletteTokens.UMBRA.b * 0.6, 1.0)
 const SNARE_CHIP_MEDALLION_GAP: float = 6.0
@@ -123,22 +139,22 @@ const CombatArtTreatment = preload("res://scripts/combat_art_treatment.gd")
 var _art_treatment: RefCounted = null
 var _art_treatment_enabled: bool = true
 const IntentBadges = preload("res://scripts/intent_badges.gd")
+const LastLightRules = preload("res://scripts/last_light_rules.gd")
 const ThreatTiles = preload("res://scripts/threat_tiles.gd")
 const IntentCallouts = preload("res://scripts/intent_callouts.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const ReflectView = preload("res://scripts/enemy_mechanics/reflect_view.gd")
-const DiveView = preload("res://scripts/enemy_mechanics/dive_view.gd")
+const FlyingView = preload("res://scripts/enemy_mechanics/flying_view.gd")
 const CapacitorView = preload("res://scripts/enemy_mechanics/capacitor_view.gd")
-const MimicView = preload("res://scripts/enemy_mechanics/mimic_view.gd")
-const TetherView = preload("res://scripts/enemy_mechanics/tether_view.gd")
-const VeilView = preload("res://scripts/enemy_mechanics/veil_view.gd")
 
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 
 # Audio consumes presentation snapshots, never gameplay mutations.
 signal sound_presentation(state: Dictionary, shown: Dictionary)
+# Renderer proof observes the actual text submission, including its draw owner.
+signal intent_callout_drawn(layout: Dictionary)
 
 func present_sound_snapshot(state: Dictionary, shown: Dictionary) -> void:
 	var sound: Dictionary = WarbandView.sound_snapshot(state, shown)
@@ -228,16 +244,22 @@ const CombatPacingScript = preload("res://scripts/combat_pacing.gd")
 const PLAYER_FOCUS_COLOR: Color = Color("f1d18b")
 const ENEMY_FOCUS_COLOR: Color = Color("f08c53")
 const FLOATING_TEXT_RIGHT_OFFSET: float = 18.0
+const FLOATING_TEXT_HEALTH_BAR_CLEARANCE: float = 6.0
+const FLOATING_TEXT_OWN_BAR_BODY_LIMIT: float = 0.75
 const PLAYER_BAR_FILL: Color = Color("4f9f8c")
 const ILLUSION_BAR_FILL: Color = Color("65b96f")
 const ENEMY_BAR_FILL: Color = Color("8f3038")
 const HEALTH_BAR_STYLE_PLAIN: StringName = &"plain"
 const HEALTH_BAR_STYLE_LIGHT: StringName = &"light"
 const HEALTH_BAR_STYLE_UMBRA: StringName = &"umbra"
+const HEALTH_BAR_STYLE_PROP: StringName = &"prop"
 const PLAYER_HEALTH_FRAME_PATH: String = "res://assets/art/ui/health_bars/player_lantern_frame_v1.png"
 const ENEMY_HEALTH_FRAME_PATH: String = "res://assets/art/ui/health_bars/enemy_umbra_frame_v1.png"
+# Cut from the hero's frame: the same rails with a lozenge in place of the lantern, cooled to black iron.
+const TERRAIN_HEALTH_FRAME_PATH: String = "res://assets/art/ui/health_bars/prop_iron_frame_v1.png"
 const PLAYER_HEALTH_CONTENT_INSETS: Vector4 = Vector4(0.124, 0.326, 0.087, 0.275)
 const ENEMY_HEALTH_CONTENT_INSETS: Vector4 = Vector4(0.161, 0.286, 0.152, 0.301)
+const TERRAIN_HEALTH_CONTENT_INSETS: Vector4 = Vector4(0.134, 0.26, 0.134, 0.26)
 const INTENT_COMPASS_ISOMETRIC_Y_SCALE: float = 0.50
 const INTENT_COMPASS_RING_TILE_SCALE: float = 0.78
 const INTENT_COMPASS_RING_SOURCE_DIAMETER: float = 178.0
@@ -251,7 +273,7 @@ const INTENT_COMPASS_UNDERLAY_SCALE: float = 1.075
 const INTENT_COMPASS_UNDERLAY_COLOR := Color(0.018, 0.012, 0.025, 0.58)
 const INTENT_COMPASS_ATTACK_TINT := Color(1.0, 0.42, 0.38, 0.98)
 const INTENT_COMPASS_DEFENSE_TINT := Color(0.50, 0.74, 1.0, 0.98)
-const TERRAIN_BAR_FILL: Color = Color("d9b84f")
+const TERRAIN_BAR_FILL: Color = Color("a8874c")
 const STATUS_BLEED: Color = Color("b84646")
 const STATUS_EXPOSE: Color = Color("d9b36a")
 const STATUS_FREEZE: Color = Color("7dd4ff")
@@ -301,8 +323,8 @@ const IDLE_SHEET_ROWS: int = 2
 const DEATH_FRAME_SECONDS: float = 0.065
 const DEATH_SHEET_COLUMNS: int = 4
 const DEATH_SHEET_ROWS: int = 4
-const ENEMY_SHADOW_DISSOLVE_FRAME_COUNT: int = 28
-const ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS: float = 0.037
+const ENEMY_SHADOW_DISSOLVE_FRAME_COUNT: int = preload("res://scripts/maquette_cutout_runtime/playback_timing.gd").ENEMY_SHADOW_DISSOLVE_FRAME_COUNT
+const ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS: float = preload("res://scripts/maquette_cutout_runtime/playback_timing.gd").ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS
 const TERRAIN_DESTRUCTION_FRAME_SECONDS: float = 0.065
 const TERRAIN_DESTRUCTION_SHEET_LAYOUTS := {
 	"wooden_box": {
@@ -503,6 +525,10 @@ const COLUMN_TORCH_TOP_Y_SCALE: float = 0.27
 const AMBIENT_PARTICLE_ATLAS_PATH: String = "res://assets/art/effects/ambient_particles.png"
 const AMBIENT_PARTICLE_GLOW_ATLAS_PATH: String = "res://assets/art/effects/ambient_particles_glow.png"
 const AMBIENT_FIRE_SOFT_ATLAS_PATH: String = "res://assets/art/effects/ambient_fire_soft_particles.png"
+# Air rooms' decorative gusts (drifting wisps, gust curls painted on floor
+# tiles) pointed random ways, against the real wind (owner,
+# warband-markers-v2). Off until they are reworked to follow it.
+const AIR_DECORATIVE_GUSTS_ENABLED: bool = false
 const AMBIENT_AIR_WISP_FRAMES_PATH: String = "res://assets/art/effects/ambient_air_wisp_frames.png"
 const AMBIENT_AIR_WISP_SOFT_ATLAS_PATH: String = "res://assets/art/effects/ambient_air_wisp_soft_particles.png"
 const AMBIENT_AIR_WISP_GLOW_FRAMES_PATH: String = "res://assets/art/effects/ambient_air_wisp_glow_frames.png"
@@ -529,6 +555,8 @@ const PROJECTILE_DRAW_MIN_SIZE: float = 30.0
 const PROJECTILE_DRAW_MAX_SIZE: float = 48.0
 const PROJECTILE_SPRITE_PATH_ANCHOR_X: float = 0.78
 const PROJECTILE_PREVIEW_LOOP_SECONDS: float = 2.4
+# Reduced motion holds the preview steady at the pulse mean: sin(0) = 0, so pulse = 0.55.
+const DAMAGE_PREVIEW_REDUCED_MOTION_TIME_SECONDS: float = 0.0
 const LETHAL_DEATH_MARK_EFFECT_PATH: String = "res://assets/art/effects/lethal_death_mark.png"
 const LETHAL_DEATH_MARK_PULSE_SECONDS: float = 1.4
 const LETHAL_DEATH_MARK_MIN_SCALE: float = 0.92
@@ -553,7 +581,8 @@ const TERRAIN_BOX_DRAW_WIDTH_SCALE: float = 0.64
 const POWDER_KEG_FUSE_ANCHOR: Vector2 = Vector2(0.64, 0.13)
 const TERRAIN_CRATE_DRAW_WIDTH_SCALE: float = 0.60
 const TERRAIN_DRAW_BASELINE_SCALE: float = 0.42
-const TERRAIN_HEALTH_BAR_SIZE: Vector2 = Vector2(56.0, 8.0)
+const TERRAIN_HEALTH_BAR_SIZE: Vector2 = Vector2(76.0, 17.0)
+const TERRAIN_HEALTH_BAR_TOP_OFFSET: float = 14.5
 const SHADOW_COLOR: Color = Color(0.0, 0.0, 0.0, 0.22)
 const SHADOW_LIGHT_VECTOR: Vector2 = Vector2(1.0, 0.55)
 const SHADOW_POINT_COUNT: int = 24
@@ -598,6 +627,8 @@ var _camera_kick_strength: float = 1.0
 var _camera_kick_amplitude: float = 0.0
 var _camera_kick_started_usec: int = -120001
 var _camera_kick_progress: float = 1.0
+var _camera_kick_oscillations: float = IMPACT_CAMERA_SHAKE_OSCILLATIONS
+var _camera_kick_decay: float = 2.0
 var _feel_surface_tiles: Array = []
 var _hover_tile: Vector2i = Vector2i(-1, -1)
 var _controller_focus_tile: Vector2i = Vector2i(-1, -1)
@@ -694,6 +725,7 @@ var _terrain_textures: Dictionary = {}
 var _terrain_destruction_frames_by_kind: Dictionary = {}
 var _unit_textures: Dictionary = {}
 var _unit_rear_textures: Dictionary = {}
+var _summon_forecast_engine := preload("res://scripts/combat_engine.gd").new()
 var _static_enemy_art: RefCounted = StaticEnemyFacing.new()
 var _unit_assets_loaded: Dictionary = {}
 var _element_textures: Dictionary = {}
@@ -704,15 +736,20 @@ var _door_icon_textures: Dictionary = {}
 var _keyword_icon_textures: Dictionary = {}
 var _health_bar_frame_textures: Dictionary = {}
 var health_ghost_tracker: RefCounted = HealthGhostTracker.new()
+var status_pop_tracker: RefCounted = StatusPopTracker.new()
 var _next_health_ghost_state: Dictionary = {}
 var _unit_shadow_polygon_cache: Dictionary = {}
 var _unit_shadow_bottom_ratio_cache: Dictionary = {}
 var _unit_shadow_draw_geometry_cache: Dictionary = {}
 var _unit_shadow_draw_mesh_cache: Dictionary = {}
+var _unit_ground_contact := preload("res://scripts/unit_ground_contact.gd").new()
 var _submitted_shadow_meshes: Array[ArrayMesh]
 var _door_opening_frames: Array[Texture2D] = []
 var _door_opening_flipped_frames: Array[Texture2D] = []
 var _tooltip_regions: Array[Dictionary] = []
+var _tile_tooltip_regions: Dictionary = {}
+var _tile_tooltip_cache := BoardTileTooltipCache.new()
+var _tile_tooltip_refresh_pending: bool = false
 var _tooltips_enabled: bool = true
 var equipment_tooltip_builder: Callable
 var item_tooltip_builder: Callable
@@ -723,6 +760,9 @@ var _enemy_shadow_dissolve_spare_effect: Control = null
 var _enemy_shadow_dissolve_shader_prewarm_submitted: bool = false
 var _idle_animating: bool = false
 var _rest_threat_tile_alphas: Dictionary = {}
+# Borrowed only during one synchronous overlay draw; rebuilt on every draw.
+var _overlay_draw_sources: Dictionary = {}
+var _torch_mote_templates := preload("res://scripts/board_torch_mote_templates.gd").new()
 var _idle_elapsed: float = 0.0
 var _idle_frame_by_source: Dictionary = {}
 var _room_framing = BoardFraming.new()
@@ -747,6 +787,10 @@ var _explicit_impact_redraw_process_frame: int = -1
 var _submission_cache_valid: bool = false
 var _damage_preview_cache: Dictionary = {}
 var _visible_units_cache: Array[Dictionary] = []
+var _preparing_submission: bool = false
+var _submission_units_valid: bool = false
+var _submission_units: Array[Dictionary]
+var _hover_hud_refresh_pending: bool = false
 var _units_by_draw_tile_cache: Dictionary = {}
 var _scene_props_by_tile: Dictionary = {}
 var _terrain_by_tile: Dictionary = {}
@@ -767,6 +811,7 @@ var _ability_tiles_lookup_cache: Dictionary = {}
 var _ambient_element_id_cache: String = ElementData.NONE
 var _equipment_pickup_beacon_cache: bool = false
 var _preview_unit_pulse_cache: bool = false
+var _status_plate_layout = preload("res://scripts/board_status_layout_cache.gd").new()
 var _hud_health_rects_cache: Dictionary = {}
 var _hud_health_rects_source_snapshot: Dictionary = {}
 var _hud_layout_entries_cache: Array = []
@@ -797,6 +842,7 @@ var _render_layer_kind: String = ""
 var _render_layer_tile: Vector2i = Vector2i(-1, -1)
 var _render_layer_scene_effect_pass: int = 0
 var _render_instrumentation_owner: Node = null
+var _surface_rubble_floor_layer: Node2D
 var _surface_rubble_layer: Node2D
 var _animated_surface_tiles: Array[Vector2i]
 var _surface_ice_layer: Node2D
@@ -831,6 +877,7 @@ var _hud_render_layer: Control = null
 var _effects_render_layer: Control = null
 var _strike_trail_layer: Node2D
 var _hero_strike_trail: RefCounted = HeroStrikeTrail.new()
+var _fixed_visual_rects := FixedVisualRects.new()
 var _enemy_strike_trail: RefCounted = EnemyStrikeTrail.new()
 var _floating_text_layout_cache: Dictionary = {}
 var _floating_text_last_layout: Array[Dictionary] = []
@@ -874,6 +921,12 @@ func _record_startup_performance_phase(phase: String, started: int) -> int:
 	var now: int = Time.get_ticks_usec()
 	_startup_performance_timings[phase + "_usec"] = now - started
 	return now
+
+func _enter_tree() -> void:
+	# A deferred flush can run while detached. Keep its dirty state and resume
+	# on re-entry without requiring another pointer/controller event.
+	if _hover_hud_refresh_pending:
+		call_deferred("_flush_hover_hud_redraw")
 
 func _ready() -> void:
 	var startup_started: int = Time.get_ticks_usec() if get_tree().root.has_meta("labyrinth_performance_probe_seed") else 0
@@ -974,9 +1027,12 @@ func _sync_illusion_renderers() -> void:
 			_illusion_renderers.erase(actor_key)
 			renderer.queue_free()
 
-func _cutout_floor_registrations() -> Dictionary:
+func _cutout_floor_registrations(units_override: Variant = null) -> Dictionary:
 	var registrations: Dictionary = {}
-	for unit: Dictionary in _visible_units():
+	var units_to_sample: Array[Dictionary]
+	if units_override == null: units_to_sample = _visible_units()
+	else: units_to_sample.assign(units_override)
+	for unit: Dictionary in units_to_sample:
 		var unit_type: String = str(unit.get("type", ""))
 		if not ActorPresentation.has_profile(unit_type):
 			continue
@@ -1107,7 +1163,7 @@ func _veilbound_acolyte_renderer_for_unit(unit: Dictionary) -> Node:
 func _unit_uses_cutout(unit: Dictionary) -> bool:
 	if MaquettePresentation.handles(str(unit.get("type", ""))): return true
 	if str(unit.get("type", "")) == "gust_shrike": return GustShrikeCutout.available()
-	return GuardianCutout.handles(str(unit.get("type", ""))) or (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) in ["warden", "crawler", "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "frostglass_lancer", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
+	return GuardianCutout.handles(str(unit.get("type", ""))) or (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) in ["warden", "crawler", "acolyte", "bile_bloomer", "cinder_droplet", "cinder_ooze", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
 
 func bile_bloomer_animation_snapshot(actor_key: String) -> Dictionary:
 	var renderer: Node = _bile_bloomer_renderers.get(actor_key, null) as Node
@@ -1132,12 +1188,8 @@ func _enemy_cutout_renderer_for_unit(unit: Dictionary) -> Node:
 			return _crawler_renderer_for_unit(unit)
 		"acolyte":
 			return _acolyte_renderer_for_unit(unit)
-		"chainbound_gaoler":
-			return _gaoler_renderer_for_unit(unit)
 		"cinder_droplet":
 			return _cinder_droplet_renderer_for_unit(unit)
-		"frostglass_lancer":
-			return _frostglass_renderer_for_unit(unit)
 		"grave_surgeon":
 			return _grave_surgeon_renderer_for_unit(unit)
 		"harrier":
@@ -1377,52 +1429,11 @@ func _sync_acolyte_renderers() -> void:
 			renderer.queue_free()
 
 func gaoler_animation_snapshot(actor_key: String) -> Dictionary:
-	var renderer: Node = _gaoler_renderers.get(actor_key, null) as Node
-	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+	var renderer: Node = (_rr07_renderers["chainbound_gaoler"] as Dictionary).get(actor_key)
+	return renderer.snapshot() if is_instance_valid(renderer) else {}
 
 func gaoler_source_pixel_scale() -> float:
-	var unit: Dictionary = {"type": "chainbound_gaoler"}
-	_ensure_unit_assets_for_type("chainbound_gaoler")
-	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / GaolerCutout.SOURCE_SIZE.x
-
-func _gaoler_renderer_for_unit(unit: Dictionary) -> Node:
-	if str(unit.get("type", "")) != "chainbound_gaoler":
-		return null
-	# Destination echoes reuse their actual actor; they must not allocate or
-	# accidentally animate a second Gaoler, and never fall back to legacy art.
-	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
-	return _gaoler_renderers.get(actor_key, null) as Node
-
-func _sync_gaoler_renderers() -> void:
-	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
-		return
-	var actors: Dictionary = {}
-	for enemy: Dictionary in combat_state.get("enemies", []):
-		if str(enemy.get("type", "")) == "chainbound_gaoler" and int(enemy.get("hp", 0)) > 0:
-			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
-	for unit: Dictionary in presentation.get("death_animation_units", []):
-		if str(unit.get("type", "")) == "chainbound_gaoler":
-			actors["enemy_%d" % int(unit.get("id", -1))] = unit
-	var motions: Dictionary = presentation.get("gaoler_motion", {})
-	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-	for actor_key: String in actors:
-		var unit: Dictionary = actors[actor_key]
-		var renderer: Node = _gaoler_renderers.get(actor_key, null) as Node
-		var motion: Dictionary = motions.get(actor_key, {})
-		if not is_instance_valid(renderer):
-			renderer = GaolerCutout.new()
-			renderer.name = "GaolerCutout_%d" % int(unit.get("id", -1))
-			add_child(renderer)
-			_gaoler_renderers[actor_key] = renderer
-		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
-			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
-		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
-		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
-	for actor_key: String in _gaoler_renderers.keys():
-		if not actors.has(actor_key):
-			var renderer: Node = _gaoler_renderers[actor_key]
-			_gaoler_renderers.erase(actor_key)
-			renderer.queue_free()
+	return source_pixel_scale_for_type("chainbound_gaoler")
 
 func cinder_droplet_animation_snapshot(actor_key: String) -> Dictionary:
 	var renderer: Node = _cinder_droplet_renderers.get(actor_key, null) as Node
@@ -1472,53 +1483,13 @@ func _sync_cinder_droplet_renderers() -> void:
 			_cinder_droplet_renderers.erase(actor_key)
 			renderer.queue_free()
 
+# Retained probe API; the data-driven roster owns the only live renderer.
 func frostglass_animation_snapshot(actor_key: String) -> Dictionary:
-	var renderer: Node = _frostglass_renderers.get(actor_key, null) as Node
+	var renderer: Node = (_rr07_renderers["frostglass_lancer"] as Dictionary).get(actor_key)
 	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
 
 func frostglass_source_pixel_scale() -> float:
-	var unit: Dictionary = {"type": "frostglass_lancer"}
-	_ensure_unit_assets_for_type("frostglass_lancer")
-	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / FrostglassCutout.SOURCE_SIZE.x
-
-func _frostglass_renderer_for_unit(unit: Dictionary) -> Node:
-	if str(unit.get("type", "")) != "frostglass_lancer":
-		return null
-	# Destination echoes reuse their actual actor; they must not allocate or
-	# accidentally animate a second Frostglass Lancer, and never fall back to legacy art.
-	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
-	return _frostglass_renderers.get(actor_key, null) as Node
-
-func _sync_frostglass_renderers() -> void:
-	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
-		return
-	var actors: Dictionary = {}
-	for enemy: Dictionary in combat_state.get("enemies", []):
-		if str(enemy.get("type", "")) == "frostglass_lancer" and int(enemy.get("hp", 0)) > 0:
-			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
-	for unit: Dictionary in presentation.get("death_animation_units", []):
-		if str(unit.get("type", "")) == "frostglass_lancer":
-			actors["enemy_%d" % int(unit.get("id", -1))] = unit
-	var motions: Dictionary = presentation.get("frostglass_motion", {})
-	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-	for actor_key: String in actors:
-		var unit: Dictionary = actors[actor_key]
-		var renderer: Node = _frostglass_renderers.get(actor_key, null) as Node
-		var motion: Dictionary = motions.get(actor_key, {})
-		if not is_instance_valid(renderer):
-			renderer = _take_prepared_unit_renderer("frostglass_lancer", int(unit.get("id", -1)), FrostglassCutout)
-			renderer.name = "FrostglassCutout_%d" % int(unit.get("id", -1))
-			if renderer.get_parent() == null: add_child(renderer)
-			_frostglass_renderers[actor_key] = renderer
-		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
-			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
-		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
-		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
-	for actor_key: String in _frostglass_renderers.keys():
-		if not actors.has(actor_key):
-			var renderer: Node = _frostglass_renderers[actor_key]
-			_frostglass_renderers.erase(actor_key)
-			renderer.queue_free()
+	return source_pixel_scale_for_type("frostglass_lancer")
 
 func grave_surgeon_animation_snapshot(actor_key: String) -> Dictionary:
 	var renderer: Node = _grave_surgeon_renderers.get(actor_key, null) as Node
@@ -1985,6 +1956,7 @@ func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Co
 	layer.set("_render_layer_kind", layer_kind)
 	layer.set("_render_instrumentation_owner", self)
 	layer.set("health_ghost_tracker", health_ghost_tracker)
+	layer.set("status_pop_tracker", status_pop_tracker)
 	layer.set("_art_treatment", _art_treatment)
 	layer.set("_art_treatment_enabled", _art_treatment_enabled)
 	layer.material = _art_treatment.material
@@ -2210,12 +2182,12 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_fire_soft_textures", "_ambient_air_wisp_textures",
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
-			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
-			"_hero_strike_trail", "_enemy_strike_trail", "_unit_rear_textures", "_static_enemy_art", "_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_gust_shrike_renderers", "_cinder_droplet_renderers",
-			"_cinder_ooze_renderers", "_frostglass_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_rr07_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
+			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind", "_maquette_pixel_centers_cache",
+			"_hero_strike_trail", "_enemy_strike_trail", "_unit_rear_textures", "_static_enemy_art", "_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gust_shrike_renderers", "_cinder_droplet_renderers",
+			"_cinder_ooze_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_rr07_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
-			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
-			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache",
+			"_status_plate_layout", "_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
+			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache", "_unit_ground_contact",
 			"_unit_shadow_prewarm_pending_ids",
 			"_door_opening_frames", "_door_opening_flipped_frames",
 			"_idle_frames_by_type", "_death_frames_by_type", "_texture_used_rect_cache"
@@ -2266,7 +2238,8 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache", "_hud_health_rects_cache",
 			"_hud_layout_entries_cache", "_rest_threat_tile_alphas"
 		]
-	for layer: Control in _retained_render_layers():
+	var layers: Array = _retained_render_layers()
+	for layer: Control in layers:
 		if layout_changed and geometry_changed:
 			layer.call("_invalidate_board_layout_cache")
 		elif layout_changed:
@@ -2274,9 +2247,12 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			layer.call("_invalidate_layout_render_semantics")
 		elif visual_framing_changed:
 			layer.call("_invalidate_board_layout_cache", false, true)
-		for field_var: Variant in fields:
-			var field: String = str(field_var)
-			layer.set(field, get(field))
+	# Resolve each source binding once, rather than once per tile/effect layer.
+	for field_var: Variant in fields:
+		var field: StringName = StringName(field_var)
+		var value: Variant = get(field)
+		for layer: Control in layers:
+			layer.set(field, value)
 
 	_effects_render_layer.call("_sync_strike_trail", presentation.get("effect", {}), float(presentation.get("effect_progress", 1.0)))
 
@@ -2513,6 +2489,9 @@ func _process(delta: float) -> void:
 	if started > 0: owner.call("_record_render_frame_section", Engine.get_process_frames(), "board_process", Time.get_ticks_usec() - started)
 
 func _process_board_frame(delta: float) -> void:
+	if status_pop_tracker.advance(delta):
+		if is_instance_valid(_hud_render_layer): _queue_render_layer_redraw(_hud_render_layer)
+		else: queue_redraw()
 	if not _is_dynamic_render_layer and not bool(presentation.get("reduced_motion", false)):
 		for enemy: Dictionary in combat_state.get("enemies", []):
 			if int(enemy.get("hp", 0)) > 0 and bool(enemy.get("burrowed", false)): _queue_scene_render_layer_for_tile(enemy["pos"])
@@ -2553,8 +2532,6 @@ func _process_board_frame(delta: float) -> void:
 		_queue_active_idle_redraws(changed_sources)
 
 func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: bool = false) -> void:
-	if not skip_effects and TetherView.needs_redraw(self): _queue_render_layer_redraw(_effects_render_layer)
-	VeilView.queue_redraws(self)
 	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas) or (WindView.has_forecast(self) and not bool(presentation.get("reduced_motion", false))):
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if IntentBadges.needs_pulse(presentation): _queue_render_layer_redraw(_hud_render_layer)
@@ -2682,7 +2659,6 @@ func _presentation_needs_continuous_redraw() -> bool:
 	if WindView.has_forecast(self) and not bool(presentation.get("reduced_motion", false)): return true
 	if not visible:
 		return false
-	if TetherView.needs_redraw(self) or VeilView.needs_redraw(self): return true
 	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas):
 		return true
 	if IntentBadges.needs_pulse(presentation): return true
@@ -2735,8 +2711,13 @@ func _preview_unit_pulse_active() -> bool:
 			return true
 	return false
 
+# Wind landing ghosts read previewed paths and the Snare's prepared headwind;
+# without wind there are no ghosts, so those changes keep the cached unit list.
+func _wind_ghost_inputs_changed(presentation_changes: Dictionary) -> bool:
+	return (presentation_changes.has("displacement_paths") or presentation_changes.has("snare_pressure_preview")) and WindView.has_forecast(self)
+
 func _unit_is_preview_echo(unit: Dictionary) -> bool:
-	return str(unit.get("role", "")) in ["illusion_preview", "enemy_move_preview"]
+	return str(unit.get("role", "")) in ["illusion_preview", "enemy_move_preview", WindView.GHOST_ROLE]
 
 func _preview_effect_needs_continuous_redraw(effect: Dictionary) -> bool:
 	if not bool(effect.get("preview", false)):
@@ -2791,11 +2772,12 @@ func set_health_ghost_source_state(next_state: Dictionary) -> void:
 	_next_health_ghost_state = next_state
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
-	next_presentation = MimicView.presentation_for(next_state, next_presentation)
+	var submitted_paths: Dictionary = next_presentation.duplicate(false)
 	next_presentation = CapacitorView.presentation_for(next_state, next_presentation)
-	next_presentation = TetherView.presentation_for(next_state, next_presentation)
-	next_presentation = DiveView.presentation_for(next_state, next_presentation)
 	next_presentation = BrambleView.presentation_for(next_state, next_presentation)
+	next_presentation = SnarePressureView.presentation_for(next_state, next_presentation)
+	next_presentation = BattlefieldRuleView.presentation_for(next_state, next_presentation)
+	next_presentation = preload("res://scripts/enemy_path_presentation.gd").without_enemy_paths(next_presentation, submitted_paths)
 	next_presentation = StaticEnemyFacing.presentation_for(self, next_state, next_presentation, presentation)
 	_rest_threat_tile_alphas = ThreatTiles.tile_alphas((next_presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
@@ -2835,6 +2817,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var exit_tiles_changed: bool = next_exit_tiles != exit_tiles
 	var exit_icon_ids_changed: bool = next_exit_icon_ids != exit_icon_ids
 	var previous_exit_tiles: Dictionary = exit_tiles
+	var previous_attack_tiles: Array = attack_tiles
 	var interaction_changed: bool = (
 		move_tiles_changed
 		or attack_tiles_changed
@@ -2847,6 +2830,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	# layers (unit tests and callers can submit state while the view is detached).
 	# Live views already pay this exact diff cost for selective redraw routing.
 	var presentation_changes: Dictionary = _changed_presentation_keys(presentation, next_presentation)
+	var tile_tooltips_changed: bool = state_changed or not _submission_cache_initialized
+	for key: String in ["umbra_visible_tiles", "umbra_light_sources", "scene_props", "visible_enemy_ids"]:
+		if presentation_changes.has(key): tile_tooltips_changed = true
 	var biome_changed: bool = _biome_id != str(next_presentation.get("biome_id", Biomes.default_biome()))
 	var surface_redraw_tiles: Array[Vector2i] = BoardSurfaceRenderDependencies.changed_tiles(presentation, next_presentation, presentation_changes)
 	var previous_damage_preview: Dictionary = {}
@@ -2923,6 +2909,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var next_floor_signature: String = next_room_grid_signature if state_changed or _floor_variant_signature.is_empty() else _floor_variant_signature
 	var next_moss_signature: String = _moss_signature_for_state(next_state) if state_changed or _moss_signature.is_empty() else _moss_signature
 	var layout_changed: bool = next_layout_signature != _board_layout_signature
+	var prepare_hover_hud: bool = not _submission_cache_initialized or next_navigation_content_signature != _navigation_content_signature
 	var previous_geometry: Dictionary = _resolved_board_geometry_inputs() if layout_changed else {}
 	var geometry_changed: bool = layout_changed
 	var visual_framing_changed: bool = false
@@ -2930,12 +2917,17 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var moss_changed: bool = next_moss_signature != _moss_signature
 	var static_presentation_changed: bool = biome_changed or presentation_changes.has("board_backdrop_visible") or presentation_changes.has("scene_props") or combat_render_changes.has("room_element")
 	submission_phase_started = _record_submission_performance_phase("signatures", submission_phase_started)
+	var previous_path_presentation: Dictionary = presentation
 	var previous_transition_state: Dictionary = previous_combat_render_source if same_reference_state_mutation else combat_state
 	_update_umbra_return_transition(previous_transition_state, presentation, next_state, next_presentation, layout_changed)
 	_submission_cache_valid = false
 	# Combat and presentation dictionaries are copy-on-write snapshots owned by
 	# the caller. CombatBoardView only reads them and stores derived render data,
 	# avoiding a full recursive clone on every animation/hover submission.
+	# Tile canvases survive reframing; their surface children belong to one room.
+	if combat_state.get("room_coord", Vector2i(-1, -1)) != next_state.get("room_coord", Vector2i(-1, -1)):
+		for layer: Node in _scene_render_layers:
+			layer.call("_release_room_surface_layers")
 	combat_state = next_state
 	if not _submission_cache_initialized or combat_render_changes.has("surfaces"):
 		_animated_surface_tiles.clear()
@@ -2952,6 +2944,12 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
+	if tile_tooltips_changed:
+		_tile_tooltip_cache.invalidate()
+		_queue_tile_tooltip_refresh()
+	_invalidate_maquette_pixel_centers()
+	_preparing_submission = true
+	_submission_units_valid = false
 	if biome_changed:
 		_biome_id = str(presentation.get("biome_id", Biomes.default_biome()))
 		_biome_light_color = Biomes.light_color(_biome_id)
@@ -2959,6 +2957,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if not _prop_textures.is_empty(): _load_biome_prop_assets()
 		if not _pillar_torch_idle_frames.is_empty(): _load_pillar_idle_assets()
 	health_ghost_tracker.observe_state(combat_state if _next_health_ghost_state.is_empty() else _next_health_ghost_state, presentation)
+	status_pop_tracker.observe_scope(combat_state)
 	_next_health_ghost_state = {}
 	_update_impact_camera_shake()
 	var previous_registrations: Dictionary = _cutout_floor_registrations()
@@ -2993,8 +2992,6 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if refresh_cutout_roster or presentation_changes.has("bile_bloomer_motion"):
 		_sync_bile_bloomer_renderers()
 	roster_phase_started = _record_submission_performance_phase("roster_bile_bloomer", roster_phase_started)
-	if refresh_cutout_roster or presentation_changes.has("gaoler_motion"):
-		_sync_gaoler_renderers()
 	if refresh_cutout_roster or presentation_changes.has("gust_shrike_motion"):
 		GustShrikePresentation.sync(self)
 	roster_phase_started = _record_submission_performance_phase("roster_gaoler", roster_phase_started)
@@ -3003,9 +3000,6 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	roster_phase_started = _record_submission_performance_phase("roster_cinder_droplet", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("cinder_ooze_motion"):
 		CinderOozePresentation.sync(self)
-	if refresh_cutout_roster or presentation_changes.has("frostglass_motion"):
-		_sync_frostglass_renderers()
-	roster_phase_started = _record_submission_performance_phase("roster_frostglass", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("grave_surgeon_motion"):
 		_sync_grave_surgeon_renderers()
 	roster_phase_started = _record_submission_performance_phase("roster_grave_surgeon", roster_phase_started)
@@ -3093,6 +3087,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	_navigation_content_signature = next_navigation_content_signature
 	if state_changed or presentation_changes.has("death_animation_units") or not _submission_cache_initialized:
 		_ensure_unit_assets_for_submission(combat_state, presentation)
+		_invalidate_maquette_pixel_centers()
 	submission_phase_started = _record_submission_performance_phase("assign_and_assets", submission_phase_started)
 	if layout_changed:
 		_board_layout_signature = next_layout_signature
@@ -3117,6 +3112,10 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if presentation_changes.has(cache_key):
 			submission_sources_changed = true
 			break
+	# Wind landing ghosts skip paths the presentation already previews; without
+	# wind there are no ghosts, so card previews keep their cached unit list.
+	if _wind_ghost_inputs_changed(presentation_changes):
+		submission_sources_changed = true
 	if submission_sources_changed:
 		_rebuild_submission_caches(presentation_changes, state_changed, moving_actor_keys)
 	else:
@@ -3131,18 +3130,21 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		for actor_key_var: Variant in current_units_by_key:
 			if not previous_units_by_key.has(actor_key_var) or current_units_by_key.get(actor_key_var) != previous_units_by_key.get(actor_key_var):
 				moving_actor_keys[str(actor_key_var)] = true
-	var hud_layout_inputs_changed: bool = state_changed or layout_changed or visual_framing_changed or _hud_layout_entries_cache.is_empty()
+	var group_ui_changed: bool = _status_plate_layout.Groups.screen_reservations(self) != _hud_health_rects_source_snapshot.get("group_reserved_ui", [])
+	var hud_layout_inputs_changed: bool = state_changed or layout_changed or visual_framing_changed or _hud_layout_entries_cache.is_empty() or group_ui_changed
 	for hud_key: String in [
 		"expanded_enemy_actor_keys", "expand_enemy_intents", "show_all_enemy_intents",
 		"unit_draw_tiles", "unit_world_positions", "preview_units", "death_animation_units",
-		"visible_enemy_ids", "surface_status_preview"
+		"visible_enemy_ids", "surface_status_preview", "damage_preview", "effect",
+		"umbra_truesight_activations", "umbra_truesight_conditional", "threats_at_rest", "boss_health_frame_global_rect"
 	]:
 		if presentation_changes.has(hud_key):
 			hud_layout_inputs_changed = true
 			break
 	if hud_layout_inputs_changed:
 		var structural_hud_change: bool = (
-			state_changed
+			group_ui_changed
+			or state_changed
 			or layout_changed
 			or visual_framing_changed
 			or presentation_changes.has("expanded_enemy_actor_keys")
@@ -3151,6 +3153,13 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			or presentation_changes.has("preview_units")
 			or presentation_changes.has("death_animation_units")
 			or presentation_changes.has("visible_enemy_ids")
+			or presentation_changes.has("surface_status_preview")
+			or presentation_changes.has("damage_preview")
+			or presentation_changes.has("effect")
+			or presentation_changes.has("umbra_truesight_activations")
+			or presentation_changes.has("umbra_truesight_conditional")
+			or presentation_changes.has("threats_at_rest")
+			or presentation_changes.has("boss_health_frame_global_rect")
 		)
 		if structural_hud_change or not _refresh_moving_hud_geometry(moving_actor_keys):
 			_rebuild_hud_health_rects_cache()
@@ -3161,10 +3170,17 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if geometry_changed:
 			_unit_shadow_draw_geometry_cache.clear()
 			_unit_shadow_draw_mesh_cache.clear()
+			_unit_ground_contact.meshes.clear()
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer) and (layout_changed or _scene_render_layers.is_empty()):
 		_sync_scene_render_layers()
 		_sync_dynamic_render_assets()
+	# Warmup restores the live hover layout. Publish that final result with the
+	# retained bindings, including obstacle-only submissions.
+	if prepare_hover_hud or (layout_changed and geometry_changed) or presentation_changes.has("hud_obstacle_global_rects") or presentation_changes.has("burst_intent_obstacle_global_rect"):
+		preload("res://scripts/board_hover_hud_warmup.gd").prepare(self)
 	var retained_sync_fields: Array = []
+	if group_ui_changed and not layout_changed and not visual_framing_changed:
+		retained_sync_fields.append_array(["_hud_health_rects_cache", "_hud_layout_entries_cache"])
 	if biome_changed:
 		_sync_dynamic_render_assets()
 		# New/reframed tile layers need the full state. A biome-only list would
@@ -3212,6 +3228,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 				"_submission_cache_valid"
 			])
 			break
+		# Wind landing ghosts follow previewed paths into the retained layers too.
+		if _wind_ghost_inputs_changed(presentation_changes):
+			retained_sync_fields.append_array(["_visible_units_cache", "_units_by_draw_tile_cache", "_preview_unit_pulse_cache", "_foreground_obstruction_entries_cache", "_submission_cache_valid"])
 		if presentation_changes.has("scene_props"):
 			retained_sync_fields.append_array([
 				"_scene_props_by_tile", "_campfire_scene_props_cache", "_foreground_obstruction_entries_cache",
@@ -3229,6 +3248,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if layout_changed or visual_framing_changed or not retained_sync_fields.is_empty():
 		_sync_dynamic_render_state(layout_changed, visual_framing_changed, retained_sync_fields, geometry_changed)
 	submission_phase_started = _record_submission_performance_phase("retained_sync", submission_phase_started)
+	if group_ui_changed: _queue_render_layer_redraw(_hud_render_layer)
 	_update_cursor_shape()
 	if layout_changed or visual_framing_changed or floor_changed or moss_changed or static_presentation_changed or _dynamic_render_layer == null:
 		_sync_static_render_cache()
@@ -3255,7 +3275,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 				status_changed,
 				exit_tiles_changed,
 				exit_icon_ids_changed,
-				previous_exit_tiles
+				previous_exit_tiles,
+				previous_attack_tiles
 			)
 		_queue_presentation_change_redraws(
 			presentation_changes,
@@ -3270,7 +3291,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			previous_terrain_destruction_units,
 			next_presentation.get("terrain_destruction_units", []) as Array,
 			previous_scene_props,
-			next_presentation.get("scene_props", []) as Array
+			next_presentation.get("scene_props", []) as Array,
+			previous_path_presentation,
+			previous_damage_preview
 		)
 		for surface_tile: Vector2i in surface_redraw_tiles:
 			_queue_scene_render_layer_for_tile(surface_tile)
@@ -3283,6 +3306,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_queue_render_layer_redraw(_hud_render_layer)
 		_queue_moving_actor_redraws(registration_changes, previous_unit_render_tiles, previous_unit_obstruction_entries)
 	_sync_enemy_shadow_dissolve_effects()
+	_preparing_submission = false
+	_submission_units_valid = false
 	_record_submission_performance_phase("redraw_routing", submission_phase_started)
 
 func set_submission_performance_instrumentation_enabled(enabled: bool) -> void:
@@ -3318,12 +3343,17 @@ func _queue_interaction_change_redraws(
 	status_text_changed: bool,
 	exits_changed: bool,
 	exit_icons_changed: bool,
-	previous_exits: Dictionary
+	previous_exits: Dictionary,
+	previous_attacks: Array = []
 ) -> void:
 	if move_changed or attack_changed or selection_changed or exits_changed:
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if attack_changed:
 		_queue_render_layer_redraw(_foreground_render_layer)
+		# Full-health terrain bars also appear for attack-target membership.
+		# This dependency is independent of the damage-preview map.
+		for tile: Vector2i in SceneDirtyTiles.terrain_targets(previous_attacks, attack_tiles, combat_state.get("terrain", [])):
+			_queue_scene_render_layer_for_tile(tile)
 	if status_text_changed:
 		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_render_layer_redraw(_effects_render_layer)
@@ -3368,6 +3398,16 @@ func _changed_unit_presentation_actor_keys(previous: Dictionary, next: Dictionar
 		for key_var: Variant in next_values:
 			if not previous_values.has(key_var) or previous_values.get(key_var) != next_values.get(key_var):
 				changed[str(key_var)] = true
+	for field: String in previous.keys() + next.keys():
+		if not field.ends_with("_motion") or field == "reduced_motion": continue
+		if not previous.get(field, {}) is Dictionary or not next.get(field, {}) is Dictionary: continue
+		if previous.get(field, {}) == next.get(field, {}): continue
+		if field == "protagonist_motion": changed["player"] = true
+		for source: Dictionary in [previous.get(field, {}) as Dictionary, next.get(field, {}) as Dictionary]:
+			for actor_key: String in source:
+				if actor_key == "player" or actor_key.begins_with("enemy_") or actor_key.begins_with("illusion_"):
+					changed[actor_key] = true
+
 	return changed
 
 func _unit_render_tiles_by_key(units_to_draw: Array[Dictionary]) -> Dictionary:
@@ -3424,7 +3464,9 @@ func _queue_presentation_change_redraws(
 	previous_terrain_destruction_units: Array = [],
 	next_terrain_destruction_units: Array = [],
 	previous_scene_props: Array = [],
-	next_scene_props: Array = []
+	next_scene_props: Array = [],
+	previous_path_presentation: Dictionary = {},
+	previous_damage_preview: Dictionary = {}
 ) -> void:
 	if changed_keys.is_empty() and not damage_preview_changed:
 		return
@@ -3458,12 +3500,12 @@ func _queue_presentation_change_redraws(
 				path_changed = true
 				effects_changed = true
 			"effect", "effect_progress":
-				for terrain: Dictionary in combat_state.get("terrain", []):
-					if str(terrain.get("kind", "")) == "bramble": _queue_scene_render_layer_for_tile(terrain["pos"])
+				for tile: Vector2i in SceneDirtyTiles.bramble(previous_path_presentation).merged(SceneDirtyTiles.bramble(presentation)):
+					_queue_scene_render_layer_for_tile(tile)
 				effects_changed = true
 				action_floor_changed = true
 				overlay_changed = true
-				# Noctyrax's tethered labels solve around the animated actor and
+				# Noctyrax's anchored labels solve around the animated actor and
 				# action banner. Retaining the pre-cast HUD until damage changes
 				# actor state can leave its old label over the windup banner.
 				if str((presentation.get("effect",{}) as Dictionary).get("enemy_type","")) == "noctyrax":
@@ -3504,12 +3546,13 @@ func _queue_presentation_change_redraws(
 				_queue_render_layer_redraw(_ambient_render_layer)
 				foreground_changed = true
 			"protagonist_motion":
-				# The rig keeps a stable texture; its small hand charge lives on FX.
+				# The rig keeps a stable texture; registration and charge stay local.
+				unit_movement_changed = true
 				effects_changed = true
-			"guardian_motion", "warden_motion", "crawler_motion", "acolyte_motion", "bile_bloomer_motion", "cinder_droplet_motion", "cinder_ooze_motion", "frostglass_motion", "harrier_motion", "iskaldra_motion", "noctyrax_motion", "vaeloryx_motion", "veilbound_acolyte_motion":
-				# Per-actor viewports retain their texture RID between poses.
-				pass
-			"combat_feel_owner", "combat_feel_hits":
+			"guardian_motion", "warden_motion", "crawler_motion", "acolyte_motion", "bile_bloomer_motion", "cinder_droplet_motion", "cinder_ooze_motion", "harrier_motion", "iskaldra_motion", "noctyrax_motion", "vaeloryx_motion", "veilbound_acolyte_motion":
+				# Pose textures retain their RID; pixel/floor registration can move.
+				unit_movement_changed = true
+			"combat_feel_owner", "combat_feel_hits", "effect_frame_count", "maquette_explicit_clip", "harrier_travel_variant", "umbra_reveal_actor_on_visible_tiles":
 				pass
 			"combat_feel_surface_frames":
 				for tile: Vector2i in _feel_surface_tiles: _queue_scene_render_layer_for_tile(tile)
@@ -3527,9 +3570,14 @@ func _queue_presentation_change_redraws(
 				overlay_changed = true
 				hud_changed = true
 			"intent_callouts":
-				effects_changed = true
+				hud_changed = true
 			"en01_erupt", "en01_erupt_dust", "en01_burst", "en01_burst_progress":
 				_queue_dynamic_redraw()
+			"burst_effects":
+				overlay_changed = true
+				effects_changed = true
+			"kindle_pop", "burst_intent_obstacle_global_rect":
+				hud_changed = true
 			"enemy_intent_compasses":
 				for unit: Dictionary in _visible_units():
 					if str(unit.get("role", "")) == "enemy":
@@ -3539,6 +3587,12 @@ func _queue_presentation_change_redraws(
 				# layers optimize known animation-only submissions without risking a
 				# stale frame when a new presentation field is introduced.
 				var unclassified_key: String = str(key_var)
+				# Registered maquettes update a persistent viewport texture RID.
+				# Geometry/registration changes are routed separately below.
+				if unclassified_key.ends_with("_motion") and MaquettePresentation.handles(unclassified_key.trim_suffix("_motion")):
+					unit_movement_changed = true
+					foreground_changed = true
+					continue
 				_unclassified_presentation_redraw_keys[unclassified_key] = int(_unclassified_presentation_redraw_keys.get(unclassified_key, 0)) + 1
 				_queue_dynamic_redraw()
 				return
@@ -3548,7 +3602,7 @@ func _queue_presentation_change_redraws(
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if path_changed:
 		_queue_render_layer_redraw(_path_render_layer)
-		for tile: Vector2i in _scene_render_layers_by_tile:
+		for tile: Vector2i in PreviewRedraws.tiles(self, previous_path_presentation, presentation):
 			_queue_scene_render_layer_for_tile(tile)
 	if impact_floor_changed or action_floor_changed:
 		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
@@ -3564,9 +3618,8 @@ func _queue_presentation_change_redraws(
 		_queue_render_layer_redraw(_foreground_render_layer)
 	if damage_preview_changed:
 		hud_changed = true
-		for terrain_var: Variant in combat_state.get("terrain", []):
-			if typeof(terrain_var) == TYPE_DICTIONARY:
-				_queue_scene_render_layer_for_tile((terrain_var as Dictionary).get("pos", Vector2i(-1, -1)))
+		for tile: Vector2i in SceneDirtyTiles.terrain_previews(previous_damage_preview, _damage_preview_cache, combat_state.get("terrain", [])):
+			_queue_scene_render_layer_for_tile(tile)
 	if hud_changed:
 		_queue_render_layer_redraw(_hud_render_layer)
 	if effects_changed:
@@ -3582,6 +3635,9 @@ func _queue_combat_state_change_redraws(
 	previous_unit_render_tiles: Dictionary,
 	previous_unit_obstruction_entries: Dictionary
 ) -> void:
+	# A changed wind moves its streaks and landing ghosts anywhere on the board.
+	if changed_keys.has("wind"):
+		_queue_dynamic_redraw()
 	if changed_keys.has("objective"):
 		_queue_render_layer_redraw(_foreground_render_layer)
 		_queue_render_layer_redraw(_overlay_render_layer)
@@ -3605,8 +3661,16 @@ func _queue_combat_state_change_redraws(
 		]:
 			_queue_scene_render_layer_for_tile(player_source.get("pos", Vector2i(-1, -1)))
 		_queue_render_layer_redraw(_hud_render_layer)
+	# The hero's keyword badges (Retaliate, Rite thorns, Quicken, next attack,
+	# self flags) read these keys, not the player dictionary. Without this a
+	# card step that only adds one waits for an unrelated repaint to show it.
+	for keyword_key: String in ["retaliate", "active_rites", "turn_flags", ManeuverRules.FLAGS_KEY]:
+		if changed_keys.has(keyword_key):
+			_queue_render_layer_redraw(_hud_render_layer)
+			break
 	if changed_keys.has("terrain"):
 		_queue_scene_tiles_for_state_entries(previous_source.get("terrain", []) as Array, next_source.get("terrain", []) as Array)
+		ScenePropRedraws.queue_terrain_obstruction_changes(self, previous_source.get("terrain", []) as Array, next_source.get("terrain", []) as Array)
 	if changed_keys.has("loot"):
 		_queue_render_layer_redraw(_ground_render_layer)
 		_queue_scene_tiles_for_state_entries(previous_source.get("loot", []) as Array, next_source.get("loot", []) as Array)
@@ -3616,8 +3680,11 @@ func _queue_combat_state_change_redraws(
 		_queue_render_layer_redraw(_overlay_render_layer)
 		# The mark badges (icon and damage) draw above units in the effects layer.
 		_queue_render_layer_redraw(_effects_render_layer)
-	if changed_keys.has("surfaces") or changed_keys.has("relics") or changed_keys.has("surface_rule_overrides"):
+	if changed_keys.has("relics") or changed_keys.has("surface_rule_overrides"):
 		for tile: Vector2i in BoardSurfaceRules.tiles(previous_source) + BoardSurfaceRules.tiles(next_source):
+			_queue_scene_render_layer_for_tile(tile)
+	elif changed_keys.has("surfaces"):
+		for tile: Vector2i in SceneDirtyTiles.surfaces(previous_source.get("surfaces", {}), next_source.get("surfaces", {})):
 			_queue_scene_render_layer_for_tile(tile)
 	if changed_keys.has("grid") or changed_keys.has("room_element"):
 		_queue_dynamic_redraw()
@@ -3626,14 +3693,7 @@ func _queue_scene_tiles_for_state_entries(previous_entries: Array, next_entries:
 	_queue_scene_tiles_for_presentation_entries(previous_entries, next_entries, "pos")
 
 func _queue_scene_tiles_for_presentation_entries(previous_entries: Array, next_entries: Array, position_key: String) -> void:
-	var queued_tiles: Dictionary = {}
-	for entry_var: Variant in previous_entries + next_entries:
-		if typeof(entry_var) != TYPE_DICTIONARY:
-			continue
-		var tile: Vector2i = (entry_var as Dictionary).get(position_key, Vector2i(-1, -1))
-		if tile.x < 0 or queued_tiles.has(tile):
-			continue
-		queued_tiles[tile] = true
+	for tile: Vector2i in SceneDirtyTiles.entries(previous_entries, next_entries, position_key):
 		_queue_scene_render_layer_for_tile(tile)
 
 func _queue_focus_actor_scene_redraws(previous_actor_keys: Array, next_actor_keys: Array, previous_unit_render_tiles: Dictionary) -> void:
@@ -3823,6 +3883,7 @@ func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 		"player_turn_restrictions": source_state.get("player_turn_restrictions", {}),
 		"illusions": source_state.get("illusions", []),
 		"enemies": source_state.get("enemies", []),
+		"wind": source_state.get("wind", {}),
 		"npcs": source_state.get("npcs", []),
 		"terrain": source_state.get("terrain", []),
 		"loot": source_state.get("loot", []),
@@ -3853,10 +3914,13 @@ func _rebuild_submission_caches(presentation_changes: Dictionary = {}, combat_ch
 	var combat_changed: bool = first_submission or combat_changed_hint
 	var scene_changed: bool = first_submission or presentation_changes.has("scene_props")
 	var units_changed: bool = combat_changed or first_submission
-	for unit_key: String in ["preview_units", "death_animation_units", "visible_enemy_ids"]:
+	# Wind landing ghosts also depend on the visible tiles and, while wind blows,
+	# on previewed paths.
+	for unit_key: String in ["preview_units", "death_animation_units", "visible_enemy_ids", "umbra_visible_tiles"]:
 		if presentation_changes.has(unit_key):
 			units_changed = true
 			break
+	if _wind_ghost_inputs_changed(presentation_changes): units_changed = true
 	var unit_geometry_changed: bool = units_changed
 	for geometry_key: String in ["unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles"]:
 		if presentation_changes.has(geometry_key):
@@ -3917,13 +3981,16 @@ func _rebuild_submission_caches(presentation_changes: Dictionary = {}, combat_ch
 		_ability_tiles_cache = _vector2i_array(presentation.get("ability_tiles", []))
 		_ability_tiles_lookup_cache = _vector2i_lookup(_ability_tiles_cache)
 	if combat_changed or units_changed:
-		_visible_units_cache = _build_visible_units()
+		if _preparing_submission and _submission_units_valid:
+			_visible_units_cache = _submission_units
+		else:
+			_visible_units_cache = _build_visible_units()
 		_preview_unit_pulse_cache = false
 		for unit: Dictionary in _visible_units_cache:
 			if _unit_is_preview_echo(unit):
 				_preview_unit_pulse_cache = true
 				break
-	if units_changed or presentation_changes.has("unit_draw_tiles"):
+	if unit_geometry_changed:
 		# Keep the already-authored unit order inside each tile. Animated draw-tile
 		# overrides change depth ownership without rebuilding the visible list.
 		_units_by_draw_tile_cache = {}
@@ -3932,6 +3999,10 @@ func _rebuild_submission_caches(presentation_changes: Dictionary = {}, combat_ch
 			var tile_units: Array = _units_by_draw_tile_cache.get(draw_tile, []) as Array
 			tile_units.append(unit)
 			_units_by_draw_tile_cache[draw_tile] = tile_units
+		# The visible list can be retained across animation submissions. Sort
+		# tile occupants again when their interpolated floor positions change.
+		for tile: Vector2i in _units_by_draw_tile_cache:
+			preload("res://scripts/maquette_cutout_runtime/board_depth.gd").sort_occupants(self, _units_by_draw_tile_cache[tile], presentation)
 	# Scene props participate in foreground obstruction even though they do not
 	# affect the visible-unit list. Keep that derived cache aligned when a room
 	# prop changes without paying to rebuild it for damage-only hovers.
@@ -4055,11 +4126,13 @@ func set_navigation_zoom(next_zoom: float, focus_position: Vector2 = Vector2(-1.
 		focus_position = size * 0.5
 	_ensure_board_layout_cache()
 	var previous_zoom: float = _navigation_zoom
-	var zoom_anchor: Vector2 = _navigation_zoom_anchor()
 	var zoom_ratio: float = clamped_zoom / maxf(0.001, previous_zoom)
-	var anchored_pan: Vector2 = focus_position - zoom_anchor - (focus_position - zoom_anchor - _navigation_pan) * zoom_ratio
+	var next_tile_width: float = _tile_width_for_extents(_board_layout_cache_extents) * clamped_zoom
+	# Room framing includes fixed HUD clearance. Its scaled origin is not a
+	# transform about the viewport centre; preserve the actual board point.
+	var next_origin: Vector2 = _room_framing.origin(_board_layout_available_rect(), next_tile_width)
+	var anchored_pan: Vector2 = focus_position - next_origin - (focus_position - _board_layout_cache_origin) * zoom_ratio
 	_navigation_zoom = clamped_zoom
-	var next_tile_width: float = _tile_width_for_extents(_board_layout_cache_extents) * _navigation_zoom
 	_navigation_pan = _clamped_navigation_pan_for_layout(anchored_pan, _board_layout_cache_extents, next_tile_width)
 	_navigation_uses_default_zoom = false
 	_navigation_transform_changed(true)
@@ -4184,14 +4257,24 @@ func _queue_hover_redraws() -> void:
 	# Hover only changes tile overlays and enemy intent/HUD layout. Ambient,
 	# occupied-tile art, foreground atmosphere, and effects retain their draw
 	# commands while pointer motion remains fully event-driven.
-	_rebuild_hud_health_rects_cache()
-	if _hud_render_layer != null and is_instance_valid(_hud_render_layer):
+	_queue_render_layer_redraw(_overlay_render_layer)
+	# RunScene queues its presentation update from tile_hovered first. Resolve
+	# the HUD after that update, in the same deferred flush before rendering,
+	# instead of solving both the old and final presentation for one pointer move.
+	if not _hover_hud_refresh_pending:
+		_hover_hud_refresh_pending = true
+		call_deferred("_flush_hover_hud_redraw")
+
+func _flush_hover_hud_redraw() -> void:
+	if not _hover_hud_refresh_pending or not is_inside_tree() or is_queued_for_deletion(): return
+	_hover_hud_refresh_pending = false
+	var hud_changed: bool = _rebuild_hud_health_rects_cache()
+	if hud_changed and is_instance_valid(_hud_render_layer):
 		_hud_render_layer.set("_hud_layout_entries_cache", _hud_layout_entries_cache)
 		_hud_render_layer.set("_hud_health_rects_cache", _hud_health_rects_cache)
-	if _effects_render_layer != null and is_instance_valid(_effects_render_layer):
+	if hud_changed and is_instance_valid(_effects_render_layer):
 		_effects_render_layer.set("_hud_health_rects_cache", _hud_health_rects_cache)
-	_queue_render_layer_redraw(_overlay_render_layer)
-	_queue_render_layer_redraw(_hud_render_layer)
+	if hud_changed: _queue_render_layer_redraw(_hud_render_layer)
 
 func _navigation_transform_changed(update_hover: bool) -> void:
 	_invalidate_board_layout_cache(false)
@@ -4245,7 +4328,8 @@ func _get_tooltip(at_position: Vector2) -> String:
 			var region: Dictionary = regions[index]
 			var rect: Rect2 = region.get("rect", Rect2())
 			if rect.has_point(at_position):
-				return str(region.get("tooltip", ""))
+				var tile_region: Dictionary = (source.get("_tile_tooltip_regions") as Dictionary).get(index, {})
+				return _surface_tooltip_for_tile(tile_region["tile"]) if tile_region.has("tile") else str(region.get("tooltip", ""))
 	var seal_tooltip: String = _snare_sealbinder_tooltip_at_position(at_position)
 	if not seal_tooltip.is_empty(): return seal_tooltip
 	return _surface_tooltip_for_tile(tile_at_global_position(at_position + global_position))
@@ -4264,7 +4348,7 @@ func _loot_tooltip_at_position(at_position: Vector2) -> String:
 		if texture == null:
 			continue
 		if _loot_rect_for_tile(tile, texture, loot).grow(18.0).has_point(at_position):
-			return _loot_tooltip_text(loot)
+			return _surface_tooltip_for_tile(tile)
 	return ""
 
 func enemy_intent_tooltip(actor_key: String) -> String:
@@ -4272,16 +4356,24 @@ func enemy_intent_tooltip(actor_key: String) -> String:
 	var seen: Dictionary = {}
 	for unit: Dictionary in _visible_units():
 		if _enemy_hud_actor_key(unit) != actor_key: continue
-		if str(unit.get("intent", {}).get("id", "")) == "snare_seal":
-			return SnareRules.seal_tooltip(combat_state["objective"], unit)
-		for row: Array in _intent_rows_for_unit(unit,unit.get("intent",{})):
-			for token: Dictionary in row:
-				# The expanded row already states ordinary movement, damage and reach.
-				if str(token.get("icon","")) in ["move","melee","ranged","aoe","range"] and not token.has("tooltip"): continue
-				var detail: String = ActionIcons.token_tooltip(token)
-				if detail.is_empty() or seen.has(detail): continue
-				seen[detail] = true
-				lines.append(detail)
+		var marked_move: String = ""
+		for action: Dictionary in unit.get("intent", {}).get("actions", []):
+			if str(action.get("type", "")) in ["icefall_mark", "icefall_land", "lob_mark", "lob_land", "burrow", "erupt"]:
+				marked_move = LobView.action_text(combat_state, unit, action) if str(action["type"]).begins_with("lob_") else ActionIcons.marked_move_text(action)
+				break
+		if not marked_move.is_empty():
+			lines.append(marked_move)
+		else:
+			if str(unit.get("intent", {}).get("id", "")) == "snare_seal":
+				return SnareRules.seal_tooltip(combat_state["objective"], unit)
+			for row: Array in _intent_rows_for_unit(unit,unit.get("intent",{})):
+				for token: Dictionary in row:
+					# The expanded row already states ordinary movement, damage and reach.
+					if str(token.get("icon","")) in ["move","melee","ranged","aoe","range"] and not token.has("tooltip"): continue
+					var detail: String = ActionIcons.token_tooltip(token)
+					if detail.is_empty() or seen.has(detail): continue
+					seen[detail] = true
+					lines.append(detail)
 	for enemy: Dictionary in combat_state.get("enemies", []):
 		if "enemy_%d" % int(enemy.get("id", -1)) == actor_key and bool(enemy.get("is_leader", false)):
 			var order: String = WarbandRules.order_line(combat_state.get("objective", {}))
@@ -4289,17 +4381,46 @@ func enemy_intent_tooltip(actor_key: String) -> String:
 	return "\n".join(lines)
 
 func controller_tooltip_for_tile(tile: Vector2i) -> String:
-	for terrain: Dictionary in combat_state.get("terrain", []):
-		if terrain.get("pos") == tile and str(terrain.get("kind", "")) == "bramble": return BrambleView.tooltip(terrain)
-	for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
-		if typeof(loot_var) != TYPE_DICTIONARY:
-			continue
-		var loot: Dictionary = loot_var as Dictionary
-		if not bool(loot.get("claimed", false)) and _board_tile_is_visible_to_player(tile):
-			return _loot_tooltip_text(loot)
 	return _surface_tooltip_for_tile(tile)
 
+func tile_tooltip_revision() -> int:
+	return _tile_tooltip_cache.revision
+
+func _queue_tile_tooltip_refresh() -> void:
+	if _tile_tooltip_refresh_pending or not is_inside_tree(): return
+	_tile_tooltip_refresh_pending = true
+	get_tree().process_frame.connect(_tile_tooltip_after_draw, CONNECT_ONE_SHOT)
+
+func _tile_tooltip_after_draw() -> void:
+	if not is_inside_tree() or is_queued_for_deletion():
+		_tile_tooltip_refresh_pending = false
+		return
+	# One-shot signals disconnect automatically when this board is freed. An
+	# awaiting member coroutine can otherwise resume after a room view is gone.
+	get_tree().process_frame.connect(_refresh_held_tile_tooltip, CONNECT_ONE_SHOT)
+
+func _refresh_held_tile_tooltip() -> void:
+	# Retained light registrations and the native popup's layout settle after
+	# submission. Replace a held tile snapshot without requiring pointer motion.
+	_tile_tooltip_refresh_pending = false
+	if not is_inside_tree() or is_queued_for_deletion(): return
+	_tile_tooltip_cache.refresh_used_lights(self)
+	BoardTileTooltip.refresh_held_popup(self)
+
+# Controller discovery retains readable text and the original loot candidate
+# kind, while detail_key asks the same builder used by the mouse popup.
+func tile_tooltip_detail(text: String) -> Dictionary:
+	var entries: Array[Dictionary] = BoardTileTooltip.decode(text)
+	var loot_key: String = ""
+	for entry: Dictionary in entries:
+		if entry.has("builder_key"):
+			loot_key = str(entry["builder_key"])
+			break
+	return {"text": BoardTileTooltip.plain_text(entries), "loot_key": loot_key}
+
 func _make_custom_tooltip(for_text: String) -> Object:
+	if for_text.begins_with(BoardTileTooltip.PREFIX):
+		return BoardTileTooltip.make_stack(BoardTileTooltip.decode(for_text), Callable(self, "_make_custom_tooltip"))
 	if for_text.begins_with(ActionIcons.label("bramble") + "\n"): return UiTooltipPanel.make_icon_lines(ActionIcons.icon_texture("bramble"), ActionIcons.label("bramble"), PackedStringArray([for_text.substr(for_text.find("\n") + 1)]))
 	if for_text.strip_edges().is_empty():
 		return null
@@ -4428,6 +4549,7 @@ func _draw_ambient_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()
+	_tile_tooltip_regions.clear()
 	if combat_state.is_empty():
 		_record_dynamic_draw_time(started_usec)
 		return
@@ -4444,6 +4566,7 @@ func _draw_world_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()
+	_tile_tooltip_regions.clear()
 	if combat_state.is_empty():
 		_record_dynamic_draw_time(started_usec)
 		return
@@ -4457,6 +4580,7 @@ func _draw_impact_floor_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()
+	_tile_tooltip_regions.clear()
 	if combat_state.is_empty():
 		_record_dynamic_draw_time(started_usec)
 		return
@@ -4469,6 +4593,7 @@ func _draw_action_floor_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()
+	_tile_tooltip_regions.clear()
 	if combat_state.is_empty():
 		_record_dynamic_draw_time(started_usec)
 		return
@@ -4482,16 +4607,26 @@ func _draw_overlay_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()
+	_tile_tooltip_regions.clear()
 	if combat_state.is_empty():
 		_record_dynamic_draw_time(started_usec)
 		return
 	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 	var section_started_usec: int = Time.get_ticks_usec()
-	# One owned exact forecast per synchronous tile loop. No tile can mutate the
-	# board between these draws; avoid querying/copying it again for every tile.
-	var wind_layers: Array = WindView.tile_layers(self)
+	# These selectors depend on this draw's inputs, never on the tile being
+	# submitted. Share them across tiles without retaining them across frames.
+	_overlay_draw_sources = {
+		"leader": WarbandView.command_leader(self),
+		"lob_marks": LobView.marks(self),
+		"burrow_marks": BurrowView.marks(combat_state),
+		"burst_tiles": DeathBurstView.focused_tiles(self),
+		"zone_tags": ThreatTiles.zone_tags((presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
+	}
 	for tile: Vector2i in tiles:
-		_draw_tile_overlays(tile, wind_layers)
+		_draw_tile_overlays(tile)
+	_overlay_draw_sources = {}
+	# Wind is drawn once over the floor, not per tile (director, warband-markers).
+	WindView.draw_field(self)
 	_draw_action_ground_markings()
 	_draw_large_enemy_attack_highlight_extensions(_visible_units())
 	_record_render_section_time("tile_overlays", section_started_usec)
@@ -4501,6 +4636,7 @@ func _draw_ground_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()
+	_tile_tooltip_regions.clear()
 	if combat_state.is_empty():
 		_record_dynamic_draw_time(started_usec)
 		return
@@ -4514,6 +4650,7 @@ func _draw_path_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()
+	_tile_tooltip_regions.clear()
 	if combat_state.is_empty():
 		_record_dynamic_draw_time(started_usec)
 		return
@@ -4526,6 +4663,7 @@ func _draw_scene_tile_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()
+	_tile_tooltip_regions.clear()
 	if combat_state.is_empty() or _render_layer_tile.x < 0:
 		_record_dynamic_draw_time(started_usec)
 		return
@@ -4560,6 +4698,7 @@ func _draw_scene_tile_render_layer() -> void:
 	if detailed_sections:
 		_record_render_section_time("scene_tile_enemy_threat", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
+	_prop_command_cache.begin_draw()
 	_draw_scene_props_for_tile(_render_layer_tile, obstruction_entries)
 	if detailed_sections:
 		_record_render_section_time("scene_tile_scene_props", phase_started_usec)
@@ -4568,6 +4707,7 @@ func _draw_scene_tile_render_layer() -> void:
 	if detailed_sections:
 		_record_render_section_time("scene_tile_props", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
+	_prop_command_cache.end_draw()
 	_draw_unit_bodies_for_tile(_render_layer_tile, units_to_draw)
 	if detailed_sections:
 		_record_render_section_time("scene_tile_unit_bodies", phase_started_usec)
@@ -4578,6 +4718,7 @@ func _draw_foreground_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()
+	_tile_tooltip_regions.clear()
 	if combat_state.is_empty():
 		_record_dynamic_draw_time(started_usec)
 		return
@@ -4598,6 +4739,7 @@ func _draw_hud_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()
+	_tile_tooltip_regions.clear()
 	if combat_state.is_empty():
 		_record_dynamic_draw_time(started_usec)
 		return
@@ -4615,17 +4757,20 @@ func _draw_hud_render_layer() -> void:
 	ReflectView.draw_preview(self)
 	IntentBadges.draw(self, (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []))
 	_record_render_section_time("damage_preview_overlays", section_started_usec)
+	# Intent results are the topmost board HUD, above every bar, pip and badge.
+	section_started_usec = Time.get_ticks_usec()
+	IntentCallouts.draw(self, presentation.get("intent_callouts", []))
+	_record_render_section_time("intent_callouts", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
 func _draw_effect_telegraphs() -> void:
 	CapacitorView.draw_telegraphs(self)
-	TetherView.draw_telegraphs(self)
-	DiveView.draw_telegraphs(self)
 
 func _draw_effects_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()
+	_tile_tooltip_regions.clear()
 	if combat_state.is_empty():
 		_record_dynamic_draw_time(started_usec)
 		return
@@ -5226,7 +5371,7 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		var source_seed: float = _umbra_light_source_seed(source)
 		if bool(source.get("tethered", false)):
 			var tethered_rect: Rect2 = _draw_umbra_tethered_light_marker(tile, source_seed, time_seconds)
-			_register_tooltip(tethered_rect, _tethered_light_tooltip(source))
+			_register_tile_tooltip(tethered_rect, _tethered_light_tooltip(source), tile, str(source.get("id", "light")))
 			continue
 		var breath: float = _umbra_light_orb_breath(source_seed, time_seconds)
 		var glow_brightness: float = 0.94 + 0.10 * (0.5 + 0.5 * sin(time_seconds * 2.15 + source_seed * 0.37))
@@ -5241,7 +5386,7 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		var duration_text: String = "Lasts for this combat." if remaining < 0 else "%d player turn%s remaining." % [remaining, "" if remaining == 1 else "s"]
 		var tooltip: String = "Light Source\nReveals Umbra within %d tile%s.\n%s" % [radius_tiles, "" if radius_tiles == 1 else "s", duration_text]
 		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.65, orb_radius * 1.65), Vector2(orb_radius * 3.3, orb_radius * 3.3)).merge(chip_rect)
-		_register_tooltip(marker_rect, tooltip)
+		_register_tile_tooltip(marker_rect, tooltip, tile, str(source.get("id", "light")))
 		_begin_umbra_shape_batch()
 	_flush_umbra_shape_batch()
 
@@ -5361,7 +5506,7 @@ func _draw_noctyrax_brazier_markers() -> void:
 		_draw_keyword_icon("light",Rect2(rect.position+Vector2(9,11),Vector2(32,32)),"Light radius 2",color if bool(marker["lit"]) else Color(.45,.42,.50),false)
 		_draw_outlined_string(font,rect.position+Vector2(47,23),marker["label"],rect.size.x-54,20,color,Color.BLACK)
 		_draw_outlined_string(font,rect.position+Vector2(47,44),marker["detail"],rect.size.x-54,18,color.lightened(.13),Color.BLACK)
-		_register_tooltip(rect,marker["tooltip"])
+		_register_tile_tooltip(rect,marker["tooltip"],tile,"brazier")
 
 func _tethered_light_tooltip(source: Dictionary) -> String:
 	var radius: int = maxi(1, int(source.get("radius", 1)))
@@ -5765,7 +5910,7 @@ func _ambient_particle_count(element_id: String, tile_count: int) -> int:
 		"lightning":
 			base_count = 56
 		"air":
-			base_count = 43
+			base_count = 43 if AIR_DECORATIVE_GUSTS_ENABLED else 0
 		"earth":
 			base_count = 88
 	var board_scale: float = clampf(float(tile_count) / 72.0, 0.72, 1.14)
@@ -6656,6 +6801,7 @@ func set_art_treatment_enabled(enabled: bool) -> void:
 	_art_treatment.set_enabled(enabled)
 	_unit_shadow_draw_geometry_cache.clear()
 	_unit_shadow_draw_mesh_cache.clear()
+	_unit_ground_contact.meshes.clear()
 	for layer: Control in _retained_render_layers():
 		layer.set("_art_treatment_enabled", enabled)
 	_sync_static_render_cache()
@@ -6708,6 +6854,9 @@ func _sync_art_lighting() -> void:
 	BiomeLighting.apply_biome(_art_treatment, _biome_id)
 
 func _draw_world_texture(texture: Texture2D, rect: Rect2, tint: Color = Color.WHITE, profile: int = CombatArtTreatment.PROP, source: Rect2 = Rect2()) -> void:
+	if _prop_command_cache.recording:
+		_prop_command_cache.world(texture, rect, tint, profile, source, _art_treatment != null)
+		return
 	if _art_treatment == null or profile == 0:
 		if source.size == Vector2.ZERO:
 			draw_texture_rect(texture, rect, false, tint)
@@ -6720,7 +6869,9 @@ func _draw_contact_pool(center: Vector2, width: float, height: float, alpha: flo
 	if _art_treatment == null or not _art_treatment_enabled:
 		return
 	var extent := Vector2(width, height)
-	draw_texture_rect(_art_treatment.contact_texture, Rect2(center - extent * 0.5, extent), false, Color(0.055, 0.035, 0.028, alpha))
+	var command: Array = ["texture", _art_treatment.contact_texture, Rect2(center - extent * 0.5, extent), Color(0.055, 0.035, 0.028, alpha)]
+	if _prop_command_cache.recording: _prop_command_cache.commands.append(command)
+	else: _submit_prop_command(command)
 
 func _draw_floor_contact_shading(grid: Array, tile: Vector2i, polygon: PackedVector2Array) -> void:
 	if not _art_treatment_enabled or polygon.size() < 4:
@@ -6832,18 +6983,25 @@ func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
 	]))
 	return faces
 
-func _draw_tile_overlays(tile: Vector2i, wind_layers: Array) -> void:
+func _draw_tile_overlays(tile: Vector2i) -> void:
 	var detailed: bool = is_instance_valid(_render_instrumentation_owner) and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
 	var started: int = Time.get_ticks_usec() if detailed else 0
 	var polygon: PackedVector2Array = _tile_polygon(tile)
-	WarbandView.draw_banner_tile(self, tile, polygon, LEADER_MARKER_GOLD)
+	if _overlay_draw_sources.is_empty():
+		WarbandView.draw_banner_tile(self, tile, polygon, LEADER_MARKER_GOLD)
+	else:
+		var leader: Dictionary = _overlay_draw_sources["leader"]
+		if not leader.is_empty():
+			WarbandView.draw_banner_tile(self, tile, polygon, LEADER_MARKER_GOLD, leader)
 	if detailed: _record_render_section_time("overlay_banner", started); started = Time.get_ticks_usec()
 	var rest: Dictionary = presentation.get("threats_at_rest", {}) as Dictionary
-	ThreatTiles.draw_tile(self, tile, polygon, _rest_threat_tile_alphas, rest.get("hero_tile", Vector2i(-1, -1)), bool(presentation.get("reduced_motion", false)))
+	if not LobView.draw_tile(self, tile, _overlay_draw_sources.get("lob_marks")):
+		ThreatTiles.draw_tile(self, tile, polygon, _rest_threat_tile_alphas, rest.get("hero_tile", Vector2i(-1, -1)), bool(presentation.get("reduced_motion", false)), _overlay_draw_sources.get("zone_tags"))
 	if detailed: _record_render_section_time("overlay_rest", started); started = Time.get_ticks_usec()
 	var draw_aoe_footprint: bool = _focus_tiles_lookup_cache.has(tile) and _player_aoe_preview_active()
 	if _snare_sealing_threshold(tile): draw_colored_polygon(polygon, Color(UiPaletteTokens.UMBRA, 0.30))
-	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)):
+	# A Warband's Command glow centres on its captain and the crest names it.
+	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)) and not WarbandRules.active(combat_state):
 		_draw_objective_leader_beacon(tile)
 	if _objective_exit_tiles_lookup_cache.has(tile):
 		_draw_objective_exit_target(tile)
@@ -6881,9 +7039,7 @@ func _draw_tile_overlays(tile: Vector2i, wind_layers: Array) -> void:
 	if detailed: _record_render_section_time("overlay_meteor", started); started = Time.get_ticks_usec()
 	IcefallView.draw_tile(self, tile)
 	if detailed: _record_render_section_time("overlay_icefall", started); started = Time.get_ticks_usec()
-	LobView.draw_tile(self, tile)
 	if detailed: _record_render_section_time("overlay_lob", started); started = Time.get_ticks_usec()
-	for layer: Dictionary in wind_layers: WindView.draw_layer_tile(self, tile, layer)
 	if detailed: _record_render_section_time("overlay_wind", started)
 	if draw_aoe_footprint:
 		# Keep every legal center visible, then layer the concrete consequence on
@@ -6902,11 +7058,12 @@ func _draw_tile_overlays(tile: Vector2i, wind_layers: Array) -> void:
 
 # Player Meteorfall marks persist through enemy turns and land at the start of
 # the player's next turn. They reuse the Meteorfall (cinder_marks) identity on
-# an ember-ringed tile, with the incoming damage in the tooltip.
+# a feathered fire tile glow, with the incoming damage in the tooltip.
 func _draw_meteor_mark(tile: Vector2i) -> void:
-	BurrowView.draw_mark(self, tile)
-	DeathBurstView.draw_ring(self, tile)
-	# Floor wash and ring only; the icon and damage are drawn above units by
+	BurrowView.draw_mark(self, tile, _overlay_draw_sources.get("burrow_marks"))
+	DeathBurstView.draw_preview(self, tile, _overlay_draw_sources.get("burst_tiles"))
+	DeathBurstView.draw_glows(self, tile)
+	# Floor glow only; the icon and damage are drawn above units by
 	# `_draw_meteor_mark_badges`.
 	var marked: bool = false
 	for mark_var: Variant in combat_state.get("meteor_marks", []):
@@ -6915,12 +7072,11 @@ func _draw_meteor_mark(tile: Vector2i) -> void:
 			break
 	if not marked:
 		return
-	draw_colored_polygon(_tile_polygon(tile), Color(0.95, 0.38, 0.16, 0.20))
-	_draw_tile_ring(tile, Color(1.0, 0.55, 0.22, 0.95), 3.2, 0.80)
+	TileGlow.draw_wash(self, _tile_polygon(tile), Color(0.95, 0.38, 0.16), 0.20)
 
 func _draw_meteor_mark_badges() -> void:
 	BurrowView.draw_badges(self)
-	DeathBurstView.draw_resolution(self)
+	DeathBurstView.draw_flames(self)
 	# Meteorfall's icon and incoming damage sit on a medallion at each marked
 	# tile's front edge in the effects layer, above units, so a mark under an
 	# enemy (or under the hero) stays readable without hovering.
@@ -6961,14 +7117,14 @@ func _draw_meteor_mark_badges() -> void:
 		var rect := Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size)
 		if mark_icon != null:
 			draw_texture_rect(mark_icon, rect, false, Color.WHITE)
-		_register_tooltip(rect, tooltip)
+		_register_tile_tooltip(rect, tooltip, tile)
 		if damage > 0 and font != null:
 			var text: String = str(damage)
 			var font_size: int = int(round(clampf(icon_size * 0.50, 14.0, 20.0)))
 			var text_width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
 			var baseline := Vector2(center.x + radius * 0.60, center.y + radius * 0.95)
 			_draw_outlined_string(font, baseline, text, text_width + 4.0, font_size, COLLISION_MARKER_RING.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2.0)
-			_register_tooltip(Rect2(baseline - Vector2(0.0, float(font_size)), Vector2(text_width + 4.0, float(font_size) + 4.0)), tooltip)
+			_register_tile_tooltip(Rect2(baseline - Vector2(0.0, float(font_size)), Vector2(text_width + 4.0, float(font_size) + 4.0)), tooltip, tile)
 
 func _draw_controller_door_focus(tile: Vector2i) -> void:
 	var pulse: float = 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) * 0.009)
@@ -7100,10 +7256,12 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
 
 func _board_tile_is_visible_to_player(tile: Vector2i) -> bool:
+	if SnareRules.Pressure.visible_tile(combat_state, tile): return true
 	var visible_tiles: Variant = presentation.get("umbra_visible_tiles", null)
 	if typeof(visible_tiles) != TYPE_ARRAY:
 		return true
 	return (visible_tiles as Array).has(tile)
+
 
 func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
 	# Traps and ordinary loot lie on the floor, so the raised route ribbon crosses
@@ -7128,7 +7286,7 @@ func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
 			var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
 			_draw_loot_contact_shadow(tile, loot_rect, loot_texture, false)
 			_draw_world_texture(loot_texture, loot_rect)
-			_register_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot))
+			_register_tile_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot), tile)
 		for trap_var: Variant in _entries_for_tile(_traps_by_tile, combat_state.get("traps", []), "pos", tile):
 			if typeof(trap_var) == TYPE_DICTIONARY:
 				_draw_trap_marker(trap_var as Dictionary)
@@ -7175,9 +7333,11 @@ func set_treasure_chest_open_progress(progress: float) -> void:
 		_queue_scene_render_layer_for_tile(tile)
 
 func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = []) -> void:
+	var prop_index: int = 0
 	for prop_var: Variant in _entries_for_tile(_scene_props_by_tile, presentation.get("scene_props", []), "tile", tile):
 		if typeof(prop_var) != TYPE_DICTIONARY:
 			continue
+		prop_index += 1
 		var prop: Dictionary = prop_var
 		var texture: Texture2D = _texture_for_scene_prop(prop)
 		if texture == null:
@@ -7186,16 +7346,20 @@ func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = [])
 		var tint: Color = _foreground_blocker_tint("scene_prop", tile, draw_rect, obstruction_entries)
 		if str(prop.get("kind", "")) == "campfire_bonfire":
 			_draw_campfire_prop_glow(tile, draw_rect)
-		_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.28, 0.16)
 		if str(prop.get("kind", "")) == "relic_chest":
+			_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.28, 0.16)
 			RelicChestProp.draw(self, texture, draw_rect, float(prop.get("open_progress", 0.0)), tint)
 		else:
-			_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.EMISSIVE if str(prop.get("kind", "")) == "campfire_bonfire" else CombatArtTreatment.PROP)
+			var profile: int = CombatArtTreatment.EMISSIVE if str(prop.get("kind", "")) == "campfire_bonfire" else CombatArtTreatment.PROP
+			_prop_command_cache.paint(self, "scene_prop:%d" % prop_index,
+				[tile, texture, draw_rect, tint, profile, _tile_width(), _tile_center(tile), _art_treatment != null, _art_treatment_enabled],
+				_draw_ordinary_scene_prop_body.bind(tile, texture, draw_rect, tint, profile))
 		if str(prop.get("kind", "")).begins_with("watch_brazier"):
 			var hint: String = "Watch Brazier · Light radius 2" if str(prop["kind"]) == "watch_brazier_lit" else "Watch Brazier · Unlit\nRelights after Last Procession."
+			if LastLightRules.active(combat_state): hint = LastLightRules.brazier_tooltip()
 			for marker: Dictionary in _noctyrax_brazier_markers():
 				if marker["tile"]==tile: hint="Watch Brazier\n"+str(marker["tooltip"]); break
-			_register_tooltip(draw_rect,hint)
+			_register_tile_tooltip(draw_rect,hint,tile,"brazier")
 		if str(prop.get("kind",""))=="watch_brazier_lit":
 			var reduced: bool = bool(presentation.get("reduced_motion",false))
 			var phase: float = 0.37 if reduced else _idle_elapsed+float(tile.x*7+tile.y*11)
@@ -7238,6 +7402,10 @@ func _draw_campfire_prop_glow(tile: Vector2i, draw_rect: Rect2) -> void:
 		return
 	draw_circle(flame_point, _tile_width() * 0.68, Color(1.0, 0.45, 0.16, 0.15 * flicker))
 
+func _draw_ordinary_scene_prop_body(tile: Vector2i, texture: Texture2D, rect: Rect2, tint: Color, profile: int) -> void:
+	_draw_rect_ground_shadow(tile, rect, 0.58, 0.28, 0.16)
+	_draw_world_texture(texture, rect, tint, profile)
+
 func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
 	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
 	var center: Vector2 = _tile_center(tile)
@@ -7254,7 +7422,7 @@ func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
 	var bottom_y: float = center.y + _tile_height() * baseline_scale
 	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
 
-func _foreground_obstruction_entries(units_to_draw: Array[Dictionary], scene_props_override: Variant = null) -> Array[Dictionary]:
+func _foreground_obstruction_entries(units_to_draw: Array[Dictionary], scene_props_override: Variant = null, terrain_override: Variant = null) -> Array[Dictionary]:
 	var entries: Array[Dictionary]
 	for unit: Dictionary in units_to_draw:
 		entries.append({
@@ -7279,7 +7447,8 @@ func _foreground_obstruction_entries(units_to_draw: Array[Dictionary], scene_pro
 			"tile": tile,
 			"rect": _scene_prop_rect(texture, prop)
 		})
-	for terrain_var: Variant in combat_state.get("terrain", []):
+	var source_terrain: Array = combat_state.get("terrain", []) if terrain_override == null else terrain_override
+	for terrain_var: Variant in source_terrain:
 		if typeof(terrain_var) != TYPE_DICTIONARY:
 			continue
 		var terrain: Dictionary = terrain_var
@@ -7368,44 +7537,13 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
 	if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
 		tile_id = "pillar"
-	if tile_id == "pillar":
-		var texture: Texture2D = _prop_textures.get("pillar", null)
-		if texture != null:
-			var frame_rect: Rect2 = _prop_rect_for_tile(tile)
-			var draw_rect: Rect2 = _prop_draw_rect(texture, frame_rect)
-			_draw_rect_ground_shadow(tile, draw_rect, 0.72, 0.28, 0.24)
-			_draw_pillar_body(texture, draw_rect, _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries))
-	elif tile_id == "wall":
-		var segments: Array[Dictionary] = _boundary_prop_segments(tile_id, grid, tile)
-		for segment: Dictionary in segments:
-			var texture: Texture2D = segment.get("texture", null)
-			if texture == null:
-				continue
-			var draw_rect: Rect2 = segment.get("draw_rect", Rect2())
-			var source_rect: Rect2 = segment.get("source_rect", Rect2(Vector2.ZERO, texture.get_size()))
-			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
-			_draw_wall_segment_shadow(tile, str(segment.get("orientation", "")), draw_rect)
-			if source_rect.position == Vector2.ZERO and source_rect.size == texture.get_size():
-				_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.STONE)
-			else:
-				_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.STONE, source_rect)
-	elif tile_id == "door":
-		var door_texture: Texture2D = _door_texture_for_tile(grid, tile)
-		if door_texture != null:
-			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))
-			var opening_texture: Texture2D = _door_opening_texture_for_tile(grid, tile)
-			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
-			if _snare_door_sealed(tile): tint = SNARE_SEALED_DOOR_MODULATE
-			_draw_rect_ground_shadow(tile, draw_rect, 0.62, 0.24, 0.18)
-			if opening_texture != null:
-				_draw_world_texture(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), tint)
-			else:
-				_draw_world_texture(door_texture, draw_rect, tint)
-				var icon_id: String = str(exit_icon_ids.get(tile, ""))
-				var icon_texture: Texture2D = _door_icon_texture(icon_id)
-				if _door_destination_medallion_visible(tile) and (icon_texture != null or icon_id == RoomIcons.ICON_UNKNOWN):
-					_draw_door_icon(icon_texture, icon_id, door_texture, draw_rect, tint)
-	_draw_prop_moss_overlay(tile_id, grid, tile, obstruction_entries)
+	if tile_id in ["pillar", "wall"]:
+		_prop_command_cache.paint(self, "stone", [grid, tile, _tile_width(), _board_origin(),
+			obstruction_entries, _moss_signature, combat_state.get("room_coord", Vector2i.ZERO),
+			combat_state.get("room_element", ""), _prop_textures, _element_overlay_texture_variants,
+			_art_treatment != null, _art_treatment_enabled], _draw_tile_stone_props.bind(grid, tile, tile_id, obstruction_entries))
+	else:
+		_draw_tile_stone_props(grid, tile, tile_id, obstruction_entries)
 	if tile_id == "pillar":
 		var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
 		if pillar_texture != null:
@@ -7444,7 +7582,47 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		if _loot_renders_below_path(loot):
 			continue
 		_draw_equipment_pickup(tile, loot_rect, loot_texture, loot)
-		_register_tooltip(loot_rect.grow(18.0), _loot_tooltip_text(loot))
+		_register_tile_tooltip(loot_rect.grow(18.0), _loot_tooltip_text(loot), tile)
+
+func _draw_tile_stone_props(grid: Array, tile: Vector2i, tile_id: String, obstruction_entries: Array) -> void:
+	if tile_id == "pillar":
+		var texture: Texture2D = _prop_textures.get("pillar", null)
+		if texture != null:
+			var frame_rect: Rect2 = _prop_rect_for_tile(tile)
+			var draw_rect: Rect2 = _prop_draw_rect(texture, frame_rect)
+			_draw_rect_ground_shadow(tile, draw_rect, 0.72, 0.28, 0.24)
+			_draw_pillar_body(texture, draw_rect, _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries))
+	elif tile_id == "wall":
+		var segments: Array[Dictionary] = _boundary_prop_segments(tile_id, grid, tile)
+		for segment: Dictionary in segments:
+			var texture: Texture2D = segment.get("texture", null)
+			if texture == null:
+				continue
+			var draw_rect: Rect2 = segment.get("draw_rect", Rect2())
+			var source_rect: Rect2 = segment.get("source_rect", Rect2(Vector2.ZERO, texture.get_size()))
+			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
+			_draw_wall_segment_shadow(tile, str(segment.get("orientation", "")), draw_rect)
+			if source_rect.position == Vector2.ZERO and source_rect.size == texture.get_size():
+				_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.STONE)
+			else:
+				_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.STONE, source_rect)
+	elif tile_id == "door":
+		var door_texture: Texture2D = _door_texture_for_tile(grid, tile)
+		if door_texture != null:
+			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))
+			var opening_texture: Texture2D = _door_opening_texture_for_tile(grid, tile)
+			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
+			if _snare_door_sealed(tile): tint = SNARE_SEALED_DOOR_MODULATE
+			_draw_rect_ground_shadow(tile, draw_rect, 0.62, 0.24, 0.18)
+			if opening_texture != null:
+				_draw_world_texture(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), tint)
+			else:
+				_draw_world_texture(door_texture, draw_rect, tint)
+				var icon_id: String = str(exit_icon_ids.get(tile, ""))
+				var icon_texture: Texture2D = _door_icon_texture(icon_id)
+				if _door_destination_medallion_visible(tile) and (icon_texture != null or icon_id == RoomIcons.ICON_UNKNOWN):
+					_draw_door_icon(icon_texture, icon_id, door_texture, draw_rect, tint)
+	_draw_prop_moss_overlay(tile_id, grid, tile, obstruction_entries)
 
 # Keep the authored stone cap and foot readable as a blocking column. The
 # translucent shaft remains a window onto actors; a soft ramp avoids a cutaway
@@ -7472,7 +7650,10 @@ func _draw_pillar_body(texture: Texture2D, rect: Rect2, tint: Color) -> void:
 				uvs[uv_index] = (atlas.region.position + uvs[uv_index] * atlas.region.size) / draw_texture.get_size()
 		var top_color := Color(tint, alphas[index])
 		var bottom_color := Color(tint, alphas[index + 1])
-		CombatArtTreatment.draw_polygon(self, points, PackedColorArray([top_color, top_color, bottom_color, bottom_color]), uvs, draw_texture, CombatArtTreatment.STONE)
+		if _prop_command_cache.recording:
+			_prop_command_cache.polygon(points, PackedColorArray([top_color, top_color, bottom_color, bottom_color]), uvs, draw_texture, CombatArtTreatment.STONE)
+		else:
+			CombatArtTreatment.draw_polygon(self, points, PackedColorArray([top_color, top_color, bottom_color, bottom_color]), uvs, draw_texture, CombatArtTreatment.STONE)
 
 func _pillar_torch_tint(tint: Color) -> Color:
 	# Flame, fixture, halo and embers share one floor; floor lighting already
@@ -7543,7 +7724,7 @@ func _draw_pillar_torch_ember_motes(tiles: Array[Vector2i], units_to_draw: Array
 	var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
 	if pillar_texture == null:
 		return
-	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var time_seconds: float = float(presentation.get("torch_mote_proof_seconds", float(Time.get_ticks_msec()) / 1000.0))
 	var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries(units_to_draw)
 	for tile: Vector2i in tiles:
 		if not _tile_renders_as_pillar(grid, tile):
@@ -7572,18 +7753,19 @@ func _draw_pillar_torch_ember_motes_for_side(tile: Vector2i, pillar_rect: Rect2,
 	var source_point: Vector2 = _pillar_torch_flame_point(torch_rect, side_sign)
 	for index: int in range(COLUMN_TORCH_EMBER_MOTE_COUNT):
 		var seed: int = _pillar_torch_ember_seed(tile, side_key, index)
-		var speed: float = lerpf(0.34, 0.56, _ambient_hash01(seed + 13))
-		var cycle: float = wrapf(_ambient_hash01(seed + 17) + time_seconds * speed, 0.0, 1.0)
+		var particle_template: AmbientParticleTemplate = _torch_mote_templates.resolve(combat_state.get("room_coord", Vector2i.ZERO), seed, _build_torch_mote_template)
+		var hashes: PackedFloat64Array = particle_template.hashes
+		var cycle: float = wrapf(particle_template.cycle_phase + time_seconds * particle_template.speed, 0.0, 1.0)
 		var alpha: float = pow(clampf(sin(cycle * PI), 0.0, 1.0), 0.86) * COLUMN_TORCH_EMBER_MOTE_ALPHA * tint_alpha
-		alpha *= lerpf(0.56, 1.0, _ambient_hash01(seed + 19))
+		alpha *= lerpf(0.56, 1.0, hashes[19])
 		if alpha <= 0.045:
 			continue
-		var point: Vector2 = _pillar_torch_ember_mote_point(source_point, seed, cycle, time_seconds, side_sign)
+		var point: Vector2 = _pillar_torch_ember_mote_point(source_point, seed, cycle, time_seconds, side_sign, hashes)
 		var previous_cycle: float = maxf(0.0, cycle - _ambient_motion_blur_cycle_delta("fire") * 0.62)
-		var previous_point: Vector2 = _pillar_torch_ember_mote_point(source_point, seed, previous_cycle, time_seconds - 0.09, side_sign)
+		var previous_point: Vector2 = _pillar_torch_ember_mote_point(source_point, seed, previous_cycle, time_seconds - 0.09, side_sign, hashes)
 		var velocity: Vector2 = point - previous_point
-		var draw_width: float = _tile_width() * lerpf(COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE, COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE, _ambient_hash01(seed + 37))
-		var variant_index: int = posmod(index + int(_ambient_hash01(seed + 39) * float(AMBIENT_PARTICLE_ATLAS_COLUMNS)), AMBIENT_PARTICLE_ATLAS_COLUMNS)
+		var draw_width: float = _tile_width() * lerpf(COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE, COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE, hashes[37])
+		var variant_index: int = posmod(index + int(hashes[39] * float(AMBIENT_PARTICLE_ATLAS_COLUMNS)), AMBIENT_PARTICLE_ATLAS_COLUMNS)
 		var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
 		var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
 		var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
@@ -7596,9 +7778,13 @@ func _draw_pillar_torch_ember_motes_for_side(tile: Vector2i, pillar_rect: Rect2,
 		var draw_size := Vector2(draw_width, draw_width)
 		if texture_size.x > 0.0:
 			draw_size.y = draw_width * texture_size.y / texture_size.x
-		var rotation: float = lerpf(-0.22, 0.22, _ambient_hash01(seed + 43)) + sin(time_seconds * 0.86 + _ambient_hash01(seed + 47) * TAU) * 0.07
-		var mote_alpha: float = alpha * lerpf(0.48, 0.74, _ambient_hash01(seed + 41))
-		_draw_ambient_fire_particle(texture, soft_texture, glow_texture, point, velocity, draw_size, rotation, mote_alpha, seed, time_seconds)
+		var rotation: float = lerpf(-0.22, 0.22, hashes[43]) + sin(time_seconds * 0.86 + hashes[47] * TAU) * 0.07
+		var mote_alpha: float = alpha * lerpf(0.48, 0.74, hashes[41])
+		particle_template.texture = texture
+		particle_template.soft_texture = soft_texture
+		particle_template.glow_texture = glow_texture
+		particle_template.draw_size = draw_size
+		_draw_ambient_fire_particle_from_template(particle_template, point, velocity, rotation, mote_alpha, time_seconds)
 		draw_circle(point, maxf(0.65, draw_width * 0.16), Color(1.0, 0.86, 0.42, minf(mote_alpha * 0.52, 0.46)))
 
 func _pillar_torch_flame_point(torch_rect: Rect2, side_sign: float) -> Vector2:
@@ -7610,12 +7796,21 @@ func _pillar_torch_ember_seed(tile: Vector2i, side_key: String, index: int) -> i
 	var side_seed: int = 211 if side_key == "right" else 103
 	return room_coord.x * 83431 + room_coord.y * 64217 + tile.x * 2459 + tile.y * 3613 + side_seed + index * 1297 + 509
 
-func _pillar_torch_ember_mote_point(source_point: Vector2, seed: int, cycle: float, time_seconds: float, side_sign: float) -> Vector2:
+func _build_torch_mote_template(seed: int) -> AmbientParticleTemplate:
+	var result := AmbientParticleTemplate.new()
+	result.hashes.resize(preload("res://scripts/board_torch_mote_templates.gd").HASH_COUNT)
+	for offset: int in range(result.hashes.size()): result.hashes[offset] = _ambient_hash01(seed + offset)
+	result.speed = lerpf(0.34, 0.56, result.hashes[13])
+	result.cycle_phase = result.hashes[17]
+	return result
+
+func _pillar_torch_ember_mote_point(source_point: Vector2, seed: int, cycle: float, time_seconds: float, side_sign: float, hashes: PackedFloat64Array = PackedFloat64Array()) -> Vector2:
 	var tile_width: float = _tile_width()
-	var base_lateral: float = lerpf(-0.18, 0.18, _ambient_hash01(seed + 23)) * tile_width * lerpf(1.0, 0.64, cycle)
-	var sway: float = sin(time_seconds * lerpf(1.2, 2.6, _ambient_hash01(seed + 29)) + _ambient_hash01(seed + 31) * TAU) * tile_width * lerpf(0.006, 0.038, cycle)
-	var side_drift: float = side_sign * tile_width * lerpf(0.006, 0.030, _ambient_hash01(seed + 33)) * pow(cycle, 1.10)
-	var rise: float = pow(cycle, 0.76) * tile_width * COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE * lerpf(0.82, 1.18, _ambient_hash01(seed + 35))
+	var samples: PackedFloat64Array = _build_torch_mote_template(seed).hashes if hashes.is_empty() else hashes
+	var base_lateral: float = lerpf(-0.18, 0.18, samples[23]) * tile_width * lerpf(1.0, 0.64, cycle)
+	var sway: float = sin(time_seconds * lerpf(1.2, 2.6, samples[29]) + samples[31] * TAU) * tile_width * lerpf(0.006, 0.038, cycle)
+	var side_drift: float = side_sign * tile_width * lerpf(0.006, 0.030, samples[33]) * pow(cycle, 1.10)
+	var rise: float = pow(cycle, 0.76) * tile_width * COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE * lerpf(0.82, 1.18, samples[35])
 	return source_point + Vector2(base_lateral + sway + side_drift, _tile_height() * 0.018 - rise)
 
 func _tile_renders_as_pillar(grid: Array, tile: Vector2i) -> bool:
@@ -7810,11 +8005,10 @@ func _draw_door_icon(icon_texture: Texture2D, icon_id: String, door_texture: Tex
 	var visual_rect: Rect2 = _door_icon_visual_rect(door_texture, door_draw_rect)
 	var center: Vector2 = visual_rect.get_center()
 	var radius: float = visual_rect.size.x * 0.5
-	if icon_id == RoomIcons.ICON_UNKNOWN:
-		MapSkin.draw_unknown_ring(self, center, radius, Color("686471") * tint)
-		draw_string(get_theme_default_font(), center + Vector2(-6, 7), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Color("9c94a4") * tint)
-		return
 	var accent: Color = ElementData.door_tint(icon_id) if ElementData.is_elemental(icon_id) else Color("d3b78e")
+	if icon_id == RoomIcons.ICON_UNKNOWN:
+		MapSkin.draw_unknown_room(self, center, radius, UiPaletteTokens.GOLD * tint, Color(accent.r, accent.g, accent.b, tint.a))
+		return
 	MapSkin.draw_medallion(self, center, radius, icon_texture, tint, Color(accent.r, accent.g, accent.b, tint.a))
 
 func _door_icon_size() -> float:
@@ -8146,19 +8340,45 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
 	if terrain_rect.size.y <= 0.0: return
 	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
-	_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
+	if terrain_kind not in ["crag_outcrop", "dragon_spire"]:
+		_prop_command_cache.paint(self, "terrain:" + str(terrain.get("id", tile)),
+			[tile, texture, terrain_rect, tint, _tile_width(), _tile_center(tile), _art_treatment != null, _art_treatment_enabled],
+			_draw_ordinary_terrain_body.bind(tile, texture, terrain_rect, tint))
 	if terrain_kind in ["crag_outcrop","dragon_spire"]:
 		tint.a = maxf(tint.a,0.58)
 		var rise: float = preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(presentation.get("surface_feedback_events",[]),str(terrain.get("id","")),float(((presentation.get("combat_feel_surface_frames",{}) as Dictionary).get(terrain.get("pos",Vector2i(-1,-1)),{}) as Dictionary).get("progress",presentation.get("surface_feedback_progress",1.0))),bool(presentation.get("reduced_motion",false)))
-		if terrain_kind == "dragon_spire": preload("res://scripts/dragon_board_props.gd").draw_spire(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
-		else: BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
-	else:
-		_draw_world_texture(texture, terrain_rect, tint)
+		_prop_command_cache.paint(self, "terrain:" + str(terrain.get("id", tile)),
+			[tile, terrain_rect, terrain_kind, rise, tint.a, _tile_width(), _tile_center(tile), _art_treatment != null, _art_treatment_enabled],
+			_draw_procedural_terrain_body.bind(tile, terrain_rect, terrain_kind, rise, tint.a))
 	if terrain_kind == "bramble": BrambleView.draw_flecks(self, tile, texture)
 	if terrain_kind == "powder_keg":
 		_draw_powder_keg_fuse_glow(terrain_rect, tint.a)
 	_draw_terrain_health_bar(terrain, terrain_rect)
-	_register_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain))
+	_register_tile_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain), tile)
+
+func _capture_prop_command(command: Array) -> void:
+	_prop_command_cache.commands.append(command)
+
+func _draw_procedural_terrain_body(tile: Vector2i, rect: Rect2, kind: String, rise: float, opacity: float) -> void:
+	_draw_rect_ground_shadow(tile, rect, 0.70, 0.24, 0.16)
+	if kind == "dragon_spire":
+		preload("res://scripts/dragon_board_props.gd").draw_spire(self, _tile_center(tile), _tile_width(), tile.x*101+tile.y*307, rise, opacity, _capture_prop_command)
+	else:
+		BoardSurfacePresentation.draw_outcrop(self, _tile_center(tile), _tile_width(), tile.x*101+tile.y*307, rise, opacity, _capture_prop_command)
+
+func _draw_ordinary_terrain_body(tile: Vector2i, texture: Texture2D, rect: Rect2, tint: Color) -> void:
+	_draw_rect_ground_shadow(tile, rect, 0.70, 0.24, 0.16)
+	_draw_world_texture(texture, rect, tint)
+
+func _submit_prop_command(command: Array) -> void:
+	match str(command[0]):
+		"texture": draw_texture_rect(command[1], command[2], false, command[3])
+		"region": draw_texture_rect_region(command[1], command[2], command[3], command[4])
+		"polygon": draw_polygon(command[1], command[2], command[3], command[4])
+		"colored_polygon": draw_colored_polygon(command[1], command[2])
+		"transform": draw_set_transform(command[1])
+		"polyline": draw_polyline(command[1], command[2], command[3], command[4])
+		"line": draw_line(command[1], command[2], command[3], command[4], command[5])
 
 func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array = []) -> void:
 	if str(terrain.get("kind", "")) == "bramble":
@@ -8224,26 +8444,35 @@ func _terrain_draw_width_scale(terrain_kind: String) -> float:
 func _draw_terrain_health_bar(terrain: Dictionary, terrain_rect: Rect2) -> void:
 	if not _should_show_terrain_health_bar(terrain):
 		return
-	var bar_size: Vector2 = TERRAIN_HEALTH_BAR_SIZE
+	var frame_rect := Rect2(
+		Vector2(terrain_rect.get_center().x - TERRAIN_HEALTH_BAR_SIZE.x * 0.5, terrain_rect.position.y - TERRAIN_HEALTH_BAR_TOP_OFFSET),
+		TERRAIN_HEALTH_BAR_SIZE
+	)
+	var insets: Vector4 = TERRAIN_HEALTH_CONTENT_INSETS
 	var bar_rect := Rect2(
-		Vector2(terrain_rect.get_center().x - bar_size.x * 0.5, terrain_rect.position.y - 10.0),
-		bar_size
+		frame_rect.position + frame_rect.size * Vector2(insets.x, insets.y),
+		frame_rect.size * Vector2(1.0 - insets.x - insets.z, 1.0 - insets.y - insets.w)
 	)
 	var preview: Dictionary = _terrain_damage_preview(terrain)
+	var max_hp: int = maxi(1, int(terrain.get("max_hp", 1)))
+	# The bar has no number, so each notch is one hit point the player can count.
 	SegmentedHealthBar.draw_bar(
 		self,
 		bar_rect,
 		float(_health_bar_fill_hp(terrain, preview)),
-		float(maxi(1, int(terrain.get("max_hp", 1)))),
-		_health_bar_segment_count(int(terrain.get("max_hp", 1))),
-		Color("2d1f18"),
+		float(max_hp),
+		SegmentedHealthBar.segment_count_for_max_hp(float(max_hp), 1),
+		UiPaletteTokens.INK_1,
 		TERRAIN_BAR_FILL,
-		Color("fff0bf"),
-		Color("eed3a6"),
-		Color(0.0, 0.0, 0.0, 0.35),
+		UiPaletteTokens.GOLD,
+		UiPaletteTokens.INK_0,
+		Color(0.0, 0.0, 0.0, 0.6),
 		1.0,
 		1.0
 	)
+	var frame_texture: Texture2D = _health_bar_frame_textures.get(HEALTH_BAR_STYLE_PROP, null) as Texture2D
+	if frame_texture != null:
+		draw_texture_rect(frame_texture, frame_rect, false)
 	if _damage_preview_shows_lost_hp(preview):
 		_draw_health_damage_preview(terrain, bar_rect, preview)
 
@@ -8294,6 +8523,15 @@ func _terrain_tooltip_text(terrain: Dictionary) -> String:
 func _visible_units() -> Array[Dictionary]:
 	if _submission_cache_valid:
 		return _visible_units_cache
+	if _preparing_submission:
+		# Roster sync samples floor registrations before and after presenting the
+		# rigs. Their poses change geometry, never the visible roster. Build that
+		# roster once for this synchronous submission, then reuse it when filling
+		# the retained caches. Detached callers still get fresh uncached queries.
+		if not _submission_units_valid:
+			_submission_units = _build_visible_units()
+			_submission_units_valid = true
+		return _submission_units
 	return _build_visible_units()
 
 func _build_visible_units() -> Array[Dictionary]:
@@ -8313,6 +8551,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"stoneskin": int(player.get("stoneskin", 0)),
 			"chilled": bool(player.get("chilled", false)),
 		"bleed": int(player_statuses.get("bleed", 0)),
+			"expose": int(player_statuses.get("expose", 0)),
 			"freeze": int(player_statuses.get("freeze", 0)),
 			"shock": int(player_statuses.get("shock", 0)),
 			"immobilize": bool(player_statuses.get("immobilize", false)),
@@ -8373,6 +8612,8 @@ func _build_visible_units() -> Array[Dictionary]:
 			"intent": {},
 			"preview": true
 		})
+	units_to_draw.append_array(WindView.landing_ghosts(self))
+	units_to_draw.append_array(BattlefieldRuleView.move_ghosts(self))
 	var visible_enemy_ids: Array = presentation.get("visible_enemy_ids", []) as Array
 	var filter_enemies_for_umbra: bool = presentation.has("visible_enemy_ids")
 	for enemy: Dictionary in combat_state.get("enemies", []):
@@ -8390,7 +8631,6 @@ func _build_visible_units() -> Array[Dictionary]:
 			"is_leader": bool(enemy.get("is_leader", false)),
 			"footprint": enemy.get("footprint", Vector2i.ONE),
 			"intent": preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(combat_state, enemy, WarbandRules.current_intent(combat_state, enemy, enemy.get("intent", {}))),
-			"veiled": preload("res://scripts/enemy_mechanics/veil.gd").effective_veiled(combat_state, enemy),
 			"pos": enemy.get("pos", Vector2i.ZERO),
 			"hp": int(enemy.get("hp", 0)),
 			"max_hp": int(enemy.get("max_hp", 1)),
@@ -8399,6 +8639,8 @@ func _build_visible_units() -> Array[Dictionary]:
 			"frost_armor": int(enemy.get("frost_armor", 0)),
 			"chilled": bool(enemy.get("chilled", false)),
 		"bleed": int(enemy.get("bleed", 0)),
+			"expose": int(enemy.get("expose", 0)),
+			"charge": int(enemy.get("charge", 0)),
 			"freeze": int(enemy.get("freeze", 0)),
 			"shock": int(enemy.get("shock", 0)),
 			"immobilize": bool(enemy.get("immobilize", false)),
@@ -8409,6 +8651,7 @@ func _build_visible_units() -> Array[Dictionary]:
 		# Older saves and partial animation snapshots can omit an authored large
 		# footprint (or transiently collapse it to 1x1). Resolve it before any
 		# sprite, shadow, HUD, depth, or compass anchoring consumes the unit.
+		if enemy.has(RetaliateRules.STATE_KEY): enemy_unit[RetaliateRules.STATE_KEY] = enemy[RetaliateRules.STATE_KEY]
 		if WarbandRules.order(combat_state, enemy, "dynamo_tether"): enemy_unit["charge"] = int(enemy.get("charge", 0))
 		enemy_unit["footprint"] = _resolved_unit_footprint(enemy_unit)
 		units_to_draw.append(enemy_unit)
@@ -8545,14 +8788,16 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			draw_texture_rect(texture, enemy_preview_echo_rect, false, Color(0.24, 0.10, 0.38, 0.11 + 0.04 * enemy_preview_pulse))
 			draw_texture_rect(texture, Rect2(shifted_rect.position + Vector2(3.0, 1.0), shifted_rect.size), false, Color(0.64, 0.44, 0.92, 0.07 + 0.03 * enemy_preview_pulse))
 			body_tint = Color(0.82, 0.72, 1.0, 0.31 + 0.07 * enemy_preview_pulse)
+		elif role == WindView.GHOST_ROLE:
+			draw_texture_rect(texture, Rect2(shifted_rect.position + Vector2(-4.0, -2.0), shifted_rect.size), false, WindView.GHOST_HAZE)
+			body_tint = WindView.ghost_tint(unit)
 		elif role == "illusion":
 			var echo_rect := Rect2(shifted_rect.position + Vector2(0.0, -5.0), shifted_rect.size)
 			draw_texture_rect(texture, echo_rect, false, Color(0.38, 0.90, 1.0, 0.18))
 			body_tint = Color(0.70, 0.95, 1.0, 0.58)
 		elif death_animation:
 			body_tint = _death_animation_render_tint(unit)
-		if VeilView.draw_body(self, unit, texture, shifted_rect, body_tint, umbra_clip): return
-		_draw_texture_rect_with_umbra_clip(texture, shifted_rect, body_tint, umbra_clip, 0 if role in ["illusion", "illusion_preview", "enemy_move_preview"] else CombatArtTreatment.actor_profile(unit, texture))
+		_draw_texture_rect_with_umbra_clip(texture, shifted_rect, body_tint, umbra_clip, 0 if role in ["illusion", "illusion_preview", "enemy_move_preview", WindView.GHOST_ROLE] else CombatArtTreatment.actor_profile(unit, texture))
 		if impact > 0.0:
 			var flash: Color = IMPACT_FLASH_COLOR
 			flash.a *= impact
@@ -8741,20 +8986,20 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 			var boss_layout: Dictionary = _boss_intent_layout(unit, center, reserved_rects, font)
 			deferred_intent_layouts.append(boss_layout)
 			for rect_var: Variant in boss_layout.get("occupied_rects", []):
-				if typeof(rect_var) == TYPE_RECT2:
+				if typeof(rect_var) == TYPE_RECT2 and not reserved_rects.has(rect_var):
 					reserved_rects.append(rect_var)
 			continue
 		var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
 		if str(unit.get("role", "")) == "enemy":
 			var enemy_layout: Dictionary = _enemy_hud_layout(unit, center, reserved_rects, font)
 			health_rect = enemy_layout.get("health_rect", health_rect)
-			_draw_enemy_hud_tether(unit, center, enemy_layout)
+			_draw_enemy_hud_connector(unit, center, enemy_layout)
 			_draw_health_bar(unit, health_rect)
 			_draw_unit_statuses(unit, health_rect)
 			_draw_leader_marker(unit, health_rect, enemy_layout.get("intent_rect", Rect2()) as Rect2)
 			deferred_intent_layouts.append(enemy_layout)
 			for rect_var: Variant in enemy_layout.get("occupied_rects", []):
-				if typeof(rect_var) == TYPE_RECT2:
+				if typeof(rect_var) == TYPE_RECT2 and not reserved_rects.has(rect_var):
 					reserved_rects.append(rect_var)
 			continue
 		_draw_health_bar(unit, health_rect)
@@ -8770,7 +9015,7 @@ func _draw_unit_huds_from_layout_cache(units_to_draw: Array[Dictionary]) -> void
 	var deferred_intent_layouts: Array[Dictionary] = []
 	for unit: Dictionary in units_to_draw:
 		units_by_key[str(unit.get("key", ""))] = unit
-	for entry_var: Variant in _hud_layout_entries_cache:
+	for entry_var: Variant in _hud_group_draw_entries(units_to_draw):
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
 		var entry: Dictionary = entry_var as Dictionary
@@ -8788,7 +9033,7 @@ func _draw_unit_huds_from_layout_cache(units_to_draw: Array[Dictionary]) -> void
 			"enemy":
 				var layout: Dictionary = entry.get("layout", {}) as Dictionary
 				var health_rect: Rect2 = entry.get("health_rect", Rect2()) as Rect2
-				_draw_enemy_hud_tether(unit, center, layout)
+				_draw_enemy_hud_connector(unit, center, layout)
 				_draw_health_bar(unit, health_rect)
 				_draw_unit_statuses(unit, health_rect)
 				_draw_leader_marker(unit, health_rect, layout.get("intent_rect", Rect2()) as Rect2)
@@ -8799,6 +9044,31 @@ func _draw_unit_huds_from_layout_cache(units_to_draw: Array[Dictionary]) -> void
 				_draw_unit_statuses(unit, health_rect)
 	for intent_layout: Dictionary in deferred_intent_layouts:
 		_draw_enemy_intent_layout(intent_layout, font)
+
+func _hud_group_draw_entries(units: Array[Dictionary]) -> Array:
+	var entries: Array = _hud_layout_entries_cache.duplicate(false)
+	var by_key: Dictionary = _units_by_key(units)
+	var focus_tile: Vector2i = _controller_focus_tile if _controller_focus_tile.x >= 0 else _hover_tile
+	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var first: Dictionary = by_key.get(str(a.get("actor_key", "")), {})
+		var second: Dictionary = by_key.get(str(b.get("actor_key", "")), {})
+		var first_focus: bool = not first.is_empty() and _unit_footprint_tiles(first).has(focus_tile)
+		var second_focus: bool = not second.is_empty() and _unit_footprint_tiles(second).has(focus_tile)
+		if first_focus != second_focus: return not first_focus
+		var first_hero: bool = str(first.get("role", "")) == "player"
+		var second_hero: bool = str(second.get("role", "")) == "player"
+		if first_hero != second_hero: return not first_hero
+		# These centres are refreshed with the retained HUD geometry, including
+		# interpolation and registration changes. Sorting must borrow that same
+		# result rather than resample the actor for every comparator invocation.
+		var first_y: float = (a["center"] as Vector2).y
+		var second_y: float = (b["center"] as Vector2).y
+		if not is_equal_approx(first_y, second_y): return first_y < second_y
+		var first_column: int = (first.get("pos", Vector2i.ZERO) as Vector2i).x
+		var second_column: int = (second.get("pos", Vector2i.ZERO) as Vector2i).x
+		if first_column != second_column: return first_column < second_column
+		return str(a.get("actor_key", "")) < str(b.get("actor_key", "")))
+	return entries
 
 func _rebuild_hud_health_rects_cache() -> bool:
 	var performance_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
@@ -8818,6 +9088,7 @@ func _rebuild_hud_health_rects_cache() -> bool:
 	performance_phase_started = _record_submission_performance_phase("hud_signature", performance_phase_started)
 	var cached: Dictionary = _hud_layout_cache_by_signature.get(signature, {}) as Dictionary
 	if not cached.is_empty() and cached.get("source", {}) == source:
+		_status_plate_layout.restore_groups(cached["group_plan"])
 		_hud_layout_entries_cache = cached.get("entries", []) as Array
 		_hud_health_rects_cache = cached.get("health_rects", {}) as Dictionary
 		return true
@@ -8827,6 +9098,7 @@ func _rebuild_hud_health_rects_cache() -> bool:
 	_hud_health_rects_cache = built.get("health_rects", {}) as Dictionary
 	_hud_layout_cache_by_signature[signature] = {
 		"source": source.duplicate(true),
+		"group_plan": _status_plate_layout.snapshot_groups(),
 		"entries": _hud_layout_entries_cache,
 		"health_rects": _hud_health_rects_cache
 	}
@@ -8841,9 +9113,12 @@ func _hud_layout_source(hud_units: Array[Dictionary]) -> Dictionary:
 	# Framing and safe-rect changes can move the board without changing its
 	# Control size. Resolve first: layout can also update the default zoom/pan.
 	_ensure_board_layout_cache()
+	_status_plate_layout.fixed_order_rects = IntentBadges.fixed_order_rects(self, hud_units)
 	return {
 		"visible_units": hud_units,
-		"cutout_registrations": _cutout_floor_registrations(),
+		# Destination echoes have no HUD. Their registrations must not invalidate
+		# the real actors' precomputed layouts when the hover preview appears.
+		"cutout_registrations": _cutout_floor_registrations(hud_units),
 		# HUD geometry changes only when pointer hover expands a different enemy's
 		# intent. Every empty tile is layout-equivalent, and every tile in a large
 		# enemy footprint is equivalent too. Keying by the raw tile forced the dense
@@ -8858,60 +9133,82 @@ func _hud_layout_source(hud_units: Array[Dictionary]) -> Dictionary:
 		"expand_enemy_intents": presentation.get("expand_enemy_intents", false),
 		"show_all_enemy_intents": presentation.get("show_all_enemy_intents", false),
 		"hud_obstacle_global_rects": presentation.get("hud_obstacle_global_rects", []),
+		"burst_intent_obstacle_global_rect": presentation.get("burst_intent_obstacle_global_rect", Rect2()),
+		"group_reserved_ui": _status_plate_layout.Groups.screen_reservations(self),
 		"unit_draw_tiles": presentation.get("unit_draw_tiles", {}),
-		"unit_world_positions": presentation.get("unit_world_positions", {})
+		"unit_world_positions": presentation.get("unit_world_positions", {}),
+		"status_preview": presentation.get("surface_status_preview", {}),
+		"defense_preview": _damage_preview_map(),
+		"truesight_activations": presentation.get("umbra_truesight_activations", 0),
+		"truesight_conditional": presentation.get("umbra_truesight_conditional", false),
+		"order_badges": (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []),
+		"boss_health_frame": presentation.get("boss_health_frame_global_rect", Rect2())
 	}
 
 func _refresh_moving_hud_geometry(moving_actor_keys: Dictionary) -> bool:
-	# Collapsed HUDs have no inter-actor collision solving: their geometry is a
-	# direct function of each actor's center. Update only actors that moved instead
-	# of rebuilding, hashing, and deep-copying the whole room layout every frame.
-	# Expanded enemy intents and bosses retain the full solver path because their
-	# contours deliberately avoid other actors and fixed HUD elements.
-	if moving_actor_keys.is_empty() or _hud_layout_entries_cache.is_empty() or _all_enemy_intents_expanded():
-		return false
+	if moving_actor_keys.is_empty() or _hud_layout_entries_cache.is_empty(): return false
 	var hud_units: Array[Dictionary] = _hud_layout_units()
-	if not (presentation.get("expanded_enemy_actor_keys", []) as Array).is_empty():
-		return false
-	if not _hud_hover_actor_key(hud_units).is_empty():
-		return false
+	_status_plate_layout.fixed_order_rects = IntentBadges.fixed_order_rects(self, hud_units)
+	var moving_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
+	var affected: Dictionary = _status_plate_layout.refresh_moving(self, hud_units, moving_actor_keys)
+	moving_started = _record_submission_performance_phase("hud_move_groups", moving_started)
 	var units_by_key: Dictionary = _units_by_key(hud_units)
 	var next_entries: Array = _hud_layout_entries_cache.duplicate(false)
 	var next_health_rects: Dictionary = _hud_health_rects_cache.duplicate(false)
 	var font: Font = get_theme_default_font()
+	# Expanded callouts depend on other actors' art and groups, even when their
+	# own group was untouched. Reproject these in the full solver's order, using
+	# the reused group plan; never add an interpolation sample to the deep LRU.
+	var expanded: bool = _all_enemy_intents_expanded() or not _hud_hover_actor_key(hud_units).is_empty() or not (presentation.get("expanded_enemy_actor_keys", []) as Array).is_empty()
+	var reserved: Array[Rect2] = _enemy_hud_reserved_rects(hud_units, font) if expanded else _status_plate_layout.fixed_order_rects.duplicate()
 	for entry_index: int in range(next_entries.size()):
 		var entry_var: Variant = next_entries[entry_index]
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
 		var entry: Dictionary = entry_var as Dictionary
 		var actor_key: String = str(entry.get("actor_key", ""))
-		if not moving_actor_keys.has(actor_key):
-			continue
 		var unit: Dictionary = units_by_key.get(actor_key, {}) as Dictionary
+		var expanded_unit: bool = expanded and _enemy_intent_expanded(unit)
+		if not affected.has(actor_key) and not expanded_unit:
+			if expanded:
+				for rect: Rect2 in entry.get("layout", {}).get("occupied_rects", []):
+					if not reserved.has(rect): reserved.append(rect)
+			continue
 		if unit.is_empty() or bool(unit.get("boss_bar", false)):
 			return false
 		var center: Vector2 = _unit_center(unit)
+		var placed: Rect2 = _status_plate_layout.cached_group(actor_key).get("frame", Rect2())
+		if center == entry.get("center", Vector2.INF) and placed == entry.get("health_rect", Rect2()) and not expanded_unit:
+			if expanded:
+				for rect: Rect2 in entry.get("layout", {}).get("occupied_rects", []):
+					if not reserved.has(rect): reserved.append(rect)
+			continue
 		var next_entry: Dictionary = entry.duplicate(false)
 		next_entry["center"] = center
 		match str(entry.get("kind", "")):
 			"npc":
 				pass
 			"enemy":
-				var layout: Dictionary = _enemy_hud_layout(unit, center, [], font)
+				var layout: Dictionary = _enemy_hud_layout(unit, center, reserved, font)
 				var health_rect: Rect2 = layout.get("health_rect", Rect2()) as Rect2
 				next_entry["health_rect"] = health_rect
 				next_entry["layout"] = layout
 				next_health_rects[actor_key] = health_rect
+				if expanded:
+					for rect: Rect2 in layout.get("occupied_rects", []):
+						if not reserved.has(rect): reserved.append(rect)
 			_:
-				var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+				var health_rect: Rect2 = _status_plate_layout.cached_group(actor_key).get("frame", _unit_health_bar_rect(unit, center))
 				next_entry["health_rect"] = health_rect
 				next_health_rects[actor_key] = health_rect
-		next_entries[entry_index] = next_entry
+		if next_entry != entry: next_entries[entry_index] = next_entry
+	moving_started = _record_submission_performance_phase("hud_move_entries", moving_started)
 	_hud_layout_entries_cache = next_entries
 	_hud_health_rects_cache = next_health_rects
 	# Keep the latest immutable source references for a future full rebuild. This
 	# intentionally avoids inserting animation-frame-specific layouts into the LRU.
 	_hud_health_rects_source_snapshot = _hud_layout_source(hud_units).duplicate(false)
+	_record_submission_performance_phase("hud_move_source", moving_started)
 	return true
 
 func _hud_hover_actor_key(hud_units: Array[Dictionary]) -> String:
@@ -8947,6 +9244,8 @@ func _clear_hud_layout_signature_cache() -> void:
 	_hud_layout_cache_order.clear()
 
 func _build_hud_layout_data(units_to_draw: Array[Dictionary]) -> Dictionary:
+	_status_plate_layout.fixed_order_rects = IntentBadges.fixed_order_rects(self, units_to_draw)
+	_status_plate_layout.prepare_groups(self, units_to_draw)
 	var performance_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	var health_rects: Dictionary = {}
 	var entries: Array = []
@@ -8968,16 +9267,16 @@ func _build_hud_layout_data(units_to_draw: Array[Dictionary]) -> Dictionary:
 			var boss_layout: Dictionary = _boss_intent_layout(unit, center, reserved_rects, font)
 			entries.append({"actor_key": actor_key, "kind": "boss", "center": center, "layout": boss_layout})
 			for rect_var: Variant in boss_layout.get("occupied_rects", []):
-				if typeof(rect_var) == TYPE_RECT2:
+				if typeof(rect_var) == TYPE_RECT2 and not reserved_rects.has(rect_var):
 					reserved_rects.append(rect_var)
 			continue
-		var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+		var health_rect: Rect2 = _status_plate_layout.resolve(self, unit, _unit_health_bar_rect(unit, center))["frame"]
 		if role == "enemy":
 			var enemy_layout: Dictionary = _enemy_hud_layout(unit, center, reserved_rects, font)
 			health_rect = enemy_layout.get("health_rect", health_rect)
 			entries.append({"actor_key": actor_key, "kind": "enemy", "center": center, "health_rect": health_rect, "layout": enemy_layout})
 			for rect_var: Variant in enemy_layout.get("occupied_rects", []):
-				if typeof(rect_var) == TYPE_RECT2:
+				if typeof(rect_var) == TYPE_RECT2 and not reserved_rects.has(rect_var):
 					reserved_rects.append(rect_var)
 		else:
 			entries.append({"actor_key": actor_key, "kind": "unit", "center": center, "health_rect": health_rect})
@@ -8986,29 +9285,24 @@ func _build_hud_layout_data(units_to_draw: Array[Dictionary]) -> Dictionary:
 	_record_submission_performance_phase("hud_build_units", performance_phase_started)
 	return {"entries": entries, "health_rects": health_rects}
 
+# An NPC's name on the board is the dialogue panel's speaker label: same cut, size, colour and outline, no box.
 func _draw_npc_nameplate(unit: Dictionary, center: Vector2) -> void:
-	var font: Font = get_theme_default_font()
-	var plate_rect: Rect2 = _npc_nameplate_rect(unit, center, font)
-	if plate_rect.size.x <= 0.0 or plate_rect.size.y <= 0.0:
+	var plate_rect: Rect2 = _npc_nameplate_rect(unit, center)
+	if not plate_rect.has_area():
 		return
-	var accent: Color = unit.get("accent", Color("d2c2a7"))
-	var name: String = str(unit.get("name", ""))
-	draw_rect(plate_rect, Color(0.08, 0.06, 0.05, 0.9), true)
-	draw_rect(plate_rect, accent, false, 1.0)
-	draw_string(font, plate_rect.position + Vector2(0.0, 11.0), name, HORIZONTAL_ALIGNMENT_CENTER, plate_rect.size.x, 8, Color("fff4dc"))
-	_register_tooltip(plate_rect, name)
+	var font: Font = UiTypography.eyebrow_font()
+	var font_size: int = UiTypography.scaled_size(self, UiTypography.SIZE_BODY)
+	var baseline: Vector2 = plate_rect.position + Vector2(0.0, font.get_ascent(font_size))
+	var label: String = str(unit.get("name", "")).to_upper()
+	draw_string_outline(font, baseline, label, HORIZONTAL_ALIGNMENT_CENTER, plate_rect.size.x, font_size, 3, UiPaletteTokens.TEXT_OUTLINE)
+	draw_string(font, baseline, label, HORIZONTAL_ALIGNMENT_CENTER, plate_rect.size.x, font_size, UiPaletteTokens.GOLD_BRIGHT)
 
-func _npc_nameplate_rect(unit: Dictionary, center: Vector2, font: Font = null) -> Rect2:
-	if font == null:
+func _npc_nameplate_rect(unit: Dictionary, center: Vector2) -> Rect2:
+	var label: String = str(unit.get("name", "")).to_upper()
+	if label.is_empty():
 		return Rect2()
-	var name: String = str(unit.get("name", ""))
-	if name.is_empty():
-		return Rect2()
-	var text_width: float = maxf(72.0, font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 8).x + 16.0)
-	return Rect2(
-		Vector2(center.x - text_width * 0.5, _unit_art_top_y(unit, center) - 22.0),
-		Vector2(text_width, 16.0)
-	)
+	var text_size: Vector2 = UiTypography.eyebrow_font().get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, UiTypography.scaled_size(self, UiTypography.SIZE_BODY))
+	return Rect2(Vector2(center.x - text_size.x * 0.5, _unit_art_top_y(unit, center) - 6.0 - text_size.y), text_size)
 
 func _draw_death_health_bars(units_to_draw: Array[Dictionary]) -> void:
 	for unit: Dictionary in units_to_draw:
@@ -9021,6 +9315,8 @@ func _draw_death_health_bars(units_to_draw: Array[Dictionary]) -> void:
 		_draw_health_bar(dead_unit, _unit_health_bar_rect(unit, _unit_center(unit)), _death_animation_tint(unit).a)
 
 func _draw_health_bar(unit: Dictionary, rect: Rect2, bar_alpha: float = 1.0) -> void:
+	var status_layout: Dictionary = _status_plate_layout.resolve(self, unit, rect)
+	rect = status_layout["frame"]
 	var font: Font = get_theme_default_font()
 	var preview: Dictionary = _unit_damage_preview(unit)
 	var display_hp: int = _health_bar_fill_hp(unit, preview)
@@ -9057,16 +9353,8 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2, bar_alpha: float = 1.0) -> 
 		_draw_health_damage_preview(unit, content_rect, preview)
 	if font != null and not defer_preview_overlay:
 		_draw_health_bar_text(unit, content_rect, preview, font)
-	var defense_badge_x: float = rect.position.x + rect.size.x + 4.0
-	for defense: String in ["block", "stoneskin"]:
-		var amount: int = int(preview.get(defense, unit.get(defense, 0)))
-		var spent: bool = int(preview.get(defense + "_loss", 0)) > 0
-		if amount <= 0 and not spent: continue
-		var badge_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(36.0 if defense == "block" else 40.0, 16.0))
-		var border: Color = Color("ef8b62") if spent else Color("90d9ff") if defense == "block" else ElementData.accent(ElementData.EARTH)
-		var fill: Color = Color(0.27, 0.08, 0.055, 0.94) if spent else Color(0.07, 0.12, 0.16, 0.92) if defense == "block" else Color(0.10, 0.14, 0.08, 0.92)
-		_draw_icon_value_badge(badge_rect, defense, amount, fill, border, Color("ffe5cf") if spent else Color("d9f5ff") if defense == "block" else Color("eff8d7"), font)
-		defense_badge_x += badge_rect.size.x + 4.0
+	for entry: Dictionary in status_layout["defenses"]:
+		StatusPlates.draw_entry(self, entry, _keyword_icon_textures.get(str(entry["icon"]), null))
 
 func _health_bar_defers_damage_preview(preview: Dictionary) -> bool:
 	# Unit health bars are only drawn during the HUD phase. Always defer a
@@ -9077,16 +9365,19 @@ func _health_bar_defers_damage_preview(preview: Dictionary) -> bool:
 func _draw_leader_marker(unit: Dictionary, health_rect: Rect2, intent_rect: Rect2 = Rect2()) -> void:
 	if not bool(unit.get("is_leader", false)):
 		return
+	# A gilt crest seated on the health frame: the objective's crowned skull in a
+	# medallion (owner, warband-built: the boxed LEADER label read as crude).
 	var marker_rect: Rect2 = _leader_marker_rect(unit, health_rect, intent_rect)
-	draw_rect(marker_rect, Color(0.12, 0.055, 0.045, 0.96), true)
-	draw_rect(marker_rect, LEADER_MARKER_GOLD, false, 2.0)
+	var centre: Vector2 = marker_rect.get_center()
+	var radius: float = marker_rect.size.x * 0.5
+	draw_circle(centre + Vector2(0.0, 2.0), radius + 1.5, Color(UiPaletteTokens.INK_0, 0.55), true, -1.0, true)
+	draw_circle(centre, radius, UiPaletteTokens.INK_3, true, -1.0, true)
+	draw_circle(centre, radius - 1.0, LEADER_MARKER_GOLD, false, LEADER_CREST_RING, true)
+	draw_circle(centre, radius - 4.0, Color(LEADER_MARKER_GOLD, 0.45), false, 1.0, true)
 	var texture: Texture2D = AssetLoader.load_texture(CombatObjectiveRules.icon_path(CombatObjectiveRules.KILL_LEADER))
 	if texture != null:
-		var icon_rect := Rect2(marker_rect.position + Vector2(3.0, 2.0), Vector2(20.0, 20.0))
-		draw_texture_rect(texture, icon_rect, false)
-	var font: Font = get_theme_default_font()
-	if font != null:
-		draw_string(font, marker_rect.position + Vector2(24.0, 17.0), "LEADER", HORIZONTAL_ALIGNMENT_CENTER, 61.0, 11, Color("ffe2a3"))
+		var icon_side: float = marker_rect.size.x * LEADER_CREST_ICON_RATIO
+		draw_texture_rect(texture, Rect2(centre - Vector2.ONE * icon_side * 0.5, Vector2.ONE * icon_side), false)
 	var order: String = WarbandRules.order_line(combat_state.get("objective", {}))
 	_register_tooltip(marker_rect, "Leader · Defeating this marked enemy clears the encounter immediately." + ("\n" + order if not order.is_empty() else ""))
 
@@ -9178,17 +9469,31 @@ func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Diction
 	var current_ratio: float = clampf(current_hp / max_hp, 0.0, 1.0)
 	var next_ratio: float = clampf(next_hp / max_hp, 0.0, 1.0)
 	if current_ratio > next_ratio:
-		var time_seconds: float = float(presentation.get("damage_preview_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
-		var pulse: float = 0.55 + 0.45 * sin(time_seconds * 10.0)
 		var damage_rect := Rect2(
 			Vector2(rect.position.x + rect.size.x * next_ratio, rect.position.y),
 			Vector2(rect.size.x * (current_ratio - next_ratio), rect.size.y)
 		)
-		var damage_color: Color = Color(1.0, 0.72, 0.34, 0.52 + pulse * 0.22)
-		if bool(preview.get("lethal", false)):
-			damage_color = Color(0.72, 0.18, 0.14, 0.62 + pulse * 0.26)
-		draw_rect(damage_rect, damage_color, true)
-		draw_rect(damage_rect, Color(1.0, 0.93, 0.62, 0.45), false, 1.0)
+		draw_health_damage_preview(self, damage_rect, bool(preview.get("lethal", false)), presentation)
+
+# The wide boss bar and board bars use the same draw commands and clock.
+static func health_damage_preview_colors(lethal: bool, source_presentation: Dictionary) -> Dictionary:
+	var time_seconds: float = float(source_presentation.get("damage_preview_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
+	# The old regular-bar routine did not freeze reduced motion. The brief
+	# requires a steady pulse but does not specify its phase; the owner supplies
+	# that phase above. Hold the time-zero placeholder across input redraws too.
+	if bool(source_presentation.get("reduced_motion", false)):
+		time_seconds = DAMAGE_PREVIEW_REDUCED_MOTION_TIME_SECONDS
+	var pulse: float = 0.55 + 0.45 * sin(time_seconds * 10.0)
+	var damage_color: Color = Color(1.0, 0.72, 0.34, 0.52 + pulse * 0.22)
+	if lethal:
+		damage_color = Color(0.72, 0.18, 0.14, 0.62 + pulse * 0.26)
+	return {"fill": damage_color, "outline": Color(1.0, 0.93, 0.62, 0.45)}
+
+static func draw_health_damage_preview(canvas: CanvasItem, damage_rect: Rect2, lethal: bool, source_presentation: Dictionary) -> void:
+	var colors: Dictionary = health_damage_preview_colors(lethal, source_presentation)
+	canvas.draw_rect(damage_rect, colors["fill"], true)
+	canvas.draw_rect(damage_rect, colors["outline"], false, 1.0)
+
 func _unit_damage_preview(unit: Dictionary) -> Dictionary:
 	var actor_key: String = str(unit.get("damage_preview_key", ""))
 	if actor_key.is_empty(): actor_key = str(unit.get("key", ""))
@@ -9353,9 +9658,28 @@ func _update_impact_camera_shake() -> void:
 		_camera_kick_tween.kill()
 	if not is_inside_tree():
 		return
+	_camera_kick_oscillations = IMPACT_CAMERA_SHAKE_OSCILLATIONS
+	_camera_kick_decay = 2.0
 	_camera_kick_tween = create_tween()
 	var seconds: float = CombatPacingScript.shake_seconds(_camera_kick_amplitude) if is_instance_valid(feel_owner) else IMPACT_CAMERA_KICK_SECONDS
 	_camera_kick_tween.tween_method(_apply_camera_kick, _camera_kick_progress, 1.0, seconds * (1.0 - _camera_kick_progress))
+
+# A roar shakes the room: the same board kick as a hit, but long, quick and
+# slow to fade, so it reads as a rumble under the sound rather than a blow.
+func rumble(amplitude: float, seconds: float, oscillations: float) -> void:
+	if not is_inside_tree():
+		return
+	if _camera_kick_tween != null and _camera_kick_tween.is_valid():
+		_camera_kick_tween.kill()
+	_camera_kick_player = false
+	_camera_kick_strength = 1.0
+	_camera_kick_amplitude = amplitude
+	_camera_kick_oscillations = oscillations
+	_camera_kick_decay = 1.0
+	_camera_kick_started_usec = Time.get_ticks_usec()
+	_camera_kick_progress = 0.0
+	_camera_kick_tween = create_tween()
+	_camera_kick_tween.tween_method(_apply_camera_kick, 0.0, 1.0, seconds)
 
 func _apply_camera_kick(progress: float) -> void:
 	_camera_kick_progress = progress
@@ -9367,11 +9691,11 @@ func _apply_camera_kick(progress: float) -> void:
 		atmosphere.call("set_hurt", pow(1.0 - progress, 1.6) * minf(_camera_kick_strength, 1.2) if _camera_kick_player else 0.0)
 	var offset := Vector2.ZERO
 	# Until the owner supplies the rate, retain the shipped decay profile.
-	var decay: float = pow(1.0 - progress, 2.0)
+	var decay: float = pow(1.0 - progress, _camera_kick_decay)
 	if progress >= 1.0: decay = 0.0
 	if decay > 0.001 and not bool(presentation.get("reduced_motion", false)):
 		var amplitude: float = _camera_kick_amplitude
-		var phase: float = progress * IMPACT_CAMERA_SHAKE_OSCILLATIONS * TAU
+		var phase: float = progress * _camera_kick_oscillations * TAU
 		offset = Vector2(sin(phase) * amplitude * decay, cos(phase * 1.37) * amplitude * 0.55 * decay).round()
 	if layer.offset != offset:
 		layer.offset = offset
@@ -9384,25 +9708,6 @@ func _apply_camera_kick(progress: float) -> void:
 
 func _unit_impact_shake_strength(unit: Dictionary) -> float:
 	return CombatPacingScript.unit_shake_strength(presentation, str(unit.get("key", "")))
-
-func _draw_icon_value_badge(rect: Rect2, icon_key: String, amount: int, fill: Color, border: Color, text_color: Color, font: Font) -> void:
-	draw_rect(rect, fill, true)
-	draw_rect(rect, border, false, 1.0)
-	var icon_size: float = maxf(10.0, rect.size.y - 4.0)
-	var icon_rect := Rect2(rect.position + Vector2(2.0, 2.0), Vector2(icon_size, icon_size))
-	_draw_keyword_icon(icon_key, icon_rect, ActionIcons.tooltip(icon_key))
-	if font != null:
-		var text_left: float = icon_size + 4.0
-		draw_string(
-			font,
-			rect.position + Vector2(text_left, rect.size.y - 4.0),
-			str(amount),
-			HORIZONTAL_ALIGNMENT_CENTER,
-			rect.size.x - text_left,
-			9,
-			text_color
-		)
-	_register_tooltip(rect, ActionIcons.tooltip(icon_key))
 
 func _unit_frame_rect(center: Vector2) -> Rect2:
 	var unit_size: Vector2 = _unit_size()
@@ -9430,16 +9735,14 @@ func _unit_health_bar_rect(unit: Dictionary, center: Vector2) -> Rect2:
 	)
 
 func _draw_unit_statuses(unit: Dictionary, health_rect: Rect2) -> void:
-	CapacitorView.draw_pips(self, unit, health_rect)
-	var badges: Array[Dictionary] = _unit_status_badges(unit)
-	if badges.is_empty():
-		return
-	var font: Font = get_theme_default_font()
-	if font == null:
-		return
-	for index: int in range(badges.size()):
-		var center := Vector2(health_rect.position.x - 12.0 - 22.0 * float(badges.size() - 1 - index), health_rect.end.y - 2.0)
-		_draw_status_badge(font, center, badges[index])
+	var status_layout: Dictionary = _status_plate_layout.resolve(self, unit, health_rect)
+	CapacitorView.draw_pips(self, unit, status_layout["frame"])
+	var actor_key: String = str(unit.get("key", ""))
+	status_pop_tracker.observe(actor_key, status_layout["statuses"])
+	var still: bool = bool(presentation.get("reduced_motion", false))
+	for entry: Dictionary in status_layout["statuses"]:
+		StatusPlates.draw_entry(self, entry, _keyword_icon_textures.get(str(entry["icon"]), null), KindleView.badge_scale(presentation, actor_key) if str(entry["icon"]) == "burst" else 1.0,
+			status_pop_tracker.progress(actor_key, str(entry["icon"])), still)
 
 func _draw_enemy_intent(unit: Dictionary, center: Vector2, health_rect: Rect2) -> void:
 	var font: Font = get_theme_default_font()
@@ -9474,11 +9777,14 @@ func _draw_enemy_intent_layout(layout: Dictionary, font: Font) -> void:
 	var intent_name: String = str(layout.get("intent_name", ""))
 	var border: Color = layout.get("border", Color("d8b96f"))
 	var line_index: int = 0
-	if not intent_name.is_empty():
+	if not intent_name.is_empty() and not _has_burst_trait_rows(rows):
 		var title_rect: Rect2 = line_rects[line_index] as Rect2
 		_draw_enemy_intent_title(title_rect, intent_name, border, font)
 		line_index += 1
 	for row_index: int in range(rows.size()):
+		if row_index == BurstTraitText.title_index(rows) and _has_burst_trait_rows(rows) and not intent_name.is_empty():
+			_draw_enemy_intent_title(line_rects[line_index], intent_name, border, font)
+			line_index += 1
 		if line_index >= line_rects.size():
 			break
 		var row_rect: Rect2 = line_rects[line_index] as Rect2
@@ -9698,9 +10004,11 @@ func _draw_aoe_token_tile(center: Vector2, icon_size: float, fill: Color, border
 	draw_polyline(points, Color(0.02, 0.012, 0.018, 0.96), 3.0, true)
 	draw_polyline(points, border, 1.25, true)
 
-func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], font: Font) -> Array[Rect2]:
-	var rects: Array[Rect2] = []
+func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], _font: Font) -> Array[Rect2]:
+	var rects: Array[Rect2] = _status_plate_layout.fixed_order_rects.duplicate()
 	var inverse: Transform2D = get_global_transform_with_canvas().affine_inverse()
+	var boss_frame: Rect2 = presentation.get("boss_health_frame_global_rect", Rect2())
+	if boss_frame.has_area(): rects.append(inverse * boss_frame)
 	for rect: Rect2 in presentation.get("hud_obstacle_global_rects", []):
 		rects.append(inverse * rect)
 	for marker: Dictionary in _noctyrax_brazier_markers():
@@ -9713,8 +10021,8 @@ func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], font: Font) ->
 			"enemy":
 				continue
 			"npc":
-				var plate_rect: Rect2 = _npc_nameplate_rect(unit, center, font)
-				if plate_rect.size.x > 0.0 and plate_rect.size.y > 0.0:
+				var plate_rect: Rect2 = _npc_nameplate_rect(unit, center)
+				if plate_rect.has_area():
 					rects.append(plate_rect)
 			_:
 				rects.append_array(_health_bar_collision_rects(unit, _unit_health_bar_rect(unit, center)))
@@ -9728,11 +10036,13 @@ func _enemy_hud_reserved_rects(units_to_draw: Array[Dictionary], font: Font) -> 
 		var art_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, _unit_center(unit))
 		if art_rect.size.x > 0.0 and art_rect.size.y > 0.0:
 			rects.append(art_rect)
+		if str(unit.get("role", "")) == "enemy" and not bool(unit.get("boss_bar", false)):
+			rects.append_array(_status_plate_layout.resolve(self, unit, _unit_health_bar_rect(unit, _unit_center(unit)))["group_rects"])
 	return rects
 
 func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array, font: Font = null) -> Dictionary:
-	var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
-	var intent: Dictionary = MimicView.display_intent(self, unit, unit.get("intent", {}))
+	var health_rect: Rect2 = _status_plate_layout.resolve(self, unit, _unit_health_bar_rect(unit, center))["frame"]
+	var intent: Dictionary = unit.get("intent", {})
 	var rows: Array = []
 	var intent_name: String = ""
 	var border: Color = Color("d8b96f")
@@ -9746,6 +10056,8 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 	for line_rect_var: Variant in contour.get("line_rects", []):
 		if typeof(line_rect_var) == TYPE_RECT2:
 			occupied.append(line_rect_var as Rect2)
+	var crest: Rect2 = _leader_marker_rect(unit, health_rect, intent_rect)
+	if crest.has_area(): occupied.append(crest)
 	return {
 		"health_rect": health_rect,
 		"intent_rect": intent_rect,
@@ -9757,7 +10069,7 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 		"health_offset": Vector2.ZERO,
 		"intent_offset": contour.get("offset", Vector2.ZERO),
 		"side": str(contour.get("side", "")),
-		"tether": {},
+		"connector": {},
 		"occupied_rects": occupied
 	}
 
@@ -9773,6 +10085,9 @@ func _enemy_intent_contour_layout(unit: Dictionary, center: Vector2, rows: Array
 		if obstacle.position.is_equal_approx(actor_rect.position) and obstacle.size.is_equal_approx(actor_rect.size):
 			continue
 		external_obstacles.append(obstacle)
+	if _has_burst_trait_rows(rows):
+		var rail: Rect2 = presentation.get("burst_intent_obstacle_global_rect", Rect2())
+		if rail.has_area(): external_obstacles.append(get_global_transform_with_canvas().affine_inverse() * rail)
 	var line_rects: Array[Rect2] = _enemy_intent_contour_line_rects(actor_rect, rows, intent_name, font, "right")
 	var bounds: Rect2 = _rects_bounds(line_rects)
 	var viewport_bounds: Rect2 = _enemy_hud_viewport_bounds()
@@ -9815,19 +10130,21 @@ func _enemy_intent_contour_layout(unit: Dictionary, center: Vector2, rows: Array
 	for candidate_x: float in x_offsets:
 		for y_offset: float in y_offsets:
 			var offset := Vector2(candidate_x, y_offset)
-			var shifted_rects: Array[Rect2] = _offset_rects(line_rects, offset)
-			var score: float = _enemy_hud_layout_score(shifted_rects, external_obstacles, viewport_bounds, offset)
+			# The score is nonnegative. Bound losing candidates before allocating
+			# their shifted contours, preserving candidate order and strict ties.
+			var score: float = _enemy_hud_layout_score_for_offset(line_rects, external_obstacles, viewport_bounds, offset, float(best.get("score", INF)))
 			if best.is_empty() or score < float(best.get("score", INF)):
+				var shifted_rects: Array[Rect2] = _offset_rects(line_rects, offset)
 				best = {"score": score, "side": "right", "line_rects": shifted_rects, "bounds": _rects_bounds(shifted_rects), "offset": offset}
 	if best.is_empty():
 		return {"bounds": Rect2(), "line_rects": [], "side": "", "offset": Vector2.ZERO}
-	return best
+	return preload("res://scripts/board_intent_clearance.gd").finish(self, unit, line_rects, external_obstacles, viewport_bounds, best)
 
 func _enemy_intent_contour_line_rects(actor_rect: Rect2, rows: Array, intent_name: String, font: Font, side: String) -> Array[Rect2]:
 	var rects: Array[Rect2] = []
 	var line_y: float = actor_rect.position.y + minf(14.0, actor_rect.size.y * 0.10)
 	var line_index: int = 0
-	if not intent_name.is_empty():
+	if not intent_name.is_empty() and not _has_burst_trait_rows(rows):
 		var display_font: Font = UiTypography.display_font()
 		if display_font == null:
 			display_font = font
@@ -9836,13 +10153,27 @@ func _enemy_intent_contour_line_rects(actor_rect: Rect2, rows: Array, intent_nam
 		rects.append(Rect2(Vector2(title_x, line_y), Vector2(title_width, INTENT_CONTOUR_TITLE_HEIGHT)))
 		line_y += INTENT_CONTOUR_TITLE_HEIGHT
 		line_index += 1
+	var row_index: int = 0
 	for row_var: Variant in rows:
+		if row_index == BurstTraitText.title_index(rows) and _has_burst_trait_rows(rows) and not intent_name.is_empty():
+			var display_font: Font = UiTypography.display_font()
+			if display_font == null:
+				display_font = font
+			var title_width: float = ceilf(display_font.get_string_size(intent_name, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_POPUP_TITLE_FONT_SIZE).x) + 10.0
+			var title_x: float = actor_rect.end.x - INTENT_CONTOUR_SHOULDER_INSET if side == "right" else actor_rect.position.x - title_width + INTENT_CONTOUR_SHOULDER_INSET
+			rects.append(Rect2(Vector2(title_x, line_y), Vector2(title_width, INTENT_CONTOUR_TITLE_HEIGHT)))
+			line_y += INTENT_CONTOUR_TITLE_HEIGHT
+			line_index += 1
+		row_index += 1
 		if typeof(row_var) != TYPE_ARRAY:
 			continue
 		var row_width: float = ceilf(_token_row_width(row_var as Array, INTENT_POPUP_ICON_SIZE, INTENT_POPUP_ROW_FONT_SIZE, font)) + 8.0
 		var stagger: float = float(line_index) * INTENT_CONTOUR_LINE_STAGGER
 		var row_x: float = actor_rect.end.x - 2.0 + stagger if side == "right" else actor_rect.position.x - row_width + 2.0 - stagger
 		var row_height: float = maxf(INTENT_CONTOUR_ROW_HEIGHT, ceilf(_token_row_height(row_var as Array, INTENT_POPUP_ICON_SIZE)) + 6.0)
+		if not (row_var as Array).is_empty() and bool(row_var[0].get("burst_rules", false)):
+			# Match the title's first glyph, after its icon and shared 3 px gap.
+			row_x = rects[0].position.x + INTENT_POPUP_ICON_SIZE + 3.0
 		rects.append(Rect2(Vector2(row_x, line_y), Vector2(row_width, row_height)))
 		line_y += row_height
 		line_index += 1
@@ -9867,7 +10198,7 @@ func _enemy_hud_placement_obstacles(occupied_rects: Array, actor_clear_rect: Rec
 	return placement_obstacles
 
 func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Array, font: Font = null) -> Dictionary:
-	var intent: Dictionary = MimicView.display_intent(self, unit, unit.get("intent", {}))
+	var intent: Dictionary = unit.get("intent", {})
 	var rows: Array = []
 	var intent_name: String = ""
 	var border: Color = Color("d8b96f")
@@ -9933,19 +10264,24 @@ func _enemy_hud_collision_rects(unit: Dictionary, health_rect: Rect2, intent_rec
 func _leader_marker_rect(unit: Dictionary, health_rect: Rect2, intent_rect: Rect2 = Rect2()) -> Rect2:
 	if not bool(unit.get("is_leader", false)) or health_rect.size.x <= 0.0:
 		return Rect2()
-	var marker_size := Vector2(88.0, 24.0)
 	var top: float = minf(health_rect.position.y, intent_rect.position.y) if intent_rect.size.y > 0.0 else health_rect.position.y
-	return Rect2(
-		Vector2(health_rect.get_center().x - marker_size.x * 0.5, top - marker_size.y - 5.0),
-		marker_size
-	)
+	# The crest overlaps the frame's top rim so it reads as seated on the bar.
+	return Rect2(Vector2(health_rect.get_center().x - LEADER_CREST_SIZE * 0.5, top - LEADER_CREST_SIZE + LEADER_CREST_SEAT), Vector2.ONE * LEADER_CREST_SIZE)
 
 func _health_bar_collision_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rect2]:
-	var rects: Array[Rect2] = []
-	if health_rect.size.x > 0.0 and health_rect.size.y > 0.0:
-		rects.append(health_rect)
-	rects.append_array(_unit_status_badge_rects(unit, health_rect))
-	rects.append_array(_health_bar_defense_badge_rects(unit, health_rect))
+	var layout: Dictionary = _status_plate_layout.resolve(self, unit, health_rect)
+	var rects: Array[Rect2]
+	rects.append(layout["frame"])
+	rects.append_array(layout["status_rects"])
+	rects.append_array(layout["defense_rects"])
+	rects.append_array(layout["pip_rects"])
+	return rects
+
+func _unit_hud_pip_rects(unit: Dictionary, frame: Rect2) -> Array[Rect2]:
+	var rects: Array[Rect2]
+	if bool(unit.get("death_animation", false)) or not CapacitorView.Rules.is_capacitor(unit): return rects
+	for center: Vector2 in CapacitorView.pip_centers(frame):
+		rects.append(Rect2(center - Vector2.ONE * CapacitorView.PIP_SIZE * 0.5, Vector2.ONE * CapacitorView.PIP_SIZE))
 	return rects
 
 func _unit_footprint_tiles(unit: Dictionary) -> Array[Vector2i]:
@@ -9957,30 +10293,17 @@ func _unit_footprint_tiles(unit: Dictionary) -> Array[Vector2i]:
 			tiles.append(origin + Vector2i(x, y))
 	return tiles
 
+func _unit_defense_plate_entries(unit: Dictionary, health_rect: Rect2) -> Array[Dictionary]:
+	return _status_plate_layout.resolve(self, unit, health_rect)["defenses"].duplicate(true)
+
+func _unit_status_pill_entries(unit: Dictionary, health_rect: Rect2) -> Array[Dictionary]:
+	return _status_plate_layout.resolve(self, unit, health_rect)["statuses"].duplicate(true)
+
 func _unit_status_badge_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rect2]:
-	var rects: Array[Rect2] = []
-	var badges: Array[Dictionary] = _unit_status_badges(unit)
-	if badges.is_empty():
-		return rects
-	for index: int in range(badges.size()):
-		var center := Vector2(health_rect.position.x - 12.0 - 22.0 * float(badges.size() - 1 - index), health_rect.end.y - 2.0)
-		var badge_rect := Rect2(center - Vector2(10.0, 10.0), Vector2(20.0, 20.0))
-		var badge: Dictionary = badges[index] as Dictionary
-		if int(badge.get("count", 0)) > 0 or not str(badge.get("count_text", "")).is_empty():
-			badge_rect = badge_rect.merge(Rect2(center + Vector2(5.0, 3.0), Vector2(12.0, 12.0)))
-		rects.append(badge_rect)
-	return rects
+	return _status_plate_layout.resolve(self, unit, health_rect)["status_rects"].duplicate()
 
 func _health_bar_defense_badge_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rect2]:
-	var rects: Array[Rect2] = []
-	var defense_badge_x: float = health_rect.position.x + health_rect.size.x + 4.0
-	if int(unit.get("block", 0)) > 0:
-		var block_rect := Rect2(Vector2(defense_badge_x, health_rect.position.y), Vector2(36.0, 16.0))
-		rects.append(block_rect)
-		defense_badge_x += block_rect.size.x + 4.0
-	if int(unit.get("stoneskin", 0)) > 0:
-		rects.append(Rect2(Vector2(defense_badge_x, health_rect.position.y), Vector2(40.0, 16.0)))
-	return rects
+	return _status_plate_layout.resolve(self, unit, health_rect)["defense_rects"].duplicate()
 
 func _best_enemy_hud_offset(base_rects: Array, occupied_rects: Array) -> Vector2:
 	if base_rects.is_empty():
@@ -10163,19 +10486,19 @@ func _enemy_hud_layout_score_for_offset(base_rects: Array, occupied_rects: Array
 		for occupied_var: Variant in occupied_rects:
 			var occupied_rect: Rect2 = occupied_var
 			overlap_area += _rect_overlap_area(candidate, occupied_rect)
-			var partial_score: float = maxf(0.0, overlap_area - ENEMY_HUD_REPOSITION_OVERLAP_AREA) * 100000.0 + offset_score
+			var partial_score: float = maxf(0.0, overlap_area - ENEMY_HUD_REPOSITION_OVERLAP_AREA) * 100000.0 + overflow_area * 5000.0 + absf(offset.x) * 2.4 + absf(offset.y) * 1.6
 			if partial_score >= score_ceiling:
 				return partial_score
 		overflow_area += _rect_outside_area(candidate, viewport_bounds)
 		var partial_score: float = (
 			maxf(0.0, overlap_area - ENEMY_HUD_REPOSITION_OVERLAP_AREA) * 100000.0
 			+ overflow_area * 5000.0
-			+ offset_score
+			+ absf(offset.x) * 2.4 + absf(offset.y) * 1.6
 		)
 		if partial_score >= score_ceiling:
 			return partial_score
 	var meaningful_overlap: float = maxf(0.0, overlap_area - ENEMY_HUD_REPOSITION_OVERLAP_AREA)
-	return meaningful_overlap * 100000.0 + overflow_area * 5000.0 + offset_score
+	return meaningful_overlap * 100000.0 + overflow_area * 5000.0 + absf(offset.x) * 2.4 + absf(offset.y) * 1.6
 
 func _enemy_hud_layout_score_from_areas(collision_areas: Dictionary, offset: Vector2) -> float:
 	var overlap_area: float = float(collision_areas.get("overlap_area", 0.0))
@@ -10258,17 +10581,17 @@ func _rects_bounds(rects: Array) -> Rect2:
 		bounds = bounds.merge(rect)
 	return bounds
 
-func _draw_enemy_hud_tether(_unit: Dictionary, _center: Vector2, layout: Dictionary) -> void:
-	var tether: Dictionary = layout.get("tether", {})
-	if tether.is_empty():
+func _draw_enemy_hud_connector(_unit: Dictionary, _center: Vector2, layout: Dictionary) -> void:
+	var connector: Dictionary = layout.get("connector", {})
+	if connector.is_empty():
 		return
 	var border: Color = layout.get("border", Color("d8b96f"))
-	var anchor: Vector2 = tether.get("from", Vector2.ZERO)
-	var target: Vector2 = tether.get("to", Vector2.ZERO)
+	var anchor: Vector2 = connector.get("from", Vector2.ZERO)
+	var target: Vector2 = connector.get("to", Vector2.ZERO)
 	draw_line(anchor, target, Color(0.0, 0.0, 0.0, 0.24), 3.0, true)
 	draw_line(anchor, target, Color(border.r, border.g, border.b, 0.58), 1.0, true)
 
-func _enemy_intent_tether_geometry(unit: Dictionary, center: Vector2, intent_rect: Rect2) -> Dictionary:
+func _enemy_intent_connector_geometry(unit: Dictionary, center: Vector2, intent_rect: Rect2) -> Dictionary:
 	if intent_rect.size.x <= 0.0 or intent_rect.size.y <= 0.0:
 		return {}
 	var art_rect: Rect2 = _unit_draw_rect_for_center(unit, center)
@@ -10303,6 +10626,15 @@ func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tin
 		draw_rect(rect, Color(0.0, 0.0, 0.0, 0.22), true)
 	if not tooltip.is_empty():
 		_register_tooltip(rect, tooltip)
+
+func _register_tile_tooltip(rect: Rect2, tooltip: String, tile: Vector2i, detail_key: String = "") -> void:
+	if tooltip.is_empty() or not rect.has_area(): return
+	_tile_tooltip_regions[_tooltip_regions.size()] = {"tile": tile, "tile_detail_key": detail_key, "tooltip": tooltip}
+	_register_tooltip(rect, tooltip)
+	if not detail_key.is_empty():
+		var owner: Control = _render_instrumentation_owner as Control if is_instance_valid(_render_instrumentation_owner) else self
+		if owner._tile_tooltip_cache.light_region_changed(get_instance_id(), tile, detail_key, tooltip):
+			owner._queue_tile_tooltip_refresh()
 
 func _register_tooltip(rect: Rect2, tooltip: String) -> void:
 	if tooltip.is_empty() or rect.size.x <= 0.0 or rect.size.y <= 0.0:
@@ -10952,8 +11284,7 @@ func _draw_effect_overlay() -> void:
 	if BrambleView.draw_effect(self, effect, progress) or LobView.draw_effect(self, effect, progress): return
 	if IcefallView.draw_effect(self, effect, progress): return
 	if str(effect.get("en02_mechanic", "")) in ["call_wind", "wind_push"]: return
-	if ReflectView.draw_effect(self, effect, progress) or DiveView.draw_effect(self, effect, progress): return
-	if TetherView.draw_effect(self, effect, progress): return
+	if ReflectView.draw_effect(self, effect, progress): return
 	if _dragon_full_area_fx(effect) and not bool(effect.get("preview",false)): return
 	_draw_bile_bloomer_fragments(effect, progress)
 	var kind: String = str(effect.get("kind", ""))
@@ -11237,23 +11568,7 @@ func _draw_bile_bloomer_fragments(effect: Dictionary, progress: float) -> void:
 	BileBloomerFx.draw_fragments(self, socket, target, progress, str(effect.get("kind", "")) == "aoe", bile_bloomer_source_pixel_scale())
 
 func _cutout_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
-	var action: String = str(effect.get("frostglass_action", ""))
-	if action.is_empty() or bool(effect.get("preview", false)):
-		return _protagonist_launch_point(effect, fallback)
-	var key: String = str(effect.get("actor_key", ""))
-	var renderer: Node = _frostglass_renderers.get(key, null) as Node
-	if not is_instance_valid(renderer):
-		return fallback
-	for enemy: Dictionary in combat_state.get("enemies", []):
-		if key != "enemy_%d" % int(enemy.get("id", -1)):
-			continue
-		var unit: Dictionary = enemy.duplicate(false)
-		unit["key"] = key
-		var body: Rect2 = _unit_draw_rect(unit)
-		var delta: Vector2i = (effect.get("to", Vector2i.ZERO) as Vector2i) - (effect.get("from", Vector2i.ZERO) as Vector2i)
-		var source: Vector2 = renderer.call("source_socket", action, delta)
-		return body.position + body.size * source / FrostglassCutout.SOURCE_SIZE
-	return fallback
+	return preload("res://scripts/maquette_cutout_runtime/effect_sockets.gd").launch_point(self, effect, _protagonist_launch_point(effect, fallback))
 
 func _harrier_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
 	var renderer: Node = _harrier_renderers.get(str(effect.get("actor_key", "")), null) as Node
@@ -12610,9 +12925,12 @@ func _blink_player_unit_snapshot() -> Dictionary:
 		"immobilize": bool(player.get("immobilize", false)),
 	}
 
+# Director feedback 1: force tiles use a 30% centre wash.
+const FORCE_TILE_GLOW_ALPHA: float = 0.30
+
 func _draw_action_ground_markings() -> void:
 	# Tactical diamonds describe the floor, including while the attack resolves.
-	# Keep filled cells and outlines beside preview highlights, beneath trap
+	# Keep soft tile glows beside preview highlights, beneath trap
 	# sprites, loot, paths, Umbra and raised scenery. Light effects have their own
 	# later floor pass; they must not lift tactical diamonds above ground objects.
 	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
@@ -12621,9 +12939,9 @@ func _draw_action_ground_markings() -> void:
 		var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
 		_draw_aoe_resolution_footprint(effect, progress)
 	elif kind == "ranged" and (effect.get("from", Vector2i(-1, -1)) as Vector2i).x >= 0 and (effect.get("to", Vector2i(-1, -1)) as Vector2i).x >= 0:
-		for force_tile: Vector2i in _vector2i_array(effect.get("force_tiles", [])):
+		for force_tile: Vector2i in effect.get("force_tiles", []):
 			if _board_tile_is_visible_to_player(force_tile):
-				_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
+				TileGlow.draw_wash(self, _tile_polygon(force_tile), Color(0.72, 0.95, 1.0), FORCE_TILE_GLOW_ALPHA)
 
 func _draw_aoe_cast_preview(effect: Dictionary, from_point: Vector2, center_point: Vector2) -> void:
 	if not bool(effect.get("preview", false)) or (effect.get("tiles", []) as Array).is_empty():
@@ -12638,11 +12956,9 @@ func _draw_aoe_resolution_footprint(effect: Dictionary, progress: float) -> void
 	if visibility <= 0.0:
 		return
 	var accent: Color = _aoe_effect_accent(effect)
-	var edge_rgb: Color = accent.lightened(0.34)
-	var fill := Color(accent.r, accent.g, accent.b, 0.18 * visibility)
-	var edge := Color(edge_rgb.r, edge_rgb.g, edge_rgb.b, 0.78 * visibility)
-	for tile: Vector2i in _vector2i_array(effect.get("tiles", [])):
-		_draw_aoe_footprint_tile(tile, fill, edge, 2.0)
+	for tile: Vector2i in effect.get("tiles", []):
+		if _board_tile_is_visible_to_player(tile):
+			TileGlow.draw_wash(self, _tile_polygon(tile), accent, 0.18 * visibility)
 
 func _aoe_resolution_footprint_visibility(effect: Dictionary, progress: float) -> float:
 	if bool(presentation.get("reduced_motion", false)):
@@ -12665,7 +12981,6 @@ func _effect_element(effect: Dictionary) -> String:
 	return str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
 
 func _draw_floating_texts() -> void:
-	IntentCallouts.draw(self, presentation.get("intent_callouts", []))
 	var default_font: Font = get_theme_default_font()
 	if default_font == null:
 		return
@@ -12739,13 +13054,20 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 		popups.append({"entry": entry, "font": font, "key": key, "tile": tile, "label_width": label_width, "automatic_anchor": automatic_anchor, "reduced_motion": reduced_motion, "natural_rect": natural_rect})
 	var actor_centers: Array[Vector2]
 	var actor_center_by_tile: Dictionary = {}
+	var actor_body_by_tile: Dictionary = {}
+	var own_bar_by_tile: Dictionary = {}
 	if not popups.is_empty():
 		for unit: Dictionary in _visible_units():
-			var center: Vector2 = _unit_draw_rect(unit).get_center()
+			var body: Rect2 = _unit_draw_rect(unit)
+			var center: Vector2 = body.get_center()
 			actor_centers.append(center)
+			var own_bar: Variant = _hud_health_rects_cache.get(str(unit.get("key", "")))
 			for tile: Vector2i in _unit_footprint_tiles(unit):
 				if not actor_center_by_tile.has(tile):
 					actor_center_by_tile[tile] = center
+					actor_body_by_tile[tile] = body
+					if typeof(own_bar) == TYPE_RECT2:
+						own_bar_by_tile[tile] = (own_bar as Rect2).grow(FLOATING_TEXT_HEALTH_BAR_CLEARANCE)
 	for popup: Dictionary in popups:
 		var entry: Dictionary = popup["entry"]
 		var font: Font = popup["font"] as Font
@@ -12795,13 +13117,26 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 			# Reserve the whole rise/fall, so later hits cannot enter an older
 			# popup's lane as their differently timed arcs converge.
 			envelope = envelope.grow_individual(0.0, FloatingCombatText.ARC_RISE_HEIGHT * motion_scale, 0.0, FloatingCombatText.ARC_END_DROP * motion_scale)
+		# A number starts low enough on its own actor to rise under that actor's
+		# bar. The lane search moves only a short step down, so on a smaller
+		# board it threw the number a label width sideways, off its target.
+		var own_bar_drop: float = 0.0
+		if _floating_text_layout_cache.has(key):
+			own_bar_drop = float((_floating_text_layout_cache[key] as Dictionary).get("own_bar_drop", 0.0))
+		elif bool(popup["automatic_anchor"]) and own_bar_by_tile.has(tile):
+			var peak_glyph_y: float = anchor.y + extra_offset.y + (descent - ascent + absf(shadow.y)) * 0.5 * layout_scale
+			own_bar_drop = _floating_text_own_bar_drop(envelope, own_bar_by_tile[tile] as Rect2, actor_body_by_tile[tile] as Rect2, peak_glyph_y)
+		popup["own_bar_drop"] = own_bar_drop
+		extra_offset.y += own_bar_drop
+		origin.y += own_bar_drop
+		envelope.position.y += own_bar_drop
 		var rendered_rect := Rect2(origin + Vector2((glyph_inset - outline) * font_scale, -(ascent + outline) * font_scale), Vector2((glyph_width + outline * 2.0 + absf(shadow.x)) * font_scale, (ascent + descent + outline * 2.0 + absf(shadow.y)) * font_scale))
 		popup["rendered_rect"] = rendered_rect
 		popup["origin"] = origin
 		popup["font_scale"] = font_scale
 		popup["layout_scale"] = layout_scale
 		popup["envelope"] = envelope
-		if bool(popup["automatic_anchor"]) and FloatingCombatText.is_damage_entry(entry) and actor_center_by_tile.has(tile):
+		if bool(popup["automatic_anchor"]) and (FloatingCombatText.is_damage_entry(entry) or not str(entry.get("unit_anchor_key", "")).is_empty()) and actor_center_by_tile.has(tile):
 			var centers := Rect2(rendered_rect.get_center(), Vector2.ZERO)
 			if not bool(popup["reduced_motion"]):
 				# Bound centers across font settling and the full authored arc, so
@@ -12819,8 +13154,23 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 			continue
 		# Each popup envelope already reserves its complete rise and fall.
 		# Extending health bars down by that rise again displaced hits off-target.
-		obstacles.append((rect_var as Rect2).grow(6.0))
-	return FloatingCombatText.place_screen_popups(popups, Rect2(Vector2(12.0, 16.0), size - Vector2(24.0, 44.0)), _floating_text_layout_cache, obstacles)
+		obstacles.append((rect_var as Rect2).grow(FLOATING_TEXT_HEALTH_BAR_CLEARANCE))
+	var placed: Array[Dictionary] = FloatingCombatText.place_screen_popups(popups, Rect2(Vector2(12.0, 16.0), size - Vector2(24.0, 44.0)), _floating_text_layout_cache, obstacles)
+	# Keep each number's start for its whole life, as its lane is kept.
+	for popup: Dictionary in placed:
+		if _floating_text_layout_cache.has(str(popup["key"])):
+			(_floating_text_layout_cache[str(popup["key"])] as Dictionary)["own_bar_drop"] = float(popup.get("own_bar_drop", 0.0))
+	return placed
+
+# How far a number must start below its own actor's bar to rise under it.
+# Limited so the number's middle stays above the actor's knees; past that the
+# lane search places it as before.
+func _floating_text_own_bar_drop(envelope: Rect2, own_bar: Rect2, body: Rect2, peak_glyph_y: float) -> float:
+	if not envelope.intersects(own_bar) or own_bar.get_center().y >= envelope.get_center().y:
+		return 0.0
+	var needed: float = own_bar.end.y + FloatingCombatText.SCREEN_POPUP_GAP * 0.5 - envelope.position.y
+	var room: float = body.position.y + body.size.y * FLOATING_TEXT_OWN_BAR_BODY_LIMIT - peak_glyph_y
+	return clampf(needed, 0.0, maxf(0.0, room))
 
 func _floating_text_rendered_width(entry: Dictionary, font: Font = null) -> float:
 	var resolved_font: Font = font
@@ -12920,7 +13270,6 @@ func _draw_path_line(line: PackedVector2Array, color: Color, width: float, antia
 		if piece.size()>1: _submit_path_line(piece, color, width, antialiased)
 
 func _draw_path_preview() -> void:
-	WindView.draw_paths(self)
 	if _blink_preview_effect_active():
 		return
 	for path: Array in presentation.get("displacement_paths",[]):
@@ -13020,13 +13369,8 @@ func _path_cache_inputs(path_tiles: Array[Vector2i], color: Color) -> Array:
 func prepare_intent_path_geometry(path: Array[Vector2i]) -> void:
 	# Called once per committed board revision, using plans already queried by
 	# the rest badges. Hover focus then only replays these ordered commands.
-	if path.size() < 2: return
-	var paths: Array = [path]
-	# Tether's existing adapter appends its route to the focused base path.
-	# Prepare that exact composition too, without changing its displayed shape.
-	var tether: Dictionary = TetherView.presentation_for(combat_state, {"path_tiles": path})
-	var combined: Array[Vector2i] = _vector2i_array(tether.get("path_tiles", []))
-	if combined != path and combined.size() >= 2: paths.append(combined)
+	var paths: Array = []
+	if path.size() >= 2: paths.append(path)
 	for source: Array in paths:
 		var prepared: Array[Vector2i] = _vector2i_array(source)
 		var clips: Array = []
@@ -14039,6 +14383,9 @@ func _draw_unit_focus(unit: Dictionary, center: Vector2) -> void:
 func _effective_unit_tile(unit: Dictionary) -> Vector2i:
 	var actor_key: String = str(unit.get("key", ""))
 	if not actor_key.is_empty():
+		var depth = preload("res://scripts/maquette_cutout_runtime/board_depth.gd")
+		if depth.moving(str(unit.get("type", "")), actor_key, presentation):
+			return depth.tile(self, unit, presentation)
 		var overrides: Dictionary = presentation.get("unit_draw_tiles", {})
 		if overrides.has(actor_key):
 			return overrides[actor_key]
@@ -14301,6 +14648,8 @@ func _tile_has_moss(surface: String, tile: Vector2i) -> bool:
 	var surface_lookup: Dictionary = _moss_tiles_by_surface.get(surface, {})
 	if not surface_lookup.has(tile):
 		return false
+	if not AIR_DECORATIVE_GUSTS_ENABLED and _element_overlay_family_id(surface) == ElementData.AIR:
+		return false
 	if surface != "floor" or _element_overlay_family_id() == ElementData.EARTH:
 		return true
 	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
@@ -14503,6 +14852,7 @@ func _load_board_style_assets() -> void:
 	_health_bar_frame_textures = {
 		HEALTH_BAR_STYLE_LIGHT: AssetLoader.load_texture(PLAYER_HEALTH_FRAME_PATH),
 		HEALTH_BAR_STYLE_UMBRA: AssetLoader.load_texture(ENEMY_HEALTH_FRAME_PATH),
+		HEALTH_BAR_STYLE_PROP: AssetLoader.load_texture(TERRAIN_HEALTH_FRAME_PATH),
 	}
 
 func _load_base_floor_assets() -> void:
@@ -14633,6 +14983,7 @@ func _load_door_icon_asset(icon: String) -> void:
 
 func _load_keyword_icon_asset(icon: String) -> void:
 	_keyword_icon_textures[icon] = ActionIcons.icon_texture(icon)
+	StatusPlates.prewarm_icon(icon, _keyword_icon_textures[icon])
 
 func _load_base_unit_assets() -> void:
 	_unit_textures.clear()
@@ -14643,6 +14994,7 @@ func _load_base_unit_assets() -> void:
 	_unit_shadow_bottom_ratio_cache.clear()
 	_unit_shadow_draw_geometry_cache.clear()
 	_unit_shadow_draw_mesh_cache.clear()
+	_unit_ground_contact.meshes.clear()
 	_unit_shadow_prewarm_urgent_queue.clear()
 	_unit_shadow_prewarm_background_queue.clear()
 	_unit_shadow_prewarm_queued_ids.clear()
@@ -14672,8 +15024,8 @@ func unit_rig_preparation_manifest(state: Dictionary) -> Dictionary:
 	# these immutable path strings cross into the private CPU preparation worker.
 	var families: Dictionary = {
 		"crawler": CrawlerCutout, "acolyte": AcolyteCutout, "warden": WardenCutout,
-		"chainbound_gaoler": GaolerCutout, "cinder_droplet": CinderDropletCutout,
-		"cinder_ooze": CinderOozeCutout, "frostglass_lancer": FrostglassCutout,
+		"cinder_droplet": CinderDropletCutout,
+		"cinder_ooze": CinderOozeCutout,
 		"grave_surgeon": GraveSurgeonCutout, "harrier": HarrierCutout,
 		"bile_bloomer": ShaleMaquette, "lightning_wisp": WispMaquette,
 		"iskaldra": IskaldraCutout, "noctyrax": NoctyraxCutout, "tharokh": TharokhCutout,
@@ -14707,7 +15059,7 @@ func begin_unit_renderer_preparation(state: Dictionary) -> Array[Dictionary]:
 	var jobs: Array[Dictionary]
 	for unit: Dictionary in state.get("enemies", []):
 		var type: String = str(unit.get("type", ""))
-		if type not in ["crawler", "harrier", "frostglass_lancer"] or int(unit.get("hp", 0)) <= 0: continue
+		if (type not in ["crawler", "harrier"] and not MaquettePresentation.handles(type)) or int(unit.get("hp", 0)) <= 0: continue
 		var key: String = "%s:%d" % [type, int(unit.get("id", -1))]
 		desired[key] = true
 		jobs.append({"key": key, "type": type, "id": int(unit.get("id", -1)), "motion": EnemyCutoutFacing.with_idle_direction({}, unit.get("pos", Vector2i.ZERO), (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))})
@@ -14727,8 +15079,10 @@ func prepare_unit_renderer(job: Dictionary, reduced_motion: bool) -> void:
 		match str(job["type"]):
 			"crawler": script = CrawlerCutout; prefix = "CrawlerCutout"
 			"harrier": script = HarrierCutout; prefix = "HarrierCutout"
-			"frostglass_lancer": script = FrostglassCutout; prefix = "FrostglassCutout"
-			_: return
+			_:
+				if not MaquettePresentation.handles(str(job["type"])): return
+				script = MaquettePresentation.renderer_script(str(job["type"]))
+				prefix = "MaquetteCutout"
 		renderer = script.new()
 		renderer.name = "%s_%d" % [prefix, int(job["id"])]
 		add_child(renderer)
@@ -14743,6 +15097,10 @@ func _take_prepared_unit_renderer(type: String, unit_id: int, script: Script) ->
 	var renderer: Node = _prepared_unit_renderers.get(key) as Node
 	_prepared_unit_renderers.erase(key)
 	if is_instance_valid(renderer) and not renderer.is_queued_for_deletion() and renderer.get_parent() == self and renderer.get_script() == script:
+		if renderer.has_method("reset_prepared_state"):
+			renderer.reset_prepared_state()
+			renderer.set_process(true)
+			return renderer
 		# Adoption starts with the same state and neutral front pose as new().
 		# Reaction-first callers preserve that pose rather than the warm facing.
 		renderer.set("facing", "front")
@@ -14871,10 +15229,6 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(AcolyteCutout.REST_PATH)
 		_queue_unit_shadow_source_data(unit_type)
 		return
-	if unit_type == "chainbound_gaoler":
-		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(GaolerCutout.REST_PATH)
-		_queue_unit_shadow_source_data(unit_type)
-		return
 	if unit_type == "gust_shrike" and GustShrikeCutout.available():
 		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(GustShrikeCutout.REST_PATH)
 		_queue_unit_shadow_source_data(unit_type)
@@ -14885,10 +15239,6 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 		return
 	if unit_type == "cinder_ooze":
 		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(CinderOozeCutout.REST_PATH)
-		_queue_unit_shadow_source_data(unit_type)
-		return
-	if unit_type == "frostglass_lancer":
-		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(FrostglassCutout.REST_PATH)
 		_queue_unit_shadow_source_data(unit_type)
 		return
 	if unit_type == "grave_surgeon":
@@ -15168,6 +15518,8 @@ func _door_opening_frame_canvas_size() -> Vector2i:
 	return canvas_size
 
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
+	# Only preview echoes (the battlefield rule's shade ghosts) may carry their own texture.
+	if unit.has("ghost_texture") and _unit_is_preview_echo(unit): return unit["ghost_texture"] as Texture2D
 	var zekarion: Node = _zekarion_renderer_for_unit(unit)
 	if is_instance_valid(zekarion):
 		return zekarion.call("texture") as Texture2D
@@ -15535,7 +15887,7 @@ func _unit_draw_rect_for_center(unit: Dictionary, center: Vector2) -> Rect2:
 		rect.position = center - source_anchor * rect.size / 255.0
 	return rect
 
-func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: float = 1.0) -> Rect2:
+func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: float = 1.0, align_pixels: bool = true) -> Rect2:
 	# Root-travel rigs submit their texture at the segment origin while keeping
 	# the actor center on the visible body for shadows, HP and HUD geometry.
 	var origins: Dictionary = presentation.get("unit_texture_origins", {})
@@ -15547,9 +15899,13 @@ func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: floa
 		rect = _death_animation_render_rect(unit, rect)
 	if not is_equal_approx(body_scale, 1.0):
 		rect = _scaled_unit_rect(rect, body_scale)
-	if is_instance_valid(unit_cutout_renderer(unit)):
-		return Rect2(rect.position - rect.size * ProtagonistCutout.SOURCE_OFFSET / ProtagonistCutout.SOURCE_SIZE,
-			rect.size * Vector2(ProtagonistCutout.CANVAS_SIZE) / ProtagonistCutout.SOURCE_SIZE)
+	var canvas_renderer: Node = unit_cutout_renderer(unit)
+	if is_instance_valid(canvas_renderer):
+		var geometry: Dictionary = canvas_renderer.canvas_geometry() if not canvas_renderer.has_method("borrow_canvas_geometry") and canvas_renderer.has_method("canvas_geometry") else (canvas_renderer.borrow_canvas_geometry() if canvas_renderer.has_method("borrow_canvas_geometry") else {"offset": ProtagonistCutout.SOURCE_OFFSET, "size": ProtagonistCutout.CANVAS_SIZE})
+		rect = Rect2(rect.position - rect.size * (geometry["offset"] as Vector2) / ProtagonistCutout.SOURCE_SIZE,
+			rect.size * Vector2(geometry["size"]) / ProtagonistCutout.SOURCE_SIZE)
+	if align_pixels and MaquettePresentation.handles(str(unit.get("type", ""))):
+		rect = preload("res://scripts/maquette_cutout_runtime/pixel_presentation.gd").board_rect(rect)
 	return rect
 
 func _unit_draw_rect_for_texture(unit: Dictionary, center: Vector2, texture: Texture2D) -> Rect2:
@@ -15567,11 +15923,22 @@ func _unit_draw_rect_for_texture(unit: Dictionary, center: Vector2, texture: Tex
 	return draw_rect
 
 func _unit_center(unit: Dictionary) -> Vector2:
+	if not _board_layout_cache_valid or _board_layout_cache_size != size:
+		_ensure_board_layout_cache()
 	var unit_key: String = str(unit.get("key", ""))
+	var cached: Vector4 = _maquette_pixel_centers_cache.get(unit_key, Vector4.INF)
+	var tile: Vector2i = unit.get("pos", Vector2i.ZERO)
+	if cached.z == tile.x and cached.w == tile.y:
+		return Vector2(cached.x, cached.y)
 	var overrides: Dictionary = presentation.get("unit_world_positions", {})
-	if overrides.has(unit_key):
-		return overrides[unit_key]
-	return world_position_for_unit_origin(unit, unit.get("pos", Vector2i.ZERO))
+	var center: Vector2 = overrides[unit_key] if overrides.has(unit_key) else world_position_for_unit_origin(unit, unit.get("pos", Vector2i.ZERO))
+	if MaquettePresentation.handles(str(unit.get("type", ""))):
+		center = preload("res://scripts/maquette_cutout_runtime/pixel_presentation.gd").board_center(self, unit, center)
+		if not unit_key.is_empty(): _maquette_pixel_centers_cache[unit_key] = Vector4(center.x, center.y, tile.x, tile.y)
+	return center
+
+func _invalidate_maquette_pixel_centers() -> void:
+	_maquette_pixel_centers_cache.clear()
 
 func _fitted_unit_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:
 	return _fitted_draw_rect(texture, frame_rect)
@@ -15694,15 +16061,10 @@ func rendered_visual_rects(include_unit_hud: bool = true, include_units: bool = 
 	_ensure_board_layout_cache()
 	var rects: Array[Rect2] = []
 	var grid: Array = combat_state.get("grid", [])
-	for tile: Vector2i in _board_layout_cache_tiles:
-		var polygon: PackedVector2Array = _tile_polygon(tile)
-		if not polygon.is_empty():
-			var tile_bounds := Rect2(polygon[0], Vector2.ZERO)
-			for point: Vector2 in polygon:
-				tile_bounds = tile_bounds.expand(point)
-			rects.append(tile_bounds)
-		if tile.y < 0 or tile.y >= grid.size() or tile.x < 0 or tile.x >= (grid[tile.y] as Array).size():
-			continue
+	var fixed_rects: Dictionary = _fixed_visual_rects.resolve(self)
+	for tile: Vector2i in fixed_rects:
+		rects.append_array(fixed_rects[tile])
+		if not _tile_in_grid(grid, tile) or str(grid[tile.y][tile.x]) != "door": continue
 		var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
 		if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
 			tile_id = "pillar"
@@ -15996,13 +16358,14 @@ func _tile_at_point(point: Vector2) -> Vector2i:
 	return Vector2i(-1, -1)
 
 func _draw_unit_shadow(unit: Dictionary) -> void:
-	if str(unit.get("role", "")) == "illusion" or _unit_is_preview_echo(unit):
+	if bool(unit.get("burrowed", false)) or str(unit.get("role", "")) == "illusion" or _unit_is_preview_echo(unit):
 		return
 	var detailed_sections: bool = _unit_shadow_detailed_instrumentation_enabled()
 	var phase_started_usec: int = Time.get_ticks_usec() if detailed_sections else 0
 	var shadow_alpha_scale: float = _unit_shadow_alpha_scale(unit)
 	if shadow_alpha_scale <= 0.02:
 		return
+	_draw_unit_ground_contact(unit, shadow_alpha_scale)
 	var texture: Texture2D = _unit_hud_anchor_texture(unit) if _unit_uses_cutout(unit) else _texture_for_unit(unit)
 	if detailed_sections:
 		_record_render_section_time("unit_shadow_texture", phase_started_usec)
@@ -16043,6 +16406,24 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 	draw_mesh(shadow_mesh, null, Transform2D(0.0, shadow_origin), Color(1.0, 1.0, 1.0, shadow_alpha_scale))
 	if detailed_sections:
 		_record_render_section_time("unit_shadow_submit", phase_started_usec)
+
+func _draw_unit_ground_contact(unit: Dictionary, alpha_scale: float) -> void:
+	var unit_type: String = str(unit.get("type", ""))
+	if not ActorPresentation.GROUND_CONTACT.has(unit_type): return
+	var renderer: Node = unit_cutout_renderer(unit)
+	var facing: String = str(renderer.get("facing")) if is_instance_valid(renderer) else "front"
+	var mirrored: bool = bool(renderer.get("mirrored")) if is_instance_valid(renderer) else false
+	var center: Vector2 = _unit_center(unit)
+	var rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	var mesh: ArrayMesh = _unit_ground_contact.mesh_for(unit_type, facing, rect.size)
+	if mesh == null: return
+	# The rig fades its whole body for burrow and erupt; the contact fades with it.
+	var rigs: Variant = renderer.get("rigs") if is_instance_valid(renderer) else null
+	var rig: Variant = (rigs as Dictionary).get(facing) if rigs is Dictionary else null
+	var body_alpha: float = (rig.bones["root"] as CanvasItem).modulate.a if rig != null and rig.bones.has("root") else 1.0
+	if body_alpha <= 0.001: return
+	_submitted_shadow_meshes.append(mesh)
+	draw_mesh(mesh, null, _unit_ground_contact.root_transform(center, mirrored), Color(1, 1, 1, alpha_scale * body_alpha))
 
 func _unit_shadow_detailed_instrumentation_enabled() -> bool:
 	return (
@@ -16453,7 +16834,10 @@ func _draw_iso_ground_shadow(center: Vector2, width: float, height: float, skew:
 		var angle: float = TAU * float(step) / float(SHADOW_POINT_COUNT)
 		var unit_y: float = sin(angle)
 		points.append(center + Vector2(cos(angle) * width * 0.5 + unit_y * skew, unit_y * height * 0.5))
-	draw_colored_polygon(points, Color(SHADOW_COLOR.r, SHADOW_COLOR.g, SHADOW_COLOR.b, alpha))
+	if _prop_command_cache.recording:
+		_prop_command_cache.commands.append(["colored_polygon", points, Color(SHADOW_COLOR.r, SHADOW_COLOR.g, SHADOW_COLOR.b, alpha)])
+	else:
+		draw_colored_polygon(points, Color(SHADOW_COLOR.r, SHADOW_COLOR.g, SHADOW_COLOR.b, alpha))
 
 func _vector2i_array(values: Array) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
@@ -16545,6 +16929,7 @@ func _board_layout_extents_for_tiles(tiles: Array[Vector2i]) -> Dictionary:
 	}
 
 func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visual_top_offset: bool = false, preserve_shadow_geometry: bool = false) -> void:
+	_invalidate_maquette_pixel_centers()
 	var retained_visual_top_offset: float = _board_layout_cache_visual_top_offset if preserve_visual_top_offset else 0.0
 	_board_layout_cache_valid = false
 	_board_layout_cache_visual_top_offset = retained_visual_top_offset
@@ -16556,6 +16941,7 @@ func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visua
 	if not preserve_shadow_geometry and (content_changed or not preserve_visual_top_offset):
 		_unit_shadow_draw_geometry_cache.clear()
 		_unit_shadow_draw_mesh_cache.clear()
+		_unit_ground_contact.meshes.clear()
 	_invalidate_layout_render_semantics()
 	if content_changed:
 		_board_layout_content_cache_valid = false
@@ -16581,6 +16967,7 @@ func _resolved_board_geometry_inputs() -> Dictionary:
 
 func _copy_resolved_board_layout_to(layer: Control) -> void:
 	_ensure_board_layout_cache()
+	layer.set("_maquette_pixel_centers_cache", _maquette_pixel_centers_cache)
 	for field: String in [
 		"_room_framing", "_board_layout_cache_valid", "_board_layout_content_cache_valid",
 		"_board_layout_cache_tiles", "_board_layout_cache_extents",
@@ -16629,6 +17016,7 @@ func _ensure_board_layout_cache() -> void:
 	_populate_board_layout_cache(tiles, tile_width, _board_origin_for_extents(extents, tile_width, tiles))
 
 func _populate_board_layout_cache(tiles: Array[Vector2i], tile_width: float, origin: Vector2) -> void:
+	_invalidate_maquette_pixel_centers()
 	_board_layout_cache_size = size
 	_board_layout_cache_tile_width = tile_width
 	_board_layout_cache_origin = origin
@@ -16658,23 +17046,39 @@ func _prop_size() -> Vector2:
 	var tile_width: float = _tile_width()
 	return Vector2(tile_width * 0.92, tile_width * 1.14)
 
+func _has_burst_trait_rows(rows: Array) -> bool:
+	return rows.size() >= 2 and not (rows[0] as Array).is_empty() and str(rows[0][0].get("icon", "")) == "burst" and str(rows[0][0].get("value", "")).begins_with("Bursts ")
+
 func _intent_rows(intent: Dictionary) -> Array:
 	return _intent_rows_for_unit({}, intent)
 
 func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
+	var result: Array = []
+	var burst_trait: Dictionary = DeathBurstView.trait_token(unit)
+	if not burst_trait.is_empty():
+		result.append([burst_trait])
+		for line: String in BurstTraitText.lines(str(burst_trait["tooltip"]), UiTypography.ui_font(), INTENT_POPUP_ROW_FONT_SIZE):
+			var token: Dictionary = ActionIcons.text_token(line)
+			token["burst_rules"] = true
+			result.append([token])
+	result.append_array(_move_rows_for_unit(unit, intent))
+	return result
+
+func _move_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	var refraction_rows: Array = ReflectView.intent_rows(intent)
 	if not refraction_rows.is_empty(): return refraction_rows
-	var cancelled: Array = TetherView.cancelled_rows(self, unit, intent)
-	if not cancelled.is_empty(): return cancelled
-	var mechanic_rows: Array = CapacitorView.rows(intent, combat_state, unit) + MimicView.rows(self, unit, intent) + BurrowView.rows(intent) + KindleView.rows(intent) + LobView.rows(self, unit, intent)
+	var mechanic_rows: Array = CapacitorView.rows(intent, combat_state, unit) + BurrowView.rows(intent) + KindleView.rows(intent) + LobView.rows(self, unit, intent)
 	if not mechanic_rows.is_empty(): return mechanic_rows
 	var rows: Array = []
-	for action_var: Variant in intent.get("actions", []):
-		var action: Dictionary = action_var
+	var actions: Array = intent.get("actions", [])
+	for action_index: int in range(actions.size()):
+		var action: Dictionary = actions[action_index]
 		if action.has("range_status"):
 			action = action.duplicate(false)
 			action["range"] = mini(int(action.get("maximum_range",99)),int(action.get("range",1))+int(unit.get(str(action["range_status"]),0)))
-		var row: Array = ActionIcons.tokens_for_action(action)
+		var summon_options: Dictionary = preload("res://scripts/summon_card_play_rules.gd").forecast_options(_summon_forecast_engine, combat_state, unit, action, action_index) if str(action.get("type", "")) == "summon_minions" else {}
+		summon_options["actor_kind"] = "enemy"
+		var row: Array = ActionIcons.tokens_for_action(action, summon_options)
 		var support_token: Dictionary = _support_target_token_for_action(unit, action)
 		if not support_token.is_empty():
 			row.append(support_token)
@@ -16861,17 +17265,18 @@ func _short_enemy_name(enemy: Dictionary) -> String:
 func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	var badges: Array[Dictionary] = WindView.status_badges(unit)
 	badges.append_array(ReflectView.badges(unit))
-	badges.append_array(DiveView.badges(unit))
+	badges.append_array(FlyingView.badges(unit))
 	badges.append_array(CapacitorView.badges(unit, combat_state))
-	badges.append_array(VeilView.badges(unit))
 	badges.append_array(BurrowView.badges(unit))
 	badges.append_array(DeathBurstView.badges(unit))
+	for mechanic_badge: Dictionary in badges: mechanic_badge["status_class"] = "trait"
+	badges.append_array(RetaliateRules.enemy_badges(unit))
 	var truesight_activations: int = int(presentation.get("umbra_truesight_activations", 0))
 	var conditional_truesight: bool = bool(presentation.get("umbra_truesight_conditional", false))
 	if str(unit.get("role", "")) == "player" and (truesight_activations != 0 or conditional_truesight):
 		var duration_text: String = "Active while standing in Light." if conditional_truesight else "Lasts for this combat." if truesight_activations < 0 else "%d player turn%s remaining." % [truesight_activations, "" if truesight_activations == 1 else "s"]
 		badges.append({
-			"icon": "truesight",
+			"status_class": "buff", "icon": "truesight",
 			"count_text": "" if conditional_truesight else "∞" if truesight_activations < 0 else str(truesight_activations),
 			"fill": Color("3c285f"),
 			"border": Color("8eefff"),
@@ -16880,7 +17285,7 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 		})
 	if int(unit.get("bleed", 0)) > 0:
 		badges.append({
-			"icon": "bleed",
+			"status_class": "vulnerable", "icon": "bleed",
 			"count": int(unit.get("bleed", 0)),
 			"fill": STATUS_BLEED,
 			"border": STATUS_BLEED.lightened(0.22),
@@ -16888,23 +17293,23 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 		})
 	if int(unit.get("expose", 0)) > 0:
 		badges.append({
-			"icon": "expose",
+			"status_class": "vulnerable", "icon": "expose",
 			"count": int(unit.get("expose", 0)),
 			"fill": STATUS_EXPOSE,
 			"border": STATUS_EXPOSE.lightened(0.18)
 		})
 	if bool(unit.get("chilled", false)) and int(unit.get("freeze", 0)) <= 0:
-		badges.append({"icon": "chilled", "count": 0, "fill": Color("30586c"), "border": Color("a0e6ef"), "icon_tint": Color.WHITE})
+		badges.append({"status_class": "vulnerable", "status_word": "Chilled", "icon": "chilled", "count": 0, "fill": Color("30586c"), "border": Color("a0e6ef"), "icon_tint": Color.WHITE})
 	if int(unit.get("freeze", 0)) > 0:
 		badges.append({
-			"icon": "freeze",
+			"status_class": "control", "status_word": "Frozen", "icon": "freeze",
 			"count": 0,
 			"fill": STATUS_FREEZE,
 			"border": STATUS_FREEZE.lightened(0.20)
 		})
 	if int(unit.get("frost_armor", 0)) > 0:
 		badges.append({
-			"icon": "frost_armor",
+			"status_class": "buff", "icon": "frost_armor",
 			"count": int(unit.get("frost_armor", 0)),
 			"fill": Color("274864"),
 			"border": Color("b9f3ff"),
@@ -16913,40 +17318,47 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 		})
 	if int(unit.get("petrify", 0)) > 0:
 		badges.append({
-			"icon": "petrify",
+			"status_class": "control", "status_word": "Petrified", "icon": "petrify",
 			"count": 0,
 			"fill": Color("4b4639"),
 			"border": Color("d8cfb4"),
 			"icon_tint": Color.WHITE,
-			"tooltip": "Petrified\nSkips its next turn; the skipped turn still costs its Time. Its Petrify Block lasts through your next turn."
+			"tooltip": ManeuverRules.petrified_tooltip()
 		})
 	if int(unit.get("shock", 0)) > 0:
 		badges.append({
-			"icon": "shock",
+			"status_class": "control", "status_word": "Shocked", "icon": "shock",
 			"count": 0,
 			"fill": STATUS_SHOCK,
 			"border": STATUS_SHOCK.lightened(0.18)
 		})
 	if bool(unit.get("immobilize", false)):
 		badges.append({
-			"icon": "immobilize",
+			"status_class": "control", "status_word": "Immobilized", "icon": "immobilize",
 			"count": 0,
 			"fill": STATUS_IMMOBILIZE,
 			"border": STATUS_IMMOBILIZE.lightened(0.20)
 		})
 	for keyword_badge_var: Variant in unit.get("keyword_badges", []):
 		if typeof(keyword_badge_var) == TYPE_DICTIONARY:
-			badges.append(keyword_badge_var as Dictionary)
+			var keyword: Dictionary = (keyword_badge_var as Dictionary).duplicate()
+			keyword["status_class"] = "buff"
+			keyword["status_word"] = ""
+			badges.append(keyword)
 	var predicted: Dictionary = (presentation.get("surface_status_preview", {}) as Dictionary).get(str(unit.get("key", "")), {}) as Dictionary
 	if not predicted.is_empty():
 		var frozen: bool = int(predicted.get("freeze", 0)) > 0
 		var chilled: bool = bool(predicted.get("chilled", false))
 		if frozen or chilled:
-			badges.append({"icon": "freeze" if frozen else "chilled", "count_text": "→", "fill": Color("152d41"), "border": Color("f4e2ab"), "icon_tint": Color.WHITE, "tooltip": "After this action: %s" % ("Frozen" if frozen else "Chilled")})
+			badges.append({"status_class": "control" if frozen else "vulnerable", "status_word": "Frozen" if frozen else "Chilled", "icon": "freeze" if frozen else "chilled", "count_text": "→", "predicted": true, "fill": Color("152d41"), "border": Color("f4e2ab"), "icon_tint": Color.WHITE, "tooltip": "After this action: %s" % ("Frozen" if frozen else "Chilled")})
 		if int(predicted.get("shock", 0)) > int(unit.get("shock", 0)):
-			badges.append({"icon": "shock", "count_text": "→", "fill": STATUS_SHOCK, "border": STATUS_SHOCK.lightened(0.18), "icon_tint": Color.WHITE, "tooltip": "After this action: Shocked"})
+			badges.append({"status_class": "control", "status_word": "Shocked", "icon": "shock", "count_text": "→", "predicted": true, "fill": STATUS_SHOCK, "border": STATUS_SHOCK.lightened(0.18), "icon_tint": Color.WHITE, "tooltip": "After this action: Shocked"})
 
 	return badges
+
+func _unit_status_presentation_badges(unit: Dictionary) -> Array[Dictionary]:
+	# Keep the source badge API (counts/tooltips, no formatted labels) intact.
+	return StatusPlates.ordered_badges(_unit_status_badges(unit))
 
 ## Retaliate (incl. Rite thorns), pending Quicken and next-attack buffs.
 func _player_keyword_badges() -> Array[Dictionary]:
@@ -16964,40 +17376,6 @@ func _player_display_statuses(player: Dictionary, restrictions: Dictionary) -> D
 		"shock": maxi(int(player.get("shock", 0)), 1 if bool(restrictions.get("shocked", false)) else 0),
 		"immobilize": bool(player.get("immobilize", false)) or bool(restrictions.get("immobilized", false))
 	}
-
-func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
-	var radius: float = 10.0
-	draw_circle(center, radius, badge.get("fill", Color("888888")))
-	draw_arc(center, radius, 0.0, TAU, 18, badge.get("border", Color.WHITE), 1.6)
-	var icon_key: String = str(badge.get("icon", ""))
-	var badge_rect := Rect2(center - Vector2(radius, radius), Vector2(radius * 2.0, radius * 2.0))
-	var icon_tint: Color = badge.get("icon_tint", Color("1f1812"))
-	var tooltip: String = str(badge.get("tooltip", ActionIcons.tooltip(icon_key)))
-	# Painted full-colour keyword icons (white tint) fill the badge so their
-	# shapes read at board size; tinted silhouettes keep the inset glyph size.
-	var icon_side: float = 18.0 if icon_tint.is_equal_approx(Color.WHITE) else 13.0
-	_draw_keyword_icon(icon_key, Rect2(center - Vector2.ONE * icon_side * 0.5, Vector2.ONE * icon_side), tooltip, icon_tint)
-	var count: int = int(badge.get("count", 0))
-	var count_text: String = str(badge.get("count_text", ""))
-	if count_text.is_empty() and count > 0:
-		count_text = str(count)
-	if count_text.is_empty():
-		_register_tooltip(badge_rect, tooltip)
-		return
-	var chip_rect := Rect2(center + Vector2(5.0, 3.0), Vector2(12.0, 12.0))
-	badge_rect = badge_rect.merge(chip_rect)
-	draw_rect(chip_rect, Color(0.09, 0.07, 0.05, 0.96), true)
-	draw_rect(chip_rect, badge.get("border", Color.WHITE), false, 1.0)
-	draw_string(
-		font,
-		chip_rect.position + Vector2(0.0, 9.0),
-		count_text,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		chip_rect.size.x,
-		9,
-		Color("fff4dc")
-	)
-	_register_tooltip(badge_rect, tooltip)
 
 var _cursor_shape_update_queued: bool = false
 
@@ -17049,7 +17427,7 @@ func _draw_trap_marker(trap: Dictionary) -> void:
 	if trap_texture != null:
 		var trap_rect: Rect2 = _trap_visual_draw_rect(trap)
 		draw_texture_rect(trap_texture, trap_rect, false, _trap_visual_modulate(trap))
-		_register_tooltip(trap_rect.grow(4.0), _trap_tooltip_text(trap))
+		_register_tile_tooltip(trap_rect.grow(4.0), _trap_tooltip_text(trap), tile)
 
 func _trap_visual_draw_rect(trap: Dictionary) -> Rect2:
 	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
@@ -17087,13 +17465,7 @@ New ground has no immediate occupant effect." % [ElementData.name(element), dama
 
 
 func _surface_tooltip_for_tile(tile: Vector2i) -> String:
-	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
-		return ""
-	var text: String = BoardSurfacePresentation.tooltip(combat_state, tile)
-	for trap_var: Variant in combat_state.get("traps", []):
-		if typeof(trap_var) == TYPE_DICTIONARY and (trap_var as Dictionary).get("pos", Vector2i(-1, -1)) == tile:
-			text += ("\n\n" if not text.is_empty() else "") + _trap_tooltip_text(trap_var as Dictionary)
-	return text
+	return _tile_tooltip_cache.encoded_for_tile(self, tile)
 
 func _draw_board_surface(tile: Vector2i) -> void:
 	var visible_tile: bool = _board_tile_is_visible_to_player(tile)
@@ -17103,10 +17475,25 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	var feedback_frame: Dictionary = (presentation.get("combat_feel_surface_frames", EMPTY_FEEL_FRAME) as Dictionary).get(tile, EMPTY_FEEL_FRAME)
 	var feedback_events: Array = feedback_frame.get("events",presentation.get("surface_feedback_events", [])) as Array
 	var feedback_progress: float = float(feedback_frame.get("progress",presentation.get("surface_feedback_progress", 0.0)))
+	var element: String = BoardSurfaceRules.element_at(combat_state, tile)
+	var ice_leaving: float = 0.0 if element == "ice" else BoardSurfacePresentation.leaving_alpha(tile, "ice", feedback_events, feedback_progress)
+	var split_rubble: bool = element == "ice" or ice_leaving > 0.0
 	if retained_rubble:
 		var has_rubble: bool = BoardSurfaceRules.has_rubble(combat_state, tile)
 		var rubble_leaving: float = 0.0 if has_rubble else BoardSurfacePresentation.leaving_alpha(tile, "rubble", feedback_events, feedback_progress)
 		var show_rubble: bool = visible_tile and (has_rubble or rubble_leaving > 0.0)
+		if show_rubble and split_rubble and _surface_rubble_floor_layer == null:
+			_surface_rubble_floor_layer = BoardSurfaceRubbleLayer.new()
+			_surface_rubble_floor_layer.name = "SurfaceRubbleFloor"
+			_surface_rubble_floor_layer.floor_only = true
+			_surface_rubble_floor_layer.show_behind_parent = true
+			add_child(_surface_rubble_floor_layer)
+		if _surface_rubble_floor_layer != null:
+			_surface_rubble_floor_layer.visible = show_rubble and split_rubble
+			if _surface_rubble_floor_layer.visible:
+				_surface_rubble_floor_layer.modulate.a = 1.0 if has_rubble else rubble_leaving
+				_surface_rubble_floor_layer.configure(_tile_center(tile), _tile_width(), tile.x * 101 + tile.y * 307)
+				move_child(_surface_rubble_floor_layer, 0)
 		if show_rubble and _surface_rubble_layer == null:
 			_surface_rubble_layer = BoardSurfaceRubbleLayer.new()
 			_surface_rubble_layer.name = "SurfaceRubble"
@@ -17116,9 +17503,10 @@ func _draw_board_surface(tile: Vector2i) -> void:
 			_surface_rubble_layer.visible = show_rubble
 			if show_rubble:
 				_surface_rubble_layer.modulate.a = 1.0 if has_rubble else rubble_leaving
-				_surface_rubble_layer.configure(_tile_center(tile), _tile_width(), tile.x * 101 + tile.y * 307)
-	elif _surface_rubble_layer != null:
-		_surface_rubble_layer.visible = false
+				_surface_rubble_layer.configure(_tile_center(tile), _tile_width(), tile.x * 101 + tile.y * 307, split_rubble)
+	else:
+		if _surface_rubble_layer != null: _surface_rubble_layer.visible = false
+		if _surface_rubble_floor_layer != null: _surface_rubble_floor_layer.visible = false
 	if not visible_tile:
 		_release_surface_feedback_layers()
 		if _surface_ice_layer != null: _surface_ice_layer.visible = false
@@ -17127,8 +17515,6 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		return
 	var time: float = float(presentation.get("ambient_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
 	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
-	var element: String = BoardSurfaceRules.element_at(combat_state, tile)
-	var ice_leaving: float = 0.0 if element == "ice" else BoardSurfacePresentation.leaving_alpha(tile, "ice", feedback_events, feedback_progress)
 	var retained_ice: bool = retained_rubble and (element == "ice" or ice_leaving > 0.0)
 	if retained_ice and _surface_ice_layer == null:
 		_surface_ice_layer = BoardSurfaceIceLayer.new()
@@ -17144,6 +17530,10 @@ func _draw_board_surface(tile: Vector2i) -> void:
 			_surface_ice_layer.configure(_tile_center(tile), _tile_width(), seed, phase)
 			# Rubble may be added after this Ice child already exists.
 			move_child(_surface_ice_layer, get_child_count() - 1)
+	# Chunks sit after both Ice plates and shimmer, including leaving Ice.
+	# Reordering retained children changes no draw commands or redraw cadence.
+	if retained_rubble and _surface_rubble_layer != null:
+		move_child(_surface_rubble_layer, get_child_count() - 1)
 	var fire_leaving: float = 0.0 if element == "fire" else BoardSurfacePresentation.leaving_alpha(tile, "fire", feedback_events, feedback_progress)
 	var retained_fire: bool = retained_rubble and (element == "fire" or fire_leaving > 0.0)
 	if retained_fire and _surface_fire_layer == null:
@@ -17373,3 +17763,12 @@ func _snare_sealbinder_tooltip_at_position(point: Vector2) -> String:
 		if unit["pos"] == tile or _enemy_hud_actor_clear_rect(unit, _unit_center(unit)).has_point(point):
 			return SnareRules.seal_tooltip(combat_state["objective"], unit)
 	return ""
+
+func _release_room_surface_layers() -> void:
+	for field: String in ["_surface_rubble_floor_layer", "_surface_rubble_layer", "_surface_ice_layer", "_surface_fire_layer", "_surface_electric_layer"]:
+		var layer: Node2D = get(field) as Node2D
+		if is_instance_valid(layer):
+			layer.visible = false
+			layer.queue_free()
+		set(field, null)
+	_release_surface_feedback_layers()

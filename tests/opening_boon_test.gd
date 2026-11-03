@@ -1,6 +1,7 @@
 extends "res://tests/pre_battle_fixture.gd"
 
 const Boons = preload("res://scripts/opening_boon_rules.gd")
+const HeirloomFixture = preload("res://tests/helpers/heirloom_fixture.gd")
 const Fixture = preload("res://tests/helpers/opening_boon_fixture.gd")
 const Suite = preload("res://tests/suites/opening_boon_suite.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
@@ -66,6 +67,7 @@ func _run() -> void:
 	for event: Dictionary in Analytics.load_all_events():
 		counts[event["event_type"]] = int(counts.get(event["event_type"], 0)) + 1
 	_expect(int(counts.get("run_start_boon_offered", 0)) == 1 and int(counts.get("run_start_boon_chosen", 0)) == 1 and int(counts.get("heirloom_left", 0)) == 1, "Live save boundaries append each additive event exactly once")
+	await preload("res://tests/helpers/heirloom_checks.gd").run(self, scene, _expect)
 	await _purge_selection(scene)
 	await process_frame
 	await process_frame
@@ -113,7 +115,7 @@ func _navigation(modal: Control) -> void:
 		_expect(controls.has(_viewport.gui_get_focus_owner()), "Stale toolbar focus is recovered before activation")
 
 func _heirloom_flow(scene: Node) -> void:
-	var state: Dictionary = Fixture.state(true)
+	var state: Dictionary = HeirloomFixture.terminal()
 	state["mode"] = "defeat"
 	state["game_over"] = true
 	state["player_hp"] = 0
@@ -127,11 +129,17 @@ func _heirloom_flow(scene: Node) -> void:
 	var menu: Node = preload("res://scenes/main_menu.tscn").instantiate()
 	_expect((menu.call("_build_saved_run_preview", ProgressionStore.load_saved_run()) as Dictionary).get("location", "").ends_with("CHOOSING AN HEIRLOOM"), "Main menu labels the pending terminal heirloom save with the approved wording")
 	menu.free()
+	var saved_prompt: Dictionary = ProgressionStore.load_saved_run()
+	scene.call("_load_run_state", saved_prompt)
+	await _settle()
+	_expect(scene.get("_opening_boon_flow").active() and Boons.heirloom_pieces(scene.get("_run_state")) == HeirloomFixture.PROOF_ITEMS, "Save/resume rebuilds the unanswered heirloom view with identical eligible pieces")
 	scene.call("_complete_current_dialogue_line")
 	scene.call("_close_dialogue")
 	_expect(bool(scene.get("_dialogue_active")), "Back cannot silently choose Leave nothing at run end")
 	var item: String = str(state["equipped_equipment"]["offhand"])
-	scene.call("_on_dialogue_option_pressed", {"action": "leave_heirloom", "item": item})
+	scene.get("_opening_boon_flow").leave_heirloom(scene, item)
+	var ceremony: Control = scene.get("_opening_boon_flow").overlay.ceremony
+	ceremony.skip()
 	_expect(ProgressionStore.heirloom(ProgressionStore.load_data()) == item, "Live run-end choice persists replacement heirloom")
 	_expect(scene.get("_dialogue_text_label").get_parsed_text() == Boons.definitions()["dialogue"]["heirloom_confirmation"], "Run-end confirmation uses exact approved copy")
 	_expect(not bool(scene.get("_run_end_recap").visible), "Summary waits for heirloom confirmation acknowledgment")
@@ -141,7 +149,7 @@ func _heirloom_flow(scene: Node) -> void:
 	_expect(bool(scene.get("_run_end_recap").visible) and not ProgressionStore.has_saved_run(), "Acknowledged heirloom releases the normal summary and terminal cleanup")
 
 func _terminal_resume_wallet(scene: Node) -> void:
-	var state: Dictionary = Fixture.state()
+	var state: Dictionary = HeirloomFixture.equip(Fixture.state())
 	state["mode"] = "defeat"
 	state["player_hp"] = 0
 	state["held_embers"] = WALLET_RESUME_EMBERS
@@ -157,7 +165,7 @@ func _terminal_resume_wallet(scene: Node) -> void:
 	scene.call("_load_run_state", saved)
 	scene.call("_persist_committed_boundary", "boon_test_after_resume")
 	_expect(ProgressionStore.load_data().get("recovery_marker", {}) == marker and int(scene.get("_defeat_lost_amount")) == WALLET_RESUME_EMBERS, "Resuming the heirloom prompt preserves lost Embers and the summary amount")
-	state = Fixture.state()
+	state = HeirloomFixture.equip(Fixture.state())
 	state["mode"] = "victory"
 	state["held_embers"] = WALLET_RESUME_EMBERS
 	state["unbanked_embers"] = WALLET_RESUME_EMBERS

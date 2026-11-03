@@ -1,0 +1,86 @@
+{
+  "approved_bodies": "tests/fixtures/bos02_feedback1_grimoire.json",
+  "verbatim_entries": 9,
+  "base_panel_sentences_match": 6,
+  "half_health_sentences_and_values_checked": 5,
+  "supplied_copy_rewritten": false,
+  "supplied_copy_contradictions_observed": [],
+  "ordinary_keyword_exceptions": "Existing immunity, occupancy, Anchored and legal-landing limits apply. Iskaldra Freeze immunity is an explicit accepted Round 0 exception.",
+  "entries": {
+    "enemy:zekarion": {
+      "checked": "Skybreak and Storm Lash retain Electrified placement; Lightning Storm stays damage 5, Chain 1\u21922 on Overload; two Wisps and Call Wisps remain.",
+      "evidence": [
+        "dragon_pressure_mechanics_suite._test_skybreak_retirement_preview",
+        "dragon_committed_patterns_test._test_storm_marks_conduction_and_cap",
+        "dragon_element_rules_suite._test_forecast_and_half"
+      ]
+    },
+    "combat:worldspines": {
+      "checked": "Guarded length-5 line_between marks, every second player turn then every player turn at half Health; persistent owned Outcrops; Tharokh and Burrow Grubs cannot occupy them. Burrow landing also avoids the Outcrop.",
+      "evidence": [
+        "dragon_feedback1_suite._outcrop_occupancy",
+        "dragon_element_rules_suite._test_faultline",
+        "dragon_element_rules_suite._test_forecast_and_half"
+      ]
+    },
+    "combat:cinder_marks": {
+      "checked": "Meteorfall damages marked tiles and creates Fire; Wildfire spreads all Fire cardinally. Crownfire uses remembered owned marks and ignores spread-only Fire. Replacing its Fire removes detonation fuel. The last two card paragraphs are unchanged.",
+      "evidence": [
+        "dragon_committed_patterns_test._test_kindle_holds_ground",
+        "dragon_element_rules_suite._test_fire_ownership",
+        "scope-validation.json"
+      ]
+    },
+    "combat:hollow_gale": {
+      "checked": "Body radius 2, damage 6, own Push 1; wind remains Push 1\u21922 and quarter-turns clockwise. Eye retreats, uses an outer ring for 8 and inner bite for 4.",
+      "evidence": [
+        "dragon_feedback1_suite._gale_numbers",
+        "dragon_committed_patterns_test._test_air_evade_and_displacement",
+        "dragon_element_rules_suite._test_forecast_and_half"
+      ]
+    },
+    "enemy:tharokh": {
+      "checked": "Earth boss with two Burrow Grubs; approved Upheaval panel is embedded verbatim; cadence changes 2\u21921 at half Health.",
+      "evidence": [
+        "dragon_feedback1_suite._copy_and_panels",
+        "dragon_element_rules_suite._test_data_slots_and_routing",
+        "dragon_element_rules_suite._test_forecast_and_half"
+      ]
+    },
+    "enemy:vyraketh": {
+      "checked": "Fire boss with one boss-only Cinder Droplet (class plural in the supplied prose); Droplet Spatter places Fire. Wildfire and its half-Health cadence match the panel; Cinder Maw renews owned marks and retires owned spread.",
+      "evidence": [
+        "dragon_feedback1_suite._copy_and_panels",
+        "dragon_element_rules_suite._test_data_slots_and_routing",
+        "dragon_element_rules_suite._test_fire_ownership",
+        "data/enemies.json:cinder_droplet/spatter"
+      ]
+    },
+    "enemy:vaeloryx": {
+      "checked": "Skyhook/dive and one boss-only Gust Shrike; Gust affects the encounter after source turns, 1\u21922 at half Health; Eye retains its weaker inner bite.",
+      "evidence": [
+        "dragon_feedback1_suite._copy_and_panels",
+        "dragon_feedback1_suite._gale_numbers",
+        "dragon_committed_patterns_test._test_air_evade_and_displacement"
+      ]
+    },
+    "enemy:iskaldra": {
+      "checked": "Crystal Mantle and two Rime Spitters remain; Rime Needle leaves terminal Ice. Frostbite is 3 on Rime Talon, then every second source turn. Breaking Mantle shrinks Shatterstorm. Existing immunity exception: Iskaldra takes the hit (or a Mantle layer absorbs it) and is not Frozen.",
+      "evidence": [
+        "dragon_pressure_mechanics_suite._test_ice_cross_and_mantle_counterplay",
+        "dragon_element_rules_suite._test_mantle",
+        "dragon_element_rules_suite._test_forecast_and_half",
+        "data/enemies.json:rime_spitter/needle"
+      ]
+    },
+    "enemy:noctyrax": {
+      "checked": "Depth 24 with two Acolytes; Shadowstep filters hidden Veilbound Acolytes and uses Blink range 3. Night Coil snuffs one nearest brazier, arrival relights it, and Light protects against Eclipse. Standard occupancy/Anchored/visibility rules still apply.",
+      "evidence": [
+        "dragon_committed_patterns_test._test_eclipse_refuges",
+        "dragon_feedback1_suite._light_blocks_eclipse",
+        "dragon_element_rules_suite._test_forecast_and_half",
+        "scripts/battlefield_rules/shadowstep.gd"
+      ]
+    }
+  }
+}

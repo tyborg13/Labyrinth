@@ -6,24 +6,35 @@ const MaquettePresentation = preload("res://scripts/maquette_cutout_runtime/pres
 ## These are ground contacts, not the center of a weapon-inclusive silhouette.
 ## HUD heights use each painted rest view; raised weapons never lift a nameplate.
 const SOURCE_SIZE: float = 255.0
+## Director-authored body contact, in the same rest canvas as PROFILES.
+const GROUND_CONTACT: Dictionary = {
+	"burrow_grub": {
+		"front": {"from": Vector2(53.86120086, 237.49779122), "to": Vector2(213.86362062, 181.41817269), "half_width": 38.13637938, "alpha": 0.62},
+		"rear": {"from": Vector2(59.92722330, 244.91288333), "to": Vector2(206.39567464, 178.28768974), "half_width": 33.60432536, "alpha": 0.62},
+	},
+}
 const PROFILES: Dictionary = {
-	"glacial_mirror": {"front": Vector2(127.0, 231.46), "rear": Vector2(130.0, 231.46), "height": Vector2(215.46, 223.46)},
+	# Live rig's two-sole midpoint (bottom three opaque rows per foot), plus the
+	# owner's nudge (+5, 0).
+	# Keep the painted-rest HUD landmarks at source y=16 front / y=8 rear.
+	"glacial_mirror": {"front": Vector2(122.57, 224.82), "rear": Vector2(125.81, 226.23), "height": Vector2(208.82, 218.23)},
 	"ember_tick": {"front": Vector2(117.0, 226.46), "rear": Vector2(135.75, 225.21), "height": Vector2(127.46000000000001, 132.21)},
-	"burrow_grub": {"front": Vector2(120.0, 236.46), "rear": Vector2(128.0, 241.21), "height": Vector2(132.46, 137.21)},
+	"ember_hoarder": {"front": Vector2(117.0, 226.46), "rear": Vector2(135.75, 225.21), "height": Vector2(127.46000000000001, 132.21)},
+	"burrow_grub": {"front": Vector2(138.39211465, 207.87035554), "rear": Vector2(140.07841208, 208.45391609), "height": Vector2(101.87035554, 109.45391609)},
 	"hoarfrost_seer": {"front": Vector2(135.0, 232.46), "rear": Vector2(122.0, 219.21), "height": Vector2(192.46, 182.21)},
 	"arc_thrall": {"front": Vector2(132.0, 230.46), "rear": Vector2(124.75, 239.96), "height": Vector2(189.46, 190.96)},
 	"ash_hound": {"front": Vector2(120.2500, 217.0000), "rear": Vector2(130.2500, 217.7500), "height": Vector2(171.0000, 171.7500)},
-	"ashen_reaver": {"front": Vector2(135.0000, 229.5000), "rear": Vector2(120.5000, 243.5000), "height": Vector2(219.5000, 233.5000)},
+	"ashen_reaver": {"front": Vector2(152.75000000, 224.50000000), "rear": Vector2(92.00000000, 227.50000000), "height": Vector2(218.50000000, 219.50000000)},
 	"bell_tender": {"front": Vector2(144.0000, 241.0000), "rear": Vector2(106.0000, 240.5000), "height": Vector2(231.0000, 230.5000)},
 	"craghide": {"front": Vector2(135.0000, 215.7500), "rear": Vector2(127.2500, 209.2500), "height": Vector2(172.7500, 166.2500)},
 	"gallows_roc": {"front": Vector2(125.5000, 212.5000), "rear": Vector2(134.5000, 211.5000), "height": Vector2(203.5000, 201.5000)},
-	"last_lamplighter": {"front": Vector2(117.0000, 233.5000), "rear": Vector2(125.5000, 239.0000), "height": Vector2(224.5000, 230.0000)},
+	"last_lamplighter": {"front": Vector2(120.00000000, 231.00000000), "rear": Vector2(120.25000000, 230.50000000), "height": Vector2(212.00000000, 224.50000000)},
 	"rime_spitter": {"front": Vector2(128.0000, 221.3333), "rear": Vector2(136.6667, 219.0000), "height": Vector2(134.3333, 131.0000)},
 	"rime_whelp": {"front": Vector2(115.2500, 215.7500), "rear": Vector2(134.5000, 212.2500), "height": Vector2(166.7500, 163.2500)},
 	"rimejaw": {"front": Vector2(123.3333, 215.6667), "rear": Vector2(143.0000, 211.0000), "height": Vector2(167.6667, 162.0000)},
 	"roc_fledgling": {"front": Vector2(125.5000, 230.5000), "rear": Vector2(139.0000, 224.0000), "height": Vector2(165.5000, 159.0000)},
 	"stoneback_mite": {"front": Vector2(147.0000, 230.5000), "rear": Vector2(126.2000, 232.4000), "height": Vector2(143.5000, 145.4000)},
-	"storm_cantor": {"front": Vector2(124.0000, 234.5000), "rear": Vector2(124.5000, 239.0000), "height": Vector2(225.5000, 230.0000)},
+	"storm_cantor": {"front": Vector2(120.75000000, 232.50000000), "rear": Vector2(118.75000000, 231.00000000), "height": Vector2(210.50000000, 225.00000000)},
 	"wick_shade": {"front": Vector2(140.5000, 242.0000), "rear": Vector2(114.5000, 241.5000), "height": Vector2(233.0000, 232.5000)},
 	"crawler": {"front": Vector2(120.0, 187.5), "rear": Vector2(134.75, 179.25), "height": Vector2(155.5000, 147.2500)},
 	"acolyte": {"front": Vector2(142.5, 233.0), "rear": Vector2(141.5, 234.0), "height": Vector2(214.0000, 214.0000)},
@@ -32,9 +43,9 @@ const PROFILES: Dictionary = {
 	"cinder_ooze": {"front": Vector2(130.3333, 204.8333), "rear": Vector2(132.6667, 202.6667), "height": Vector2(192.8333, 183.6667)},
 	"cinder_droplet": {"front": Vector2(125.4, 203.2), "rear": Vector2(120.4, 201.8), "height": Vector2(123.2000, 121.8000)},
 	"bile_bloomer": {"front": Vector2(128.00000000, 195.40221374), "rear": Vector2(114.53153153, 207.00554874), "height": Vector2(175.40221374, 163.00554874)},
-	"chainbound_gaoler": {"front": Vector2(142.0, 248.0), "rear": Vector2(140.0, 248.5), "height": Vector2(238.0000, 240.5000)},
+	"chainbound_gaoler": {"front": Vector2(140.00000000, 236.50000000), "rear": Vector2(105.25000000, 238.50000000), "height": Vector2(206.50000000, 207.50000000)},
 	"grave_surgeon": {"front": Vector2(163.5, 207.0), "rear": Vector2(166.5, 200.0), "height": Vector2(180.0000, 173.0000)},
-	"frostglass_lancer": {"front": Vector2(122.5, 242.0), "rear": Vector2(134.0, 244.5), "height": Vector2(224.0000, 218.5000)},
+	"frostglass_lancer": {"front": Vector2(117.50000000, 239.00000000), "rear": Vector2(122.50000000, 237.50000000), "height": Vector2(218.00000000, 217.50000000)},
 	"tharokh": {"front": Vector2(111.25, 200.0), "rear": Vector2(138.75, 188.75), "height": Vector2(193.0000, 178.7500)},
 	"vyraketh": {"front": Vector2(124.75, 177.75), "rear": Vector2(102.0, 168.0), "height": Vector2(166.7500, 137.0000)},
 	"vaeloryx": {"front": Vector2(127.5, 227.0), "rear": Vector2(127.5, 227.0), "height": Vector2(207.0000, 206.0000)},
@@ -60,7 +71,8 @@ static func height_above_floor(unit_type: String, facing: String = "") -> float:
 
 const ACTION_BOUNDS: Dictionary = {
 	"ember_tick": Rect2(-128.0, -150.0, 256.0, 178.0),
-	"burrow_grub": Rect2(-127.0, -160.0, 254.0, 224.0),
+	"ember_hoarder": Rect2(-128.0, -150.0, 256.0, 178.0),
+	"burrow_grub": Rect2(-152.0, -131.0, 304.0, 228.0),
 	"arc_thrall": Rect2(-172.0, -196.0, 344.0, 232.0),
 	"hoarfrost_seer": Rect2(-163.0, -223.0, 326.0, 263.0),
 	"crawler": Rect2(-158.2500, -159.5000, 316.5000, 209.2500),
@@ -72,7 +84,7 @@ const ACTION_BOUNDS: Dictionary = {
 	"bile_bloomer": Rect2(-151.6667, -246.6667, 303.3334, 277.0000),
 	"chainbound_gaoler": Rect2(-233.0000, -244.5000, 466.0000, 275.5000),
 	"grave_surgeon": Rect2(-135.5000, -182.0000, 271.0000, 210.0000),
-	"frostglass_lancer": Rect2(-185.5000, -234.0000, 371.0000, 259.0000),
+	"frostglass_lancer": Rect2(-267.0, -255.0, 534.0, 279.0),
 	"tharokh": Rect2(-140.7500, -197.0000, 281.5000, 254.2500),
 	"vyraketh": Rect2(-143.0000, -169.7500, 286.0000, 246.7500),
 	"vaeloryx": Rect2(-128.5000, -217.0000, 257.0000, 234.0000),

@@ -58,3 +58,36 @@ spec/art_identity/jobs/**/refs/
 
 # Reproducible SFX measurements, traces, PCM proof and rebuild evidence.
 /output/sfx/
+
+# Unit evidence generators (e.g. tests/el02_evidence.gd) write here; curated copies live under spec/.
+/proof/
+
+# Resettable pt13-03 renderer output; contracts and audit reports remain source.
+/tests/pt13_03/**/captures/
+/tests/pt13_03/**/*_manifest.json
+
+# Offline owner-test variants; never imported or versioned.
+/cel_look_variants/
+
+# rr-48 delivery overrides the local historical Ashen Reaver experiment exclude.
+!/experiments/cutouts/ashen_reaver/
+/experiments/cutouts/ashen_reaver/*
+!/experiments/cutouts/ashen_reaver/rr48/
+!/experiments/cutouts/ashen_reaver/rr48_*.py
+!/experiments/cutouts/ashen_reaver/rr48_proof.sh
+!/experiments/cutouts/ashen_reaver/underlay_requests/
+
+# rr-52 editable case; the case-local proof directory remains ignored.
+!/experiments/cutouts/last_lamplighter/
+/experiments/cutouts/last_lamplighter/*
+!/experiments/cutouts/last_lamplighter/rr52/
+!/experiments/cutouts/last_lamplighter/rr52_*.py
+!/experiments/cutouts/last_lamplighter/rr52_proof.sh
+
+# rr-56 editable Cantor case; proof remains local.
+!/experiments/cutouts/storm_cantor/
+/experiments/cutouts/storm_cantor/*
+!/experiments/cutouts/storm_cantor/mq26/
+
+# Proof captures and reels are local artifacts; never tracked (release 2026-11-03).
+/output/

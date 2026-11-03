@@ -1,0 +1,5 @@
+00:00.457  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/native/determinism/cold/maquette.blend"
+00:00.661  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/native/determinism/replay/maquette.blend"
+00:00.869  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/native/determinism/independent_cold/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=55

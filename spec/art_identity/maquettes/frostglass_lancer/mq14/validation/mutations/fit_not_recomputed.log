@@ -1,0 +1,233 @@
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5131690, "figure": "burrow_grub", "files": 163}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5132162, "figure": "burrow_grub", "files": 163}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5132179, "figure": "burrow_grub", "files": 163}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5132179, "figure": "burrow_grub", "files": 163}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5319081, "figure": "ember_tick", "files": 88}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5319892, "figure": "ember_tick", "files": 88}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5319909, "figure": "ember_tick", "files": 88}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5319909, "figure": "ember_tick", "files": 88}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5923246, "figure": "glacial_mirror", "files": 224}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5923748, "figure": "glacial_mirror", "files": 224}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5923765, "figure": "glacial_mirror", "files": 224}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5923765, "figure": "glacial_mirror", "files": 224}
+test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) ... 
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='burrow_grub', mutation='zero')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='burrow_grub', mutation='zero')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='burrow_grub', mutation='zero')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='burrow_grub', mutation='stale_capture')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='burrow_grub', mutation='stale_capture')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='burrow_grub', mutation='stale_capture')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='burrow_grub', mutation='forged_iou')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='burrow_grub', mutation='forged_iou')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='burrow_grub', mutation='forged_iou')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='ember_tick', mutation='zero')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='ember_tick', mutation='zero')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='ember_tick', mutation='zero')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='ember_tick', mutation='stale_capture')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='ember_tick', mutation='stale_capture')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='ember_tick', mutation='stale_capture')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='ember_tick', mutation='forged_iou')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='ember_tick', mutation='forged_iou')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='ember_tick', mutation='forged_iou')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='glacial_mirror', mutation='zero')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='glacial_mirror', mutation='zero')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='glacial_mirror', mutation='zero')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='glacial_mirror', mutation='stale_capture')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='glacial_mirror', mutation='stale_capture')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='glacial_mirror', mutation='stale_capture')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='glacial_mirror', mutation='forged_iou')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='glacial_mirror', mutation='forged_iou')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='glacial_mirror', mutation='forged_iou')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-14/spec/art_identity/maquettes/blender/test_feedback2.py", line 54, in test_failed_zero_stale_and_forged_fit_rejected_for_every_figure
+    with self.subTest(figure=name,mutation=mutation),self.assertRaises(ValueError):operation()
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 1.211s
+
+FAILED (failures=27)

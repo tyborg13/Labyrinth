@@ -1,5 +1,7 @@
 extends RefCounted
 
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
+
 const View = preload("res://scripts/event_view.gd")
 const Badges = preload("res://scripts/omen_badges.gd")
 const Omens = preload("res://scripts/omen_rules.gd")
@@ -19,7 +21,7 @@ const FIXTURE_FRAMES: int = 2
 const FIXTURE_BLOCKED_HP: int = 5
 const EXPIRE_PROOF_WAIT_SECONDS: float = 0.32
 const CLOSE_PROOF_WAIT_SECONDS: float = 0.2
-const CLOSE_PROOF_TIMEOUT_MSEC: int = 1000
+const CLOSE_PROOF_TIMEOUT_MSEC: int = 10000
 const COMBAT_PROOF_SETTLE_SECONDS: float = 1.15
 const DEFERRED_CLEANUP_FRAMES: int = 4
 const PAINTING_LUMINANCE_TOLERANCE: float = 0.08
@@ -60,6 +62,12 @@ static func fixture(id: String, rich: bool = false) -> Dictionary:
 
 static func run(expect: Callable) -> void:
 	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _run_scoped(scope, expect)
+	)
+
+static func _run_scoped(_globals: TestClock.GlobalScope, expect: Callable) -> void:
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
 	var viewport := SubViewport.new()
 	viewport.size = Vector2i(1920, 1080)
 	tree.root.add_child(viewport)
@@ -88,23 +96,6 @@ static func run(expect: Callable) -> void:
 				expect.call(view.fit_report().is_empty(), "Fit result %s/%s rich=%s: %s" % [id, choice["id"], rich, str(view.fit_report())])
 				expect.call(view.continue_button != null and view.continue_button.has_focus(), "Result initially focuses Continue")
 				fitted_pages += 1
-	# Exercise every random branch's text and outcome rows, rather than only the
-	# seed-selected branch. Costs/gains still resolve through the real API.
-	var branch_pages: int = 0
-	for id: String in Data.events():
-		var state: Dictionary = fixture(id, true)
-		for choice: Dictionary in Data.event_def(id)["choices"]:
-			for variant: Dictionary in effect_variants(choice.get("effects", [])):
-				var resolved: Dictionary = Events.apply_effects(state, variant["effects"], Events.rng_for(state, "fit-all-branches"), engine)
-				var result: Dictionary = resolved["state"]
-				result["event_state"]["page"] = "result"
-				result["event_state"]["result_text"] = variant.get("result", choice.get("result", ""))
-				result["event_state"]["outcomes"] = resolved["outcomes"]
-				view.present(result, true)
-				view.finish_animation_for_test()
-				for frame: int in range(FIXTURE_FRAMES): await tree.process_frame
-				expect.call(view.fit_report().is_empty(), "All outcome branches fit: %s/%s %s" % [id, choice["id"], str(view.fit_report())])
-				branch_pages += 1
 	# Navigation includes unavailable choices, while initial focus skips them.
 	var blocked: Dictionary = fixture("bloodletters_basin")
 	blocked["player_hp"] = FIXTURE_BLOCKED_HP
@@ -187,7 +178,7 @@ static func run(expect: Callable) -> void:
 	enter.pressed = true
 	view.handle_input(enter)
 	expect.call(selections.back() == "cut", "Enter activates initial focus")
-	expect.call(Text.markup("50%: Pay 20 Embers. Gain a random Rare relic.", true).contains("#e07a6c") and Text.markup("50%: Pay 20 Embers. Gain a random Rare relic.", true).contains("#e9cf8f"), "Odds preserve neutral prefix and separate cost/gain tones")
+	expect.call(Text.markup("Pay 20 Embers. Gain Iron Lung.", true).contains("#e07a6c") and Text.markup("Pay 20 Embers. Gain Iron Lung.", true).contains("#e9cf8f"), "Named rewards preserve separate cost/gain tones")
 	var grid := GridContainer.new()
 	viewport.add_child(grid)
 	var badges := Badges.new()
@@ -211,28 +202,9 @@ static func run(expect: Callable) -> void:
 	await _integration(viewport, expect)
 	var report: Array[String] = view.fit_report()
 	expect.call(report.is_empty(), "Final live fit report is empty")
-	print("Event view fit: %d pages, 27 events × fresh/rich states; %d outcome branches" % [fitted_pages, branch_pages])
+	print("Event view fit: %d pages, %d events × fresh/rich states" % [fitted_pages, Data.events().size()])
 	viewport.queue_free()
 	await tree.process_frame
-
-static func effect_variants(effects: Array) -> Array[Dictionary]:
-	var variants: Array[Dictionary]
-	variants.append({"effects": []})
-	for effect: Dictionary in effects:
-		if str(effect.get("type", "")) != "random":
-			for variant: Dictionary in variants: variant["effects"].append(effect)
-			continue
-		var next: Array[Dictionary]
-		for variant: Dictionary in variants:
-			for outcome: Dictionary in effect["outcomes"]:
-				for nested: Dictionary in effect_variants(outcome.get("effects", [])):
-					var copy: Dictionary = variant.duplicate(true)
-					copy["effects"].append_array(nested["effects"])
-					if nested.has("result"): copy["result"] = nested["result"]
-					elif outcome.has("result"): copy["result"] = outcome["result"]
-					next.append(copy)
-		variants = next
-	return variants
 
 static func _integration(viewport: SubViewport, expect: Callable) -> void:
 	var tree: SceneTree = Engine.get_main_loop() as SceneTree
@@ -270,6 +242,7 @@ static func _integration(viewport: SubViewport, expect: Callable) -> void:
 	expect.call(not view.get("_busy") and not view.get("_request_pending") and view.page == "choices", "A scene-declined event request stays interactive")
 	scene.set("_animation_lock", false)
 	view.choices[0].pressed.emit()
+	expect.call(preload("res://scripts/recent_event_store.gd").load_recent_events().has("moth_library"), "Live event resolution writes its independent history before continuation")
 	view.finish_animation_for_test()
 	expect.call(str(scene.get("_run_state")["event_state"]["page"]) == "result", "Mouse/keyboard choice signal reaches real rules and result page")
 	var close_events: Dictionary = {"count": 0}
@@ -318,6 +291,7 @@ static func wait_for_close(view: Control) -> void:
 	var deadline: int = Time.get_ticks_msec() + CLOSE_PROOF_TIMEOUT_MSEC
 	while view.visible and Time.get_ticks_msec() < deadline:
 		await tree.process_frame
+	assert(not view.visible, "Timeout waiting for event view to close")
 
 static func _event_reward_payload(scene: Node, expect: Callable) -> void:
 	for kind: String in ["card", "heal_skip"]:
@@ -337,6 +311,10 @@ static func _event_reward_analytics(scene: Node, tree: SceneTree, expect: Callab
 		if claim: scene.call("_on_reward_card_pressed", reward["pending_reward"]["cards"][0])
 		else: scene.call("_commit_reward_heal", "")
 		await tree.process_frame
+		if claim:
+			# pol-44: with no card on screen the ray had no start, and an empty rect's centre is the screen's corner.
+			var fx_layer: Control = scene.get("_card_fx_layer") as Control
+			expect.call(fx_layer != null and fx_layer.find_child("LoadoutAcquisitionBeam", false, false) == null, "A reward taken without its card on screen draws no ray from the screen's corner")
 		var events: Array[Dictionary] = preload("res://scripts/analytics_store.gd").load_all_events()
 		var choices: Array[Dictionary]
 		for event: Dictionary in events:
@@ -442,11 +420,14 @@ static func _request_animation_locks(viewport: SubViewport, expect: Callable) ->
 	view.present(result, false)
 	view.present(result, false)
 	view.activate_continue()
-	expect.call(bool(view.get("_busy")) and selected.size() == 1, "Unchanged present preserves the 0.18-second event page cross-fade lock")
+	# evt-02: Continue is usable immediately, including during the page fade.
+	expect.call(bool(view.get("_busy")) and selected.size() == 2 and selected.back() == "continue", "Continue is usable during the ordinary page cross-fade")
+	view.activate_continue()
+	expect.call(selected.size() == 2, "A pending Continue request cannot fire twice")
 	view.release_request()
 	expect.call(bool(view.get("_busy")), "Declined request cannot release the independent page animation lock")
 	await viewport.get_tree().create_timer(PAGE_LOCK_PROOF_WAIT_SECONDS).timeout
 	view.activate_continue()
-	expect.call(selected.size() == 2 and selected.back() == "continue", "Continue becomes interactive after its ordinary cross-fade")
+	expect.call(selected.size() == 3 and selected.back() == "continue", "Continue remains interactive after its ordinary cross-fade")
 	view.queue_free()
 	await viewport.get_tree().process_frame

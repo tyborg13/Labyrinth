@@ -1,0 +1,99 @@
+test_approved_inputs_are_byte_identical (tests.test_rr46_preserve_frostglass_lancer.PreservationTests) ... FAIL
+test_historical_runtime_pin_rejects_unowned_changes (tests.test_rr46_playback.PlaybackTests) ... FAIL
+test_motion_and_reference_inputs_are_byte_identical (tests.test_rr46_playback.PlaybackTests) ... FAIL
+test_native_archive_requires_complete_painted_coverage (tests.test_rr46_playback.PlaybackTests) ... ERROR
+ERROR
+test_omitting_native_midpoint_and_corner_route_fails (tests.test_rr47_feedback2.FeedbackTwoTests) ... ERROR
+test_runtime_boundary_and_reverts (tests.test_pt14_04_coverage.HeroCoverage) ... FAIL
+test_tracked_sources_have_sidecars_and_sidecars_have_sources (tests.test_godot_sidecars.GodotSidecarRepositoryTests) ... ERROR
+
+======================================================================
+ERROR: test_native_archive_requires_complete_painted_coverage (tests.test_rr46_playback.PlaybackTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/test_rr46_playback.py", line 155, in test_native_archive_requires_complete_painted_coverage
+    inventory = load_inventory()
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/rr46/verify_native.py", line 46, in load_inventory
+    raise ValueError('Stale independent inventory: ' + name)
+ValueError: Stale independent inventory: assets/units/frostglass_lancer_cutout/integration.json
+
+======================================================================
+ERROR: setUpClass (tests.test_rr47_feedback1.FeedbackOneTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/test_rr47_feedback1.py", line 51, in setUpClass
+    cls.inventory = load_inventory()
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/rr46/verify_native.py", line 46, in load_inventory
+    raise ValueError('Stale independent inventory: ' + name)
+ValueError: Stale independent inventory: assets/units/frostglass_lancer_cutout/integration.json
+
+======================================================================
+ERROR: test_omitting_native_midpoint_and_corner_route_fails (tests.test_rr47_feedback2.FeedbackTwoTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/test_rr47_feedback2.py", line 100, in test_omitting_native_midpoint_and_corner_route_fails
+    inventory = load_inventory()
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/rr46/verify_native.py", line 46, in load_inventory
+    raise ValueError('Stale independent inventory: ' + name)
+ValueError: Stale independent inventory: assets/units/frostglass_lancer_cutout/integration.json
+
+======================================================================
+ERROR: test_tracked_sources_have_sidecars_and_sidecars_have_sources (tests.test_godot_sidecars.GodotSidecarRepositoryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/test_godot_sidecars.py", line 92, in test_tracked_sources_have_sidecars_and_sidecars_have_sources
+    assert_sidecars_versioned(git_files(ROOT), root=ROOT)
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/test_godot_sidecars.py", line 78, in assert_sidecars_versioned
+    exempt = git_ignored_paths(root, missing)
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/test_godot_sidecars.py", line 50, in git_ignored_paths
+    result.check_returncode()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 460, in check_returncode
+    raise CalledProcessError(self.returncode, self.args, self.stdout,
+subprocess.CalledProcessError: Command '['git', 'check-ignore', '-z', '--stdin']' returned non-zero exit status 128.
+
+======================================================================
+FAIL: test_approved_inputs_are_byte_identical (tests.test_rr46_preserve_frostglass_lancer.PreservationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/test_rr46_preserve_frostglass_lancer.py", line 8, in test_approved_inputs_are_byte_identical
+    count = assert_preserved(self, ["assets/units/frostglass_lancer_cutout"])
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/rr46/preservation.py", line 80, in assert_preserved
+    test.assertEqual(digest, expected, name)
+AssertionError: '391f9d639f0a49a9a92ccf6ac355ff0943e3ddb6' != '8ea3676f96a6860710c08d1ecf1a939df32e46af'
+- 391f9d639f0a49a9a92ccf6ac355ff0943e3ddb6
++ 8ea3676f96a6860710c08d1ecf1a939df32e46af
+ : assets/units/frostglass_lancer_cutout/humanoid_v2/front.json
+
+======================================================================
+FAIL: test_historical_runtime_pin_rejects_unowned_changes (tests.test_rr46_playback.PlaybackTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/test_rr46_playback.py", line 57, in test_historical_runtime_pin_rejects_unowned_changes
+    self.assertEqual(before_rr46_runtime(path, current), expected)
+AssertionError: b'ext[3424 chars]onst ActionCaptionScrimScript = preload("res:/[1775489 chars]()\n' != b'ext[3424 chars]onst TurnBannerScript = preload("res://scripts[1777180 chars]()\n'
+
+======================================================================
+FAIL: test_motion_and_reference_inputs_are_byte_identical (tests.test_rr46_playback.PlaybackTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/test_rr46_playback.py", line 311, in test_motion_and_reference_inputs_are_byte_identical
+    count = assert_preserved(self, paths)
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/rr46/preservation.py", line 80, in assert_preserved
+    test.assertEqual(digest, expected, name)
+AssertionError: '4748efda9ea6418a4ab2576b1feea9ad694544b2' != '8d969bddf1fed503490e388ad2d227c4d2ecd068'
+- 4748efda9ea6418a4ab2576b1feea9ad694544b2
++ 8d969bddf1fed503490e388ad2d227c4d2ecd068
+ : spec/peer_benchmark/staged/tt-01/tooltips.json
+
+======================================================================
+FAIL: test_runtime_boundary_and_reverts (tests.test_pt14_04_coverage.HeroCoverage)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/labyrinth_codex/rr50-peer-snapshot/tests/test_pt14_04_coverage.py", line 204, in test_runtime_boundary_and_reverts
+    self.assertEqual(before_rr46_runtime(name, actual), expected, name)
+AssertionError: b'ext[513066 chars]itch.reset(self, next_run_state.get("combat_st[1265020 chars]()\n' != b'ext[513066 chars]itch.baseline(next_run_state.get("combat_state[1264947 chars]()\n' : scripts/run_scene.gd
+
+----------------------------------------------------------------------
+Ran 7 tests in 5.034s
+
+FAILED (failures=4, errors=4)

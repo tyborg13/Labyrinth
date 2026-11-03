@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "module_format": "A resource-list shorthand or an object with resources and optional imports (canonical audited module names). Declared imports supplement static scheduling; the worker origin guard enforces ownership.",
+  "temporary_only": "An empty resource list declares read-only work or writes confined to unique test-owned temporary directories and runner HOME. Audit indirect helpers before changing this declaration.",
+  "resources": {
+    "sb02-proof": "/private/tmp/sb02-proof/ (standalone matched-proof entry point)",
+    "sfx-proof": "Caller-supplied sfx --proof-out directory (disabled during discovery)",
+    "blender-native": "/private/tmp/labyrinth_codex/mq-03/native_tests/ (optional native proof; unique child fixtures)",
+    "capacitor": "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/",
+    "gaoler": "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/",
+    "reaver": "experiments/cutouts/ashen_reaver/rr48/ (partition helper writes failure-only ownership diagnostics)"
+  },
+  "modules": {
+    "test_art_identity_gate": [
+      "capacitor"
+    ],
+    "test_capture_director": [],
+    "test_capture_production": [],
+    "test_card_heuristic_illusions_terrain": [],
+    "test_card_heuristic_keywords": [],
+    "test_card_heuristic_maneuver": [],
+    "test_card_heuristic_progression_context": [],
+    "test_card_heuristic_surfaces": [],
+    "test_card_heuristic_wave4_surfaces": [],
+    "test_card_panel_text": [],
+    "test_classical_soundtrack_pipeline": [],
+    "test_combat_feel_measurements": [],
+    "test_cutout_workflow": [
+      "capacitor"
+    ],
+    "test_demo_clips": [],
+    "test_demo_recording": [],
+    "test_element_rule_contract": [],
+    "test_dragon_rule_measurement": [],
+    "test_encounter_measurement": [],
+    "test_guardian_rules_measurement": [],
+    "test_godot_sidecars": [
+      "capacitor"
+    ],
+    "test_godot_task_runner": [],
+    "test_icon_identity_policy": [],
+    "test_inspection_fixture": [],
+    "test_labyrinth_queue_board": [],
+    "test_labyrinth_task_queue": [],
+    "test_maquette_bleed": [],
+    "test_maquette_blender": [
+      "blender-native"
+    ],
+    "test_maquette_builder_wiring": [],
+    "test_maquette_closed_loft": [],
+    "test_maquette_geometry": [],
+    "test_maquette_hidden_material": [],
+    "test_maquette_joint_seams": [],
+    "test_output_gdignore": [],
+    "test_pace_round_capture": [],
+    "test_parallel_task": [],
+    "test_performance_pass": [],
+    "test_program_suite_runner": [],
+    "test_python_suite_runner": [],
+    "test_python_suite_runner_feedback": [],
+    "test_recolour_lab": [],
+    "test_relic_pt13_01": [],
+    "test_runner_cancellation": [],
+    "test_sb02_movement": [
+      "sb02-proof"
+    ],
+    "test_section_transition_clip": [],
+    "test_sfx_lab": [
+      "sfx-proof"
+    ],
+    "test_short_card_tooltips": [],
+    "test_skybolt_measurement": [],
+    "test_steam_performance_stats_schema": [],
+    "test_text_budget": [],
+    "test_ui_identity_lint": [],
+    "test_visual_probe_runner": [],
+    "test_rr49_submission": [
+      "gaoler"
+    ],
+    "test_approved_content_manifest": [],
+    "test_rr48_reaver": [
+      "reaver"
+    ]
+  }
+}

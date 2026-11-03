@@ -1,0 +1,50 @@
+[
+  {
+    "campaign": "default",
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/private/tmp/labyrinth_codex/qa-23/run_hunt_task.py",
+      "--report-only",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-23/campaign-default",
+      "--include-evidence",
+      "/private/tmp/labyrinth_codex/qa-23/replay-default-seed-1/seed-000001/evidence.json",
+      "--include-evidence",
+      "/private/tmp/labyrinth_codex/qa-23/replay-default-seed-2/seed-000002/evidence.json",
+      "--include-evidence",
+      "/private/tmp/labyrinth_codex/qa-23/replay-default-seed-5/seed-000005/evidence.json",
+      "--include-evidence",
+      "/private/tmp/labyrinth_codex/qa-23/replay-default-seed-12/seed-000012/evidence.json",
+      "--include-evidence",
+      "/private/tmp/labyrinth_codex/qa-23/replay-default-seed-2-original/seed-000002/evidence.json"
+    ],
+    "returncode": 0,
+    "stdout": "RUN HUNT REPORT: /private/tmp/labyrinth_codex/qa-23/campaign-default/report.md\nRUN HUNT REPORT CHECK: seeds=12 finding_groups=8\n"
+  },
+  {
+    "campaign": "no-embrace",
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/private/tmp/labyrinth_codex/qa-23/run_hunt_task.py",
+      "--report-only",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-23/campaign-no-embrace",
+      "--include-evidence",
+      "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-1/seed-000001/evidence.json",
+      "--include-evidence",
+      "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-2/seed-000002/evidence.json",
+      "--include-evidence",
+      "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-3/seed-000003/evidence.json",
+      "--include-evidence",
+      "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-4/seed-000004/evidence.json",
+      "--include-evidence",
+      "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-3-polygon-confirm/seed-000003/evidence.json",
+      "--include-evidence",
+      "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-3-fixed/seed-000003/evidence.json",
+      "--include-evidence",
+      "/private/tmp/labyrinth_codex/qa-23/replay-no-embrace-seed-4-fixed/seed-000004/evidence.json"
+    ],
+    "returncode": 0,
+    "stdout": "RUN HUNT REPORT: /private/tmp/labyrinth_codex/qa-23/campaign-no-embrace/report.md\nRUN HUNT REPORT CHECK: seeds=4 finding_groups=13\n"
+  }
+]

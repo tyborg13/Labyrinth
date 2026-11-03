@@ -7,15 +7,18 @@ const Board = preload("res://scripts/combat_board_view.gd")
 const Badges = preload("res://scripts/intent_badges.gd")
 const Guardian = preload("res://scripts/guardian_combat_rules.gd")
 const Scene = preload("res://scripts/run_scene.gd")
+const CutoutAction = preload("res://scripts/maquette_cutout_runtime/action.gd")
 const PLAYER_ROUNDS: int = 8
 const MAX_ACTIVATIONS_PER_ROUND: int = 32
 const FIXTURE_PLAYER_HP: int = 10000
 const FIXTURE_VIEWPORT_SIZE := Vector2(1920, 1080)
 const FAR_HERO := Vector2i(5, 7)
 const NEAR_HERO := Vector2i(5, 5)
+const REACHABLE_HERO := Vector2i(5, 1)
 const SIGHT_BLOCKER := Vector2i(5, 3)
-const CRAWLER_POS := Vector2i(2, 2)
-const HARRIER_POS := Vector2i(8, 2)
+# Approach from the hero's side so helpers cannot obstruct the marked line.
+const CRAWLER_POS := Vector2i(2, 8)
+const HARRIER_POS := Vector2i(8, 8)
 
 static func fixture(engine: RefCounted, squad: bool, blocked: bool = false, type: String = "briar_weaver") -> Dictionary:
 	var state: Dictionary = En04.fixture(engine, type)
@@ -38,16 +41,37 @@ static func thornwall_fixture(engine: RefCounted, squad: bool, blocked: bool = f
 	return engine._initialize_initiative_queue(state)
 
 static func run(expect: Callable) -> void:
+	run_thornwall(expect)
+	_all_authored_intents(Combat.new(), expect)
+
+static func run_thornwall(expect: Callable) -> void:
 	var engine: RefCounted = Combat.new()
 	for squad: bool in [false, true]:
 		for blocked: bool in [false, true]:
 			_thornwall_repeats(engine, expect, squad, blocked)
-	_all_authored_intents(engine, expect)
+	_cast_routes(engine, expect)
+
+static func _cast_routes(engine: RefCounted, expect: Callable) -> void:
+	for type: String in ["arc_thrall", "briar_weaver"]:
+		var state: Dictionary = fixture(engine, false, false, type)
+		var clip: String = "tether" if type == "arc_thrall" else "thornwall"
+		var intent_id: String = "arc_bolt" if type == "arc_thrall" else "thornwall"
+		var action_type: String = "ranged" if type == "arc_thrall" else "upheaval_mark"
+		state["enemies"][0]["intent"] = En04.intent(type, intent_id)
+		var result: Dictionary = engine.resolve_enemy_turn_with_steps(state, 0)
+		var casts: int = 0
+		for step: Dictionary in result["steps"]:
+			if str(step.get("action_type", "")) != action_type: continue
+			casts += 1
+			expect.call(CutoutAction.clip_for(step, state["enemies"][0]) == clip, type + " new action selects its authored cast clip")
+			expect.call(CutoutAction.playback_adapter(step, state["enemies"][0]) != null, type + " new action reaches its authored contact adapter")
+		expect.call(casts == 1, type + " real resolver emits exactly one new cast action")
 
 static func _thornwall_repeats(engine: RefCounted, expect: Callable, squad: bool, blocked: bool) -> void:
 	var label: String = "%s/%s" % ["squad" if squad else "solo", "blocked_sight" if blocked else "out_of_range"]
 	var state: Dictionary = thornwall_fixture(engine, squad, blocked)
 	var activations: int = 0
+	var marks: Array[Vector2i]
 	var trace: PackedStringArray
 	for round_index: int in range(PLAYER_ROUNDS):
 		state = engine.finish_player_activation(state)
@@ -61,7 +85,13 @@ static func _thornwall_repeats(engine: RefCounted, expect: Callable, squad: bool
 				trace.append("%d:%s/next=%d/tooltip=%s/badge=%s/threat=%d" % [state["initiative_clock"], state["enemies"][0].get("intent", {}).get("id", "<empty>"), scheduled_time(state, 1), display["tooltip"], display["badge"], display["threat_tiles"]])
 				_assert_continuity(engine, expect, state, 1, "%s activation %d" % [label, activations])
 				if activations == 1:
-					expect.call(not state["terrain"].is_empty(), label + " actually resolves Thornwall before checking the regression")
+					marks.assign(state["enemies"][0].get("upheaval_pending", {}).get("marks", []))
+					expect.call(marks.size() == 3 and state["terrain"].is_empty(), label + " Thornwall marks its three tiles without raising terrain early")
+				if activations == 2:
+					var raised: Array[Vector2i]
+					for terrain: Dictionary in state["terrain"]:
+						if str(terrain.get("kind", "")) == "crag_outcrop" and int(terrain.get("hp", 0)) == 3 and int(terrain.get("max_hp", 0)) == 3: raised.append(terrain["pos"])
+					expect.call(raised.size() == marks.size() and raised.size() == 3 and raised.all(func(tile: Vector2i) -> bool: return marks.has(tile)), label + " next Weaver turn raises the marked line as health-3 Outcrops")
 					expect.call(state["enemies"][0].get("intent", {}).get("id", "") == "lash_of_thorns", label + " keeps the authored Lash intent when Thornwall and Root Mend are unavailable")
 					expect.call(bool(display["cancelled"]) and int(display["threat_tiles"]) == 0, label + " shows the existing cancelled attack badge without inventing an unreachable threat")
 					_lash_becomes_reachable(engine, expect, state, label)
@@ -78,9 +108,12 @@ static func _lash_becomes_reachable(engine: RefCounted, expect: Callable, after:
 	var blocked_result: Dictionary = engine.resolve_enemy_turn_with_steps(after, 0)
 	var lash: Dictionary = En04.intent("briar_weaver", "lash_of_thorns")
 	expect.call(int(blocked_result["time_cost"]) == int(lash["time"]), label + " unreachable Lash still pays its authored Time")
-	expect.call(scene._analytics_enemy_action_events(blocked_result, {}).is_empty(), label + " unreachable Lash creates no fabricated hit analytics")
+	var blocked_events: Array[Dictionary] = scene._analytics_enemy_action_events(blocked_result, {})
+	var expected_reason: String = "no_line_of_sight" if label.ends_with("blocked_sight") else "out_of_range"
+	expect.call(blocked_events.size() == 1 and str(blocked_events[0]["payload"].get("no_action_reason", "")) == expected_reason and (blocked_events[0]["payload"]["target_losses"] as Array).is_empty(), label + " unreachable Lash records its reason without fabricated hit analytics")
 	var state: Dictionary = after.duplicate(true)
-	state["player"]["pos"] = NEAR_HERO
+	# Approach from behind the Weaver; the newly raised wall still blocks sight.
+	state["player"]["pos"] = REACHABLE_HERO
 	state["grid"][SIGHT_BLOCKER.y][SIGHT_BLOCKER.x] = "stone"
 	var display: Dictionary = display_state(engine, state, 1)
 	expect.call(bool(display["badge"]) and not bool(display["cancelled"]) and int(display["threat_tiles"]) > 0, label + " committed Lash immediately exposes its real threat when range and sight permit")

@@ -1,0 +1,318 @@
+{
+  "authority": "mq-14 brief; untouched owner-approved mq4_front/processed.png and mq4_rear/processed.png",
+  "source_frame": {
+    "front": {
+      "head_top": 22,
+      "sole_bottom": 246,
+      "ground_x": 150.5
+    },
+    "rear": {
+      "head_top": 22,
+      "sole_bottom": 246,
+      "ground_x": 148
+    }
+  },
+  "native_registration": {
+    "front": {
+      "head_top": 104,
+      "sole_bottom": 979,
+      "ground_x": 495.1073446327684
+    },
+    "rear": {
+      "head_top": 161,
+      "sole_bottom": 889,
+      "ground_x": 738.8868613138686
+    }
+  },
+  "cloak_hem_px": {
+    "front": [
+      [
+        70,
+        182
+      ],
+      [
+        85,
+        191
+      ],
+      [
+        100,
+        198
+      ],
+      [
+        115,
+        204
+      ],
+      [
+        130,
+        200
+      ],
+      [
+        145,
+        209
+      ],
+      [
+        160,
+        215
+      ],
+      [
+        175,
+        211
+      ],
+      [
+        190,
+        219
+      ],
+      [
+        205,
+        212
+      ],
+      [
+        220,
+        199
+      ],
+      [
+        229,
+        180
+      ]
+    ],
+    "rear": [
+      [
+        35,
+        174
+      ],
+      [
+        49,
+        181
+      ],
+      [
+        67,
+        190
+      ],
+      [
+        80,
+        180
+      ],
+      [
+        88,
+        194
+      ],
+      [
+        96,
+        179
+      ],
+      [
+        101,
+        198
+      ],
+      [
+        110,
+        185
+      ],
+      [
+        121,
+        199
+      ],
+      [
+        126,
+        190
+      ],
+      [
+        133,
+        197
+      ],
+      [
+        140,
+        180
+      ],
+      [
+        147,
+        188
+      ],
+      [
+        157,
+        183
+      ],
+      [
+        165,
+        190
+      ]
+    ]
+  },
+  "fit_iou_min": {
+    "front": 0.7,
+    "rear": 0.65
+  },
+  "labels": [
+    "head",
+    "torso",
+    "pelvis",
+    "upper_near",
+    "fore_near",
+    "hand_near",
+    "upper_far",
+    "fore_far",
+    "hand_far",
+    "thigh_near",
+    "shin_near",
+    "foot_near",
+    "thigh_far",
+    "shin_far",
+    "foot_far",
+    "pauldron_near",
+    "pauldron_far",
+    "belt",
+    "tabard",
+    "cape_near",
+    "cape_far",
+    "spear"
+  ],
+  "cloak_rows_px": {
+    "front": [
+      [
+        [
+          87,
+          82
+        ],
+        [
+          143,
+          86
+        ]
+      ],
+      [
+        [
+          75,
+          120
+        ],
+        [
+          170,
+          118
+        ]
+      ],
+      [
+        [
+          70,
+          160
+        ],
+        [
+          215,
+          146
+        ]
+      ],
+      [
+        [
+          84,
+          191
+        ],
+        [
+          220,
+          200
+        ]
+      ]
+    ],
+    "rear": [
+      [
+        [
+          156,
+          72
+        ],
+        [
+          106,
+          63
+        ]
+      ],
+      [
+        [
+          155,
+          108
+        ],
+        [
+          83,
+          107
+        ]
+      ],
+      [
+        [
+          166,
+          151
+        ],
+        [
+          52,
+          148
+        ]
+      ],
+      [
+        [
+          161,
+          190
+        ],
+        [
+          35,
+          174
+        ]
+      ]
+    ]
+  },
+  "foot_surface_plane_m": 0.029006820172071457,
+  "belt_pouch": {
+    "front_corners_px": [
+      [
+        89,
+        116
+      ],
+      [
+        98,
+        117
+      ],
+      [
+        97,
+        132
+      ],
+      [
+        89,
+        133
+      ]
+    ],
+    "rear_corners_px": [
+      [
+        155,
+        109
+      ],
+      [
+        146,
+        110
+      ],
+      [
+        145,
+        124
+      ],
+      [
+        153,
+        125
+      ]
+    ],
+    "thickness_px": 2
+  },
+  "source_occlusions": {
+    "rear": {
+      "torso": "Covered by the long cloak in the approved rear painting.",
+      "pelvis": "Covered by the cloak and belt.",
+      "hand_near": "The free hand rests on the front hip, behind the rear cloak.",
+      "thigh_near": "Upper leg covered by the cloak; the exposed knee is shin_near.",
+      "thigh_far": "Upper leg covered by the cloak; the exposed knee is shin_far.",
+      "belt": "The complete native belt/pouch solo is behind the rear cloak in this static maquette. The painting exposes the side pouch; this source-fit deviation is explicit rather than waived as a visible part."
+    }
+  },
+  "registration_authority": "Front lower-sole alpha centroid (150.5); true-turn rear lower-sole landmark x=148 from spec/art_identity/jobs/frostglass_lancer/mq4_landmarks_pair.json. Hood/sole pixel-edge heights are 22/246. The rear alpha-centroid registration is retained as a sensitivity diagnostic.",
+  "geometry_source_frame": {
+    "front": {
+      "head_top": 22,
+      "sole_bottom": 246,
+      "ground_x": 150.5
+    },
+    "rear": {
+      "head_top": 22,
+      "sole_bottom": 246,
+      "ground_x": 143.14814814814815
+    }
+  }
+}

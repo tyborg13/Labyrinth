@@ -1,0 +1,53 @@
+{
+  "min_images": 9,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*hover_ordinary.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*hover_air_t2.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*hover_lightning_t3.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*trap_lightning_kill.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*trap_fire_kill.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*trap_lightning_survive.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*trap_lightning_kill_active.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*trap_fire_kill_active.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*trap_lightning_survive_active.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

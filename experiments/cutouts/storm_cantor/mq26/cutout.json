@@ -1,0 +1,142 @@
+{
+  "character_id": "storm_cantor",
+  "rig": "humanoid_v2",
+  "proof_geometry": {
+    "canvas_size": 640,
+    "source_offset": 192
+  },
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "direction_clips": [
+    "lay_the_choir",
+    "broken_rhythm",
+    "call_the_spark"
+  ],
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the protagonist's cut-out bob: the upper body drops 2 px and returns as one rigid piece (the free claw rides with it, the rr-48 ruling); the staff arm follows a beat later as one rigid group with the staff (the same lag curve as the Reaver's sword arm); the staff tilts 1 degree either way, and the bell sways 3 degrees on its hook; the cloak, tabard, legs and feet stay still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.4166666666666667,
+      "intents": [],
+      "note": "an upright, measured procession on the protagonist's walk model: both legs step, six steps per tile, near foot leading, a 3 px lift; 2 degrees of forward lean; both arms swing from the shoulder opposite their same-side legs, the free claw more and the staff arm less; the staff trails the fist in the body frame and the bell swings against the step; the cloak trails 3 px and the tabard 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 5,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 3,
+        "lane_narrowing": 0.6,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.5,
+          "down": 3.0,
+          "passing": 0.8,
+          "up": 0.4
+        },
+        "arm_swing": {
+          "model": "shoulder_pendulum",
+          "_doc": "As rr-44/rr-48: the upper arm rotates about the shoulder, opposite the same-side leg; the forearm lags and bends more on the backswing; the hand is rigid with the forearm. The staff arm (far) swings less so the staff stays steady; the free claw (near) swings more.",
+          "phase": "opposite_same_side_leg",
+          "far": {
+            "upper_deg": 6,
+            "forearm_lag_s": 0.08,
+            "forearm_bend_deg": {
+              "forward": 2,
+              "back": 5
+            }
+          },
+          "near": {
+            "upper_deg": 12,
+            "forearm_lag_s": 0.08,
+            "forearm_bend_deg": {
+              "forward": 3,
+              "back": 10
+            }
+          },
+          "envelope": {
+            "ramp_fraction": 0.12,
+            "ease": "smoothstep"
+          }
+        },
+        "max_fit_px": 6
+      },
+      "held_follow": {
+        "item": "staff",
+        "grip": "hand_far",
+        "reference_frame": "body",
+        "deg_per_px": 0.25,
+        "lag_s": 0.1,
+        "limit_deg": 6,
+        "_doc": "rr-44/rr-48 body-frame follow: root travel never tilts the staff; it returns to its painted rest at the end of every move. A low rate because the staff is long."
+      },
+      "release_at": {}
+    },
+    "lay_the_choir": {
+      "seconds": 1.0,
+      "contact": 0.46,
+      "intents": [
+        "lay_the_choir:surface"
+      ],
+      "note": "Lay the Choir, after the step in (the move clip): he lifts the staff in his fist and drives its butt down into the floor (contact: the Electrified tiles appear here); the chest dips with the blow, the bell jumps on its hook and rings out; the free claw opens outward for balance; then the staff rises back to rest",
+      "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3).",
+      "release_at": {}
+    },
+    "peal": {
+      "seconds": 1.2,
+      "contact": 0.42,
+      "intents": [
+        "peal:move_toward"
+      ],
+      "note": "Peal, played where he ends after his step: this is the rule's own gesture, the bell in his chest ringing. He draws in, then throws his chest up and back (contact: the lightning strikes every Electrified tile here), the helm tilts back, the free claw flings straight up beside his shoulder and open, not across his body, and the bell swings hard and rings down over several swings as the storm lands; the staff stays planted; the cloak lifts with the throw",
+      "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3).",
+      "release_at": {}
+    },
+    "broken_rhythm": {
+      "seconds": 0.95,
+      "contact": 0.46,
+      "intents": [
+        "broken_rhythm:melee"
+      ],
+      "note": "Broken Rhythm, after the step in: the staff is held for its use, the fork is the weapon. He draws the staff back past upright with the fist high, then chops it forward and down in one arc so the three tines reach the target two tiles out (contact: the hit and the strike trail along the fork here), leaning his whole upper body in behind it; the bell slams against the ribs; he holds a beat, then hauls the staff back to rest",
+      "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3).",
+      "release_at": {}
+    },
+    "call_the_spark": {
+      "seconds": 1.0,
+      "contact": 0.5,
+      "intents": [
+        "call_the_spark:summon_minions"
+      ],
+      "note": "Call the Spark: he raises his open claw slowly in front of him, palm up, and tips his helm toward it, as if conducting a note out of the air (contact: the Lightning Wisp appears here); the staff stays planted; the bell gives one small ring",
+      "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3).",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit, as the Reaver's: torso knocked 3 px back and 1 px down with a 3 degree lean back, the helm nods back 4 degrees; both hands carry the knockback a beat late, so the elbows only flex; the staff kicks back 3 degrees and the bell swings; the cloak and tabard trail",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.8,
+      "terminal": true,
+      "intents": [],
+      "note": "he staggers back and the bell gives its last ring; the staff slips from his fist at 0.3, its butt settles to the floor and it topples forward, pivoting on that floor contact until it lies flat on the floor (the Gaoler's chain and the Reaver's falchion: the owner loved the weapon falling); the body slumps forward over planted feet like the Reaver (hips sink 6 px, torso folds 24 degrees, helm bows 18); both empty hands hang; the bell hangs still at the end",
+      "budget_note": "slump instead of a kneel, as the Reaver. Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3).",
+      "release_at": {
+        "staff": 0.3
+      }
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

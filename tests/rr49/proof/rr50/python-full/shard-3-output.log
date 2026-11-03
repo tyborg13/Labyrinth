@@ -1,0 +1,218 @@
+MODULE test_arc_thrall_proof_validation: 4.390s
+LIGHT TEARS vyraketh/left: 0 in all 16 frames
+LIGHT TEARS vyraketh/right: 0 in all 16 frames
+LIGHT TEARS noctyrax/left: 0 in all 16 frames
+LIGHT TEARS noctyrax/right: 0 in all 16 frames
+LIGHT TEARS zekarion/left: 0 in all 16 frames
+LIGHT TEARS zekarion/right: 0 in all 16 frames
+LIGHT TEARS vaeloryx/left: 0 in all 16 frames
+LIGHT TEARS vaeloryx/right: 0 in all 16 frames
+LIGHT TEARS tharokh/left: 0 in all 16 frames
+LIGHT TEARS tharokh/right: 0 in all 16 frames
+LIGHT TEARS iskaldra/left: 0 in all 16 frames
+LIGHT TEARS iskaldra/right: 0 in all 16 frames
+FIRE DISPLACEMENT MUTATION left: rejected (mean=0.569%)
+FIRE DISPLACEMENT MUTATION right: rejected (mean=0.569%)
+FORWARD PUSH MUTATION vyraketh/left: rejected (12838 tears)
+FORWARD PUSH MUTATION vyraketh/right: rejected (12701 tears)
+FORWARD PUSH MUTATION noctyrax/left: rejected (11993 tears)
+FORWARD PUSH MUTATION noctyrax/right: rejected (11972 tears)
+FORWARD PUSH MUTATION vaeloryx/left: rejected (25279 tears)
+FORWARD PUSH MUTATION vaeloryx/right: rejected (25294 tears)
+BIOME LIGHT TEST vyraketh/left: mean=10.413% range=9.143–11.225% seam=10.455% unique=16
+BIOME LIGHT TEST vyraketh/right: mean=10.441% range=9.305–11.277% seam=10.079% unique=16
+BIOME LIGHT TEST noctyrax/left: mean=6.829% range=6.034–7.412% seam=7.412% unique=16
+BIOME LIGHT TEST noctyrax/right: mean=6.862% range=6.293–7.222% seam=7.143% unique=16
+BIOME LIGHT TEST zekarion/left: mean=8.288% range=0.000–18.296% seam=11.578% unique=16
+BIOME LIGHT TEST zekarion/right: mean=8.291% range=0.000–18.254% seam=11.516% unique=16
+BIOME LIGHT TEST vaeloryx/left: mean=2.423% range=2.031–2.863% seam=2.031% unique=16
+BIOME LIGHT TEST vaeloryx/right: mean=2.499% range=2.169–2.946% seam=2.242% unique=16
+BIOME LIGHT TEST tharokh/left: mean=2.230% range=2.076–2.428% seam=2.304% unique=16
+BIOME LIGHT TEST tharokh/right: mean=2.230% range=2.114–2.335% seam=2.221% unique=16
+BIOME LIGHT TEST iskaldra/left: mean=2.036% range=1.375–2.891% seam=1.375% unique=16
+BIOME LIGHT TEST iskaldra/right: mean=2.035% range=1.530–2.694% seam=1.551% unique=16
+HOLDER CONTAMINATION REGRESSION: rejected (1 tear at [36,20])
+MODULE test_biome_light_idle: 8.890s
+CAPTURE PRODUCTION GATES: FAIL (1 errors; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-production-vgy8c1sk/combined)
+CAPTURE PRODUCTION GATES: PASS (0 errors; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-production-fp4dhv8l/combined)
+MODULE test_capture_production: 0.230s
+MODULE test_card_heuristic_illusions_terrain: 0.000s
+MODULE test_card_heuristic_maneuver: 0.001s
+MODULE test_card_heuristic_progression_context: 0.053s
+MODULE test_card_heuristic_surfaces: 0.001s
+CARD LEGIBILITY TEST RESULT: PASS (3 definitions, 3 contexts, 9 samples, 248 checks, 0 failures)
+CARD LEGIBILITY NEGATIVE FIXTURES: PASS (26 checks, 0 failures)
+CARD LEGIBILITY TEST RESULT: PASS (3 definitions, 3 contexts, 9 samples, 242 checks, 0 failures)
+CARD LEGIBILITY TEST RESULT: PASS (3 definitions, 7 contexts, 21 samples, 294 checks, 0 failures)
+MODULE test_card_legibility: 84.926s
+MODULE test_card_panel_text: 0.003s
+MODULE test_chopin_death_music: 0.050s
+test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests.test_bank_generator_is_deterministic ... skipped: requires pinned Python 3.12 audio environment
+test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests.test_normalizer_writes_full_score_and_separate_parts ... skipped: requires pinned Python 3.12 audio environment
+test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests.test_provenance_gate_rejects_mismatches_and_placeholder_licenses ... skipped: requires pinned Python 3.12 audio environment
+test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests.test_reference_render_and_verifier_match_approved_outputs ... skipped: requires pinned Python 3.12 audio environment
+test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests.test_scaffold_is_rights_locked_and_non_overwriting ... skipped: requires pinned Python 3.12 audio environment
+test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests.test_string_track_can_request_a_slow_attack_without_changing_the_default ... skipped: requires pinned Python 3.12 audio environment
+MODULE test_classical_soundtrack_pipeline: 0.002s
+DEMO VISUAL PROOF: PASS (1 clips)
+MODULE test_demo_clips: 148.520s
+MODULE test_demo_recording: 8.490s
+MODULE test_dragon_rule_measurement: 0.057s
+MODULE test_element_rule_contract: 0.003s
+MODULE test_engine_cache_proof: 0.001s
+FIX18 TRAVEL MUTATION: PASS (ignored_authored_origin rejected by retained-renderer oracle)
+FIX18 TRAVEL MUTATION: PASS (disabled_center_correction rejected by retained-renderer oracle)
+FIX18 STALE SOURCE MUTATION: PASS (all four Continue floor-containment failures observed)
+FIX18 STALE ENTRY pre_battle: {"continue": [], "layout": [], "no_animation_move": [], "resize": [], "restore": []}
+FIX18 STALE ENTRY warband: {"continue": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "layout": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "no_animation_move": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "resize": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "restore": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"]}
+FIX18 STALE ENTRY snare: {"continue": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "layout": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "no_animation_move": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "resize": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"], "restore": ["hoarfrost_seer", "glacial_mirror", "chainbound_gaoler", "frostglass_lancer"]}
+MODULE test_fix18_draw_origin: 111.167s
+Running task-local command:
+  task: rr-50-python-3
+  run: executable-0
+  HOME: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmplvq68who/executable-0
+  Steam: disabled
+  command: /Applications/Godot.app/Contents/MacOS/Godot --log-file /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmplvq68who/executable-0/godot.log --headless
+  timeout: 300s
+Running task-local command:
+  task: rr-50-python-3
+  run: executable-1
+  HOME: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmplvq68who/executable-1
+  Steam: disabled
+  command: 'C:\Tools\Godot.exe' --log-file /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmplvq68who/executable-1/godot.log --headless
+  timeout: 300s
+MODULE test_godot_task_runner: 5.571s
+MODULE test_guardian_rules_measurement: 0.086s
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+SHRIKE CPU MUTATION: missing_hold rejected
+SHRIKE CPU MUTATION: applied_tail rejected
+SHRIKE CPU MUTATION: reversed_tail rejected
+SHRIKE FROZEN HOVER MUTATION: caught by tests/gust_shrike_cutout_test.gd
+SHRIKE FROZEN HOVER MUTATION: caught by tests/gust_shrike_cutout_probe.gd
+MODULE test_gust_shrike_cutout: 38.001s
+MODULE test_hero_facing_tools: 0.008s
+MAQUETTE SEAM BLEED: {'view': 'front', 'added_pixels': 54, 'new_hole_pixels': 0}
+MAQUETTE SEAM BLEED: {'view': 'front', 'added_pixels': 0, 'new_hole_pixels': 0}
+MAQUETTE SEAM BLEED: {'view': 'rear', 'added_pixels': 54, 'new_hole_pixels': 0}
+MAQUETTE SEAM BLEED: {'view': 'rear', 'added_pixels': 0, 'new_hole_pixels': 0}
+MODULE test_maquette_bleed: 0.374s
+MODULE test_maquette_closed_loft: 0.002s
+MODULE test_maquette_hidden_material: 0.481s
+MAQUETTE REFERENCE MASKS: PASS (8 Godot image-operation masks = independent Pillow; no renderer claim)
+MAQUETTE NATIVE ALPHA: PASS (death/0069 and /0070: 0px mask diff; old /0070 model invented 13007px)
+MODULE test_maquette_native_alpha: 0.760s
+MODULE test_maquette_owner_proof: 3.582s
+MODULE test_maquette_regressions: 0.032s
+MAQUETTE SILHOUETTE MUTATION: orphan pixel rejected; connected reassignment preserves rest
+MAQUETTE SILHOUETTE MUTATION: widened joint gap rejected by legacy CPU and saved-surface gates; feedback8 hard gate in seam tests
+MODULE test_maquette_silhouette: 0.267s
+MQ11_CRACK_TRIANGLE_FIXTURE: top_band_only; pixels=820; visible=730; passed=true
+MQ11_CRACK_TRIANGLE_FIXTURE: hidden_over_98_percent; pixels=820; visible=16; passed=false; mask_midpoints_clear=true
+MODULE test_mq11_crack_visibility: 0.369s
+MQ12_MOTION_MUTATION_REJECTED: moved_protected_faces
+MQ12_MOTION_MUTATION_REJECTED: stationary_attachment
+MODULE test_mq12_motion: 0.011s
+CLOTH_PATTERN: panel; vertices=49; pins=49
+CLOTH_FRAME: panel; 1/1
+MODULE test_mq14_builder: 0.073s
+MQ16_CURATED_INVENTORY: PASS; files=2; bytes=6000000
+MODULE test_mq16_proof_guards: 2.965s
+MQ18_HASH_BOUND_DELIVERY: PASS
+MQ18_REPORT_PACKING: PASS; redundant ray point clouds discarded with hashes
+MODULE test_mq18_maquette: 32.930s
+MQ19_POSE_DIAGNOSTIC: NEEDS_DESIGN; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpj2p1_ip_/diagnostic.json
+MODULE test_mq19_maquette: 76.124s
+MODULE test_mq21_maquette: 14.543s
+test_old_castle_full_arrangement.OldCastleFullArrangementTests.test_complete_movement_boundaries_and_source_counts ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_full_arrangement.OldCastleFullArrangementTests.test_config_uses_cc0_symbolic_source_and_no_omr_inputs ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_full_arrangement.OldCastleFullArrangementTests.test_every_printed_system_and_opening_lament_are_anchored ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_full_arrangement.OldCastleFullArrangementTests.test_five_voice_reduction_counts_and_range ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_full_arrangement.OldCastleFullArrangementTests.test_generated_musicxml_has_stable_unique_part_ids_and_107_measures ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+test_old_castle_full_arrangement.OldCastleFullArrangementTests.test_v01_audition_is_byte_for_byte_unchanged ... skipped: Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).
+MODULE test_old_castle_full_arrangement: 0.000s
+MODULE test_original_soundtrack_assets: 0.070s
+MODULE test_performance_pass: 0.003s
+MODULE test_process_event_art: 21.510s
+RUNNER MUTATION REJECTED: absolute runtime preload in repository project
+RUNNER MUTATION REJECTED: all 210 supplemental mode changes (including Bile Bloomer to script)
+MODULE test_program_suite_runner: 24.687s
+PT14-01 MUTATION raw_rear_guard: KILLED
+PT14-01 MUTATION static_hero_ignored: KILLED
+PT14-01 MUTATION mirrored_bounds: KILLED
+PT14-01 MUTATION hole_subtraction: KILLED
+PT14-01 MUTATION no_hero_weight: KILLED
+PT14-01 MUTATION no_margin: KILLED
+PT14-01 MUTATION coverage_ignored: KILLED
+PT14-01 MUTATION animated_bounds: KILLED
+PT14-01 MUTATION unbounded_slide: KILLED
+PT14-01 MUTATION screen_reservations: KILLED
+PT14-01 MUTATION RESULT: PASS (10/10 killed; controls pass; production untouched)
+MODULE test_pt14_01_coverage: 155.106s
+SWEEP CHECKED synthetic: 17 frames/choices; 8 workers; 0.000s
+MODULE test_python_suite_runner: 16.588s
+ISOLATION AUDIT: 1 modules; /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/perf06-feedback-ovkq9foh/wait-proof/isolation-audit.md
+SHARD 1: 1 modules; estimated 1.000s
+SHARD 1 COMPLETE: 0 tests; 0.000s
+PYTHON SUITE WALL: 0.003s; results: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/perf06-feedback-ovkq9foh/wait-proof
+ISOLATION AUDIT: 1 modules; /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/perf06-feedback-ovkq9foh/wait-proof/isolation-audit.md
+SHARD 1: 1 modules; estimated 1.000s
+SHARD 1 COMPLETE: 0 tests; 0.000s
+PYTHON SUITE WALL: 0.002s; results: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/perf06-feedback-ovkq9foh/wait-proof
+ISOLATION AUDIT: 1 modules; /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/perf06-feedback-ovkq9foh/wait-proof/isolation-audit.md
+SHARD 1: 1 modules; estimated 1.000s
+SHARD 1 COMPLETE: 0 tests; 0.000s
+PYTHON SUITE WALL: 0.002s; results: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/perf06-feedback-ovkq9foh/wait-proof
+MODULE test_python_suite_runner_feedback: 20.897s
+MODULE test_recolour_lab: 2.079s
+MODULE test_rr25_mortar_finish: 0.152s
+RR44 NATIVE SIGNATURES: PASS (1336/1336; omitted outline and removed-frame mutations rejected)
+RR44 FRESH NATIVE WITNESSES: PASS (17 frozen native poses; every required category reproduced)
+MODULE test_rr44_feedback1_calibration: 33.880s
+RR44 DIRECTOR INPUTS: PASS (both paintings/raws/recipes byte exact; replay certified)
+RR44 BASE ELBOW MUTATION: PASS (hash-bound d7ed719d9 press/hit fail in both views; four CPU crops)
+RR44 MAQUETTE STRUCTURE: PASS (unscaled limbs; level shoulders; proper rear half-turn; native acceptance checked separately)
+RR44 DEATH: PASS (approved choreography retained; lowered hand target and measured floor drop)
+RR44 SOURCE CUTS: PASS (front=0px rear=0px; masks rederived; exact painted backing)
+MODULE test_rr44_gaoler: 5.440s
+RR46 ROUTING MUTATIONS: PASS (death opt-in and occupant sorting rejected)
+RR46 SCALING MUTATIONS: PASS (move and death rejected by production schedule checks)
+FAIL: test_rr46_playback.PlaybackTests.test_historical_runtime_pin_rejects_unowned_changes
+RR46 PAINTER MUTATIONS: PASS (reversed composite; actor/prop swap; reversed production canvas order)
+RR46 MIXED DEATH CLOCKS: PASS (12 blocking/overlap cases; three speeds; 12 authored event crossings)
+FAIL: test_rr46_playback.PlaybackTests.test_motion_and_reference_inputs_are_byte_identical
+ERROR: test_rr46_playback.PlaybackTests.test_native_archive_requires_complete_painted_coverage
+RR46 PAINTED ORACLE: PASS (independent primitive composition; reverse/pair mutations; authored absence; Retina crops)
+RR46 NATIVE CASE INVENTORY: 2 boards; 20 jobs; 20 deaths; stride 2 move/retreat plus every midpoint neighbour, stride 1 death; user://rr46/native_inventory.json
+RR46 TIMING: PASS (39 actor/speed rows; production path schedule)
+RR46 RR40 GEOMETRY: PASS (fresh and prepared; native pixels=false)
+RR46 SCALED GAIT GATES: PASS (9 six-step rigs x 2 views; planted stances and apex knees; three playback clocks; Seer retains protected four-shuffle clip)
+RR46 DEPTH ORDER: PASS (36 boards; 173718 frames; 111610 old-routing failures; 30 retreat routes; native pixels=false)
+MODULE test_rr46_playback: 210.601s
+ERROR: setUpClass (test_rr47_feedback1.FeedbackOneTests)
+MODULE test_rr47_feedback1: 0.008s
+MODULE test_runner_cancellation: 0.586s
+MODULE test_sb02_movement: 36.911s
+MAQUETTE MUTATION: shale_bloomer/broken_compiler rejected by independent director oracle
+MAQUETTE MUTATION: lightning_wisp/broken_compiler rejected by independent director oracle
+MAQUETTE MUTATION: shale_bloomer/flip_raise_sign rejected in both views
+MAQUETTE MUTATION: shale_bloomer/drop_key rejected in both views
+MAQUETTE MUTATION: lightning_wisp/flip_raise_sign rejected in both views
+MAQUETTE MUTATION: lightning_wisp/drop_key rejected in both views
+MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout_test.gd
+MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout/production_capture.gd
+MODULE test_semantic_maquette_motion: 59.337s
+MODULE test_short_card_tooltips: 0.012s
+MODULE test_special_encounter_assets: 0.007s
+MODULE test_steam_performance_stats_schema: 0.000s
+AUDIT MUTATION REJECTED: aliases collected across functions (2 assertion failures)
+AUDIT MUTATION REJECTED: inferred aliases omitted (4 assertion failures)
+FAIL: test_test_registration_audit.RegistrationAuditTests.test_repository_headless_registration_guard
+AUDIT MUTATION REJECTED: string contents scanned as calls (20 assertion failures)
+MODULE test_test_registration_audit: 4.378s
+MODULE test_text_budget: 0.060s
+MODULE test_visual_pass_4_assets: 0.257s

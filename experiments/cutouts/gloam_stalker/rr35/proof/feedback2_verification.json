@@ -1,0 +1,517 @@
+{
+  "unit": "rr-35",
+  "round": "feedback 2",
+  "branch": "codex/rr-35",
+  "uncommitted": true,
+  "full_suites_run": false,
+  "windowed_runs_attempted": false,
+  "headless_acceptance_complete": true,
+  "native_acceptance_complete": false,
+  "final_staged_sha256": "278cfc6d5922c439f08a971ab14020f235e34697f3aedc115452d96e68908bee",
+  "imports_byte_identical": true,
+  "protected_data_edited_by_worker": false,
+  "input_receipt": "feedback2_inputs.json",
+  "final_values": {
+    "slash_front_forward_px": {
+      "contact": 26,
+      "follow_through": 21
+    },
+    "slash_rear_forward_px": {
+      "contact": 20,
+      "follow_through": 16,
+      "override_added": false
+    },
+    "gait": {
+      "lift_px": 3,
+      "lane_narrowing": 0.4
+    },
+    "rear_leg_near_minimum_reach": {
+      "margin_px": 3.5,
+      "reason": "r3 crouch foreshortens the rear near thigh; director judges the native rear move frames (rr-35 feedback 2)"
+    }
+  },
+  "director_requirements": {
+    "1_front_slash": "PASS: protected 26/21 keys; front threshold 16 and rear threshold 18. Both contact reaches pass; wind-up-to-contact travel recorded without a gate.",
+    "2_rear_near_reach": "PASS: anatomy declares only rear leg_near margin 3.5 with exact director reason; all other legs/views retain 4. Restoring 4 and omitting the exception fail, including reported move frame 43. Optional-policy omission is byte-equivalent across reference reach reports.",
+    "3_rebuild_and_proof": "PASS headless: recompiled/rebuilt/density-derived assets and motion coverage; 22 focused tests, 177 focused references, all strict gates, all 706 CPU frames. Native renderer acceptance awaits director."
+  },
+  "inherited_round0_requirements": {
+    "1_recut_and_rests": "Preserved accepted re-cut and torso-owned carapace; both source rests have zero visible mismatch; production density native rest rebake pending.",
+    "2_draw_order": "Preserved front near and rear far camera arms/blades above torso/pelvis/capes, head above arms, opposite arm behind torso; strict and mutation tests pass.",
+    "3_clips": "Current protected motion imported byte for byte and compiled; production intent wiring retained.",
+    "4_knees": "Per-view per-leg measured stance policies retained; front near/far 32.537166/53.242111 degrees; rear 61.332177/40.635037 degrees.",
+    "5_gates": "Existing gates and all added component/draw-order/slash gates pass headless, including negative controls; true native component and image gates await director."
+  },
+  "remaining_placeholders": {},
+  "unresolved_gate_errors": [],
+  "slash_reach": {
+    "front": {
+      "leading_blade": "hand_far",
+      "source_tip": [
+        49.5,
+        144.5
+      ],
+      "contact": 0.48,
+      "rest_tip": [
+        49.5,
+        144.5
+      ],
+      "contact_tip": [
+        36.484525531530366,
+        154.8737165033818
+      ],
+      "distance_px": 16.64381475900043,
+      "minimum_px": 16,
+      "windup_phase": 0.3,
+      "windup_tip": [
+        55.61031536757951,
+        113.93598298728466
+      ],
+      "windup_to_contact_travel_px": 45.18510664242924,
+      "travel_report_only": true,
+      "errors": []
+    },
+    "rear": {
+      "leading_blade": "hand_far",
+      "source_tip": [
+        205.5,
+        212.5
+      ],
+      "contact": 0.48,
+      "rest_tip": [
+        205.5,
+        212.5
+      ],
+      "contact_tip": [
+        231.0584076493977,
+        209.495693936944
+      ],
+      "distance_px": 25.734374997137706,
+      "minimum_px": 18,
+      "windup_phase": 0.3,
+      "windup_tip": [
+        193.01079759001752,
+        192.15072622895187
+      ],
+      "windup_to_contact_travel_px": 41.81469282467514,
+      "travel_report_only": true,
+      "errors": []
+    }
+  },
+  "every_move_frame_reach": {
+    "front": {
+      "frames": 51,
+      "target_checks": 102,
+      "errors": [],
+      "leg_paths": [
+        {
+          "target": "foot_near",
+          "segment_lengths": [
+            34.09810487769079,
+            42.27257688206386
+          ],
+          "minimum_px": 65.76582160124451,
+          "minimum_phase": 0.337,
+          "allowed_minimum_px": 12.174472004373072
+        },
+        {
+          "target": "foot_far",
+          "segment_lengths": [
+            31.84861113533838,
+            19.843425391045773
+          ],
+          "minimum_px": 38.417990739560544,
+          "minimum_phase": 0.136,
+          "allowed_minimum_px": 16.005185744292607
+        }
+      ]
+    },
+    "rear": {
+      "frames": 51,
+      "target_checks": 102,
+      "errors": [],
+      "leg_paths": [
+        {
+          "target": "foot_near",
+          "segment_lengths": [
+            9.704905009839093,
+            31.114227955229747
+          ],
+          "minimum_px": 25.09500074271054,
+          "minimum_phase": 0.86,
+          "allowed_minimum_px": 24.909322945390656
+        },
+        {
+          "target": "foot_far",
+          "segment_lengths": [
+            28.79541738714687,
+            36.73834594126415
+          ],
+          "minimum_px": 54.27955122080281,
+          "minimum_phase": 0.308,
+          "allowed_minimum_px": 11.94292855411728
+        }
+      ]
+    }
+  },
+  "move_frame_detail": "feedback2_reach.json",
+  "rear_near_margin_four_mutation": {
+    "required_failure_observed": true,
+    "errors": [
+      "rear/move/foot_near: minimum reach 25.094914 px < 25.409323 px at 0.860219238"
+    ],
+    "move_path": {
+      "clip": "move",
+      "target": "foot_near",
+      "chain": {
+        "first": "thigh_near",
+        "second": "shin_near",
+        "target": "foot_near"
+      },
+      "segment_lengths": [
+        9.704905009839093,
+        31.114227955229747
+      ],
+      "samples": 3343,
+      "allowed_minimum_px": 25.409322945390656,
+      "allowed_maximum_px": 41.635515624370214,
+      "minimum_px": 25.09491438800111,
+      "maximum_px": 45.65109501279448,
+      "minimum_reach": {
+        "margin_px": 4,
+        "reason": "r3 crouch foreshortens the rear near thigh; director judges the native rear move frames (rr-35 feedback 2)"
+      },
+      "minimum_phase": 0.86021923828125,
+      "maximum_phase": 0.732
+    },
+    "reported_frame": {
+      "frame": 43,
+      "phase": 0.86,
+      "checks": [
+        {
+          "target": "foot_near",
+          "distance_px": 25.09500074271054,
+          "minimum_px": 24.909322945390656,
+          "margin_px": 3.5,
+          "ok": true
+        },
+        {
+          "target": "foot_far",
+          "distance_px": 65.01706267259225,
+          "minimum_px": 11.94292855411728,
+          "margin_px": 4.0,
+          "ok": true
+        }
+      ]
+    },
+    "refinement_note": "The failing 4 px control refines the unchanged path more finely than the passing 3.5 px gate."
+  },
+  "cpu_components": {
+    "front": {
+      "ok": true,
+      "frames": 353,
+      "failures": [],
+      "native_pixels": false,
+      "samples_sha256": "ef6f978d2c9a69e1cba837c8b69c2a3ff811f08fb11d70ef0adf7c3faa962ec8",
+      "rest_components": 1,
+      "maximum_components": 1
+    },
+    "rear": {
+      "ok": true,
+      "frames": 353,
+      "failures": [],
+      "native_pixels": false,
+      "samples_sha256": "ef6f978d2c9a69e1cba837c8b69c2a3ff811f08fb11d70ef0adf7c3faa962ec8",
+      "rest_components": 1,
+      "maximum_components": 1
+    }
+  },
+  "production_logic": {
+    "front": {
+      "ok": true,
+      "errors": [],
+      "frames": 1166,
+      "movement_records": 284,
+      "native_pixels": false
+    },
+    "rear": {
+      "ok": true,
+      "errors": [],
+      "frames": 1166,
+      "movement_records": 284,
+      "native_pixels": false
+    }
+  },
+  "preservation": {
+    "ok": true,
+    "errors": [],
+    "protected_files_checked": 2959,
+    "generic_changes": [
+      "tools/humanoid_cutout/anatomy.schema.json",
+      "tools/humanoid_cutout/reach.py",
+      "tools/humanoid_cutout/walk_gates.py"
+    ],
+    "generic_additions": [
+      "tools/humanoid_cutout/reach_policy.py"
+    ],
+    "authorized_director_replacements": {
+      "spec/peer_benchmark/staged/rr-35/motion_tracks.json": {
+        "supplied_sha256": "278cfc6d5922c439f08a971ab14020f235e34697f3aedc115452d96e68908bee",
+        "final_sha256": "278cfc6d5922c439f08a971ab14020f235e34697f3aedc115452d96e68908bee"
+      }
+    },
+    "accepted_cut_pngs_checked": 311,
+    "accepted_cut_pngs_unchanged": true,
+    "foreign_records_unchanged": {
+      "spec/art_identity/registry.json": true,
+      "spec/assets/board_pixel_density/registry.json": true,
+      "spec/assets/board_pixel_density/outputs.json": true
+    },
+    "other_unit_git_changes": []
+  },
+  "legacy_reach_equivalence": {
+    "ok": true,
+    "original_reach_sha256": "d3d4e6a742bf650ce9862a68ac213593e50c612284e7f58deebb76cda7ac2b58",
+    "comparisons": [
+      {
+        "view": "front",
+        "paths": 12
+      },
+      {
+        "view": "rear",
+        "paths": 12
+      },
+      {
+        "view": "front",
+        "paths": 14
+      },
+      {
+        "view": "front",
+        "paths": 14
+      },
+      {
+        "view": "rear",
+        "paths": 14
+      },
+      {
+        "view": "front",
+        "paths": 9
+      },
+      {
+        "view": "rear",
+        "paths": 9
+      },
+      {
+        "view": "front",
+        "paths": 9
+      },
+      {
+        "view": "front",
+        "paths": 9
+      },
+      {
+        "view": "rear",
+        "paths": 9
+      },
+      {
+        "view": "front",
+        "paths": 9
+      },
+      {
+        "view": "rear",
+        "paths": 9
+      },
+      {
+        "view": "front",
+        "paths": 9
+      },
+      {
+        "view": "rear",
+        "paths": 9
+      },
+      {
+        "view": "front",
+        "paths": 9
+      },
+      {
+        "view": "rear",
+        "paths": 9
+      },
+      {
+        "view": "front",
+        "paths": 11
+      },
+      {
+        "view": "rear",
+        "paths": 11
+      },
+      {
+        "view": "rear",
+        "paths": 11
+      },
+      {
+        "view": "rear",
+        "paths": 11
+      },
+      {
+        "view": "rear",
+        "paths": 11
+      },
+      {
+        "view": "front",
+        "paths": 1
+      },
+      {
+        "view": "front",
+        "paths": 1
+      }
+    ],
+    "reports_byte_identical": 23
+  },
+  "checks": [
+    {
+      "name": "build and compile",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_build.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 FRONT BUILD: PASS (rest mismatch: 0 px; 6 skinned meshes; protected tracks byte-identical)",
+        "RR35 REAR BUILD: PASS (rest mismatch: 0 px; 6 skinned meshes; protected tracks byte-identical)"
+      ],
+      "log": "logs/feedback2/build_final.txt"
+    },
+    {
+      "name": "density-derived assets",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_density.py --rebuild-derived-sources",
+      "exit_code": 0,
+      "result_lines": [
+        "PROCESSED 52 file(s)",
+        "RR35 DENSITY PAINT: PASS (both views adopted/processed; native rest pending director)"
+      ],
+      "log": "logs/feedback2/density_final.txt"
+    },
+    {
+      "name": "actual headless bone samples",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_evidence.py --refresh",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 BONE SAMPLES: PASS (1096 poses; headless transforms only)",
+        "RR35 COMPACT SAMPLES: PASS (1096 poses; full transforms in ignored logs)"
+      ],
+      "log": "logs/feedback2/samples_final.txt"
+    },
+    {
+      "name": "focused rr-35 tests",
+      "command": "python3 -B -m unittest tests.test_rr35_cutout tests.test_rr35_production",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 22 tests in 122.766s",
+        "OK"
+      ],
+      "log": "logs/feedback2/focused_final.txt"
+    },
+    {
+      "name": "focused reference and anatomy/reach regressions",
+      "command": "python3 -B tests/rr35/run_reference_tests.py --compare-legacy-reach tests.test_rr10_humanoid tests.test_rr11_humanoid tests.test_rr18_humanoid tests.test_rr17_cutout tests.test_rr17_integration tests.test_rr21_cutout tests.test_rr21_production tests.test_rr26_consolidation tests.test_rr29_mimic tests.test_rr30_mortar tests.test_rr31_calibration tests.test_rr31_storage tests.test_rr32_herald tests.test_rr32_production tests.test_rr15_reach tests.test_rr16_feedback1 tests.test_rr16_review_fixes tests.test_rr14_anatomy",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 177 tests in 429.001s",
+        "OK",
+        "RR16 CURVED REACH: FAIL AS REQUIRED (23.113249183 px at 0.500730859)",
+        "RR16 SUPPORT MODES: PASS (4 views/configurations)",
+        "RR35 LEGACY REACH REPORTS: PASS (23 byte-identical JSON reports)"
+      ],
+      "log": "logs/feedback2/references.txt"
+    },
+    {
+      "name": "strict cut/motion/lean/direction/reach/slash gates",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_gates.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 ALL GATES: PASS (0 unique errors; native=False)",
+        "RR35 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 claws=0 facing=0 reach=0 overreach=7",
+        "RR35 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 claws=0 facing=0 reach=0 overreach=5"
+      ],
+      "log": "logs/feedback2/gates_final.txt"
+    },
+    {
+      "name": "all-frame CPU component/seam/clean gates",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_seams.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 FRONT CPU SEAMS/CLEAN: PASS (353 frames; 0 failures)",
+        "RR35 REAR CPU SEAMS/CLEAN: PASS (353 frames; 0 failures)"
+      ],
+      "log": "logs/feedback2/cpu_final.txt"
+    },
+    {
+      "name": "preservation",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_preservation.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 PRESERVATION: PASS (2959 protected files; 3 expected generic changes)"
+      ],
+      "log": "logs/feedback2/preservation.txt"
+    },
+    {
+      "name": "registration audit",
+      "command": "python3 -B tools/test_registration_audit.py",
+      "exit_code": 0,
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (814 scripts; full suite=461, quarantined=29, windowed probe=324)"
+      ],
+      "log": "logs/feedback2/registration.txt"
+    },
+    {
+      "name": "density check; native rebake pending director",
+      "command": "python3 -B tools/process_board_density.py --check --only gloam_stalker_cutout",
+      "exit_code": 1,
+      "result_lines": [
+        "rest rebake needed: assets/units/gloam_stalker_cutout/humanoid_v2/front/rest.png: rest pixels changed since recorded rebake",
+        "rest rebake needed: assets/units/gloam_stalker_cutout/humanoid_v2/rear/rest.png: rest pixels changed since recorded rebake"
+      ],
+      "log": "logs/feedback2/density_check.txt"
+    },
+    {
+      "name": "production contacts/poses front",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_production.py --input experiments/cutouts/gloam_stalker/rr35/proof/logs/production_front/logic_frames.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+      ],
+      "log": "logs/feedback2/production_front_gates.txt"
+    },
+    {
+      "name": "production contacts/poses rear",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_production.py --input experiments/cutouts/gloam_stalker/rr35/proof/logs/production_rear/logic_frames.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+      ],
+      "log": "logs/feedback2/production_rear_gates.txt"
+    }
+  ],
+  "chosen_defaults_this_round": [],
+  "generic_changes_this_round": [
+    "tools/humanoid_cutout/anatomy.schema.json: optional per-leg/per-view minimum_reach margin/reason schema",
+    "tools/humanoid_cutout/reach_policy.py: read explicit policy only for standard leg chains",
+    "tools/humanoid_cutout/reach.py: optional margin in offline reach gate; omission retains legacy JSON and arithmetic"
+  ],
+  "observed_log_messages": [
+    "Build/test logs retain NumPy matmul warnings from existing art identity/ownership code.",
+    "Godot headless sample log reports macOS certificate lookup and exit resource warnings; command exits 0 and all 1096 poses are sampled."
+  ],
+  "remaining_director_work": [
+    "Native density/rest rebake, scoped shadow refresh and provenance seal.",
+    "Windowed density, rest, native, sheets, idle, production and review at 1920x1080, 100% UI scale.",
+    "Director-owned commit, review, inspection fixture and publication."
+  ],
+  "capture_paths": [
+    "proof/native_rest",
+    "proof/native",
+    "proof/contact_sheets",
+    "proof/idle_native",
+    "proof/production_native",
+    "proof/gloam_stalker_protagonist_idle.mp4",
+    "proof/gloam_stalker_review.mp4"
+  ]
+}

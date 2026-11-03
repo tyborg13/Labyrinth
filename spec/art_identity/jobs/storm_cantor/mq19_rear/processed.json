@@ -1,0 +1,61 @@
+{
+  "K": 4,
+  "drawn_size": [
+    121,
+    233
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.1664322831038679,
+    "edge_light_share": 0.004957507082152974,
+    "feature_px": 5.140820002979126,
+    "height": 233,
+    "height_drawn": 233.0,
+    "orphan_share": 0.11165257273899958,
+    "regions": 528,
+    "run_length": 1.7640960809102402,
+    "symmetry": 0.5706969772670497,
+    "thin_abs": 0.015407768381826004,
+    "thin_rel": 0.18059337824279775,
+    "value": 0.17916291203309476,
+    "width": 121
+  },
+  "pixel_sha256": "64d1028e8ae2a05d549460d048b74acf68acd9cab431c3d333c7babe9283e556",
+  "placement": [
+    68,
+    13
+  ],
+  "post_steps": [
+    {
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "8b7302cca6bd8b8cd8e3d9aab712b2fd7c55de9f613def7e8e754d3ffd882c12",
+      "protected_body_share": {
+        "front": 0.1044891640866873,
+        "rear": 0.10864888123924268
+      },
+      "reference": "spec/art_identity/jobs/storm_cantor/mq19_rear/front_match.png",
+      "reference_pixel_sha256": "f99a4ba0fdb5f0a50c1f78e614b90ae03f26650aac48ccf619a2ac47d0e63f76",
+      "step": "palette_match"
+    }
+  ],
+  "raw_sha256": "4a4ff6dc3c8ea52aaecc7ed7951d5531591d732748c30fb3348c4052c6005e3b",
+  "shift": [
+    0,
+    0
+  ]
+}

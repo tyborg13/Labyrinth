@@ -42,6 +42,7 @@ const UMBRA_SELECTION_META: String = "umbra_selected"
 const CONTEXT_PANEL_MIN_WIDTH: float = 300.0
 const CONTEXT_PANEL_MAX_WIDTH: float = 360.0
 const CONTEXT_PANEL_GAP: float = 24.0
+const SETTINGS_TITLE_CLEARANCE: float = 40.0
 const RESUME_PANEL_HEIGHT: float = 124.0
 const REPLACEMENT_PANEL_HEIGHT: float = 248.0
 const EDGE_ACCENT := Color("d69b47")
@@ -794,13 +795,12 @@ func _update_layout() -> void:
 	left_scrim.position = Vector2.ZERO
 	left_scrim.size = Vector2.ZERO
 
-	var panel_width: float = minf(900.0, maxf(720.0, viewport_size.x - margin_x * 2.0))
-	var panel_height: float = minf(800.0, viewport_size.y - 48.0)
-	var panel_x: float = margin_x + menu_width + 38.0
+	# Settings stands at the right margin, clear of the title, so the game's name stays whole.
+	var title_right: float = margin_x + _title_max_line_width(title_font_size) + SETTINGS_TITLE_CLEARANCE
+	var panel_width: float = clampf(viewport_size.x - margin_x - title_right, settings_panel.get_combined_minimum_size().x, 900.0)
+	var panel_height: float = minf(SettingsPanel.PANEL_MINIMUM_SIZE.y, viewport_size.y - 48.0)
+	var panel_x: float = maxf(24.0, viewport_size.x - margin_x - panel_width)
 	var panel_y: float = maxf(24.0, (viewport_size.y - panel_height) * 0.5)
-	if panel_x + panel_width + margin_x > viewport_size.x:
-		panel_width = minf(900.0, viewport_size.x - margin_x * 2.0)
-		panel_x = (viewport_size.x - panel_width) * 0.5
 	settings_panel.position = Vector2(panel_x, panel_y)
 	settings_panel.size = Vector2(panel_width, panel_height)
 	if _controller_prompt_bar != null:

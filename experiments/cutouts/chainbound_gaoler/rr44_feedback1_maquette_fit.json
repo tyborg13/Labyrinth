@@ -1,0 +1,25 @@
+{
+  "input_spec_hash": "3fc731352c8df460f614f7ffb96ff3ee75c806fc4346afd79b47714ec9b07752",
+  "source": "native front semantic centroid; source and native rows in mq15_acceptance.json",
+  "capture_acceptance_sha256": "9b5c3096dc6a3dce0e13d398dec99e429bdb499e5c9326499a366e7144b31634",
+  "piece": "fore_far_gambeson",
+  "centroid_offset_px": [
+    2.591524545475025,
+    6.492355869961926
+  ],
+  "centroid_limit_px": 5,
+  "centroid_quantization_guard_px": 1,
+  "followups": [
+    {
+      "input_spec_hash": "5240b790cad1ae2cd1ec0a41753b56f34865231e30533dff214fd034e43fdf8f",
+      "capture_acceptance_sha256": "3d10769e757da1086e9a568945c3292587bb6ab16e0b5dd99b26ef7f4a214399",
+      "piece": "upper_far_gambeson",
+      "centroid_offset_px": [
+        4.261038644045357,
+        -2.716675147588731
+      ],
+      "centroid_limit_px": 5,
+      "centroid_quantization_guard_px": 1
+    }
+  ]
+}

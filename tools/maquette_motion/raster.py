@@ -37,12 +37,14 @@ class QuadSamples:
         return (self.default, self.alternative_u, self.alternative_v, self.alternative)
 
 
-def nearest_quad(image, transform, bounds, with_ties=False):
+def nearest_quad(image, transform, bounds, with_ties=False, *, tie_epsilon=None):
     """Rasterize at absolute destination pixel centers, then crop to bounds.
 
     Vertex rounding must happen in fixed-canvas coordinates. Re-registering the
     quad at a crop origin can change texel selection and invalidate the metric.
     """
+    # Resolve the legacy policy at call time, including calibration mutations.
+    if tie_epsilon is None:tie_epsilon=SUBTEXEL_TIE_EPSILON
     paint = np.asarray(image)
     height, width = paint.shape[:2]
     left, top, right, bottom = bounds
@@ -91,8 +93,8 @@ def nearest_quad(image, transform, bounds, with_ties=False):
         u = np.rint(raw_u.astype(np.float32) - 0.5).astype(int)
         v = np.rint(raw_v.astype(np.float32) - 0.5).astype(int)
         integer_u, integer_v = np.rint(raw_u).astype(int), np.rint(raw_v).astype(int)
-        tie_u = np.abs(raw_u - integer_u) <= SUBTEXEL_TIE_EPSILON
-        tie_v = np.abs(raw_v - integer_v) <= SUBTEXEL_TIE_EPSILON
+        tie_u = np.abs(raw_u - integer_u) <= tie_epsilon
+        tie_v = np.abs(raw_v - integer_v) <= tie_epsilon
         # At an outer UV edge there is only one real neighbouring texel.
         # Neither the default nor an alternative may invent transparent paint
         # by sampling a nonexistent row/column. Non-tie sampling is unchanged.

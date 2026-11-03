@@ -1,0 +1,53 @@
+Running task-local command:
+  task: pt13-03
+  run: pt13-03-1793081922703643000-33380
+  HOME: /private/tmp/labyrinth-godot-home/pt13-03-1793081922703643000-33380
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-03-1793081922703643000-33380/godot.log --headless --path . --script tests/card_legibility_test.gd -- --mutation-contexts
+  timeout: 150s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+LIVE AUDIT: combat fixture mode=combat
+LIVE AUDIT OPEN: grimoire_equipment
+CARD LEGIBILITY CONTEXT: {"context":"grimoire_equipment","exemption":"","floor_failure_count":3,"icon_px":10.5119998455048,"overflow_count":0,"sample_failure_count":3,"samples":3,"shrunk_count":0,"text_px":{"footer":null,"rules":7.00799989700317,"token_number":7.00799989700317}}
+LIVE AUDIT OPEN: purge_picker
+CARD LEGIBILITY CONTEXT: {"context":"purge_picker","exemption":"","floor_failure_count":0,"icon_px":21.0239996910095,"overflow_count":0,"sample_failure_count":0,"samples":3,"shrunk_count":0,"text_px":{"footer":null,"rules":14.0159997940063,"token_number":14.0159997940063}}
+CARD LEGIBILITY EQUIPMENT BOUNDS: splintered_shield (482.0, 417.0) (46 two-card items)
+CARD LEGIBILITY TEST RESULT: FAIL (3 definitions, 2 contexts, 6 samples, 225 checks, 6 failures)
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: grimoire_equipment production face before overrides: ["rules 7.446 < 14", "token_number 7.446 < 14", "icon 12.264 < 16"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:169)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:210)
+ERROR: grimoire_equipment production face before overrides: ["rules 7.446 < 14", "token_number 7.446 < 14", "icon 12.264 < 16"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:169)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:210)
+ERROR: grimoire_equipment production face before overrides: ["rules 7.446 < 14", "token_number 7.446 < 14", "icon 12.264 < 16"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:169)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:210)
+ERROR: grimoire_equipment/iron_wheel/base: ["rules 7.446 < 14", "token_number 7.446 < 14", "icon 12.264 < 16"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:169)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:210)
+ERROR: grimoire_equipment/thorn_crown_pact/base: ["rules 7.008 < 14", "token_number 7.008 < 14", "icon 10.512 < 16"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:169)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:210)
+ERROR: grimoire_equipment/headlong/base: ["rules 7.008 < 14", "token_number 7.008 < 14", "icon 11.388 < 16"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:169)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:210)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

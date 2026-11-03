@@ -59,11 +59,13 @@ static var _session_umbra_depth: int = -1
 static var _session_depth_save_failed: bool = false
 static var _storage_path: String = DEFAULT_STORAGE_PATH
 static var _run_storage_path: String = DEFAULT_RUN_STORAGE_PATH
+static var _run_writer := preload("res://scripts/ordered_background_writer.gd").new()
 
 static func set_storage_path(path: String) -> void:
 	_storage_path = path if not path.is_empty() else DEFAULT_STORAGE_PATH
 
 static func set_run_storage_path(path: String) -> void:
+	flush_pending_run_saves()
 	_run_storage_path = path if not path.is_empty() else DEFAULT_RUN_STORAGE_PATH
 
 static func default_data() -> Dictionary:
@@ -136,6 +138,8 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 		data = _migrated_legacy_stats(data)
 	if source_schema < 6:
 		data = _migrated_legacy_combat_unit_history(data)
+	# Retired history is disposable and never participates in profile recovery.
+	data.erase("recent_events")
 	data["run_counter"] = maxi(0, int(data.get("run_counter", 0)))
 	if data.has(HEIRLOOM_KEY):
 		var item: String = str(data[HEIRLOOM_KEY])
@@ -497,6 +501,7 @@ static func _remove_profile_file_if_present(path: String) -> void:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 static func has_saved_run() -> bool:
+	flush_pending_run_saves()
 	return FileAccess.file_exists(_run_storage_path) or FileAccess.file_exists(_run_backup_path())
 
 static func load_saved_run() -> Dictionary:
@@ -519,7 +524,33 @@ static func _load_run_dictionary(path: String) -> Dictionary:
 		return {}
 	# `get_var()` decodes a fresh Variant graph owned by this call. Returning it
 	# directly avoids cloning the entire save once more during resume/recovery.
+	preload("res://scripts/arc_thrall_save_migration.gd").migrate(data)
+	preload("res://scripts/enemy_mechanics/retired_intents.gd").migrate(data)
+	# Raw legacy-unit fights need unit repair before inserting natural intents.
+	preload("res://scripts/retired_mirror_save_migration.gd").migrate(data, int(data.get("combat_units_schema", 0)) >= 1)
+	_migrate_retired_battlefield_pieces(data)
+	if data.get("combat_state", {}) is Dictionary:
+		preload("res://scripts/guardian_combat_rules.gd").migrate_saved_combat(data.get("combat_state", {}))
+	preload("res://scripts/dragon_combat_rules.gd").migrate_save(data)
 	return data as Dictionary
+
+static func _migrate_retired_battlefield_pieces(value: Variant) -> void:
+	if value is Array:
+		for child: Variant in value: _migrate_retired_battlefield_pieces(child)
+	elif value is Dictionary:
+		# Keep a saved intent's identity, Time and held geometry, replacing only
+		# the retired action payload so it can resume through the shared pieces.
+		match str(value.get("type", "")):
+			"grow_bramble":
+				for key: String in ["shape", "rounds", "pushed_damage", "pushed_bleed"]: value.erase(key)
+				value.merge({"type": "upheaval_mark", "pattern": "line_between", "length": 3, "health": 3}, true)
+			"icefall_land":
+				for key: String in ["terrain", "terrain_rounds", "pillar_shatter_damage"]: value.erase(key)
+		for key: Variant in value:
+			if str(key) in ["analytics", "analytics_context", "analytics_events", "progression_analytics_outbox", "completed_run_results", "last_run_result", "log", "surface_events", "elemental_source", "rubble_source"]: continue
+			if str(key) == "terrain" and value[key] is Array:
+				value[key] = value[key].filter(func(entry: Variant) -> bool: return not entry is Dictionary or str(entry.get("kind", "")) not in ["bramble", "ice_pillar"])
+			else: _migrate_retired_battlefield_pieces(value[key])
 
 static func _run_dictionary_is_nonempty(path: String) -> bool:
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
@@ -529,17 +560,45 @@ static func _run_dictionary_is_nonempty(path: String) -> bool:
 	file.close()
 	return typeof(data) == TYPE_DICTIONARY and not (data as Dictionary).is_empty()
 
+# The synchronous API remains a durability barrier for callers that need one.
 static func save_run_state(run_state: Dictionary) -> bool:
+	queue_run_state(run_state)
+	return flush_pending_run_saves()
+
+static func queue_run_state(run_state: Dictionary, failure_boundary: String = "") -> bool:
+	# Later idle writes own every nested array/dictionary. A successful newer
+	# checkpoint may supersede older snapshots, including a failed predecessor.
+	var request: Dictionary = {"state": run_state.duplicate(true), "failure_boundary": failure_boundary, "reported": false}
+	_run_writer.submit(_save_queued_run_state_at.bind(_run_storage_path, request), true)
+	return true
+
+static func _save_queued_run_state_at(path: String, request: Dictionary) -> bool:
+	var saved: bool = _save_run_state_at(path, request["state"])
+	if not saved and not bool(request["reported"]) and not str(request["failure_boundary"]).is_empty():
+		push_error("Failed to persist committed run boundary: %s" % str(request["failure_boundary"]))
+		request["reported"] = true
+	return saved
+
+static func poll_pending_run_saves(idle: bool = true) -> void:
+	_run_writer.poll(idle)
+	_run_writer.take_failure() # The owning boundary reports its original error once.
+
+static func flush_pending_run_saves() -> bool:
+	var succeeded: bool = _run_writer.flush()
+	_run_writer.take_failure()
+	return succeeded
+
+static func _save_run_state_at(run_path: String, run_state: Dictionary, transaction_probe: Callable = Callable()) -> bool:
 	# Reuse this transaction's inspection for migration and crash recovery. Both
 	# used to deserialize the entire previous run independently on every save.
 	# Never cache across transactions: externally restored/corrupt files must be
 	# inspected again. The newly written temporary file is still read back below.
-	var live_inspection: Dictionary = _inspect_run_file(_run_storage_path)
-	var backup_inspection: Dictionary = _inspect_run_file(_run_backup_path())
-	if not _archive_before_surface_migration(_run_storage_path, false, live_inspection) or not _archive_before_surface_migration(_run_backup_path(), false, backup_inspection):
+	var live_inspection: Dictionary = _inspect_run_file(run_path)
+	var backup_inspection: Dictionary = _inspect_run_file("%s.backup" % run_path)
+	if not _archive_before_surface_migration(run_path, false, live_inspection) or not _archive_before_surface_migration("%s.backup" % run_path, false, backup_inspection):
 		return false
-	var temp_path: String = _run_temp_path()
-	var backup_path: String = _run_backup_path()
+	var temp_path: String = "%s.tmp" % run_path
+	var backup_path: String = "%s.backup" % run_path
 	_remove_run_file_if_present(temp_path)
 	var file: FileAccess = FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
@@ -550,7 +609,8 @@ static func save_run_state(run_state: Dictionary) -> bool:
 	if not run_state.is_empty() and not _run_dictionary_is_nonempty(temp_path):
 		_remove_run_file_if_present(temp_path)
 		return false
-	var live_path: String = ProjectSettings.globalize_path(_run_storage_path)
+	if transaction_probe.is_valid() and not transaction_probe.call("temporary_validated"): return false
+	var live_path: String = ProjectSettings.globalize_path(run_path)
 	var live_exists: bool = bool(live_inspection["exists"])
 	var live_valid: bool = bool(live_inspection["valid"])
 	var backup_valid: bool = false
@@ -566,20 +626,26 @@ static func save_run_state(run_state: Dictionary) -> bool:
 			if DirAccess.remove_absolute(live_path) != OK:
 				_remove_run_file_if_present(temp_path)
 				return false
+	if transaction_probe.is_valid() and not transaction_probe.call("recovery_ready"): return false
 	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temp_path), live_path) != OK:
-		if backup_valid and not FileAccess.file_exists(_run_storage_path):
+		if backup_valid and not FileAccess.file_exists(run_path):
 			DirAccess.rename_absolute(ProjectSettings.globalize_path(backup_path), live_path)
 		_remove_run_file_if_present(temp_path)
 		return false
+	if transaction_probe.is_valid() and not transaction_probe.call("promoted"): return false
 	_remove_run_file_if_present(backup_path)
 	return true
 
 static func clear_saved_run() -> void:
+	flush_pending_run_saves()
 	# A terminal legacy save can reach clearing without another combat write.
 	# Preserve its original bytes before the normal live/recovery cleanup.
 	if not _archive_before_surface_migration(_run_storage_path, false) or not _archive_before_surface_migration(_run_backup_path(), false):
 		push_warning("Could not archive the legacy run; preserving the saved run.")
 		return
+	# The original synchronous path cleared the completed/abandoned run even
+	# after a failed checkpoint. Do not resurrect it after its explicit deletion.
+	_run_writer.cancel_pending()
 	_remove_run_file_if_present(_run_storage_path)
 	_remove_run_file_if_present(_run_temp_path())
 	_remove_run_file_if_present(_run_backup_path())

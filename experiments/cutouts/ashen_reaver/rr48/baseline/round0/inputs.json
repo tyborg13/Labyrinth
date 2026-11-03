@@ -1,0 +1,25 @@
+{
+  "front_job": "spec/art_identity/jobs/ashen_reaver/mq21_front",
+  "rear_job": "spec/art_identity/jobs/ashen_reaver/mq21_rear",
+  "design_placeholders": {
+    "TODO_DESIGN_underlay_front_arm_near": "torso flank/belly beneath the near arm; proximal arm cap",
+    "TODO_DESIGN_underlay_front_arm_far": "torso flank and far thigh beneath the sword arm; proximal arm cap",
+    "TODO_DESIGN_underlay_front_hand_near": "front loincloth and thighs beneath the near gauntlet; sleeve cuff",
+    "TODO_DESIGN_underlay_front_hand_far": "far thigh/flank beneath the sword gauntlet; sleeve cuff",
+    "TODO_DESIGN_underlay_front_falchion": "far thigh/flank and floor/air revealed by the single rigid falchion",
+    "TODO_DESIGN_underlay_front_loincloth": "pelvis and thighs beneath the front loincloth",
+    "TODO_DESIGN_underlay_front_loincloth_back": "pelvis and thighs beneath the back loincloth",
+    "TODO_DESIGN_underlay_rear_arm_near": "torso flank/belly beneath the near arm; proximal arm cap",
+    "TODO_DESIGN_underlay_rear_arm_far": "torso flank and far thigh beneath the sword arm; proximal arm cap",
+    "TODO_DESIGN_underlay_rear_hand_near": "front loincloth and thighs beneath the near gauntlet; sleeve cuff",
+    "TODO_DESIGN_underlay_rear_hand_far": "far thigh/flank beneath the sword gauntlet; sleeve cuff",
+    "TODO_DESIGN_underlay_rear_falchion": "far thigh/flank and floor/air revealed by the single rigid falchion",
+    "TODO_DESIGN_underlay_rear_loincloth": "pelvis and thighs beneath the front loincloth",
+    "TODO_DESIGN_underlay_rear_loincloth_back": "pelvis and thighs beneath the back loincloth",
+    "TODO_DESIGN_joint_budget_underlays": "Painted no-tear excursion budgets remain unmeasurable until director underlays/tucks arrive; angular spec clamps are recorded, target reach is reported separately.",
+    "TODO_DESIGN_idle_free_fist_stationary": "Idle note says the free fist stays still, while binding spec and torso parenting carry the free arm with the upper-body bob; implemented supplied hierarchy/channels pending director clarification.",
+    "TODO_DESIGN_falchion_death_floor_pose": "Supplied terminal -80 degree target does not lie flat for the approved painted blade; fixed floor-contact pivot leaves some painted texels below the floor. No replacement angle, paint or motion was invented; director correction needed.",
+    "TODO_DESIGN_held_follow_reference_frame": "The literal source-space grip displacement includes root travel, leaving the falchion tilted at move end; the binding 35 degree limit is enforced. Director must clarify whether displacement should instead be measured relative to the moving root."
+  },
+  "registration": "independent source-paint landmarks; maquette labels only"
+}

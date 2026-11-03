@@ -1,0 +1,12 @@
+{
+  "storm_cantor": {
+    "start_rung": 8,
+    "repairs": [{"intents": {"lay_the_choir": {"surface": {"guardian_fill_count": true}}}}],
+    "rungs": [
+      {"label": "Restore Peal damage 3 / Chain 2; Choir tile-budget repair active", "rule": {"dials": {"damage": 3, "chain": 2}, "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 3, with Chain 2."}},
+      {"label": "Cantor HP 56 → 66", "fields": {"max_hp": 66}},
+      {"label": "Broken Rhythm melee 9 → 11", "intents": {"broken_rhythm": {"melee": {"damage": 11}}}},
+      {"label": "Guardian Bell Tender Staff Bolt damage 3 → 4", "helper_fields": {"bell_tender": {"guardian_intent_action_overrides": {"staff_bolt": {"ranged": {"damage": 4}}}}}}
+    ]
+  }
+}

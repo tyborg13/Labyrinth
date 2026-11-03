@@ -1,0 +1,3 @@
+MQ13_BRIDGE: front_capture_bridge; exit=0
+MQ13_BRIDGE: rear_capture_bridge; exit=0
+MQ13_VERIFIED_CAPTURE: PASS; loaded_geometry_verified=True; canonical_visible_rgba_and_alpha_exact=True

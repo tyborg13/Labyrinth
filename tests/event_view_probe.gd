@@ -81,7 +81,8 @@ func _probe() -> void:
 	for id: String in ["hanged_knight", "bloodletters_basin", "name_collector"]:
 		await _present(Suite.fixture(id))
 		var view: Control = _scene.get("_event_view")
-		view.choices[0].mouse_entered.emit()
+		# Painting-luminance proof samples the resting painting. evt02's focused
+		# probe separately captures hover/focus with the approved dim and rewards.
 		_expect(view.fit_report().is_empty(), "Probe choices fit: " + id)
 		_expect(not bool(_scene.get("_large_map_scrim").visible), "Map stays closed during event")
 		await _capture("%02d_%s_choices.png" % [number, id], id)

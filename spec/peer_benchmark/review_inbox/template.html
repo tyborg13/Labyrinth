@@ -26,6 +26,9 @@ h1 { font: 650 clamp(28px, 4vw, 40px)/1.1 var(--display); margin: 0; letter-spac
 .sub { color: var(--muted); margin: 0; max-width: 62ch; }
 .tally { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 13px/1.4 var(--mono); color: var(--muted); }
 .tally b { color: var(--ink); font-weight: 400; }
+.storage { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; font: 13px/1.4 var(--mono); color: var(--muted); }
+.storage b { color: var(--ink); font-weight: 400; }
+.storage button { font-size: 13px; padding: 7px 12px; }
 .group { display: grid; gap: 14px; }
 .group > h2 { font: 600 12px/1 var(--body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0; }
 .card { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; display: grid; }
@@ -75,6 +78,11 @@ details[open] > summary { margin-bottom: 14px; }
   const STATE = JSON.parse(document.getElementById("inbox-state").textContent);
   const app = document.getElementById("app");
   let artifact = null, comments = null, readOnly = false, busy = false;
+  // Clip storage (editors only): closed entries older than KEEP_DAYS give their clips back to the quota.
+  let assetsNs = null, storage = null, freeStep = "", freeNote = "";
+  const KEEP_DAYS = 2;
+  const MB = (n) => Math.round(n / 1048576).toLocaleString();
+  const blobId = (url) => { const m = /\/_blob\/([0-9a-f]{32})/.exec(String(url || "")); return m ? m[1] : ""; };
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const DRAFT = "umbra-inbox-draft-";
   const draft = (id, v) => { try { if (v === undefined) return sessionStorage.getItem(DRAFT + id) || ""; if (v) sessionStorage.setItem(DRAFT + id, v); else sessionStorage.removeItem(DRAFT + id); } catch (e) { return ""; } };
@@ -100,6 +108,7 @@ details[open] > summary { margin-bottom: 14px; }
     const r = it.response;
     const answer = r ? `<div class="answer ${r.verdict === "approved" ? "ok" : r.verdict === "changes" ? "warn" : ""}"><span class="label">${r.verdict === "approved" ? "You approved" : r.verdict === "changes" ? "You asked for changes" : "Your note"} · ${esc(r.at || "")}</span>${r.notes ? esc(r.notes) : ""}</div>` : "";
     const reply = it.reply ? `<div class="reply"><span class="label">Claude</span>${esc(it.reply)}</div>` : "";
+    const removed = it.media_removed ? `<p class="note">${it.media_removed} ${it.media_removed === 1 ? "clip" : "clips"} removed to free storage.</p>` : "";
     let form = "";
     if (it.status === "open" && !readOnly) {
       form = `<form data-id="${esc(it.id)}"><label class="label" for="notes-${esc(it.id)}">Notes (optional)</label>
@@ -109,7 +118,54 @@ details[open] > summary { margin-bottom: 14px; }
     }
     return `<article class="card ${esc(it.status)}" id="item-${esc(it.id)}">${med ? `<div class="media">${med}</div>` : ""}
       <div class="content"><div class="meta">${stateChip(it)}<span>${esc(it.area || "")}</span><span>${esc(it.posted || "")}</span></div>
-      <h3>${esc(it.title)}</h3>${it.look ? `<p class="look">${esc(it.look)}</p>` : ""}${it.link ? `<p class="look"><a class="link" href="${esc(it.link.url)}" target="_blank" rel="noopener">${esc(it.link.label)}</a></p>` : ""}${qs}${code}${answer}${reply}${form}</div></article>`;
+      <h3>${esc(it.title)}</h3>${it.look ? `<p class="look">${esc(it.look)}</p>` : ""}${it.link ? `<p class="look"><a class="link" href="${esc(it.link.url)}" target="_blank" rel="noopener">${esc(it.link.label)}</a></p>` : ""}${qs}${code}${answer}${reply}${removed}${form}</div></article>`;
+  }
+  // Every stored file except those shown by open, waiting or recently closed entries.
+  function freePlan() {
+    if (!storage) return null;
+    const since = new Date(Date.now() - KEEP_DAYS * 864e5).toISOString().slice(0, 10);
+    const keep = new Set();
+    for (const it of STATE.items || []) {
+      if (it.status === "done" && String(it.posted || "").slice(0, 10) < since) continue;
+      for (const m of it.media || []) { const id = blobId(m.url); if (id) keep.add(id); }
+    }
+    const ids = storage.assets.filter((a) => !keep.has(a.id));
+    return { ids: ids.map((a) => a.id), bytes: ids.reduce((s, a) => s + a.sizeBytes, 0) };
+  }
+  function storageLine() {
+    if (!storage) return "";
+    const u = storage.usage, plan = freePlan();
+    let action = "";
+    if (freeStep === "running") action = `<span>${esc(freeNote)}</span>`;
+    else if (freeStep === "confirm") action = `<span>Remove ${plan.ids.length} files for good? Entries keep their text, verdicts and replies.</span>
+      <button type="button" class="warn" data-free="go">Yes, remove them</button><button type="button" data-free="cancel">Cancel</button>`;
+    else if (!readOnly && plan && plan.ids.length) action = `<button type="button" data-free="ask"${busy ? " disabled" : ""}>Free ${MB(plan.bytes)} MB: remove clips from entries closed over ${KEEP_DAYS} days ago</button>`;
+    return `<div class="storage"><span>Clip storage <b>${MB(u.bytes)}</b> of ${MB(u.maxBytes)} MB</span>${action}${freeNote && freeStep === "" ? `<span>${esc(freeNote)}</span>` : ""}</div>`;
+  }
+  async function freeSpace() {
+    const plan = freePlan(); if (!plan || !assetsNs || !artifact || busy) return;
+    busy = true; freeStep = "running";
+    const removed = new Set();
+    for (const id of plan.ids) {
+      try { await assetsNs.delete(id); removed.add(id); }
+      catch (e) {
+        if (e && (e.code === "rate_limited" || e.code === "store_unavailable")) {
+          await new Promise((r) => setTimeout(r, 2000));
+          try { await assetsNs.delete(id); removed.add(id); continue; } catch (e2) { /* stop below */ }
+        }
+        break;
+      }
+      if (removed.size % 20 === 0) { freeNote = `Removed ${removed.size} of ${plan.ids.length}…`; render(); }
+    }
+    const next = JSON.parse(JSON.stringify(STATE));
+    for (const it of next.items || []) {
+      const kept = (it.media || []).filter((m) => !removed.has(blobId(m.url)));
+      if (it.media && kept.length !== it.media.length) { it.media_removed = (it.media_removed || 0) + it.media.length - kept.length; it.media = kept; }
+    }
+    freeStep = ""; freeNote = removed.size === plan.ids.length ? `Removed ${removed.size} files.` : `Removed ${removed.size} of ${plan.ids.length}; press again to continue.`;
+    render();
+    try { await artifact.publish(buildDocument(next)); }
+    catch (e) { busy = false; render(); }
   }
   function render() {
     const items = STATE.items || [];
@@ -122,7 +178,7 @@ details[open] > summary { margin-bottom: 14px; }
       <div class="row"><button type="button" class="send" data-verdict="note"${busy ? " disabled" : ""}>Send note</button></div></form></section>`;
     app.innerHTML = `<header><h1>Umbra Review Inbox</h1>
       <p class="sub">Quick looks and listens for Escape the Umbra. Each item asks one or two things; answer with a verdict and any notes. Claude is notified and picks it up.</p>
-      <div class="tally"><span>Waiting on you <b>${open.length}</b></span><span>Waiting on Claude <b>${answered.length}</b></span><span>Closed <b>${done.length}</b></span>${readOnly ? "<span>Read-only view</span>" : ""}</div></header>
+      <div class="tally"><span>Waiting on you <b>${open.length}</b></span><span>Waiting on Claude <b>${answered.length}</b></span><span>Closed <b>${done.length}</b></span>${readOnly ? "<span>Read-only view</span>" : ""}</div>${storageLine()}</header>
       <section class="group"><h2>Waiting on you</h2>${open.length ? open.map(card).join("") : `<p class="empty">Nothing to review right now.</p>`}</section>
       ${noteForm}
       ${answered.length ? `<section class="group"><h2>Waiting on Claude</h2>${answered.map(card).join("")}</section>` : ""}
@@ -173,11 +229,16 @@ details[open] > summary { margin-bottom: 14px; }
     }
   }
   app.addEventListener("input", (e) => { const f = e.target.closest("form"); if (f && e.target.tagName === "TEXTAREA") draft(f.dataset.id, e.target.value); });
-  app.addEventListener("click", (e) => { const b = e.target.closest("button[data-verdict]"); if (!b) return; const f = b.closest("form"); submit(f.dataset.id, b.dataset.verdict); });
+  app.addEventListener("click", (e) => {
+    const fb = e.target.closest("button[data-free]");
+    if (fb) { const a = fb.dataset.free; if (a === "go") freeSpace(); else { freeStep = a === "ask" ? "confirm" : ""; render(); } return; }
+    const b = e.target.closest("button[data-verdict]"); if (!b) return; const f = b.closest("form"); submit(f.dataset.id, b.dataset.verdict);
+  });
   render();
   if (window.claude && window.claude.use) {
     window.claude.use("artifact").then((a) => { artifact = a; if (!a) readOnly = true; render(); }).catch(() => { readOnly = true; render(); });
     window.claude.use("comments").then((c) => { if (!c) return; c.canSendToClaude().then((v) => { if (v === "available") comments = c; }).catch(() => {}); }).catch(() => {});
+    window.claude.use("assets").then((s) => { if (!s) return; assetsNs = s; s.list().then((r) => { storage = r; render(); }).catch(() => {}); }).catch(() => {});
   }
   else { readOnly = true; render(); }
 })();

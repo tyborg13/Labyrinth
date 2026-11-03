@@ -9,7 +9,11 @@ var _mirrored_textures: Dictionary = {}
 static func handles(type: String) -> bool:
 	if preload("res://scripts/maquette_cutout_runtime/presentation.gd").handles(type): return false
 	if type == "gust_shrike" and preload("res://scripts/gust_shrike_cutout/renderer.gd").available(): return false
-	return not str(Data.enemy_def(type).get("art_rear_path", "")).is_empty()
+	# Art identity is unscaled catalog data. enemy_def() owns/copies the complete
+	# combat definition (including intents) even on a memo hit; doing that for
+	# every sprite bound and HUD anchor made ordinary hover rebuilds expensive.
+	# Read live so tools replacing or editing the catalog still take effect.
+	return not str((Data.enemies().get(type, {}) as Dictionary).get("art_rear_path", "")).is_empty()
 
 static func presentation_for(board: Control, state: Dictionary, source: Dictionary, previous: Dictionary) -> Dictionary:
 	var facings: Dictionary = {}

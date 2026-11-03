@@ -1,0 +1,13 @@
+{
+  "TODO_DESIGN_ring_chain_scope": null,
+  "question": "Does the ring/chain union include lantern_cap_ring, or only the lower half of grip_ring plus held_chain?",
+  "literal_front_failed_columns": [
+    722,
+    723,
+    724,
+    725,
+    726
+  ],
+  "including_lantern_cap_ring_variant": "30/30 occupied columns satisfy the rule in front and rear; not selected without director clarification.",
+  "geometry_changes_permitted": false
+}

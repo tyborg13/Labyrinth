@@ -1,5 +1,6 @@
 extends RefCounted
 
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const Pacing = preload("res://scripts/combat_pacing.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Motion = preload("res://tests/suites/combat_motion_timing_suite.gd")
@@ -39,6 +40,11 @@ class RemovalOwner:
 		if not is_inside_tree(): detached_refreshes += 1
 
 static func run(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _run_scoped(scope, tree, expect)
+	)
+
+static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	_test_feedback_duration(expect)
 	await _action_waits(tree, expect)
 	await ActionPacing.run(tree, expect)
@@ -63,6 +69,11 @@ static func _test_feedback_duration(expect: Callable, pacing_script: Script = Pa
 	pacing.free()
 
 static func _action_waits(tree: SceneTree, expect: Callable, pacing_script: Script = Pacing) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _action_waits_scoped(scope, tree, expect, pacing_script)
+	)
+
+static func _action_waits_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable, pacing_script: Script = Pacing) -> void:
 	for speed: String in ["normal","fast","fastest"]:
 		for reduced: bool in [false,true]:
 			var owner := RemovalOwner.new()
@@ -70,61 +81,64 @@ static func _action_waits(tree: SceneTree, expect: Callable, pacing_script: Scri
 			owner._settings["reduced_motion"] = reduced
 			tree.root.add_child(owner)
 			await tree.process_frame
-			var pacing: Node = pacing_script.new()
-			pacing.install(owner)
+			var pacing: Node = TestClock.install_pacing(owner, pacing_script)
 			pacing.begin_enemies()
 			var scale: float = Settings.combat_speed_scale(owner._settings)
 			var intent: Dictionary = {"kind":"intent","actor_key":"first","actor_name":"Fixture","intent_name":"Fixture intent"}
 			var action: Dictionary = {"kind":"melee","actor_key":"first"}
-			var began: int = Time.get_ticks_usec()
+			var began: int = TestClock.now_usec
 			var done: Dictionary = {"done":false}
 			_observe_lead(pacing,intent,[intent,action],done)
 			expect.call(owner.caption == "Fixture: Fixture intent" and not done["done"],"Caption is already showing during the first lead")
 			expect.call(is_equal_approx(Engine.time_scale,scale),"Caption lead uses combat speed without the action multiplier")
-			while not done["done"]: await tree.process_frame
-			_expect_real_wait(began,0.35/scale,expect,"First enemy shares the 0.35 s banner lead at %s reduced=%s" % [speed,reduced])
+			var deadline: int = Time.get_ticks_msec() + RESOLUTION_TIMEOUT_MS
+			while not done["done"] and Time.get_ticks_msec() < deadline: await tree.process_frame
+			expect.call(done["done"], "Timeout waiting for first enemy caption lead")
+			_expect_game_wait(began,0.35/scale,expect,"First enemy shares the 0.35 s banner lead at %s reduced=%s" % [speed,reduced])
 			await pacing.before_step(action)
 			expect.call(is_equal_approx(Engine.time_scale,scale*0.80),"Enemy action uses 0.80 times combat speed at %s reduced=%s" % [speed,reduced])
 			# Retained feedback can outlive the action view. It must finish before
 			# settle, even when hit-stop/reduced motion changes real elapsed time.
 			var popup_start: int = pacing.presentation_usec()
 			pacing.get("_popups")["fixture"] = {"start":popup_start}
-			began = Time.get_ticks_usec()
+			began = TestClock.now_usec
 			done = {"done":false}
 			_observe_feedback(pacing,action,done)
 			var wrong_feedback_clock: bool = false
 			var wrong_settle_clock: bool = false
 			var saw_settle: bool = false
-			while not done["done"]:
+			deadline = Time.get_ticks_msec() + RESOLUTION_TIMEOUT_MS
+			while not done["done"] and Time.get_ticks_msec() < deadline:
 				var settling: bool = str(pacing.get("_phase")) == "post-action settle"
 				saw_settle = saw_settle or settling
 				if settling: wrong_settle_clock = wrong_settle_clock or not is_equal_approx(Engine.time_scale,scale)
 				else: wrong_feedback_clock = wrong_feedback_clock or not is_equal_approx(Engine.time_scale,scale*0.80)
 				await tree.process_frame
+			expect.call(done["done"], "Timeout waiting for retained feedback and settle")
 			expect.call(not wrong_feedback_clock,"Retained numbers keep the enemy action clock through their final frame")
 			expect.call(saw_settle and not wrong_settle_clock,"Settle uses combat speed without the action multiplier")
-			_expect_real_wait(began,preload("res://scripts/floating_combat_text.gd").ANIMATION_DURATION_SECONDS/(scale*0.80)+0.15/scale,expect,"Retained feedback then settle scale at %s reduced=%s" % [speed,reduced])
+			_expect_game_wait(began,preload("res://scripts/floating_combat_text.gd").ANIMATION_DURATION_SECONDS/(scale*0.80)+0.15/scale,expect,"Retained feedback then settle scale at %s reduced=%s" % [speed,reduced])
 			pacing.get("_popups").clear()
 			intent["actor_key"] = "next"
 			action["actor_key"] = "next"
-			began = Time.get_ticks_usec()
+			began = TestClock.now_usec
 			await pacing.before_step(intent,[intent,action])
-			_expect_real_wait(began,0.25/scale,expect,"Subsequent actor has a 0.25 s lead at %s reduced=%s" % [speed,reduced])
+			_expect_game_wait(began,0.25/scale,expect,"Subsequent actor has a 0.25 s lead at %s reduced=%s" % [speed,reduced])
 			intent["actor_key"] = "walker"
-			began = Time.get_ticks_usec()
+			began = TestClock.now_usec
 			await pacing.before_step(intent,[intent,{"kind":"move","actor_key":"walker"}])
 			await pacing.after_step({"kind":"move","actor_key":"walker"})
-			expect.call(float(Time.get_ticks_usec()-began)/1000000.0 < MOVE_ONLY_MAX_SECONDS,"Move-only turn adds no lead or settle at %s reduced=%s" % [speed,reduced])
+			expect.call(float(TestClock.now_usec-began)/1000000.0 < MOVE_ONLY_MAX_SECONDS,"Move-only turn adds no lead or settle at %s reduced=%s" % [speed,reduced])
 			pacing.end_scope()
 			pacing.begin_enemies()
-			began = Time.get_ticks_usec()
+			began = TestClock.now_usec
 			await pacing.before_step(intent,[intent,{"kind":"move","actor_key":"walker"}])
 			await pacing.after_step({"kind":"move","actor_key":"walker"})
-			expect.call(float(Time.get_ticks_usec()-began)/1000000.0 < MOVE_ONLY_MAX_SECONDS,"Even the first move-only turn adds no lead or settle")
+			expect.call(float(TestClock.now_usec-began)/1000000.0 < MOVE_ONLY_MAX_SECONDS,"Even the first move-only turn adds no lead or settle")
 			intent["actor_key"] = "next"
-			began = Time.get_ticks_usec()
+			began = TestClock.now_usec
 			await pacing.before_step(intent,[intent,action])
-			_expect_real_wait(began,0.25/scale,expect,"Actor after an opening move-only turn uses the ordinary 0.25 s lead")
+			_expect_game_wait(began,0.25/scale,expect,"Actor after an opening move-only turn uses the ordinary 0.25 s lead")
 			pacing.end_scope()
 			expect.call(is_equal_approx(Engine.time_scale,1.0),"Action waits restore the original clock")
 			owner.queue_free()
@@ -139,8 +153,8 @@ static func _observe_feedback(pacing: Node, action: Dictionary, done: Dictionary
 	await pacing.after_step(action)
 	done["done"] = true
 
-static func _expect_real_wait(start: int, seconds: float, expect: Callable, message: String) -> void:
-	var elapsed: float = float(Time.get_ticks_usec()-start)/1000000.0
+static func _expect_game_wait(start: int, seconds: float, expect: Callable, message: String) -> void:
+	var elapsed: float = float(TestClock.now_usec-start)/1000000.0
 	expect.call(elapsed >= seconds and elapsed <= seconds+WAIT_TOLERANCE_SECONDS,message+" (%.3f s)" % elapsed)
 
 static func _victory_board(tree: SceneTree, expect: Callable, enemy_phase: bool) -> void:

@@ -16,9 +16,12 @@ const SIZE := Vector2i(1920, 1080)
 const SETTLE_FRAMES: int = 8
 const HIT_PROOF_HP: int = 30
 const FIXTURE_REFLECTION_X_SUM: int = 8
+const FIXTURE_ACTOR_TILE := Vector2i(2, 4)
+const FIXTURE_PARTNER_TILE := Vector2i(6, 4)
 const FIXTURE_CONTACT_TILE := Vector2i(3, 4)
 const IDLE_SAMPLE_SECONDS: float = 1.0 / 60.0
 var _view: String = "front"
+var _expected_facing: String
 var _type: String
 var _output: String
 var _scene: Control
@@ -43,6 +46,8 @@ func _run() -> void:
 	_type = args[args.find("--type") + 1]
 	if args.has("--view"): _view = args[args.find("--view") + 1]
 	assert(_view in ["front", "rear"])
+	_expected_facing = args[args.find("--expect-facing") + 1] if args.has("--expect-facing") else _view
+	assert(_expected_facing in ["front", "rear"])
 	_output = args[args.find("--output") + 1]
 	CaptureStorage.setup(_output)
 	_logic = args.has("--logic-only")
@@ -67,10 +72,11 @@ func _run() -> void:
 	await _prepare_production_crop()
 	await _run_clips()
 	_failures.append_array(preload("res://tests/rr10/capture_contract.gd").errors(_frames, _data, _scene.proof_completions, not _logic))
+	_failures.append_array(preload("res://tests/fix10_capture_contract.gd").errors(_frames, _type, _expected_facing))
 	for error: String in _failures: push_error(error)
 	var bindings: Dictionary = preload("res://tests/rr10/bindings.gd").for_case("res://experiments/cutouts/arc_thrall/rr11")
 	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": false, "production_promoted": true,
-		"size": [1920, 1080], "ui_scale": 1.0, "view": _view, "inputs": bindings, "frames": _frames, "walk_samples": _walk_samples, "completions": _scene.proof_completions, "errors": _failures}
+		"size": [1920, 1080], "ui_scale": 1.0, "view": _view, "expected_facing": _expected_facing, "inputs": bindings, "frames": _frames, "walk_samples": _walk_samples, "completions": _scene.proof_completions, "errors": _failures}
 	if not _logic or OS.get_cmdline_user_args().has("--validate-crop"):
 		report.merge(CaptureStorage.metadata())
 	if not _logic: CaptureStorage.finish()
@@ -124,7 +130,7 @@ func _run_clips() -> void:
 				await create_timer(IDLE_SAMPLE_SECONDS).timeout
 			continue
 		if clip in ["hit", "death"]:
-			state["enemies"][0]["pos"] = FIXTURE_CONTACT_TILE
+			state["enemies"][0]["pos"] = fixture_tile(FIXTURE_CONTACT_TILE)
 			if clip == "death": state["enemies"][0]["hp"] = 1
 			else:
 				state["enemies"][0]["hp"] = HIT_PROOF_HP
@@ -144,17 +150,32 @@ func _run_clips() -> void:
 			continue
 		var selector: String = str(_data["clips"][clip]["intents"][0])
 		var fields: PackedStringArray = selector.split(":")
+		if _type == "arc_thrall" and clip == "tether": fields = PackedStringArray(["arc_bolt", "ranged"])
 		state = fixture(fields[0])
-		if clip == "jab": state["enemies"][0]["pos"] = FIXTURE_CONTACT_TILE
+		if clip == "jab": state["enemies"][0]["pos"] = fixture_tile(FIXTURE_CONTACT_TILE)
 		await install(state)
 		var action: Dictionary = {}
 		for item: Dictionary in state["enemies"][0]["intent"]["actions"]:
-			if fields.size() == 1 or str(item["type"]) == fields[1]: action = item
+			if Action.clip_for({"intent_id": fields[0], "action_type": item["type"], "element": item.get("element", "")}, state["enemies"][0]) == clip: action = item
+		if action.is_empty():
+			_failures.append(clip + ": no live authored action matches the production selector")
+			continue
 		var engine := Combat.new()
 		var context: Dictionary = engine.enemy_intent_plan(state, 0)
 		var after: Dictionary = engine._resolve_enemy_action(state.duplicate(true), 0, action, null, {}, engine._dictionary_values([]), context)
 		var step: Dictionary = engine._enemy_action_step(state, after, 0, action, context)
-		await _scene.record_action(clip, func() -> void: await _scene._animate_enemy_phase_steps(state.duplicate(true), [step]))
+		var arc_bolt_cast: bool = _type == "arc_thrall" and clip == "tether"
+		var steps: Array[Dictionary] = engine._dictionary_values([step])
+		var previous_lock: bool = _scene._animation_lock
+		if arc_bolt_cast:
+			# Ordinary ranged captions belong to the production enemy scope.
+			steps.assign(engine.resolve_enemy_turn_with_steps(state, 0, false)["steps"])
+			_scene._animation_lock = true
+			_scene._combat_pacing.begin_enemies()
+		await _scene.record_action(clip, func() -> void: await _scene._animate_enemy_phase_steps(state.duplicate(true), steps))
+		if arc_bolt_cast:
+			_scene._combat_pacing.end_scope()
+			_scene._animation_lock = previous_lock
 
 func _capture() -> void:
 	await process_frame
@@ -182,6 +203,8 @@ func _capture() -> void:
 		var node: Bone2D = rig.bones[bone]
 		pose.append([bone, str(node.transform), node.modulate.a])
 	var row: Dictionary = {"stage": _stage, "snapshot": snapshot, "pose_sha256": JSON.stringify(pose).sha256_text(), "seconds": _scene.proof_elapsed_seconds}
+	row["banner"] = _scene.action_banner.text
+	row["banner_visible"] = _scene.action_banner.visible
 	var shown: Dictionary = _scene.board_view.presentation
 	row["effect"] = shown.get("effect", {})
 	row["player_hp"] = int(_scene.board_view.combat_state["player"]["hp"])
@@ -208,10 +231,16 @@ func _capture() -> void:
 		CaptureStorage.save(_viewport.get_texture().get_image(), _output.path_join(filename), _stage)
 	_frames.append(row)
 
+func fixture_tile(front_tile: Vector2i) -> Vector2i:
+	return Vector2i(FIXTURE_REFLECTION_X_SUM - front_tile.x, front_tile.y) if _view == "rear" else front_tile
+
 func fixture(intent: String) -> Dictionary:
+	if _type == "arc_thrall" and intent == "tether": intent = "arc_bolt"
+	# Supply view-ready geometry to both playback and the crop planner, as rr21
+	# does. Reflecting only in install() leaves the planner with front fixtures.
 	var actors: Array[Dictionary]
-	actors.assign([Fixtures.enemy(_type, 1, Vector2i(2, 4), intent)])
-	if _type == "arc_thrall": actors.append(Fixtures.enemy(_type, 2, Vector2i(6, 4), "tether"))
+	actors.assign([Fixtures.enemy(_type, 1, fixture_tile(FIXTURE_ACTOR_TILE), intent)])
+	if _type == "arc_thrall": actors.append(Fixtures.enemy(_type, 2, fixture_tile(FIXTURE_PARTNER_TILE), "arc_jab"))
 	var state: Dictionary = Fixtures.state(actors)
 	if intent == "icefall_land":
 		# Generate the marked tiles with the real resolver before installing land.
@@ -220,17 +249,15 @@ func fixture(intent: String) -> Dictionary:
 		var mark: Dictionary = marked["enemies"][0]["intent"]["actions"][0]
 		var context: Dictionary = engine.enemy_intent_plan(marked, 0)
 		state = engine._resolve_enemy_action(marked, 0, mark, null, {}, engine._dictionary_values([]), context)
-		state["enemies"][0]["intent"] = Fixtures.enemy(_type, 1, Vector2i(2, 4), intent)["intent"]
+		state["enemies"][0]["intent"] = Fixtures.enemy(_type, 1, fixture_tile(FIXTURE_ACTOR_TILE), intent)["intent"]
 	return state
 
 func install(state: Dictionary) -> void:
-	if _view == "rear":
-		for unit: Dictionary in state["enemies"]: unit["pos"].x = FIXTURE_REFLECTION_X_SUM - unit["pos"].x
 	Fixtures.install(_scene, state)
 	_scene._render_board_state(state, {})
 	await settle()
 	if CaptureStorage.production_planning and not CaptureStorage.production_bounds.has_area():
-		CaptureStorage.plan_production(_scene.board_view, _type, _data, fixture, FIXTURE_CONTACT_TILE)
+		CaptureStorage.plan_production(_scene.board_view, _type, _data, fixture, fixture_tile(FIXTURE_CONTACT_TILE))
 
 func settle() -> void:
 	for frame: int in range(SETTLE_FRAMES): await process_frame

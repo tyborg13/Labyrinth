@@ -1,0 +1,105 @@
+{
+  "rule": "director feedback 2; exact own-interior same-row trouser texels",
+  "source_fixture": "feedback1_native_fixture.json",
+  "source_fixture_sha256": "297827d2ba3f608e2abbc51ec80ab58b4b967cfb4488b3b4e4ab2f4e1126d180",
+  "view": "rear",
+  "piece": "hidden_leg_near",
+  "donor": "leg_near",
+  "source_rows": [
+    174,
+    181
+  ],
+  "target_pixels": 20,
+  "source_targets": [
+    [
+      75,
+      174
+    ],
+    [
+      76,
+      174
+    ],
+    [
+      77,
+      174
+    ],
+    [
+      75,
+      175
+    ],
+    [
+      76,
+      175
+    ],
+    [
+      77,
+      175
+    ],
+    [
+      75,
+      176
+    ],
+    [
+      76,
+      176
+    ],
+    [
+      73,
+      177
+    ],
+    [
+      74,
+      177
+    ],
+    [
+      75,
+      177
+    ],
+    [
+      76,
+      177
+    ],
+    [
+      73,
+      178
+    ],
+    [
+      74,
+      178
+    ],
+    [
+      75,
+      178
+    ],
+    [
+      76,
+      178
+    ],
+    [
+      73,
+      180
+    ],
+    [
+      74,
+      180
+    ],
+    [
+      73,
+      181
+    ],
+    [
+      74,
+      181
+    ]
+  ],
+  "clips": [
+    "move",
+    "reel",
+    "pin",
+    "press",
+    "guard",
+    "hit",
+    "death"
+  ],
+  "rest_and_idle_unchanged": true
+}

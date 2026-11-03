@@ -1,0 +1,144 @@
+{
+  "min_images": 8,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*status_icons_before_page_01_4x_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1360,
+            95
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*status_icons_before_page_02_4x_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1360,
+            95
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*status_icons_before_page_03_4x_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1360,
+            95
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*status_icons_before_page_04_4x_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1360,
+            95
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*status_icons_after_page_01_4x_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1360,
+            95
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*status_icons_after_page_02_4x_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1360,
+            95
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*status_icons_after_page_03_4x_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1360,
+            95
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*status_icons_after_page_04_4x_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1360,
+            95
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}

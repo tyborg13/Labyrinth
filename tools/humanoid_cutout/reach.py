@@ -6,6 +6,7 @@ import numpy as np
 from .action_direction import pose_values
 from .bone_contracts import fk_world, target_chains
 from .gait import evaluate
+from .reach_policy import minimum_reach_policy
 
 DENSE_INTERVALS = 1000
 MIN_REACH_MARGIN_PX = 4.0
@@ -171,6 +172,7 @@ def report(layout, data, *, step_distance_px, screen_pixel_scale):
     forward = np.asarray(data['projection'][view]['forward'])
     step = step_distance_px / screen_pixel_scale
     paths, errors, overreach = [], [], []
+    policies, overrides = {}, {}
     for clip, tracks in data['view_tracks'][view].items():
         # No consecutive segment crosses a key/interpolation boundary, even
         # when two keys are much closer than the global dense sample spacing.
@@ -193,11 +195,18 @@ def report(layout, data, *, step_distance_px, screen_pixel_scale):
                 point = fk[first][:2, :2].T @ (fk[target][:2, 2] - fk[first][:2, 2])
                 points[target] = point
                 distance = float(np.linalg.norm(point))
+                if target not in policies:
+                    policies[target] = minimum_reach_policy(layout, chain)
+                policy = policies[target]
+                margin = MIN_REACH_MARGIN_PX if policy is None else float(policy['margin_px'])
+                if policy is not None: overrides[target] = dict(policy)
                 row = summaries.setdefault(target, {'clip': clip, 'target': target,
                     'chain': chain, 'segment_lengths': lengths, 'samples': 0,
-                    'allowed_minimum_px': abs(lengths[0] - lengths[1]) + MIN_REACH_MARGIN_PX,
+                    'allowed_minimum_px': abs(lengths[0] - lengths[1]) + margin,
                     'allowed_maximum_px': sum(lengths) * (1. + MAX_REACH_OVERSHOOT),
                     'minimum_px': float('inf'), 'maximum_px': -float('inf')})
+                if policy is not None:
+                    row['minimum_reach'] = dict(policy)
                 row['samples'] += 1
                 if not np.isfinite(distance):
                     errors.append('%s/%s/%s: nonfinite reach at %.9f' % (view, clip, target, phase))
@@ -250,7 +259,10 @@ def report(layout, data, *, step_distance_px, screen_pixel_scale):
                 overreach.append('%s: maximum reach %.6f px > %.6f px at %.6f' %
                     (tag, row['maximum_px'], row['allowed_maximum_px'], row['maximum_phase']))
             paths.append(row)
-    return {'ok': not errors, 'errors': sorted(set(errors)), 'overreach': sorted(set(overreach)), 'paths': paths,
+    result = {'ok': not errors, 'errors': sorted(set(errors)), 'overreach': sorted(set(overreach)), 'paths': paths,
             'dense_intervals': DENSE_INTERVALS, 'minimum_margin_px': MIN_REACH_MARGIN_PX,
             'minimum_phase_resolution': MINIMUM_PHASE_RESOLUTION, 'maximum_overshoot': MAX_REACH_OVERSHOOT,
             'step_distance_px': step_distance_px, 'screen_pixel_scale': screen_pixel_scale}
+
+    if overrides: result['minimum_margin_overrides'] = overrides
+    return result

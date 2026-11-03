@@ -144,6 +144,8 @@ static func resolve_collision(engine: RefCounted, state: Dictionary, kind: Strin
 	return state
 
 static func _break_ground(engine: RefCounted, state: Dictionary, id: int, tile: Vector2i, ground: Dictionary, wheel: Dictionary, blockers: Array[Dictionary]) -> Dictionary:
+	var prior_context: Dictionary = state.get("damage_context", {}) as Dictionary
+	state["damage_context"] = preload("res://scripts/surface_expend_rules.gd").relic_source(prior_context, wheel, Data.relic_def(str(wheel.get("relic_id", ""))))
 	var element: String = str(ground.get("elemental", ""))
 	if element == "ice":
 		var action: Dictionary = {"type": "push", "_card_element": "ice", "_collision_freeze_tile": tile}
@@ -161,6 +163,7 @@ static func _break_ground(engine: RefCounted, state: Dictionary, id: int, tile: 
 	if bool(ground.get("rubble", false)):
 		engine._apply_stagger_to_enemy(state, id, int(wheel.get("rubble_stagger", 3)))
 	Surface.remove(state, tile, "all", "force_collision")
+	state["damage_context"] = prior_context
 	return state
 
 static func _knock_blockers(engine: RefCounted, state: Dictionary, blockers: Array[Dictionary], direction: Vector2i) -> Dictionary:

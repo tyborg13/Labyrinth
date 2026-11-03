@@ -1,0 +1,11 @@
+{
+  "method": "255px source alpha >=128, with the existing mass and cloth semantic polygons. Head also includes its top ring, feet include their turned cuffs. Additional polygons below transcribe only previously unmeasured hook/far foot and those ring/cuff extensions. Native label masks are downsampled to 255 with Lanczos and thresholded at 128, as is the complete native clay alpha. The hook mask is rasterized from the opened, hash-checked native iron_hook mesh at 255. One global integer translation maximizes silhouette intersection over all possible lags; union includes pixels shifted outside the canvas. No scaling, rotation or per-label registration. Centroid error is Euclidean distance after that one translation. Rear IoU is informational only.",
+  "additional_source_polygons": {
+    "head": [[[132,43],[132,35],[136,31],[143,31],[148,36],[146,43],[141,46]]],
+    "foot_near": [[[161,211],[176,210],[184,215],[185,224],[177,230],[163,228],[160,222]]],
+    "foot_far": [[[112,199],[127,200],[135,205],[137,214],[133,221],[124,227],[112,229],[103,226],[103,217],[111,211]]],
+    "chain_hook": [[[46,153],[53,154],[55,158],[50,161],[47,167],[49,173],[54,174],[62,167],[65,170],[61,177],[55,181],[48,180],[42,175],[41,169],[43,160]]]
+  },
+  "centroid_limit_px": 5,
+  "front_iou_minimum": 0.82
+}

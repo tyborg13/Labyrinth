@@ -1,0 +1,154 @@
+{
+  "unit": "mq-23",
+  "round": "feedback 3",
+  "risk_tier": "standard",
+  "status": "implementation complete; all focused tests and both proof verify commands pass; full Python completed once with two out-of-scope failures",
+  "changes_uncommitted": true,
+  "requirements": {
+    "1": "Only the sealed mq-16 and sanctioned mq-23 proof.py hashes are admitted; both are revision-bound in source_inventory.PROOF_VERSIONS and the portable pin record.",
+    "2": "Every effective mq-16 source binding exactly equals the historical inventory; live validation bytes are independently pinned. Compiler, renderer, design and asset bindings remain unchanged.",
+    "3": "Original coexistence/stray/changed-source regressions plus one-byte proof mutation and resealed-pin regression pass.",
+    "4": "mq-16-owned Git diff against 07d541d9f lists proof.py and source_inventory.py only; all other 188 historical figure files match.",
+    "5": "All delivery bytes unchanged. No director paint-job edits. Full Python suite runs once after final code change."
+  },
+  "mq16_owned_diff_stat": " spec/art_identity/maquettes/ashen_reaver/proof.py  |  6 ++++-\n .../maquettes/ashen_reaver/source_inventory.py     | 27 +++++++++++++++++++++-\n 2 files changed, 31 insertions(+), 2 deletions(-)\n",
+  "portable_pin_record": "mq21_validation_sources.json",
+  "proof_versions": {
+    "mq16_sealed": {
+      "revision": "07d541d9fa47bcf32ca1aca86ccabaed7fe5c968",
+      "sha256": "6a5f676d521dcaf24e03f1c8206d96b328ff2d437b5f9398c5f3d35cbcf683d3"
+    },
+    "mq23_inventory_scoping": {
+      "revision": "0241c7dc08792971702d86902f1e97d2ba21db5e",
+      "sha256": "8b26f19f4599b777ca92d72919f254555fc9ed69386a194484aadf9bdc75ff1a"
+    }
+  },
+  "legacy_report_relocation": {
+    "from": "MQ21.md",
+    "to": "mq21_MQ21.md",
+    "sha256_before": "277ff48f6a1f947305a61bd040319e2d6fe22a0cc87da99411c44a1f0a83d2e5",
+    "sha256_after": "277ff48f6a1f947305a61bd040319e2d6fe22a0cc87da99411c44a1f0a83d2e5",
+    "reason": "Uppercase old report was not covered by the exact sanctioned successor rule; content retained byte-for-byte under its owning prefix."
+  },
+  "tests": [
+    {
+      "command": "python3 -B -m unittest tests.test_mq16_maquette tests.test_mq16_proof_guards tests.test_mq17_maquette tests.test_mq18_maquette -q",
+      "result": "Ran 117 tests in 115.125s / OK",
+      "log": "/private/tmp/labyrinth_codex/mq23-r3-mq16-18.log"
+    },
+    {
+      "command": "python3 -B -m unittest tests.test_mq21_maquette tests.test_mq21_delivery -q",
+      "result": "Ran 49 tests in 50.290s / OK",
+      "log": "/private/tmp/labyrinth_codex/mq23-r3-mq21-final.log"
+    },
+    {
+      "command": "Original three regressions and new unsanctioned proof byte regression",
+      "result": "Ran 4 tests in 8.863s / OK",
+      "log": "/private/tmp/labyrinth_codex/mq23-r3-regressions.log"
+    },
+    {
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "result": "Ran 111 tests in 97.095s / OK",
+      "log": "/private/tmp/labyrinth_codex/mq23-r3-art-identity.log"
+    }
+  ],
+  "delivery_hashes": {
+    "delivery": {
+      "files": 152,
+      "sha256_before": "008d6c5e1ab1451f035fe39f2bc4a75a986ad1af93f0b6a179f5eb782da26420",
+      "sha256_after": "008d6c5e1ab1451f035fe39f2bc4a75a986ad1af93f0b6a179f5eb782da26420",
+      "changed_files": []
+    },
+    "mq21_delivery": {
+      "files": 192,
+      "sha256_before": "dadb7e42bf3d0753467b208acc7d4cb3b83bd4d7fb1d7852aa0ded90bd2f8e30",
+      "sha256_after": "dadb7e42bf3d0753467b208acc7d4cb3b83bd4d7fb1d7852aa0ded90bd2f8e30",
+      "changed_files": []
+    }
+  },
+  "prior_results": [
+    "mq21_feedback1_results.json.gz",
+    "mq21_feedback2_results.json.gz"
+  ],
+  "full_python": {
+    "command": "python3 -B tools/run_python_suite.py --shards 4 --output-dir /private/tmp/labyrinth_codex/mq23-r3-python-full",
+    "status": "completed",
+    "module_results": "mq21_feedback3_python_results.json.gz",
+    "exit_code": 1,
+    "result_lines": [
+      "Ran 2293 tests in 1863.668s",
+      "FAILED (failures=2, skipped=66)",
+      "PYTHON SUITE WALL: 1863.668s; results: /private/tmp/labyrinth_codex/mq23-r3-python-full"
+    ],
+    "module_count": 235,
+    "tests": 2293,
+    "failures": [
+      {
+        "test": "test_tracked_sources_have_sidecars_and_sidecars_have_sources (test_godot_sidecars.GodotSidecarRepositoryTests)",
+        "kind": "failures",
+        "cause": "17 missing tracked .import sidecars in director-owned paint-job folders; left untouched"
+      },
+      {
+        "test": "test_production_closure_scoped_density_and_prior_bytes (test_rr32_herald.HeraldTests)",
+        "kind": "failures",
+        "cause": "RR32 line-327 git diff --quiet HEAD guard; assertion unchanged"
+      }
+    ],
+    "process_cleanup_permission_error": false,
+    "log": "/private/tmp/labyrinth_codex/mq23-r3-python-full.log",
+    "summary": "/private/tmp/labyrinth_codex/mq23-r3-python-full/summary.json"
+  },
+  "proof": "Retained native geometry/captures unchanged; only headless verification this round. No new windowed command or inspection fixture is needed.",
+  "TODO_DESIGN": [],
+  "chosen_defaults": [],
+  "open_issues": [
+    "17 missing tracked .import sidecars in director-owned paint-job folders; left untouched",
+    "RR32 line-327 git diff --quiet HEAD guard; assertion unchanged"
+  ],
+  "proof_verify": [
+    {
+      "command": "python3 -B -m spec.art_identity.maquettes.ashen_reaver.proof verify",
+      "exit_code": 0,
+      "result_lines": [
+        "MQ16_CURATED_INVENTORY: PASS; files=190; bytes=4689004",
+        "MQ16_NATIVE_DELIVERY: PASS"
+      ],
+      "log": "/private/tmp/labyrinth_codex/mq23-r3-mq16-verify.log"
+    },
+    {
+      "command": "python3 -B -m spec.art_identity.maquettes.ashen_reaver.mq21_proof verify",
+      "exit_code": 0,
+      "result_lines": [
+        "MQ21_PROTECTED_DIRECTOR_FILES: PASS; files=2",
+        "MQ16_SUCCESSOR_REGENERATION: PASS; historical_files=152",
+        "MQ21_CURATED_INVENTORY: PASS; {'active_revision_bytes': 5987978, 'historical_and_current_bytes': 9303775, 'files': 423}",
+        "MQ21_NATIVE_DELIVERY: PASS"
+      ],
+      "log": "/private/tmp/labyrinth_codex/mq23-r3-mq21-verify.log"
+    }
+  ],
+  "files_changed": [
+    "source_inventory.py",
+    "mq21_validation_sources.json",
+    "mq21_proof/mq21_sources.py",
+    "mq21_proof/workflow.py",
+    "mq21_proof/mq21_mq16_regeneration.py",
+    "mq21_COMMIT_MANIFEST.txt",
+    "MQ21.md -> mq21_MQ21.md (byte-identical)",
+    "mq21_mq23.md",
+    "mq21_verification_results.json",
+    "mq21_feedback2_results.json.gz",
+    "mq21_feedback3_python_results.json.gz",
+    "tests/test_mq21_delivery.py"
+  ],
+  "postflight": {
+    "git_diff_check": "PASS",
+    "mq16_owned_diff_files": [
+      "proof.py",
+      "source_inventory.py"
+    ],
+    "all_other_mq16_owned_files_byte_identical": 188,
+    "director_paint_jobs_changed": false,
+    "delivery_file_hashes_unchanged": 344
+  }
+}

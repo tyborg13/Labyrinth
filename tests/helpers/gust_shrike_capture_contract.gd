@@ -10,12 +10,13 @@ const MIN_FRAMES: int = 6
 const PHASE_EPSILON: float = 0.000001
 
 static func required_phases(clip: String) -> Array:
-	# Production move/melee callbacks begin at frame 1, not zero. Dive's
-	# sixth recovery frame already holds rest. Hit retires to idle at phase 1.
+	# Shared Move/melee/AoE callbacks begin at frame 1, not zero. Dive now
+	# uses the shared AoE clock through phase 1; the old dive_line's discrete
+	# sixth recovery frame is retired. Contact, preparation and recovery remain
+	# mandatory below. Hit retires to idle at phase 1.
 	var result: Array
-	if clip in ["dive", "hover", "death"]: result.append(0.0)
-	if clip in ["move", "talon_rake", "hover", "death"]: result.append(1.0)
-	if clip == "dive": result.append(Action.dive_recovery_phase(Data.DIVE_RECOVERY_FRAMES, Data.CONTACT_PHASES["dive"]))
+	if clip in ["hover", "death"]: result.append(0.0)
+	if clip in ["move", "dive", "talon_rake", "hover", "death"]: result.append(1.0)
 	if clip == "dive": result.append(Data.CONTACT_PHASES["dive"])
 	elif clip == "talon_rake": result.append(Data.CONTACT_PHASES["talon_rake"])
 	elif clip in ["move", "hover", "hit"]:

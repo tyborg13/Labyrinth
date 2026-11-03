@@ -1,0 +1,34 @@
+{
+  "front": {
+    "native_pixels": false,
+    "frames": 1440,
+    "errors": [],
+    "full_log_sha256": "9e40fc0f32fbdec98c0459a4a95d95c677cc01ed5a9cfb81ec9cc9e6d7155bcf",
+    "clips": {
+      "idle": 50,
+      "move": 142,
+      "reel": 184,
+      "pin": 159,
+      "press": 152,
+      "guard": 151,
+      "hit": 80,
+      "death": 522
+    }
+  },
+  "rear": {
+    "native_pixels": false,
+    "frames": 1440,
+    "errors": [],
+    "full_log_sha256": "9289471ed92f1eef09707830e4d2cd190b497d9f9bc55cab88d72094b01c0660",
+    "clips": {
+      "idle": 50,
+      "move": 142,
+      "reel": 184,
+      "pin": 159,
+      "press": 152,
+      "guard": 151,
+      "hit": 80,
+      "death": 522
+    }
+  }
+}

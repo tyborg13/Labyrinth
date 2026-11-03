@@ -1,0 +1,10 @@
+{
+  "TODO_DESIGN_below_fist_definition": null,
+  "question": "Does lower-ring visibility below the fist mean below its overall lowest pixel, or below the hand edge at the same x coordinate?",
+  "native_observations": {
+    "below_global_bottom_pixels": 0,
+    "below_same_column_hand_edge_pixels": 8
+  },
+  "scope": "Validation interpretation only. No geometry, visible asset, constructor input or 3D acceptance target is pending.",
+  "top_bar_necessary_inclusion_failed_under_either_below_fist_interpretation": true
+}

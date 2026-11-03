@@ -1,0 +1,238 @@
+| Module | Declared shared paths | Imported test modules | Other fixed literals | Godot task names (unique run HOME) | Shard |
+|---|---|---|---|---|---|
+| test_arc_thrall_maquette_r2 | temp-only/read-only | — | — | — | 1 |
+| test_arc_thrall_proof_validation | temp-only/read-only | — | — | — | 4 |
+| test_art_identity_gate | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | — | — | — | 1 |
+| test_biome_light_idle | temp-only/read-only | — | — | — | 4 |
+| test_board_pixel_density | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | — | — | — | 1 |
+| test_boot_splash | temp-only/read-only | — | — | — | 4 |
+| test_button_system_inventory | temp-only/read-only | — | — | — | 4 |
+| test_capture_director | temp-only/read-only | — | — | — | 3 |
+| test_capture_production | temp-only/read-only | — | — | — | 3 |
+| test_card_completion_stall | temp-only/read-only | — | — | synthetic | 3 |
+| test_card_heuristic_illusions_terrain | temp-only/read-only | — | — | — | 3 |
+| test_card_heuristic_keywords | temp-only/read-only | — | — | — | 3 |
+| test_card_heuristic_maneuver | temp-only/read-only | — | — | — | 4 |
+| test_card_heuristic_progression_context | temp-only/read-only | — | — | — | 4 |
+| test_card_heuristic_surfaces | temp-only/read-only | — | — | — | 4 |
+| test_card_heuristic_wave4_surfaces | temp-only/read-only | — | — | — | 4 |
+| test_card_legibility | tests/pt13_03/feedback2/captures/before/ (plan-only measurements.json written through symlinked tests/) | — | — | pt13-08 | 4 |
+| test_card_panel_text | temp-only/read-only | — | — | — | 4 |
+| test_card_time_watch_asset | temp-only/read-only | — | — | — | 4 |
+| test_chopin_death_music | temp-only/read-only | — | — | — | 3 |
+| test_classical_soundtrack_pipeline | temp-only/read-only | — | — | — | 3 |
+| test_combat_feel_measurements | temp-only/read-only | — | — | — | 4 |
+| test_cutout_workflow | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | — | — | — | 1 |
+| test_demo_clips | temp-only/read-only | — | — | demo-01 | 4 |
+| test_demo_recording | temp-only/read-only | test_demo_clips | — | demo-01 | 4 |
+| test_element_rule_contract | temp-only/read-only | — | — | — | 3 |
+| test_empower_sfx | temp-only/read-only | — | — | — | 3 |
+| test_en05_assets | temp-only/read-only | — | — | — | 3 |
+| test_encounter_measurement | temp-only/read-only | — | — | — | 4 |
+| test_engine_cache_proof | temp-only/read-only | — | — | — | 3 |
+| test_fix18_draw_origin | temp-only/read-only | — | — | fix-18 | 3 |
+| test_fix_11_labels | temp-only/read-only | — | — | — | 3 |
+| test_gait01 | experiments/cutouts/glacial_mirror/; assets/units/glacial_mirror_cutout/<br>experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_gear_visual_assets | temp-only/read-only | — | — | — | 3 |
+| test_glacial_mirror_regeneration | temp-only/read-only | — | — | — | 3 |
+| test_glacial_mirror_registration | temp-only/read-only | — | — | — | 4 |
+| test_glacial_mirror_shoulder | temp-only/read-only | — | — | — | 1 |
+| test_godot_sidecars | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | — | — | — | 1 |
+| test_godot_task_runner | temp-only/read-only | — | — | qa-01, runner-test | 4 |
+| test_guardian_rules_measurement | temp-only/read-only | — | — | — | 3 |
+| test_gust_shrike_cutout | temp-only/read-only | — | — | qa-06 | 4 |
+| test_icon_identity_policy | temp-only/read-only | — | — | — | 4 |
+| test_inspection_fixture | temp-only/read-only | — | — | banked-skill-fixture-test, deep-map-fixture-test, fixture-test, skill-fixture-test, steam-fixture-test, trap-fixture-test | 4 |
+| test_int04_preservation | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | test_arc_thrall_maquette_r2, test_glacial_mirror_shoulder, test_maquette_rear_turn, test_mq09_maquettes, test_rr21_cutout, test_rr24_feedback2, test_rr24_thrall | — | — | 1 |
+| test_int05_preservation | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | test_rr14_seer_identity | — | — | 1 |
+| test_item_card_art_quality | temp-only/read-only | — | — | — | 4 |
+| test_labyrinth_font_family | temp-only/read-only | — | — | — | 3 |
+| test_labyrinth_queue_board | temp-only/read-only | — | — | — | 4 |
+| test_labyrinth_task_queue | temp-only/read-only | — | — | — | 4 |
+| test_main_menu_steam_branding | temp-only/read-only | — | — | — | 3 |
+| test_main_menu_umbra_assets | temp-only/read-only | — | — | — | 4 |
+| test_maquette_bleed | temp-only/read-only | — | — | — | 4 |
+| test_maquette_blender | /private/tmp/labyrinth_codex/mq-03/native_tests/ (optional native proof; unique child fixtures) | — | /private/tmp/labyrinth_codex/mq-03/native_tests<br>/private/tmp/labyrinth_codex/mq-03/test | — | 3 |
+| test_maquette_builder_wiring | temp-only/read-only | — | — | — | 4 |
+| test_maquette_certificates | temp-only/read-only | — | — | — | 3 |
+| test_maquette_closed_loft | temp-only/read-only | — | — | — | 3 |
+| test_maquette_cutout | experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/ | — | — | rr-02 | 3 |
+| test_maquette_geometry | temp-only/read-only | — | — | — | 3 |
+| test_maquette_hidden_material | temp-only/read-only | — | — | — | 4 |
+| test_maquette_joint_seams | temp-only/read-only | — | — | — | 3 |
+| test_maquette_native_alpha | temp-only/read-only | — | — | rr-05 | 3 |
+| test_maquette_native_raster | temp-only/read-only | — | — | — | 3 |
+| test_maquette_native_ties | temp-only/read-only | test_maquette_native_raster | — | — | 3 |
+| test_maquette_owner_proof | experiments/cutouts/shale_bloomer/<br>output/rr-05/ (owner-proof shell mkdir, even with inert command stubs) | — | — | — | 3 |
+| test_maquette_pixel_polish | temp-only/read-only | — | — | rr-05 | 4 |
+| test_maquette_rear_turn | temp-only/read-only | — | — | — | 1 |
+| test_maquette_regressions | temp-only/read-only | — | — | — | 3 |
+| test_maquette_silhouette | temp-only/read-only | — | — | — | 3 |
+| test_mq09_forms | temp-only/read-only | test_maquette_rear_turn | — | — | 1 |
+| test_mq09_maquettes | temp-only/read-only | test_maquette_rear_turn | — | — | 1 |
+| test_mq11_accessories | temp-only/read-only | test_maquette_rear_turn | — | — | 1 |
+| test_mq11_crack_visibility | temp-only/read-only | — | — | — | 3 |
+| test_mq11_freshness | temp-only/read-only | test_maquette_rear_turn, test_mq11_accessories | — | — | 1 |
+| test_mq11_guard_mutations | temp-only/read-only | test_maquette_rear_turn | — | — | 1 |
+| test_mq11_validation | temp-only/read-only | test_maquette_rear_turn, test_mq11_accessories | — | — | 1 |
+| test_mq12_motion | temp-only/read-only | — | — | — | 4 |
+| test_mq12_preservation | temp-only/read-only | test_maquette_rear_turn | — | — | 1 |
+| test_mq12_shoulders | temp-only/read-only | test_maquette_rear_turn, test_mq12_preservation | — | — | 1 |
+| test_mq12_successor | temp-only/read-only | test_maquette_rear_turn, test_mq12_preservation | — | — | 1 |
+| test_mq13_delivery | temp-only/read-only | test_maquette_rear_turn | — | — | 1 |
+| test_mq13_evidence | temp-only/read-only | test_maquette_rear_turn | — | — | 1 |
+| test_mq13_pose | temp-only/read-only | — | — | — | 4 |
+| test_mq13_saved_body | temp-only/read-only | test_maquette_rear_turn | — | — | 1 |
+| test_mq14_builder | temp-only/read-only | — | — | — | 3 |
+| test_mq14_lancer | temp-only/read-only | test_maquette_rear_turn | — | — | 1 |
+| test_mq15_cloth | temp-only/read-only | test_maquette_rear_turn, test_mq15_native_geometry | — | — | 1 |
+| test_mq15_maquette | temp-only/read-only | test_maquette_rear_turn | — | — | 1 |
+| test_mq15_native_geometry | temp-only/read-only | test_maquette_rear_turn | — | — | 1 |
+| test_mq15_pose_fit | temp-only/read-only | test_maquette_rear_turn | — | — | 1 |
+| test_mq16_maquette | temp-only/read-only | — | /private/tmp/outside.json | — | 4 |
+| test_mq16_proof_guards | temp-only/read-only | — | — | — | 4 |
+| test_mq17_maquette | temp-only/read-only | — | — | — | 4 |
+| test_mq18_maquette | temp-only/read-only | — | — | — | 3 |
+| test_mq20_maquette | temp-only/read-only | — | — | — | 4 |
+| test_mq24_maquette | temp-only/read-only | — | — | — | 3 |
+| test_native_frames | temp-only/read-only | — | — | — | 4 |
+| test_native_review_readers | temp-only/read-only | test_maquette_cutout | — | — | 3 |
+| test_old_castle_full_arrangement | temp-only/read-only | — | — | — | 3 |
+| test_old_castle_main_menu_arrangement | temp-only/read-only | — | — | — | 3 |
+| test_original_soundtrack_assets | temp-only/read-only | — | — | — | 3 |
+| test_output_gdignore | temp-only/read-only | — | — | — | 4 |
+| test_pace_round_capture | temp-only/read-only | — | — | pace-02 | 4 |
+| test_parallel_task | temp-only/read-only | — | — | prepared | 4 |
+| test_performance_pass | temp-only/read-only | — | — | proof | 4 |
+| test_player_ui_scrollbars | temp-only/read-only | — | — | — | 4 |
+| test_process_biome_art | temp-only/read-only | — | — | — | 4 |
+| test_process_event_art | temp-only/read-only | — | — | — | 3 |
+| test_production_crop_plan | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | — | — | — | 1 |
+| test_program_suite_runner | temp-only/read-only | — | — | qa-07, runner-test, runtime-paths | 3 |
+| test_proof_render_inputs | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | — | — | qa-15 | 1 |
+| test_proof_runtime_paths | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | — | — | — | 1 |
+| test_pt14_01_coverage | temp-only/read-only | — | — | pt14-04 | 4 |
+| test_pt14_04_coverage | temp-only/read-only | — | — | pt14-04 | 3 |
+| test_pt15_01_owner_feet | temp-only/read-only | — | — | pt15-01 | 4 |
+| test_python_suite_runner | temp-only/read-only | — | — | — | 3 |
+| test_python_suite_runner_feedback | temp-only/read-only | — | — | perf-06-timeout-fixture | 4 |
+| test_recolour_lab | temp-only/read-only | — | — | — | 3 |
+| test_relic_pt13_01 | temp-only/read-only | — | — | — | 3 |
+| test_rr07_delivery | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr07_production | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/<br>experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_rr10_bone_evidence | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr10_feedback | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr10_humanoid | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr10_layout_parity | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr10_native_exceptions | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr10_occluded_foot | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr10_rear | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr10_reveal_fills | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr10_rope | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr10_silhouette_gates | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr10_tucks | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr11_humanoid | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_rr12_delivery | experiments/cutouts/burrow_grub/ | — | — | — | 3 |
+| test_rr12_production | experiments/cutouts/burrow_grub/ | — | — | — | 3 |
+| test_rr12_stray | experiments/cutouts/burrow_grub/ | — | — | — | 3 |
+| test_rr13_continuations | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr14_anatomy | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/<br>/private/tmp/labyrinth_codex/rr-14/feedback1 | — | /private/tmp/labyrinth_codex/rr-14/feedback1 | rr-14 | 1 |
+| test_rr14_bone_guards | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/<br>/private/tmp/labyrinth_codex/rr-14/feedback1 | — | /private/tmp/labyrinth_codex/rr-14/feedback1 | rr-14 | 1 |
+| test_rr14_continuation_domains | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_rr14_foundations | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/<br>/private/tmp/labyrinth_codex/rr-14 | — | /private/tmp/labyrinth_codex/rr-14 | rr-14 | 1 |
+| test_rr14_seer_identity | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_rr15_action_direction | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/<br>/private/tmp/labyrinth_codex/rr-15 | — | /private/tmp/labyrinth_codex/rr-15 | — | 1 |
+| test_rr15_native_cleanup | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_rr15_reach | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_rr15_shoulder | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_rr15_view_keys | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/<br>/private/tmp/labyrinth_codex/rr-15 | — | /private/tmp/labyrinth_codex/rr-15 | — | 1 |
+| test_rr16_feedback1 | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_rr16_review_fixes | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_rr17_cutout | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | — | — | — | 1 |
+| test_rr17_feedback | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | — | /private/tmp/ | — | 1 |
+| test_rr17_integration | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | — | — | — | 1 |
+| test_rr17_production | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | — | — | — | 1 |
+| test_rr18_air_policy | experiments/cutouts/glacial_mirror/; assets/units/glacial_mirror_cutout/ | — | — | — | 1 |
+| test_rr18_humanoid | experiments/cutouts/glacial_mirror/; assets/units/glacial_mirror_cutout/ | — | — | — | 1 |
+| test_rr18_materials | experiments/cutouts/glacial_mirror/; assets/units/glacial_mirror_cutout/ | — | — | — | 1 |
+| test_rr19_overlap | assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/ | — | — | — | 1 |
+| test_rr20_cutout | experiments/cutouts/hollow_mimic/ | — | — | rr-20 | 1 |
+| test_rr20_feedback2 | experiments/cutouts/hollow_mimic/ | test_rr18_humanoid | — | — | 1 |
+| test_rr20_production | experiments/cutouts/hollow_mimic/ | — | — | rr-20 | 1 |
+| test_rr20_residue | experiments/cutouts/hollow_mimic/ | — | — | — | 1 |
+| test_rr20_rest_space | experiments/cutouts/hollow_mimic/ | — | — | — | 1 |
+| test_rr21_cutout | experiments/cutouts/briar_weaver/ | — | — | rr-21 | 1 |
+| test_rr21_production | experiments/cutouts/briar_weaver/ | — | — | — | 1 |
+| test_rr21_residue | experiments/cutouts/briar_weaver/ | — | — | — | 1 |
+| test_rr21_review | experiments/cutouts/briar_weaver/ | test_rr21_cutout, test_rr21_walk | — | — | 1 |
+| test_rr21_walk | experiments/cutouts/briar_weaver/ | test_rr21_cutout | — | — | 1 |
+| test_rr22_humanoid | experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/) | — | — | — | 2 |
+| test_rr22_source_space | experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/) | — | — | — | 2 |
+| test_rr23_owner_fixes | experiments/cutouts/glacial_mirror/; assets/units/glacial_mirror_cutout/ | test_rr18_humanoid | — | — | 1 |
+| test_rr24_feedback2 | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | test_rr24_thrall | — | rr-24 | 1 |
+| test_rr24_policies | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_rr24_thrall | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_rr25_mortar_finish | temp-only/read-only | — | — | — | 3 |
+| test_rr26_consolidation | experiments/cutouts/hollow_mimic/ | — | — | — | 1 |
+| test_rr26_fragments | experiments/cutouts/hollow_mimic/<br>experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr26_hem_attachments | experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/ | — | — | — | 1 |
+| test_rr27_thrall | experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/ | — | — | — | 1 |
+| test_rr28_continuations | experiments/cutouts/gust_shrike/ | — | — | — | 1 |
+| test_rr28_shadow | experiments/cutouts/gust_shrike/ | — | — | — | 1 |
+| test_rr29_historical_ranges | experiments/cutouts/hollow_mimic/ | test_rr20_cutout, test_rr28_continuations | — | — | 1 |
+| test_rr29_mimic | experiments/cutouts/hollow_mimic/ | — | — | rr-29 | 1 |
+| test_rr30_joint_surfaces | experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/) | test_rr37_lancer | — | — | 2 |
+| test_rr30_mortar | experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/) | — | — | — | 2 |
+| test_rr30_proof | experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/) | — | — | rr-30 | 2 |
+| test_rr30_stretch | experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/) | — | — | — | 2 |
+| test_rr31_calibration | experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/) | — | — | — | 2 |
+| test_rr31_finish_seams | experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/) | test_rr30_mortar | — | — | 2 |
+| test_rr31_images | experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/) | — | — | — | 2 |
+| test_rr31_storage | experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/) | — | — | — | 2 |
+| test_rr32_herald | experiments/cutouts/gale_herald/ | — | — | — | 4 |
+| test_rr32_production | experiments/cutouts/gale_herald/ | test_rr32_herald | — | — | 4 |
+| test_rr34_layering | experiments/cutouts/gale_herald/ | — | — | — | 4 |
+| test_rr35_cutout | experiments/cutouts/gloam_stalker/ | test_rr26_consolidation | — | — | 1 |
+| test_rr35_native_defects | experiments/cutouts/gloam_stalker/ | — | — | — | 1 |
+| test_rr35_production | experiments/cutouts/gloam_stalker/ | test_rr26_consolidation, test_rr35_cutout | — | — | 1 |
+| test_rr37_feedback1 | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | test_rr37_lancer | — | — | 2 |
+| test_rr37_feedback2 | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | test_rr37_lancer | — | — | 2 |
+| test_rr37_feedback3 | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | test_rr37_lancer | — | — | 2 |
+| test_rr37_lancer | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | — | — | — | 2 |
+| test_rr37_production | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | test_rr37_lancer | — | — | 2 |
+| test_rr38_feedback1 | experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/ | test_rr38_gaoler | — | — | 3 |
+| test_rr38_feedback2 | experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/ | test_rr38_gaoler | — | — | 3 |
+| test_rr38_feedback3 | experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/ | test_rr38_gaoler | — | — | 3 |
+| test_rr38_gaoler | experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/ | — | — | — | 3 |
+| test_rr39_clean_checkout | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | — | — | — | 2 |
+| test_rr39_density_partitions | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | — | — | — | 2 |
+| test_rr39_lancer | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | test_rr37_lancer | — | — | 2 |
+| test_rr39_native_ties | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | test_rr37_lancer | — | — | 2 |
+| test_rr39_proof_rerun | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | — | — | — | 2 |
+| test_rr39_retained_bindings | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | test_rr37_lancer | — | — | 2 |
+| test_rr40_feedback | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | — | — | — | 2 |
+| test_rr41_feedback1 | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | test_rr37_lancer | — | — | 2 |
+| test_rr41_feedback2 | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | test_rr37_lancer | — | — | 2 |
+| test_rr41_feedback3 | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | test_rr37_lancer, test_rr41_feedback1, test_rr41_feedback2 | — | — | 2 |
+| test_rr41_lancer | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | test_rr37_lancer | — | — | 2 |
+| test_rr42_feedback2 | experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/ | — | — | — | 3 |
+| test_rr42_feedback3 | experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/ | test_rr42_gaoler | — | — | 3 |
+| test_rr42_gaoler | experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/ | test_rr38_gaoler | — | — | 3 |
+| test_rr43_lancer | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | — | — | — | 2 |
+| test_rr43_outline | experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/ | — | — | — | 2 |
+| test_rr45_lancer | temp-only/read-only | test_rr37_lancer | — | — | 2 |
+| test_runner_cancellation | temp-only/read-only | — | — | — | 4 |
+| test_sb02_movement | /private/tmp/sb02-proof/ (standalone matched-proof entry point) | — | /private/tmp/sb02-proof | sb-02 | 3 |
+| test_section_transition_clip | temp-only/read-only | — | /private/tmp/flow-01-clip-command-test<br>/private/tmp/flow-01-clip-test | — | 3 |
+| test_semantic_maquette_motion | experiments/cutouts/shale_bloomer/<br>experiments/cutouts/lightning_wisp/ | — | — | rr-05 | 3 |
+| test_sfx_lab | Caller-supplied sfx --proof-out directory (disabled during discovery) | — | — | — | 4 |
+| test_short_card_tooltips | temp-only/read-only | — | — | — | 3 |
+| test_skybolt_measurement | temp-only/read-only | — | — | meas-03 | 4 |
+| test_special_encounter_assets | temp-only/read-only | — | — | — | 4 |
+| test_steam_performance_stats_schema | temp-only/read-only | — | — | — | 3 |
+| test_test_registration_audit | temp-only/read-only | — | — | — | 3 |
+| test_text_budget | temp-only/read-only | — | — | — | 3 |
+| test_transition_differential | temp-only/read-only | — | — | — | 3 |
+| test_ui_identity_lint | temp-only/read-only | — | — | — | 3 |
+| test_visual_pass_4_assets | temp-only/read-only | — | — | — | 4 |
+| test_visual_probe_runner | temp-only/read-only | — | — | — | 4 |

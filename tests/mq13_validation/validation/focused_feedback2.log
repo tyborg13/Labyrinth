@@ -1,0 +1,12 @@
+...............................
+----------------------------------------------------------------------
+Ran 31 tests in 2.548s
+
+OK
+MQ11_ACCEPTANCE: PASS; figures=2; native_fit_shape_turn_collision_ownership_determinism_bound=true
+MQ12_CURRENT_PRESERVATION: PASS; figures=8; delivery_files=791
+MQ12_APPROVED_HISTORY_AND_MQ13_SUCCESSOR: PASS; historical_inputs_and_current_seals_exact=True
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5715009, "figure": "gale_herald", "files": 168}
+MQ12_GIT_VISIBLE_CURATION: PASS; gale_herald
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5766414, "figure": "gloam_stalker", "files": 169}
+MQ12_GIT_VISIBLE_CURATION: PASS; gloam_stalker

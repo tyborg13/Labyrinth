@@ -1,0 +1,125 @@
+{
+  "ok": true,
+  "clip": "death",
+  "source": "coat_near_tip.lift_px",
+  "target_peak": 4,
+  "peak": 2.5,
+  "step": 0.25,
+  "minimum": 0,
+  "painted_exposure_clean": false,
+  "candidates": [
+    {
+      "peak": 4.0,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 32,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 39,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 40,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 3.75,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 39,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 40,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 3.5,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 40,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 3.25,
+      "cached_full": true,
+      "full_errors": 5,
+      "geometric_errors": 2,
+      "painted_exposure_clean": false
+    },
+    {
+      "peak": 3.0,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 35,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 36,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 2.75,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 36,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 2.5,
+      "witness_errors": [],
+      "full_errors": 3,
+      "geometric_errors": 0,
+      "painted_exposure_clean": false
+    }
+  ],
+  "native_pixels": false,
+  "case": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-42/experiments/cutouts/chainbound_gaoler/rr42/proof/feedback1_limits/death_coat_near_tip_lift_px_2.50"
+}

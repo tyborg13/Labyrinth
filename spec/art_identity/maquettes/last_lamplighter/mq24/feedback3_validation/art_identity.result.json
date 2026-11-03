@@ -1,0 +1,8 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tests/test_art_identity_gate.py"
+  ],
+  "exit_code": 0
+}

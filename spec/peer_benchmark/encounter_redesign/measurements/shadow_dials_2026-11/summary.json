@@ -1,0 +1,5136 @@
+{
+  "source_head": "649164b7bd0db2b2157dff6ee99a38b42637331d",
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "runs_per_group": 200,
+  "first_seed": 1,
+  "baseline_parity_runs": 1200,
+  "composition": [
+    {
+      "tier": 1,
+      "biome": "fire",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "hp": {
+        "n": 200,
+        "median": 40.0,
+        "p10": 33,
+        "p90": 44
+      },
+      "types": [
+        {
+          "id": "harrier",
+          "instances": 186,
+          "rooms": 186,
+          "room_share": 0.93
+        },
+        {
+          "id": "crawler",
+          "instances": 185,
+          "rooms": 155,
+          "room_share": 0.775
+        },
+        {
+          "id": "ember_tick",
+          "instances": 132,
+          "rooms": 68,
+          "room_share": 0.34
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 32,
+          "rooms": 16,
+          "room_share": 0.08
+        },
+        {
+          "id": "ash_hound",
+          "instances": 30,
+          "rooms": 15,
+          "room_share": 0.075
+        },
+        {
+          "id": "acolyte",
+          "instances": 25,
+          "rooms": 25,
+          "room_share": 0.125
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 18,
+          "rooms": 18,
+          "room_share": 0.09
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 17,
+          "rooms": 17,
+          "room_share": 0.085
+        },
+        {
+          "id": "slag_mortar",
+          "instances": 17,
+          "rooms": 17,
+          "room_share": 0.085
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 16,
+          "rooms": 16,
+          "room_share": 0.08
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 14,
+          "rooms": 14,
+          "room_share": 0.07
+        },
+        {
+          "id": "warden",
+          "instances": 14,
+          "rooms": 14,
+          "room_share": 0.07
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 12,
+          "rooms": 12,
+          "room_share": 0.06
+        }
+      ]
+    },
+    {
+      "tier": 1,
+      "biome": "earth",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "hp": {
+        "n": 200,
+        "median": 38.0,
+        "p10": 32,
+        "p90": 43
+      },
+      "types": [
+        {
+          "id": "harrier",
+          "instances": 182,
+          "rooms": 182,
+          "room_share": 0.91
+        },
+        {
+          "id": "crawler",
+          "instances": 179,
+          "rooms": 146,
+          "room_share": 0.73
+        },
+        {
+          "id": "burrow_grub",
+          "instances": 52,
+          "rooms": 52,
+          "room_share": 0.26
+        },
+        {
+          "id": "stoneback_mite",
+          "instances": 42,
+          "rooms": 25,
+          "room_share": 0.125
+        },
+        {
+          "id": "briar_weaver",
+          "instances": 32,
+          "rooms": 32,
+          "room_share": 0.16
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 24,
+          "rooms": 24,
+          "room_share": 0.12
+        },
+        {
+          "id": "acolyte",
+          "instances": 21,
+          "rooms": 21,
+          "room_share": 0.105
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 20,
+          "rooms": 10,
+          "room_share": 0.05
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 18,
+          "rooms": 18,
+          "room_share": 0.09
+        },
+        {
+          "id": "warden",
+          "instances": 18,
+          "rooms": 18,
+          "room_share": 0.09
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 14,
+          "rooms": 14,
+          "room_share": 0.07
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 8,
+          "rooms": 8,
+          "room_share": 0.04
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 7,
+          "rooms": 7,
+          "room_share": 0.035
+        }
+      ]
+    },
+    {
+      "tier": 1,
+      "biome": "ice",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "hp": {
+        "n": 200,
+        "median": 39.0,
+        "p10": 32,
+        "p90": 45
+      },
+      "types": [
+        {
+          "id": "harrier",
+          "instances": 186,
+          "rooms": 186,
+          "room_share": 0.93
+        },
+        {
+          "id": "crawler",
+          "instances": 173,
+          "rooms": 148,
+          "room_share": 0.74
+        },
+        {
+          "id": "hoarfrost_seer",
+          "instances": 52,
+          "rooms": 52,
+          "room_share": 0.26
+        },
+        {
+          "id": "rime_spitter",
+          "instances": 36,
+          "rooms": 36,
+          "room_share": 0.18
+        },
+        {
+          "id": "rime_whelp",
+          "instances": 29,
+          "rooms": 29,
+          "room_share": 0.145
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 28,
+          "rooms": 14,
+          "room_share": 0.07
+        },
+        {
+          "id": "acolyte",
+          "instances": 27,
+          "rooms": 27,
+          "room_share": 0.135
+        },
+        {
+          "id": "glacial_mirror",
+          "instances": 22,
+          "rooms": 22,
+          "room_share": 0.11
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 19,
+          "rooms": 19,
+          "room_share": 0.095
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 18,
+          "rooms": 18,
+          "room_share": 0.09
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 18,
+          "rooms": 18,
+          "room_share": 0.09
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 15,
+          "rooms": 15,
+          "room_share": 0.075
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 14,
+          "rooms": 14,
+          "room_share": 0.07
+        },
+        {
+          "id": "warden",
+          "instances": 14,
+          "rooms": 14,
+          "room_share": 0.07
+        }
+      ]
+    },
+    {
+      "tier": 1,
+      "biome": "air",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "hp": {
+        "n": 200,
+        "median": 39.0,
+        "p10": 32,
+        "p90": 44
+      },
+      "types": [
+        {
+          "id": "harrier",
+          "instances": 176,
+          "rooms": 176,
+          "room_share": 0.88
+        },
+        {
+          "id": "crawler",
+          "instances": 175,
+          "rooms": 145,
+          "room_share": 0.725
+        },
+        {
+          "id": "gale_herald",
+          "instances": 61,
+          "rooms": 61,
+          "room_share": 0.305
+        },
+        {
+          "id": "roc_fledgling",
+          "instances": 48,
+          "rooms": 32,
+          "room_share": 0.16
+        },
+        {
+          "id": "gust_shrike",
+          "instances": 44,
+          "rooms": 22,
+          "room_share": 0.11
+        },
+        {
+          "id": "acolyte",
+          "instances": 29,
+          "rooms": 29,
+          "room_share": 0.145
+        },
+        {
+          "id": "warden",
+          "instances": 24,
+          "rooms": 24,
+          "room_share": 0.12
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 22,
+          "rooms": 11,
+          "room_share": 0.055
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 16,
+          "rooms": 16,
+          "room_share": 0.08
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 13,
+          "rooms": 13,
+          "room_share": 0.065
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 12,
+          "rooms": 12,
+          "room_share": 0.06
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 12,
+          "rooms": 12,
+          "room_share": 0.06
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 9,
+          "rooms": 9,
+          "room_share": 0.045
+        }
+      ]
+    },
+    {
+      "tier": 1,
+      "biome": "lightning",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "hp": {
+        "n": 200,
+        "median": 41.0,
+        "p10": 33,
+        "p90": 52
+      },
+      "types": [
+        {
+          "id": "harrier",
+          "instances": 192,
+          "rooms": 192,
+          "room_share": 0.96
+        },
+        {
+          "id": "crawler",
+          "instances": 180,
+          "rooms": 156,
+          "room_share": 0.78
+        },
+        {
+          "id": "arc_thrall",
+          "instances": 88,
+          "rooms": 44,
+          "room_share": 0.22
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 83,
+          "rooms": 58,
+          "room_share": 0.29
+        },
+        {
+          "id": "storm_capacitor",
+          "instances": 33,
+          "rooms": 33,
+          "room_share": 0.165
+        },
+        {
+          "id": "acolyte",
+          "instances": 30,
+          "rooms": 30,
+          "room_share": 0.15
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 20,
+          "rooms": 20,
+          "room_share": 0.1
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 16,
+          "rooms": 16,
+          "room_share": 0.08
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 16,
+          "rooms": 16,
+          "room_share": 0.08
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 15,
+          "rooms": 15,
+          "room_share": 0.075
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 9,
+          "rooms": 9,
+          "room_share": 0.045
+        },
+        {
+          "id": "bell_tender",
+          "instances": 8,
+          "rooms": 8,
+          "room_share": 0.04
+        },
+        {
+          "id": "warden",
+          "instances": 8,
+          "rooms": 8,
+          "room_share": 0.04
+        }
+      ]
+    },
+    {
+      "tier": 1,
+      "biome": "shadow",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 4
+      },
+      "hp": {
+        "n": 200,
+        "median": 46.0,
+        "p10": 43,
+        "p90": 50
+      },
+      "types": [
+        {
+          "id": "crawler",
+          "instances": 192,
+          "rooms": 166,
+          "room_share": 0.83
+        },
+        {
+          "id": "harrier",
+          "instances": 191,
+          "rooms": 191,
+          "room_share": 0.955
+        },
+        {
+          "id": "wick_shade",
+          "instances": 53,
+          "rooms": 43,
+          "room_share": 0.215
+        },
+        {
+          "id": "gloam_stalker",
+          "instances": 45,
+          "rooms": 45,
+          "room_share": 0.225
+        },
+        {
+          "id": "acolyte",
+          "instances": 37,
+          "rooms": 37,
+          "room_share": 0.185
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 26,
+          "rooms": 13,
+          "room_share": 0.065
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 21,
+          "rooms": 21,
+          "room_share": 0.105
+        },
+        {
+          "id": "hollow_mimic",
+          "instances": 20,
+          "rooms": 20,
+          "room_share": 0.1
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 16,
+          "rooms": 16,
+          "room_share": 0.08
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 14,
+          "rooms": 14,
+          "room_share": 0.07
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 13,
+          "rooms": 13,
+          "room_share": 0.065
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 10,
+          "rooms": 10,
+          "room_share": 0.05
+        },
+        {
+          "id": "veilbound_acolyte",
+          "instances": 10,
+          "rooms": 10,
+          "room_share": 0.05
+        },
+        {
+          "id": "warden",
+          "instances": 9,
+          "rooms": 9,
+          "room_share": 0.045
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "biome": "fire",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 4,
+        "p90": 6
+      },
+      "hp": {
+        "n": 200,
+        "median": 63.0,
+        "p10": 51,
+        "p90": 76
+      },
+      "types": [
+        {
+          "id": "crawler",
+          "instances": 218,
+          "rooms": 200,
+          "room_share": 1.0
+        },
+        {
+          "id": "ember_tick",
+          "instances": 168,
+          "rooms": 89,
+          "room_share": 0.445
+        },
+        {
+          "id": "harrier",
+          "instances": 167,
+          "rooms": 167,
+          "room_share": 0.835
+        },
+        {
+          "id": "acolyte",
+          "instances": 98,
+          "rooms": 98,
+          "room_share": 0.49
+        },
+        {
+          "id": "warden",
+          "instances": 52,
+          "rooms": 52,
+          "room_share": 0.26
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 48,
+          "rooms": 48,
+          "room_share": 0.24
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 34,
+          "rooms": 16,
+          "room_share": 0.08
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 32,
+          "rooms": 27,
+          "room_share": 0.135
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 27,
+          "rooms": 21,
+          "room_share": 0.105
+        },
+        {
+          "id": "slag_mortar",
+          "instances": 26,
+          "rooms": 26,
+          "room_share": 0.13
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 25,
+          "rooms": 22,
+          "room_share": 0.11
+        },
+        {
+          "id": "ash_hound",
+          "instances": 22,
+          "rooms": 11,
+          "room_share": 0.055
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 16,
+          "rooms": 14,
+          "room_share": 0.07
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "biome": "earth",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 4,
+        "p90": 5
+      },
+      "hp": {
+        "n": 200,
+        "median": 60.0,
+        "p10": 50,
+        "p90": 71
+      },
+      "types": [
+        {
+          "id": "crawler",
+          "instances": 213,
+          "rooms": 200,
+          "room_share": 1.0
+        },
+        {
+          "id": "harrier",
+          "instances": 158,
+          "rooms": 158,
+          "room_share": 0.79
+        },
+        {
+          "id": "acolyte",
+          "instances": 95,
+          "rooms": 95,
+          "room_share": 0.475
+        },
+        {
+          "id": "burrow_grub",
+          "instances": 80,
+          "rooms": 80,
+          "room_share": 0.4
+        },
+        {
+          "id": "warden",
+          "instances": 61,
+          "rooms": 61,
+          "room_share": 0.305
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 60,
+          "rooms": 60,
+          "room_share": 0.3
+        },
+        {
+          "id": "stoneback_mite",
+          "instances": 43,
+          "rooms": 30,
+          "room_share": 0.15
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 42,
+          "rooms": 18,
+          "room_share": 0.09
+        },
+        {
+          "id": "briar_weaver",
+          "instances": 29,
+          "rooms": 29,
+          "room_share": 0.145
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 21,
+          "rooms": 18,
+          "room_share": 0.09
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 18,
+          "rooms": 17,
+          "room_share": 0.085
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 18,
+          "rooms": 15,
+          "room_share": 0.075
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 13,
+          "rooms": 11,
+          "room_share": 0.055
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "biome": "ice",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 4,
+        "p90": 5
+      },
+      "hp": {
+        "n": 200,
+        "median": 61.0,
+        "p10": 51,
+        "p90": 78
+      },
+      "types": [
+        {
+          "id": "crawler",
+          "instances": 213,
+          "rooms": 200,
+          "room_share": 1.0
+        },
+        {
+          "id": "harrier",
+          "instances": 176,
+          "rooms": 176,
+          "room_share": 0.88
+        },
+        {
+          "id": "acolyte",
+          "instances": 100,
+          "rooms": 100,
+          "room_share": 0.5
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 60,
+          "rooms": 27,
+          "room_share": 0.135
+        },
+        {
+          "id": "warden",
+          "instances": 59,
+          "rooms": 59,
+          "room_share": 0.295
+        },
+        {
+          "id": "rime_spitter",
+          "instances": 53,
+          "rooms": 53,
+          "room_share": 0.265
+        },
+        {
+          "id": "hoarfrost_seer",
+          "instances": 51,
+          "rooms": 51,
+          "room_share": 0.255
+        },
+        {
+          "id": "glacial_mirror",
+          "instances": 40,
+          "rooms": 40,
+          "room_share": 0.2
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 36,
+          "rooms": 36,
+          "room_share": 0.18
+        },
+        {
+          "id": "rime_whelp",
+          "instances": 27,
+          "rooms": 27,
+          "room_share": 0.135
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 25,
+          "rooms": 22,
+          "room_share": 0.11
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 22,
+          "rooms": 22,
+          "room_share": 0.11
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 19,
+          "rooms": 19,
+          "room_share": 0.095
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 16,
+          "rooms": 15,
+          "room_share": 0.075
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "biome": "air",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 4,
+        "p90": 5
+      },
+      "hp": {
+        "n": 200,
+        "median": 63.0,
+        "p10": 50,
+        "p90": 76
+      },
+      "types": [
+        {
+          "id": "crawler",
+          "instances": 213,
+          "rooms": 200,
+          "room_share": 1.0
+        },
+        {
+          "id": "harrier",
+          "instances": 175,
+          "rooms": 175,
+          "room_share": 0.875
+        },
+        {
+          "id": "gust_shrike",
+          "instances": 86,
+          "rooms": 43,
+          "room_share": 0.215
+        },
+        {
+          "id": "acolyte",
+          "instances": 80,
+          "rooms": 80,
+          "room_share": 0.4
+        },
+        {
+          "id": "warden",
+          "instances": 69,
+          "rooms": 69,
+          "room_share": 0.345
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 58,
+          "rooms": 25,
+          "room_share": 0.125
+        },
+        {
+          "id": "gale_herald",
+          "instances": 55,
+          "rooms": 55,
+          "room_share": 0.275
+        },
+        {
+          "id": "roc_fledgling",
+          "instances": 45,
+          "rooms": 29,
+          "room_share": 0.145
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 40,
+          "rooms": 40,
+          "room_share": 0.2
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 26,
+          "rooms": 21,
+          "room_share": 0.105
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 20,
+          "rooms": 19,
+          "room_share": 0.095
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 18,
+          "rooms": 15,
+          "room_share": 0.075
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 16,
+          "rooms": 11,
+          "room_share": 0.055
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "biome": "lightning",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 4,
+        "p90": 5
+      },
+      "hp": {
+        "n": 200,
+        "median": 65.0,
+        "p10": 50,
+        "p90": 82
+      },
+      "types": [
+        {
+          "id": "crawler",
+          "instances": 222,
+          "rooms": 200,
+          "room_share": 1.0
+        },
+        {
+          "id": "harrier",
+          "instances": 173,
+          "rooms": 173,
+          "room_share": 0.865
+        },
+        {
+          "id": "arc_thrall",
+          "instances": 106,
+          "rooms": 53,
+          "room_share": 0.265
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 99,
+          "rooms": 70,
+          "room_share": 0.35
+        },
+        {
+          "id": "acolyte",
+          "instances": 84,
+          "rooms": 84,
+          "room_share": 0.42
+        },
+        {
+          "id": "warden",
+          "instances": 68,
+          "rooms": 68,
+          "room_share": 0.34
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 40,
+          "rooms": 40,
+          "room_share": 0.2
+        },
+        {
+          "id": "storm_capacitor",
+          "instances": 35,
+          "rooms": 35,
+          "room_share": 0.175
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 26,
+          "rooms": 23,
+          "room_share": 0.115
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 25,
+          "rooms": 21,
+          "room_share": 0.105
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 19,
+          "rooms": 16,
+          "room_share": 0.08
+        },
+        {
+          "id": "bell_tender",
+          "instances": 18,
+          "rooms": 18,
+          "room_share": 0.09
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 14,
+          "rooms": 12,
+          "room_share": 0.06
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "biome": "shadow",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 4,
+        "p90": 5
+      },
+      "hp": {
+        "n": 200,
+        "median": 71.0,
+        "p10": 67,
+        "p90": 80
+      },
+      "types": [
+        {
+          "id": "crawler",
+          "instances": 211,
+          "rooms": 200,
+          "room_share": 1.0
+        },
+        {
+          "id": "harrier",
+          "instances": 166,
+          "rooms": 166,
+          "room_share": 0.83
+        },
+        {
+          "id": "acolyte",
+          "instances": 98,
+          "rooms": 98,
+          "room_share": 0.49
+        },
+        {
+          "id": "gloam_stalker",
+          "instances": 74,
+          "rooms": 74,
+          "room_share": 0.37
+        },
+        {
+          "id": "wick_shade",
+          "instances": 74,
+          "rooms": 58,
+          "room_share": 0.29
+        },
+        {
+          "id": "warden",
+          "instances": 55,
+          "rooms": 55,
+          "room_share": 0.275
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 48,
+          "rooms": 22,
+          "room_share": 0.11
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 46,
+          "rooms": 46,
+          "room_share": 0.23
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 24,
+          "rooms": 20,
+          "room_share": 0.1
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 23,
+          "rooms": 20,
+          "room_share": 0.1
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 22,
+          "rooms": 19,
+          "room_share": 0.095
+        },
+        {
+          "id": "hollow_mimic",
+          "instances": 22,
+          "rooms": 22,
+          "room_share": 0.11
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 19,
+          "rooms": 18,
+          "room_share": 0.09
+        },
+        {
+          "id": "veilbound_acolyte",
+          "instances": 16,
+          "rooms": 16,
+          "room_share": 0.08
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "biome": "fire",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 6.0,
+        "p10": 5,
+        "p90": 7
+      },
+      "hp": {
+        "n": 200,
+        "median": 93.0,
+        "p10": 77,
+        "p90": 109
+      },
+      "types": [
+        {
+          "id": "ember_tick",
+          "instances": 249,
+          "rooms": 111,
+          "room_share": 0.555
+        },
+        {
+          "id": "warden",
+          "instances": 214,
+          "rooms": 198,
+          "room_share": 0.99
+        },
+        {
+          "id": "acolyte",
+          "instances": 149,
+          "rooms": 149,
+          "room_share": 0.745
+        },
+        {
+          "id": "crawler",
+          "instances": 147,
+          "rooms": 131,
+          "room_share": 0.655
+        },
+        {
+          "id": "harrier",
+          "instances": 76,
+          "rooms": 76,
+          "room_share": 0.38
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 68,
+          "rooms": 29,
+          "room_share": 0.145
+        },
+        {
+          "id": "ash_hound",
+          "instances": 48,
+          "rooms": 23,
+          "room_share": 0.115
+        },
+        {
+          "id": "slag_mortar",
+          "instances": 38,
+          "rooms": 35,
+          "room_share": 0.175
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 36,
+          "rooms": 26,
+          "room_share": 0.13
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 34,
+          "rooms": 26,
+          "room_share": 0.13
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 30,
+          "rooms": 22,
+          "room_share": 0.11
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 30,
+          "rooms": 30,
+          "room_share": 0.15
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 21,
+          "rooms": 18,
+          "room_share": 0.09
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "biome": "earth",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 4,
+        "p90": 6
+      },
+      "hp": {
+        "n": 200,
+        "median": 89.5,
+        "p10": 75,
+        "p90": 107
+      },
+      "types": [
+        {
+          "id": "warden",
+          "instances": 213,
+          "rooms": 200,
+          "room_share": 1.0
+        },
+        {
+          "id": "crawler",
+          "instances": 157,
+          "rooms": 144,
+          "room_share": 0.72
+        },
+        {
+          "id": "acolyte",
+          "instances": 153,
+          "rooms": 153,
+          "room_share": 0.765
+        },
+        {
+          "id": "stoneback_mite",
+          "instances": 76,
+          "rooms": 48,
+          "room_share": 0.24
+        },
+        {
+          "id": "burrow_grub",
+          "instances": 74,
+          "rooms": 70,
+          "room_share": 0.35
+        },
+        {
+          "id": "harrier",
+          "instances": 74,
+          "rooms": 74,
+          "room_share": 0.37
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 60,
+          "rooms": 24,
+          "room_share": 0.12
+        },
+        {
+          "id": "briar_weaver",
+          "instances": 48,
+          "rooms": 46,
+          "room_share": 0.23
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 38,
+          "rooms": 30,
+          "room_share": 0.15
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 36,
+          "rooms": 30,
+          "room_share": 0.15
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 35,
+          "rooms": 27,
+          "room_share": 0.135
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 33,
+          "rooms": 27,
+          "room_share": 0.135
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 27,
+          "rooms": 27,
+          "room_share": 0.135
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "biome": "ice",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 5,
+        "p90": 6
+      },
+      "hp": {
+        "n": 200,
+        "median": 94.0,
+        "p10": 75,
+        "p90": 109
+      },
+      "types": [
+        {
+          "id": "warden",
+          "instances": 219,
+          "rooms": 200,
+          "room_share": 1.0
+        },
+        {
+          "id": "crawler",
+          "instances": 150,
+          "rooms": 131,
+          "room_share": 0.655
+        },
+        {
+          "id": "acolyte",
+          "instances": 147,
+          "rooms": 147,
+          "room_share": 0.735
+        },
+        {
+          "id": "rime_spitter",
+          "instances": 81,
+          "rooms": 74,
+          "room_share": 0.37
+        },
+        {
+          "id": "hoarfrost_seer",
+          "instances": 78,
+          "rooms": 70,
+          "room_share": 0.35
+        },
+        {
+          "id": "harrier",
+          "instances": 76,
+          "rooms": 76,
+          "room_share": 0.38
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 60,
+          "rooms": 23,
+          "room_share": 0.115
+        },
+        {
+          "id": "rime_whelp",
+          "instances": 54,
+          "rooms": 49,
+          "room_share": 0.245
+        },
+        {
+          "id": "glacial_mirror",
+          "instances": 49,
+          "rooms": 45,
+          "room_share": 0.225
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 35,
+          "rooms": 27,
+          "room_share": 0.135
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 34,
+          "rooms": 26,
+          "room_share": 0.13
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 31,
+          "rooms": 24,
+          "room_share": 0.12
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 29,
+          "rooms": 29,
+          "room_share": 0.145
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 21,
+          "rooms": 17,
+          "room_share": 0.085
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "biome": "air",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 5,
+        "p90": 6
+      },
+      "hp": {
+        "n": 200,
+        "median": 93.0,
+        "p10": 77,
+        "p90": 107
+      },
+      "types": [
+        {
+          "id": "warden",
+          "instances": 215,
+          "rooms": 200,
+          "room_share": 1.0
+        },
+        {
+          "id": "acolyte",
+          "instances": 160,
+          "rooms": 160,
+          "room_share": 0.8
+        },
+        {
+          "id": "crawler",
+          "instances": 158,
+          "rooms": 143,
+          "room_share": 0.715
+        },
+        {
+          "id": "gale_herald",
+          "instances": 92,
+          "rooms": 81,
+          "room_share": 0.405
+        },
+        {
+          "id": "gust_shrike",
+          "instances": 80,
+          "rooms": 39,
+          "room_share": 0.195
+        },
+        {
+          "id": "roc_fledgling",
+          "instances": 76,
+          "rooms": 48,
+          "room_share": 0.24
+        },
+        {
+          "id": "harrier",
+          "instances": 74,
+          "rooms": 74,
+          "room_share": 0.37
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 50,
+          "rooms": 21,
+          "room_share": 0.105
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 39,
+          "rooms": 33,
+          "room_share": 0.165
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 32,
+          "rooms": 26,
+          "room_share": 0.13
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 30,
+          "rooms": 30,
+          "room_share": 0.15
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 28,
+          "rooms": 23,
+          "room_share": 0.115
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 24,
+          "rooms": 20,
+          "room_share": 0.1
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "biome": "lightning",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 6.0,
+        "p10": 5,
+        "p90": 6
+      },
+      "hp": {
+        "n": 200,
+        "median": 98.0,
+        "p10": 79,
+        "p90": 118
+      },
+      "types": [
+        {
+          "id": "warden",
+          "instances": 219,
+          "rooms": 200,
+          "room_share": 1.0
+        },
+        {
+          "id": "crawler",
+          "instances": 168,
+          "rooms": 149,
+          "room_share": 0.745
+        },
+        {
+          "id": "acolyte",
+          "instances": 148,
+          "rooms": 148,
+          "room_share": 0.74
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 140,
+          "rooms": 86,
+          "room_share": 0.43
+        },
+        {
+          "id": "arc_thrall",
+          "instances": 138,
+          "rooms": 69,
+          "room_share": 0.345
+        },
+        {
+          "id": "harrier",
+          "instances": 73,
+          "rooms": 73,
+          "room_share": 0.365
+        },
+        {
+          "id": "storm_capacitor",
+          "instances": 57,
+          "rooms": 53,
+          "room_share": 0.265
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 45,
+          "rooms": 38,
+          "room_share": 0.19
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 37,
+          "rooms": 26,
+          "room_share": 0.13
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 29,
+          "rooms": 24,
+          "room_share": 0.12
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 28,
+          "rooms": 28,
+          "room_share": 0.14
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 25,
+          "rooms": 21,
+          "room_share": 0.105
+        },
+        {
+          "id": "bell_tender",
+          "instances": 19,
+          "rooms": 19,
+          "room_share": 0.095
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "biome": "shadow",
+      "n": 200,
+      "enemies": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 5,
+        "p90": 7
+      },
+      "hp": {
+        "n": 200,
+        "median": 110.0,
+        "p10": 90,
+        "p90": 123
+      },
+      "types": [
+        {
+          "id": "warden",
+          "instances": 223,
+          "rooms": 200,
+          "room_share": 1.0
+        },
+        {
+          "id": "crawler",
+          "instances": 157,
+          "rooms": 134,
+          "room_share": 0.67
+        },
+        {
+          "id": "acolyte",
+          "instances": 140,
+          "rooms": 140,
+          "room_share": 0.7
+        },
+        {
+          "id": "wick_shade",
+          "instances": 115,
+          "rooms": 83,
+          "room_share": 0.415
+        },
+        {
+          "id": "gloam_stalker",
+          "instances": 91,
+          "rooms": 80,
+          "room_share": 0.4
+        },
+        {
+          "id": "harrier",
+          "instances": 76,
+          "rooms": 76,
+          "room_share": 0.38
+        },
+        {
+          "id": "lightning_wisp",
+          "instances": 60,
+          "rooms": 20,
+          "room_share": 0.1
+        },
+        {
+          "id": "hollow_mimic",
+          "instances": 40,
+          "rooms": 39,
+          "room_share": 0.195
+        },
+        {
+          "id": "frostglass_lancer",
+          "instances": 36,
+          "rooms": 27,
+          "room_share": 0.135
+        },
+        {
+          "id": "cinder_ooze",
+          "instances": 33,
+          "rooms": 28,
+          "room_share": 0.14
+        },
+        {
+          "id": "chainbound_gaoler",
+          "instances": 32,
+          "rooms": 22,
+          "room_share": 0.11
+        },
+        {
+          "id": "grave_surgeon",
+          "instances": 27,
+          "rooms": 27,
+          "room_share": 0.135
+        },
+        {
+          "id": "bile_bloomer",
+          "instances": 25,
+          "rooms": 23,
+          "room_share": 0.115
+        },
+        {
+          "id": "veilbound_acolyte",
+          "instances": 23,
+          "rooms": 22,
+          "room_share": 0.11
+        }
+      ]
+    }
+  ],
+  "damage": [
+    {
+      "tier": 1,
+      "biome": "shadow",
+      "n": 200,
+      "hp_lost_total": 4510,
+      "enemy_turns": 3102,
+      "damage_per_enemy_turn": 1.432301740812379,
+      "by_type": [
+        {
+          "enemy_type": "crawler",
+          "hp_lost": 2321.333333333333,
+          "share": 0.5147080561714708,
+          "damage_per_enemy_turn": 2.8764973151590247
+        },
+        {
+          "enemy_type": "harrier",
+          "hp_lost": 1084.6666666666665,
+          "share": 0.24050258684405024,
+          "damage_per_enemy_turn": 1.1502297631671967
+        },
+        {
+          "enemy_type": "gloam_stalker",
+          "hp_lost": 250,
+          "share": 0.05543237250554324,
+          "damage_per_enemy_turn": 1.6778523489932886
+        },
+        {
+          "enemy_type": "acolyte",
+          "hp_lost": 177,
+          "share": 0.03924611973392461,
+          "damage_per_enemy_turn": 1.3111111111111111
+        },
+        {
+          "enemy_type": "wick_shade",
+          "hp_lost": 171,
+          "share": 0.037915742793791576,
+          "damage_per_enemy_turn": 1.1875
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "hp_lost": 154,
+          "share": 0.03414634146341464,
+          "damage_per_enemy_turn": 1.7701149425287357
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "hp_lost": 103,
+          "share": 0.022838137472283814,
+          "damage_per_enemy_turn": 1.2875
+        },
+        {
+          "enemy_type": "non_enemy",
+          "hp_lost": 67,
+          "share": 0.014855875831485588,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "cinder_droplet",
+          "hp_lost": 62,
+          "share": 0.013747228381374724,
+          "damage_per_enemy_turn": 2.6956521739130435
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "hp_lost": 41,
+          "share": 0.00909090909090909,
+          "damage_per_enemy_turn": 0.4939759036144578
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "hp_lost": 26,
+          "share": 0.005764966740576497,
+          "damage_per_enemy_turn": 0.9629629629629629
+        },
+        {
+          "enemy_type": "hollow_mimic",
+          "hp_lost": 23,
+          "share": 0.005099778270509978,
+          "damage_per_enemy_turn": 0.062162162162162166
+        },
+        {
+          "enemy_type": "warden",
+          "hp_lost": 21,
+          "share": 0.004656319290465632,
+          "damage_per_enemy_turn": 0.42
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "hp_lost": 5,
+          "share": 0.0011086474501108647,
+          "damage_per_enemy_turn": 0.11904761904761904
+        },
+        {
+          "enemy_type": "grave_surgeon",
+          "hp_lost": 4,
+          "share": 0.0008869179600886918,
+          "damage_per_enemy_turn": 0.027586206896551724
+        }
+      ],
+      "by_intent": [
+        {
+          "enemy_type": "crawler",
+          "intent_id": "skitter_strike",
+          "hp_lost": 2222.333333333333,
+          "share": 0.4927568366592756,
+          "damage_per_enemy_turn": 2.7538207352333743
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "pelt",
+          "hp_lost": 591.6666666666666,
+          "share": 0.131189948263119,
+          "damage_per_enemy_turn": 0.6274301873453517
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "rush",
+          "hp_lost": 370,
+          "share": 0.082039911308204,
+          "damage_per_enemy_turn": 0.39236479321314954
+        },
+        {
+          "enemy_type": "gloam_stalker",
+          "intent_id": "ambush",
+          "hp_lost": 216,
+          "share": 0.04789356984478936,
+          "damage_per_enemy_turn": 1.4496644295302012
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "darting_pelt",
+          "hp_lost": 123,
+          "share": 0.02727272727272727,
+          "damage_per_enemy_turn": 0.13043478260869565
+        },
+        {
+          "enemy_type": "wick_shade",
+          "intent_id": "grasp",
+          "hp_lost": 114,
+          "share": 0.025277161862527715,
+          "damage_per_enemy_turn": 0.7916666666666666
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "static_lash",
+          "hp_lost": 102,
+          "share": 0.02261640798226164,
+          "damage_per_enemy_turn": 1.1724137931034482
+        },
+        {
+          "enemy_type": "crawler",
+          "intent_id": "lunge",
+          "hp_lost": 99,
+          "share": 0.02195121951219512,
+          "damage_per_enemy_turn": 0.12267657992565056
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "dust_bolt",
+          "hp_lost": 87,
+          "share": 0.019290465631929047,
+          "damage_per_enemy_turn": 0.6444444444444445
+        },
+        {
+          "enemy_type": "cinder_droplet",
+          "intent_id": "spatter",
+          "hp_lost": 62,
+          "share": 0.013747228381374724,
+          "damage_per_enemy_turn": 2.6956521739130435
+        },
+        {
+          "enemy_type": "wick_shade",
+          "intent_id": "drift",
+          "hp_lost": 57,
+          "share": 0.012638580931263858,
+          "damage_per_enemy_turn": 0.3958333333333333
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "dust_advance",
+          "hp_lost": 50,
+          "share": 0.011086474501108648,
+          "damage_per_enemy_turn": 0.37037037037037035
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "spear_cast",
+          "hp_lost": 45,
+          "share": 0.009977827050997782,
+          "damage_per_enemy_turn": 0.5625
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "siphon",
+          "hp_lost": 40,
+          "share": 0.008869179600886918,
+          "damage_per_enemy_turn": 0.2962962962962963
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "blinding_arc",
+          "hp_lost": 36,
+          "share": 0.007982261640798226,
+          "damage_per_enemy_turn": 0.41379310344827586
+        },
+        {
+          "enemy_type": "gloam_stalker",
+          "intent_id": "slash",
+          "hp_lost": 34,
+          "share": 0.00753880266075388,
+          "damage_per_enemy_turn": 0.22818791946308725
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "surface_fire",
+          "hp_lost": 33,
+          "share": 0.007317073170731708,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "spear_advance",
+          "hp_lost": 26,
+          "share": 0.005764966740576497,
+          "damage_per_enemy_turn": 0.325
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "cudgel_press",
+          "hp_lost": 24,
+          "share": 0.005321507760532151,
+          "damage_per_enemy_turn": 0.2891566265060241
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "glass_lunge",
+          "hp_lost": 24,
+          "share": 0.005321507760532151,
+          "damage_per_enemy_turn": 0.3
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "fatigue",
+          "hp_lost": 20,
+          "share": 0.004434589800443459,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "intent_id": "bile_burst",
+          "hp_lost": 17,
+          "share": 0.00376940133037694,
+          "damage_per_enemy_turn": 0.6296296296296297
+        },
+        {
+          "enemy_type": "hollow_mimic",
+          "intent_id": "echo",
+          "hp_lost": 16,
+          "share": 0.003547671840354767,
+          "damage_per_enemy_turn": 0.043243243243243246
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "spark_dart",
+          "hp_lost": 16,
+          "share": 0.003547671840354767,
+          "damage_per_enemy_turn": 0.1839080459770115
+        },
+        {
+          "enemy_type": "warden",
+          "intent_id": "marching_blow",
+          "hp_lost": 12,
+          "share": 0.0026607538802660754,
+          "damage_per_enemy_turn": 0.24
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "manacle_pin",
+          "hp_lost": 10,
+          "share": 0.0022172949002217295,
+          "damage_per_enemy_turn": 0.12048192771084337
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "intent_id": "spore_mark",
+          "hp_lost": 9,
+          "share": 0.0019955654101995565,
+          "damage_per_enemy_turn": 0.3333333333333333
+        },
+        {
+          "enemy_type": "warden",
+          "intent_id": "crushing_step",
+          "hp_lost": 9,
+          "share": 0.0019955654101995565,
+          "damage_per_enemy_turn": 0.18
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "frost_pin",
+          "hp_lost": 8,
+          "share": 0.0017738359201773836,
+          "damage_per_enemy_turn": 0.1
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "force_collision",
+          "hp_lost": 8,
+          "share": 0.0017738359201773836,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "chain_reel",
+          "hp_lost": 7,
+          "share": 0.0015521064301552106,
+          "damage_per_enemy_turn": 0.08433734939759036
+        },
+        {
+          "enemy_type": "hollow_mimic",
+          "intent_id": "shade_bolt",
+          "hp_lost": 7,
+          "share": 0.0015521064301552106,
+          "damage_per_enemy_turn": 0.01891891891891892
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "trap",
+          "hp_lost": 6,
+          "share": 0.0013303769401330377,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "intent_id": "smolder_slide",
+          "hp_lost": 5,
+          "share": 0.0011086474501108647,
+          "damage_per_enemy_turn": 0.11904761904761904
+        },
+        {
+          "enemy_type": "grave_surgeon",
+          "intent_id": "saw_jab",
+          "hp_lost": 4,
+          "share": 0.0008869179600886918,
+          "damage_per_enemy_turn": 0.027586206896551724
+        }
+      ],
+      "by_kind": {
+        "direct_attack": 3916,
+        "fatigue": 20,
+        "bleed": 506.99999999999994,
+        "surface_fire": 53,
+        "force_collision": 8,
+        "trap": 6
+      },
+      "activations_by_type": {
+        "wick_shade": 144,
+        "hollow_mimic": 370,
+        "harrier": 943,
+        "bile_bloomer": 27,
+        "frostglass_lancer": 80,
+        "gloam_stalker": 149,
+        "crawler": 807,
+        "lightning_wisp": 87,
+        "warden": 50,
+        "grave_surgeon": 145,
+        "veilbound_acolyte": 17,
+        "chainbound_gaoler": 83,
+        "acolyte": 135,
+        "cinder_ooze": 42,
+        "cinder_droplet": 23
+      },
+      "hit_turns": [
+        {
+          "hit": 1,
+          "n": 197,
+          "median": 2,
+          "p10": 1,
+          "p90": 2
+        },
+        {
+          "hit": 2,
+          "n": 190,
+          "median": 2.0,
+          "p10": 2,
+          "p90": 3
+        },
+        {
+          "hit": 3,
+          "n": 186,
+          "median": 3.0,
+          "p10": 2,
+          "p90": 4
+        },
+        {
+          "hit": 4,
+          "n": 180,
+          "median": 3.0,
+          "p10": 2,
+          "p90": 4
+        },
+        {
+          "hit": 5,
+          "n": 155,
+          "median": 3,
+          "p10": 3,
+          "p90": 5
+        },
+        {
+          "hit": 6,
+          "n": 109,
+          "median": 3,
+          "p10": 3,
+          "p90": 5
+        },
+        {
+          "hit": 7,
+          "n": 73,
+          "median": 4,
+          "p10": 3,
+          "p90": 4
+        },
+        {
+          "hit": 8,
+          "n": 38,
+          "median": 4.0,
+          "p10": 3,
+          "p90": 5
+        },
+        {
+          "hit": 9,
+          "n": 15,
+          "median": 3,
+          "p10": 3,
+          "p90": 5
+        },
+        {
+          "hit": 10,
+          "n": 8,
+          "median": 3.5,
+          "p10": 3,
+          "p90": 7
+        },
+        {
+          "hit": 11,
+          "n": 3,
+          "median": 4,
+          "p10": 3,
+          "p90": 9
+        },
+        {
+          "hit": 12,
+          "n": 2,
+          "median": 6.5,
+          "p10": 4,
+          "p90": 9
+        }
+      ],
+      "lethal_turn": {
+        "n": 153,
+        "median": 3,
+        "p10": 3,
+        "p90": 5
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "earth",
+      "n": 200,
+      "hp_lost_total": 2126,
+      "enemy_turns": 2275,
+      "damage_per_enemy_turn": 0.8694505494505494,
+      "by_type": [
+        {
+          "enemy_type": "crawler",
+          "hp_lost": 1080.5,
+          "share": 0.5082314205079962,
+          "damage_per_enemy_turn": 1.882404181184669
+        },
+        {
+          "enemy_type": "harrier",
+          "hp_lost": 493.5,
+          "share": 0.23212605832549388,
+          "damage_per_enemy_turn": 0.7833333333333333
+        },
+        {
+          "enemy_type": "non_enemy",
+          "hp_lost": 148,
+          "share": 0.06961429915333961,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "burrow_grub",
+          "hp_lost": 86,
+          "share": 0.04045155221072436,
+          "damage_per_enemy_turn": 0.7107438016528925
+        },
+        {
+          "enemy_type": "acolyte",
+          "hp_lost": 72,
+          "share": 0.03386641580432737,
+          "damage_per_enemy_turn": 1.0140845070422535
+        },
+        {
+          "enemy_type": "stoneback_mite",
+          "hp_lost": 53,
+          "share": 0.02492944496707432,
+          "damage_per_enemy_turn": 0.5578947368421052
+        },
+        {
+          "enemy_type": "cinder_droplet",
+          "hp_lost": 44,
+          "share": 0.020696142991533398,
+          "damage_per_enemy_turn": 1.1282051282051282
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "hp_lost": 39,
+          "share": 0.018344308560677328,
+          "damage_per_enemy_turn": 0.609375
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "hp_lost": 37,
+          "share": 0.017403574788334902,
+          "damage_per_enemy_turn": 0.74
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "hp_lost": 20,
+          "share": 0.00940733772342427,
+          "damage_per_enemy_turn": 0.9523809523809523
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "hp_lost": 19,
+          "share": 0.008936970837253057,
+          "damage_per_enemy_turn": 0.4222222222222222
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "hp_lost": 19,
+          "share": 0.008936970837253057,
+          "damage_per_enemy_turn": 0.4634146341463415
+        },
+        {
+          "enemy_type": "briar_weaver",
+          "hp_lost": 13.0,
+          "share": 0.0061147695202257765,
+          "damage_per_enemy_turn": 0.0325
+        },
+        {
+          "enemy_type": "warden",
+          "hp_lost": 2,
+          "share": 0.0009407337723424271,
+          "damage_per_enemy_turn": 0.043478260869565216
+        }
+      ],
+      "by_intent": [
+        {
+          "enemy_type": "crawler",
+          "intent_id": "skitter_strike",
+          "hp_lost": 995.4999999999999,
+          "share": 0.46825023518344305,
+          "damage_per_enemy_turn": 1.734320557491289
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "pelt",
+          "hp_lost": 233.5,
+          "share": 0.10983066792097837,
+          "damage_per_enemy_turn": 0.37063492063492065
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "rush",
+          "hp_lost": 156,
+          "share": 0.07337723424270931,
+          "damage_per_enemy_turn": 0.24761904761904763
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "darting_pelt",
+          "hp_lost": 104,
+          "share": 0.04891815616180621,
+          "damage_per_enemy_turn": 0.16507936507936508
+        },
+        {
+          "enemy_type": "crawler",
+          "intent_id": "lunge",
+          "hp_lost": 85,
+          "share": 0.03998118532455315,
+          "damage_per_enemy_turn": 0.1480836236933798
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "trap",
+          "hp_lost": 76,
+          "share": 0.03574788334901223,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "burrow_grub",
+          "intent_id": "erupt",
+          "hp_lost": 50,
+          "share": 0.023518344308560677,
+          "damage_per_enemy_turn": 0.4132231404958678
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "surface_fire",
+          "hp_lost": 46,
+          "share": 0.021636876763875823,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "cinder_droplet",
+          "intent_id": "spatter",
+          "hp_lost": 44,
+          "share": 0.020696142991533398,
+          "damage_per_enemy_turn": 1.1282051282051282
+        },
+        {
+          "enemy_type": "burrow_grub",
+          "intent_id": "gnaw",
+          "hp_lost": 36,
+          "share": 0.016933207902163686,
+          "damage_per_enemy_turn": 0.2975206611570248
+        },
+        {
+          "enemy_type": "stoneback_mite",
+          "intent_id": "brace",
+          "hp_lost": 35,
+          "share": 0.016462841015992474,
+          "damage_per_enemy_turn": 0.3684210526315789
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "static_lash",
+          "hp_lost": 33,
+          "share": 0.015522107243650047,
+          "damage_per_enemy_turn": 0.66
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "siphon",
+          "hp_lost": 29,
+          "share": 0.013640639698965193,
+          "damage_per_enemy_turn": 0.4084507042253521
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "cudgel_press",
+          "hp_lost": 29,
+          "share": 0.013640639698965193,
+          "damage_per_enemy_turn": 0.453125
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "fatigue",
+          "hp_lost": 26,
+          "share": 0.012229539040451553,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "dust_advance",
+          "hp_lost": 22,
+          "share": 0.010348071495766699,
+          "damage_per_enemy_turn": 0.30985915492957744
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "dust_bolt",
+          "hp_lost": 21,
+          "share": 0.009877704609595485,
+          "damage_per_enemy_turn": 0.29577464788732394
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "intent_id": "smolder_slide",
+          "hp_lost": 19,
+          "share": 0.008936970837253057,
+          "damage_per_enemy_turn": 0.4222222222222222
+        },
+        {
+          "enemy_type": "stoneback_mite",
+          "intent_id": "bite",
+          "hp_lost": 18,
+          "share": 0.008466603951081843,
+          "damage_per_enemy_turn": 0.18947368421052632
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "intent_id": "spore_mark",
+          "hp_lost": 15,
+          "share": 0.0070555032925682035,
+          "damage_per_enemy_turn": 0.7142857142857143
+        },
+        {
+          "enemy_type": "briar_weaver",
+          "intent_id": "lash_of_thorns",
+          "hp_lost": 13.0,
+          "share": 0.0061147695202257765,
+          "damage_per_enemy_turn": 0.0325
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "spear_advance",
+          "hp_lost": 12,
+          "share": 0.005644402634054563,
+          "damage_per_enemy_turn": 0.2926829268292683
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "chain_reel",
+          "hp_lost": 9,
+          "share": 0.0042333019755409216,
+          "damage_per_enemy_turn": 0.140625
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "glass_lunge",
+          "hp_lost": 7,
+          "share": 0.003292568203198495,
+          "damage_per_enemy_turn": 0.17073170731707318
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "intent_id": "bile_burst",
+          "hp_lost": 5,
+          "share": 0.0023518344308560675,
+          "damage_per_enemy_turn": 0.23809523809523808
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "spark_dart",
+          "hp_lost": 4,
+          "share": 0.0018814675446848542,
+          "damage_per_enemy_turn": 0.08
+        },
+        {
+          "enemy_type": "warden",
+          "intent_id": "crushing_step",
+          "hp_lost": 2,
+          "share": 0.0009407337723424271,
+          "damage_per_enemy_turn": 0.043478260869565216
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "manacle_pin",
+          "hp_lost": 1,
+          "share": 0.00047036688617121356,
+          "damage_per_enemy_turn": 0.015625
+        }
+      ],
+      "by_kind": {
+        "direct_attack": 1601,
+        "force_collision": 10,
+        "surface_fire": 76,
+        "fatigue": 26,
+        "bleed": 323.00000000000006,
+        "trap": 90
+      },
+      "activations_by_type": {
+        "stoneback_mite": 95,
+        "harrier": 630,
+        "crawler": 574,
+        "cinder_droplet": 39,
+        "briar_weaver": 400,
+        "burrow_grub": 121,
+        "lightning_wisp": 50,
+        "cinder_ooze": 45,
+        "frostglass_lancer": 41,
+        "warden": 46,
+        "chainbound_gaoler": 64,
+        "acolyte": 71,
+        "grave_surgeon": 78,
+        "bile_bloomer": 21
+      },
+      "hit_turns": [
+        {
+          "hit": 1,
+          "n": 160,
+          "median": 2.0,
+          "p10": 1,
+          "p90": 4
+        },
+        {
+          "hit": 2,
+          "n": 133,
+          "median": 3,
+          "p10": 2,
+          "p90": 4
+        },
+        {
+          "hit": 3,
+          "n": 105,
+          "median": 3,
+          "p10": 2,
+          "p90": 5
+        },
+        {
+          "hit": 4,
+          "n": 89,
+          "median": 3,
+          "p10": 3,
+          "p90": 5
+        },
+        {
+          "hit": 5,
+          "n": 66,
+          "median": 4.0,
+          "p10": 3,
+          "p90": 5
+        },
+        {
+          "hit": 6,
+          "n": 54,
+          "median": 4.0,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 7,
+          "n": 38,
+          "median": 4.5,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 8,
+          "n": 20,
+          "median": 5.0,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 9,
+          "n": 7,
+          "median": 5,
+          "p10": 4,
+          "p90": 8
+        },
+        {
+          "hit": 10,
+          "n": 5,
+          "median": 4,
+          "p10": 4,
+          "p90": 8
+        },
+        {
+          "hit": 11,
+          "n": 3,
+          "median": 4,
+          "p10": 4,
+          "p90": 8
+        }
+      ],
+      "lethal_turn": {
+        "n": 23,
+        "median": 4,
+        "p10": 3,
+        "p90": 6
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "shadow",
+      "n": 200,
+      "hp_lost_total": 4929,
+      "enemy_turns": 3459,
+      "damage_per_enemy_turn": 1.3894189071986123,
+      "by_type": [
+        {
+          "enemy_type": "crawler",
+          "hp_lost": 2189.0,
+          "share": 0.444106309596267,
+          "damage_per_enemy_turn": 2.1824526420737786
+        },
+        {
+          "enemy_type": "harrier",
+          "hp_lost": 857.0,
+          "share": 0.1738689389328464,
+          "damage_per_enemy_turn": 1.1820689655172414
+        },
+        {
+          "enemy_type": "gloam_stalker",
+          "hp_lost": 496,
+          "share": 0.10062893081761007,
+          "damage_per_enemy_turn": 1.8646616541353382
+        },
+        {
+          "enemy_type": "acolyte",
+          "hp_lost": 443,
+          "share": 0.08987624264556705,
+          "damage_per_enemy_turn": 1.2005420054200542
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "hp_lost": 252,
+          "share": 0.05112598904443092,
+          "damage_per_enemy_turn": 1.9534883720930232
+        },
+        {
+          "enemy_type": "wick_shade",
+          "hp_lost": 213,
+          "share": 0.04321363359707851,
+          "damage_per_enemy_turn": 1.196629213483146
+        },
+        {
+          "enemy_type": "non_enemy",
+          "hp_lost": 123,
+          "share": 0.024954351795496044,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "hp_lost": 98,
+          "share": 0.019882329072834246,
+          "damage_per_enemy_turn": 1.3424657534246576
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "hp_lost": 74,
+          "share": 0.01501318725907892,
+          "damage_per_enemy_turn": 0.9736842105263158
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "hp_lost": 71,
+          "share": 0.014404544532359505,
+          "damage_per_enemy_turn": 1.0
+        },
+        {
+          "enemy_type": "warden",
+          "hp_lost": 34,
+          "share": 0.006897950902820044,
+          "damage_per_enemy_turn": 0.25
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "hp_lost": 25,
+          "share": 0.005072022722661797,
+          "damage_per_enemy_turn": 0.32894736842105265
+        },
+        {
+          "enemy_type": "hollow_mimic",
+          "hp_lost": 19,
+          "share": 0.003854737269222966,
+          "damage_per_enemy_turn": 0.14615384615384616
+        },
+        {
+          "enemy_type": "cinder_droplet",
+          "hp_lost": 16,
+          "share": 0.0032460945425035505,
+          "damage_per_enemy_turn": 1.6
+        },
+        {
+          "enemy_type": "grave_surgeon",
+          "hp_lost": 15,
+          "share": 0.0030432136335970784,
+          "damage_per_enemy_turn": 0.07575757575757576
+        },
+        {
+          "enemy_type": "veilbound_acolyte",
+          "hp_lost": 4,
+          "share": 0.0008115236356258876,
+          "damage_per_enemy_turn": 0.21052631578947367
+        }
+      ],
+      "by_intent": [
+        {
+          "enemy_type": "crawler",
+          "intent_id": "skitter_strike",
+          "hp_lost": 2046.0,
+          "share": 0.41509433962264153,
+          "damage_per_enemy_turn": 2.0398803589232304
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "pelt",
+          "hp_lost": 468.0,
+          "share": 0.09494826536822885,
+          "damage_per_enemy_turn": 0.6455172413793103
+        },
+        {
+          "enemy_type": "gloam_stalker",
+          "intent_id": "ambush",
+          "hp_lost": 377,
+          "share": 0.0764861026577399,
+          "damage_per_enemy_turn": 1.4172932330827068
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "rush",
+          "hp_lost": 219,
+          "share": 0.044430919050517347,
+          "damage_per_enemy_turn": 0.3020689655172414
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "dust_bolt",
+          "hp_lost": 203,
+          "share": 0.04118482450801379,
+          "damage_per_enemy_turn": 0.5501355013550135
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "darting_pelt",
+          "hp_lost": 170,
+          "share": 0.034489754514100225,
+          "damage_per_enemy_turn": 0.23448275862068965
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "siphon",
+          "hp_lost": 164,
+          "share": 0.03327246906066139,
+          "damage_per_enemy_turn": 0.4444444444444444
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "static_lash",
+          "hp_lost": 163,
+          "share": 0.03306958815175492,
+          "damage_per_enemy_turn": 1.2635658914728682
+        },
+        {
+          "enemy_type": "crawler",
+          "intent_id": "lunge",
+          "hp_lost": 143,
+          "share": 0.02901196997362548,
+          "damage_per_enemy_turn": 0.14257228315054835
+        },
+        {
+          "enemy_type": "gloam_stalker",
+          "intent_id": "slash",
+          "hp_lost": 119,
+          "share": 0.024142828159870157,
+          "damage_per_enemy_turn": 0.4473684210526316
+        },
+        {
+          "enemy_type": "wick_shade",
+          "intent_id": "grasp",
+          "hp_lost": 119,
+          "share": 0.024142828159870157,
+          "damage_per_enemy_turn": 0.6685393258426966
+        },
+        {
+          "enemy_type": "wick_shade",
+          "intent_id": "drift",
+          "hp_lost": 94,
+          "share": 0.01907080543720836,
+          "damage_per_enemy_turn": 0.5280898876404494
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "dust_advance",
+          "hp_lost": 76,
+          "share": 0.015418949076891864,
+          "damage_per_enemy_turn": 0.20596205962059622
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "surface_fire",
+          "hp_lost": 69,
+          "share": 0.01399878271454656,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "blinding_arc",
+          "hp_lost": 56,
+          "share": 0.011361330898762427,
+          "damage_per_enemy_turn": 0.43410852713178294
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "trap",
+          "hp_lost": 49,
+          "share": 0.009941164536417123,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "cudgel_press",
+          "hp_lost": 39,
+          "share": 0.007912355447352405,
+          "damage_per_enemy_turn": 0.5131578947368421
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "intent_id": "spore_mark",
+          "hp_lost": 36,
+          "share": 0.007303712720632989,
+          "damage_per_enemy_turn": 0.5070422535211268
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "glass_lunge",
+          "hp_lost": 36,
+          "share": 0.007303712720632989,
+          "damage_per_enemy_turn": 0.4931506849315068
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "intent_id": "bile_burst",
+          "hp_lost": 35,
+          "share": 0.007100831811726517,
+          "damage_per_enemy_turn": 0.49295774647887325
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "spear_cast",
+          "hp_lost": 33,
+          "share": 0.006695069993913573,
+          "damage_per_enemy_turn": 0.4520547945205479
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "spark_dart",
+          "hp_lost": 33,
+          "share": 0.006695069993913573,
+          "damage_per_enemy_turn": 0.2558139534883721
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "chain_reel",
+          "hp_lost": 31,
+          "share": 0.006289308176100629,
+          "damage_per_enemy_turn": 0.40789473684210525
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "intent_id": "smolder_slide",
+          "hp_lost": 25,
+          "share": 0.005072022722661797,
+          "damage_per_enemy_turn": 0.32894736842105265
+        },
+        {
+          "enemy_type": "warden",
+          "intent_id": "crushing_step",
+          "hp_lost": 22,
+          "share": 0.0044633799959423815,
+          "damage_per_enemy_turn": 0.16176470588235295
+        },
+        {
+          "enemy_type": "cinder_droplet",
+          "intent_id": "spatter",
+          "hp_lost": 16,
+          "share": 0.0032460945425035505,
+          "damage_per_enemy_turn": 1.6
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "spear_advance",
+          "hp_lost": 15,
+          "share": 0.0030432136335970784,
+          "damage_per_enemy_turn": 0.2054794520547945
+        },
+        {
+          "enemy_type": "grave_surgeon",
+          "intent_id": "saw_jab",
+          "hp_lost": 15,
+          "share": 0.0030432136335970784,
+          "damage_per_enemy_turn": 0.07575757575757576
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "frost_pin",
+          "hp_lost": 14,
+          "share": 0.0028403327246906067,
+          "damage_per_enemy_turn": 0.1917808219178082
+        },
+        {
+          "enemy_type": "hollow_mimic",
+          "intent_id": "echo",
+          "hp_lost": 12,
+          "share": 0.002434570906877663,
+          "damage_per_enemy_turn": 0.09230769230769231
+        },
+        {
+          "enemy_type": "warden",
+          "intent_id": "marching_blow",
+          "hp_lost": 12,
+          "share": 0.002434570906877663,
+          "damage_per_enemy_turn": 0.08823529411764706
+        },
+        {
+          "enemy_type": "hollow_mimic",
+          "intent_id": "shade_bolt",
+          "hp_lost": 7,
+          "share": 0.0014201663623453033,
+          "damage_per_enemy_turn": 0.05384615384615385
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "fatigue",
+          "hp_lost": 5,
+          "share": 0.0010144045445323595,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "manacle_pin",
+          "hp_lost": 4,
+          "share": 0.0008115236356258876,
+          "damage_per_enemy_turn": 0.05263157894736842
+        },
+        {
+          "enemy_type": "veilbound_acolyte",
+          "intent_id": "veil_needle",
+          "hp_lost": 4,
+          "share": 0.0008115236356258876,
+          "damage_per_enemy_turn": 0.21052631578947367
+        }
+      ],
+      "by_kind": {
+        "direct_attack": 4424,
+        "bleed": 372.0,
+        "trap": 49,
+        "surface_fire": 79,
+        "fatigue": 5
+      },
+      "activations_by_type": {
+        "crawler": 1003,
+        "harrier": 725,
+        "cinder_ooze": 76,
+        "acolyte": 369,
+        "gloam_stalker": 266,
+        "grave_surgeon": 198,
+        "hollow_mimic": 130,
+        "warden": 136,
+        "lightning_wisp": 129,
+        "wick_shade": 178,
+        "bile_bloomer": 71,
+        "chainbound_gaoler": 76,
+        "frostglass_lancer": 73,
+        "veilbound_acolyte": 19,
+        "cinder_droplet": 10
+      },
+      "hit_turns": [
+        {
+          "hit": 1,
+          "n": 200,
+          "median": 2.0,
+          "p10": 1,
+          "p90": 2
+        },
+        {
+          "hit": 2,
+          "n": 200,
+          "median": 2.0,
+          "p10": 2,
+          "p90": 3
+        },
+        {
+          "hit": 3,
+          "n": 200,
+          "median": 3.0,
+          "p10": 2,
+          "p90": 4
+        },
+        {
+          "hit": 4,
+          "n": 189,
+          "median": 3,
+          "p10": 2,
+          "p90": 5
+        },
+        {
+          "hit": 5,
+          "n": 148,
+          "median": 3.0,
+          "p10": 3,
+          "p90": 5
+        },
+        {
+          "hit": 6,
+          "n": 108,
+          "median": 3.0,
+          "p10": 3,
+          "p90": 5
+        },
+        {
+          "hit": 7,
+          "n": 62,
+          "median": 4.0,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 8,
+          "n": 34,
+          "median": 4.0,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 9,
+          "n": 12,
+          "median": 4.0,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 10,
+          "n": 5,
+          "median": 3,
+          "p10": 3,
+          "p90": 4
+        },
+        {
+          "hit": 11,
+          "n": 1,
+          "median": 4,
+          "p10": 4,
+          "p90": 4
+        }
+      ],
+      "lethal_turn": {
+        "n": 200,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 6
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "earth",
+      "n": 200,
+      "hp_lost_total": 3457,
+      "enemy_turns": 4131,
+      "damage_per_enemy_turn": 0.7952069716775599,
+      "by_type": [
+        {
+          "enemy_type": "crawler",
+          "hp_lost": 1719.5000000000002,
+          "share": 0.4973965866358115,
+          "damage_per_enemy_turn": 1.7368686868686871
+        },
+        {
+          "enemy_type": "harrier",
+          "hp_lost": 531.5,
+          "share": 0.15374602256291584,
+          "damage_per_enemy_turn": 0.7691751085383502
+        },
+        {
+          "enemy_type": "acolyte",
+          "hp_lost": 405,
+          "share": 0.11715360138848713,
+          "damage_per_enemy_turn": 1.0253164556962024
+        },
+        {
+          "enemy_type": "non_enemy",
+          "hp_lost": 172,
+          "share": 0.049754122071159965,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "burrow_grub",
+          "hp_lost": 169,
+          "share": 0.04888631761643043,
+          "damage_per_enemy_turn": 0.6305970149253731
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "hp_lost": 116,
+          "share": 0.033555105582875326,
+          "damage_per_enemy_turn": 0.90625
+        },
+        {
+          "enemy_type": "stoneback_mite",
+          "hp_lost": 93,
+          "share": 0.026901938096615563,
+          "damage_per_enemy_turn": 0.6503496503496503
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "hp_lost": 83,
+          "share": 0.024009256580850447,
+          "damage_per_enemy_turn": 1.0375
+        },
+        {
+          "enemy_type": "cinder_droplet",
+          "hp_lost": 59,
+          "share": 0.017066820943014174,
+          "damage_per_enemy_turn": 1.5526315789473684
+        },
+        {
+          "enemy_type": "briar_weaver",
+          "hp_lost": 33.0,
+          "share": 0.009545849002024877,
+          "damage_per_enemy_turn": 0.0625
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "hp_lost": 18,
+          "share": 0.005206826728377205,
+          "damage_per_enemy_turn": 0.2608695652173913
+        },
+        {
+          "enemy_type": "warden",
+          "hp_lost": 18,
+          "share": 0.005206826728377205,
+          "damage_per_enemy_turn": 0.0728744939271255
+        },
+        {
+          "enemy_type": "grave_surgeon",
+          "hp_lost": 17,
+          "share": 0.004917558576800694,
+          "damage_per_enemy_turn": 0.03811659192825112
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "hp_lost": 14,
+          "share": 0.00404975412207116,
+          "damage_per_enemy_turn": 0.25925925925925924
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "hp_lost": 9,
+          "share": 0.0026034133641886026,
+          "damage_per_enemy_turn": 0.16666666666666666
+        }
+      ],
+      "by_intent": [
+        {
+          "enemy_type": "crawler",
+          "intent_id": "skitter_strike",
+          "hp_lost": 1628.5000000000002,
+          "share": 0.47107318484234895,
+          "damage_per_enemy_turn": 1.6449494949494952
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "pelt",
+          "hp_lost": 270.5,
+          "share": 0.07824703500144634,
+          "damage_per_enemy_turn": 0.3914616497829233
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "dust_bolt",
+          "hp_lost": 218,
+          "share": 0.06306045704367949,
+          "damage_per_enemy_turn": 0.5518987341772152
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "rush",
+          "hp_lost": 157,
+          "share": 0.04541509979751229,
+          "damage_per_enemy_turn": 0.2272069464544139
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "siphon",
+          "hp_lost": 107,
+          "share": 0.03095169221868672,
+          "damage_per_enemy_turn": 0.2708860759493671
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "darting_pelt",
+          "hp_lost": 104,
+          "share": 0.03008388776395719,
+          "damage_per_enemy_turn": 0.15050651230101303
+        },
+        {
+          "enemy_type": "burrow_grub",
+          "intent_id": "erupt",
+          "hp_lost": 94,
+          "share": 0.027191206248192074,
+          "damage_per_enemy_turn": 0.35074626865671643
+        },
+        {
+          "enemy_type": "crawler",
+          "intent_id": "lunge",
+          "hp_lost": 91,
+          "share": 0.02632340179346254,
+          "damage_per_enemy_turn": 0.09191919191919191
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "dust_advance",
+          "hp_lost": 80,
+          "share": 0.023141452126120916,
+          "damage_per_enemy_turn": 0.20253164556962025
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "static_lash",
+          "hp_lost": 80,
+          "share": 0.023141452126120916,
+          "damage_per_enemy_turn": 0.625
+        },
+        {
+          "enemy_type": "burrow_grub",
+          "intent_id": "gnaw",
+          "hp_lost": 75,
+          "share": 0.021695111368238356,
+          "damage_per_enemy_turn": 0.2798507462686567
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "trap",
+          "hp_lost": 66,
+          "share": 0.019091698004049754,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "surface_fire",
+          "hp_lost": 65,
+          "share": 0.018802429852473244,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "cinder_droplet",
+          "intent_id": "spatter",
+          "hp_lost": 59,
+          "share": 0.017066820943014174,
+          "damage_per_enemy_turn": 1.5526315789473684
+        },
+        {
+          "enemy_type": "stoneback_mite",
+          "intent_id": "brace",
+          "hp_lost": 51,
+          "share": 0.014752675730402082,
+          "damage_per_enemy_turn": 0.35664335664335667
+        },
+        {
+          "enemy_type": "stoneback_mite",
+          "intent_id": "bite",
+          "hp_lost": 42,
+          "share": 0.01214926236621348,
+          "damage_per_enemy_turn": 0.2937062937062937
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "fatigue",
+          "hp_lost": 41,
+          "share": 0.011859994214636968,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "spear_cast",
+          "hp_lost": 32,
+          "share": 0.009256580850448365,
+          "damage_per_enemy_turn": 0.4
+        },
+        {
+          "enemy_type": "briar_weaver",
+          "intent_id": "lash_of_thorns",
+          "hp_lost": 29.0,
+          "share": 0.008388776395718832,
+          "damage_per_enemy_turn": 0.054924242424242424
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "glass_lunge",
+          "hp_lost": 27,
+          "share": 0.007810240092565809,
+          "damage_per_enemy_turn": 0.3375
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "blinding_arc",
+          "hp_lost": 26,
+          "share": 0.007520971940989297,
+          "damage_per_enemy_turn": 0.203125
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "intent_id": "spore_mark",
+          "hp_lost": 18,
+          "share": 0.005206826728377205,
+          "damage_per_enemy_turn": 0.2608695652173913
+        },
+        {
+          "enemy_type": "grave_surgeon",
+          "intent_id": "saw_jab",
+          "hp_lost": 17,
+          "share": 0.004917558576800694,
+          "damage_per_enemy_turn": 0.03811659192825112
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "intent_id": "smolder_slide",
+          "hp_lost": 14,
+          "share": 0.00404975412207116,
+          "damage_per_enemy_turn": 0.25925925925925924
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "frost_pin",
+          "hp_lost": 14,
+          "share": 0.00404975412207116,
+          "damage_per_enemy_turn": 0.175
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "spear_advance",
+          "hp_lost": 10,
+          "share": 0.0028926815157651145,
+          "damage_per_enemy_turn": 0.125
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "spark_dart",
+          "hp_lost": 10,
+          "share": 0.0028926815157651145,
+          "damage_per_enemy_turn": 0.078125
+        },
+        {
+          "enemy_type": "warden",
+          "intent_id": "marching_blow",
+          "hp_lost": 10,
+          "share": 0.0028926815157651145,
+          "damage_per_enemy_turn": 0.04048582995951417
+        },
+        {
+          "enemy_type": "warden",
+          "intent_id": "crushing_step",
+          "hp_lost": 8,
+          "share": 0.0023141452126120912,
+          "damage_per_enemy_turn": 0.032388663967611336
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "cudgel_press",
+          "hp_lost": 6,
+          "share": 0.0017356089094590686,
+          "damage_per_enemy_turn": 0.1111111111111111
+        },
+        {
+          "enemy_type": "briar_weaver",
+          "intent_id": "root_mend",
+          "hp_lost": 4.0,
+          "share": 0.0011570726063060456,
+          "damage_per_enemy_turn": 0.007575757575757576
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "manacle_pin",
+          "hp_lost": 3,
+          "share": 0.0008678044547295343,
+          "damage_per_enemy_turn": 0.05555555555555555
+        }
+      ],
+      "by_kind": {
+        "direct_attack": 2741,
+        "bleed": 476.00000000000006,
+        "surface_fire": 102,
+        "fatigue": 41,
+        "trap": 83,
+        "force_collision": 14
+      },
+      "activations_by_type": {
+        "burrow_grub": 268,
+        "crawler": 990,
+        "grave_surgeon": 446,
+        "harrier": 691,
+        "warden": 247,
+        "lightning_wisp": 128,
+        "cinder_droplet": 38,
+        "cinder_ooze": 54,
+        "acolyte": 395,
+        "briar_weaver": 528,
+        "frostglass_lancer": 80,
+        "bile_bloomer": 69,
+        "stoneback_mite": 143,
+        "chainbound_gaoler": 54
+      },
+      "hit_turns": [
+        {
+          "hit": 1,
+          "n": 190,
+          "median": 2.0,
+          "p10": 1,
+          "p90": 4
+        },
+        {
+          "hit": 2,
+          "n": 181,
+          "median": 3,
+          "p10": 2,
+          "p90": 5
+        },
+        {
+          "hit": 3,
+          "n": 167,
+          "median": 3,
+          "p10": 2,
+          "p90": 6
+        },
+        {
+          "hit": 4,
+          "n": 152,
+          "median": 4.0,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 5,
+          "n": 132,
+          "median": 4.0,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 6,
+          "n": 108,
+          "median": 5.0,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 7,
+          "n": 80,
+          "median": 5.0,
+          "p10": 3,
+          "p90": 7
+        },
+        {
+          "hit": 8,
+          "n": 54,
+          "median": 5.0,
+          "p10": 4,
+          "p90": 7
+        },
+        {
+          "hit": 9,
+          "n": 34,
+          "median": 5.0,
+          "p10": 4,
+          "p90": 7
+        },
+        {
+          "hit": 10,
+          "n": 13,
+          "median": 5,
+          "p10": 4,
+          "p90": 6
+        },
+        {
+          "hit": 11,
+          "n": 5,
+          "median": 5,
+          "p10": 4,
+          "p90": 8
+        },
+        {
+          "hit": 12,
+          "n": 2,
+          "median": 6.5,
+          "p10": 6,
+          "p90": 7
+        },
+        {
+          "hit": 13,
+          "n": 1,
+          "median": 7,
+          "p10": 7,
+          "p90": 7
+        }
+      ],
+      "lethal_turn": {
+        "n": 87,
+        "median": 5,
+        "p10": 3,
+        "p90": 7
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "shadow",
+      "n": 200,
+      "hp_lost_total": 4895,
+      "enemy_turns": 4122,
+      "damage_per_enemy_turn": 1.1472586123241144,
+      "by_type": [
+        {
+          "enemy_type": "crawler",
+          "hp_lost": 1723.6666666666667,
+          "share": 0.35212802179094316,
+          "damage_per_enemy_turn": 2.2890659583886674
+        },
+        {
+          "enemy_type": "acolyte",
+          "hp_lost": 769,
+          "share": 0.1570990806945863,
+          "damage_per_enemy_turn": 1.4267161410018554
+        },
+        {
+          "enemy_type": "gloam_stalker",
+          "hp_lost": 593,
+          "share": 0.12114402451481103,
+          "damage_per_enemy_turn": 1.7969696969696969
+        },
+        {
+          "enemy_type": "wick_shade",
+          "hp_lost": 336,
+          "share": 0.0686414708886619,
+          "damage_per_enemy_turn": 1.070063694267516
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "hp_lost": 325,
+          "share": 0.06639427987742594,
+          "damage_per_enemy_turn": 1.8895348837209303
+        },
+        {
+          "enemy_type": "harrier",
+          "hp_lost": 310.33333333333337,
+          "share": 0.06339802519577802,
+          "damage_per_enemy_turn": 0.9490316004077474
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "hp_lost": 173,
+          "share": 0.03534218590398366,
+          "damage_per_enemy_turn": 0.8398058252427184
+        },
+        {
+          "enemy_type": "non_enemy",
+          "hp_lost": 166,
+          "share": 0.03391215526046987,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "warden",
+          "hp_lost": 140,
+          "share": 0.028600612870275793,
+          "damage_per_enemy_turn": 0.19914651493598862
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "hp_lost": 119,
+          "share": 0.024310520939734424,
+          "damage_per_enemy_turn": 0.7391304347826086
+        },
+        {
+          "enemy_type": "hollow_mimic",
+          "hp_lost": 96,
+          "share": 0.01961184882533197,
+          "damage_per_enemy_turn": 0.37209302325581395
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "hp_lost": 60,
+          "share": 0.012257405515832482,
+          "damage_per_enemy_turn": 0.6741573033707865
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "hp_lost": 49,
+          "share": 0.010010214504596528,
+          "damage_per_enemy_turn": 0.3983739837398374
+        },
+        {
+          "enemy_type": "cinder_droplet",
+          "hp_lost": 28,
+          "share": 0.005720122574055159,
+          "damage_per_enemy_turn": 1.2173913043478262
+        },
+        {
+          "enemy_type": "veilbound_acolyte",
+          "hp_lost": 4,
+          "share": 0.0008171603677221655,
+          "damage_per_enemy_turn": 0.14814814814814814
+        },
+        {
+          "enemy_type": "grave_surgeon",
+          "hp_lost": 3,
+          "share": 0.0006128702757916241,
+          "damage_per_enemy_turn": 0.030927835051546393
+        }
+      ],
+      "by_intent": [
+        {
+          "enemy_type": "crawler",
+          "intent_id": "skitter_strike",
+          "hp_lost": 1643.6666666666667,
+          "share": 0.3357848144364998,
+          "damage_per_enemy_turn": 2.1828242585214697
+        },
+        {
+          "enemy_type": "gloam_stalker",
+          "intent_id": "ambush",
+          "hp_lost": 463,
+          "share": 0.09458631256384066,
+          "damage_per_enemy_turn": 1.403030303030303
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "dust_bolt",
+          "hp_lost": 429,
+          "share": 0.08764044943820225,
+          "damage_per_enemy_turn": 0.7959183673469388
+        },
+        {
+          "enemy_type": "wick_shade",
+          "intent_id": "grasp",
+          "hp_lost": 236,
+          "share": 0.048212461695607764,
+          "damage_per_enemy_turn": 0.7515923566878981
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "siphon",
+          "hp_lost": 230,
+          "share": 0.04698672114402452,
+          "damage_per_enemy_turn": 0.4267161410018553
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "static_lash",
+          "hp_lost": 205,
+          "share": 0.04187946884576098,
+          "damage_per_enemy_turn": 1.191860465116279
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "rush",
+          "hp_lost": 144,
+          "share": 0.029417773237997956,
+          "damage_per_enemy_turn": 0.44036697247706424
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "surface_fire",
+          "hp_lost": 137,
+          "share": 0.027987742594484166,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "pelt",
+          "hp_lost": 135.33333333333331,
+          "share": 0.02764725910793326,
+          "damage_per_enemy_turn": 0.4138634046890927
+        },
+        {
+          "enemy_type": "gloam_stalker",
+          "intent_id": "slash",
+          "hp_lost": 130,
+          "share": 0.026557711950970377,
+          "damage_per_enemy_turn": 0.3939393939393939
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "dust_advance",
+          "hp_lost": 110,
+          "share": 0.02247191011235955,
+          "damage_per_enemy_turn": 0.20408163265306123
+        },
+        {
+          "enemy_type": "wick_shade",
+          "intent_id": "drift",
+          "hp_lost": 100,
+          "share": 0.020429009193054137,
+          "damage_per_enemy_turn": 0.3184713375796178
+        },
+        {
+          "enemy_type": "warden",
+          "intent_id": "crushing_step",
+          "hp_lost": 92,
+          "share": 0.018794688457609805,
+          "damage_per_enemy_turn": 0.13086770981507823
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "blinding_arc",
+          "hp_lost": 82,
+          "share": 0.01675178753830439,
+          "damage_per_enemy_turn": 0.47674418604651164
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "cudgel_press",
+          "hp_lost": 80,
+          "share": 0.01634320735444331,
+          "damage_per_enemy_turn": 0.4968944099378882
+        },
+        {
+          "enemy_type": "crawler",
+          "intent_id": "lunge",
+          "hp_lost": 80,
+          "share": 0.01634320735444331,
+          "damage_per_enemy_turn": 0.10624169986719788
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "spear_advance",
+          "hp_lost": 56,
+          "share": 0.011440245148110317,
+          "damage_per_enemy_turn": 0.27184466019417475
+        },
+        {
+          "enemy_type": "hollow_mimic",
+          "intent_id": "echo",
+          "hp_lost": 56,
+          "share": 0.011440245148110317,
+          "damage_per_enemy_turn": 0.21705426356589147
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "spear_cast",
+          "hp_lost": 52,
+          "share": 0.010623084780388151,
+          "damage_per_enemy_turn": 0.2524271844660194
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "intent_id": "smolder_slide",
+          "hp_lost": 48,
+          "share": 0.009805924412665985,
+          "damage_per_enemy_turn": 0.3902439024390244
+        },
+        {
+          "enemy_type": "warden",
+          "intent_id": "marching_blow",
+          "hp_lost": 48,
+          "share": 0.009805924412665985,
+          "damage_per_enemy_turn": 0.06827880512091039
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "intent_id": "spore_mark",
+          "hp_lost": 40,
+          "share": 0.008171603677221655,
+          "damage_per_enemy_turn": 0.449438202247191
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "glass_lunge",
+          "hp_lost": 40,
+          "share": 0.008171603677221655,
+          "damage_per_enemy_turn": 0.1941747572815534
+        },
+        {
+          "enemy_type": "hollow_mimic",
+          "intent_id": "shade_bolt",
+          "hp_lost": 40,
+          "share": 0.008171603677221655,
+          "damage_per_enemy_turn": 0.15503875968992248
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "spark_dart",
+          "hp_lost": 38,
+          "share": 0.007763023493360572,
+          "damage_per_enemy_turn": 0.22093023255813954
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "chain_reel",
+          "hp_lost": 34,
+          "share": 0.006945863125638407,
+          "damage_per_enemy_turn": 0.2111801242236025
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "darting_pelt",
+          "hp_lost": 31,
+          "share": 0.006332992849846782,
+          "damage_per_enemy_turn": 0.09480122324159021
+        },
+        {
+          "enemy_type": "cinder_droplet",
+          "intent_id": "spatter",
+          "hp_lost": 28,
+          "share": 0.005720122574055159,
+          "damage_per_enemy_turn": 1.2173913043478262
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "frost_pin",
+          "hp_lost": 25,
+          "share": 0.005107252298263534,
+          "damage_per_enemy_turn": 0.12135922330097088
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "intent_id": "bile_burst",
+          "hp_lost": 20,
+          "share": 0.0040858018386108275,
+          "damage_per_enemy_turn": 0.2247191011235955
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "fatigue",
+          "hp_lost": 14,
+          "share": 0.0028600612870275793,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "trap",
+          "hp_lost": 11,
+          "share": 0.0022471910112359553,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "manacle_pin",
+          "hp_lost": 5,
+          "share": 0.0010214504596527069,
+          "damage_per_enemy_turn": 0.031055900621118012
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "force_collision",
+          "hp_lost": 4,
+          "share": 0.0008171603677221655,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "veilbound_acolyte",
+          "intent_id": "closing_shade",
+          "hp_lost": 4,
+          "share": 0.0008171603677221655,
+          "damage_per_enemy_turn": 0.14814814814814814
+        },
+        {
+          "enemy_type": "grave_surgeon",
+          "intent_id": "saw_jab",
+          "hp_lost": 3,
+          "share": 0.0006128702757916241,
+          "damage_per_enemy_turn": 0.030927835051546393
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "intent_id": "cinder_bloom",
+          "hp_lost": 1,
+          "share": 0.00020429009193054137,
+          "damage_per_enemy_turn": 0.008130081300813009
+        }
+      ],
+      "by_kind": {
+        "direct_attack": 4464,
+        "bleed": 247.99999999999997,
+        "force_collision": 6,
+        "surface_fire": 152,
+        "fatigue": 14,
+        "trap": 11
+      },
+      "activations_by_type": {
+        "gloam_stalker": 330,
+        "crawler": 753,
+        "acolyte": 539,
+        "grave_surgeon": 97,
+        "warden": 703,
+        "wick_shade": 314,
+        "frostglass_lancer": 206,
+        "harrier": 327,
+        "hollow_mimic": 258,
+        "chainbound_gaoler": 161,
+        "bile_bloomer": 89,
+        "lightning_wisp": 172,
+        "cinder_ooze": 123,
+        "veilbound_acolyte": 27,
+        "cinder_droplet": 23
+      },
+      "hit_turns": [
+        {
+          "hit": 1,
+          "n": 200,
+          "median": 2.0,
+          "p10": 1,
+          "p90": 3
+        },
+        {
+          "hit": 2,
+          "n": 200,
+          "median": 2.0,
+          "p10": 2,
+          "p90": 4
+        },
+        {
+          "hit": 3,
+          "n": 200,
+          "median": 3.0,
+          "p10": 2,
+          "p90": 4
+        },
+        {
+          "hit": 4,
+          "n": 194,
+          "median": 3.0,
+          "p10": 2,
+          "p90": 5
+        },
+        {
+          "hit": 5,
+          "n": 142,
+          "median": 3.0,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 6,
+          "n": 80,
+          "median": 3.5,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 7,
+          "n": 41,
+          "median": 4,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 8,
+          "n": 17,
+          "median": 4,
+          "p10": 3,
+          "p90": 6
+        },
+        {
+          "hit": 9,
+          "n": 8,
+          "median": 4.0,
+          "p10": 3,
+          "p90": 4
+        },
+        {
+          "hit": 10,
+          "n": 3,
+          "median": 4,
+          "p10": 3,
+          "p90": 4
+        },
+        {
+          "hit": 11,
+          "n": 3,
+          "median": 4,
+          "p10": 3,
+          "p90": 4
+        },
+        {
+          "hit": 12,
+          "n": 2,
+          "median": 3.5,
+          "p10": 3,
+          "p90": 4
+        }
+      ],
+      "lethal_turn": {
+        "n": 196,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 6
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "earth",
+      "n": 200,
+      "hp_lost_total": 4177,
+      "enemy_turns": 5392,
+      "damage_per_enemy_turn": 0.7023367952522255,
+      "by_type": [
+        {
+          "enemy_type": "crawler",
+          "hp_lost": 1478.0,
+          "share": 0.3538424706727316,
+          "damage_per_enemy_turn": 1.8948717948717948
+        },
+        {
+          "enemy_type": "acolyte",
+          "hp_lost": 761,
+          "share": 0.18218817333014126,
+          "damage_per_enemy_turn": 1.0214765100671142
+        },
+        {
+          "enemy_type": "non_enemy",
+          "hp_lost": 390,
+          "share": 0.09336844625329184,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "harrier",
+          "hp_lost": 329.0,
+          "share": 0.07876466363418722,
+          "damage_per_enemy_turn": 0.9013698630136986
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "hp_lost": 197,
+          "share": 0.04716303567153459,
+          "damage_per_enemy_turn": 0.9516908212560387
+        },
+        {
+          "enemy_type": "stoneback_mite",
+          "hp_lost": 193,
+          "share": 0.04620541058175724,
+          "damage_per_enemy_turn": 0.7509727626459144
+        },
+        {
+          "enemy_type": "burrow_grub",
+          "hp_lost": 184,
+          "share": 0.0440507541297582,
+          "damage_per_enemy_turn": 0.5993485342019544
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "hp_lost": 157,
+          "share": 0.037586784773761074,
+          "damage_per_enemy_turn": 0.8134715025906736
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "hp_lost": 121,
+          "share": 0.028968158965764903,
+          "damage_per_enemy_turn": 0.8120805369127517
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "hp_lost": 95,
+          "share": 0.022743595882212114,
+          "damage_per_enemy_turn": 0.6129032258064516
+        },
+        {
+          "enemy_type": "warden",
+          "hp_lost": 95,
+          "share": 0.022743595882212114,
+          "damage_per_enemy_turn": 0.08853681267474371
+        },
+        {
+          "enemy_type": "cinder_droplet",
+          "hp_lost": 83,
+          "share": 0.019870720612880057,
+          "damage_per_enemy_turn": 0.8556701030927835
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "hp_lost": 56,
+          "share": 0.01340675125688293,
+          "damage_per_enemy_turn": 0.3163841807909605
+        },
+        {
+          "enemy_type": "briar_weaver",
+          "hp_lost": 38.0,
+          "share": 0.009097438352884846,
+          "damage_per_enemy_turn": 0.05697151424287856
+        }
+      ],
+      "by_intent": [
+        {
+          "enemy_type": "crawler",
+          "intent_id": "skitter_strike",
+          "hp_lost": 1342.0,
+          "share": 0.32128321762030165,
+          "damage_per_enemy_turn": 1.7205128205128206
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "dust_bolt",
+          "hp_lost": 337,
+          "share": 0.08067991381374193,
+          "damage_per_enemy_turn": 0.45234899328859063
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "siphon",
+          "hp_lost": 317,
+          "share": 0.07589178836485516,
+          "damage_per_enemy_turn": 0.425503355704698
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "surface_fire",
+          "hp_lost": 282,
+          "share": 0.06751256882930333,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "pelt",
+          "hp_lost": 194.0,
+          "share": 0.04644481685420158,
+          "damage_per_enemy_turn": 0.5315068493150685
+        },
+        {
+          "enemy_type": "crawler",
+          "intent_id": "lunge",
+          "hp_lost": 136,
+          "share": 0.03255925305242997,
+          "damage_per_enemy_turn": 0.17435897435897435
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "static_lash",
+          "hp_lost": 131,
+          "share": 0.03136222169020828,
+          "damage_per_enemy_turn": 0.6328502415458938
+        },
+        {
+          "enemy_type": "stoneback_mite",
+          "intent_id": "bite",
+          "hp_lost": 126,
+          "share": 0.030165190327986594,
+          "damage_per_enemy_turn": 0.490272373540856
+        },
+        {
+          "enemy_type": "acolyte",
+          "intent_id": "dust_advance",
+          "hp_lost": 107,
+          "share": 0.02561647115154417,
+          "damage_per_enemy_turn": 0.1436241610738255
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "fatigue",
+          "hp_lost": 102,
+          "share": 0.02441943978932248,
+          "damage_per_enemy_turn": null
+        },
+        {
+          "enemy_type": "cinder_ooze",
+          "intent_id": "smolder_slide",
+          "hp_lost": 95,
+          "share": 0.022743595882212114,
+          "damage_per_enemy_turn": 0.6129032258064516
+        },
+        {
+          "enemy_type": "burrow_grub",
+          "intent_id": "erupt",
+          "hp_lost": 94,
+          "share": 0.022504189609767775,
+          "damage_per_enemy_turn": 0.30618892508143325
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "cudgel_press",
+          "hp_lost": 94,
+          "share": 0.022504189609767775,
+          "damage_per_enemy_turn": 0.6308724832214765
+        },
+        {
+          "enemy_type": "burrow_grub",
+          "intent_id": "gnaw",
+          "hp_lost": 90,
+          "share": 0.021546564519990423,
+          "damage_per_enemy_turn": 0.2931596091205212
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "rush",
+          "hp_lost": 89,
+          "share": 0.021307158247546084,
+          "damage_per_enemy_turn": 0.24383561643835616
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "glass_lunge",
+          "hp_lost": 85,
+          "share": 0.020349533157768735,
+          "damage_per_enemy_turn": 0.44041450777202074
+        },
+        {
+          "enemy_type": "cinder_droplet",
+          "intent_id": "spatter",
+          "hp_lost": 83,
+          "share": 0.019870720612880057,
+          "damage_per_enemy_turn": 0.8556701030927835
+        },
+        {
+          "enemy_type": "stoneback_mite",
+          "intent_id": "brace",
+          "hp_lost": 67,
+          "share": 0.016040220253770648,
+          "damage_per_enemy_turn": 0.2607003891050584
+        },
+        {
+          "enemy_type": "warden",
+          "intent_id": "crushing_step",
+          "hp_lost": 51,
+          "share": 0.01220971989466124,
+          "damage_per_enemy_turn": 0.047530288909599254
+        },
+        {
+          "enemy_type": "harrier",
+          "intent_id": "darting_pelt",
+          "hp_lost": 46,
+          "share": 0.01101268853243955,
+          "damage_per_enemy_turn": 0.12602739726027398
+        },
+        {
+          "enemy_type": "warden",
+          "intent_id": "marching_blow",
+          "hp_lost": 44,
+          "share": 0.010533875987550874,
+          "damage_per_enemy_turn": 0.04100652376514446
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "blinding_arc",
+          "hp_lost": 43,
+          "share": 0.010294469715106535,
+          "damage_per_enemy_turn": 0.20772946859903382
+        },
+        {
+          "enemy_type": "briar_weaver",
+          "intent_id": "lash_of_thorns",
+          "hp_lost": 38.0,
+          "share": 0.009097438352884846,
+          "damage_per_enemy_turn": 0.05697151424287856
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "intent_id": "spore_mark",
+          "hp_lost": 36,
+          "share": 0.00861862580799617,
+          "damage_per_enemy_turn": 0.2033898305084746
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "spear_cast",
+          "hp_lost": 29,
+          "share": 0.006942781900885803,
+          "damage_per_enemy_turn": 0.15025906735751296
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "frost_pin",
+          "hp_lost": 23,
+          "share": 0.005506344266219775,
+          "damage_per_enemy_turn": 0.11917098445595854
+        },
+        {
+          "enemy_type": "lightning_wisp",
+          "intent_id": "spark_dart",
+          "hp_lost": 23,
+          "share": 0.005506344266219775,
+          "damage_per_enemy_turn": 0.1111111111111111
+        },
+        {
+          "enemy_type": "bile_bloomer",
+          "intent_id": "bile_burst",
+          "hp_lost": 20,
+          "share": 0.004788125448886761,
+          "damage_per_enemy_turn": 0.11299435028248588
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "chain_reel",
+          "hp_lost": 20,
+          "share": 0.004788125448886761,
+          "damage_per_enemy_turn": 0.1342281879194631
+        },
+        {
+          "enemy_type": "frostglass_lancer",
+          "intent_id": "spear_advance",
+          "hp_lost": 20,
+          "share": 0.004788125448886761,
+          "damage_per_enemy_turn": 0.10362694300518134
+        },
+        {
+          "enemy_type": "chainbound_gaoler",
+          "intent_id": "manacle_pin",
+          "hp_lost": 7,
+          "share": 0.0016758439071103662,
+          "damage_per_enemy_turn": 0.04697986577181208
+        },
+        {
+          "enemy_type": "non_enemy",
+          "intent_id": "trap",
+          "hp_lost": 6,
+          "share": 0.0014364376346660283,
+          "damage_per_enemy_turn": null
+        }
+      ],
+      "by_kind": {
+        "direct_attack": 3293,
+        "bleed": 395.0,
+        "surface_fire": 354,
+        "fatigue": 102,
+        "force_collision": 18,
+        "trap": 15
+      },
+      "activations_by_type": {
+        "crawler": 780,
+        "briar_weaver": 667,
+        "acolyte": 745,
+        "bile_bloomer": 177,
+        "warden": 1073,
+        "frostglass_lancer": 193,
+        "harrier": 365,
+        "cinder_ooze": 155,
+        "burrow_grub": 307,
+        "stoneback_mite": 257,
+        "lightning_wisp": 207,
+        "cinder_droplet": 97,
+        "grave_surgeon": 220,
+        "chainbound_gaoler": 149
+      },
+      "hit_turns": [
+        {
+          "hit": 1,
+          "n": 195,
+          "median": 2,
+          "p10": 1,
+          "p90": 3
+        },
+        {
+          "hit": 2,
+          "n": 190,
+          "median": 3.0,
+          "p10": 2,
+          "p90": 5
+        },
+        {
+          "hit": 3,
+          "n": 181,
+          "median": 3,
+          "p10": 2,
+          "p90": 6
+        },
+        {
+          "hit": 4,
+          "n": 174,
+          "median": 4.0,
+          "p10": 3,
+          "p90": 8
+        },
+        {
+          "hit": 5,
+          "n": 168,
+          "median": 4.0,
+          "p10": 3,
+          "p90": 9
+        },
+        {
+          "hit": 6,
+          "n": 136,
+          "median": 5.0,
+          "p10": 3,
+          "p90": 8
+        },
+        {
+          "hit": 7,
+          "n": 102,
+          "median": 5.0,
+          "p10": 3,
+          "p90": 9
+        },
+        {
+          "hit": 8,
+          "n": 68,
+          "median": 5.0,
+          "p10": 3,
+          "p90": 9
+        },
+        {
+          "hit": 9,
+          "n": 40,
+          "median": 5.0,
+          "p10": 4,
+          "p90": 9
+        },
+        {
+          "hit": 10,
+          "n": 22,
+          "median": 5.5,
+          "p10": 4,
+          "p90": 9
+        },
+        {
+          "hit": 11,
+          "n": 14,
+          "median": 7.0,
+          "p10": 4,
+          "p90": 10
+        },
+        {
+          "hit": 12,
+          "n": 9,
+          "median": 8,
+          "p10": 4,
+          "p90": 10
+        },
+        {
+          "hit": 13,
+          "n": 6,
+          "median": 8.0,
+          "p10": 4,
+          "p90": 11
+        },
+        {
+          "hit": 14,
+          "n": 2,
+          "median": 7.5,
+          "p10": 6,
+          "p90": 9
+        }
+      ],
+      "lethal_turn": {
+        "n": 130,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 9
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "group": "baseline",
+      "tier": 1,
+      "n": 200,
+      "win_rate": 0.185,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 16,
+        "p90": 26
+      },
+      "turn_cap_reached": 10,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "A",
+      "tier": 1,
+      "n": 200,
+      "win_rate": 0.52,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 9
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 23.0,
+        "p10": 6,
+        "p90": 26
+      },
+      "turn_cap_reached": 8,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "B",
+      "tier": 1,
+      "n": 200,
+      "win_rate": 0.38,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 9,
+        "p90": 26
+      },
+      "turn_cap_reached": 7,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "C",
+      "tier": 1,
+      "n": 200,
+      "win_rate": 0.255,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 13,
+        "p90": 26
+      },
+      "turn_cap_reached": 9,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "D",
+      "tier": 1,
+      "n": 200,
+      "win_rate": 0.38,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 9,
+        "p90": 26
+      },
+      "turn_cap_reached": 10,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "E",
+      "tier": 1,
+      "n": 200,
+      "win_rate": 0.645,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 19.0,
+        "p10": 4,
+        "p90": 26
+      },
+      "turn_cap_reached": 6,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "F",
+      "tier": 1,
+      "n": 200,
+      "win_rate": 0.395,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 10
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 9,
+        "p90": 26
+      },
+      "turn_cap_reached": 15,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "G",
+      "tier": 1,
+      "n": 200,
+      "win_rate": 0.26,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 9
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 14,
+        "p90": 26
+      },
+      "turn_cap_reached": 12,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "baseline",
+      "tier": 2,
+      "n": 200,
+      "win_rate": 0.0,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 3.0,
+        "p10": 3,
+        "p90": 5
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "A",
+      "tier": 2,
+      "n": 200,
+      "win_rate": 0.18,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 10
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 13,
+        "p90": 26
+      },
+      "turn_cap_reached": 13,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "B",
+      "tier": 2,
+      "n": 200,
+      "win_rate": 0.125,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 20,
+        "p90": 26
+      },
+      "turn_cap_reached": 10,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "C",
+      "tier": 2,
+      "n": 200,
+      "win_rate": 0.02,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "D",
+      "tier": 2,
+      "n": 200,
+      "win_rate": 0.055,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "E",
+      "tier": 2,
+      "n": 200,
+      "win_rate": 0.22,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 11
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 11,
+        "p90": 26
+      },
+      "turn_cap_reached": 13,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "F",
+      "tier": 2,
+      "n": 200,
+      "win_rate": 0.055,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 2,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "G",
+      "tier": 2,
+      "n": 200,
+      "win_rate": 0.005,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "baseline",
+      "tier": 3,
+      "n": 200,
+      "win_rate": 0.015,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "A",
+      "tier": 3,
+      "n": 200,
+      "win_rate": 0.125,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 10
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 21,
+        "p90": 26
+      },
+      "turn_cap_reached": 8,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "B",
+      "tier": 3,
+      "n": 200,
+      "win_rate": 0.085,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 9
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 4,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "C",
+      "tier": 3,
+      "n": 200,
+      "win_rate": 0.025,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "D",
+      "tier": 3,
+      "n": 200,
+      "win_rate": 0.065,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "E",
+      "tier": 3,
+      "n": 200,
+      "win_rate": 0.145,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 10
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 18,
+        "p90": 26
+      },
+      "turn_cap_reached": 7,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "F",
+      "tier": 3,
+      "n": 200,
+      "win_rate": 0.04,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 13
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 4,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "group": "G",
+      "tier": 3,
+      "n": 200,
+      "win_rate": 0.015,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "shadow": 200
+      }
+    }
+  ],
+  "selection": {
+    "1": {
+      "source": "crawler",
+      "replacement": "harrier",
+      "source_total_hp_lost": 2321.333333333333,
+      "replacement_spawn_count": 191,
+      "intent": "skitter_strike",
+      "intent_enemy": "crawler"
+    },
+    "2": {
+      "source": "crawler",
+      "replacement": "harrier",
+      "source_total_hp_lost": 2189.0,
+      "replacement_spawn_count": 166,
+      "intent": "skitter_strike",
+      "intent_enemy": "crawler"
+    },
+    "3": {
+      "source": "crawler",
+      "replacement": "warden",
+      "source_total_hp_lost": 1723.6666666666667,
+      "replacement_spawn_count": 223,
+      "intent": "skitter_strike",
+      "intent_enemy": "crawler"
+    }
+  },
+  "comparison_bands": {
+    "1": [
+      0.7,
+      0.8
+    ],
+    "2": [
+      0.4,
+      0.5
+    ],
+    "3": [
+      0.205,
+      0.37
+    ]
+  },
+  "groups_in_band": {
+    "1": [],
+    "2": [],
+    "3": []
+  },
+  "raw_sha256": {
+    "A-t1-shadow.json.gz": "175813a7fe59d88751a8b8f97cf6240f2e023cb0cca0d3e557607fb9eda3fc04",
+    "A-t2-shadow.json.gz": "a2116ede53bfe006a7cb248da393b6f23d4890fcbae96120d69123ac814f73ed",
+    "A-t3-shadow.json.gz": "7d803d8cc38bd00116186a0e6bbbe50b8b436eb54938965e858b6facc7e23eee",
+    "B-t1-shadow.json.gz": "b71f229416b0ec5901cc6ba1e5657441695cd8ae050e9e895f3c7b8950f84aa0",
+    "B-t2-shadow.json.gz": "8ae53d56b0d91ebddce08664d74260aa5269486bc3c3f1342ef38b68feaf7ff2",
+    "B-t3-shadow.json.gz": "1822fdc917008b77f4262588890a27989515cc5c4ea40977384045004c74e12e",
+    "C-t1-shadow.json.gz": "76d121da9f593d2b2ce3e9efcd2321ed8cb066d91507272128573a90a1a4fe05",
+    "C-t2-shadow.json.gz": "07cf7ee41b91c10c576ca30d5c34b5ac2e9c263c5da0df33e73a336212a26ccd",
+    "C-t3-shadow.json.gz": "fe421dff8b68103e1633a6f243f6085953c0cad10a5110aafcee939ab1b626be",
+    "D-t1-shadow.json.gz": "8c4f89985fa03e514214ca67069da3bcda364d92de7a39dd5107f976e6fc5742",
+    "D-t2-shadow.json.gz": "fb4208bb558bc6920a7609e3fc800f563b4270144ca8ba162d308c3b99b9304d",
+    "D-t3-shadow.json.gz": "f20898b247f53db68fd128219649e861116628e2954452aa9a6c167a628fff34",
+    "E-t1-shadow.json.gz": "8f96f3fb2fc81fa3c9277b8785c528dbe449215bf8918cb5574ca616e28b6dd7",
+    "E-t2-shadow.json.gz": "d68bbc426b6948cfab0f5e786ac52ebb8e19bfb641ed986fd5631e378b4b00c5",
+    "E-t3-shadow.json.gz": "73db38ddf4d4f86caa9a9b6af1bf469f68f8b3e6de22da537bd49d221770a164",
+    "F-t1-shadow.json.gz": "f8e86e2680aa03a508732d413141c0a021d4e50641d4cc8e44242420da0b69d4",
+    "F-t2-shadow.json.gz": "f1d2ae022ee7574109c223fcdc3232a43faae6db7afdd600dde4e97d141f5093",
+    "F-t3-shadow.json.gz": "a071dcf374e4091badab68af7ad90a41d722dade602b9c561eaea40331a2de2c",
+    "G-t1-shadow.json.gz": "42ed4006b9d284d3cfc5cf9e1e0802270ba505633e1d7d7bbea3deb88d24f2fe",
+    "G-t2-shadow.json.gz": "5bc1a9ef3bea1c2c622b7994c30c9aa6645e8d90991684eaafb06cb98e2b27a2",
+    "G-t3-shadow.json.gz": "0aa717edd3c5f48d48472cdd319b2343c8493376e8adb3b1802e53c5cb5090ca",
+    "baseline-inputs.json.gz": "945e9cb8dd33eaea48fbf0672db21459186debd778d525f6fde65effe1d85d36",
+    "baseline-t1-earth.json.gz": "362c894a46767d2273454f86995c9dd18af3f425d4bf5e35f15aa42260d65519",
+    "baseline-t1-shadow.json.gz": "6f2c1489a65228f742b0c797be7f87800378c7f44420841edb03aeeb6237e630",
+    "baseline-t2-earth.json.gz": "e2fe0c310596c9f37d23459e6df25b122da248d3e773560afc97a2cb748343e8",
+    "baseline-t2-shadow.json.gz": "50aafab565113d27b8124d0112d59eb7dce874f3d6471cfd163eb4cd41ae3b3b",
+    "baseline-t3-earth.json.gz": "41c959367482f85ea1134477b3a36ffece45dcaa6b7a13323f67072196a189b9",
+    "baseline-t3-shadow.json.gz": "ddecbda5d56944d86217bf3dac3b90057069f261b4a1a01f8655e4fab55a133d",
+    "catalog.json.gz": "b3397908f32823a2037732563761ce7bf6d282d8b4d1a362690d36647c2f5a98",
+    "dials-inputs.json.gz": "c79a88700e8a0b16639dae123e722f89149284b04273fa66afd5443240fa29bb",
+    "legacy-results.json.gz": "ed9cf5684487ee91dfc6b6b908521261fce9d889053754ad01be97587d4eaad9",
+    "source-repair-inputs.json.gz": "b2c023c2dcdfb312220078c2a6b975178c5b2b7fda1103e91a119254d3beffa6"
+  }
+}

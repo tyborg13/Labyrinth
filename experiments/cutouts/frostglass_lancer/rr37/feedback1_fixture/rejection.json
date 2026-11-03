@@ -1,0 +1,8 @@
+{
+  "source_gate_log_sha256": "b599625c0e21051a49b2acf695b139add112ed5727c071b582ec2238d0808874",
+  "native_pixels": true,
+  "unique_errors": 1883,
+  "purpose": "director feedback 1 rejected capture; not current acceptance",
+  "detached_outline_errors": 849,
+  "joint_seam_errors": 203
+}

@@ -1,0 +1,739 @@
+{
+	"expected_sizes": [
+		"1920x1080"
+	],
+	"min_images": 43,
+	"required_images": [
+		{
+			"height": 1080,
+			"pattern": "*preview_card_hover.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_card_focus.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_card_choice_hover.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_card_choice_focus.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_item_hover.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_item_focus.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_relic_hover.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_relic_focus.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_equipment_hover.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_equipment_focus.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_omen_hover.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_omen_focus.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_transform_hover.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_transform_focus.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_reforge_hover.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_reforge_focus.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_lose_item_hover.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_lose_item_focus.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_card.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_item.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_relic.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_equipment.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_embers.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_hp.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_heal.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_heal_percent.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_max_hp_up.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_max_hp_down.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_bane.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_blessing.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_defiance.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_lose_item.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_transform_magic.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_reforge.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_reveal.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_scout.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_transform_three.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_disabled.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_plain.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*preview_reduced.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_reduced.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*beat_skipped.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*combat_omen_start.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						176,
+						1062,
+						728
+					]
+				}
+			],
+			"width": 1920
+		}
+	]
+}

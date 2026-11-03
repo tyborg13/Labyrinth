@@ -1,0 +1,347 @@
+{
+  "unit": "rr-48",
+  "uncommitted": true,
+  "native_pixels": false,
+  "motion_ok": true,
+  "production_ready": false,
+  "source_rest_mismatch_pixels": {
+    "front": 0,
+    "rear": 0
+  },
+  "earlier_rig_parity": {
+    "rigs": 10,
+    "presented_frames": 8086,
+    "byte_identical": true
+  },
+  "angular_budget_clamp_records": 24,
+  "TODO_DESIGN": [
+    "TODO_DESIGN_falchion_death_floor_pose",
+    "TODO_DESIGN_held_follow_reference_frame",
+    "TODO_DESIGN_idle_free_fist_stationary",
+    "TODO_DESIGN_joint_budget_underlays",
+    "TODO_DESIGN_underlay_front_arm_far",
+    "TODO_DESIGN_underlay_front_arm_near",
+    "TODO_DESIGN_underlay_front_falchion",
+    "TODO_DESIGN_underlay_front_foot_far",
+    "TODO_DESIGN_underlay_front_foot_near",
+    "TODO_DESIGN_underlay_front_hand_far",
+    "TODO_DESIGN_underlay_front_hand_near",
+    "TODO_DESIGN_underlay_front_head",
+    "TODO_DESIGN_underlay_front_leg_far",
+    "TODO_DESIGN_underlay_front_leg_near",
+    "TODO_DESIGN_underlay_front_loincloth",
+    "TODO_DESIGN_underlay_front_loincloth_back",
+    "TODO_DESIGN_underlay_front_pelvis",
+    "TODO_DESIGN_underlay_front_torso",
+    "TODO_DESIGN_underlay_rear_arm_far",
+    "TODO_DESIGN_underlay_rear_arm_near",
+    "TODO_DESIGN_underlay_rear_falchion",
+    "TODO_DESIGN_underlay_rear_foot_far",
+    "TODO_DESIGN_underlay_rear_foot_near",
+    "TODO_DESIGN_underlay_rear_hand_far",
+    "TODO_DESIGN_underlay_rear_hand_near",
+    "TODO_DESIGN_underlay_rear_head",
+    "TODO_DESIGN_underlay_rear_leg_far",
+    "TODO_DESIGN_underlay_rear_leg_near",
+    "TODO_DESIGN_underlay_rear_loincloth",
+    "TODO_DESIGN_underlay_rear_loincloth_back",
+    "TODO_DESIGN_underlay_rear_pelvis",
+    "TODO_DESIGN_underlay_rear_torso"
+  ],
+  "windowed_proof_entry": "sh experiments/cutouts/ashen_reaver/rr48_proof.sh <density|rest|native|sheets|idle|production|review|depth>",
+  "chosen_defaults": {
+    "proof_canvas_size": 640,
+    "proof_source_offset": 192,
+    "diagnostic_mask_value": 255,
+    "headless_process_timeout_seconds": 300,
+    "full_godot_timeout_seconds": 1800,
+    "proof_sample_step_px": 96,
+    "proof_sample_screen_scale": 2,
+    "proof_survival_hp": 30,
+    "authored_grip_tolerance_px": 0.001,
+    "presented_grip_tolerance_px": 1.415,
+    "inspection_seed": 83,
+    "native_capture_timeout_seconds": 3600,
+    "rest_capture_timeout_seconds": 120,
+    "density_rebake_timeout_seconds": 180,
+    "density_capture_timeout_seconds": 120,
+    "idle_capture_timeout_seconds": 300,
+    "production_capture_timeout_seconds": 900,
+    "depth_capture_timeout_seconds": 330,
+    "provenance_mutation_fixture": 17,
+    "native_debug_layout": {
+      "pose_size": [
+        640,
+        640
+      ],
+      "origin": [
+        192,
+        192
+      ],
+      "label_y": 60,
+      "label_height": 60,
+      "vertical_offset": 40,
+      "view_x": {
+        "front": 560,
+        "rear": 1360
+      },
+      "representatives": 6,
+      "idle_comparison_loops": 5,
+      "fps": 60
+    },
+    "production_debug_fixture": {
+      "settle_frames": 8,
+      "hit_hp": 30,
+      "idle_sample_seconds": 0.016666666666666666,
+      "front_tile": [
+        2,
+        4
+      ],
+      "rear_tile": [
+        6,
+        4
+      ],
+      "front_guard_target": [
+        5,
+        4
+      ],
+      "rear_guard_target": [
+        3,
+        4
+      ],
+      "front_ally_tile": [
+        3,
+        4
+      ],
+      "rear_ally_tile": [
+        5,
+        4
+      ]
+    },
+    "depth_debug_fixture": {
+      "actor_hp": 10,
+      "player_hp": 40,
+      "motion_bounds_padding_tiles": 1,
+      "settle_frames": 2,
+      "occluder_batch_size": 8,
+      "maximum_native_routes": 16,
+      "midpoint_phases": [
+        0.49,
+        0.5,
+        0.51
+      ],
+      "maximum_sampling_test_length": 120,
+      "ground_roundoff_px": 0.001
+    }
+  },
+  "generic_extensions": [
+    "optional compiler elbow_policy",
+    "facing-side arm IK and pendulum constraint",
+    "nearest legal elbow rounding",
+    "held_follow lag sampling",
+    "data-driven guardian renderer exclusion",
+    "optional integration strike_actions preserves the previous melee/AoE eligibility",
+    "exact source provenance normalization; original certificates remain unchanged"
+  ],
+  "runtime_artifacts": "assets/units/ashen_reaver_cutout/humanoid_v2",
+  "requests": "experiments/cutouts/ashen_reaver/underlay_requests/index.json",
+  "cpu_diagnostics": "experiments/cutouts/ashen_reaver/rr48/proof/seam_cpu/",
+  "suite_status": "final full suites complete; rr48 focused set green; native/design items and baseline failures remain",
+  "dynamic_angular_clamp_observations": 96,
+  "focused_result": "All 8 rr48 tests passed in final 4-shard full run; MODULE test_rr48_reaver: 178.125s",
+  "rest_pin_retest": "Ran 2 tests in 0.517s; OK",
+  "observed_focused_results": {
+    "reaver_depth": "RR48 HEADLESS DEPTH: PASS (2 boards; 496 routes; 26784 samples; 104980 prop comparisons; native pixels=false)",
+    "compiler_and_runtime_parity": "Ran 2 tests in 10.202s; OK; 10 compiler outputs and 8086 presented frames byte-identical",
+    "source_provenance_mutations": "RR48 SOURCE PROVENANCE MUTATIONS: PASS (only pinned before/after bytes normalize)",
+    "metadata_retests": "Ran 35 tests in 23.537s; OK (proof dependency closure and program manifest/mutations)",
+    "motion_gate_log": "/private/tmp/rr48-gates-final.log",
+    "elbows": {
+      "ok": true,
+      "errors": [],
+      "checks": 2552,
+      "max_hyperextension_deg": 7.882707746463948e-05
+    },
+    "held": {
+      "front": {
+        "ok": true,
+        "errors": [],
+        "checks": 638,
+        "max_grip_error_px": 1.1834174851230677
+      },
+      "rear": {
+        "ok": true,
+        "errors": [],
+        "checks": 638,
+        "max_grip_error_px": 1.227468918732769
+      }
+    },
+    "sfx_sync": [
+      "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)",
+      "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)",
+      "SFX SYNC HARNESS RESULT: PASS (1688 observations, 0 failures)"
+    ],
+    "registration_audit": "TEST REGISTRATION AUDIT: PASS (918 scripts; full suite=550, quarantined=29, windowed probe=339)",
+    "python_resource_audit": "ISOLATION AUDIT: 255 modules; /private/tmp/rr48-final-resource-audit/isolation-audit.md",
+    "source_identity": "Ran 111 tests in 119.355s; OK",
+    "icon_identity": "Ran 8 tests in 0.124s; OK",
+    "native_probe_parser": "RR48 NATIVE PROBE LOAD: PASS (validate-only; no native pixels)",
+    "rebake_probe_parser": "RR48 REST REBAKE LOAD: PASS (headless; no native pixels)",
+    "shadow_records": "RR48 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)",
+    "final_inputs": "RR48 FINAL INPUTS: PASS (current sample bindings; exact front/rear director PNGs; exact motion copies)",
+    "final_diff": "git diff --check: exit 0; no diff in any earlier production unit, Lancer case or protected Reaver input"
+  },
+  "acceptance": {
+    "1_cut": "14 exact source-paint pieces per view; 21-bone humanoid_v2 rig; torso owns both pauldrons; gauntlets/sabatons and grip-pivoted falchion rigid; source rest 0 px both views; offline density rest assembled, native seal pending",
+    "2_hidden_fills": "14 source-resolution uncovered masks and 14 full-motion footprints over every presented frame of every clip; director continuation notes; no synthesized paint",
+    "3_motion": "all seven protected clips imported byte-for-byte; 24 static budget clamp records and 96 dynamic held-follow observations; ambiguous fields retained as explicit TODO_DESIGN",
+    "4_production": "generic registry routes board/pre-battle/portraits in both views; all movement steps use move; intent contact clips mapped; mechanics, Wildfire, catalog values and analytics code unchanged",
+    "5_gates": "all headless motion gates pass; mutation checks and earlier-rig equivalence pass; native clean/seam/stray/depth checks prepared but not executed; missing paint and terminal sword-floor geometry remain fail-closed"
+  },
+  "protected_motion_exact": true,
+  "floor_penetration_px": {
+    "front": 7.197035953402548,
+    "rear": 4.669482633471432
+  },
+  "open_issues": [
+    "Director underlays and covered-edge tucks are absent",
+    "No native/windowed proof in worker sandbox; native density records are pending",
+    "Four semantic/budget TODO_DESIGN entries in addition to fourteen underlay regions",
+    "Existing HEAD historical snapshots/import failures are retained and reported separately"
+  ],
+  "TODO_categories": {
+    "motion_underlay_requests": 14,
+    "additional_covered_edge_tuck_statuses": 14,
+    "semantic_and_unmeasured_budget_fields": 4
+  },
+  "observed_cloth_excursion": {
+    "authored_max_px": {
+      "front": 3.0000078276008706,
+      "rear": 3.00000100366465
+    },
+    "presented_max_vector_norm_px": 3.1622776601683795,
+    "note": "Authored 3 px source-space facing track, with normal independent whole-pixel presentation rounding (presented vector +/-3,+1)."
+  },
+  "full_godot": {
+    "command": "python3 tools/godot_task_runner.py --task-id rr-48 --timeout 1800 --stream -- godot --headless --path . --script tests/run_tests.gd",
+    "main_body_assertions": 495984,
+    "main_body_seconds": 395.931,
+    "result": "TEST RESULT: FAIL (35 failure(s))",
+    "full_runtime_line": "FULL SUITE RUNTIME: 901.602 seconds (budget 900 seconds)",
+    "programs": 263,
+    "program_passes": 229,
+    "budget_cancellations": 29,
+    "other_nonzero_programs": [
+      {
+        "name": "threats_at_rest_test",
+        "returncode": 1
+      },
+      {
+        "name": "player_movement_outcome_test",
+        "returncode": 250
+      },
+      {
+        "name": "special_encounter_test",
+        "returncode": 1
+      },
+      {
+        "name": "fix_11_test",
+        "returncode": 1
+      },
+      {
+        "name": "fix_11_probe",
+        "returncode": 1
+      }
+    ],
+    "completion_batch": {
+      "programs": 29,
+      "passes": 28,
+      "nonzero": [
+        {
+          "name": "hero_facing_test",
+          "returncode": 1
+        }
+      ],
+      "player_movement_crash_retry_passed": true
+    },
+    "prior_complete_run": {
+      "result": "TEST RESULT: FAIL (6 failure(s))",
+      "assertions": 495984,
+      "standalone_programs": 263,
+      "runtime_seconds": 867.2,
+      "log": "/private/tmp/rr48-complete-godot.log"
+    },
+    "baseline_notes": [
+      "special_encounter_test missing approved imported textures, reproduced with HEAD runtime",
+      "enemy_no_action_test, fix_11_test and fix_11_probe GameData undeclared, reproduced with HEAD runtime",
+      "hero_facing_test Frostbite fixture damage assertion, reproduced with HEAD runtime",
+      "threats_at_rest_test 5% performance guard; both HEAD and current pass in isolated reruns"
+    ]
+  },
+  "full_python": {
+    "command": "python3 tools/run_python_suite.py --shards 4 --output-dir /private/tmp/rr48-final-python",
+    "result_lines": [
+      "Ran 2422 tests in 1630.107s",
+      "FAILED (failures=5, errors=4, skipped=66)"
+    ],
+    "rr48_tests_passed": 8,
+    "rr48_module_seconds": 178.125,
+    "failures": [
+      {
+        "test": "test_shipped_derivations_and_manifest_are_current (test_board_pixel_density.BoardPixelDensityTest)",
+        "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/test_board_pixel_density.py\", line 119, in test_shipped_derivations_and_manifest_are_current\n    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)\nAssertionError: 1 != 0 : rest rebake needed: assets/units/ashen_reaver_cutout/humanoid_v2/front/rest.png: no rebake record; run --record-rests after native rebake\nrest rebake needed: assets/units/ashen_reaver_cutout/humanoid_v2/rear/rest.png: no rebake record; run --record-rests after native rebake\n\n"
+      },
+      {
+        "test": "test_approved_inputs_are_byte_identical (test_rr46_preserve_frostglass_lancer.PreservationTests)",
+        "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/test_rr46_preserve_frostglass_lancer.py\", line 8, in test_approved_inputs_are_byte_identical\n    count = assert_preserved(self, [\"assets/units/frostglass_lancer_cutout\"])\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/rr46/preservation.py\", line 71, in assert_preserved\n    test.assertEqual(digest, expected, name)\nAssertionError: '391f9d639f0a49a9a92ccf6ac355ff0943e3ddb6' != '8ea3676f96a6860710c08d1ecf1a939df32e46af'\n- 391f9d639f0a49a9a92ccf6ac355ff0943e3ddb6\n+ 8ea3676f96a6860710c08d1ecf1a939df32e46af\n : assets/units/frostglass_lancer_cutout/humanoid_v2/front.json\n"
+      },
+      {
+        "test": "test_runtime_boundary_and_reverts (test_pt14_04_coverage.HeroCoverage)",
+        "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/test_pt14_04_coverage.py\", line 204, in test_runtime_boundary_and_reverts\n    self.assertEqual(before_rr46_runtime(name, actual), expected, name)\nAssertionError: b'ext[513066 chars]itch.reset(self, next_run_state.get(\"combat_st[1265020 chars]()\\n' != b'ext[513066 chars]itch.baseline(next_run_state.get(\"combat_state[1264947 chars]()\\n' : scripts/run_scene.gd\n"
+      },
+      {
+        "test": "test_historical_runtime_pin_rejects_unowned_changes (test_rr46_playback.PlaybackTests)",
+        "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/test_rr46_playback.py\", line 57, in test_historical_runtime_pin_rejects_unowned_changes\n    self.assertEqual(before_rr46_runtime(path, current), expected)\nAssertionError: b'ext[3424 chars]onst ActionCaptionScrimScript = preload(\"res:/[1775489 chars]()\\n' != b'ext[3424 chars]onst TurnBannerScript = preload(\"res://scripts[1777180 chars]()\\n'\n"
+      },
+      {
+        "test": "test_motion_and_reference_inputs_are_byte_identical (test_rr46_playback.PlaybackTests)",
+        "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/test_rr46_playback.py\", line 311, in test_motion_and_reference_inputs_are_byte_identical\n    count = assert_preserved(self, paths)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/rr46/preservation.py\", line 71, in assert_preserved\n    test.assertEqual(digest, expected, name)\nAssertionError: '4748efda9ea6418a4ab2576b1feea9ad694544b2' != '8d969bddf1fed503490e388ad2d227c4d2ecd068'\n- 4748efda9ea6418a4ab2576b1feea9ad694544b2\n+ 8d969bddf1fed503490e388ad2d227c4d2ecd068\n : spec/peer_benchmark/staged/tt-01/tooltips.json\n"
+      }
+    ],
+    "errors": [
+      {
+        "test": "test_rest_and_density_evidence_reseal_to_identical_bytes (test_rr41_feedback3.WalkingTests)",
+        "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/test_rr41_feedback3.py\", line 140, in test_rest_and_density_evidence_reseal_to_identical_bytes\n    normalize_board_origin_provenance(before, fresh, (folder/'rest_poses.json').read_bytes()))\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/fix18/rest_provenance.py\", line 42, in normalize_board_origin_provenance\n    raise ValueError('Rest poses or protected inputs changed beyond board-origin provenance')\nValueError: Rest poses or protected inputs changed beyond board-origin provenance\n"
+      },
+      {
+        "test": "test_native_archive_requires_complete_painted_coverage (test_rr46_playback.PlaybackTests)",
+        "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/test_rr46_playback.py\", line 155, in test_native_archive_requires_complete_painted_coverage\n    inventory = load_inventory()\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/rr46/verify_native.py\", line 46, in load_inventory\n    raise ValueError('Stale independent inventory: ' + name)\nValueError: Stale independent inventory: assets/units/frostglass_lancer_cutout/integration.json\n"
+      },
+      {
+        "test": "setUpClass (test_rr47_feedback1.FeedbackOneTests)",
+        "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/test_rr47_feedback1.py\", line 51, in setUpClass\n    cls.inventory = load_inventory()\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/rr46/verify_native.py\", line 46, in load_inventory\n    raise ValueError('Stale independent inventory: ' + name)\nValueError: Stale independent inventory: assets/units/frostglass_lancer_cutout/integration.json\n"
+      },
+      {
+        "test": "test_omitting_native_midpoint_and_corner_route_fails (test_rr47_feedback2.FeedbackTwoTests)",
+        "trace": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/test_rr47_feedback2.py\", line 100, in test_omitting_native_midpoint_and_corner_route_fails\n    inventory = load_inventory()\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-48/tests/rr46/verify_native.py\", line 46, in load_inventory\n    raise ValueError('Stale independent inventory: ' + name)\nValueError: Stale independent inventory: assets/units/frostglass_lancer_cutout/integration.json\n"
+      }
+    ],
+    "classification": {
+      "rr48_expected_native_pending": [
+        "test_board_pixel_density: both new native rest rebake records absent"
+      ],
+      "unchanged_HEAD_failures": [
+        "test_rr46_preserve_frostglass_lancer: front layout predates this work",
+        "test_pt14_04_coverage: run_scene runtime pin predates this work",
+        "test_rr46_playback: board/run_scene runtime pin predates this work",
+        "test_rr46_playback: staged tt-01/tooltips.json predates this work"
+      ],
+      "unchanged_HEAD_errors": [
+        "test_rr41_feedback3: rest certificate still differs after removing rr48 source-only deltas; exact HEAD-normalized evidence saved",
+        "test_rr46_playback, test_rr47_feedback1 and test_rr47_feedback2: Lancer integration inventory predates this work"
+      ]
+    }
+  },
+  "final_windowed_status": "Not attempted: sandbox has no macOS window server. Exact commands and captures are in owner_commands.json.",
+  "files_manifest": "experiments/cutouts/ashen_reaver/rr48/proof/changed_files.json"
+}

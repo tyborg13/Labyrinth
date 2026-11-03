@@ -1,0 +1,204 @@
+{
+  "sheets": [
+    {
+      "view": "front",
+      "clip": "sweep",
+      "frame": 20,
+      "file": "proof/seam_cpu/feedback3/front_sweep_020.png",
+      "old_native_pockets": 2,
+      "new_tears": 0,
+      "natural_air_pockets": 13
+    },
+    {
+      "view": "front",
+      "clip": "rake",
+      "frame": 20,
+      "file": "proof/seam_cpu/feedback3/front_rake_020.png",
+      "old_native_pockets": 2,
+      "new_tears": 0,
+      "natural_air_pockets": 11
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "frame": 29,
+      "file": "proof/seam_cpu/feedback3/front_fall_029.png",
+      "old_native_pockets": 2,
+      "new_tears": 0,
+      "natural_air_pockets": 15
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 90,
+      "file": "proof/seam_cpu/feedback3/front_death_090.png",
+      "old_native_pockets": 1,
+      "new_tears": 0,
+      "natural_air_pockets": 8
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "frame": 12,
+      "file": "proof/seam_cpu/feedback3/rear_sweep_012.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 5
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "frame": 20,
+      "file": "proof/seam_cpu/feedback3/rear_fall_020.png",
+      "old_native_pockets": 1,
+      "new_tears": 0,
+      "natural_air_pockets": 6
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 0,
+      "file": "proof/seam_cpu/feedback3/front_move_000.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 2
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 4,
+      "file": "proof/seam_cpu/feedback3/front_move_004.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 5
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 8,
+      "file": "proof/seam_cpu/feedback3/front_move_008.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 8
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 12,
+      "file": "proof/seam_cpu/feedback3/front_move_012.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 10
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 16,
+      "file": "proof/seam_cpu/feedback3/front_move_016.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 5
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 20,
+      "file": "proof/seam_cpu/feedback3/front_move_020.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 9
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 24,
+      "file": "proof/seam_cpu/feedback3/front_move_024.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 3
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 28,
+      "file": "proof/seam_cpu/feedback3/front_move_028.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 6
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 32,
+      "file": "proof/seam_cpu/feedback3/front_move_032.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 10
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 36,
+      "file": "proof/seam_cpu/feedback3/front_move_036.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 6
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 40,
+      "file": "proof/seam_cpu/feedback3/front_move_040.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 10
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 44,
+      "file": "proof/seam_cpu/feedback3/front_move_044.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 4
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 48,
+      "file": "proof/seam_cpu/feedback3/front_move_048.png",
+      "old_native_pockets": 0,
+      "new_tears": 0,
+      "natural_air_pockets": 5
+    }
+  ],
+  "native_pixels": false,
+  "panels": [
+    "round2 native clean",
+    "round2 native holes",
+    "final production CPU clean",
+    "final CPU tears magenta, inverse-underlay air cyan"
+  ],
+  "defaults": {
+    "padding_px": 16,
+    "gutter_px": 8,
+    "matte_rgba": [
+      30,
+      30,
+      36,
+      255
+    ],
+    "tear_rgba": [
+      255,
+      0,
+      190,
+      255
+    ],
+    "air_rgba": [
+      40,
+      220,
+      255,
+      255
+    ]
+  }
+}

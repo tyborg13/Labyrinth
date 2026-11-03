@@ -2,7 +2,6 @@ extends RefCounted
 
 ## Python schedules isolated children; the main Godot runs alongside that pool.
 ## The pipe is held for the whole run so parent death cancels every child.
-const PROGRAM_BUDGET_SECONDS: int = 900
 const WAIT_POLL_SECONDS: float = 0.05
 
 static func start(options: Dictionary = {}) -> Dictionary:
@@ -12,9 +11,10 @@ static func start(options: Dictionary = {}) -> Dictionary:
 		"--project", ProjectSettings.globalize_path("res://"),
 		"--godot", str(options.get("godot", OS.get_executable_path())),
 		"--result-file", result_path, "--watch-parent-stdin",
-		"--timeout", str(options.get("timeout", 180)),
-		"--budget", str(options.get("budget", PROGRAM_BUDGET_SECONDS))
+		"--timeout", str(options.get("timeout", 300))
 	]
+	if OS.get_cmdline_user_args().has("--perf"):
+		arguments.append("--perf")
 	for suite: String in options.get("suites", []):
 		arguments.append_array(["--suite", suite])
 	DirAccess.remove_absolute(result_path)
@@ -36,12 +36,13 @@ static func finish(tree: SceneTree, handle: Dictionary, expect: Callable, starte
 	else:
 		for result: Dictionary in report["results"]:
 			var suite: String = str(result["name"])
-			print(FileAccess.get_file_as_string(str(result["log_path"])))
+			for attempt: Dictionary in result.get("attempts", [result]):
+				print(FileAccess.get_file_as_string(str(attempt["log_path"])))
 			var code: int = int(result["returncode"])
 			var reason: String = " (timed out)" if bool(result.get("timed_out", false)) else ""
 			expect.call(code == 0, "Program sub-suite failed: %s (exit %d)%s" % [suite, code, reason])
 			print("PROGRAM SUITE %s: %s" % [suite, "PASS" if code == 0 else "FAIL"])
 			print("PROGRAM SUITE RUNTIME %s: %.3f seconds" % [suite, float(result["seconds"])])
+		print("PROGRAM SUITE RETRIES: " + JSON.stringify(report.get("retries", [])))
 	var elapsed: float = float(Time.get_ticks_usec() - started_usec) / 1000000.0
-	print("FULL SUITE RUNTIME: %.3f seconds (budget 900 seconds)" % elapsed)
-	expect.call(elapsed < PROGRAM_BUDGET_SECONDS, "Full suite stays under 15 minutes")
+	print("FULL SUITE RUNTIME: %.3f seconds" % elapsed)

@@ -1,0 +1,15 @@
+Frozen peer inventory: ba97b48fec48429622b414e87f95d998b42f6389
+GODOT SIDECARS: gitignored exemptions = 2151
+Traceback (most recent call last):
+  File "<stdin>", line 7, in <module>
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_godot_sidecars.py", line 87, in assert_sidecars_versioned
+    raise AssertionError("\n\n".join(problems + [REPAIR_HINT]))
+AssertionError: Stale tracked Godot sidecars (6):
+spec/peer_benchmark/staged/rr-48/front_body_underlay.png.import
+spec/peer_benchmark/staged/rr-48/front_underlay_raw.png.import
+spec/peer_benchmark/staged/rr-48/rear_body_underlay.png.import
+spec/peer_benchmark/staged/rr-48/rear_underlay_raw.png.import
+spec/peer_benchmark/staged/rr-48/ref_front_approved_x4.png.import
+spec/peer_benchmark/staged/rr-48/ref_rear_approved_x4.png.import
+
+Run godot --headless --import (through tools/godot_task_runner.py), commit the .import/.uid sidecars with their sources, and remove stale sidecars.

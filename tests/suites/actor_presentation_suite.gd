@@ -35,14 +35,32 @@ static func _test_travel_pace(board: Control, expect: Callable) -> void:
 		var renderer: Script = ActorPresentation.travel_renderer(actor)
 		expect.call(renderer != null, actor + " has an explicit travel renderer")
 		var constants: Dictionary = renderer.get_script_constant_map()
-		var cycle_seconds: float = constants["WALK_CYCLE_SECONDS"]
+		# Data-driven adapters expose a static value; legacy adapters use constants.
+		var cycle_seconds: float = renderer.get("WALK_CYCLE_SECONDS")
 		var frame_seconds: float = constants["WALK_FRAME_SECONDS"]
-		if actor in ["hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick", "glacial_mirror"]:
+		var maquette: Script = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
+		if str(maquette.integration_for(actor).get("rig", "")) == "humanoid_v2":
+			# V2 steps use protected director clocks, independent of distance.
+			var director: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(maquette.asset_directory(actor).path_join("director_motion.json")))
+			var seconds: float = float(director[actor]["clips"]["move"]["seconds"])
+			var scale: float = board.call("source_pixel_scale_for_type", actor)
+			expect.call(scale > 0.0 and is_equal_approx(cycle_seconds, seconds), actor + " retains protected step duration")
+			if actor == "chainbound_gaoler":
+				var step: float = float(board.call("_tile_width")) * sqrt(0.3125)
+				var ratio: float = step / cycle_seconds / baseline
+				print("GAOLER TRAVEL PACE: %.6f x player (one resolved tile; legacy band 0.77-1.20; protected %.6fs step)" % [ratio, cycle_seconds])
+			for source_distance: float in RR07_TRAVEL_QUERY_DISTANCES:
+				expect.call(is_equal_approx(float(renderer.call("walk_segment_frames", source_distance)) * frame_seconds, seconds), actor + " resolved step retains authored clock")
+			continue
+		# int-09: the Hoarder aliases the Tick's authored step clock. This
+		# roster oracle must query the approved Tick track, never a legacy gait.
+		var authored_actor: String = "ember_tick" if actor == "ember_hoarder" else actor
+		if authored_actor in ["hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick", "glacial_mirror"]:
 			# rr-07/rr-12 supply an authored duration per resolved step. Validate
 			# against protected data instead of inventing a source-space gait pace.
-			var task: String = {"burrow_grub": "rr-12", "ember_tick": "rr-12", "glacial_mirror": "rr-18"}.get(actor, "rr-07")
+			var task: String = {"burrow_grub": "rr-12", "ember_tick": "rr-12", "glacial_mirror": "rr-18"}.get(authored_actor, "rr-07")
 			var director: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/" + task + "/motion_tracks.json"))
-			var seconds: float = float(director[actor]["clips"]["move"]["seconds"])
+			var seconds: float = float(director[authored_actor]["clips"]["move"]["seconds"])
 			var scale: float = board.call("source_pixel_scale_for_type", actor)
 			expect.call(scale > 0.0 and is_equal_approx(cycle_seconds, seconds), actor + " retains protected step duration")
 			for source_distance: float in RR07_TRAVEL_QUERY_DISTANCES:
@@ -93,6 +111,7 @@ static func _test_initial_fit_and_invariance(board: Control, state: Dictionary, 
 static func _test_support_registration(board: Control, expect: Callable) -> void:
 	var center := Vector2(900, 500)
 	for actor: String in ActorPresentation.PROFILES:
+		board.call("_ensure_unit_assets_for_type", actor)
 		var unit: Dictionary = {"type": actor, "role": "enemy"}
 		var neutral: Rect2 = board.call("_unit_draw_rect_for_texture", unit, center, board.call("_unit_hud_anchor_texture", unit))
 		var anchor: Vector2 = ActorPresentation.floor_anchor(actor)

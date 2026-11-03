@@ -1,0 +1,6096 @@
+{
+  "native_pixels": true,
+  "source_manifest_sha256": "6b1c6a8affc622be63c47818c1faf26a5851b8ba9e581e625dcb118a0864f68c",
+  "frames": [
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 78,
+      "phase": 0.821052631578947,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "front_death_078_composite.webp",
+          "native_sha256": "be12dd854a1d737d82b081507e3713b149c2d313f6443d40b3f024572bf27cda",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "front_death_078_head.webp",
+          "native_sha256": "0e20efd1f53e351eb18000237e35af6ba51733cd1197c513eeecd3df6d7799ea",
+          "z_index": 24,
+          "transform": [
+            0.866025447845459,
+            -0.5,
+            0.5,
+            0.866025447845459,
+            87.0,
+            58.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "front_death_078_hidden_head.webp",
+          "native_sha256": "44187679a055b9f71fb6f54b769892d33e56cef3b0276992beca7665dadb8d55",
+          "z_index": -15,
+          "transform": [
+            0.866025447845459,
+            -0.5,
+            0.5,
+            0.866025447845459,
+            99.0,
+            82.9999694824219
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "front_death_078_torso.webp",
+          "native_sha256": "efbf1da2a85f3140453d5f8fefb35be436662e86bcd899eeb39cfc3e4deeff6b",
+          "z_index": 17,
+          "transform": [
+            0.95105654001236,
+            -0.30901700258255,
+            0.30901700258255,
+            0.95105654001236,
+            81.0,
+            78.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "front_death_078_hidden_torso.webp",
+          "native_sha256": "b492ef253a832d8b0a8a3f6a6537acde7dd23d51fe05f3c9aaa3ba376241bb82",
+          "z_index": -11,
+          "transform": [
+            0.95105654001236,
+            -0.30901700258255,
+            0.30901700258255,
+            0.95105654001236,
+            82.0,
+            79.9999694824219
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "front_death_078_pelvis.webp",
+          "native_sha256": "c236f4564e853c5d03e7d0b3ca790957e511a11d035d15ed3347af2b4c1a09a6",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            112.0,
+            120.999969482422
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "front_death_078_hidden_pelvis.webp",
+          "native_sha256": "70f54329f3d02994714d71f097a3373b0922ecbc69ff2c8e1fbc670d5c848763",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            111.0,
+            98.9999694824219
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "front_death_078_tabard.webp",
+          "native_sha256": "6b45e5061a37c47bc76bb914427ad60fa4c26e3210150f23b95093a09b7eb230",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "front_death_078_hidden_tabard.webp",
+          "native_sha256": "6f290b0160ddd6a418299ceba19bb89703b08395ac7c2d596229b9cf8ce34ba6",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "front_death_078_chain.webp",
+          "native_sha256": "e603aa12d94f6c4efc6fc5fd7924726c84de84920b006c37f62c9b3360a9a7cb",
+          "z_index": 22,
+          "transform": [
+            0.182235553860664,
+            0.983254969120026,
+            -0.983254969120026,
+            0.182235553860664,
+            149.0,
+            213.0
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "front_death_078_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            0.182235553860664,
+            0.983254969120026,
+            -0.983254969120026,
+            0.182235553860664,
+            230.0,
+            187.0
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "front_death_078_coat_near.webp",
+          "native_sha256": "a6b8e8cd1e143e2bca3fed955c990e4008e871ee7d636e425533a6391c7b88d7",
+          "z_index": 7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "front_death_078_hidden_coat_near.webp",
+          "native_sha256": "e2049dbd2e0f7b6154dd6de5724a74bd95d6368aa1c0ea02e93a00c9146d0f35",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "front_death_078_arm_near.webp",
+          "native_sha256": "e64506b97875ca5b4561bba44fae2c180de911ad06db74ee3baa3fcbe5f79018",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "front_death_078_hidden_arm_near.webp",
+          "native_sha256": "a13ee1b3b72128bbc721074170ab636dea8dfb2c5fe510d90c275f99e82b1384",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "front_death_078_hand_near.webp",
+          "native_sha256": "b20bcd4b141308d31d97407d8d6983981a7fb51993db11d3d7eab697d0befb71",
+          "z_index": 21,
+          "transform": [
+            0.95105654001236,
+            -0.30901700258255,
+            0.30901700258255,
+            0.95105654001236,
+            169.0,
+            165.0
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "front_death_078_hidden_hand_near.webp",
+          "native_sha256": "7119bd6f7203ef7475d60748e65f47d10323586a56bddac6f6008f4aa9a209ce",
+          "z_index": -14,
+          "transform": [
+            0.95105654001236,
+            -0.30901700258255,
+            0.30901700258255,
+            0.95105654001236,
+            167.999969482422,
+            159.0
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "front_death_078_leg_near.webp",
+          "native_sha256": "66aed33fd8f59a7bda2cd3fe84058240aea5f1150a6a08d93915f1fbd693fb96",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "front_death_078_hidden_leg_near.webp",
+          "native_sha256": "1036eab7e126a60a986d446e4d7f15ec8de0edc9c837d5f3e4330aebcd2ee6f9",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "front_death_078_foot_near.webp",
+          "native_sha256": "a9d7fef985f9de9a3e72a55cbd5a08a9327984c4d38e2dac5f73965914d2e895",
+          "z_index": 4,
+          "transform": [
+            1.00000011920929,
+            2.98023223876953e-08,
+            -2.98023223876953e-08,
+            1.00000011920929,
+            156.999969482422,
+            205.999969482422
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "front_death_078_hidden_foot_near.webp",
+          "native_sha256": "03faf6ecc9bcf1584b7ed0af4f654aa72ee03fc736aa3d1903d497bb2a0c58ce",
+          "z_index": -10,
+          "transform": [
+            1.00000011920929,
+            2.98023223876953e-08,
+            -2.98023223876953e-08,
+            1.00000011920929,
+            160.999969482422,
+            201.999969482422
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "front_death_078_coat_far.webp",
+          "native_sha256": "c2e5b30812b4f220333c4ec0be5a31528c7e0476fa7851d877e27cff32e5938f",
+          "z_index": 2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "front_death_078_hidden_coat_far.webp",
+          "native_sha256": "1a28f182c42868b7ac3a67400f9cc860680cbbe6377ce54803460d9b1a206b6b",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "front_death_078_arm_far.webp",
+          "native_sha256": "e3da70e5b445f5961acb223e5d078064bb93042ca73849fc50053bfe4430a2b9",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "front_death_078_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "front_death_078_hand_far.webp",
+          "native_sha256": "e7ebe5b0d6497a358d8c137354b5941119ace07bbcc280c71f2dfca12a02499b",
+          "z_index": 16,
+          "transform": [
+            0.913545489311218,
+            -0.406736671924591,
+            0.406736671924591,
+            0.913545489311218,
+            81.0,
+            157.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "front_death_078_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            0.913545489311218,
+            -0.406736671924591,
+            0.406736671924591,
+            0.913545489311218,
+            41.0,
+            105.999969482422
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "front_death_078_leg_far.webp",
+          "native_sha256": "d5238efccd63fa2b64bd8ca1f8ea15c9dea618b8fe5dd5411b614cee15bacefe",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "front_death_078_hidden_leg_far.webp",
+          "native_sha256": "2a00c99662f97ccd261d15e3da1cd2493c599a92b674b663dc110123e87bc174",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "front_death_078_foot_far.webp",
+          "native_sha256": "01f515309c5563b3115ae82ef70341dc4188f82bd09195bccad989848a2f7d00",
+          "z_index": 0,
+          "transform": [
+            1.0,
+            -8.94069671630859e-08,
+            8.94069671630859e-08,
+            1.0,
+            101.999969482422,
+            199.999969482422
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "front_death_078_hidden_foot_far.webp",
+          "native_sha256": "fef670934f25b192683c40d8100bcb12ba46c5215b248a994a19b495dc57835e",
+          "z_index": -9,
+          "transform": [
+            1.0,
+            -8.94069671630859e-08,
+            8.94069671630859e-08,
+            1.0,
+            113.999969482422,
+            182.999969482422
+          ]
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 15,
+      "phase": 0.3,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "front_idle_015_composite.webp",
+          "native_sha256": "4ad5e466270b52c88d4d42889832ebe2b9a401b96d798c702c938a155ac57f61",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "front_idle_015_head.webp",
+          "native_sha256": "81ffa384958d45e3b6f4e0e52e4a91f8342ef243856072567190c1d1090a2576",
+          "z_index": 24,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            117.0,
+            31.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "front_idle_015_hidden_head.webp",
+          "native_sha256": "de7b30f1ae78d4a6ffb7e4e9e67bb0b42f5c0bb861da7761ca6d770ad5a0255e",
+          "z_index": -15,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            115.0,
+            58.9999694824219
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "front_idle_015_torso.webp",
+          "native_sha256": "900a7963b6945e0976ac64266befab312555f7ad72c3b3f136e1e280c6b981c2",
+          "z_index": 17,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            99.0,
+            53.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "front_idle_015_hidden_torso.webp",
+          "native_sha256": "bda3c0e8fba1b6484957f050db313624a37e88c79b779de5c85ddf3e52953846",
+          "z_index": -11,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            99.0,
+            54.9999694824219
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "front_idle_015_pelvis.webp",
+          "native_sha256": "4deb133f626725508d09f44501227fe3e79c8ce0c5c434b8f6a8dfacfbf4f6bf",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            113.0,
+            115.999969482422
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "front_idle_015_hidden_pelvis.webp",
+          "native_sha256": "f584ec1c386677d626e3482b0da3e71deb2e3a593164fefc4833967955dfeeee",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            112.0,
+            93.9999694824219
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "front_idle_015_tabard.webp",
+          "native_sha256": "3390a889c620f674337c2a744d3648fa84403e82116031532fb1f69324030beb",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "front_idle_015_hidden_tabard.webp",
+          "native_sha256": "caef24e1f490ca9d8aa35efa1820ca4356585e91b5f79a10bad9cabac6b8688e",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "front_idle_015_chain.webp",
+          "native_sha256": "50d82695dac01e8d93e2e047c81a997ab975bddcc7698ba02afb4fc24531330d",
+          "z_index": 22,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            72.0,
+            150.0
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "front_idle_015_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            61.0,
+            66.0
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "front_idle_015_coat_near.webp",
+          "native_sha256": "60c8ea69163accc5148e92c6dc765217c6f4a10e424750e2a87228341ae05071",
+          "z_index": 7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "front_idle_015_hidden_coat_near.webp",
+          "native_sha256": "b89f2dee9179ef6aa695ec8fa6b453cf8887307570f68358540a4de8aba99f99",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "front_idle_015_arm_near.webp",
+          "native_sha256": "3bfe330d27214b4d713689626a89061ccdf7e43be9ee530a9c9033850784ed92",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "front_idle_015_hidden_arm_near.webp",
+          "native_sha256": "3be607e17785b299b5d055e1f4230122f4a6a1d008b31a42594e3d649f020c6b",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "front_idle_015_hand_near.webp",
+          "native_sha256": "9b41954a642172ed040f1c1dfd96a971dfbf942e8b8fbb5e2cd71a25fae722c8",
+          "z_index": 21,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            156.0,
+            162.999938964844
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "front_idle_015_hidden_hand_near.webp",
+          "native_sha256": "3883403ed47e89c6b5161b1177a062e6652fd1857cd1018d509b8aed579dffc4",
+          "z_index": -14,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            157.0,
+            156.999938964844
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "front_idle_015_leg_near.webp",
+          "native_sha256": "9b9af82d1aa6ee0e5a6f4a1560fb5d5a20e1838f60a7dc03c375ec4d50a3cc99",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "front_idle_015_hidden_leg_near.webp",
+          "native_sha256": "f44922153344569f863cf8312d4958b6205409a428031c5535cb3394e6185b26",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "front_idle_015_foot_near.webp",
+          "native_sha256": "a9d7fef985f9de9a3e72a55cbd5a08a9327984c4d38e2dac5f73965914d2e895",
+          "z_index": 4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            157.0,
+            206.0
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "front_idle_015_hidden_foot_near.webp",
+          "native_sha256": "03faf6ecc9bcf1584b7ed0af4f654aa72ee03fc736aa3d1903d497bb2a0c58ce",
+          "z_index": -10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            161.0,
+            202.0
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "front_idle_015_coat_far.webp",
+          "native_sha256": "d7f565d59278d419a7b138b998bfd2ee1a8d63bdf06797d57bce39100ecdf21b",
+          "z_index": 2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "front_idle_015_hidden_coat_far.webp",
+          "native_sha256": "4ed04065411403fbfec1e7d497e9a28547302f54e81c19751654e819fe78991c",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "front_idle_015_arm_far.webp",
+          "native_sha256": "a9a2f0b0ba5e00987f067c26c1a12c2de0292ac84a0314cb5ae64e4fab6ea99b",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "front_idle_015_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "front_idle_015_hand_far.webp",
+          "native_sha256": "88f5121bcb22c06ffc67c1bcb7b17719181b80315eed38e833bbf5fff1d2f75a",
+          "z_index": 16,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            74.0,
+            127.0
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "front_idle_015_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            59.0,
+            63.0
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "front_idle_015_leg_far.webp",
+          "native_sha256": "b5c7575db41f8e6b665f3433c9fb6d01757646ead56a491dd6f434afee60c049",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "front_idle_015_hidden_leg_far.webp",
+          "native_sha256": "02951228248b8835d3ceeaab017a6145ab55a6e9e6670dcb262e7372bdaa9653",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "front_idle_015_foot_far.webp",
+          "native_sha256": "01f515309c5563b3115ae82ef70341dc4188f82bd09195bccad989848a2f7d00",
+          "z_index": 0,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            101.999969482422,
+            199.999969482422
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "front_idle_015_hidden_foot_far.webp",
+          "native_sha256": "fef670934f25b192683c40d8100bcb12ba46c5215b248a994a19b495dc57835e",
+          "z_index": -9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            113.999969482422,
+            182.999969482422
+          ]
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 25,
+      "phase": 0.5,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "front_move_025_composite.webp",
+          "native_sha256": "29b2ab90d67aaa27995d8b261d411ec67136bd03f1a91ebe8506674340ab866b",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "front_move_025_head.webp",
+          "native_sha256": "13560bec2b534c7a50f8e5f19e0c5bda059982a6b0355b457c4bba28b1a220cd",
+          "z_index": 24,
+          "transform": [
+            0.998629510402679,
+            -0.0523359589278698,
+            0.0523359589278698,
+            0.998629510402679,
+            45.0000152587891,
+            69.0
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "front_move_025_hidden_head.webp",
+          "native_sha256": "ab34606a8ab9fe39367b041da101113bb6db14ea447f5f84174ffcbbc7792999",
+          "z_index": -15,
+          "transform": [
+            0.998629510402679,
+            -0.0523359589278698,
+            0.0523359589278698,
+            0.998629510402679,
+            45.0000152587891,
+            96.0
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "front_move_025_torso.webp",
+          "native_sha256": "8b4331cd52fa29d06a6fa36b806b5ed46b372c25f73a0b8106e1e9190e5fd86d",
+          "z_index": 17,
+          "transform": [
+            0.998629510402679,
+            -0.0523359589278698,
+            0.0523359589278698,
+            0.998629510402679,
+            28.0,
+            92.0
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "front_move_025_hidden_torso.webp",
+          "native_sha256": "f5e4baa82b25cd5742cb4e83c2846d5085b813eb6d51c46b73900c65c2947a1c",
+          "z_index": -11,
+          "transform": [
+            0.998629510402679,
+            -0.0523359589278698,
+            0.0523359589278698,
+            0.998629510402679,
+            28.0,
+            93.0
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "front_move_025_pelvis.webp",
+          "native_sha256": "6360198722af6926f31c2b07316334aa89b381f8d3357c8929afe8a070b35602",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            43.9999847412109,
+            153.0
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "front_move_025_hidden_pelvis.webp",
+          "native_sha256": "0033f9b6bbb1b1c037fa4bd3683c85c9fb1952f0ffb868e8c659357f66247ed9",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            42.9999847412109,
+            131.0
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "front_move_025_tabard.webp",
+          "native_sha256": "8c5b7874fa49e9dd7a0fe4a925382dbebe3e8186823565280b941300097e9f72",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "front_move_025_hidden_tabard.webp",
+          "native_sha256": "6c8e69c353a74f33cd0bbbc6ddc7bd020be16f199782fda3d02c55587ff74252",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "front_move_025_chain.webp",
+          "native_sha256": "340dcb9bd2b071c8e78e217bb9c2f1738747505462bc7df632da9f542e6ece6f",
+          "z_index": 22,
+          "transform": [
+            0.999657332897186,
+            -0.0261769592761993,
+            0.0261769592761993,
+            0.999657332897186,
+            -2.0,
+            186.0
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "front_move_025_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            0.999657332897186,
+            -0.0261769592761993,
+            0.0261769592761993,
+            0.999657332897186,
+            -15.0,
+            103.0
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "front_move_025_coat_near.webp",
+          "native_sha256": "927570fa6756916bed49233eeaf8b8537d2ae410a95a0346f9f51da709568b9e",
+          "z_index": 7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "front_move_025_hidden_coat_near.webp",
+          "native_sha256": "c4f1188520a3697a8cd20a95dc1e4f94ea08349cc6f485c78d5298720162ee40",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "front_move_025_arm_near.webp",
+          "native_sha256": "a68737bf4fd8a9c727b08f3d6d4fe7ab9ccacb36fc474076e3ffee4f6d5dddf2",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "front_move_025_hidden_arm_near.webp",
+          "native_sha256": "b820cc16362c876b53e51a60194fabe292abb95d5b4adf5a1e10fc582d2909c8",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "front_move_025_hand_near.webp",
+          "native_sha256": "334a5850dfbfca4cdf6c59b2df456a277a46a69832aeacecca56d02c8edf8797",
+          "z_index": 21,
+          "transform": [
+            0.996917366981506,
+            -0.0784591063857079,
+            0.0784591063857079,
+            0.996917366981506,
+            102.000030517578,
+            196.0
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "front_move_025_hidden_hand_near.webp",
+          "native_sha256": "5ade2df60c46afe15b716a4d246a3b90fa1996734d6521a55e28d1a4919f849b",
+          "z_index": -14,
+          "transform": [
+            0.996917366981506,
+            -0.0784591063857079,
+            0.0784591063857079,
+            0.996917366981506,
+            103.000030517578,
+            189.999969482422
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "front_move_025_leg_near.webp",
+          "native_sha256": "86dc1d7f60422ce62d6d91db1327b953cc817f1f44a25deaf0168abbc7467429",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "front_move_025_hidden_leg_near.webp",
+          "native_sha256": "53f445eb390d4b10a2dab1d91adda787260c24d774864c26952a726046444fc1",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "front_move_025_foot_near.webp",
+          "native_sha256": "e0463542eaeea5b44dfd3c5c815a28329b666684a3cbd41e6097dfdacbf1b0f5",
+          "z_index": 4,
+          "transform": [
+            0.999999821186066,
+            2.60770320892334e-08,
+            9.31322574615479e-09,
+            0.999999821186066,
+            69.9999694824219,
+            246.999938964844
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "front_move_025_hidden_foot_near.webp",
+          "native_sha256": "c42ee6965b894c79786dfeb1effcc6787e2bad8a812f2b9758b3cf31a568fce9",
+          "z_index": -10,
+          "transform": [
+            0.999999821186066,
+            2.60770320892334e-08,
+            9.31322574615479e-09,
+            0.999999821186066,
+            73.9999694824219,
+            242.999938964844
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "front_move_025_coat_far.webp",
+          "native_sha256": "0aa0e02190ef4b4a72d70cccdcf522ffc90162361c374d3d6b931cbe2d221c74",
+          "z_index": 2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "front_move_025_hidden_coat_far.webp",
+          "native_sha256": "58b6052fc5d2436b2d8c48c8255127de4bd2cb9080892ea2bcb2f78df2e4a579",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "front_move_025_arm_far.webp",
+          "native_sha256": "659f0ff3e9e28dea21361f66d006ee2c18e6ef4a7e3dbe793fe488f192f308d0",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "front_move_025_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "front_move_025_hand_far.webp",
+          "native_sha256": "64619e75d3b6b3d12dee090488f3e05f062b64998fa79a71eb3ef8b590456207",
+          "z_index": 16,
+          "transform": [
+            0.999657273292542,
+            0.0261769369244576,
+            -0.0261769369244576,
+            0.999657273292542,
+            1.0,
+            162.0
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "front_move_025_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            0.999657273292542,
+            0.0261769369244576,
+            -0.0261769369244576,
+            0.999657273292542,
+            -12.0,
+            98.0
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "front_move_025_leg_far.webp",
+          "native_sha256": "4dc7f3e27a5ce919ec6d167bc4242826b154d35f64ceda8d3a11553e03eab347",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "front_move_025_hidden_leg_far.webp",
+          "native_sha256": "a253b05b0315563078e38318fccfa6005a1dda2b53e5dcde5d98fec3d0b78234",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "front_move_025_foot_far.webp",
+          "native_sha256": "c0887ce78c467366e0f53a0b5d9f7056be7409e500e58d70501db4ca08a3707d",
+          "z_index": 0,
+          "transform": [
+            1.0,
+            2.98023223876953e-08,
+            5.96046447753906e-08,
+            1.0,
+            49.0,
+            228.0
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "front_move_025_hidden_foot_far.webp",
+          "native_sha256": "2d3bbfbf2dd879e8b3a1409269cd1f453901ba5cb93ff7700b2007c266d755ab",
+          "z_index": -9,
+          "transform": [
+            1.0,
+            2.98023223876953e-08,
+            5.96046447753906e-08,
+            1.0,
+            61.0,
+            211.0
+          ]
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 14,
+      "phase": 0.28,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "front_press_014_composite.webp",
+          "native_sha256": "ce57e4f463cbc14d90cfea5020dba9885df4edceaf8a3003c50d3273655df1cd",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "front_press_014_head.webp",
+          "native_sha256": "dbe513ad026481d8f4f8ad82345ff50a8b9534476f90e2277957a9cae28b5172",
+          "z_index": 24,
+          "transform": [
+            0.999657392501831,
+            0.0261769481003284,
+            -0.0261769481003284,
+            0.999657392501831,
+            122.0,
+            29.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "front_press_014_hidden_head.webp",
+          "native_sha256": "8929978f330a7c4f505ab11445bf930f5c54045577fea13e30d760cee76e9373",
+          "z_index": -15,
+          "transform": [
+            0.999657392501831,
+            0.0261769481003284,
+            -0.0261769481003284,
+            0.999657392501831,
+            119.0,
+            56.9999694824219
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "front_press_014_torso.webp",
+          "native_sha256": "5311b0c5a33ec437b6afe63f036fb02d59097cd4cb4a8d87d376b248942ee760",
+          "z_index": 17,
+          "transform": [
+            0.996917307376862,
+            0.0784590989351273,
+            -0.0784590989351273,
+            0.996917307376862,
+            105.0,
+            48.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "front_press_014_hidden_torso.webp",
+          "native_sha256": "c26fb759e5387b0faf991f0f52dda02372d487aeb0b0ffe5388f024a491b287c",
+          "z_index": -11,
+          "transform": [
+            0.996917307376862,
+            0.0784590989351273,
+            -0.0784590989351273,
+            0.996917307376862,
+            104.0,
+            49.9999694824219
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "front_press_014_pelvis.webp",
+          "native_sha256": "cc114025d1e5c2988bfb82ddd82053c8289199cb4b6dee3bdb505335008f3cad",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            113.0,
+            117.999969482422
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "front_press_014_hidden_pelvis.webp",
+          "native_sha256": "43746636027bbe96dbd8bbfeebc34abde83d55360e8cdca16ae33f859a831d3d",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            112.0,
+            95.9999694824219
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "front_press_014_tabard.webp",
+          "native_sha256": "e233ba64d8c8d99366233d3a6c34e6e5838749451ff5f39e63c586689092ea67",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "front_press_014_hidden_tabard.webp",
+          "native_sha256": "48ce6dd6515e160eb1a51340236a2458d088ca2fb58166617d76f5f31e6e9155",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "front_press_014_chain.webp",
+          "native_sha256": "339d43ff3e8197828f52089f3dbf09aa77b1fe377ed379d0d0b2d62106c57353",
+          "z_index": 22,
+          "transform": [
+            0.998629570007324,
+            -0.0523359403014183,
+            0.0523359403014183,
+            0.998629570007324,
+            70.0,
+            146.0
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "front_press_014_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            0.998629570007324,
+            -0.0523359403014183,
+            0.0523359403014183,
+            0.998629570007324,
+            55.0,
+            63.0
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "front_press_014_coat_near.webp",
+          "native_sha256": "62b8c39ca18027e4810696c8df0942bea4007c94c14a3e409df4b294f1633e54",
+          "z_index": 7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "front_press_014_hidden_coat_near.webp",
+          "native_sha256": "d51bea15e90c73761151a4f78bd1c87ca0e84a3de9a12108cb0535aa0290ec22",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "front_press_014_arm_near.webp",
+          "native_sha256": "bd5c6961d6d432f5cccae0e57c19b67c7ef0012a15af40a4c931674a1568858c",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "front_press_014_hidden_arm_near.webp",
+          "native_sha256": "81bf7f01589fb9dd1ae52d112893299fc5e958a1b5ebff3792e1b8844e1d84e2",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "front_press_014_hand_near.webp",
+          "native_sha256": "a343e1abf2af511591910cc17bf92f01a0c81f53fabb190b02a8f448c403c875",
+          "z_index": 21,
+          "transform": [
+            0.358368039131165,
+            0.933580458164215,
+            -0.933580458164215,
+            0.358368039131165,
+            174.0,
+            121.999938964844
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "front_press_014_hidden_hand_near.webp",
+          "native_sha256": "8e31958004eacd8dd860bebf7d1424faa6a91f29f20b09da98fd80fbc6c8f670",
+          "z_index": -14,
+          "transform": [
+            0.358368039131165,
+            0.933580458164215,
+            -0.933580458164215,
+            0.358368039131165,
+            180.0,
+            120.999938964844
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "front_press_014_leg_near.webp",
+          "native_sha256": "379372b129cbd7244dacdbb36d58682c701e14644f159408f0ae3a4dc449e465",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "front_press_014_hidden_leg_near.webp",
+          "native_sha256": "b67635a033f03161983d293d623b6bec2bb77c4b3c7425afa54265e9b18c4997",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "front_press_014_foot_near.webp",
+          "native_sha256": "8647da0646b3814d7fea83092670fbcaf1b01f67103f5c01a7b7f0a86d4b28d8",
+          "z_index": 4,
+          "transform": [
+            0.983254969120026,
+            -0.182235538959503,
+            0.182235538959503,
+            0.983254969120026,
+            153.999969482422,
+            210.0
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "front_press_014_hidden_foot_near.webp",
+          "native_sha256": "8fa848067eeea448afd2f558cdcacd8aa076671ec76d0f3fa7b57f915adb1837",
+          "z_index": -10,
+          "transform": [
+            0.983254969120026,
+            -0.182235538959503,
+            0.182235538959503,
+            0.983254969120026,
+            156.999969482422,
+            205.0
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "front_press_014_coat_far.webp",
+          "native_sha256": "cb27b6ddb692fb7ea0a9a1ae43ed94d14d7cc46fa4b5c14717aa541a28413b2f",
+          "z_index": 2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "front_press_014_hidden_coat_far.webp",
+          "native_sha256": "4d1df6de9444bdab432ed897817e24e6dbde3c7c12a3233f672fc03d5c2949bc",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "front_press_014_arm_far.webp",
+          "native_sha256": "9d4a4156a15c219c585313d1db21c578486e8d71d536f8f9b0a09c714ecd3f4a",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "front_press_014_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "front_press_014_hand_far.webp",
+          "native_sha256": "5ade602c49a10e9928f489682ccf16cba5955ce75a7b23857654cf00b5ccb2a8",
+          "z_index": 16,
+          "transform": [
+            0.996917307376862,
+            0.078459121286869,
+            -0.078459121286869,
+            0.996917307376862,
+            74.0,
+            120.0
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "front_press_014_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            0.996917307376862,
+            0.078459121286869,
+            -0.078459121286869,
+            0.996917307376862,
+            64.0,
+            55.0
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "front_press_014_leg_far.webp",
+          "native_sha256": "ec5668c8d5d412bdad658ab54071397a797c23a5c3546490cc92417e0182807a",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "front_press_014_hidden_leg_far.webp",
+          "native_sha256": "f9729eb37c7634859c68932ea9ebacfeaa5b28167c08c85f26f6472f81f56bce",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "front_press_014_foot_far.webp",
+          "native_sha256": "c6092b1bd4dd9151f863c0e80bf0709c11cd3ebaea2c8d7d73635ae9804a4bde",
+          "z_index": 0,
+          "transform": [
+            0.933580458164215,
+            -0.358368039131165,
+            0.358368039131165,
+            0.933580458164215,
+            100.999969482422,
+            208.999969482422
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "front_press_014_hidden_foot_far.webp",
+          "native_sha256": "35e6237b99ca0dd351c8d01ca1ba6069e46ff0f7b98ec3d2834841021fcac45d",
+          "z_index": -9,
+          "transform": [
+            0.933580458164215,
+            -0.358368039131165,
+            0.358368039131165,
+            0.933580458164215,
+            105.999969482422,
+            187.999969482422
+          ]
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 63,
+      "phase": 0.969230769230769,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "front_reel_063_composite.webp",
+          "native_sha256": "750e9344035936ba3986af3f0dfac5aaf3bc8a640a2aafa278d6ab65fd8e1017",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "front_reel_063_head.webp",
+          "native_sha256": "c8f7019d3b623a7319c09a43f654f3be1b33ad66038a02aaed37f242a0b98810",
+          "z_index": 24,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            117.0,
+            29.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "front_reel_063_hidden_head.webp",
+          "native_sha256": "fa0a4755165bfa86150c29def0ebe05094cea54d585783c9a3a0f646eb215d55",
+          "z_index": -15,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            115.0,
+            56.9999694824219
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "front_reel_063_torso.webp",
+          "native_sha256": "a65f2e0c9fbc0ff12f1876ae10b3fe43af4d9f9e2515fbdf86696c830d3b3991",
+          "z_index": 17,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            99.0,
+            51.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "front_reel_063_hidden_torso.webp",
+          "native_sha256": "d425d5fe2f1caff8cd30d39f55e41d244ef73d4f31270414015ffc4826071c7a",
+          "z_index": -11,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            99.0,
+            52.9999694824219
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "front_reel_063_pelvis.webp",
+          "native_sha256": "4deb133f626725508d09f44501227fe3e79c8ce0c5c434b8f6a8dfacfbf4f6bf",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            113.0,
+            115.999969482422
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "front_reel_063_hidden_pelvis.webp",
+          "native_sha256": "f584ec1c386677d626e3482b0da3e71deb2e3a593164fefc4833967955dfeeee",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            112.0,
+            93.9999694824219
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "front_reel_063_tabard.webp",
+          "native_sha256": "3390a889c620f674337c2a744d3648fa84403e82116031532fb1f69324030beb",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "front_reel_063_hidden_tabard.webp",
+          "native_sha256": "caef24e1f490ca9d8aa35efa1820ca4356585e91b5f79a10bad9cabac6b8688e",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "front_reel_063_chain.webp",
+          "native_sha256": "1497e84afb2038acb2e446429fd5fec2bec43dd2adc220da9955a84df03b944d",
+          "z_index": 22,
+          "transform": [
+            0.999657452106476,
+            0.0261769443750381,
+            -0.0261769443750381,
+            0.999657452106476,
+            72.0000305175781,
+            147.0
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "front_reel_063_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            0.999657452106476,
+            0.0261769443750381,
+            -0.0261769443750381,
+            0.999657452106476,
+            63.0000305175781,
+            61.9999847412109
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "front_reel_063_coat_near.webp",
+          "native_sha256": "60c8ea69163accc5148e92c6dc765217c6f4a10e424750e2a87228341ae05071",
+          "z_index": 7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "front_reel_063_hidden_coat_near.webp",
+          "native_sha256": "b89f2dee9179ef6aa695ec8fa6b453cf8887307570f68358540a4de8aba99f99",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "front_reel_063_arm_near.webp",
+          "native_sha256": "209f2eff323639f106a06f22922316712a33c729e67382249ba2835ec5885ffc",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "front_reel_063_hidden_arm_near.webp",
+          "native_sha256": "aed760ba857c11824f29c95d95a4c3d90782c2addf291a545b5e9ac26a906b28",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "front_reel_063_hand_near.webp",
+          "native_sha256": "ea1bccd5174e797869ddb1475b52f203748ea959d1bb1169bfae4c2e7a9e7ffb",
+          "z_index": 21,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            156.0,
+            160.999938964844
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "front_reel_063_hidden_hand_near.webp",
+          "native_sha256": "dea74ca2c2dfbc834f721912bca990fc9a1623e41317cea52f48c8418e21846c",
+          "z_index": -14,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            157.0,
+            154.999938964844
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "front_reel_063_leg_near.webp",
+          "native_sha256": "9b9af82d1aa6ee0e5a6f4a1560fb5d5a20e1838f60a7dc03c375ec4d50a3cc99",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "front_reel_063_hidden_leg_near.webp",
+          "native_sha256": "f44922153344569f863cf8312d4958b6205409a428031c5535cb3394e6185b26",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "front_reel_063_foot_near.webp",
+          "native_sha256": "a9d7fef985f9de9a3e72a55cbd5a08a9327984c4d38e2dac5f73965914d2e895",
+          "z_index": 4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            157.0,
+            206.0
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "front_reel_063_hidden_foot_near.webp",
+          "native_sha256": "03faf6ecc9bcf1584b7ed0af4f654aa72ee03fc736aa3d1903d497bb2a0c58ce",
+          "z_index": -10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            161.0,
+            202.0
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "front_reel_063_coat_far.webp",
+          "native_sha256": "d7f565d59278d419a7b138b998bfd2ee1a8d63bdf06797d57bce39100ecdf21b",
+          "z_index": 2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "front_reel_063_hidden_coat_far.webp",
+          "native_sha256": "4ed04065411403fbfec1e7d497e9a28547302f54e81c19751654e819fe78991c",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "front_reel_063_arm_far.webp",
+          "native_sha256": "d573415d3be9b38db26da7577f9c7009ceb9c4283b794102162c20c0aad94dbf",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "front_reel_063_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "front_reel_063_hand_far.webp",
+          "native_sha256": "611e4892b9145ff1ba2e4c76159980a1b9820c832b8c0b0caa337702a69a6816",
+          "z_index": 16,
+          "transform": [
+            0.996917366981506,
+            0.0784590989351273,
+            -0.0784590989351273,
+            0.996917366981506,
+            75.0000305175781,
+            122.0
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "front_reel_063_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            0.996917366981506,
+            0.0784590989351273,
+            -0.0784590989351273,
+            0.996917366981506,
+            65.0000305175781,
+            57.0
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "front_reel_063_leg_far.webp",
+          "native_sha256": "f32ed5c67215cb669805086d33c3bc3bc5dcbe41b9bb2214f3f054f51c9b4928",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "front_reel_063_hidden_leg_far.webp",
+          "native_sha256": "42cd9475f9c6329648374e3450d8d72ebddb74471484dd8a75bc59723424f3c5",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "front_reel_063_foot_far.webp",
+          "native_sha256": "81100eecf7d6a95482db3c90afd2719c7e3375bf951097def3dcbb6c354fb4ed",
+          "z_index": 0,
+          "transform": [
+            0.991444885730743,
+            -0.130526214838028,
+            0.130526214838028,
+            0.991444885730743,
+            100.999969482422,
+            202.999969482422
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "front_reel_063_hidden_foot_far.webp",
+          "native_sha256": "c01ea11e6ffcfae525da4d172d6da2eca72ea1e8218fbd669b791deb9358f78f",
+          "z_index": -9,
+          "transform": [
+            0.991444885730743,
+            -0.130526214838028,
+            0.130526214838028,
+            0.991444885730743,
+            110.999969482422,
+            184.999938964844
+          ]
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 31,
+      "phase": 0.326315789473684,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "rear_death_031_composite.webp",
+          "native_sha256": "0223caaca8b46086ff7c12f7922f2e4549abfce406bb200a10d4cb56a83b1137",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "rear_death_031_head.webp",
+          "native_sha256": "56ed4f11c69dafa1510380fb3fb790001a351256ebde953aab07a55a0ac08ad6",
+          "z_index": 24,
+          "transform": [
+            0.994521915912628,
+            -0.104528471827507,
+            0.104528471827507,
+            0.994521915912628,
+            91.0,
+            32.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "rear_death_031_hidden_head.webp",
+          "native_sha256": "2227c5cb55a9b5ea1555aff15f5a42223fa398c6f4780e3f28347b2a7e8ea901",
+          "z_index": -15,
+          "transform": [
+            0.994521915912628,
+            -0.104528471827507,
+            0.104528471827507,
+            0.994521915912628,
+            91.0,
+            64.9999694824219
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "rear_death_031_torso.webp",
+          "native_sha256": "ee1de31aa2083bd77fed3e8a3a41c3c7c7866aac910454ccf02bf4a65778ed4a",
+          "z_index": 15,
+          "transform": [
+            0.999657332897186,
+            -0.0261769499629736,
+            0.0261769499629736,
+            0.999657332897186,
+            67.0,
+            62.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "rear_death_031_hidden_torso.webp",
+          "native_sha256": "c07cfbea8821e688f364cf85d01a51df7e5932c710f2872a7d6db560f66e7a30",
+          "z_index": -11,
+          "transform": [
+            0.999657332897186,
+            -0.0261769499629736,
+            0.0261769499629736,
+            0.999657332897186,
+            64.0,
+            57.9999694824219
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "rear_death_031_pelvis.webp",
+          "native_sha256": "cbcd70ed60eb6ff25d02762193aaa31e1def385dfd7c2cb999451b846f66a190",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            73.0,
+            118.999969482422
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "rear_death_031_hidden_pelvis.webp",
+          "native_sha256": "b0cd62b79dc411bbe40c017c8b59a9f2db8b181b6bb4089896986235cd42e4c8",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            61.0000152587891,
+            106.999969482422
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "rear_death_031_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "rear_death_031_hidden_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "rear_death_031_chain.webp",
+          "native_sha256": "7dc51e70748148753d0c335ad6c67bf54324fec823c620dc426aa1389db2559f",
+          "z_index": 22,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            160.0,
+            160.999969482422
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "rear_death_031_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            184.0,
+            100.999969482422
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "rear_death_031_coat_near.webp",
+          "native_sha256": "00303be5e5809faa027eccabca0719c77903b79937daae4c6f1298ec7946e8de",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "rear_death_031_hidden_coat_near.webp",
+          "native_sha256": "0aaff203be5584f1d2a1fdad91e72b6c2145a39ca97c528c931681d901bc5bc1",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "rear_death_031_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "rear_death_031_hidden_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "rear_death_031_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 2,
+          "transform": [
+            0.999657332897186,
+            -0.0261769499629736,
+            0.0261769499629736,
+            0.999657332897186,
+            71.9999694824219,
+            123.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "rear_death_031_hidden_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -14,
+          "transform": [
+            0.999657332897186,
+            -0.0261769499629736,
+            0.0261769499629736,
+            0.999657332897186,
+            71.9999694824219,
+            123.999969482422
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "rear_death_031_leg_near.webp",
+          "native_sha256": "20a6f3051f0d248911d8a3cd54c4c3ee48fef4b7b004c4c5374c29cc41689255",
+          "z_index": 5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "rear_death_031_hidden_leg_near.webp",
+          "native_sha256": "e5dc70c0977102a652812203d264695876dd98dab2368cce32d47a445f3abfb6",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "rear_death_031_foot_near.webp",
+          "native_sha256": "7b886772309ea2944275be040b31fcadc8e1bc37e05adb3403d852da150c1af9",
+          "z_index": 0,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            67.0,
+            201.0
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "rear_death_031_hidden_foot_near.webp",
+          "native_sha256": "f726f93c631ae6b57fd78c08100eeb1dc4edb0dc77efc9b483bdffc839f9ffe6",
+          "z_index": -10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            72.0,
+            183.0
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "rear_death_031_coat_far.webp",
+          "native_sha256": "abf19069106d49c711c94e2159c8ec8bc5bb34908eb6d18c61b82bdc0986570c",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "rear_death_031_hidden_coat_far.webp",
+          "native_sha256": "98100eb0738e3099741523c16c8a01c3007260c8e3add54e71a661bb66a37332",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "rear_death_031_arm_far.webp",
+          "native_sha256": "c3b56b84c65cfb0b25cafbb2beb0e6c397568ed3d46355d5960c9333c48056ab",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "rear_death_031_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "rear_death_031_hand_far.webp",
+          "native_sha256": "f8950c97603154af6f5475be2e184860735ec3733d9a4ff3a34637e7b77e3aaf",
+          "z_index": 23,
+          "transform": [
+            0.999657332897186,
+            -0.0261769499629736,
+            0.0261769499629736,
+            0.999657332897186,
+            154.0,
+            135.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "rear_death_031_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            0.999657332897186,
+            -0.0261769499629736,
+            0.0261769499629736,
+            0.999657332897186,
+            168.0,
+            95.9999694824219
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "rear_death_031_leg_far.webp",
+          "native_sha256": "6a373d99dbe3f474f084ece553b3e591dac692d88b7709f6ef8d67bf6232184f",
+          "z_index": 9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "rear_death_031_hidden_leg_far.webp",
+          "native_sha256": "24984bd7577fc3cd90ad981056f3adee9b0111d669c587f78bb33a3ad28f928b",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "rear_death_031_foot_far.webp",
+          "native_sha256": "a0b67ef7ac93375e9e55396b35eea3786d341f56f88d85412d4ddadadf4de74c",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            -1.49011611938477e-08,
+            1.49011611938477e-08,
+            1.0,
+            115.000030517578,
+            213.0
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "rear_death_031_hidden_foot_far.webp",
+          "native_sha256": "0f58f2b005abf0555c5efd11402bd1847d2f2b6eddd7a0209f63ed38b2d4ebcc",
+          "z_index": -9,
+          "transform": [
+            1.0,
+            -1.49011611938477e-08,
+            1.49011611938477e-08,
+            1.0,
+            120.000030517578,
+            205.0
+          ]
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 62,
+      "phase": 0.652631578947368,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "rear_death_062_composite.webp",
+          "native_sha256": "a3b9cff10787387a74706d9269585eced4df6b9c6c5d21c3dd8743109f6de15f",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "rear_death_062_head.webp",
+          "native_sha256": "472c379a7311eaf11636e283599dba8de6ddded9e87beb143d09ebc6ffdb8df6",
+          "z_index": 24,
+          "transform": [
+            0.933580338954926,
+            0.358367919921875,
+            -0.358367919921875,
+            0.933580338954926,
+            121.999969482422,
+            29.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "rear_death_062_hidden_head.webp",
+          "native_sha256": "585f15ab8876377ae95640b257c4b5f39efc851758019e981886a8b671f9c62a",
+          "z_index": -15,
+          "transform": [
+            0.933580338954926,
+            0.358367919921875,
+            -0.358367919921875,
+            0.933580338954926,
+            107.999969482422,
+            57.9999694824219
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "rear_death_062_torso.webp",
+          "native_sha256": "6a4592e6092958918965ffafbc93d89ef9e5605a0d16bb70631e9d8684ebafa5",
+          "z_index": 15,
+          "transform": [
+            0.978147566318512,
+            0.207911685109138,
+            -0.207911685109138,
+            0.978147566318512,
+            83.0,
+            56.9999847412109
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "rear_death_062_hidden_torso.webp",
+          "native_sha256": "3d891e1288a6c75133ae676d7bc591af79a7e366ebaadde88830527dc639236a",
+          "z_index": -11,
+          "transform": [
+            0.978147566318512,
+            0.207911685109138,
+            -0.207911685109138,
+            0.978147566318512,
+            81.0,
+            51.9999694824219
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "rear_death_062_pelvis.webp",
+          "native_sha256": "cac8d88fa31e219a3484b3168d4f57ea308b3b1845a33fc20f13fd88f93ed1ce",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            74.0,
+            122.999969482422
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "rear_death_062_hidden_pelvis.webp",
+          "native_sha256": "fb4002448fd251ea306f249639f4ae85dd36b5de27adb50e1c5eead4463a68ab",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            62.0000152587891,
+            110.999969482422
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "rear_death_062_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "rear_death_062_hidden_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "rear_death_062_chain.webp",
+          "native_sha256": "c04e2cc98171f136a328577d095e99eb0ff3e901117998390f968121abad1362",
+          "z_index": 22,
+          "transform": [
+            0.333806961774826,
+            -0.942641735076904,
+            0.942641735076904,
+            0.333806961774826,
+            92.0,
+            214.999969482422
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "rear_death_062_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            0.333806961774826,
+            -0.942641735076904,
+            0.942641735076904,
+            0.333806961774826,
+            42.9999694824219,
+            171.999969482422
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "rear_death_062_coat_near.webp",
+          "native_sha256": "2e51be6a4106785ca324938a4f5d106c2bb38bf66511bc52ae0789f8d225480c",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "rear_death_062_hidden_coat_near.webp",
+          "native_sha256": "a07f77fb3b6d60fc0bdaa3ad59e89268321dee8b1d22d5bcf29b54323fbd9daa",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "rear_death_062_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "rear_death_062_hidden_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "rear_death_062_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 2,
+          "transform": [
+            0.978147387504578,
+            0.207911640405655,
+            -0.207911640405655,
+            0.978147387504578,
+            74.0,
+            116.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "rear_death_062_hidden_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -14,
+          "transform": [
+            0.978147387504578,
+            0.207911640405655,
+            -0.207911640405655,
+            0.978147387504578,
+            74.0,
+            116.999969482422
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "rear_death_062_leg_near.webp",
+          "native_sha256": "492e12411667bc854db8bada43e09145ee861f769ff66b6987454e8142188e4c",
+          "z_index": 5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "rear_death_062_hidden_leg_near.webp",
+          "native_sha256": "ccb6ba2caa8a62b2661ed500bb4ff09606636d1501cc40815d6f92a84f7705ab",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "rear_death_062_foot_near.webp",
+          "native_sha256": "7b886772309ea2944275be040b31fcadc8e1bc37e05adb3403d852da150c1af9",
+          "z_index": 0,
+          "transform": [
+            1.00000011920929,
+            -2.98023223876953e-08,
+            2.98023223876953e-08,
+            1.00000011920929,
+            67.0,
+            200.999969482422
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "rear_death_062_hidden_foot_near.webp",
+          "native_sha256": "f726f93c631ae6b57fd78c08100eeb1dc4edb0dc77efc9b483bdffc839f9ffe6",
+          "z_index": -10,
+          "transform": [
+            1.00000011920929,
+            -2.98023223876953e-08,
+            2.98023223876953e-08,
+            1.00000011920929,
+            72.0,
+            182.999969482422
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "rear_death_062_coat_far.webp",
+          "native_sha256": "d70f71be99527773c83a75b8bf1f5a7e62719524327d9f3c4a88c44cf9b84e33",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "rear_death_062_hidden_coat_far.webp",
+          "native_sha256": "f7798fe9d2fab90be84791a76244241f030d60b862783801634d7747735512a3",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "rear_death_062_arm_far.webp",
+          "native_sha256": "385fb9ea7883eeb033e619f3c88240aefe00949f71a6595884de38812c13d26e",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "rear_death_062_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "rear_death_062_hand_far.webp",
+          "native_sha256": "da8cdf575a452bbb2724176348c83694ea1f008331510b3132cfff8f39665010",
+          "z_index": 23,
+          "transform": [
+            0.965925931930542,
+            0.258819043636322,
+            -0.258819043636322,
+            0.965925931930542,
+            151.0,
+            147.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "rear_death_062_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            0.965925931930542,
+            0.258819043636322,
+            -0.258819043636322,
+            0.965925931930542,
+            176.0,
+            113.999969482422
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "rear_death_062_leg_far.webp",
+          "native_sha256": "9f768961e99b4de611957c89b24ca9a6fe9838bed3ac2de3e24a6886f172a0b1",
+          "z_index": 9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "rear_death_062_hidden_leg_far.webp",
+          "native_sha256": "df99368d0a43d8b8e27500aeb669d08e1f8aed1241886aaa452ae9dd5160be70",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "rear_death_062_foot_far.webp",
+          "native_sha256": "a0b67ef7ac93375e9e55396b35eea3786d341f56f88d85412d4ddadadf4de74c",
+          "z_index": 3,
+          "transform": [
+            0.99999988079071,
+            -2.98023223876953e-08,
+            2.98023223876953e-08,
+            0.99999988079071,
+            115.000030517578,
+            213.0
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "rear_death_062_hidden_foot_far.webp",
+          "native_sha256": "0f58f2b005abf0555c5efd11402bd1847d2f2b6eddd7a0209f63ed38b2d4ebcc",
+          "z_index": -9,
+          "transform": [
+            0.99999988079071,
+            -2.98023223876953e-08,
+            2.98023223876953e-08,
+            0.99999988079071,
+            120.000030517578,
+            205.0
+          ]
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 84,
+      "phase": 0.884210526315789,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "rear_death_084_composite.webp",
+          "native_sha256": "3b51a862b9ddeeaa6d3c812900a9cef1244205440fb851d958a7cba89544cdcf",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "rear_death_084_head.webp",
+          "native_sha256": "e269d6fe85549c39ede0ea1d397c51a7fb7af3fcbfb521b38ed75668ec8c0fa8",
+          "z_index": 24,
+          "transform": [
+            0.793353259563446,
+            0.608761370182037,
+            -0.608761370182037,
+            0.793353259563446,
+            144.0,
+            34.9999847412109
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "rear_death_084_hidden_head.webp",
+          "native_sha256": "f06f7af2fa05dbc07e22068aa3531addc2cdcb862dfbbd1c6a1f127dcaaa9bb5",
+          "z_index": -15,
+          "transform": [
+            0.793353259563446,
+            0.608761370182037,
+            -0.608761370182037,
+            0.793353259563446,
+            123.0,
+            57.9999847412109
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "rear_death_084_torso.webp",
+          "native_sha256": "4bb5a4dd6c40d0fe660fd72b41c37e536d87e0fcc998cd376dae04764ad1707e",
+          "z_index": 15,
+          "transform": [
+            0.923879504203796,
+            0.382683455944061,
+            -0.382683455944061,
+            0.923879504203796,
+            96.0,
+            53.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "rear_death_084_hidden_torso.webp",
+          "native_sha256": "56685edac6a7f5e7a5a2bb5d62eee9fe369909b60e81d56fe555bd76edda9731",
+          "z_index": -11,
+          "transform": [
+            0.923879504203796,
+            0.382683455944061,
+            -0.382683455944061,
+            0.923879504203796,
+            95.0,
+            47.9999694824219
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "rear_death_084_pelvis.webp",
+          "native_sha256": "3841018396d56d2ec82af1bb72df70fd2d231c56d2f00312e1ca9f9150384faa",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            75.0,
+            124.999969482422
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "rear_death_084_hidden_pelvis.webp",
+          "native_sha256": "9e98489ba7b8ef11bd8f3a90722c1a343a6fc4479fc1a2183e49e8e5c1c3cf2f",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            63.0000152587891,
+            112.999969482422
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "rear_death_084_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "rear_death_084_hidden_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "rear_death_084_chain.webp",
+          "native_sha256": "3800f6a74567dcd36c2ad9f03b95c8b379bd8f1baac8856e4f7ffe5c82b0888c",
+          "z_index": 22,
+          "transform": [
+            0.156434506177902,
+            -0.987688422203064,
+            0.987688422203064,
+            0.156434506177902,
+            88.0,
+            226.999969482422
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "rear_death_084_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            0.156434506177902,
+            -0.987688422203064,
+            0.987688422203064,
+            0.156434506177902,
+            33.0,
+            193.999969482422
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "rear_death_084_coat_near.webp",
+          "native_sha256": "010aa00ff4fc157221e0bb083e4da846002cedd71e09a78187d9c6ab07c673e8",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "rear_death_084_hidden_coat_near.webp",
+          "native_sha256": "d968c1bad75ad38b795a7d33495ed079a72a9d94a07f47f58821401e098595d4",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "rear_death_084_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "rear_death_084_hidden_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "rear_death_084_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 2,
+          "transform": [
+            0.923879504203796,
+            0.382683455944061,
+            -0.382683455944061,
+            0.923879504203796,
+            76.0,
+            111.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "rear_death_084_hidden_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -14,
+          "transform": [
+            0.923879504203796,
+            0.382683455944061,
+            -0.382683455944061,
+            0.923879504203796,
+            76.0,
+            111.999969482422
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "rear_death_084_leg_near.webp",
+          "native_sha256": "2593de3e7478474d251631d3f145448fc8880936b13476cedda816c4c6f0ecd2",
+          "z_index": 5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "rear_death_084_hidden_leg_near.webp",
+          "native_sha256": "438ef151e114ad72c7d78ad6bf5fde665d3bd66e10f9f2743a634c329e390589",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "rear_death_084_foot_near.webp",
+          "native_sha256": "7b886772309ea2944275be040b31fcadc8e1bc37e05adb3403d852da150c1af9",
+          "z_index": 0,
+          "transform": [
+            1.00000011920929,
+            2.98023223876953e-08,
+            -2.98023223876953e-08,
+            1.00000011920929,
+            67.0,
+            200.999938964844
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "rear_death_084_hidden_foot_near.webp",
+          "native_sha256": "f726f93c631ae6b57fd78c08100eeb1dc4edb0dc77efc9b483bdffc839f9ffe6",
+          "z_index": -10,
+          "transform": [
+            1.00000011920929,
+            2.98023223876953e-08,
+            -2.98023223876953e-08,
+            1.00000011920929,
+            72.0,
+            182.999938964844
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "rear_death_084_coat_far.webp",
+          "native_sha256": "ae16434f284dd45ddb22e58d6fea373e693236742cbd33c7f7de80922b4cf5fe",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "rear_death_084_hidden_coat_far.webp",
+          "native_sha256": "88bdc680e6fbdd1be5f1ed0b813982aee81e90b518b823fba80b054b28f60806",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "rear_death_084_arm_far.webp",
+          "native_sha256": "d1af00ae381e515cad5fdb1eb507dee1adeb20e50bdf15cdfb437413d686213d",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "rear_death_084_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "rear_death_084_hand_far.webp",
+          "native_sha256": "00dbd80ff75b6ac2211699a8b47465cedbbe65b040ea94167642825595ef7c84",
+          "z_index": 23,
+          "transform": [
+            0.902585327625275,
+            0.430511176586151,
+            -0.430511176586151,
+            0.902585327625275,
+            145.0,
+            155.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "rear_death_084_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            0.902585327625275,
+            0.430511176586151,
+            -0.430511176586151,
+            0.902585327625275,
+            176.0,
+            126.999969482422
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "rear_death_084_leg_far.webp",
+          "native_sha256": "9cfb10c4be413d7743bb21c2172deaa2270ef4482c8d657e40622fd2db7d0b76",
+          "z_index": 9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "rear_death_084_hidden_leg_far.webp",
+          "native_sha256": "0ffef1bcbb30e492fbe3541d1915780b8991292c1cbf83bd6d4890bd180911d1",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "rear_death_084_foot_far.webp",
+          "native_sha256": "a0b67ef7ac93375e9e55396b35eea3786d341f56f88d85412d4ddadadf4de74c",
+          "z_index": 3,
+          "transform": [
+            1.00000023841858,
+            -5.96046447753906e-08,
+            5.96046447753906e-08,
+            1.00000023841858,
+            115.000030517578,
+            212.999969482422
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "rear_death_084_hidden_foot_far.webp",
+          "native_sha256": "0f58f2b005abf0555c5efd11402bd1847d2f2b6eddd7a0209f63ed38b2d4ebcc",
+          "z_index": -9,
+          "transform": [
+            1.00000023841858,
+            -5.96046447753906e-08,
+            5.96046447753906e-08,
+            1.00000023841858,
+            120.000030517578,
+            204.999969482422
+          ]
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 42,
+      "phase": 0.792452830188679,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "rear_guard_042_composite.webp",
+          "native_sha256": "1d0c2c506d29625d12ad4e66f22b44f46ed1193f578d54fda6726b561d1e06f9",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "rear_guard_042_head.webp",
+          "native_sha256": "84e5161429a48d0e94f20c0bca755fedee66596ff66ef6fce75f8f89f702b89b",
+          "z_index": 24,
+          "transform": [
+            0.994521856307983,
+            0.104528456926346,
+            -0.104528456926346,
+            0.994521856307983,
+            101.0,
+            31.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "rear_guard_042_hidden_head.webp",
+          "native_sha256": "bb6aa9b1260e6d5ea11ecec442c26f08041adee5620b76a3c438fd8df87fb296",
+          "z_index": -15,
+          "transform": [
+            0.994521856307983,
+            0.104528456926346,
+            -0.104528456926346,
+            0.994521856307983,
+            95.0,
+            61.9999694824219
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "rear_guard_042_torso.webp",
+          "native_sha256": "9234e5b18b17a1cb31116c6bcf701ccbd7c95ccfe3c2a276287479aa0d32a6ef",
+          "z_index": 15,
+          "transform": [
+            0.998629510402679,
+            0.0523359589278698,
+            -0.0523359589278698,
+            0.998629510402679,
+            70.0,
+            62.9999847412109
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "rear_guard_042_hidden_torso.webp",
+          "native_sha256": "9ba8e9816a8edd39d90342c1190a498ffaa1e4b6e8b4b5f2052913ae2a294f7d",
+          "z_index": -11,
+          "transform": [
+            0.998629510402679,
+            0.0523359589278698,
+            -0.0523359589278698,
+            0.998629510402679,
+            68.0,
+            57.9999847412109
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "rear_guard_042_pelvis.webp",
+          "native_sha256": "b04fc6c08db417ca818718f4915a53bc61a93c0b74641bbf0bf9e2e08567150e",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            73.0,
+            121.999969482422
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "rear_guard_042_hidden_pelvis.webp",
+          "native_sha256": "b30f8ddb550b75d239cc17252069b4be32846acee8e87404bd9e612a2379ac8e",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            61.0000152587891,
+            109.999969482422
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "rear_guard_042_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "rear_guard_042_hidden_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "rear_guard_042_chain.webp",
+          "native_sha256": "c9d9f61c5e6b4d8998734db5dbfa0d84b7ad29d46fb42299695ebb715e4572f0",
+          "z_index": 22,
+          "transform": [
+            0.99862939119339,
+            0.0523360073566437,
+            -0.0523360073566437,
+            0.99862939119339,
+            164.0,
+            154.999969482422
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "rear_guard_042_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            0.99862939119339,
+            0.0523360073566437,
+            -0.0523360073566437,
+            0.99862939119339,
+            191.0,
+            97.0
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "rear_guard_042_coat_near.webp",
+          "native_sha256": "c396aadf19dadd1987de5c1e0ad199d91a1cd4e7a88619a72748c602a895b286",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "rear_guard_042_hidden_coat_near.webp",
+          "native_sha256": "03e8ac5e763976b9050c3ac119529999c649b02d735ed897a3250d75e99953d0",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "rear_guard_042_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "rear_guard_042_hidden_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "rear_guard_042_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 2,
+          "transform": [
+            0.6883544921875,
+            -0.725374341011047,
+            0.725374341011047,
+            0.6883544921875,
+            71.9999694824219,
+            129.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "rear_guard_042_hidden_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -14,
+          "transform": [
+            0.6883544921875,
+            -0.725374341011047,
+            0.725374341011047,
+            0.6883544921875,
+            71.9999694824219,
+            129.999969482422
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "rear_guard_042_leg_near.webp",
+          "native_sha256": "543442b2283fc8509a36d0cc2a9efd1a770f1aae8bf891400919b6fa97bd6414",
+          "z_index": 5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "rear_guard_042_hidden_leg_near.webp",
+          "native_sha256": "37e5d6f45645f83c47d92838ff13d7be00d9776460282d9d36dade6ac6f6cbec",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "rear_guard_042_foot_near.webp",
+          "native_sha256": "a322c322e7ab84d10e2c77cb72f3c2556fb9e783a3ab1817470216397a9a3370",
+          "z_index": 0,
+          "transform": [
+            0.978147506713867,
+            0.207911685109138,
+            -0.207911685109138,
+            0.978147506713867,
+            69.0,
+            198.0
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "rear_guard_042_hidden_foot_near.webp",
+          "native_sha256": "0cb96ee51159b4ce518ae9b45911302fea6c5d471deecf098d51bd2e69e48251",
+          "z_index": -10,
+          "transform": [
+            0.978147506713867,
+            0.207911685109138,
+            -0.207911685109138,
+            0.978147506713867,
+            78.0,
+            180.999969482422
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "rear_guard_042_coat_far.webp",
+          "native_sha256": "bdee000b6cdfad5d1c13f8c2cbea4ffeb19c68b5d8ad7ccad19ec8804478f52c",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "rear_guard_042_hidden_coat_far.webp",
+          "native_sha256": "58e720113ea4bd896aa360ad18aef6c3ef47e35c3a2d2f7f95033b3b6cac72ee",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "rear_guard_042_arm_far.webp",
+          "native_sha256": "281dd499cd899b2504cec4e8316eaa87e65ceb23d90b3e4b333133408d00043e",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "rear_guard_042_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "rear_guard_042_hand_far.webp",
+          "native_sha256": "adf27b5149044dd2414016d7216b1c29fc971319d999c68105b69b22a85f70b5",
+          "z_index": 23,
+          "transform": [
+            0.902585208415985,
+            -0.430511027574539,
+            0.430511027574539,
+            0.902585208415985,
+            150.0,
+            140.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "rear_guard_042_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            0.902585208415985,
+            -0.430511027574539,
+            0.430511027574539,
+            0.902585208415985,
+            146.0,
+            97.9999694824219
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "rear_guard_042_leg_far.webp",
+          "native_sha256": "318dc5f873aa4c02fff8c76aa9b3b1aba8a26822d78a4032733698e66aca7c68",
+          "z_index": 9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "rear_guard_042_hidden_leg_far.webp",
+          "native_sha256": "761b24c54edb1b7d2c6f859ae5c83492d00ef7172c39b5c10974967094a2ad38",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "rear_guard_042_foot_far.webp",
+          "native_sha256": "8c3b2e1cc9edf30c74cceccf62a4824bd59aab3c284a7f9759b60f9db62bb9da",
+          "z_index": 3,
+          "transform": [
+            0.951056599617004,
+            -0.309017032384872,
+            0.309017032384872,
+            0.951056599617004,
+            111.000030517578,
+            219.0
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "rear_guard_042_hidden_foot_far.webp",
+          "native_sha256": "43b73ed1a08f2f134083a4e3e01cda670ced0529d01398e6d9de3ddaeb8238e2",
+          "z_index": -9,
+          "transform": [
+            0.951056599617004,
+            -0.309017032384872,
+            0.309017032384872,
+            0.951056599617004,
+            113.000030517578,
+            210.0
+          ]
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 15,
+      "phase": 0.517241379310345,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "rear_hit_015_composite.webp",
+          "native_sha256": "a686b47ea49d04c5ee0a7483340f5496c1fa5be101261472ba98ebbe61e28af8",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "rear_hit_015_head.webp",
+          "native_sha256": "7394b537c7d2adfc79d07b5a49e9f8c9a5da9f64444f3bddac53623bfef95bc3",
+          "z_index": 24,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            95.0,
+            30.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "rear_hit_015_hidden_head.webp",
+          "native_sha256": "856b5faad26ce9fde257078b324c0f43cffb9bb2f1db93456b1e04fc4fc3d7fd",
+          "z_index": -15,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            92.0,
+            61.9999694824219
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "rear_hit_015_torso.webp",
+          "native_sha256": "8f0bdce0344ec2951dad944024580996b08d36f87e6be86765113bf37a243062",
+          "z_index": 15,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            68.0,
+            61.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "rear_hit_015_hidden_torso.webp",
+          "native_sha256": "46d12fd9fab0932a09163772fab81dc87c573ef77c96d24db3697eff4346a269",
+          "z_index": -11,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            65.0,
+            56.9999694824219
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "rear_hit_015_pelvis.webp",
+          "native_sha256": "cbcd70ed60eb6ff25d02762193aaa31e1def385dfd7c2cb999451b846f66a190",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            73.0,
+            118.999969482422
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "rear_hit_015_hidden_pelvis.webp",
+          "native_sha256": "b0cd62b79dc411bbe40c017c8b59a9f2db8b181b6bb4089896986235cd42e4c8",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            61.0000152587891,
+            106.999969482422
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "rear_hit_015_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "rear_hit_015_hidden_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "rear_hit_015_chain.webp",
+          "native_sha256": "7d27186f975b91ceb97b5a606b07c383d400cc39183ef4e6f5406f7bd5e2a98a",
+          "z_index": 22,
+          "transform": [
+            0.999657273292542,
+            0.0261769481003284,
+            -0.0261769481003284,
+            0.999657273292542,
+            157.0,
+            163.999969482422
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "rear_hit_015_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            0.999657273292542,
+            0.0261769481003284,
+            -0.0261769481003284,
+            0.999657273292542,
+            182.999969482422,
+            103.999969482422
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "rear_hit_015_coat_near.webp",
+          "native_sha256": "9904d502a7b7f77b2434965ed2bbe81ce4996119dbd12feee5080209d4e11d13",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "rear_hit_015_hidden_coat_near.webp",
+          "native_sha256": "8ef82a601e7eaa7733ee1f8def61e2fe04f4bfa1d83523cdc7003c1757943e44",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "rear_hit_015_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "rear_hit_015_hidden_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "rear_hit_015_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            70.0,
+            122.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "rear_hit_015_hidden_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -14,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            70.0,
+            122.999969482422
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "rear_hit_015_leg_near.webp",
+          "native_sha256": "20a6f3051f0d248911d8a3cd54c4c3ee48fef4b7b004c4c5374c29cc41689255",
+          "z_index": 5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "rear_hit_015_hidden_leg_near.webp",
+          "native_sha256": "e5dc70c0977102a652812203d264695876dd98dab2368cce32d47a445f3abfb6",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "rear_hit_015_foot_near.webp",
+          "native_sha256": "7b886772309ea2944275be040b31fcadc8e1bc37e05adb3403d852da150c1af9",
+          "z_index": 0,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            67.0,
+            201.0
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "rear_hit_015_hidden_foot_near.webp",
+          "native_sha256": "f726f93c631ae6b57fd78c08100eeb1dc4edb0dc77efc9b483bdffc839f9ffe6",
+          "z_index": -10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            72.0,
+            183.0
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "rear_hit_015_coat_far.webp",
+          "native_sha256": "3bb066cce12552ca9415bea2ebf49849a15435d03e650c5ce81b745f780cab7c",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "rear_hit_015_hidden_coat_far.webp",
+          "native_sha256": "d28084ed480576bf0168f3ef4ede9c3b0b90a547c0a158e9e0de57793c3a03ea",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "rear_hit_015_arm_far.webp",
+          "native_sha256": "9845354f4c3b3dbedebf1a1d45d90a84e69e04a2d9f7c7e8a6c2710a239b219e",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "rear_hit_015_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "rear_hit_015_hand_far.webp",
+          "native_sha256": "04b4cda902cac9abc509c08b0d5fd7be7791db66e4b66471bac6a86666a57454",
+          "z_index": 23,
+          "transform": [
+            0.998629450798035,
+            0.0523359552025795,
+            -0.0523359552025795,
+            0.998629450798035,
+            152.0,
+            136.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "rear_hit_015_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            0.998629450798035,
+            0.0523359552025795,
+            -0.0523359552025795,
+            0.998629450798035,
+            170.0,
+            98.0
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "rear_hit_015_leg_far.webp",
+          "native_sha256": "62defba7de9619da541f291060ddf5a9c1db535da147b8af82a603ea531dcb3d",
+          "z_index": 9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "rear_hit_015_hidden_leg_far.webp",
+          "native_sha256": "41bb9eec4fdafc9bd0e0bbb76776c8e75d26a0fa7365af30345c33992d684e91",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "rear_hit_015_foot_far.webp",
+          "native_sha256": "a0b67ef7ac93375e9e55396b35eea3786d341f56f88d85412d4ddadadf4de74c",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            115.000030517578,
+            213.0
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "rear_hit_015_hidden_foot_far.webp",
+          "native_sha256": "0f58f2b005abf0555c5efd11402bd1847d2f2b6eddd7a0209f63ed38b2d4ebcc",
+          "z_index": -9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            120.000030517578,
+            205.0
+          ]
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "idle",
+      "frame": 15,
+      "phase": 0.3,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "rear_idle_015_composite.webp",
+          "native_sha256": "f9435bab2f35055a75b05214aa04f9ae78982f973c5cf1798f65da8f9832cbf0",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "rear_idle_015_head.webp",
+          "native_sha256": "8166a090959a1b4ea8c85b8713fa7f03a9e14b2f79f7a97682a452d49a284315",
+          "z_index": 24,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            96.0,
+            32.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "rear_idle_015_hidden_head.webp",
+          "native_sha256": "84160cc2783c5d301a73611027740a87d345aaac02ed2197aa096b488049af70",
+          "z_index": -15,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            93.0,
+            63.9999694824219
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "rear_idle_015_torso.webp",
+          "native_sha256": "5cd6537231fa77b0d0e2dae5902853dd589a35e94044e6004c39c43482dbd508",
+          "z_index": 15,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            68.0,
+            63.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "rear_idle_015_hidden_torso.webp",
+          "native_sha256": "3c043144606877e83b86a1554c7639c5ab3f7c8cba39d9f0d2ec195b13151e4a",
+          "z_index": -11,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            65.0,
+            58.9999694824219
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "rear_idle_015_pelvis.webp",
+          "native_sha256": "cbcd70ed60eb6ff25d02762193aaa31e1def385dfd7c2cb999451b846f66a190",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            73.0,
+            118.999969482422
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "rear_idle_015_hidden_pelvis.webp",
+          "native_sha256": "b0cd62b79dc411bbe40c017c8b59a9f2db8b181b6bb4089896986235cd42e4c8",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            61.0000152587891,
+            106.999969482422
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "rear_idle_015_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "rear_idle_015_hidden_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "rear_idle_015_chain.webp",
+          "native_sha256": "8c59ece5990f0668f20f33a0a3f1f08d6fd572f75e5dc5acba29eda30289732a",
+          "z_index": 22,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            158.0,
+            164.999969482422
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "rear_idle_015_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            182.0,
+            104.999969482422
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "rear_idle_015_coat_near.webp",
+          "native_sha256": "fe6588eaec3cfd94e5803421003369573c64a30777bce3b7aee16cc05854ecb0",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "rear_idle_015_hidden_coat_near.webp",
+          "native_sha256": "6b658888956331f3a8baac7aad81dc6e82c53d35ac5b31c49ab0d6a1600f0aa7",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "rear_idle_015_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "rear_idle_015_hidden_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "rear_idle_015_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            71.0,
+            124.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "rear_idle_015_hidden_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -14,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            71.0,
+            124.999969482422
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "rear_idle_015_leg_near.webp",
+          "native_sha256": "20a6f3051f0d248911d8a3cd54c4c3ee48fef4b7b004c4c5374c29cc41689255",
+          "z_index": 5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "rear_idle_015_hidden_leg_near.webp",
+          "native_sha256": "d4418b027b6bba92d93a2cb511dafd3778810d921c429ff97f5dab12ac8d66df",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "rear_idle_015_foot_near.webp",
+          "native_sha256": "7b886772309ea2944275be040b31fcadc8e1bc37e05adb3403d852da150c1af9",
+          "z_index": 0,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            67.0,
+            201.0
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "rear_idle_015_hidden_foot_near.webp",
+          "native_sha256": "f726f93c631ae6b57fd78c08100eeb1dc4edb0dc77efc9b483bdffc839f9ffe6",
+          "z_index": -10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            72.0,
+            183.0
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "rear_idle_015_coat_far.webp",
+          "native_sha256": "d8819c3ff99edb4fdcac4bd5e69c41298a79b8adfe6e75dc3df188c02efc92b5",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "rear_idle_015_hidden_coat_far.webp",
+          "native_sha256": "270cf7e04dcf7c02413a8bc8f0cca147366f44b3a0632a371312c24076232cd4",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "rear_idle_015_arm_far.webp",
+          "native_sha256": "6174b9496c7f5a04e50f69991277c830e8f10ff147935391514741c45f5649be",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "rear_idle_015_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "rear_idle_015_hand_far.webp",
+          "native_sha256": "94106bd5db8122c96aca34783a35ab9f8a729dcee5c9ab77341f8007aa707dd6",
+          "z_index": 23,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            153.0,
+            139.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "rear_idle_015_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            168.0,
+            99.9999694824219
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "rear_idle_015_leg_far.webp",
+          "native_sha256": "62defba7de9619da541f291060ddf5a9c1db535da147b8af82a603ea531dcb3d",
+          "z_index": 9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "rear_idle_015_hidden_leg_far.webp",
+          "native_sha256": "41bb9eec4fdafc9bd0e0bbb76776c8e75d26a0fa7365af30345c33992d684e91",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "rear_idle_015_foot_far.webp",
+          "native_sha256": "a0b67ef7ac93375e9e55396b35eea3786d341f56f88d85412d4ddadadf4de74c",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            115.000030517578,
+            213.0
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "rear_idle_015_hidden_foot_far.webp",
+          "native_sha256": "0f58f2b005abf0555c5efd11402bd1847d2f2b6eddd7a0209f63ed38b2d4ebcc",
+          "z_index": -9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            120.000030517578,
+            205.0
+          ]
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 13,
+      "phase": 0.26,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "rear_move_013_composite.webp",
+          "native_sha256": "069edddf845002428def8109904dd42bd53c5dce5a695c72fd906e9609ad847f",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "rear_move_013_head.webp",
+          "native_sha256": "51d3f25fd19630fbaed488a7dfc11b96265a24c95f82052b0b81d2452510c48e",
+          "z_index": 24,
+          "transform": [
+            0.998629510402679,
+            0.0523359589278698,
+            -0.0523359589278698,
+            0.998629510402679,
+            136.0,
+            13.9999847412109
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "rear_move_013_hidden_head.webp",
+          "native_sha256": "001be39d2bdd20567206a3599b16ecd9271b0671fc5f04ea680ce4e9c6b2ea38",
+          "z_index": -15,
+          "transform": [
+            0.998629510402679,
+            0.0523359589278698,
+            -0.0523359589278698,
+            0.998629510402679,
+            131.0,
+            44.9999847412109
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "rear_move_013_torso.webp",
+          "native_sha256": "de35f21893cf835622d34af095013005e7649b13d7a9df232f3e8e07c32584ae",
+          "z_index": 15,
+          "transform": [
+            0.998629510402679,
+            0.0523359589278698,
+            -0.0523359589278698,
+            0.998629510402679,
+            106.0,
+            42.9999847412109
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "rear_move_013_hidden_torso.webp",
+          "native_sha256": "0a838f6cb11e8587ce1466cadf9028ba37afbcc0a378056bd7de8f39d87ab085",
+          "z_index": -11,
+          "transform": [
+            0.998629510402679,
+            0.0523359589278698,
+            -0.0523359589278698,
+            0.998629510402679,
+            104.0,
+            37.9999847412109
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "rear_move_013_pelvis.webp",
+          "native_sha256": "a697f841ec1c244cd8b60ce5fab6254302829ef7887a901539e14a27daca0a96",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            109.0,
+            101.999969482422
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "rear_move_013_hidden_pelvis.webp",
+          "native_sha256": "aaefa48f6adeee49cc8207aa189dc455fc3978029b1192516625a0034efa15ee",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            97.0,
+            89.9999694824219
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "rear_move_013_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "rear_move_013_hidden_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "rear_move_013_chain.webp",
+          "native_sha256": "749d4fa91a61b62b83a3407c02f33977888f10d0a57caeb78e635beb78b6da67",
+          "z_index": 22,
+          "transform": [
+            0.999657094478607,
+            0.0261769313365221,
+            -0.0261769313365221,
+            0.999657094478607,
+            187.000061035156,
+            149.999969482422
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "rear_move_013_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            0.999657094478607,
+            0.0261769313365221,
+            -0.0261769313365221,
+            0.999657094478607,
+            213.000030517578,
+            90.0
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "rear_move_013_coat_near.webp",
+          "native_sha256": "ab8c1f24cffb566aa825813a90b7fd52f99a125b1d9afa61116e2ccb82cac36e",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "rear_move_013_hidden_coat_near.webp",
+          "native_sha256": "4b91c90b5ea228c815a740435cd2440e6df1ae185ede491450397e653837aa85",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "rear_move_013_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "rear_move_013_hidden_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "rear_move_013_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 2,
+          "transform": [
+            0.983254849910736,
+            -0.182235509157181,
+            0.182235509157181,
+            0.983254849910736,
+            114.0,
+            105.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "rear_move_013_hidden_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -14,
+          "transform": [
+            0.983254849910736,
+            -0.182235509157181,
+            0.182235509157181,
+            0.983254849910736,
+            114.0,
+            105.999969482422
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "rear_move_013_leg_near.webp",
+          "native_sha256": "b6a7001258a95bfa973e0f4d38d10123ac4f53673814a7a43831752920a1e371",
+          "z_index": 5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "rear_move_013_hidden_leg_near.webp",
+          "native_sha256": "f7d4e9c8e78ed87432ef8a0a3802570a77e41bc0e4ce0588be42d45c84ab4193",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "rear_move_013_foot_near.webp",
+          "native_sha256": "14c970b8758f84026c11e5c90804b3adfcf748f15911eed65a283d5b8080d1c9",
+          "z_index": 0,
+          "transform": [
+            0.99999988079071,
+            -7.45058059692383e-09,
+            -1.49011611938477e-08,
+            1.0,
+            99.0000305175781,
+            187.0
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "rear_move_013_hidden_foot_near.webp",
+          "native_sha256": "34797658e5462d67334a84fc495aba191a396c95e8381dcc0de68b9134f7f336",
+          "z_index": -10,
+          "transform": [
+            0.99999988079071,
+            -7.45058059692383e-09,
+            -1.49011611938477e-08,
+            1.0,
+            104.000030517578,
+            169.0
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "rear_move_013_coat_far.webp",
+          "native_sha256": "85f20195758c86a722558e9d6a1dc1bbb14dd26f7b208956a1bff36dd0ae257b",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "rear_move_013_hidden_coat_far.webp",
+          "native_sha256": "e373d13fb415529474cf781e92e1c983013206ba0000a87894f7e821cdc05767",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "rear_move_013_arm_far.webp",
+          "native_sha256": "d9a53b9a5e06afb8269520482e0eb9fca0d06f0360eea0c5f0290e0f5c7b5a25",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "rear_move_013_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "rear_move_013_hand_far.webp",
+          "native_sha256": "cfbc935c487d1acb1b35d6328de76ddda70c9d7c138b7ff72196fda3371dac42",
+          "z_index": 23,
+          "transform": [
+            0.9986292719841,
+            0.0523359328508377,
+            -0.0523359328508377,
+            0.9986292719841,
+            183.000030517578,
+            123.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "rear_move_013_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            0.9986292719841,
+            0.0523359328508377,
+            -0.0523359328508377,
+            0.9986292719841,
+            201.000030517578,
+            85.0
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "rear_move_013_leg_far.webp",
+          "native_sha256": "692011cf4c267597912fb33cc2870af5c23fb35e06449c9d408f745979d4377d",
+          "z_index": 9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "rear_move_013_hidden_leg_far.webp",
+          "native_sha256": "005b734b2e8fa971baff43814acacbbc06139f98bc479dd107f8d3d223d99f9c",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "rear_move_013_foot_far.webp",
+          "native_sha256": "daff52f50c9e533ad8730f9e37a192e6633fb91e42ce3bbdcea30515bcebeecc",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            166.000030517578,
+            185.999969482422
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "rear_move_013_hidden_foot_far.webp",
+          "native_sha256": "6434af589243de6cf7d228ba40f1371bcfe7afcc0c7200b5aad82e31e48f5bcf",
+          "z_index": -9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            171.000030517578,
+            177.999969482422
+          ]
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 21,
+      "phase": 0.42,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "rear_move_021_composite.webp",
+          "native_sha256": "e8bbf4aa2d5d42ab43f80a047000f811a36a7b51cd2184bd3474288d0fec27b2",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "rear_move_021_head.webp",
+          "native_sha256": "9542179d7eda44e9e2fa8ab64759b423996b4a536e99d9163de57b5fd83ce675",
+          "z_index": 24,
+          "transform": [
+            0.998629510402679,
+            0.0523359589278698,
+            -0.0523359589278698,
+            0.998629510402679,
+            158.0,
+            1.99996948242188
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "rear_move_021_hidden_head.webp",
+          "native_sha256": "04c3a89709324122be54221c70cd30f441f595fec1e8b4fa728e83d912c53d69",
+          "z_index": -15,
+          "transform": [
+            0.998629510402679,
+            0.0523359589278698,
+            -0.0523359589278698,
+            0.998629510402679,
+            153.0,
+            32.9999694824219
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "rear_move_021_torso.webp",
+          "native_sha256": "69a7cacf70e0b7fea2e9c44e021f2385aaa81b561c225d9c604e2a7d51fbb744",
+          "z_index": 15,
+          "transform": [
+            0.998629510402679,
+            0.0523359589278698,
+            -0.0523359589278698,
+            0.998629510402679,
+            128.0,
+            31.9999847412109
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "rear_move_021_hidden_torso.webp",
+          "native_sha256": "7907f50512eaf32e3163ca5348b4d902b9d1e92ccd621ca65febc95c3f8dc954",
+          "z_index": -11,
+          "transform": [
+            0.998629510402679,
+            0.0523359589278698,
+            -0.0523359589278698,
+            0.998629510402679,
+            126.0,
+            26.9999847412109
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "rear_move_021_pelvis.webp",
+          "native_sha256": "a3c5bc7c8212665e29a2350828745cb009d60c744bc2cdc612563a3cf460b91e",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            131.0,
+            90.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "rear_move_021_hidden_pelvis.webp",
+          "native_sha256": "d2f629e76a50a78fbd6762d29025f29ccbe2868918bb6486e4bcb63f2a7ba052",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            119.0,
+            78.9999694824219
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "rear_move_021_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "rear_move_021_hidden_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "rear_move_021_chain.webp",
+          "native_sha256": "4cd5eb9f987da0e0970819d4d22d3b321c7c4a774336e060806d2c615040deca",
+          "z_index": 22,
+          "transform": [
+            0.998629331588745,
+            -0.0523359477519989,
+            0.0523359477519989,
+            0.998629331588745,
+            215.0,
+            137.999969482422
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "rear_move_021_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            0.998629331588745,
+            -0.0523359477519989,
+            0.0523359477519989,
+            0.998629331588745,
+            235.999969482422,
+            76.0
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "rear_move_021_coat_near.webp",
+          "native_sha256": "74182c9d944b7bff8fb556734a22ab7b47bd9f50624c80db3e91ac8d58ddbedf",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "rear_move_021_hidden_coat_near.webp",
+          "native_sha256": "8bc91b927bcdcc944b17b550599a7269d6338a9945f75e42a9ac79c2316e0051",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "rear_move_021_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "rear_move_021_hidden_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "rear_move_021_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 2,
+          "transform": [
+            0.987688302993774,
+            -0.156434491276741,
+            0.156434491276741,
+            0.987688302993774,
+            126.000030517578,
+            94.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "rear_move_021_hidden_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -14,
+          "transform": [
+            0.987688302993774,
+            -0.156434491276741,
+            0.156434491276741,
+            0.987688302993774,
+            126.000030517578,
+            94.9999694824219
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "rear_move_021_leg_near.webp",
+          "native_sha256": "b20a1fc3fa655c4af0983d7ee51a0282df1f9605d35c1294570863dcba9ce93e",
+          "z_index": 5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "rear_move_021_hidden_leg_near.webp",
+          "native_sha256": "0d16e12fa68b1a14c1adf0da1ad8a3bb0aac8970085813672c6227a63721aaaf",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "rear_move_021_foot_near.webp",
+          "native_sha256": "d80a4783725944c75624e2b5b002d52b8dc71ced9faab7553be19f39d4812ab0",
+          "z_index": 0,
+          "transform": [
+            1.0,
+            0.0,
+            1.49011611938477e-08,
+            1.00000011920929,
+            137.0,
+            165.0
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "rear_move_021_hidden_foot_near.webp",
+          "native_sha256": "13b5550adf41a6f98f2bc281e56f2d9fc10e3ffa6a6b92a35f57b6f692116ed3",
+          "z_index": -10,
+          "transform": [
+            1.0,
+            0.0,
+            1.49011611938477e-08,
+            1.00000011920929,
+            142.0,
+            147.0
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "rear_move_021_coat_far.webp",
+          "native_sha256": "cbc681d50c14b5f2b376e60ba6fec5d5f8937712d193b0447b8171afe3987177",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "rear_move_021_hidden_coat_far.webp",
+          "native_sha256": "7ff3ee2a6fc413e8c40e549afcf96f793677084ed333f8bcf2d62fca4fe65b47",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "rear_move_021_arm_far.webp",
+          "native_sha256": "a4da9aeeb1fd6ab81a12c88992880e79d8d7902f666bdc93edb0f3c1c5b56619",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "rear_move_021_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "rear_move_021_hand_far.webp",
+          "native_sha256": "720636a0c568fcc4dd852d0c7d766b53172541c5a470e8c79f81171412e481fe",
+          "z_index": 23,
+          "transform": [
+            0.99862939119339,
+            0.0523359514772892,
+            -0.0523359514772892,
+            0.99862939119339,
+            211.0,
+            110.999969482422
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "rear_move_021_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            0.99862939119339,
+            0.0523359514772892,
+            -0.0523359514772892,
+            0.99862939119339,
+            229.0,
+            71.9999694824219
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "rear_move_021_leg_far.webp",
+          "native_sha256": "08e1513998e9aa8e4aed33eb19b799d88c1ebca7cab91d2b1f6ba1c850ed5ebe",
+          "z_index": 9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "rear_move_021_hidden_leg_far.webp",
+          "native_sha256": "931d50f663ef92b8eac8e10ac22f5b8aab85c932105fc529f24239bbdaa83584",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "rear_move_021_foot_far.webp",
+          "native_sha256": "7f72b026db1780b81019e1401e82eb11dd68244ecc58b534d27c04b3e8f1b67b",
+          "z_index": 3,
+          "transform": [
+            0.999999940395355,
+            -7.45058059692383e-09,
+            7.45058059692383e-09,
+            0.999999940395355,
+            168.000030517578,
+            184.999938964844
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "rear_move_021_hidden_foot_far.webp",
+          "native_sha256": "65d1b1a8e4708e122a1348a8a8274e730945981258bd8a4eaf2d6e3f89bf90b6",
+          "z_index": -9,
+          "transform": [
+            0.999999940395355,
+            -7.45058059692383e-09,
+            7.45058059692383e-09,
+            0.999999940395355,
+            173.000030517578,
+            176.999938964844
+          ]
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 28,
+      "phase": 0.430769230769231,
+      "layers": [
+        {
+          "name": "composite",
+          "file": "rear_reel_028_composite.webp",
+          "native_sha256": "8950f6d4faa2dc7d5825f763e3447528db63fdf1527ce311f7690ea16c1a2007",
+          "z_index": null,
+          "transform": null
+        },
+        {
+          "name": "head",
+          "file": "rear_reel_028_head.webp",
+          "native_sha256": "95972e1d9a201c78cf472c73ac7a3c215e44a7168a600d3e39427b4f47aa9eb9",
+          "z_index": 24,
+          "transform": [
+            0.996917307376862,
+            0.0784591063857079,
+            -0.0784591063857079,
+            0.996917307376862,
+            101.0,
+            28.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_head",
+          "file": "rear_reel_028_hidden_head.webp",
+          "native_sha256": "affaaf2367245253158d8f0432a8b152548a17350faecb41c70a0a0abd988e45",
+          "z_index": -15,
+          "transform": [
+            0.996917307376862,
+            0.0784591063857079,
+            -0.0784591063857079,
+            0.996917307376862,
+            96.0,
+            59.9999694824219
+          ]
+        },
+        {
+          "name": "torso",
+          "file": "rear_reel_028_torso.webp",
+          "native_sha256": "19698cc7d78f2aa32a979641e15fc8122162ed1406720d98f05f705a53ca41eb",
+          "z_index": 15,
+          "transform": [
+            0.999657332897186,
+            0.0261769499629736,
+            -0.0261769499629736,
+            0.999657332897186,
+            70.0,
+            59.9999694824219
+          ]
+        },
+        {
+          "name": "hidden_torso",
+          "file": "rear_reel_028_hidden_torso.webp",
+          "native_sha256": "df3be351512c0a1edef7fbec47ea208ebb7ff09467dacac08a86cb2965701a94",
+          "z_index": -11,
+          "transform": [
+            0.999657332897186,
+            0.0261769499629736,
+            -0.0261769499629736,
+            0.999657332897186,
+            67.0,
+            54.9999694824219
+          ]
+        },
+        {
+          "name": "pelvis",
+          "file": "rear_reel_028_pelvis.webp",
+          "native_sha256": "cbcd70ed60eb6ff25d02762193aaa31e1def385dfd7c2cb999451b846f66a190",
+          "z_index": 12,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            73.0,
+            118.999969482422
+          ]
+        },
+        {
+          "name": "hidden_pelvis",
+          "file": "rear_reel_028_hidden_pelvis.webp",
+          "native_sha256": "b0cd62b79dc411bbe40c017c8b59a9f2db8b181b6bb4089896986235cd42e4c8",
+          "z_index": -8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            61.0000152587891,
+            106.999969482422
+          ]
+        },
+        {
+          "name": "tabard",
+          "file": "rear_reel_028_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_tabard",
+          "file": "rear_reel_028_hidden_tabard.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -7,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "chain",
+          "file": "rear_reel_028_chain.webp",
+          "native_sha256": "7507b5f06148742147700b08b58905d28555088335c7f2540d39ade785b73b18",
+          "z_index": 22,
+          "transform": [
+            0.707106649875641,
+            -0.707106590270996,
+            0.707106590270996,
+            0.707106649875641,
+            173.999969482422,
+            157.999938964844
+          ]
+        },
+        {
+          "name": "hidden_chain",
+          "file": "rear_reel_028_hidden_chain.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -13,
+          "transform": [
+            0.707106649875641,
+            -0.707106590270996,
+            0.707106590270996,
+            0.707106649875641,
+            148.999969482422,
+            98.9999389648438
+          ]
+        },
+        {
+          "name": "coat_near",
+          "file": "rear_reel_028_coat_near.webp",
+          "native_sha256": "0d22c4479191dfbe69ae0be613b843042589deef0b26c2c5df0cfb0266debd71",
+          "z_index": 8,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_near",
+          "file": "rear_reel_028_hidden_coat_near.webp",
+          "native_sha256": "3dfd87868640c186422f73d0b413c5d4a8bc193cd294561d8315ed96b40f378f",
+          "z_index": -6,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_near",
+          "file": "rear_reel_028_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_near",
+          "file": "rear_reel_028_hidden_arm_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_near",
+          "file": "rear_reel_028_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": 2,
+          "transform": [
+            0.998629570007324,
+            0.0523359589278698,
+            -0.0523359589278698,
+            0.998629570007324,
+            70.9999694824219,
+            120.999938964844
+          ]
+        },
+        {
+          "name": "hidden_hand_near",
+          "file": "rear_reel_028_hidden_hand_near.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -14,
+          "transform": [
+            0.998629570007324,
+            0.0523359589278698,
+            -0.0523359589278698,
+            0.998629570007324,
+            70.9999694824219,
+            120.999938964844
+          ]
+        },
+        {
+          "name": "leg_near",
+          "file": "rear_reel_028_leg_near.webp",
+          "native_sha256": "20a6f3051f0d248911d8a3cd54c4c3ee48fef4b7b004c4c5374c29cc41689255",
+          "z_index": 5,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_near",
+          "file": "rear_reel_028_hidden_leg_near.webp",
+          "native_sha256": "e5dc70c0977102a652812203d264695876dd98dab2368cce32d47a445f3abfb6",
+          "z_index": -4,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_near",
+          "file": "rear_reel_028_foot_near.webp",
+          "native_sha256": "7b886772309ea2944275be040b31fcadc8e1bc37e05adb3403d852da150c1af9",
+          "z_index": 0,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            67.0,
+            201.0
+          ]
+        },
+        {
+          "name": "hidden_foot_near",
+          "file": "rear_reel_028_hidden_foot_near.webp",
+          "native_sha256": "f726f93c631ae6b57fd78c08100eeb1dc4edb0dc77efc9b483bdffc839f9ffe6",
+          "z_index": -10,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            72.0,
+            183.0
+          ]
+        },
+        {
+          "name": "coat_far",
+          "file": "rear_reel_028_coat_far.webp",
+          "native_sha256": "15e6743af2244ba63b4bb580686935aa7889ab1fc618cca3119c4b4d50d6acad",
+          "z_index": 13,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_coat_far",
+          "file": "rear_reel_028_hidden_coat_far.webp",
+          "native_sha256": "22809be3cc36c7fb12d354e41243e75663ac7b3f35da4bef4f3f0771d2a80520",
+          "z_index": -3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "arm_far",
+          "file": "rear_reel_028_arm_far.webp",
+          "native_sha256": "d658353574fa037c926d45fd4a7aa75140b550e6067f4ae52f57dafe54ac76df",
+          "z_index": 20,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_arm_far",
+          "file": "rear_reel_028_hidden_arm_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -2,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hand_far",
+          "file": "rear_reel_028_hand_far.webp",
+          "native_sha256": "93d7855c7516c10fca53ac01058ec4445d2489d77e36290a7aec1f081eedfc62",
+          "z_index": 23,
+          "transform": [
+            0.866025328636169,
+            -0.499999940395355,
+            0.499999940395355,
+            0.866025328636169,
+            154.999969482422,
+            136.999938964844
+          ]
+        },
+        {
+          "name": "hidden_hand_far",
+          "file": "rear_reel_028_hidden_hand_far.webp",
+          "native_sha256": "a15060918b0ed07e50e6aa3ad16693b81f4e9f10689b0d6183dab4246e967720",
+          "z_index": -12,
+          "transform": [
+            0.866025328636169,
+            -0.499999940395355,
+            0.499999940395355,
+            0.866025328636169,
+            147.999969482422,
+            94.9999389648438
+          ]
+        },
+        {
+          "name": "leg_far",
+          "file": "rear_reel_028_leg_far.webp",
+          "native_sha256": "62defba7de9619da541f291060ddf5a9c1db535da147b8af82a603ea531dcb3d",
+          "z_index": 9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "hidden_leg_far",
+          "file": "rear_reel_028_hidden_leg_far.webp",
+          "native_sha256": "41bb9eec4fdafc9bd0e0bbb76776c8e75d26a0fa7365af30345c33992d684e91",
+          "z_index": -1,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "foot_far",
+          "file": "rear_reel_028_foot_far.webp",
+          "native_sha256": "a0b67ef7ac93375e9e55396b35eea3786d341f56f88d85412d4ddadadf4de74c",
+          "z_index": 3,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            115.000030517578,
+            213.0
+          ]
+        },
+        {
+          "name": "hidden_foot_far",
+          "file": "rear_reel_028_hidden_foot_far.webp",
+          "native_sha256": "0f58f2b005abf0555c5efd11402bd1847d2f2b6eddd7a0209f63ed38b2d4ebcc",
+          "z_index": -9,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            120.000030517578,
+            205.0
+          ]
+        }
+      ]
+    }
+  ]
+}

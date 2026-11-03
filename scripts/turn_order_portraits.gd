@@ -14,6 +14,7 @@ const PATHS := {
 	"gust_shrike": "res://assets/art/portraits/gust_shrike.png",
 	"burrow_grub": "res://assets/art/portraits/burrow_grub.png",
 	"ember_tick": "res://assets/art/portraits/ember_tick.png",
+	"ember_hoarder": "res://assets/art/portraits/ember_tick.png",
 	"ash_hound": "res://assets/art/portraits/guardians/ash_hound_portrait.png",
 	"ashen_reaver": "res://assets/art/portraits/guardians/ashen_reaver_portrait.png",
 	"bell_tender": "res://assets/art/portraits/guardians/bell_tender_portrait.png",

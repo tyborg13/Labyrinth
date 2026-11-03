@@ -660,7 +660,7 @@
     "reward_embers": 12,
     "accent": "#b66a32",
     "art_path": "res://assets/units/chainbound_gaoler_cutout/front/rest.png",
-    "art_scale": 0.9,
+    "art_scale": 1.1,
     "art_offset_y": -16,
     "intents": [
       {
@@ -929,7 +929,7 @@
   "tharokh": {
     "name": "Tharokh, the Worldspine",
     "element": "earth",
-    "max_hp": 64,
+    "max_hp": 72,
     "base_initiative": 15,
     "reward_embers": 80,
     "accent": "#9faa62",
@@ -959,16 +959,8 @@
         "weight": 1,
         "actions": [
           {
-            "type": "raise_terrain",
-            "count": 4,
-            "health": 4,
-            "maximum": 4,
-            "surface_on_destroy": "rubble",
-            "placement": "paired"
-          },
-          {
             "type": "aoe",
-            "damage": 4,
+            "damage": 6,
             "range": 4,
             "element": "earth",
             "committed_shape": "line",
@@ -992,7 +984,7 @@
           },
           {
             "type": "aoe",
-            "damage": 12,
+            "damage": 14,
             "range": 1,
             "element": "earth",
             "committed_shape": "crescent",
@@ -1002,13 +994,6 @@
             ],
             "sunder": 1,
             "preserve_owned_terrain": true
-          },
-          {
-            "type": "terrain_burst",
-            "damage": 4,
-            "radius": 1,
-            "element": "earth",
-            "consume_terrain": false
           }
         ]
       },
@@ -1030,13 +1015,6 @@
             ],
             "surface": "rubble",
             "preserve_owned_terrain": true
-          },
-          {
-            "type": "terrain_burst",
-            "damage": 4,
-            "radius": 2,
-            "element": "earth",
-            "consume_terrain": false
           }
         ]
       },
@@ -1049,7 +1027,7 @@
           {
             "type": "terrain_burst",
             "damage": 8,
-            "radius": 2,
+            "radius": 1,
             "element": "earth"
           },
           {
@@ -1062,12 +1040,17 @@
       }
     ],
     "dragon_cycle": true,
-    "opening_delay": 12
+    "opening_delay": 12,
+    "battlefield_instance": "tharokh",
+    "dragon_helpers": [
+      "burrow_grub",
+      "burrow_grub"
+    ]
   },
   "vyraketh": {
     "name": "Vyraketh, the Cinder Crown",
     "element": "fire",
-    "max_hp": 60,
+    "max_hp": 52,
     "base_initiative": 13,
     "reward_embers": 80,
     "accent": "#e76432",
@@ -1121,7 +1104,7 @@
         "actions": [
           {
             "type": "aoe",
-            "damage": 8,
+            "damage": 6,
             "range": 3,
             "committed_shape": "fan",
             "pattern_min_flank": 1,
@@ -1130,17 +1113,6 @@
               2
             ],
             "element": "fire"
-          },
-          {
-            "type": "aoe",
-            "damage": 4,
-            "range": 0,
-            "element": "fire",
-            "committed_shape": "surface_snapshot",
-            "snapshot_surface": "fire",
-            "snapshot_radius": 1,
-            "no_conduction": true,
-            "snapshot_key": "cinder_tiles"
           }
         ]
       },
@@ -1179,7 +1151,7 @@
           },
           {
             "type": "melee",
-            "damage": 10,
+            "damage": 8,
             "range": 1,
             "element": "fire"
           },
@@ -1196,12 +1168,16 @@
       }
     ],
     "dragon_cycle": true,
-    "opening_delay": 12
+    "opening_delay": 12,
+    "battlefield_instance": "vyraketh",
+    "dragon_helpers": [
+      "cinder_droplet"
+    ]
   },
   "vaeloryx": {
     "name": "Vaeloryx, the Hollow Gale",
     "element": "air",
-    "max_hp": 58,
+    "max_hp": 50,
     "base_initiative": 12,
     "reward_embers": 80,
     "accent": "#75c8b4",
@@ -1258,7 +1234,7 @@
           },
           {
             "type": "aoe",
-            "damage": 8,
+            "damage": 6,
             "range": 1,
             "element": "air",
             "committed_shape": "swept_path",
@@ -1266,8 +1242,7 @@
               2,
               2
             ],
-            "bleed": 1,
-            "record_trail": "dive_wake"
+            "bleed": 1
           }
         ]
       },
@@ -1288,17 +1263,7 @@
               2,
               2
             ],
-            "push": 2
-          },
-          {
-            "type": "aoe",
-            "glossary_key": "gale_force",
-            "damage": 5,
-            "range": 0,
-            "element": "air",
-            "committed_shape": "trail_snapshot",
-            "snapshot_key": "dive_wake",
-            "consume_trail": true
+            "push": 1
           }
         ]
       },
@@ -1334,7 +1299,11 @@
       }
     ],
     "dragon_cycle": true,
-    "opening_delay": 12
+    "opening_delay": 12,
+    "battlefield_instance": "vaeloryx",
+    "dragon_helpers": [
+      "gust_shrike"
+    ]
   },
   "iskaldra": {
     "name": "Iskaldra, the Rime Tyrant",
@@ -1456,29 +1425,23 @@
             "damage": 10,
             "range": 1,
             "element": "ice"
-          },
-          {
-            "type": "aoe",
-            "damage": 5,
-            "range": 0,
-            "element": "ice",
-            "committed_shape": "surface_snapshot",
-            "snapshot_surface": "ice",
-            "snapshot_radius": 0,
-            "no_conduction": true,
-            "snapshot_key": "authored_trail"
           }
         ],
         "live_body": true
       }
     ],
     "dragon_cycle": true,
-    "opening_delay": 12
+    "opening_delay": 12,
+    "battlefield_instance": "iskaldra",
+    "dragon_helpers": [
+      "rime_spitter",
+      "rime_spitter"
+    ]
   },
   "noctyrax": {
     "name": "Noctyrax, the Last Eclipse",
     "element": "shadow",
-    "max_hp": 72,
+    "max_hp": 64,
     "base_initiative": 14,
     "reward_embers": 120,
     "accent": "#a56bd6",
@@ -1537,15 +1500,6 @@
             "element": "shadow"
           },
           {
-            "type": "aoe",
-            "damage": 5,
-            "range": 0,
-            "element": "shadow",
-            "committed_shape": "refuge",
-            "field_radius": 3,
-            "field_anchor": "player"
-          },
-          {
             "type": "summon_minions",
             "minion_type": "veilbound_acolyte",
             "count": 1,
@@ -1565,19 +1519,10 @@
           },
           {
             "type": "melee",
-            "damage": 12,
+            "damage": 10,
             "range": 1,
             "element": "shadow",
             "expose": 1
-          },
-          {
-            "type": "aoe",
-            "damage": 4,
-            "range": 0,
-            "element": "shadow",
-            "committed_shape": "refuge",
-            "field_radius": 2,
-            "field_anchor": "player"
           }
         ],
         "live_body": true
@@ -1600,25 +1545,17 @@
             ],
             "pierce": true,
             "pattern_min_flank": 1
-          },
-          {
-            "type": "aoe",
-            "damage": 4,
-            "range": 0,
-            "element": "shadow",
-            "committed_shape": "refuge",
-            "field_radius": 1,
-            "field_anchor": "player"
           }
         ]
       }
     ],
     "dragon_cycle": true,
-    "opening_delay": 12
+    "opening_delay": 12,
+    "battlefield_instance": "noctyrax"
   },
   "zekarion": {
     "name": "Zekarion, the Raging Tempest",
-    "max_hp": 60,
+    "max_hp": 50,
     "base_initiative": 14,
     "reward_embers": 80,
     "accent": "#f5d96c",
@@ -1647,7 +1584,7 @@
         "actions": [
           {
             "type": "lightning_strikes",
-            "damage": 6,
+            "damage": 5,
             "count": 7,
             "surface": "electrified",
             "element": "lightning",
@@ -1668,20 +1605,10 @@
           },
           {
             "type": "ranged",
-            "damage": 5,
+            "damage": 4,
             "range": 3,
             "element": "lightning",
             "surface": "electrified"
-          },
-          {
-            "type": "aoe",
-            "damage": 3,
-            "range": 0,
-            "element": "lightning",
-            "committed_shape": "surface_snapshot",
-            "snapshot_surface": "electrified",
-            "snapshot_radius": 1,
-            "no_conduction": true
           }
         ],
         "live_body": true
@@ -1693,18 +1620,8 @@
         "weight": 1,
         "actions": [
           {
-            "type": "aoe",
-            "damage": 6,
-            "range": 0,
-            "element": "lightning",
-            "committed_shape": "surface_snapshot",
-            "snapshot_surface": "electrified",
-            "snapshot_radius": 1,
-            "no_conduction": true
-          },
-          {
             "type": "ranged",
-            "damage": 4,
+            "damage": 3,
             "range": 4,
             "element": "lightning"
           }
@@ -1733,7 +1650,8 @@
     ],
     "element": "lightning",
     "dragon_cycle": true,
-    "opening_delay": 12
+    "opening_delay": 12,
+    "battlefield_instance": "zekarion"
   },
   "veilbound_acolyte": {
     "name": "Veilbound Acolyte",
@@ -1975,7 +1893,7 @@
       "preferred_range": 1,
       "retreat_distance": 2
     },
-    "max_hp": 38,
+    "max_hp": 34,
     "base_initiative": 10,
     "reward_embers": 8,
     "accent": "#97c6d7",
@@ -2015,7 +1933,7 @@
           {
             "type": "melee",
             "range": 1,
-            "damage": 7,
+            "damage": 6,
             "element": "ice",
             "surface": "ice"
           }
@@ -2023,7 +1941,7 @@
       },
       {
         "id": "frostbite",
-        "name": "Frostbite",
+        "name": "Rime Bite",
         "time": 5,
         "weight": 1,
         "actions": [
@@ -2048,12 +1966,12 @@
       "preferred_range": 3,
       "retreat_distance": 2
     },
-    "max_hp": 38,
-    "base_initiative": 20,
+    "max_hp": 66,
+    "base_initiative": 11,
     "reward_embers": 8,
     "accent": "#9884cf",
     "art_path": "res://assets/units/storm_cantor.png",
-    "art_scale": 1.15,
+    "art_scale": 1.0,
     "intent_cycle": true,
     "guardian": true,
     "intents": [
@@ -2072,7 +1990,8 @@
             "surface": "electrified",
             "range": 5,
             "guardian_shape": "connector",
-            "guardian_count": 4
+            "guardian_count": 6,
+            "guardian_fill_count": true
           }
         ]
       },
@@ -2085,17 +2004,6 @@
           {
             "type": "move_toward",
             "range": 1
-          },
-          {
-            "type": "ranged",
-            "range": 4,
-            "damage": 6,
-            "element": "lightning",
-            "guardian_shape": "conductor",
-            "surface_bonus": {
-              "subject": "conducted",
-              "shock": 1
-            }
           }
         ]
       },
@@ -2112,7 +2020,7 @@
           {
             "type": "melee",
             "range": 2,
-            "damage": 5
+            "damage": 11
           }
         ]
       },
@@ -2126,7 +2034,7 @@
             "type": "summon_minions",
             "minion_type": "lightning_wisp",
             "count": 1,
-            "guardian_cap": 1
+            "guardian_cap": 2
           }
         ]
       }
@@ -2140,7 +2048,7 @@
       "retreat_distance": 2
     },
     "max_hp": 36,
-    "base_initiative": 20,
+    "base_initiative": 9,
     "reward_embers": 8,
     "accent": "#b1aa93",
     "art_path": "res://assets/units/gallows_roc.png",
@@ -2206,7 +2114,8 @@
           }
         ]
       }
-    ]
+    ],
+    "anchored": true
   },
   "craghide": {
     "name": "Craghide",
@@ -2226,20 +2135,13 @@
     "intents": [
       {
         "id": "upheaval",
-        "name": "Upheaval",
+        "name": "Crag Heave",
         "time": 4,
         "weight": 1,
         "actions": [
           {
             "type": "move_toward",
             "range": 2
-          },
-          {
-            "type": "raise_terrain",
-            "count": 2,
-            "health": 3,
-            "guardian_kind": "crag_outcrop",
-            "range": 4
           }
         ]
       },
@@ -2284,12 +2186,12 @@
       "preferred_range": 1,
       "retreat_distance": 2
     },
-    "max_hp": 44,
+    "max_hp": 30,
     "base_initiative": 10,
     "reward_embers": 8,
     "accent": "#b6ab88",
     "art_path": "res://assets/units/last_lamplighter.png",
-    "art_scale": 1.15,
+    "art_scale": 1.03,
     "intent_cycle": true,
     "guardian": true,
     "intents": [
@@ -2303,7 +2205,7 @@
             "type": "summon_minions",
             "minion_type": "wick_shade",
             "count": 1,
-            "guardian_cap": 2,
+            "guardian_cap": 1,
             "snuff_brazier": true
           }
         ]
@@ -2321,7 +2223,7 @@
           {
             "type": "ranged",
             "range": 4,
-            "damage": 4,
+            "damage": 3,
             "guardian_shape": "line",
             "pull": 1
           }
@@ -2340,7 +2242,7 @@
           {
             "type": "melee",
             "range": 1,
-            "damage": 8
+            "damage": 6
           }
         ],
         "restore_braziers": true
@@ -2561,7 +2463,17 @@
           }
         ]
       }
-    ]
+    ],
+    "encounter_base_initiative": {
+      "guardian": 12
+    },
+    "guardian_intent_action_overrides": {
+      "staff_bolt": {
+        "ranged": {
+          "damage": 4
+        }
+      }
+    }
   },
   "roc_fledgling": {
     "name": "Roc Fledgling",
@@ -2613,7 +2525,10 @@
           }
         ]
       }
-    ]
+    ],
+    "encounter_base_initiative": {
+      "guardian": 12
+    }
   },
   "stoneback_mite": {
     "name": "Stoneback Mite",
@@ -2723,8 +2638,33 @@
             "pull": 1
           }
         ]
+      },
+      {
+        "id": "snuff",
+        "name": "Snuff",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2,
+            "snuff_brazier": true
+          }
+        ]
       }
-    ]
+    ],
+    "guardian_intent_action_overrides": {
+      "grasp": {
+        "melee": {
+          "damage": 1
+        }
+      },
+      "drift": {
+        "melee": {
+          "damage": 1
+        }
+      }
+    }
   },
   "hoarfrost_seer": {
     "name": "Hoarfrost Seer",
@@ -2750,7 +2690,9 @@
           {
             "type": "icefall_mark",
             "shape": "line3_perpendicular",
-            "range": 5
+            "range": 5,
+            "tile_filter": "passable_without_terrain",
+            "ignore_line_of_sight": true
           }
         ]
       },
@@ -2763,10 +2705,8 @@
           {
             "type": "icefall_land",
             "damage": 5,
-            "terrain": "ice_pillar",
-            "terrain_rounds": 3,
-            "pillar_shatter_damage": 2,
-            "element": "ice"
+            "element": "ice",
+            "surface": "ice"
           }
         ]
       },
@@ -2807,6 +2747,7 @@
   },
   "gale_herald": {
     "name": "Gale Herald",
+    "anchored": true,
     "ai_profile": {
       "role": "controller",
       "preferred_range": 3,
@@ -2878,22 +2819,23 @@
     "reward_embers": 9,
     "accent": "#a77bf0",
     "art_path": "res://assets/art/enemies/arc_thrall.png",
-    "spawn_group": 2,
     "intents": [
       {
-        "id": "tether",
-        "name": "Tether",
+        "id": "arc_bolt",
+        "name": "Arc Bolt",
         "time": 5,
         "weight": 3,
         "actions": [
           {
-            "type": "tether_beam",
-            "partner": "arc_thrall",
-            "max_length": 6,
-            "damage": 4,
-            "shock": 1,
-            "align_move": 3,
-            "element": "lightning"
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "ranged",
+            "damage": 3,
+            "range": 3,
+            "element": "lightning",
+            "surface": "electrified"
           }
         ]
       },
@@ -2958,8 +2900,8 @@
             "type": "melee",
             "damage": 7,
             "range": 1,
-            "ends_veil": true,
-            "element": "shadow"
+            "element": "shadow",
+            "ambush": true
           }
         ]
       },
@@ -3047,7 +2989,7 @@
         ]
       }
     ],
-    "art_scale": 0.85,
+    "art_scale": 0.64,
     "art_rear_path": "res://assets/art/enemies/burrow_grub_rear.png"
   },
   "ember_tick": {
@@ -3098,6 +3040,55 @@
           {
             "type": "kindle",
             "amount": 2
+          }
+        ]
+      }
+    ],
+    "art_scale": 0.86,
+    "art_rear_path": "res://assets/art/enemies/ember_tick_rear.png"
+  },
+  "ember_hoarder": {
+    "name": "Ember Hoarder",
+    "ai_profile": {
+      "role": "frontliner",
+      "preferred_range": 1,
+      "retreat_distance": 0
+    },
+    "element": "fire",
+    "max_hp": 6,
+    "base_initiative": 8,
+    "reward_embers": 6,
+    "accent": "#e8722c",
+    "art_path": "res://assets/art/enemies/ember_tick.png",
+    "death_burst": {
+      "damage": 4,
+      "radius": 1,
+      "surface": "fire",
+      "element": "fire",
+      "hits_enemies": true
+    },
+    "intents": [
+      {
+        "id": "kindle",
+        "name": "Kindle",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "kindle",
+            "amount": 2
+          }
+        ]
+      },
+      {
+        "id": "scurry",
+        "name": "Scurry",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_away",
+            "range": 2
           }
         ]
       }
@@ -3175,15 +3166,20 @@
     "art_path": "res://assets/art/enemies/hollow_mimic.png",
     "intents": [
       {
-        "id": "mirror",
-        "name": "Mirror",
+        "id": "echo",
+        "name": "Echo",
         "time": 6,
         "weight": 3,
         "actions": [
           {
-            "type": "mirror_last_attack",
-            "fallback_intent": "shade_bolt",
-            "use_base_values": true
+            "type": "ranged",
+            "damage": 3,
+            "range": 4,
+            "element": "shadow"
+          },
+          {
+            "type": "retaliate",
+            "amount": 3
           }
         ]
       },
@@ -3210,10 +3206,6 @@
           {
             "type": "move_away",
             "range": 2
-          },
-          {
-            "type": "block",
-            "amount": 4
           }
         ]
       }
@@ -3242,11 +3234,10 @@
         "weight": 3,
         "actions": [
           {
-            "type": "grow_bramble",
-            "shape": "line3_perpendicular_front_of_hero",
-            "rounds": 3,
-            "pushed_damage": 2,
-            "pushed_bleed": 1
+            "type": "upheaval_mark",
+            "pattern": "line_between",
+            "length": 3,
+            "health": 3
           }
         ]
       },
@@ -3301,15 +3292,16 @@
         "id": "lob_slag",
         "name": "Lob Slag",
         "time": 6,
-        "weight": 3,
+        "weight": 4,
         "next_intent": "slag_lands",
         "actions": [
           {
             "type": "lob_mark",
             "shape": "plus",
-            "min_range": 3,
+            "min_range": 2,
             "max_range": 6,
-            "ignore_line_of_sight": true
+            "ignore_line_of_sight": true,
+            "tile_filter": "in_bounds"
           }
         ]
       },
@@ -3337,19 +3329,16 @@
           {
             "type": "block",
             "amount": 6
-          },
-          {
-            "type": "move_away",
-            "range": 2
           }
-        ]
+        ],
+        "requires_hero_within": 1
       },
       {
         "id": "scatter_shot",
         "name": "Scatter Shot",
         "time": 5,
         "weight": 2,
-        "requires_hero_within": 2,
+        "requires_hero_within": 1,
         "actions": [
           {
             "type": "ranged",
@@ -3452,10 +3441,14 @@
         "weight": 3,
         "actions": [
           {
-            "type": "dive_line",
-            "max_length": 4,
+            "type": "move_toward",
+            "range": 4
+          },
+          {
+            "type": "aoe",
             "damage": 4,
-            "side_push": 1,
+            "committed_shape": "swept_path",
+            "push": 1,
             "element": "air"
           }
         ]

@@ -25,6 +25,11 @@ COMPILE_DEFAULTS = {'static_drape_frames': 1, 'ring_samples': 32, 'seam_epsilon'
 
 
 def compile_recipe(recipe):
+    if recipe.get('version') == 2:
+        # A complete native specification is already the builder contract.
+        # Accept it without a second source-coordinate reconstruction.
+        validate(recipe)
+        return deepcopy(recipe)
     if recipe.get('native_solids'):
         from spec.art_identity.maquettes.blender.creature_recipe import compile_solids
         return compile_solids(recipe)
@@ -109,7 +114,13 @@ def compile_recipe(recipe):
     if recipe.get('pose_constraints'):
         from spec.art_identity.maquettes.blender.pose_adjustment import corrected_joints
         spec['source_fit_joints'] = deepcopy(spec['joints'])
-        spec['joints'] = corrected_joints(spec, recipe['pose_constraints'])
+        corrected_pose = corrected_joints(spec, recipe['pose_constraints'])
+        if recipe.get('deferred_surface_pose'):
+            # Draft/solve the protected garments in their original pose. Only
+            # explicitly named accessories follow the corrected native bones.
+            spec['deferred_surface_pose'] = deepcopy(recipe['deferred_surface_pose'])
+        else:
+            spec['joints'] = corrected_pose
     for bone in spec['armature']['bones']:
         bone['region'] = recipe.get('region_map', {}).get(bone['region'], bone['region'])
         bone['scale'] = recipe['bone_scales'].get(bone['name'], [1, 1])
@@ -225,6 +236,20 @@ def compile_recipe(recipe):
             vertices,faces=draft(spec['joints'][item['joint']],forward,lateral,item['rows'],spec['ortho_scale']/256,item['rim_shape'])
             piece=common(item['id'],'rigid_shell',item['part'])
             piece.update(vertices=vertices,faces=faces,rig_joint=item['joint'])
+            spec['pieces'].append(piece)
+        elif kind == 'closed_sweep':
+            from spec.art_identity.maquettes.blender.closed_loft import sweep
+            path = path_points(spec, item)
+            radius = item['radius_px'] * spec['ortho_scale'] / 256
+            vertices, faces, flat = sweep(path, [radius*t for t in item['taper']], item['samples'])
+            piece = common(item['id'], 'rigid_shell', item['part'])
+            piece.update(vertices=vertices, faces=faces, flat_faces=flat, rig_joint=item['joint'], path=path)
+            spec['pieces'].append(piece)
+        elif kind in ('closed_loft', 'closed_sheet'):
+            from spec.art_identity.maquettes.blender.closed_loft import loft, sheet
+            vertices, faces, flat = (loft if kind == 'closed_loft' else sheet)(item)
+            piece = common(item['id'], 'rigid_shell', item['part'])
+            piece.update(vertices=vertices, faces=faces, rig_joint=item['joint'], flat_faces=flat)
             spec['pieces'].append(piece)
         elif kind == 'body_plate':
             piece = common(item['id'], 'plate', item['part'])
@@ -344,7 +369,7 @@ def compile_recipe(recipe):
                 piece['wind'] = {**deepcopy(item['wind']), 'direction': direction.tolist(), 'location': root.tolist()}
         if 'side_parts' in item:
             spec['pieces'][-1]['side_parts'] = item['side_parts']
-        for key in ('contact_regions', 'collision_refine_levels', 'symmetry_origin', 'symmetry_front', 'symmetry_lateral', 'ownership_mode', 'joint_parts', 'joint_chain', 'seat_on', 'sewn_parts', 'face_plane', 'native_mask', 'closed_cover', 'conforming', 'conform_direction', 'offset_surface', 'root_on', 'conform_regions', 'support_side', 'support_regions'):
+        for key in ('contact_regions', 'collision_refine_levels', 'symmetry_origin', 'symmetry_front', 'symmetry_lateral', 'ownership_mode', 'joint_parts', 'joint_chain', 'seat_on', 'sewn_parts', 'face_plane', 'native_mask', 'closed_cover', 'conforming', 'conform_direction', 'offset_surface', 'root_on', 'conform_regions', 'support_side', 'support_regions', 'smooth_normals'):
             if key in item:
                 spec['pieces'][-1][key] = deepcopy(item[key])
         if item.get('symmetry_joint'):
@@ -412,6 +437,8 @@ def compile_recipe(recipe):
         spec['cloth_obstacles'] = deepcopy(recipe['cloth_obstacles'])
     if recipe.get('native_features'):
         spec['native_features'] = deepcopy(recipe['native_features'])
+    if recipe.get('delivery_reports'):
+        spec['delivery_reports'] = deepcopy(recipe['delivery_reports'])
     fit = deepcopy(recipe['fit']['front'])
     fit.update(source=recipe['sources']['front'], head_part='head', weapon_parts=recipe['weapon_parts'])
     spec['fit'] = fit
@@ -429,7 +456,30 @@ def compile_recipe(recipe):
         spec['joints'] = corrected
     if recipe.get('rear_capture'):
         spec['rear_capture'] = deepcopy(recipe['rear_capture'])
+    if recipe.get('deferred_surface_pose'):
+        from spec.art_identity.maquettes.blender.deferred_pose import validate_config
+        validate_config(spec)
+        spec['joints'] = corrected_pose
+        if recipe.get('shoulder_garment_motion'):
+            config = recipe['shoulder_garment_motion']
+            if not set(config) <= {p['id'] for p in spec['pieces']} or not set(config.values()) <= {'root', 'far_top', 'far_side', 'far_skirt'}:
+                raise ValueError('Shoulder garment motion requires known surfaces and attachment fields')
+            spec['shoulder_garment_motion'] = deepcopy(config)
+            from spec.art_identity.maquettes.blender.shoulder_garments import MOTION_DEFAULTS
+            spec['native_shoulder_attachment_revision'] = MOTION_DEFAULTS['revision']
+    if recipe.get('articulated_pose'):
+        from spec.art_identity.maquettes.blender.articulated_pose import corrected_joints, POSE_DEFAULTS
+        if not spec.get('deferred_surface_pose'):
+            raise ValueError('Articulated pose requires deferred source surfaces')
+        spec['articulated_pose_source_joints'] = deepcopy(spec['joints'])
+        spec['articulated_pose'] = deepcopy(recipe['articulated_pose'])
+        spec['native_articulated_pose_revision'] = POSE_DEFAULTS['revision']
+        spec['joints'] = corrected_joints(spec, spec['articulated_pose'])
     spec['measurement_residuals_px'] = measurement_residuals(spec, recipe['joints_px'])
+    if recipe.get('surface_pose'):
+        from spec.art_identity.maquettes.blender.surface_pose import apply
+        spec=apply(spec,recipe['surface_pose'])
+        spec['surface_pose']=deepcopy(recipe['surface_pose'])
     validate(spec)
     return spec
 

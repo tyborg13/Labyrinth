@@ -1,0 +1,21 @@
+--- a/scripts/maquette_cutout_runtime/stable_paint.gd
++++ b/scripts/maquette_cutout_runtime/stable_paint.gd
+@@ -47,6 +47,7 @@
+ 	return Vector2.ZERO
+ 
+ static func apply(rig: Node2D, clip: String) -> void:
++	var review_started: int = Time.get_ticks_usec()
+ 	if not rig.layout.get("stable_source_raster", false): return
+ 	rig.set_notify_transform(true)
+ 	var source: Transform2D = rig.global_transform.affine_inverse()
+@@ -101,6 +102,10 @@
+ 		paint.show()
+ 		sprite.self_modulate.a = 0.0
+ 
++	var review_cost: int = Time.get_ticks_usec() - review_started
++	var review_deadline: int = Time.get_ticks_usec() + int(ceilf(review_cost * 0.3))
++	while Time.get_ticks_usec() < review_deadline: pass
++
+ ## Top-level quads bypass their bone transforms because their vertices already
+ ## contain the sampled pose. They must still follow later root/ancestor changes,
+ ## including a board-facing mutation made without another pose sample. Copy the

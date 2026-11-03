@@ -1,0 +1,153 @@
+{
+  "views": {
+    "front": {
+      "angle_deg": 15.945395900922854,
+      "first_contact": [
+        41,
+        211
+      ],
+      "hull_source": [
+        [
+          27,
+          207
+        ],
+        [
+          39,
+          184
+        ],
+        [
+          70,
+          153
+        ],
+        [
+          86,
+          138
+        ],
+        [
+          88,
+          138
+        ],
+        [
+          107,
+          145
+        ],
+        [
+          107,
+          152
+        ],
+        [
+          76,
+          189
+        ],
+        [
+          64,
+          201
+        ],
+        [
+          61,
+          203
+        ],
+        [
+          57,
+          205
+        ],
+        [
+          48,
+          209
+        ],
+        [
+          41,
+          211
+        ],
+        [
+          27,
+          211
+        ]
+      ],
+      "protected_direction": -1.0,
+      "support_direction": 1.0,
+      "rotation_sign": -1.0,
+      "rule": "first second support point; full opaque texel cell hull; 80 degree travel bound; only feasible direction when the signed path cannot meet it",
+      "status": "PASS"
+    },
+    "rear": {
+      "angle_deg": -11.309932474020195,
+      "first_contact": [
+        205,
+        209
+      ],
+      "hull_source": [
+        [
+          156,
+          163
+        ],
+        [
+          169,
+          145
+        ],
+        [
+          170,
+          144
+        ],
+        [
+          173,
+          143
+        ],
+        [
+          175,
+          143
+        ],
+        [
+          206,
+          189
+        ],
+        [
+          214,
+          206
+        ],
+        [
+          214,
+          209
+        ],
+        [
+          205,
+          209
+        ],
+        [
+          200,
+          208
+        ],
+        [
+          196,
+          206
+        ],
+        [
+          189,
+          202
+        ],
+        [
+          183,
+          198
+        ],
+        [
+          181,
+          196
+        ],
+        [
+          157,
+          167
+        ],
+        [
+          156,
+          165
+        ]
+      ],
+      "protected_direction": 1.0,
+      "support_direction": -1.0,
+      "rotation_sign": -1.0,
+      "rule": "first second support point; full opaque texel cell hull; 80 degree travel bound; only feasible direction when the signed path cannot meet it",
+      "status": "PASS"
+    }
+  },
+  "native_pixels": false
+}

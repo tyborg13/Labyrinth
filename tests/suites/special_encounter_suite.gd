@@ -17,6 +17,8 @@ const RARITY_FLOOR_TEST_SEED: int = 7
 const DOOR_TEST_TILE: Vector2i = Vector2i(1, 1)
 const PITY_TEST_MISSES: int = 1
 const DEFERRED_TEST_SEED: int = 1
+# int-09: seed 4 finds a section-I Warband with the merged revision-7 catalog.
+const WARBAND_ENTRY_SEED: int = 4
 const DEFERRED_TEST_CARD: String = "guiding_flare"
 
 static func run(expect: Callable) -> void:
@@ -67,7 +69,8 @@ static func _test_section(state: Dictionary, index: int, expect: Callable) -> vo
 				if edge["coord"] == coord or other["coord"] == coord:
 					expect.call(str(other["type"]) != "guardian" and str(Graph.room(state, edge["coord"])["type"]) != "guardian", "No edge joins a Guardian and special")
 		if index == 5: expect.call(node.get("map_landmark", false), "Section VI special is a landmark through fog")
-	expect.call(specials.size() in [1, 2], "The enabled catalog retains the authored one/two special section budget")
+	var section_budget: int = mini(3, Specials.enabled_types().size())
+	expect.call(specials.size() >= 1 and specials.size() <= section_budget, "The enabled catalog retains the authored two/three special section budget, capped by enabled types")
 	for coord: Vector2i in specials:
 		var special: Dictionary = Graph.room(state, coord)
 		if special["special_type"] == "umbral_snare": expect.call(special["connections"].size() >= 2, "Snare placement requires at least two outgoing exits")
@@ -158,10 +161,9 @@ static func _unique(values: Array) -> Dictionary:
 	for value: Variant in values: result[value] = true
 	return result
 
-static func special_entry(engine: RunEngineScript, seed_value: int = 83, revision: int = 0) -> Dictionary:
+static func special_entry(engine: RunEngineScript, seed_value: int = WARBAND_ENTRY_SEED, revision: int = 0) -> Dictionary:
 	var state: Dictionary = engine.create_new_run(seed_value, Progression.default_data())
 	if revision > 0:
-		# Seeded fixtures authored on an older map keep it, as saved runs do.
 		state["section_map_layout_revision"] = revision
 		Graph.initialize(state)
 	for node: Dictionary in state["rooms"].values():

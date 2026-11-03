@@ -1,0 +1,7 @@
+{
+  "accepted": false,
+  "source_passed": true,
+  "native_geometry_passed": true,
+  "native_capture_passed": false,
+  "scope": "mq-25 fresh capture; literal image gates fail, no accepted seal"
+}

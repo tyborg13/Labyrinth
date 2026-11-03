@@ -1,0 +1,26 @@
+{
+  "1": {
+    "source": "crawler",
+    "replacement": "harrier",
+    "source_total_hp_lost": 2321.333333333333,
+    "replacement_spawn_count": 191,
+    "intent": "skitter_strike",
+    "intent_enemy": "crawler"
+  },
+  "2": {
+    "source": "crawler",
+    "replacement": "harrier",
+    "source_total_hp_lost": 2189.0,
+    "replacement_spawn_count": 166,
+    "intent": "skitter_strike",
+    "intent_enemy": "crawler"
+  },
+  "3": {
+    "source": "crawler",
+    "replacement": "warden",
+    "source_total_hp_lost": 1723.6666666666667,
+    "replacement_spawn_count": 223,
+    "intent": "skitter_strike",
+    "intent_enemy": "crawler"
+  }
+}

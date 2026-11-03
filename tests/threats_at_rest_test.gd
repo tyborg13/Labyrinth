@@ -11,7 +11,7 @@ const Tiles = preload("res://scripts/threat_tiles.gd")
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const OUTPUT_DIR: String = "user://probes/threats_at_rest_v2"
 const SETTLE_FRAMES: int = 8
-const CANCELLED_CAPTURE_SECONDS: float = 0.20
+const REASON_CAPTURE_SECONDS: float = 0.20
 const PROOF_PULSE_PEAK_SECONDS: float = 0.55
 const PROOF_MOVE_OFFSET := Vector2i.UP
 const PROOF_AUDIO_DRAIN_SECONDS: float = 0.10
@@ -24,6 +24,9 @@ func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	Suite.run(_expect)
 	CompassSuite.run(_expect)
+	await preload("res://tests/pt14_01_source_suite.gd").prepare_fixtures(self)
+	preload("res://tests/suites/intent_chip_placement_suite.gd").run(_expect)
+	await preload("res://tests/suites/intent_chip_placement_suite.gd").live_hand_overlap(self, _expect)
 	await _test_live_stage()
 	if _failures.is_empty():
 		print("THREATS AT REST %s RESULT: PASS (%d assertions; includes compass suite)" % ["PROBE" if _visual_proof else "TEST", _assertions])
@@ -132,12 +135,12 @@ func _test_live_stage() -> void:
 	var entry: Dictionary = {}
 	for step: Dictionary in annotated:
 		if str(step.get("kind", "")) == "intent_callout": entry = step
-	_expect(str(entry.get("text", "")) == "Cancelled", "Production skipped action generates the captured Cancelled step")
+	_expect(str(entry.get("text", "")) == "Shocked", "Production skipped action generates the captured Shocked step")
 	var completed: Dictionary = {"done": false}
 	_play_callout(scene, state, entry, completed)
-	await create_timer(CANCELLED_CAPTURE_SECONDS).timeout
-	_expect(not ((board.get("presentation") as Dictionary).get("intent_callouts", []) as Array).is_empty(), "Callout is live during its 0.9-second interval")
-	await _capture("06_cancelled_1920x1080")
+	await create_timer(REASON_CAPTURE_SECONDS).timeout
+	_expect(not ((board.get("presentation") as Dictionary).get("intent_callouts", []) as Array).is_empty(), "Callout is live during its 1.1-second interval")
+	await _capture("06_shocked_1920x1080")
 	while not bool(completed["done"]): await process_frame
 	_expect(((board.get("presentation") as Dictionary).get("intent_callouts", []) as Array).is_empty(), "Expired callout clears")
 	state = Suite.staged_state(combat)
@@ -229,7 +232,7 @@ func _test_wave_e2_stage(scene: Node, combat: RefCounted) -> void:
 		_expect(layouts.any(func(layout: Dictionary) -> bool: return layout["key"] == key and (layout["order_rect"] as Rect2).has_area()), "Live %s has an order disc" % entry["type"])
 		_expect(Tiles.zone_tags(rest.get("threats", [])).any(func(tag: Dictionary) -> bool: return tag["key"] == key), "Live %s has its area zone tag" % entry["type"])
 	_expect(board.presentation.get("enemy_threat_previews", []).is_empty(), "Live wave E2 rest has no detailed popup disclosure")
-	_expect(board.presentation.get("en05_dive_telegraphs", []).size() == 1, "Live wave E2 rest retains Dive dashed path")
+	_expect(not board.presentation.has("en05_dive_telegraphs") and board.presentation.get("path_tiles", []).is_empty() and board.presentation.get("displacement_paths", []).is_empty(), "Live wave E2 Dive has no special telegraph or resting movement/displacement path")
 
 func _play_callout(scene: Node, state: Dictionary, entry: Dictionary, completed: Dictionary) -> void:
 	await scene.call("_animate_enemy_phase_steps", state, [entry])
@@ -254,17 +257,17 @@ func _install(scene: Node, state: Dictionary) -> void:
 	await _settle()
 
 func _assert_feet_layout(board: Control, rest: Dictionary) -> void:
+	preload("res://tests/suites/intent_chip_placement_suite.gd").check_board(board, "live_rest", _expect)
 	var layouts: Array[Dictionary] = Badges.layouts(board, rest.get("badges", []))
 	_expect(layouts.size() == (rest.get("badges", []) as Array).size(), "Every visible known intent has a feet chip layout")
 	for layout: Dictionary in layouts:
 		var unit: Dictionary = {}
 		for candidate: Dictionary in board.call("_visible_units"):
 			if candidate["key"] == layout["key"]: unit = candidate
-		var anchor: Vector2 = board.call("_unit_center", unit)
-		_expect(is_equal_approx((layout["center"] as Vector2).y, anchor.y + 4.0), "Live chip stays at the enemy feet")
-		_expect(str(layout["placement"]) in ["lower_left", "lower_right"], "Live chip uses only the authored feet placements")
-		var health: Rect2 = Badges.health_rect(board, unit)
-		_expect((layout["order_rect"] as Rect2).get_center() == Vector2(health.position.x - 14.0, health.get_center().y), "Live order disc follows health frame")
+		_expect(bool(layout["above_everything"]) or (board.call("_enemy_hud_viewport_bounds") as Rect2).encloses(layout["rect"]), "Live clear chip stays inside the existing HUD viewport")
+		_expect(str(layout["placement"]) in ["lower_left", "lower_right", "above", "below", "upper_left", "upper_right"], "Live chip retains its existing placement labels")
+		var health: Rect2 = Badges.order_anchor_rect(board, unit)
+		_expect((layout["order_rect"] as Rect2).get_center() == Vector2(health.position.x - 14.0, health.get_center().y), "Live order disc stays at its original fixed health-frame anchor")
 
 func _submit_presentation(board: Control, presentation: Dictionary) -> void:
 	board.call("set_combat_state", board.get("combat_state"), board.get("move_tiles"), board.get("attack_tiles"), board.get("selected_tile"), board.get("status_label"), board.get("status_detail"), board.get("exit_tiles"), board.get("exit_icon_ids"), presentation)

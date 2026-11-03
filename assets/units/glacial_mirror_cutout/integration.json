@@ -2,7 +2,7 @@
   "ready": false,
   "rig": "humanoid_v2",
   "case": "experiments/cutouts/glacial_mirror/rr18",
-  "director_sha256": "31f78bfc141976e1998fbacdffa4ae2b3d6945c4545f8bdffaa774c895643aa2",
+  "director_sha256": "4290020099a82204969fe2eb0348988349d1c24a25bbcba37389c3655085d3a5",
   "design_placeholders": {},
   "native_proof": "pending director rest/native/production/idle/review",
   "rest_identity": {
@@ -18,8 +18,8 @@
   "files": {
     "actions.gd": "976f322b98adc63bae33ce692d56ed4a11459e0d7ee42336657fcc1fdc1e414b",
     "front.json": "f4fed21a2aafe4bcc11a1a77f1aeac7a11cafb2d85872ae6dd2b6873433abaf4",
-    "humanoid_v2/compiled_motion.json": "e23767d8978e1024eec4fa706293d8a2da59b77777aaa65533b5dda3837639c3",
-    "humanoid_v2/director_motion.json": "31f78bfc141976e1998fbacdffa4ae2b3d6945c4545f8bdffaa774c895643aa2",
+    "humanoid_v2/compiled_motion.json": "eb2f0a4df10dad3ef09d62e25a5ce7aec4e262992fdacf72512c430d08da2bfe",
+    "humanoid_v2/director_motion.json": "4290020099a82204969fe2eb0348988349d1c24a25bbcba37389c3655085d3a5",
     "humanoid_v2/front/fist_far.png": "040da7cf394cd5aba6d1e5b440063245f70c96c96b31339ba6591372cae482f2",
     "humanoid_v2/front/fist_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/fist_near.png": "18f6dae6282b42a4cf949a20bbb61eb53f8592b632a40d9921c448bf977325de",

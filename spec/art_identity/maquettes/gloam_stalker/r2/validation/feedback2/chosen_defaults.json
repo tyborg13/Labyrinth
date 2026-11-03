@@ -1,0 +1,1 @@
+{"audit":{"epsilon":1e-10,"world_error_m":1e-06},"native_tolerance":"Existing BUILD_DEFAULTS.collision_epsilon is passed to the audit.","fixtures":"APPLICATION_FIXTURE in tests/test_mq12_motion.py; no player-facing values chosen.","bridge":"Existing WORKFLOW_DEFAULTS: 110 seconds/job, five solos/batch; native source-derived attachment fields unchanged."}

@@ -1,6 +1,8 @@
 extends Control
 class_name ScavengerShopView
 
+const CardDisplay = preload("res://scripts/card_display_overrides.gd")
+
 signal buy_requested(item_id: String, source: Control)
 signal sell_requested(item_id: String, source: Control)
 signal leave_requested
@@ -47,6 +49,7 @@ const SHELF_WIDTH: float = 840.0
 # The stall raster is drawn in shallow perspective: its post-to-post cubbies
 # follow a 260 px cadence, centered at 815/1075/1335 on the 1920 px canvas.
 const SHELF_SLOT_WIDTH: float = 260.0
+const MODE_TAB_GAP: float = 8.0
 const PORTRAIT_BASE_POSITION := Vector2(-82.0, 8.0)
 
 var _run_state: Dictionary = {}
@@ -158,6 +161,7 @@ func _configure_context(run_state: Dictionary, run_engine: RefCounted, reduced_m
 		_sync_dialogue()
 
 func _complete_configuration(performance_checkpoint: Callable = Callable(), started: int = 0) -> void:
+	CardDisplay.refresh(self, _run_state)
 	_restore_selection_after_rebuild()
 	_sync_currency()
 	_sync_detail()
@@ -637,19 +641,20 @@ func _build_dialogue_and_modes() -> void:
 	_receipt_detail.name = "ScavengerReceiptName"
 	_receipt_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	for control: Control in [_receipt_heading, _receipt_detail, _receipt_amount, _receipt_visual, _receipt_ember, _receipt_rule]: control.hide()
-	var mode_plate := ShopPanel.new()
+	# Two framed tabs, the chosen one lit, spaced like the pack filters. Purge is a
+	# paid service, not a view, so it stands apart (magic_purge_overlay.gd); the
+	# row starts at the shelf's left rail and the service ends near its right rail.
+	var mode_plate := PanelContainer.new()
 	mode_plate.name = "ScavengerModeToggle"
-	mode_plate.surface = "action"
 	mode_plate.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	var mode_font_size: int = UiTypography.scaled_size(self, 22)
 	var mode_font: Font = UiTypography.ui_font()
 	var caption_width: float = maxf(mode_font.get_string_size("Browse wares", HORIZONTAL_ALIGNMENT_LEFT, -1, mode_font_size).x, mode_font.get_string_size("Sell from pack", HORIZONTAL_ALIGNMENT_LEFT, -1, mode_font_size).x)
-	# Both segments reserve the joined plate's 48px painted end caps.
 	var segment_width: float = maxf(UiTypography.scaled_value(self, 220.0), ceilf(caption_width) + UiTypography.scaled_value(self, ShopAction.SEGMENT_LABEL_INSET * 2.0))
-	_place(mode_plate, Rect2(676, 966, segment_width * 2.0, 52))
+	_place(mode_plate, Rect2(SHELF_LEFT, 966, segment_width * 2.0 + MODE_TAB_GAP, 52))
 	_canvas.add_child(mode_plate)
 	var segments := HBoxContainer.new()
-	segments.add_theme_constant_override("separation", 0)
+	segments.add_theme_constant_override("separation", int(MODE_TAB_GAP))
 	mode_plate.add_child(segments)
 	_mode_buy = _action("Browse wares")
 	_mode_buy.name = "ScavengerBrowseMode"
@@ -823,7 +828,7 @@ func _publish_shelf_signature(kind: String, signature: int) -> void:
 func _refresh_shelf_tooltips(ids: Array) -> void:
 	# Prices and tint can stay unchanged while the amount still needed changes.
 	for item_id: String in ids:
-		var offer: Control = _offer_sources.get("buy:" + item_id) as Control
+		var offer: Control = _live_cached_control(_offer_sources.get("buy:" + item_id))
 		if offer != null: offer.tooltip_text = _offer_tooltip(item_id, false, _offer_is_affordable(item_id, false))
 
 func _finish_inventory(performance_checkpoint: Callable = Callable(), started: int = 0) -> void:
@@ -949,7 +954,7 @@ func _restore_selection_after_rebuild() -> void:
 		_selected_source = null
 		return
 	var key: String = "%s:%s" % ["sell" if _selected_is_sell else "buy", _selected_item_id]
-	_selected_source = _offer_sources.get(key, null) as Control
+	_selected_source = _live_cached_control(_offer_sources.get(key, null))
 	if _selected_source == null:
 		_selected_item_id = ""
 		_selected_is_sell = false
@@ -1083,6 +1088,7 @@ func _build_native_scaled_card(
 	card.name = "%s_%s" % [name_prefix, item_id]
 	_place(card, Rect2(Vector2.ZERO, NATIVE_CARD_SIZE))
 	card.configure(item_id, false, false, true, false, interactive, true, GameData.card_def(item_id))
+	CardDisplay.bind(card, _run_state)
 	if interactive:
 		card.set_hover_pose(-5.0, 1.025)
 	composition_root.add_child(card)
@@ -1199,8 +1205,8 @@ func _update_selection_effects() -> void:
 	for key_var: Variant in _selection_effects.keys():
 		var key: String = str(key_var)
 		var selected_key: String = "%s:%s" % ["sell" if _selected_is_sell else "buy", _selected_item_id]
-		var control := _selection_effects.get(key) as Control
-		var source := _offer_sources.get(key) as Control
+		var control := _live_cached_control(_selection_effects.get(key))
+		var source := _live_cached_control(_offer_sources.get(key))
 		if control == null:
 			continue
 		var affordable: bool = true if source == null else bool(source.get_meta("shop_affordable", true))
@@ -1430,7 +1436,7 @@ func _buy_offer_controls(kind: String) -> Array[Control]:
 	if row == null: return result
 	for slot: Node in row.get_children():
 		var item_id: String = str(slot.get_meta("shop_item_id", ""))
-		var offer: Control = _offer_sources.get("buy:%s" % item_id, null) as Control
+		var offer: Control = _live_cached_control(_offer_sources.get("buy:%s" % item_id, null))
 		if offer != null: result.append(offer)
 	return result
 
@@ -1438,7 +1444,7 @@ func _visible_sell_offer_controls() -> Array[Control]:
 	var result: Array[Control]
 	var first_index: int = _sell_page * SELL_PAGE_SIZE
 	for index: int in range(first_index, mini(first_index + SELL_PAGE_SIZE, _sellable_ids.size())):
-		var offer: Control = _offer_sources.get("sell:%s" % str(_sellable_ids[index]), null) as Control
+		var offer: Control = _live_cached_control(_offer_sources.get("sell:%s" % str(_sellable_ids[index]), null))
 		if offer != null:
 			result.append(offer)
 	return result
@@ -1530,3 +1536,8 @@ func _scene_label(label: Label, shadow_size: int) -> void:
 	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.95))
 	label.add_theme_constant_override("shadow_offset_y", UiTypography.scaled_size(label, shadow_size))
 	label.add_theme_constant_override("shadow_outline_size", UiTypography.scaled_size(label, shadow_size))
+
+static func _live_cached_control(value: Variant) -> Control:
+	# Retained owners can be freed between filtering/paging callbacks. Check the
+	# Variant before casting it: casting an already-freed Object is a script error.
+	return value as Control if is_instance_valid(value) else null

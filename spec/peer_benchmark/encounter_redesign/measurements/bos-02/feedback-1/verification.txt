@@ -1,0 +1,45 @@
+bos-02 feedback 1 — focused verification
+
+No full Godot/Python suite or windowed run was invoked this round.
+The director schedules both full suites and windowed inspection for the final round.
+
+DRAGON PRESSURE MECHANICS TEST: PASS (401 checks)
+  /private/tmp/bos-02-feedback1-dragon-final.log
+Dragon committed patterns passed.
+  /private/tmp/bos-02-feedback1-patterns.log
+BATTLEFIELD RULES TEST RESULT: PASS (597 checks, 0 failures)
+  /private/tmp/bos-02-feedback1-battlefield-rules.log
+ENCOUNTER MEASUREMENT: PASS (2671 checks; 0 failures)
+  /private/tmp/bos-02-feedback1-measurement-godot.log
+GRIMOIRE SEARCH TEST RESULT: PASS
+  /private/tmp/bos-02-feedback1-grimoire-search.log
+GRIMOIRE ROW RETENTION RESULT: {"cases":50,"differences":0,"errors":[],"orphan_nodes":0,"reused_rows":371}
+  /private/tmp/bos-02-feedback1-grimoire-equivalence.log
+BOS02 PROBE CONTRACT: PASS (13 states; 1920x1080; UI scale 100%)
+  /private/tmp/bos-02-feedback1-probe-contract.log
+Grimoire windowed probe parser check: exit 0 (--headless --check-only).
+  /private/tmp/bos-02-feedback1-grimoire-probe-parse.log
+
+Measurement matching/ladder Python tests: Ran 6 tests in 0.042s; OK.
+  /private/tmp/bos-02-feedback1-measurement-python.log
+Measurement report regression: Ran 18 tests in 1.600s; OK.
+  /private/tmp/bos-02-feedback1-measurement-regression.log
+ENCOUNTER BASELINE: PASS (2100 runs; revision 7; 15 groups)
+Text budget: Ran 6 tests in 0.128s; OK.
+  /private/tmp/bos-02-feedback1-text-budget.log
+UI identity lint: Ran 25 tests in 3.362s; OK.
+  /private/tmp/bos-02-feedback1-ui-lint.log
+Card heuristic focused checks: Ran 40 tests in 0.051s; OK.
+  /private/tmp/bos-02-feedback1-heuristic.log
+BOS02 F1 HEURISTIC: PASS (309 cards; full score rows and coefficients unchanged)
+ISOLATION AUDIT: 234 modules
+  /private/tmp/bos-02-feedback1-python-audit.log
+TEST REGISTRATION AUDIT: PASS (900 scripts; full suite=537, quarantined=29, windowed probe=334)
+  /private/tmp/bos-02-feedback1-registration.log
+
+All sixteen new cohorts: ENCOUNTER BOT: PASS (50 runs, revision 7, tier 3, boss / )
+  /private/tmp/bos-02-feedback-1/wave-{1,2,3,4}/<dragon>.log
+BOS02 F1 MATCHED SAMPLES: PASS (800 new fights; 16 rungs; selected definitions match final source)
+BOS02 F1 SCOPE: PASS (only authorized cumulative rungs and nine bodies; base helpers/Iskaldra/rules/policy unchanged)
+All expected source changes remain uncommitted on codex/bos-02.
+git diff --check: exit 0.

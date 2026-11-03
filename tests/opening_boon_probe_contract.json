@@ -1,5 +1,5 @@
 {
-  "min_images": 11,
+  "min_images": 19,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -56,6 +56,46 @@
     },
     {
       "pattern": "*/1920x1080/secondary_open_no_tooltip.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/heirloom_choice_4.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/heirloom_choice_5.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/heirloom_choice_1.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/heirloom_ceremony_mid.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/heirloom_reduced_motion.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/heirloom_starter_only_skipped.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/heirloom_contact_sheet.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/heirloom_ceremony_burn.png",
       "width": 1920,
       "height": 1080
     }
@@ -140,5 +180,62 @@
     "tooltip_node": "BoonSecondaryTooltipStack",
     "purge_selected_tag": "REMOVE",
     "purge_selected_colour_token": "UiPalette.DANGER"
+  },
+  "heirloom": {
+    "card_size": [
+      316,
+      540
+    ],
+    "card_gap": 30,
+    "row_top": 168,
+    "row_center_x": 960,
+    "header_top": 84,
+    "safe_margin": 24,
+    "focus_lift": 14,
+    "medallion_size": [
+      204,
+      204
+    ],
+    "art_size": [
+      192,
+      192
+    ],
+    "spell_thumbnail_size": [
+      64,
+      36
+    ],
+    "leave_nothing_rect": [
+      780,
+      724,
+      360,
+      50
+    ],
+    "ceremony_fixed_clock_seconds": 0.7,
+    "reduced_motion_fixed_clock_seconds": 0.125,
+    "reduced_motion_duration_seconds": 0.25,
+    "reference_choice": "spec/peer_benchmark/staged/heirloom/choice.png",
+    "reference_ceremony": "spec/peer_benchmark/staged/heirloom/ceremony.png",
+    "contact_sheet_order": [
+      "choice_4",
+      "choice_5",
+      "choice_1",
+      "ceremony_burn",
+      "ceremony_mid",
+      "reduced_motion",
+      "starter_only_skipped"
+    ],
+    "inner_border_inset": 25,
+    "last_spell_to_inner_border_minimum": 12,
+    "burn_fixed_clock_seconds": 0.3,
+    "burn": {
+      "duration": 0.5,
+      "ease": "in_quad",
+      "noise_period": 24,
+      "noise_amplitude": 8,
+      "pixel_grid": 2,
+      "band": 5,
+      "embers_per_card": 14,
+      "ember_lifetime": 0.6
+    }
   }
 }

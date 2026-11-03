@@ -1,0 +1,280 @@
+{
+  "min_images": 16,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*sabatons_equipment.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            360,
+            160,
+            1100,
+            850
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*hand_rest.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            360,
+            160,
+            1100,
+            850
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*hand_focus_iron_wheel.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            360,
+            160,
+            1100,
+            850
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*hand_focus_headlong.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            360,
+            160,
+            1100,
+            850
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*card_tooltips.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            360,
+            160,
+            1100,
+            850
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*smallest_all.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            360,
+            160,
+            1100,
+            850
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*smallest_non_exempt.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            360,
+            160,
+            1100,
+            850
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*scavenger_offer.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            24,
+            24,
+            1872,
+            1032
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*deck_view.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            24,
+            24,
+            1872,
+            1032
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*grimoire_equipment.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            24,
+            24,
+            1872,
+            1032
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*graftwright.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            24,
+            24,
+            1872,
+            1032
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*campfire.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            24,
+            24,
+            1872,
+            1032
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*purge_picker.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            24,
+            24,
+            1872,
+            1032
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*pile_dialog.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            24,
+            24,
+            1872,
+            1032
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*upgrade_preview.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            24,
+            24,
+            1872,
+            1032
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*scavenger_offer_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1475,
+            156,
+            420,
+            722
+          ],
+          "min_luma_range": 10,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

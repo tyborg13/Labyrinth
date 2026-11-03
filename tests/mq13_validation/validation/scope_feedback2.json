@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "scope": "feedback 2: exact Gloam r2-to-r3 successor in Hollow Mimic preservation helper and test data only",
+  "production_file_changed": "spec/art_identity/maquettes/hollow_mimic/owner_review/preservation.py",
+  "other_maquette_files_checked": 1660,
+  "other_maquette_files_changed": [],
+  "before_receipt_sha256": "a3db93e913d7b069f786f7520daa33c9f22150375019d1b8d7566c3966601959",
+  "promoted_receipt_sha256": "6764593745116482a63132a9e7a752af7df4383ab547e97c6a4cefb2eb73238e",
+  "bound_hash_mutations_rejected": [
+    "GLOAM_BEFORE_SHA256",
+    "GLOAM_PROMOTED_SHA256"
+  ],
+  "receipt_byte_mutations_rejected": [
+    "canonical_before_promotion.json",
+    "promoted_delivery.json"
+  ],
+  "receipt_files_rewritten": false
+}

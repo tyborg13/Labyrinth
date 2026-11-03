@@ -1,5 +1,6 @@
 extends SceneTree
 
+const Flurry = preload("res://tests/fixtures/dormant_flurry_cards.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
@@ -444,29 +445,31 @@ func _verify_aoe_target_semantics(instance: Node, combat: CombatEngine, state: D
 		_expect(optimized == reference, "optimized AOE legality differs from privacy-safe reference targeting for %s" % str(action.get("orientation", "automatic")))
 
 func _verify_flurry_skip_suffix_preview_semantics(instance: Node, combat: CombatEngine, source_state: Dictionary) -> Dictionary:
+	Flurry.install()
 	var state: Dictionary = source_state.duplicate(true)
 	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["cinder_fusillade"]
+	deck["hand"] = [Flurry.RANGED_ID]
 	state["deck"] = deck
 	state["cards_per_turn"] = 20
 	state["cards_played_this_turn"] = 0
 	state["death_bonus_card_plays_this_turn"] = 0
 	state["card_play_bonus_this_turn"] = 0
 	var prepared_state: Dictionary = combat.prepare_player_card(state, 0, "play")
-	var actions: Array = combat.card_play_actions("cinder_fusillade", prepared_state)
+	var actions: Array = combat.card_play_actions(Flurry.RANGED_ID, prepared_state)
 	var shortcut_started: int = Time.get_ticks_usec()
 	var shortcut_preview: Dictionary = instance.call(
-		"_card_preview_from_state", "cinder_fusillade", prepared_state, actions, 0, false, true, true
+		"_card_preview_from_state", Flurry.RANGED_ID, prepared_state, actions, 0, false, true, true
 	) as Dictionary
 	var shortcut_usec: int = Time.get_ticks_usec() - shortcut_started
 	var reference_started: int = Time.get_ticks_usec()
 	var reference_preview: Dictionary = instance.call(
-		"_card_preview_from_state", "cinder_fusillade", prepared_state, actions, 0, false, true, false
+		"_card_preview_from_state", Flurry.RANGED_ID, prepared_state, actions, 0, false, true, false
 	) as Dictionary
 	var reference_usec: int = Time.get_ticks_usec() - reference_started
 	_expect(shortcut_preview == reference_preview, "Flurry skip-suffix preview shortcut must match the complete target walk")
-	var printed_action_count: int = (combat.card_def("cinder_fusillade", prepared_state).get("actions", []) as Array).size()
+	var printed_action_count: int = (combat.card_def(Flurry.RANGED_ID, prepared_state).get("actions", []) as Array).size()
 	_expect(printed_action_count > 0 and actions.size() == 20 * printed_action_count, "Flurry shortcut fixture must exercise twenty complete repetitions of the current printed actions")
+	Flurry.remove()
 	return {
 		"action_count": actions.size(),
 		"preview_digest": hash(shortcut_preview),

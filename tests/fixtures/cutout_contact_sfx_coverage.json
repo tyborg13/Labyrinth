@@ -1,0 +1,11 @@
+{
+  "TODO_DESIGN_gust_bolt_contact_cue": "The brief requests gust_bolt, but protected Gale Herald integration declares push.slide only for call_the_wind. Both actions are exercised unchanged.",
+  "cue_site_pairs": [
+    [
+      "push.slide",
+      "scripts/maquette_cutout_runtime/contact_actions.gd",
+      "animate",
+      "if not cue.is_empty(): scene._sfx_router.request(cue)"
+    ]
+  ]
+}

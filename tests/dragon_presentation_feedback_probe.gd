@@ -11,10 +11,10 @@ const Feedback = preload("res://scripts/combat_outcome_feedback.gd")
 const OUTPUT: String = "user://probes/dragon_presentation_feedback"
 const REQUIRED_ACTIONS: Dictionary = {
 	"kindle_ground":["cinder_marks"],"cinderfall":["aoe"],"crownfire":["detonate_cinders"],"cinder_maw":["melee"],
-	"stonewake":["raise_terrain","melee"],"worldspine_claw":["aoe"],"faultline":["terrain_burst"],"bedrock_breath":["aoe"],
+	"stonewake":["melee"],"worldspine_claw":["aoe"],"faultline":["terrain_burst"],"bedrock_breath":["aoe"],
 	"skyhook":["ranged"],"razor_dive":["aoe"],"hollow_gale":["aoe"],"eye_of_storm":["aoe"],
 	"crystal_mantle":["frost_armor","aoe"],"whiteout_lance":["aoe"],"rime_talon":["melee"],"shatterstorm":["aoe"],
-	"skybreak":["lightning_strikes"],"storm_claw":["ranged"],"tempest_breath":["aoe"],"call_wisps":["ranged","summon"],
+	"skybreak":["lightning_strikes"],"storm_claw":["ranged"],"tempest_breath":["ranged"],"call_wisps":["ranged","summon"],
 	"night_coil":["aoe"],"last_eclipse":["umbra_eclipse","summon"],"void_claw":["melee"],"starless_breath":["aoe"]}
 var scene: Node
 var canvas: SubViewport
@@ -49,10 +49,6 @@ func _run() -> void:
 		await _legacy_refuge_addendum(engine,combat)
 		await _finish()
 		return
-	if OS.get_cmdline_user_args().has("--thar-order-addendum"):
-		await _thar_order_addendum(engine,combat)
-		await _finish()
-		return
 	if OS.get_cmdline_user_args().has("--fan-addendum"):
 		await _fan_addendum(engine,combat,settings)
 		await _finish()
@@ -63,6 +59,11 @@ func _run() -> void:
 		await _idle_views(original,boss_id,settings)
 		if boss_id == "zekarion": await _idle_views(original,"lightning_wisp",settings)
 		var battle: Dictionary = original["combat_state"].duplicate(true)
+		# Stage the real Upheaval cadence for the retained Faultline animation.
+		if boss_id == "tharokh":
+			var rules = preload("res://scripts/battlefield_rules/dispatcher.gd")
+			for turn: int in range(int(battle["battlefield_rule"]["cadence"]["every"])):
+				battle = rules.after_player_turn(combat, battle, turn + 1)
 		# This is an animation study: reset life between actions, retaining the
 		# real resolver's targets, surfaces, movement and multi-action sequence.
 		for phase: int in range(4):
@@ -347,45 +348,6 @@ func _legacy_refuge_addendum(engine: RefCounted, combat: RefCounted) -> void:
 		elif variant=="legacy_coil": _expect(text.contains("Braziers relight afterward"),"Legacy Coil intent retains its promised relight")
 		witnesses.append({"image":"noctyrax_refuge_"+variant,"markers":markers,"intent_text":text})
 		await _capture("noctyrax_refuge_"+variant)
-
-func _thar_order_addendum(engine: RefCounted, combat: RefCounted) -> void:
-	# Production depth-eight room and authored terrain. This staged sequence
-	# witnesses overlapping warnings and FX, not difficulty or player strategy.
-	var options: Dictionary = {"dragon_id":"tharokh","dragon_depth":8}
-	var run: Dictionary = Factory.build(engine,combat,engine.create_new_run(Factory.seed_for_options(options),Store.default_data()),options)
-	var state: Dictionary = run["combat_state"]
-	state["player"]["pos"] = Vector2i(3,4)
-	_expect(state["enemies"][0]["intent"]["id"]=="stonewake","Thar order witness starts with Stonewake")
-	state = combat.resolve_enemy_turn_with_steps(state,0)["state"]
-	_expect(state["enemies"][0]["intent"]["id"]=="worldspine_claw","Stonewake advances to Claw")
-	state["player"]["pos"] = Vector2i(1,3)
-	state = combat.resolve_enemy_turn_with_steps(state,0)["state"]
-	_expect(state["enemies"][0]["intent"]["id"]=="bedrock_breath","Claw advances to Bedrock before Faultline")
-	_expect(not combat._dragon_spires(state).is_empty(),"Spires survive into the Bedrock warning")
-	# Move to a legal nearby observer after declaration; the held lane must
-	# remain aimed west while both the surviving obstacles and Rubble are shown.
-	state["player"]["pos"] = Vector2i(1,2)
-	_expect(not combat._player_blocking_tiles(state).has(state["player"]["pos"]),"Thar overlap observer has a legal free tile")
-	for intent_id: String in ["bedrock_breath","faultline"]:
-		_expect(state["enemies"][0]["intent"]["id"]==intent_id,"Current authored Thar order: "+intent_id)
-		run["combat_state"] = state
-		await _load(run)
-		var prefix: String = "tharokh_order_"+intent_id
-		await _capture(prefix+"_intent")
-		var spires: Array = combat._dragon_spire_tiles(state)
-		var rubble: Array = preload("res://scripts/board_surface_rules.gd").tiles(state,"rubble")
-		_expect(not spires.is_empty(),"Spires remain available for counterplay: "+intent_id)
-		if intent_id=="faultline": _expect(not rubble.is_empty(),"Bedrock Rubble remains during Faultline warning")
-		witnesses.append({"image":prefix+"_intent","intent_id":intent_id,"spires":spires,"rubble":rubble,"threat_tiles":combat.enemy_threat_tiles(state,0)["attack"]})
-		var result: Dictionary = combat.resolve_enemy_turn_with_steps(state,0)
-		await _animate_capture(state.duplicate(true),result["steps"],prefix)
-		_expect_stages(prefix,REQUIRED_ACTIONS[intent_id])
-		state = result["state"]
-	_expect(combat._dragon_spires(state).is_empty(),"Faultline consumes all remaining spires")
-	_expect(state["enemies"][0]["intent"]["id"]=="stonewake","Faultline completes the cycle")
-	run["combat_state"] = state
-	await _load(run)
-	await _capture("tharokh_order_after_faultline")
 
 func _fan_addendum(engine: RefCounted, combat: RefCounted, settings: Dictionary) -> void:
 	# Narrow geometry/presentation study: remove breakable cover and put the 2x2

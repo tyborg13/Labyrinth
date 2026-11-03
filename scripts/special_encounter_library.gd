@@ -25,10 +25,16 @@ static func variant(type: String, biome: String) -> Dictionary:
 static func enabled_types() -> Array[String]:
 	return _enabled_types(catalog())
 
-static func _enabled_types(data: Dictionary) -> Array[String]:
+# A type enabled after a map revision shipped joins only that revision and newer
+# (`first_layout_revision`), so saved older maps regenerate unchanged. A negative
+# revision (tests, tools) sees every enabled type.
+static func _enabled_types(data: Dictionary, layout_revision: int = -1) -> Array[String]:
 	var result: Array[String]
 	for type: String in data["types"]:
-		if bool(data["types"][type].get("enabled", false)): result.append(type)
+		var entry: Dictionary = data["types"][type]
+		if not bool(entry.get("enabled", false)): continue
+		if layout_revision >= 0 and layout_revision < int(entry.get("first_layout_revision", 0)): continue
+		result.append(type)
 	return result
 
 static func display_name(room: Dictionary) -> String:
@@ -63,9 +69,9 @@ static func reward_embers(room: Dictionary, combat: Dictionary) -> int:
 
 # Revision 6 runs this AFTER the ordinary type solver. No edge, element,
 # hidden mystery, Guardian, or route fight budget is changed by substitution.
-static func place(layout: Dictionary, rng: RandomNumberGenerator, count: int, biome: String, data: Dictionary = {}) -> bool:
+static func place(layout: Dictionary, rng: RandomNumberGenerator, count: int, biome: String, data: Dictionary = {}, layout_revision: int = -1) -> bool:
 	if data.is_empty(): data = catalog()
-	var types: Array[String] = _enabled_types(data)
+	var types: Array[String] = _enabled_types(data, layout_revision)
 	if types.is_empty(): return true
 	var rules: Dictionary = data["placement"]
 	var weights: Dictionary = rules["per_section_count_weights"]

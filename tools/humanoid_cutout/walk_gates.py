@@ -42,6 +42,20 @@ def rigid_sides(layout):
     return tuple(side for side in SIDES if not skinned(layout, side))
 
 
+def apex_errors(swing, knee_policy, view, side):
+    stance_side = 'far' if side == 'near' else 'near'
+    policy = knee_policy.get('by_view', {}).get(view, {}).get(stance_side, knee_policy)
+    crouched_stance = policy.get('crouched_stance_deg')
+    if crouched_stance is not None and swing['apex_stance_bend_deg'] > crouched_stance:
+        # A declared deep crouch can exceed the prowl's lifted knee.
+        # The apex still has to demonstrate a real swing bend.
+        if swing['apex_swing_bend_deg']+EPSILON < MINIMUM_SWING_PEAK_DEG:
+            return [f'{view}/{side}: apex knee below 15 degrees in crouched stance']
+    elif swing['apex_swing_bend_deg']<=swing['apex_stance_bend_deg']+EPSILON:
+        return [f'{view}/{side}: apex swing knee does not exceed stance knee']
+    return []
+
+
 def report(layout, data, samples):
     view = layout['facing']
     gait = data['clips']['move']['gait']
@@ -123,7 +137,7 @@ def report(layout, data, samples):
                'apex_stance_bend_deg':apex['legs'][other]['bend_deg']}
         swings.append(swing)
         if swing['peak_bend_deg']+EPSILON < MINIMUM_SWING_PEAK_DEG: errors.append(f'{view}/{side}: peak knee below 15 degrees')
-        if swing['apex_swing_bend_deg']<=swing['apex_stance_bend_deg']+EPSILON: errors.append(f'{view}/{side}: apex swing knee does not exceed stance knee')
+        errors += apex_errors(swing, anatomy['knee_policy'], view, side)
     if not rows: errors.append(view+': missing walk evidence')
     air = joint_air(layout, rows)
     errors += rigid_air_errors(air)

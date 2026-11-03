@@ -1,0 +1,107 @@
+[
+  {
+    "piece": "head",
+    "file": "ownership_repairs/rear_head.png",
+    "sha256": "0092baef58a8b8d264d3ff1fe773d0756c480f0ac129c0422719f0b348d2e4c3",
+    "pixels": 1797,
+    "transferred_pixels": 0
+  },
+  {
+    "piece": "torso",
+    "file": "ownership_repairs/rear_torso.png",
+    "sha256": "341317bf5ab90ba1d749d1656dda5d93ec6d1aa6cca3f128a8c088c5c43ac684",
+    "pixels": 1565,
+    "transferred_pixels": 0
+  },
+  {
+    "piece": "pelvis",
+    "file": "ownership_repairs/rear_pelvis.png",
+    "sha256": "e937e71816a8e88a2728372c94dd0c3fd23f14f4f763c1fade6a87c0c1f85322",
+    "pixels": 410,
+    "transferred_pixels": 0
+  },
+  {
+    "piece": "tabard",
+    "file": "ownership_repairs/rear_tabard.png",
+    "sha256": "ed0857fc4cceb0574fb5d39c761ecc0d226161f499c1434310310789edec83ae",
+    "pixels": 2400,
+    "transferred_pixels": 0
+  },
+  {
+    "piece": "cape_near",
+    "file": "ownership_repairs/rear_cape_near.png",
+    "sha256": "ed6bbc49ca1be7bbe4f0714af2ba9b07dfb7612ce4b7acad9ac6f8bcd72b3253",
+    "pixels": 5747,
+    "transferred_pixels": 92
+  },
+  {
+    "piece": "cape_far",
+    "file": "ownership_repairs/rear_cape_far.png",
+    "sha256": "d16f8c221688b899e6a274f6b9aa412b8e31ba0e8a9becc09541262d0cd1c900",
+    "pixels": 4410,
+    "transferred_pixels": 0
+  },
+  {
+    "piece": "horn",
+    "file": "ownership_repairs/rear_horn.png",
+    "sha256": "9b17c36ff97209150af6729e88fd8253e309ce08e55d4cc612cce91551a16c9f",
+    "pixels": 1250,
+    "transferred_pixels": 0
+  },
+  {
+    "piece": "arm_near",
+    "file": "ownership_repairs/rear_arm_near.png",
+    "sha256": "81ba30c5f868bca05949ec44598e87fbe5f8eac0c17f13b22dcbee460a158298",
+    "pixels": 583,
+    "transferred_pixels": 0
+  },
+  {
+    "piece": "hand_near",
+    "file": "ownership_repairs/rear_hand_near.png",
+    "sha256": "e8044605f22637d348838fc781593134d222bfdb3416f3e8cdf35c125af6bede",
+    "pixels": 133,
+    "transferred_pixels": 0
+  },
+  {
+    "piece": "leg_near",
+    "file": "ownership_repairs/rear_leg_near.png",
+    "sha256": "905206a1be9329cbadef2bf87337bd5704f7ed2edb0f735dd4dfd1d0747dd13f",
+    "pixels": 916,
+    "transferred_pixels": 0
+  },
+  {
+    "piece": "foot_near",
+    "file": "ownership_repairs/rear_foot_near.png",
+    "sha256": "e18c133de2458c2f5f3c9c1134f33a0436659ec715fa2305fc789076f43c2a36",
+    "pixels": 391,
+    "transferred_pixels": 0
+  },
+  {
+    "piece": "arm_far",
+    "file": "ownership_repairs/rear_arm_far.png",
+    "sha256": "5c93ae88356174ba79f481c7803e101218758438607b43ebdddeb6569bcbb45a",
+    "pixels": 281,
+    "transferred_pixels": 92
+  },
+  {
+    "piece": "hand_far",
+    "file": "ownership_repairs/rear_hand_far.png",
+    "sha256": "79519e4302c9c359635a5a9c5cfb5a2c968e3836a183bc42a8c7a4db12a7993a",
+    "pixels": 72,
+    "transferred_pixels": 0
+  },
+  {
+    "piece": "leg_far",
+    "file": "ownership_repairs/rear_leg_far.png",
+    "sha256": "570ef949a9e6227c4f72751ea5e87da401998f4ad108a727854cfc498c7d4c98",
+    "pixels": 1469,
+    "transferred_pixels": 0
+  },
+  {
+    "piece": "foot_far",
+    "file": "ownership_repairs/rear_foot_far.png",
+    "sha256": "21a9eff3212b572e31faa630f14aaa897663c1d4b23222f70bcc1d0e31ef6d58",
+    "pixels": 683,
+    "transferred_pixels": 0
+  }
+]

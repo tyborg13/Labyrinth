@@ -1,0 +1,10 @@
+{
+  "revision": "feedback2",
+  "status": "No remaining source/native design blockers; final clean regeneration and curation are recorded in feedback2_verification.json.",
+  "unresolved_design_fields": [],
+  "resolved": {
+    "lantern_clearance": "All 32 gap combinations failed. Director-authorized stance 1.1/fist 0.36 L fallback passes opened-native overlap and depth gates.",
+    "strand_9": "Only start_s changed, by the measured final-stance overrun; strand end equals hem arc."
+  },
+  "historical": "feedback1_verification.json and feedback1_clearance.json retain the superseded round-1 stops."
+}

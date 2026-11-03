@@ -1,0 +1,475 @@
+{
+  "rules": [
+    {
+      "id": "gust",
+      "name": "Gust",
+      "icon": "wind"
+    },
+    {
+      "id": "wildfire",
+      "name": "Wildfire",
+      "icon": "wildfire"
+    },
+    {
+      "id": "frostbite",
+      "name": "Frostbite",
+      "icon": "frostbite"
+    },
+    {
+      "id": "lightning_storm",
+      "name": "Lightning Storm",
+      "icon": "lightning_storm"
+    },
+    {
+      "id": "upheaval",
+      "name": "Upheaval",
+      "icon": "upheaval"
+    },
+    {
+      "id": "shadowstep",
+      "name": "Shadowstep",
+      "icon": "shadowstep"
+    }
+  ],
+  "instances": {
+    "stormcaller": {
+      "rule": "gust",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_source_turn",
+        "every": 1
+      },
+      "dials": {
+        "tiles": 1,
+        "direction": "aimed"
+      },
+      "sentence": "After each of the Stormcaller's turns, its wind Pushes everyone 1 tile."
+    },
+    "slagmaster": {
+      "rule": "wildfire",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_source_turn",
+        "every": 2
+      },
+      "dials": {
+        "spread": "toward_player"
+      },
+      "sentence": "After every second Slagmaster turn, its Fire spreads 1 tile toward you."
+    },
+    "oracle": {
+      "rule": "frostbite",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_source_turn",
+        "every": 2
+      },
+      "dials": {
+        "damage": 2
+      },
+      "sentence": "After every second Oracle turn, Frostbite hits everyone on Ice for 2 and Freezes them."
+    },
+    "dynamo": {
+      "rule": "lightning_storm",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "on_intent",
+        "intent": "discharge"
+      },
+      "dials": {
+        "damage": 4,
+        "chain": 0
+      },
+      "sentence": "When the Dynamo discharges, lightning strikes every Electrified tile for 4."
+    },
+    "thornmother": {
+      "rule": "upheaval",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_source_turn",
+        "every": 2
+      },
+      "dials": {
+        "pattern": "line_between",
+        "length": 5,
+        "health": 3
+      },
+      "sentence": "After every second Thornmother turn, the marked tiles rise as Outcrops."
+    },
+    "prior": {
+      "rule": "shadowstep",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_source_turn",
+        "every": 2
+      },
+      "dials": {
+        "blink": 3
+      },
+      "sentence": "After every second Prior turn, its followers hidden in the dark Blink 3 tiles toward you."
+    },
+    "snare_earth": {
+      "rule": "upheaval",
+      "source": {
+        "kind": "room"
+      },
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 1
+      },
+      "dials": {
+        "pattern": "exit_lane",
+        "health": 3
+      },
+      "sentence": "After each of your turns, a marked tile on your way out rises as an Outcrop."
+    },
+    "snare_fire": {
+      "rule": "wildfire",
+      "source": {
+        "kind": "room"
+      },
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 1
+      },
+      "dials": {
+        "spread": "away_from_entry"
+      },
+      "sentence": "After each of your turns, the Fire spreads 1 tile away from the entry."
+    },
+    "snare_air": {
+      "rule": "gust",
+      "source": {
+        "kind": "room"
+      },
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 1
+      },
+      "dials": {
+        "tiles": 1,
+        "direction": "toward_entry"
+      },
+      "sentence": "After each of your turns, a headwind Pushes everyone 1 tile toward the entry."
+    },
+    "snare_ice": {
+      "rule": "frostbite",
+      "source": {
+        "kind": "room"
+      },
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 1
+      },
+      "dials": {
+        "damage": 1
+      },
+      "sentence": "After each of your turns, Frostbite hits everyone on Ice for 1 and Freezes them."
+    },
+    "snare_lightning": {
+      "rule": "lightning_storm",
+      "source": {
+        "kind": "room"
+      },
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 1
+      },
+      "dials": {
+        "damage": 3,
+        "chain": 0
+      },
+      "sentence": "After each of your turns, lightning strikes every Electrified tile for 3."
+    },
+    "snare_shadow": {
+      "rule": "shadowstep",
+      "source": {
+        "kind": "room"
+      },
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 1
+      },
+      "dials": {
+        "blink": 2
+      },
+      "sentence": "After each of your turns, enemies hidden in the dark Blink 2 tiles toward you."
+    },
+    "last_light": {
+      "rule": "shadowstep",
+      "source": {
+        "kind": "room"
+      },
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 1
+      },
+      "dials": {
+        "blink": 2,
+        "who": "all_hidden"
+      },
+      "sentence": "After each of your turns, every enemy hidden in the dark Blinks 2 tiles toward you."
+    },
+    "gale_herald": {
+      "rule": "gust",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_source_turn",
+        "every": 1
+      },
+      "dials": {
+        "tiles": 1,
+        "direction": "aimed"
+      },
+      "sentence": "After each of the Gale Herald's turns, its wind Pushes everyone 1 tile."
+    },
+    "ashen_reaver": {
+      "rule": "wildfire",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 2
+      },
+      "dials": {
+        "spread": "toward_player"
+      },
+      "sentence": "After every second turn of yours, the Reaver's Fire spreads 1 tile toward you."
+    },
+    "rimejaw": {
+      "rule": "frostbite",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 1
+      },
+      "dials": {
+        "damage": 0
+      },
+      "sentence": "After each of your turns, Rimejaw's Frostbite Freezes everyone standing on Ice."
+    },
+    "storm_cantor": {
+      "rule": "lightning_storm",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "on_intent",
+        "intent": "peal"
+      },
+      "dials": {
+        "damage": 3,
+        "chain": 2
+      },
+      "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 3, with Chain 2."
+    },
+    "gallows_roc": {
+      "rule": "gust",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 1
+      },
+      "dials": {
+        "tiles": 1,
+        "direction": "toward_source"
+      },
+      "sentence": "After each of your turns, the Roc's wind Pushes everyone 1 tile toward it."
+    },
+    "craghide": {
+      "rule": "upheaval",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_source_turn",
+        "every": 2
+      },
+      "dials": {
+        "pattern": "line_between",
+        "length": 3,
+        "health": 2
+      },
+      "sentence": "After every second Craghide turn, the marked tiles rise as Outcrops."
+    },
+    "last_lamplighter": {
+      "rule": "shadowstep",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 1
+      },
+      "dials": {
+        "blink": 1,
+        "who": [
+          "wick_shade"
+        ]
+      },
+      "sentence": "After each of your turns, hidden Wick Shades Blink 1 tile toward you."
+    },
+    "vyraketh": {
+      "rule": "wildfire",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "on_intent",
+        "intent": "cinderfall"
+      },
+      "dials": {
+        "spread": "all"
+      },
+      "sentence": "When Vyraketh breathes, every Fire tile spreads 1 tile in all four directions.",
+      "at_half_health": {
+        "cadence": {
+          "anchor": "after_source_turn",
+          "every": 2
+        },
+        "sentence": "After every second Vyraketh turn, every Fire tile spreads 1 tile in all four directions."
+      }
+    },
+    "tharokh": {
+      "rule": "upheaval",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_player_turn",
+        "every": 2
+      },
+      "dials": {
+        "pattern": "line_between",
+        "length": 5,
+        "health": 4
+      },
+      "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops.",
+      "at_half_health": {
+        "cadence": {
+          "anchor": "after_player_turn",
+          "every": 1
+        },
+        "sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops."
+      }
+    },
+    "iskaldra": {
+      "rule": "frostbite",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "on_intent",
+        "intent": "rime_talon"
+      },
+      "dials": {
+        "damage": 3
+      },
+      "sentence": "When Iskaldra uses Rime Talon, Frostbite hits everyone on Ice for 3 and Freezes them.",
+      "at_half_health": {
+        "cadence": {
+          "anchor": "after_source_turn",
+          "every": 2
+        },
+        "sentence": "After every second Iskaldra turn, Frostbite hits everyone on Ice for 3 and Freezes them."
+      }
+    },
+    "vaeloryx": {
+      "rule": "gust",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "after_source_turn",
+        "every": 1
+      },
+      "dials": {
+        "tiles": 1,
+        "direction": "turn_clockwise"
+      },
+      "sentence": "After each Vaeloryx turn, its wind Pushes everyone 1 tile, then turns a quarter clockwise.",
+      "at_half_health": {
+        "dials": {
+          "tiles": 2
+        },
+        "sentence": "After each Vaeloryx turn, its wind Pushes everyone 2 tiles, then turns a quarter clockwise."
+      }
+    },
+    "zekarion": {
+      "rule": "lightning_storm",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "on_intent",
+        "intent": "tempest_breath"
+      },
+      "dials": {
+        "damage": 5,
+        "chain": 1
+      },
+      "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 1.",
+      "at_half_health": {
+        "dials": {
+          "chain": 2
+        },
+        "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 2."
+      }
+    },
+    "noctyrax": {
+      "rule": "shadowstep",
+      "source": {
+        "kind": "enemy",
+        "id": -1
+      },
+      "cadence": {
+        "anchor": "on_intent",
+        "intent": "void_claw"
+      },
+      "dials": {
+        "blink": 3,
+        "who": [
+          "veilbound_acolyte"
+        ]
+      },
+      "sentence": "When Noctyrax uses Void Claw, hidden Veilbound Acolytes Blink 3 tiles toward you."
+    }
+  }
+}

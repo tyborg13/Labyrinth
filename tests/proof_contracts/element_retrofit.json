@@ -1,0 +1,535 @@
+{
+  "min_images": 31,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*warband_earth_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*warband_earth_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*warband_fire_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*warband_fire_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*warband_air_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*warband_air_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*warband_ice_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*warband_ice_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*warband_lightning_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*warband_lightning_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*warband_shadow_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*warband_shadow_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_earth_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_earth_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_fire_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_fire_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_air_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_air_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_ice_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_ice_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_lightning_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_lightning_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_shadow_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_shadow_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*weaver_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*weaver_marked.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*weaver_outcrops.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*seer_marked.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*seer_ice_ground.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*thrall_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*thrall_electrified.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    }
+  ]
+}

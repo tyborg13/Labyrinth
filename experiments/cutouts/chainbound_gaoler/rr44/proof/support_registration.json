@@ -1,0 +1,38 @@
+{
+  "front": {
+    "source": "protected mq3_front_v4/landmarks_pair.json",
+    "soles": {
+      "far": [
+        113,
+        228
+      ],
+      "near": [
+        167,
+        245
+      ]
+    },
+    "anchor": [
+      140.0,
+      236.5
+    ],
+    "head_top": 30
+  },
+  "rear": {
+    "source": "approved rear boot sole alpha at bottom pixel edge",
+    "soles": {
+      "near": [
+        79.0,
+        231.0
+      ],
+      "far": [
+        131.5,
+        246.0
+      ]
+    },
+    "anchor": [
+      105.25,
+      238.5
+    ],
+    "head_top": 31
+  }
+}

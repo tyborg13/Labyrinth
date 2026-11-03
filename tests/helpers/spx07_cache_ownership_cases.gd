@@ -6,12 +6,16 @@ const Combat = preload("res://scripts/combat_engine.gd")
 const Badges = preload("res://scripts/intent_badges.gd")
 const Wind = preload("res://scripts/enemy_mechanics/wind.gd")
 const WindView = preload("res://scripts/enemy_mechanics/wind_view.gd")
-const Tether = preload("res://scripts/enemy_mechanics/tether_forecast.gd")
 const PathCache = preload("res://scripts/board_path_draw_cache.gd")
 const Data = preload("res://scripts/game_data.gd")
-const COLLISION_NONCE_A: int = 104756
-const COLLISION_NONCE_B: int = 8893
-const COLLISION_HASH: int = 2943709617
+# sum-01 adds the pending-summon counter to the locked-state payload. Re-find
+# the deliberately colliding nonces without removing the collision guard or
+# changing the two hero states; also cover bos-01's locked direction below.
+# sta-01 re-finds only these fixture nonces after Dive changes the held intent.
+# qa-18 (67a5e1906) replaces the Shrike plan's array index with its actor id.
+const COLLISION_NONCE_A: int = 167731
+const COLLISION_NONCE_B: int = 28
+const COLLISION_HASH: int = 715866967
 const COLLISION_HERO_A := Vector2i(2, 3)
 const COLLISION_HERO_B := Vector2i(8, 8)
 const COLLISION_MARKER_HERO := Vector2i(2, 1)
@@ -55,29 +59,20 @@ static func run(expect: Callable) -> void:
 	if not second["threats"].is_empty(): second["threats"][0]["plan"]["projected_attack"].clear()
 	expect.call(first == retained, "Mutating focus B's nested plan preserves retained focus A")
 	checks += _owned(func() -> Dictionary: return badges._orders_for(engine, state), "badge orders", expect)
-	var tether_state: Dictionary = Orders.battle("lightning")
-	tether_state["objective"] = {"type": "kill_all"}
-	for index: int in [0, 1]:
-		tether_state["enemies"][index]["type"] = "arc_thrall"
-		tether_state["enemies"][index]["is_leader"] = false
-		tether_state["enemies"][index]["pos"] = Vector2i(5, 2 + index * 4)
-	tether_state["player"]["pos"] = Vector2i(5, 4)
-	tether_state["enemies"][0]["intent"] = engine._surface_prepare_enemy_intent(tether_state, tether_state["enemies"][0], Data.enemy_def("arc_thrall")["intents"][0])
-	checks += _owned(func() -> Dictionary: return Tether.for_state(engine, tether_state, 0), "tether forecast", expect)
 	checks += _path_ownership(expect)
 	var board := ForecastBoard.new()
 	board.combat_state = _collision_state(COLLISION_HERO_A, COLLISION_NONCE_A)
 	checks += _owned(func() -> Dictionary: return WindView.forecast(board), "wind forecast", expect)
 	checks += _owned(func() -> Array: return WindView.tile_layers(board), "wind tile layers", expect)
-	# Use ordinary wind for definition invalidation: the existing Stormcaller
-	# order overrides anchoring for its wind, independently of these flags.
+	# Use ordinary Gust for definition invalidation. el-01 grants protection
+	# through existing Anchored, never through rank or boss presentation.
 	board.combat_state["objective"] = {"type": "kill_all"}
 	for unit: Dictionary in board.combat_state["enemies"]: unit["is_leader"] = false
 	var type: String = board.combat_state["enemies"][1]["type"]
 	var catalog: Dictionary = Data.enemies()
 	var original_definition: Dictionary = catalog[type].duplicate(true)
 	var original_forecast: Dictionary = WindView.forecast(board)
-	catalog[type]["boss_bar"] = true
+	catalog[type]["anchored"] = true
 	var edited_forecast: Dictionary = WindView._forecast_for_state(board.combat_state)
 	expect.call(original_forecast != edited_forecast, "Wind definition fixture changes a follower's anchoring")
 	expect.call(WindView.forecast(board) == edited_forecast, "Wind view hit validates in-place raw definitions")
@@ -141,6 +136,9 @@ static func _path_commands() -> Array:
 
 static func _collision_state(hero: Vector2i, nonce: int) -> Dictionary:
 	var state: Dictionary = Orders.battle("air")
+	state.erase("battlefield_rule") # Keep the authored hash-collision fixture frozen.
+	state.erase("wind")
+	state["objective"]["description"] = "Kill the captain and the rest flee. Followers within 2 tiles of it deal +1 damage.\n" + Orders.STORMCALLER_ORDER_LINE
 	state["enemies"][0]["intent"] = Wind.commit(Combat.new(), state, state["enemies"][0], Orders.authored(state, "call_the_wind"))
 	state["player"]["pos"] = hero
 	state["_peer_nonce"] = nonce
@@ -149,7 +147,7 @@ static func _collision_state(hero: Vector2i, nonce: int) -> Dictionary:
 static func _wind_collision(expect: Callable) -> void:
 	var first: Dictionary = _collision_state(COLLISION_HERO_A, COLLISION_NONCE_A)
 	var second: Dictionary = _collision_state(COLLISION_HERO_B, COLLISION_NONCE_B)
-	expect.call(first != second and first.hash() == COLLISION_HASH and second.hash() == COLLISION_HASH, "Reviewer's unequal locked-wind states retain hash 2943709617")
+	expect.call(first != second and first.hash() == COLLISION_HASH and second.hash() == COLLISION_HASH, "Reviewer's unequal locked-wind states retain hash %d" % COLLISION_HASH)
 	var a: Dictionary = WindView._forecast_for_state(first)
 	var b: Dictionary = WindView._forecast_for_state(second)
 	expect.call(a["displacement_paths"] != b["displacement_paths"], "Collision fixture changes the hero displacement path")
@@ -161,7 +159,19 @@ static func _wind_collision(expect: Callable) -> void:
 	board.combat_state = first
 	expect.call(WindView.forecast(board) == a, "Wind exact query also validates undo to the earlier colliding input")
 	board.free()
-	print("SPX07 WIND COLLISION RESULT: hash=2943709617; hero (2,3) -> (8,8) -> (2,3)")
+	# Also exercise bos-01's locked direction with all other inputs unchanged.
+	var relocked: Dictionary = first.duplicate(true)
+	for action: Dictionary in relocked["enemies"][0]["intent"]["actions"]:
+		if action.has("_wind_direction"): action["_wind_direction"] = -Vector2i(action["_wind_direction"])
+	expect.call(relocked != first and relocked.hash() != first.hash(), "Unequal locked directions enter the wind-state hash")
+	board = ForecastBoard.new()
+	board.combat_state = first
+	WindView.forecast(board)
+	board.combat_state = relocked
+	var changed: Dictionary = WindView._forecast_for_state(relocked)
+	expect.call(changed != a and WindView.forecast(board) == changed, "Changing only locked wind direction invalidates the cached forecast")
+	board.free()
+	print("SPX07 WIND COLLISION RESULT: hash=%d; hero (2,3) -> (8,8) -> (2,3); locked direction invalidates" % COLLISION_HASH)
 
 # Test each nonempty mutable container separately, deepest first. Retaining a
 # second result also checks aliases between published callers, not just hits.

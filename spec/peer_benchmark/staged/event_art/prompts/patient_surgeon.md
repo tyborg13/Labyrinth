@@ -1,0 +1,1 @@
+Subject: a gaunt surgeon in a long dark apron and a beaked leather mask, standing beside a heavy wooden chair with leather straps. Surgical tools laid out in careful order on a clean white cloth on a small table, lit by one candle. Mood: courteous, clinical, wrong.

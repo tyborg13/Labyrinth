@@ -1,0 +1,128 @@
+[
+  {
+    "suite": "card_widget_tooltip_item_preview",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/card_legibility_test.gd",
+      "--",
+      "--focused-shared"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "CARD WIDGET/TOOLTIP/ITEM PREVIEW FOCUSED RESULT: PASS (385 checks, 0 failures)"
+    ]
+  },
+  {
+    "suite": "reading_layouts",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/card_legibility_test.gd",
+      "--",
+      "--reading-layouts"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "CARD READING LAYOUT RESULT: PASS (352 checks, 0 failures)"
+    ]
+  },
+  {
+    "suite": "scavenger_inspection",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/card_legibility_test.gd",
+      "--",
+      "--scavenger-inspection"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "SCAVENGER INSPECTION RESULT: PASS (14 checks, 0 failures)"
+    ]
+  },
+  {
+    "suite": "scavenger_visual",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/scavenger_visual_pass_4_test.gd"
+    ],
+    "returncode": 1,
+    "passed": false,
+    "result_lines": [
+      "SCAVENGER VISUAL PASS 4: FAIL"
+    ]
+  },
+  {
+    "suite": "scavenger_regression",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/pt13-03/tools/godot_task_runner.py",
+      "--task-id",
+      "pt13-03",
+      "--timeout",
+      "180",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/scavenger_regression_test.gd"
+    ],
+    "returncode": 0,
+    "passed": true,
+    "result_lines": [
+      "SCAVENGER / MERCHANT / LOADOUT REGRESSION: PASS"
+    ]
+  }
+]

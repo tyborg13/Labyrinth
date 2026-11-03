@@ -1,0 +1,376 @@
+{
+  "unit": "rr-41 feedback 2",
+  "base_head": "68f12c82e0737d1e85653624a87ff1f5c9f17906",
+  "uncommitted": true,
+  "windowed_runs_performed": false,
+  "focused_tests_pending": false,
+  "requirements": {
+    "1": {
+      "resolution": "The reported pixel is original painted hand_near, source UV [127,143], native RGBA [18,57,68,255]. It needs correct rigid sampling, so approved hand paint is preserved. Recorded separately in painted_piece_observations in rr41_exposure_repairs.json; the 396 cloak repair rows remain exactly unchanged. Applying cloak underlay at that hand UV would replace original approved paint.",
+      "observation": {
+        "feedback": "rr-41 feedback 2",
+        "view": "front",
+        "clip": "death",
+        "frame": 82,
+        "phase": 0.863157894736842,
+        "native_phase": 0.863157894736842,
+        "part": "hand_near",
+        "xy": [
+          331,
+          354
+        ],
+        "uv": [
+          127,
+          143
+        ],
+        "rgba": [
+          18,
+          57,
+          68,
+          255
+        ],
+        "raw_painted_rgba": [
+          18,
+          56,
+          67,
+          255
+        ],
+        "reconstructed_uv": [
+          127,
+          142
+        ],
+        "reconstructed_rgba": [
+          13,
+          48,
+          59,
+          255
+        ],
+        "director_underlay_rgba_at_uv": [
+          17,
+          62,
+          75,
+          255
+        ],
+        "recorded_node_transform": [
+          0.824126243591309,
+          -0.566406309604645,
+          0.566406309604645,
+          0.824126243591309,
+          123.0,
+          151.999969482422
+        ],
+        "reconstructed_transform": [
+          [
+            0.8241262598825042,
+            0.5664062859008097,
+            123.0
+          ],
+          [
+            -0.5664062859008097,
+            0.8241262598825042,
+            152.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "resolution": "Preserve the existing painted hand; use the recorded rigid-node transform. This is not a procedural cloak texel and needs no new cloak ownership. Applying the cloak underlay here would replace approved hand paint.",
+        "cause": "Phase is identical. Bone-based reconstruction re-snaps translation 151.999969482422 to 152.0; the resulting vertex-grid rounding selects v=142 instead of v=143. The old software matrix varied mesh UVs but reused reconstructed rigid sprites, hiding the disagreement.",
+        "evidence": {
+          "fixture": "rr41_feedback2_fixture",
+          "fixture_manifest_sha256": "491bd97fd89816c0eab222c1075cf6d5d1e156b44ca544ec3798e3888533551d",
+          "fixture_pose_sha256": "521a6a043639046cb25f6cccfda31733872c64105e64247498ba82cc705cee65",
+          "source_manifest_sha256": "8ac5cc15146f751c12cd2d199178676ab4c928c128ec8f854fb9b26f63677507",
+          "native_piece_sha256": "58ac066949d4ae66aa42805659e12e95e316a53a7c01dbc8abb8eed5df9c2d45",
+          "source_native_log_sha256": "f410f916ab974d5100d8190404b5e4100df6a651319a506bc204335d9d61bdb8"
+        }
+      }
+    },
+    "2": {
+      "cause": "The old 231-case software sweep did include death 82, but rendered rigid pieces with a re-snapped Bone2D reconstruction. It varied mesh UVs only. The actual sampled Sprite2D matrix has translation y=151.999969482422; reconstruction changes it to 152.0, flipping a vertex-grid rounding and selecting neighbouring UV [127,142]. Phase is identical at 82/95.",
+      "fix": "Lancer-only native masks and proof candidates use recorded painted-node transforms without another snap. All four UV choices now cover every rigid piece and mesh at all 96 death frames; frozen lunge/guard cases remain included. Retained native pixels independently pin the software model.",
+      "regressions": [
+        "Same-phase exact-source UV and colour check against retained native pixels.",
+        "Old sampling reproduces exactly 1 failure on the retained native frame; current sampling has 0 errors.",
+        "Revised software candidates reproduce the old oracle failure, and all four choices pass with the recorded transform.",
+        "Recolouring the native hand pixel still fails the provenance gate."
+      ]
+    },
+    "3": "Only focused headless checks and retained native replay; fresh windowed native, sheets and review remain director commands."
+  },
+  "retained_native_replay": {
+    "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback2/retained-death.log",
+    "log_sha256": "573f7b8a1fb68ecd771e9691f3af67a932f7dd2075f988d6d852585dcfad8a47",
+    "result_lines": [
+      "RR41 RETAINED DEATH CLIP: PASS (96 frames; 0 errors; exact round-1 native pixels; not fresh proof)"
+    ],
+    "frames": 96,
+    "errors": [],
+    "source_paint_and_layout_hashes_match": true,
+    "current_renderer_proof": false
+  },
+  "scope": {
+    "art_bytes_unchanged": true,
+    "director_files_unchanged": true,
+    "cloak_repair_rows_unchanged": 396,
+    "original_partition": {
+      "cape_far": 2498,
+      "cape_near": 0
+    },
+    "rest_bytes_unchanged": true,
+    "generic_rig_code_unchanged": true,
+    "owner_dirty_native_report_preserved_sha256": "34349bb525df9fec3005c56da145c25586e6cdc761de44fb86623adfea74dcec"
+  },
+  "proof_for_design_owner": {
+    "commands": [
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-41 && LABYRINTH_TASK_ID=rr-41 RR37_RESULT_PREFIX=rr41-feedback2 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh native",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-41 && LABYRINTH_TASK_ID=rr-41 RR37_RESULT_PREFIX=rr41-feedback2 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh sheets",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-41 && LABYRINTH_TASK_ID=rr-41 RR37_RESULT_PREFIX=rr41-feedback2 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh review"
+    ],
+    "configuration": "1920x1080, UI scale 100%; fresh native result manifest prefix rr41-feedback2",
+    "expected_outputs": [
+      "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback2-native-result.json",
+      "experiments/cutouts/frostglass_lancer/rr37/proof/native/frames.json",
+      "experiments/cutouts/frostglass_lancer/rr37/proof/contact_sheets/front_lunge_3x.png",
+      "experiments/cutouts/frostglass_lancer/rr37/proof/contact_sheets/front_pin_3x.png",
+      "experiments/cutouts/frostglass_lancer/rr37/proof/frostglass_lancer_review.mp4"
+    ],
+    "retained_fixture": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/front_death/pose_0082.png",
+    "fresh_native_exit_zero_observed": false
+  },
+  "todo_design": [],
+  "chosen_defaults": {
+    "proof_manifest_prefix": "rr41-feedback2 (proof only)",
+    "test_fixtures": "UV, XY, RGBA and transforms copied from the director capture; mutation RGBA reuses existing tests.test_rr37_lancer.TEST_DEFAULTS. No player-facing defaults."
+  },
+  "open_issues": [
+    "Fresh windowed native rerun is director-owned. Full suites were not rerun per feedback scope."
+  ],
+  "superseded_failures": [
+    {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback2/rigid-regressions.log",
+      "result": "Ran 4 tests; FAILED (failures=4)",
+      "resolution": "The source-only builder wrote raw production assets. Restored their exact pre-run/HEAD bytes; all source-hash assertions retained. No art changes remain."
+    },
+    {
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback2/rigid-regressions-final.log",
+      "result": "Ran 4 tests; FAILED (errors=1)",
+      "resolution": "Mutation test attempted to edit a read-only Pillow array; copy the fixture array before mutation. No assertions changed."
+    }
+  ],
+  "workflow": "No commit, push, branch change, peer review, signoff request, queue edit or windowed run.",
+  "focused_tests": {
+    "command": "LABYRINTH_TASK_ID=rr-41 PYTHONDONTWRITEBYTECODE=1 python3 -u -m unittest tests.test_rr41_feedback2 tests.test_rr41_feedback1 tests.test_rr39_lancer.CleanupTests.test_rr37_native_frames_fail_and_rest_controls_pass -v",
+    "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr41-feedback2/focused.log",
+    "sha256": "b0379e43f19c213dce52ca7f7bd0d963fa2514ebfca30b2a8526d7f3e65d6d95",
+    "result_lines": [
+      "RR41 DEATH82 RECOLOUR MUTATION: PASS (unpainted native hand texel still fails)",
+      "RR41 DEATH82 ROUNDING: PASS (same phase; recorded hand UV [127,143], reconstructed UV [127,142])",
+      "RR41 RETAINED DEATH82: PASS (old sampling rejects 1 painted texel; recorded transforms yield 0 errors)",
+      "RR41 SOFTWARE DEATH82 REGRESSION: PASS (old oracle fails; 4 recorded rigid/mesh UV choices pass)",
+      "RR41 BOUNDARY MUTATION: PASS (reviewer UVs [141,149], [141,150] rejected in lunge 42)",
+      "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=396px production=401px)",
+      "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+      "RR41 EXTENSION RECIPE MUTATION: PASS (gait and clip targets retired on both cloaks)",
+      "RR41 NATIVE BOUNDARY MUTATION: PASS (legal palette colour cannot choose a painted UV certificate)",
+      "RR41 NATIVE MISSING-PAINT MUTATION: PASS (no opaque source candidate can become certified air)",
+      "RR41 PACKED DEATH/BOUNDARIES: PASS (468 UV/pose cases; software geometry; no fresh native capture)",
+      "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+      "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+      "RR41 OWNERSHIP SWAP: PASS (source and production independently reject far-to-near UV [112,142])",
+      "RR39 RR37 NATIVE REJECTION: PASS (17 rejected frames; 2 clean rest controls)",
+      "Ran 12 tests in 582.719s",
+      "OK"
+    ],
+    "negative_results": "PARTITION: FAIL lines inside the ownership-swap mutation are expected failures; its test asserts both source/production and both pieces reject the swap.",
+    "software_cases": 468,
+    "all_death_frames": 96,
+    "nearest_uv_choices_per_death_frame": 4,
+    "fresh_renderer_proof": false
+  },
+  "changed_files": [
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr37/rr41_exposure_repairs.json",
+      "sha256": "d3d817ed81e2061c7d16b9406f258dd61bc44df50167e94a3519a26d0a44f344"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_exposure_repairs.json",
+      "sha256": "d3d817ed81e2061c7d16b9406f258dd61bc44df50167e94a3519a26d0a44f344"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/.gdignore",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/frames.json",
+      "sha256": "491bd97fd89816c0eab222c1075cf6d5d1e156b44ca544ec3798e3888533551d"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/front_death/pose_0082.png",
+      "sha256": "c8f9e8c5be6f4e4349157d32c37f53804969da42b6bcb54b03de592beaab8939"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/native_storage.json",
+      "sha256": "7e399b2a5e9ba36a8c870fac0f5bbb87a82df232c483f1bc1ef39e1e2f675f0d"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/arm_far.png",
+      "sha256": "eec4aa9d2369e460d3723f4d9ef27c098f8f5d9c67ed8c8a0b5f58f82fc009aa"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/arm_near.png",
+      "sha256": "bf459c9b6d58a924a7ca296470a8ff20592cd367c0cfe1310822a9035e952d76"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/cape_far.png",
+      "sha256": "5775ba91e4a4b02f0648854fb4b248bcb4944096c58d4dd3f90100019c96f3d6"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/cape_near.png",
+      "sha256": "ba9e12373633236b77f6aebe5a8721dbb29752b17ac5df70aa4ac7ab2810b1bc"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/covered_cape_far.png",
+      "sha256": "3d9b7667280fc66bd29f4f17b53bbb7c4ba458c8bcd0f1ed563ab8ec1beba981"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/covered_foot_far.png",
+      "sha256": "729bb228cb52a51e5ac9f6640019b31575af60db305fe438364908caf9c5be6c"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/covered_torso.png",
+      "sha256": "8f4456e52b78c681e0a5ffae1f90cf2859c291de515aaeda8d805db8771e4b82"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/foot_far.png",
+      "sha256": "f25e751f97c83080417e35c24f9288755b2792e78ab6d10a6fad4731aa54ef57"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/foot_near.png",
+      "sha256": "66356e1926d6a8b03ce80ab7339fcfcf0c223589eca4dbbef04f54a48f47350d"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hand_far.png",
+      "sha256": "3d762962651e6980b11cee4cd71021369e8ad415d371d87bd5db855da0d33e79"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hand_near.png",
+      "sha256": "58ac066949d4ae66aa42805659e12e95e316a53a7c01dbc8abb8eed5df9c2d45"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/head.png",
+      "sha256": "7c24dbc4a3c993983dd94ed67f90f80da80222f266de14d438319488b4911683"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_arm_far.png",
+      "sha256": "2c2e61b62910878ab148cd2ceee3451c936bffa5ef53059c24794d5ee39fc1a2"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_arm_near.png",
+      "sha256": "6f7be3872724fe7b75fc587ebde43bbb971717f337e30063669c342ca7ee1f42"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_cape_far.png",
+      "sha256": "ffc19a5c018405444928ea786addf4c18b96b9b321a0cb281f0ad36bc8752d77"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_cape_near.png",
+      "sha256": "5dfbb0bcad4e70c066993e1ccc90f7d0fdcfe43f537dbea3c1f7737c3a2ac224"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_foot_far.png",
+      "sha256": "de1bd6ccc425fb73671958b51a67373df76839dffba0728005afe8f13ae7a7a8"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_foot_near.png",
+      "sha256": "8a2012fd0ec5ce7caf3b6b86f3557bc9d82eb81d32976d602a3297d014fd8705"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_hand_far.png",
+      "sha256": "78fabd92272cfbeeee361469e55adfaca2f107af38bea874b16253583fe6d774"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_hand_near.png",
+      "sha256": "65f40836a093554ea954da812718a5dc516244bdf096bdd68530ad0fd1c4952c"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_head.png",
+      "sha256": "e14ff9fc13f9b56f92e3308f8b4a9a4ee95d04cb83efba4d5b78f6a6abbcec8a"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_leg_far.png",
+      "sha256": "accb4f01b220883d3505da9023ce453651835f8ce86b01a40747cae6ea3410c7"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_leg_near.png",
+      "sha256": "babe88ae7932805b00afff83b2204d0b73433b1201abb069e3bc5a21124b6921"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_pelvis.png",
+      "sha256": "71f0328a4036b0028131db226ae886d78970886904dcdeda4ef609f188e7da41"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_spear.png",
+      "sha256": "ad70ad745f370513483ef8862447bcf9de66c0c87c4849b9c48db04cdd38fbb4"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_tabard.png",
+      "sha256": "f6e74600731a596ae6b273f54f6d2cb0e23ce0f025c7ed0720c0882fca829df8"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/hidden_torso.png",
+      "sha256": "ea1ade601e38d647d7e9a06b2b18d0a4d2d73b45a975e5c601d5b29ff5b22a87"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/leg_far.png",
+      "sha256": "e6931531cc9f24b6b1b67c1e39e48b90dfef51f4931a2e214b6783d17add4195"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/leg_near.png",
+      "sha256": "383bf11fa37b89e7b9c28d19a780c67b973047367dbdfe4b3e307b9e37a9f229"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/pelvis.png",
+      "sha256": "9dcb5498b6e0f1998273de843d885070643f07263ad5e7f875be5ab36963d8a0"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/spear.png",
+      "sha256": "e30647d37af4b28f2dc32c5ac5d319c5b89f6a52e2a1d27bc64c07ed7e49e7d4"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/tabard.png",
+      "sha256": "68a8ae8a7815b5d0fbbdd2b3639d7d196a2ae7379a2c39edbe347f08d3b5a328"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pieces/death/0082/front/torso.png",
+      "sha256": "18fd6d95d3db2c82b3c038fe37dd3558ad9d636fe114de3d520cfcf3bf19717b"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_feedback2_fixture/pose.json",
+      "sha256": "521a6a043639046cb25f6cccfda31733872c64105e64247498ba82cc705cee65"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_native_samples.py",
+      "sha256": "7e25c3f4904b5481d715b487ed3fc69b0b6fb3f042e972ed5f10a02fd2ee2713"
+    },
+    {
+      "path": "experiments/cutouts/frostglass_lancer/rr41_uncovered.py",
+      "sha256": "5ad331e6a612aa1b835f48e170e7cf9500fd06d252b081c3363bf61323729824"
+    },
+    {
+      "path": "tests/test_rr41_feedback1.py",
+      "sha256": "e5a97cd00373bdea5b0b46275ce656faefc90704a124f1563873e217e4a8dcac"
+    },
+    {
+      "path": "tests/test_rr41_feedback2.py",
+      "sha256": "7b5387898b1ed45bd5d6c392a8789d52ccce575da6a9c024ecbddef73445cca0"
+    }
+  ],
+  "additional_results": [
+    "git diff --check: exit 0",
+    "RR41 SCOPE: PASS (2140 unrelated density records unchanged; other figures, rear and generic code byte-identical)",
+    "RR41 FEEDBACK2 BYTES: PASS (all assets, rest PNGs, shared records and owner native report retained)"
+  ]
+}

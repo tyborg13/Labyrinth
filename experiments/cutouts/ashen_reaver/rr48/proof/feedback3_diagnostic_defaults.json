@@ -1,0 +1,6 @@
+{
+  "packed_resource_diagnostic_timeout_seconds": 30,
+  "native_pixels": false,
+  "python_retry_shard_timeout_seconds": 6000,
+  "reason": "Observed four 300-second mutation controls plus normal shard workload exceeded the default 2400-second shard deadline; fixture assertions and their own deadlines unchanged."
+}

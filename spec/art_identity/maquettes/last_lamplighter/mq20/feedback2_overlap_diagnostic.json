@@ -1,0 +1,10 @@
+{
+  "raster_size": 1024,
+  "lantern_body_pixels": 10814,
+  "overlap_pixels": 505,
+  "overlap_share": 0.04669872387645645,
+  "lantern_in_front_pixels": 505,
+  "lantern_in_front": true,
+  "minimum_depth_margin_over_H": 0.060411793337052135,
+  "definition": "1024px front-camera triangle projections, cap-to-base body excluding chain/rings; near leg is thigh, knee, shin and foot. Overlap is a union and every overlapping ray must meet the lantern first."
+}

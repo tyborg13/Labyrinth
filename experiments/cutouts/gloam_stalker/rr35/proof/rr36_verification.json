@@ -1,0 +1,197 @@
+{
+  "unit": "rr-36",
+  "risk_tier": "standard",
+  "base_head": "e534b34532d84bcb08ed6e780394714aa8ad966d",
+  "uncommitted": true,
+  "windowed_runs_attempted": false,
+  "peer_review_run": false,
+  "native_pass_after_observed": false,
+  "acceptance": "pending director native captures and 2x inspection",
+  "checks": [
+    {
+      "name": "focused",
+      "command": "LABYRINTH_TASK_ID=rr-36 python3 -B -m unittest tests.test_rr35_cutout tests.test_rr35_production tests.test_rr35_native_defects",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 36 tests in 125.749s",
+        "OK"
+      ]
+    },
+    {
+      "name": "all CPU frames",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_seams.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 FRONT CPU SEAMS/CLEAN: PASS (353 frames; 0 failures)",
+        "RR35 REAR CPU SEAMS/CLEAN: PASS (353 frames; 0 failures)"
+      ]
+    },
+    {
+      "name": "headless gates",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_gates.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 ALL GATES: PASS (0 unique errors; native=False)"
+      ]
+    },
+    {
+      "name": "native fail-before",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr36_native_checks.py --native experiments/cutouts/gloam_stalker/rr36_native_fixture --legacy",
+      "exit_code": 1,
+      "result_lines": [
+        "RR36 D1: FAIL (2 frames; native=True)",
+        "RR36 D2: FAIL (5 frames; native=True)",
+        "RR36 D3: FAIL (4 frames; native=True)",
+        "RR36 D4: FAIL (2 frames; native=True)",
+        "RR36 D5: FAIL (3 frames; native=True)"
+      ]
+    },
+    {
+      "name": "CPU pass-after",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr36_native_checks.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR36 D1: PASS (2 frames; native=False)",
+        "RR36 D2: PASS (5 frames; native=False)",
+        "RR36 D3: PASS (4 frames; native=False)",
+        "RR36 D4: PASS (2 frames; native=False)",
+        "RR36 D5: PASS (3 frames; native=False)"
+      ]
+    },
+    {
+      "name": "preservation",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_preservation.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 PRESERVATION: PASS (2959 protected files; 3 expected generic changes)"
+      ]
+    },
+    {
+      "name": "art identity",
+      "command": "python3 tests/test_art_identity_gate.py",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 111 tests in 37.841s",
+        "OK"
+      ]
+    },
+    {
+      "name": "full Godot suite",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-36 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+      "exit_code": 1,
+      "result_lines": [
+        "MAIN BODY ASSERTIONS: 495455",
+        "FULL SUITE RUNTIME: 592.217 seconds (budget 900 seconds)",
+        "ERROR: Program sub-suite failed: special_encounter_test (exit 1)",
+        "TEST RESULT: FAIL (1 failure(s))"
+      ]
+    },
+    {
+      "name": "unrelated full-suite failure reproduction",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-36 --stream -- godot --headless --path . --script tests/special_encounter_test.gd -- --assets-only",
+      "exit_code": 1,
+      "result_lines": [
+        "SPX special encounter suite: 2 failures"
+      ]
+    },
+    {
+      "name": "headless review provenance",
+      "command": "LABYRINTH_TASK_ID=rr-36 sh experiments/cutouts/gloam_stalker/rr35_proof.sh review --validate-only",
+      "exit_code": 1,
+      "result_lines": [
+        "RR35 BONE SAMPLES: PASS (1096 poses; headless transforms only)",
+        "RR35 COMPACT SAMPLES: PASS (1096 poses; full transforms in ignored logs)",
+        "RR35 NATIVE PROVENANCE: RECAPTURE REQUIRED (missing, incomplete or stale inputs)"
+      ]
+    },
+    {
+      "name": "focused reference rigs",
+      "command": "LABYRINTH_TASK_ID=rr-36 python3 -B tests/rr35/run_reference_tests.py --compare-legacy-reach tests.test_rr10_humanoid tests.test_rr11_humanoid tests.test_rr18_humanoid tests.test_rr17_cutout tests.test_rr17_integration tests.test_rr21_cutout tests.test_rr21_production tests.test_rr26_consolidation tests.test_rr29_mimic tests.test_rr30_mortar tests.test_rr31_calibration tests.test_rr31_storage tests.test_rr32_herald tests.test_rr32_production tests.test_rr15_reach tests.test_rr16_feedback1 tests.test_rr16_review_fixes tests.test_rr14_anatomy",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 177 tests in 427.998s",
+        "OK",
+        "RR16 CURVED REACH: FAIL AS REQUIRED (23.113249183 px at 0.500730859)",
+        "RR16 SUPPORT MODES: PASS (4 views/configurations)",
+        "RR35 LEGACY REACH REPORTS: PASS (23 byte-identical JSON reports)"
+      ]
+    }
+  ],
+  "TODO_DESIGN": [],
+  "chosen_defaults": {
+    "mutation_rgba": [
+      1,
+      255,
+      1,
+      255
+    ],
+    "full_suite_timeout_seconds": 900
+  },
+  "generic_changes_added": [],
+  "other_rigs_changed": [],
+  "density_source_composition_not_native": {
+    "front_changed_RGB_texels": 10,
+    "rear_changed_RGB_texels": 0,
+    "changed_alpha_texels": 0
+  },
+  "open_issues": [
+    "Fresh native/density/rest/idle/production/review proof is director-owned.",
+    "Missing unrelated special-encounter emblem .ctex imports cause the full-suite failure; test and sidecars match local master.",
+    "After new density rebake, reconcile any new rest receipt against its real capture without relabelling the accepted 187ce0327 baseline."
+  ],
+  "requirements": {
+    "1_D1": {
+      "cause": "near-boot fringe owned by far foot plus 445-texel gait bridge",
+      "implementation": "fixed",
+      "native_fail_before": true,
+      "CPU_pass_after": true,
+      "fresh_native_acceptance": "pending director"
+    },
+    "2_D2": {
+      "cause": "cloth fringe and foreign/edge hidden fill on the wrapped shin",
+      "implementation": "fixed",
+      "native_fail_before": true,
+      "CPU_pass_after": true,
+      "fresh_native_acceptance": "pending director"
+    },
+    "3_D3": {
+      "cause": "wrap split across pelvis boundary and violet hidden-fill copies",
+      "implementation": "fixed",
+      "native_fail_before": true,
+      "CPU_pass_after": true,
+      "fresh_native_acceptance": "pending director"
+    },
+    "4_D4": {
+      "cause": "same cloth split across torso/pelvis transforms at source y151",
+      "implementation": "fixed",
+      "native_fail_before": true,
+      "CPU_pass_after": true,
+      "fresh_native_acceptance": "pending director"
+    },
+    "5_D5": {
+      "cause": "ragged cloth edge assigned to leg plus hidden feature duplicates",
+      "implementation": "fixed",
+      "native_fail_before": true,
+      "CPU_pass_after": true,
+      "fresh_native_acceptance": "pending director"
+    },
+    "6_preservation": {
+      "status": "PASS",
+      "changed_baseline_records": [
+        "production:assets/units/gloam_stalker_cutout/humanoid_v2/front/rest.png",
+        "production:assets/units/gloam_stalker_cutout/humanoid_v2/rear/rest.png"
+      ],
+      "accepted_rebake_revision": "187ce0327f3da507d4ba1e24ea55f4b76fdf09a8",
+      "rest_PNGs_unchanged": true
+    },
+    "gates": {
+      "legacy_negative_controls": "all 16 defect/frame rows fail on the retained e4b native payloads",
+      "CPU_diagnostics": "all 16 pass; both 353-frame existing gates green",
+      "full_suite": "1 unrelated sub-suite failure; missing emblem .ctex imports"
+    },
+    "proof": {
+      "headless": "complete with reported unrelated full-suite failure",
+      "windowed": "not attempted; exact director commands in rr36_implementation.md"
+    }
+  }
+}

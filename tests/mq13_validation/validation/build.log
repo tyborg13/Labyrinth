@@ -1,0 +1,4 @@
+MQ13_BRIDGE: cold; exit=0
+MQ13_BRIDGE: replay; exit=0
+MQ13_BRIDGE: independent_cold; exit=0
+MQ13_BRIDGE: exact_native_replay; exit=0

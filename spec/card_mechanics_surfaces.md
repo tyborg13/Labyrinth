@@ -84,8 +84,9 @@ an empty tile is a legal area target and riders and surfaces apply as for any ar
 - Meteorfall uses the Area aim: Rotate button, keys and controller bumpers; the hover footprint
   (`_aoe_tiles_for_action`) equals the marked tiles. `CombatBoardView` draws each marked tile
   (ember fill, ring, Meteorfall icon, tooltip with the incoming damage) from combat state, so
-  marks stay visible through enemy turns. The landing animates at turn start as a
-  `status_damage` step (`trigger: "meteor_marks"`) carrying losses for floating text.
+  marks stay visible through enemy turns. The landing is a turn-start `status_damage` step
+  (`trigger: "meteor_marks"`). `scripts/meteorfall_landing_view.gd` plays it with Vyraketh's
+  meteor: impact sound, damage, Fire and cleared marks all arrive on its contact frame.
 - Inspection fixture: `tests/meteor_marks_board_probe.gd` (run through
   `tools/visual_probe_runner.py --no-headless --expect-size 1920x1080`) renders marked tiles
   beside ordinary Fire. `card_targeting_audit_suite.state_for` seeds a Chilled enemy on

@@ -35,6 +35,7 @@ static func legacy_frames(identity: String) -> Array[Texture2D]:
 		var board := Board.new()
 		_legacy_frames[identity] = board.call("_load_idle_frames_for_art_path", identity, str(GameData.enemy_def(identity).get("art_path", "")))
 		board.free()
+
 	return _legacy_frames[identity]
 
 func configure(identity: String, source: TextureRect, slot: int, slot_count: int) -> void:

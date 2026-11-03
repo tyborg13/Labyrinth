@@ -1,0 +1,375 @@
+{
+  "passed": true,
+  "accepted_pose_exact": true,
+  "objects": {
+    "masked_hood_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "shoulder_yoke_render": {
+      "topology_unchanged": true,
+      "unchanged": false,
+      "allowed_attachment_motion": true,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "tunic_render": {
+      "topology_unchanged": true,
+      "unchanged": false,
+      "allowed_attachment_motion": true,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "belt_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "tabard_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": true,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "banner_near_front_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "banner_near_rear_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "banner_far_front_render": {
+      "topology_unchanged": true,
+      "unchanged": false,
+      "allowed_attachment_motion": true,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "banner_far_rear_render": {
+      "topology_unchanged": true,
+      "unchanged": false,
+      "allowed_attachment_motion": true,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "horn_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "horn_band_0_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "horn_band_1_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "horn_band_2_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "horn_band_3_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "horn_band_4_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "crest_mask_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "upper_plate_near_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "fore_plate_near_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "upper_plate_far_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "fore_plate_far_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "shoulder_lame_near_0_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "shoulder_lame_near_1_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "shoulder_lame_near_2_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "armour_thigh_near_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "armour_shin_near_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "armour_thigh_far_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "armour_shin_far_render": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "tabard_back_render": {
+      "topology_unchanged": true,
+      "unchanged": false,
+      "allowed_attachment_motion": true,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_foot_far": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_foot_near": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_fore_far": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_fore_near": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_hand_far": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_hand_near": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_shin_far": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_shin_near": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_thigh_far": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_thigh_near": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_torso": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_upper_far": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    },
+    "body_upper_near": {
+      "topology_unchanged": true,
+      "unchanged": true,
+      "allowed_attachment_motion": false,
+      "near_face_error_m": 0.0,
+      "head_cover_error_m": 0.0,
+      "renderer_near_face_error_m": 0.0,
+      "passed": true
+    }
+  }
+}

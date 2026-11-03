@@ -1,0 +1,18 @@
+proof/logs/
+proof/production_case/
+proof/native/
+proof/native_rest/
+proof/contact_sheets/
+proof/idle_native/
+proof/production_native/
+proof/*.mp4
+__pycache__/
+# Reproducible candidate poses/crops are proof outputs, not importable game art.
+proof/limits/
+proof/feedback1_limits/
+proof/angle_budget/
+# Intermediate feedback-1 rasters/case archives; immutable fixtures live outside proof/.
+proof/feedback1/
+proof/feedback1_before_*/
+proof/feedback1_failed_*/
+proof/feedback2_diagnostics*/

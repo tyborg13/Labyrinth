@@ -98,11 +98,16 @@ class Badge extends Control:
 		_focus_tooltip = null
 
 	func gain(reduced: bool) -> void:
+		finish_gain()
 		pivot_offset = Vector2(19, 19)
 		if reduced: return
 		scale = Vector2.ONE * 1.25
 		_motion = create_tween()
 		_motion.tween_property(self, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+	func finish_gain() -> void:
+		if _motion != null: _motion.kill()
+		scale = Vector2.ONE
 
 	func expire() -> void:
 		focus_mode = Control.FOCUS_NONE
@@ -117,7 +122,7 @@ var badges: Dictionary = {}
 var _previous_ids: Array[String]
 var _initialized: bool = false
 
-func sync(host: GridContainer, state: Dictionary, reduced_motion: bool = false) -> void:
+func sync(host: GridContainer, state: Dictionary, reduced_motion: bool = false, gain_enabled: bool = true) -> void:
 	var current: Array[String]
 	for entry: Dictionary in Omens.active(state):
 		var id: String = str(entry["id"])
@@ -130,11 +135,11 @@ func sync(host: GridContainer, state: Dictionary, reduced_motion: bool = false) 
 			badge.set_meta("omen_id", id)
 			host.add_child(badge)
 			badges[id] = badge
-			if _initialized and not _previous_ids.has(id): badge.gain(reduced_motion)
+			if gain_enabled and _initialized and not _previous_ids.has(id): badge.gain(reduced_motion)
 		else:
 			var refreshed: bool = int(entry["fights_left"]) > int(badge.entry.get("fights_left", 0))
 			badge.update_entry(entry)
-			if refreshed: badge.gain(reduced_motion)
+			if gain_enabled and refreshed: badge.gain(reduced_motion)
 		# Rebuilds of the relic grid must preserve ordering after relics and Rites.
 		host.move_child(badge, host.get_child_count() - 1)
 	for id: String in badges.keys():

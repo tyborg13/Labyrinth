@@ -1,0 +1,393 @@
+{
+  "ok": false,
+  "native_pixels": true,
+  "frames": [
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 48,
+        "arm_far": 0,
+        "hand_far": 25
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 48,
+        "arm_far": 0,
+        "hand_far": 25
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 6,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 0,
+        "arm_far": 0,
+        "hand_far": 128
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 12,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 0,
+        "arm_far": 0,
+        "hand_far": 132
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 18,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 0,
+        "arm_far": 0,
+        "hand_far": 127
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "lunge",
+      "frame": 22,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 115,
+        "arm_far": 3,
+        "hand_far": 20
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "lunge",
+      "frame": 36,
+      "occluded_pixels": {
+        "torso": 165,
+        "cape_near": 0,
+        "cape_far": 8,
+        "arm_far": 8,
+        "hand_far": 0
+      }
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 12,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 0,
+        "arm_far": 0,
+        "hand_far": 34
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 0,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 0,
+        "arm_far": 0,
+        "hand_far": 122
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "cast",
+      "frame": 0,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 19,
+        "arm_far": 0,
+        "hand_far": 35
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 4,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 0,
+        "arm_far": 0,
+        "hand_far": 134
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 12,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 0,
+        "arm_far": 0,
+        "hand_far": 129
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 30,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 0,
+        "arm_far": 0,
+        "hand_far": 77
+      }
+    },
+    {
+      "view": "front",
+      "clip": "pin",
+      "frame": 12,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 0,
+        "arm_far": 0,
+        "hand_far": 51
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 13,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 30,
+        "arm_far": 0,
+        "hand_far": 26
+      }
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 25,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 0,
+        "arm_far": 0,
+        "hand_far": 124
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 42,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 30,
+        "arm_far": 0,
+        "hand_far": 26
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 10,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 29,
+        "arm_far": 0,
+        "hand_far": 35
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 72,
+      "occluded_pixels": {
+        "torso": 0,
+        "cape_near": 0,
+        "cape_far": 0,
+        "arm_far": 0,
+        "hand_far": 0
+      }
+    }
+  ],
+  "findings": [
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "piece": "cape_far",
+      "pixels": 44,
+      "bbox": [
+        385,
+        345,
+        392,
+        357
+      ],
+      "crop": "native_before_crops/rear_move_0009_cape_far.png",
+      "crop_sha256": "b825b5b5546db3cb6aba045770d7c7736ea2b25c098b71ab63fcada362094518"
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "piece": "cape_far",
+      "pixels": 44,
+      "bbox": [
+        464,
+        305,
+        471,
+        317
+      ],
+      "crop": "native_before_crops/rear_move_0041_cape_far.png",
+      "crop_sha256": "ca0db5ffa78f62baccad1f4a4910de351f64627cb83a19c879c694a683d3131e"
+    },
+    {
+      "view": "rear",
+      "clip": "lunge",
+      "frame": 22,
+      "piece": "cape_far",
+      "pixels": 96,
+      "bbox": [
+        352,
+        330,
+        366,
+        361
+      ],
+      "crop": "native_before_crops/rear_lunge_0022_cape_far.png",
+      "crop_sha256": "f300c31ffa700eb3603f2100e87dbaf86539e0da6eebc040abe1b2342bfa962d"
+    },
+    {
+      "view": "rear",
+      "clip": "lunge",
+      "frame": 22,
+      "piece": "arm_far",
+      "pixels": 3,
+      "bbox": [
+        372,
+        307,
+        374,
+        309
+      ],
+      "crop": "native_before_crops/rear_lunge_0022_arm_far.png",
+      "crop_sha256": "d55c587edba0a07e8e102f0bf148c554f7c9e67651e56215c0afc190ca89b89a"
+    },
+    {
+      "view": "rear",
+      "clip": "lunge",
+      "frame": 36,
+      "piece": "torso",
+      "pixels": 165,
+      "bbox": [
+        347,
+        280,
+        369,
+        290
+      ],
+      "crop": "native_before_crops/rear_lunge_0036_torso.png",
+      "crop_sha256": "510ae13799e36c1d7151daeb139d0f89c1a00c48568c5c05f233c2315d519c6e"
+    },
+    {
+      "view": "rear",
+      "clip": "lunge",
+      "frame": 36,
+      "piece": "cape_far",
+      "pixels": 6,
+      "bbox": [
+        346,
+        285,
+        349,
+        289
+      ],
+      "crop": "native_before_crops/rear_lunge_0036_cape_far.png",
+      "crop_sha256": "704141810b3af69ad532e3ed00c5c506279f846af99d1d16e706c021b7335b8d"
+    },
+    {
+      "view": "rear",
+      "clip": "lunge",
+      "frame": 36,
+      "piece": "arm_far",
+      "pixels": 8,
+      "bbox": [
+        363,
+        288,
+        369,
+        291
+      ],
+      "crop": "native_before_crops/rear_lunge_0036_arm_far.png",
+      "crop_sha256": "890ddb778a80dea1c76dc0c36f0871c1a5a6415adc9bc4757c5d2650dd4c35de"
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 13,
+      "piece": "cape_far",
+      "pixels": 17,
+      "bbox": [
+        361,
+        353,
+        368,
+        360
+      ],
+      "crop": "native_before_crops/rear_guard_0013_cape_far.png",
+      "crop_sha256": "03b223dd90401c359511bdbeb54f1888463c99934beaea4eac9f0725a1032840"
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 42,
+      "piece": "cape_far",
+      "pixels": 17,
+      "bbox": [
+        361,
+        353,
+        368,
+        360
+      ],
+      "crop": "native_before_crops/rear_guard_0042_cape_far.png",
+      "crop_sha256": "03b223dd90401c359511bdbeb54f1888463c99934beaea4eac9f0725a1032840"
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 10,
+      "piece": "cape_far",
+      "pixels": 14,
+      "bbox": [
+        357,
+        345,
+        367,
+        359
+      ],
+      "crop": "native_before_crops/rear_hit_0010_cape_far.png",
+      "crop_sha256": "f5f21036b709dcc5f3637b072c415e8f1d9356923138c3878eb246c84f26a1e8"
+    }
+  ],
+  "finding_counts": {
+    "arm_far": 2,
+    "cape_far": 7,
+    "torso": 1
+  },
+  "depth_authority": "mq-14 measurements.json: camera, spear path, armour mounts and registered cloak panel",
+  "depth_authority_sha256": "d8625a2dad2fdd1ae90ccdaf416633199acca2c3d55e7839ffca1e94ad1ca178"
+}

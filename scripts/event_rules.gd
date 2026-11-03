@@ -6,9 +6,11 @@ const GameData = preload("res://scripts/game_data.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Omens = preload("res://scripts/omen_rules.gd")
+const Preview = preload("res://scripts/event_preview.gd")
+const MIN_ROTATION_CANDIDATES: int = 6
 const MAGIC_REQUIREMENT_COPY: String = "Requires a spell in your deck."
 
-const EFFECT_TYPES: Array = ["hp", "heal", "heal_percent", "max_hp", "embers", "relic", "card", "card_choice", "equipment", "reforge", "item", "lose_item", "transform_magic", "omen", "defiance", "scout", "reveal", "random"]
+const EFFECT_TYPES: Array = ["hp", "heal", "heal_percent", "max_hp", "embers", "relic", "card", "card_choice", "equipment", "reforge", "item", "lose_item", "transform_magic", "omen", "defiance", "scout", "reveal"]
 const REQUIREMENT_TYPES: Array = ["hp_above", "max_hp_above", "embers_at_least", "has_item", "has_equipment", "has_attuned_magic"]
 const POOLS: Array = ["any", "earth", "fire", "air", "ice", "lightning", "shadow"]
 const EMPTY_POOL_EMBERS: int = 40
@@ -49,13 +51,6 @@ static func _validate_effects(effects: Array, path: String, problems: Array[Stri
 		var type: String = str(effect.get("type", ""))
 		if type not in EFFECT_TYPES: problems.append("Unknown effect: %s" % path)
 		if type == "omen" and GameData.omen_def(str(effect.get("id", ""))).is_empty(): problems.append("Unknown omen: %s" % path)
-		if type == "random":
-			var total: float = 0
-			for outcome: Dictionary in effect.get("outcomes", []):
-				total += float(outcome.get("weight", 0))
-				if float(outcome.get("weight", 0)) < 0: problems.append("Invalid random weight: %s" % path)
-				_validate_effects(outcome.get("effects", []), path, problems)
-			if not is_equal_approx(total, 100.0): problems.append("Random weights must sum to 100: %s" % path)
 
 static func section_index(state: Dictionary) -> int:
 	var room: Dictionary = Graph.room(state, state.get("current_room", Vector2i.ZERO))
@@ -85,6 +80,10 @@ static func select_event(state: Dictionary) -> String:
 		var event: Dictionary = GameData.event_def(id)
 		if str(event["pool"]) == "any": fallback.append(id)
 		if str(event["pool"]) in ["any", element] and index >= int(event["min_section"]) and index <= int(event["max_section"]): candidates.append(id)
+	var rotated: Array[String]
+	for id: String in candidates:
+		if not (state.get("event_memory", []) as Array).has(id): rotated.append(id)
+	if rotated.size() >= MIN_ROTATION_CANDIDATES: candidates = rotated
 	if candidates.is_empty(): candidates = fallback
 	if candidates.is_empty(): return "lost_cartographer"
 	var weights: Array = []
@@ -198,7 +197,9 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 	var next: Dictionary = state.duplicate(true)
 	var outcomes: Array[Dictionary]
 	var result: Dictionary = {}
+	var effect_outcomes: Array[Array]
 	for effect: Dictionary in effects:
+		var outcome_start: int = outcomes.size()
 		var type: String = str(effect["type"])
 		var value: int = DepthRules.event_value(state, str(effect.get("type", "")), int(effect.get("amount", 0)))
 		match type:
@@ -245,7 +246,9 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 			"reforge":
 				var slot: String = str(effect["slot"])
 				var old: String = str(next.get("equipped_equipment", {}).get(slot, ""))
-				if old.is_empty(): continue
+				if old.is_empty():
+					effect_outcomes.append([])
+					continue
 				var old_rarity: String = str(GameData.equipment_def(old).get("rarity", "common"))
 				var rarity: String = stepped_rarity(old_rarity, int(effect["rarity_step"]))
 				var pool: Array[String]
@@ -259,6 +262,7 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 				if id.is_empty():
 					next = engine.add_held_embers(next, EMPTY_POOL_EMBERS)
 					outcomes.append({"type": "embers", "amount": EMPTY_POOL_EMBERS, "substitution_for": type})
+					effect_outcomes.append(outcomes.slice(outcome_start))
 					continue
 				next["equipped_equipment"][slot] = id
 				(next.get("equipment_grafts", {}) as Dictionary).erase(old)
@@ -328,19 +332,13 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 					# consuming Scouts, converting mysteries or emitting Scout uses.
 					if Graph.modern(next) and str(room.get("type", "")) == "mystery": room["scouted"] = true
 				outcomes.append({"type": type, "hops": effect["hops"], "rooms": targets})
-			"random":
-				var random_outcomes: Array = effect["outcomes"]
-				var weights: Array = []
-				for outcome: Dictionary in random_outcomes: weights.append(float(outcome["weight"]))
-				var picked: Dictionary = random_outcomes[_weighted_index(rng, weights)]
-				var nested: Dictionary = apply_effects(next, picked.get("effects", []), rng, engine)
-				next = nested["state"]
-				outcomes.append_array(nested["outcomes"])
-				result["result_text"] = nested.get("result_text", str(picked.get("result", "")))
+		effect_outcomes.append(outcomes.slice(outcome_start))
 	next = engine._rebuild_deck_cards(next)
 	next["notice"] = str(state.get("notice", ""))
 	result["state"] = next
 	result["outcomes"] = outcomes
+	# Transient grouping for one preview row per authored effect; never saved.
+	result["effect_outcomes"] = effect_outcomes
 	return result
 
 static func stepped_rarity(rarity: String, step: int) -> String:
@@ -448,50 +446,45 @@ static func _attuned_slots(state: Dictionary) -> Array[int]:
 static func slot_name(slot: String) -> String:
 	return "armour" if slot == "armor" else slot
 
+static func preview_choice(state: Dictionary, choice_id: String) -> Array[Dictionary]:
+	var empty: Array[Dictionary]
+	if str(state.get("mode", "")) != "event": return empty
+	var owned: Dictionary = enter_event(state, true)
+	var choice: Dictionary = choice_def(current_id(owned), choice_id)
+	var result: Array[Dictionary]
+	if str(owned.get("mode", "")) != "event" or str(owned.get("event_state", {}).get("page", "")) != "choices" or not choice_available(owned, current_id(owned), choice_id): return result
+	result.assign(apply_effects(owned, choice.get("effects", []), rng_for(owned, "choice|%s" % choice_id))["outcomes"])
+	return result
+
+static func preview_lines(state: Dictionary, event_id: String, choice_id: String) -> Array[Dictionary]:
+	var choice: Dictionary = choice_def(event_id, choice_id)
+	var effects: Array = choice.get("effects", [])
+	var resolution: Dictionary = apply_effects(state.duplicate(true), effects, rng_for(state, "choice|%s" % choice_id))
+	return Preview.lines(effects, resolution["effect_outcomes"], effect_lines(state, effects))
+
 static func choice_effect_lines(state: Dictionary, event_id: String, choice_id: String) -> Array[String]:
-	return effect_lines(state, choice_def(event_id, choice_id).get("effects", []))
+	var lines: Array[String]
+	for line: Dictionary in preview_lines(state, event_id, choice_id): lines.append(str(line["text"]))
+	return lines
 
 static func effect_lines(state: Dictionary, effects: Array) -> Array[String]:
 	var lines: Array[String]
 	for effect: Dictionary in effects:
 		var value: int = DepthRules.event_value(state, str(effect.get("type", "")), int(effect.get("amount", 0)))
 		var type: String = str(effect["type"])
-		var rarity: String = str(effect.get("rarity", "")).capitalize()
-		var element: String = _resolved_element(state, str(effect.get("element", "any"))).capitalize()
-		if not element.is_empty(): element += " "
 		match type:
 			"hp": lines.append("Lose %d @icon(health)." % -value if value < 0 else "Heal %d @icon(health)." % value)
 			"heal": lines.append("Heal %d @icon(health)." % value)
 			"heal_percent": lines.append("Heal %d%% of your max @icon(health)." % int(effect["percent"]))
 			"max_hp": lines.append("%s%d max @icon(health)." % ["+" if value >= 0 else "−", absi(value)])
 			"embers": lines.append("Gain %d Embers." % value if value >= 0 else "Pay %d Embers." % -value)
-			"relic": lines.append("Gain a random %s relic." % rarity)
-			"card": lines.append("Gain a random %s %sspell." % [rarity, element])
-			"card_choice":
-				var tail: String = ", %s or better." % str(effect["min_rarity"]).capitalize() if effect.has("min_rarity") else "."
-				lines.append("Choose 1 of %d %sspells%s" % [int(effect["count"]), element, tail])
-			"equipment":
-				var noun: String = slot_name(str(effect["slot"])) if effect.has("slot") else "piece of gear"
-				lines.append("Gain %s %s %s." % ["random" if noun == "boots" else "a random", rarity, noun])
-			"reforge":
-				var slot: String = str(effect["slot"])
-				var gear: Dictionary = GameData.equipment_def(str(state.get("equipped_equipment", {}).get(slot, "")))
-				lines.append("Reforge your %s into a random %s one." % [slot_name(slot), stepped_rarity(str(gear.get("rarity", "common")), int(effect["rarity_step"])).capitalize()])
-			"item": lines.append("Gain a random item." if int(effect["count"]) == 1 else "Gain %d random items." % int(effect["count"]))
-			"lose_item": lines.append("Lose a random item.")
-			"transform_magic":
-				var count: int = int(effect["count"])
-				lines.append("Transform a random spell into a higher rarity." if int(effect["rarity_step"]) == 1 else "Transform a random spell." if count == 1 else "Transform %d random spells." % count)
+			"relic", "card", "card_choice", "equipment", "reforge", "item", "lose_item", "transform_magic": lines.append("")
 			"omen":
 				var omen: Dictionary = GameData.omen_def(str(effect["id"]))
 				lines.append("%s: %s. %s (%d fights)" % [str(omen["kind"]).capitalize(), omen["name"], omen["description"], int(omen["fights"])])
 			"defiance": lines.append("Gain 1 @icon(defiance) for this run.")
 			"scout": lines.append("+%d Scout." % value)
 			"reveal": lines.append(("Reveal what the unknown rooms up to %d rooms ahead hold." if Graph.full_visibility(state, section_index(state)) else "Reveal the routes up to %d rooms ahead.") % int(effect["hops"]))
-			"random":
-				for outcome: Dictionary in effect["outcomes"]:
-					var nested: Array[String] = effect_lines(state, outcome.get("effects", []))
-					lines.append("%d%%: %s" % [int(outcome["weight"]), "Nothing." if nested.is_empty() else " ".join(nested)])
 	return lines
 
 static func outcome_lines(state: Dictionary) -> Array[String]:

@@ -1,6 +1,7 @@
 extends RefCounted
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const Flurry = preload("res://tests/fixtures/dormant_flurry_cards.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
@@ -224,6 +225,7 @@ static func _test_move_only_card_does_not_build_enemy_shortcut(expect: Callable)
 
 
 static func _test_every_card_has_one_player_target_decision(expect: Callable) -> void:
+	Flurry.install()
 	var combat := CombatEngine.new()
 	var converted_aoe_ids: Array[String] = ["ember_rain", "molten_reach", "rime_shard", "windlass_volley"]
 	for card_id_var: Variant in GameData.cards().keys():
@@ -264,6 +266,7 @@ static func _test_every_card_has_one_player_target_decision(expect: Callable) ->
 	for card_id: String in converted_aoe_ids:
 		var actions: Array = GameData.card_def(card_id).get("actions", []) as Array
 		expect.call(actions.any(func(action: Variant) -> bool: return str((action as Dictionary).get("type", "")) == "aoe" and not ((action as Dictionary).get("pattern", []) as Array).is_empty()), "%s should provide an authored ranged AOE pattern" % card_id)
+	Flurry.remove()
 
 
 static func _test_preferred_routes_collect_pickups_without_crossing_traps(expect: Callable) -> void:

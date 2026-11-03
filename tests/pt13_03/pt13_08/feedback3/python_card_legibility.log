@@ -1,0 +1,9 @@
+CARD LEGIBILITY TEST RESULT: PASS (3 definitions, 3 contexts, 9 samples, 248 checks, 0 failures)
+.CARD LEGIBILITY NEGATIVE FIXTURES: PASS (26 checks, 0 failures)
+.CARD LEGIBILITY TEST RESULT: PASS (3 definitions, 3 contexts, 9 samples, 242 checks, 0 failures)
+.CARD LEGIBILITY TEST RESULT: PASS (3 definitions, 7 contexts, 21 samples, 294 checks, 0 failures)
+..
+----------------------------------------------------------------------
+Ran 5 tests in 75.146s
+
+OK

@@ -1,0 +1,12 @@
+{
+  "front_job": "spec/art_identity/jobs/ashen_reaver/mq21_front",
+  "rear_job": "spec/art_identity/jobs/ashen_reaver/mq21_rear",
+  "design_placeholders": {},
+  "registration": "independent source-paint landmarks; maquette labels only",
+  "feedback1": {
+    "director_underlays": "spec/peer_benchmark/staged/rr-48",
+    "idle_free_arm": "rides rigidly with torso",
+    "held_follow_reference_frame": "root",
+    "floor": "painted silhouette second-contact stop"
+  }
+}

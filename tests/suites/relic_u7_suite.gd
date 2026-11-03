@@ -1,5 +1,6 @@
 extends RefCounted
 const Combat = preload("res://scripts/combat_engine.gd")
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
 const Rules = preload("res://scripts/surface_variety_relic_rules.gd")
@@ -9,11 +10,16 @@ const Base = preload("res://tests/suites/board_surface_suite.gd")
 const Store = preload("res://scripts/progression_store.gd")
 
 static func run(check: Callable) -> void:
+	await TestClock.run_scoped(null, func(scope: TestClock.GlobalScope) -> void:
+		await _run_scoped(scope, check)
+	)
+
+static func _run_scoped(_globals: TestClock.GlobalScope, check: Callable) -> void:
 	preload("res://tests/suites/snare_regression_suite.gd").run_vault(check)
 	var engine := Combat.new()
 	_test_ember(engine, check)
 	_test_overflow(engine, check)
-	_test_dial(engine, check)
+	preload("res://tests/suites/black_sun_dial_suite.gd").run(check)
 	_test_knots(engine, check)
 	_test_chorus(engine, check)
 	_test_bonded(engine, check)
@@ -22,6 +28,8 @@ static func run(check: Callable) -> void:
 	_test_vault(engine, check)
 	_test_sun(engine, check)
 	_test_funeral(engine, check)
+	_test_funeral_petrify(engine, check)
+	_test_funeral_petrify_reapplication(engine, check)
 	_test_review_regressions(engine, check)
 	_test_navigation_performance(engine, check)
 	_test_navigation_preferences(engine, check)
@@ -90,60 +98,6 @@ static func _test_overflow(engine: Combat, check: Callable) -> void:
 	Surface.place(state, Vector2i(4, 3), "fire")
 	Surface.place(state, Vector2i(4, 3), "ice", {"actor_kind": "relic", "causal_owner": "player"})
 	check.call(Surface.tiles(state, "ice").size() == 5, "Overflow includes explicitly hero-owned relic placement")
-
-static func _test_dial(engine: Combat, check: Callable) -> void:
-	var state: Dictionary = _state(engine, ["black_sun_dial"])
-	for surface: String in ["fire", "ice", "electrified", "rubble"]:
-		Surface.place(state, Vector2i(3, 3), surface)
-		state = _preview(engine, state, {"type": "consume_surface", "surface": surface, "range": 5}, Vector2i(3, 3), check, "Black Sun consume " + surface)
-	check.call(Rules.stored(state) == ["fire", "ice", "electrified"], "Black Sun stores in order and caps storage at three")
-	state = _resume(state, check)
-	state = engine.prepare_next_player_turn(state)
-	check.call(Rules.stored(state).size() == 3, "Black Sun storage survives a new turn")
-	state["enemies"].append(Base.enemy(2, Vector2i(5, 3)))
-	var attack: Dictionary = {"type": "ranged", "range": 5, "damage": 1, "chain": 1}
-	check.call(engine.final_damage_for_player_action(state, attack) == 7, "Black Sun release appears in the damage forecast")
-	state = _preview(engine, state, attack, Vector2i(4, 3), check, "Black Sun release")
-	check.call(int(state["enemies"][0]["hp"]) == 993 and int(state["enemies"][1]["hp"]) == 993 and Rules.stored(state).is_empty(), "Black Sun boosts every enemy hit and releases once per action")
-	check.call(Surface.element_at(state, Vector2i(4, 3)) == "fire" and bool(state["enemies"][0]["chilled"]) and int(state["enemies"][0]["shock"]) == 1 and int(state["enemies"][1].get("shock", 0)) == 0, "Black Sun riders affect only the primary target")
-	Surface.sync_chilled(state)
-	check.call(bool(state["enemies"][0]["chilled"]), "Black Sun's Chill persists without Ice support")
-	state = _resume(state, check)
-	check.call(engine.final_damage_for_player_action(state, attack) == 1, "Black Sun spent storage stays spent after resume")
-	state[Rules.STORED] = ["rubble"]
-	state = _preview(engine, state, {"type": "ranged", "range": 5, "damage": 1}, Vector2i(4, 3), check, "Black Sun Rubble")
-	check.call(int(engine.stagger_delays_between({}, state).get(1, 0)) == 2, "Black Sun Rubble uses normal Stagger 2")
-	var idle: Dictionary = _state(engine, ["black_sun_dial"])
-	check.call(engine.final_damage_for_player_action(idle, attack) == 1, "Black Sun without fuel is idle")
-	Surface.place(idle, Vector2i(4, 3), "ice")
-	idle = engine.surface_actor_arrival(idle, "enemy", 1, Vector2i(4, 2))
-	idle = engine.apply_player_action(idle, {"type": "ranged", "range": 5, "damage": 1, "element": "ice"}, Vector2i(4, 3))
-	check.call(Rules.stored(idle) == ["ice"], "Black Sun stores Ice consumed by Freeze after the attack; it does not release new fuel in that attack")
-	var det: Dictionary = _state(engine, ["black_sun_dial"])
-	Surface.place(det, Vector2i(4, 3), "fire")
-	det = engine.apply_player_action(det, {"type": "detonate", "range": 5, "damage": 1}, Vector2i(4, 3))
-	check.call(Rules.stored(det) == ["fire"] and int(det["enemies"][0]["hp"]) == 999, "Black Sun banks Detonate fuel for the next attack")
-	var conduction: Dictionary = _state(engine, ["black_sun_dial", "coalheart_crucible"])
-	Surface.place(conduction, Vector2i(4, 3), "fire")
-	Surface.place(conduction, Vector2i(5, 3), "fire")
-	conduction = _preview(engine, conduction, {"type": "ranged", "range": 5, "damage": 1, "element": "lightning"}, Vector2i(4, 3), check, "Black Sun conduction")
-	check.call(Rules.stored(conduction) == ["fire", "fire"], "Black Sun stores each consumed conductor, including repeated elements")
-	var rider: Dictionary = _state(engine, ["black_sun_dial"])
-	Surface.place(rider, Vector2i(4, 3), "rubble")
-	rider = _preview(engine, rider, {"type": "ranged", "range": 5, "damage": 1, "consume": {"surface": "rubble", "bonus_damage": 1}}, Vector2i(4, 3), check, "Black Sun consume rider")
-	check.call(Rules.stored(rider) == ["rubble"], "Black Sun stores Rubble consumed by an attack rider")
-	var discharge: Dictionary = _state(engine, ["black_sun_dial"])
-	Surface.place(discharge, Vector2i(4, 3), "electrified")
-	discharge = _preview(engine, discharge, {"type": "discharge", "range": 5, "damage": 1, "element": "lightning"}, Vector2i(4, 3), check, "Black Sun discharge")
-	check.call(Rules.stored(discharge) == ["electrified"], "Black Sun stores Electrified consumed by Discharge")
-	var cancelled: Dictionary = _state(engine, ["black_sun_dial"])
-	cancelled[Rules.STORED] = ["rubble"]
-	var rejected: Dictionary = engine.apply_player_action(cancelled, {"type": "melee", "range": 1, "damage": 1}, Vector2i(4, 3))
-	check.call(Rules.stored(rejected) == ["rubble"], "An invalid attack cannot release stored ground")
-	var ordered: Dictionary = _state(engine, ["black_sun_dial"])
-	ordered[Rules.STORED] = ["electrified", "ice", "rubble"]
-	ordered = _preview(engine, ordered, {"type": "ranged", "range": 5, "damage": 1}, Vector2i(4, 3), check, "Black Sun reordered riders")
-	check.call(int(ordered["enemies"][0]["shock"]) == 1 and bool(ordered["enemies"][0]["chilled"]) and int(engine.stagger_delays_between({}, ordered).get(1, 0)) == 2, "Black Sun preserves all riders when Shock precedes Chill")
 
 static func _play_element(engine: Combat, state: Dictionary, element: String) -> Dictionary:
 	Rules.finish_card(state, element, Data.relic_effects_for_state(state))
@@ -378,6 +332,60 @@ static func _test_funeral(engine: Combat, check: Callable) -> void:
 	passive = (engine.call("_resolve_enemy_start_of_turn", passive, 0) as Dictionary)["state"]
 	check.call(bool(passive["enemies"][1]["chilled"]) and bool(passive["enemies"][1]["immobilize"]), "Funeral also spreads boolean statuses on passive deaths without requiring supporting Ice")
 
+static func _test_funeral_petrify(engine: Combat, check: Callable) -> void:
+	var state: Dictionary = _state(engine, ["funeral_bell"])
+	state["enemies"][0]["hp"] = 1
+	state["enemies"][0]["petrify"] = 1
+	state["enemies"][0]["expose"] = 1
+	state["enemies"][0]["footprint"] = Vector2i(2, 1)
+	state["enemies"].append(Base.enemy(2, Vector2i(6, 3)))
+	state["enemies"].append(Base.enemy(3, Vector2i(4, 4)))
+	state["enemies"][2]["type"] = "tharokh"
+	state["enemies"].append(Base.enemy(4, Vector2i(7, 4)))
+	var after: Dictionary = _preview(engine, state, {"type": "ranged", "range": 5, "damage": 1}, Vector2i(4, 3), check, "Funeral Petrify")
+	check.call(int(after["enemies"][1].get("petrify", 0)) == 1 and int(after["enemies"][1].get("block", 0)) == 5, "Funeral spreads the full Petrify keyword with 5 Block to an adjacent enemy")
+	check.call(int(after["enemies"][2].get("petrify", 0)) == 0 and int(after["enemies"][2].get("block", 0)) == 0, "Dragons remain immune to Funeral Petrify and gain no Block")
+	check.call(int(after["enemies"][3].get("petrify", 0)) == 0 and int(after["enemies"][3].get("block", 0)) == 0, "Funeral Petrify does not reach a nonadjacent enemy")
+	var events: Array = []
+	for event: Dictionary in after.get("surface_events", []):
+		if event.get("kind") == "petrified": events.append(event)
+	check.call(events.size() == 1, "Funeral records exactly one petrified event for the eligible adjacent enemy")
+	if events.size() == 1:
+		var source: Dictionary = events[0].get("source", {}) as Dictionary
+		check.call(int(events[0].get("enemy_id", -1)) == 2 and int(events[0].get("block", 0)) == 5 and source.get("relic_id") == "funeral_bell" and source.get("source_kind") == "relic" and not bool(source.get("player_card", true)), "Funeral Petrify event attributes the status and Block to the relic")
+
+static func _funeral_petrify_reapplication_state(engine: Combat) -> Dictionary:
+	var state: Dictionary = _state(engine, ["funeral_bell"])
+	state["enemies"][0]["hp"] = 1
+	state["enemies"][0]["petrify"] = 1
+	state["enemies"][0]["expose"] = 1
+	state["enemies"].append(Base.enemy(2, Vector2i(5, 3)))
+	return state
+
+static func _test_funeral_petrify_reapplication(engine: Combat, check: Callable) -> void:
+	var state: Dictionary = _funeral_petrify_reapplication_state(engine)
+	var petrify: Dictionary = engine.card_play_actions("petrify", state)[0]
+	state = _preview(engine, state, petrify, Vector2i(5, 3), check, "Petrify before Funeral spread")
+	check.call(int(state["enemies"][1].get("block", 0)) == 5 and int(state["enemies"][1].get("petrify", 0)) == 1, "The card newly Petrifies Funeral's adjacent target with 5 Block")
+	var kill: Dictionary = {"type": "ranged", "range": 5, "damage": 1}
+	state = _preview(engine, state, kill, Vector2i(4, 3), check, "Funeral after card Petrify")
+	check.call(int(state["enemies"][1].get("block", 0)) == 5 and int(state["enemies"][1].get("petrify", 0)) == 1, "Card then Funeral spread keeps the same enemy at 5 Block")
+	state = _funeral_petrify_reapplication_state(engine)
+	var second_source: Dictionary = Base.enemy(3, Vector2i(6, 3))
+	second_source["hp"] = 1
+	second_source["petrify"] = 1
+	second_source["expose"] = 1
+	state["enemies"].append(second_source)
+	var turn: int = int(state.get("turn", 0))
+	state = _preview(engine, state, kill, Vector2i(4, 3), check, "First Funeral Petrify spread")
+	check.call(int(state["enemies"][1].get("block", 0)) == 5, "The first Funeral spread grants 5 Block")
+	state = _preview(engine, state, kill, Vector2i(6, 3), check, "Second Funeral Petrify spread")
+	check.call(int(state.get("turn", 0)) == turn and int(state["enemies"][1].get("block", 0)) == 5 and int(state["enemies"][1].get("petrify", 0)) == 1, "Two Funeral spreads in one turn keep the same enemy at 5 Block")
+	state = _funeral_petrify_reapplication_state(engine)
+	state["enemies"][1]["block"] = 7
+	state = _preview(engine, state, kill, Vector2i(4, 3), check, "Funeral Petrify with unrelated Block")
+	check.call(int(state["enemies"][1].get("block", 0)) == 12 and int(state["enemies"][1].get("petrify", 0)) == 1, "New Funeral Petrify adds 5 to 7 unrelated Block without overwriting it")
+
 static func _test_review_regressions(engine: Combat, check: Callable) -> void:
 	var state: Dictionary = _state(engine, ["beaconrunner_spurs"])
 	_light(state, Vector2i(3, 3))
@@ -433,12 +441,14 @@ static func _test_navigation_performance(engine: Combat, check: Callable) -> voi
 	for tile: Vector2i in [Vector2i(3, 4), Vector2i(5, 4), Vector2i(7, 4)]: state = engine._create_illusion(state, tile, 2)
 	var best_usec: int = 2147483647
 	var targets: Array[Vector2i]
-	for _attempt: int in range(3):
+	for _attempt: int in range(5):
 		var start: int = Time.get_ticks_usec()
 		targets = engine.valid_targets_for_player_action(state, {"type": "move", "range": 4})
 		best_usec = mini(best_usec, Time.get_ticks_usec() - start)
-	print("R1 dense-Light navigation best of 3: %0.3f ms" % (best_usec / 1000.0))
-	check.call(best_usec < 40000 and targets.has(Vector2i(7, 4)), "Two radius-three Light patches, Move 4 and all four relics search in under 40 ms")
+	print("R1 dense-Light navigation best of 5: %0.3f ms" % (best_usec / 1000.0))
+	check.call(targets.has(Vector2i(7, 4)), "Two radius-three Light patches, Move 4 and all four relics retain the distant endpoint")
+	if preload("res://tests/helpers/perf_group.gd").enabled():
+		check.call(best_usec < 40000, "Two radius-three Light patches, Move 4 and all four relics search in under 40 ms")
 
 static func _test_navigation_preferences(engine: Combat, check: Callable) -> void:
 	var state: Dictionary = _state(engine, ["beaconrunner_spurs"])

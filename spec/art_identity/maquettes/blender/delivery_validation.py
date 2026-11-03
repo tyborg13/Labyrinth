@@ -17,10 +17,18 @@ GEOMETRY_CHECKS = ('labels_cover_every_face', 'view_piece_ownership',
     'collar_front_no_wider_than_back', 'plate_corners_preserved', 'armour_conforms_to_body')
 PROOF_CHECKS = ('fresh_and_replay_raw_hashes', 'joint_endpoints', 'native_geometry')
 BUILDS = ('cold', 'replay', 'independent_cold')
+ARTICULATED_CHECKS = ('ankle_near_target', 'ankle_far_target', 'head_target', 'ankle_spread',
+    'knees_face_forward', 'level_shoulders', 'native_geometry', 'native_endpoints',
+    'native_geometry_unchanged', 'carapace_overhang',
+    'recipe_proof', 'exact_native_replay', 'true_turn_feet_both_views', 'true_turn_ownership',
+    'fresh_regeneration')
+ARTICULATED_CHECKS += ('labels_unchanged', 'hips_fixed', 'bone_lengths_preserved', 'feet_remain_flat', 'closed_scaled_carapace', 'flush_carapace_contact', 'design_resolved')
 
 
 def geometry_checks(spec):
     required = GEOMETRY_CHECKS
+    if spec.get('shoulder_garment_motion'):
+        required += ('native_shoulder_attachment_motion',)
     if spec.get('base', {}).get('preserve_native_split_normals'):
         required += ('native_skin_normals',)
     if spec.get('base', {}).get('socket_tucks'):
@@ -90,6 +98,9 @@ def validate_delivery(spec, folder, require_binding=True, views=('front', 'rear'
         for kind in ('clay', 'parts'):
             require_image(manifest, view + '_' + kind + '.png')
     report_names = tuple(name for name in REPORTS if name != 'facing_report.json' or 'front' in views)
+    report_names += tuple(spec.get('delivery_reports', []))
+    if spec.get('articulated_pose'):
+        report_names += ('articulated_pose_checks.json',)
     report_names += (('capture_packing.json', 'fit_report.json') if spec.get('native_solid_revision') else ())
     reports = {name: load(folder / name) for name in report_names}
     for name, report in reports.items():
@@ -117,6 +128,12 @@ def validate_delivery(spec, folder, require_binding=True, views=('front', 'rear'
                 raise ValueError('Native clay PNG bytes changed')
     build = reports['build_report.json']
     capture = reports['capture_checks.json']
+    if spec.get('articulated_pose'):
+        pose = reports['articulated_pose_checks.json']
+        checks(pose, ARTICULATED_CHECKS, 'articulated pose')
+        if (pose.get('native_mesh_hash') != build.get('combined_mesh_hash') or
+                pose.get('capture_manifest_sha256') != sha256(folder / 'capture_manifest.json')):
+            raise ValueError('Articulated pose proof is not bound to this geometry and capture')
     if (build.get('geometry_scope', list(views)) != list(views) and
             not (folder / 'view_sources.json').is_file()):
         raise ValueError('Scoped geometry requires its per-view source certificate')

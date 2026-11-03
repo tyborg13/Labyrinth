@@ -1,0 +1,26 @@
+{
+ "schema": 1,
+ "unit": "rr-42",
+ "what": "director underlay for the Chainbound Gaoler front: the approved mq3_front_v4 repainted with both arms below the shoulder, the chain and both legs removed; torso flanks (gambeson) and the coat's inside painted behind them",
+ "image_job": "img-rr42-gaoler-body-underlay-r1 (built-in image generation, edit of mq3_front_v4 processed x4)",
+ "prompt": "prompt_gaoler_body_underlay_r1.md",
+ "prompt_sha256": "d666e49ade56bff2430eee78952a19df2356d041a620730257955f374a131687",
+ "raw_sha256": "7561d3ca2b13ba32eb042e9171d48eb19b8b5a386dcf56dc1eb11bd1d7c9685f",
+ "raw_size": [
+  1024,
+  1024
+ ],
+ "processing": "crop [2:1022] of the 1024 canvas; 4x4 block median down to 255; chroma-green key; each pixel mapped to the nearest colour of the approved mq3_front_v4/processed.png palette; registration (0,0) (covers 92.5% of the unmoving visible body: head, cowl, torso, tabard, coat)",
+ "files": {
+  "front_body_underlay.png": "4d08d52bdea94604d3438a363512e95808073213e3a32110c08daa3278e2706b",
+  "front_near_arm_footprint_mask.png": "95a49439043c250b0b8db04999469c529336f997fa0035fba339eed11bbad313",
+  "front_far_arm_footprint_mask.png": "4344a5823dca7a4c5f73e75c3494e129f7934ebbd1a96a34716f1c845e0a1979",
+  "front_legs_footprint_mask.png": "ba7ed7e311678ad9c8beddfe58c506d627c0454d4dc8adbbd896c49390d33298"
+ },
+ "footprints": {
+  "front_near_arm_footprint_mask.png": "rest alphas of arm_near + hand_near (rr-38 layouts/front.json @ 602707ce6); underlay opaque on 82.5%",
+  "front_far_arm_footprint_mask.png": "arm_far + hand_far + chain; underlay opaque on 9.6% (the raised arm sticks out into empty space; the shoulder stub is painted)",
+  "front_legs_footprint_mask.png": "leg_near + foot_near + leg_far + foot_far; underlay opaque on 44.3% (below the coat hem the floor shows)"
+ },
+ "approved_by": "director, 2026-10-26 (3x preview: near arm, far arm, legs and all removed each read as painted body, cowl edge and coat lining; director_preview_x3.png)"
+}

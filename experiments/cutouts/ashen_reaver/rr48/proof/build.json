@@ -1,0 +1,2296 @@
+{
+  "views": {
+    "front": {
+      "rest_mismatch_pixels": 0,
+      "soles": {
+        "near": [
+          187.0,
+          246.0
+        ],
+        "far": [
+          118.5,
+          203.0
+        ]
+      },
+      "anchor": [
+        152.75,
+        224.5
+      ],
+      "head_top": 6,
+      "paint_sha256": "865e34d168a07b023704cdcfe52b40d38647d6dec7aee63637a582b34c71db4d",
+      "tucks": [
+        {
+          "piece": "leg_far",
+          "minimum_px": 3,
+          "cover": [
+            "foot_far",
+            "pelvis"
+          ],
+          "required_mask": "tucks/front_leg_far.png",
+          "required_pixels": 140,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "foot_far",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far"
+          ],
+          "required_mask": "tucks/front_foot_far.png",
+          "required_pixels": 86,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "arm_far",
+          "minimum_px": 3,
+          "cover": [
+            "hand_far",
+            "torso"
+          ],
+          "required_mask": "tucks/front_arm_far.png",
+          "required_pixels": 207,
+          "missing_pixels": 0,
+          "status": "PASS",
+          "owner_bindings": [
+            {
+              "part": "torso",
+              "texels": [
+                [
+                  114,
+                  82
+                ],
+                [
+                  115,
+                  82
+                ],
+                [
+                  124,
+                  82
+                ],
+                [
+                  129,
+                  83
+                ],
+                [
+                  130,
+                  84
+                ],
+                [
+                  130,
+                  87
+                ],
+                [
+                  131,
+                  87
+                ],
+                [
+                  132,
+                  87
+                ],
+                [
+                  128,
+                  88
+                ],
+                [
+                  129,
+                  88
+                ],
+                [
+                  132,
+                  88
+                ],
+                [
+                  130,
+                  89
+                ],
+                [
+                  131,
+                  89
+                ],
+                [
+                  130,
+                  90
+                ],
+                [
+                  131,
+                  90
+                ]
+              ]
+            },
+            {
+              "part": "hand_far",
+              "texels": [
+                [
+                  94,
+                  116
+                ],
+                [
+                  94,
+                  118
+                ],
+                [
+                  94,
+                  119
+                ],
+                [
+                  95,
+                  119
+                ],
+                [
+                  109,
+                  121
+                ],
+                [
+                  109,
+                  122
+                ],
+                [
+                  110,
+                  122
+                ],
+                [
+                  109,
+                  123
+                ],
+                [
+                  112,
+                  123
+                ],
+                [
+                  113,
+                  123
+                ],
+                [
+                  109,
+                  124
+                ],
+                [
+                  112,
+                  124
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "piece": "falchion",
+          "minimum_px": 3,
+          "cover": [
+            "hand_far"
+          ],
+          "required_mask": "tucks/front_falchion.png",
+          "required_pixels": 98,
+          "missing_pixels": 0,
+          "status": "PASS",
+          "owner_bindings": [
+            {
+              "part": "hand_far",
+              "texels": [
+                [
+                  86,
+                  136
+                ],
+                [
+                  108,
+                  142
+                ],
+                [
+                  109,
+                  142
+                ],
+                [
+                  109,
+                  143
+                ],
+                [
+                  103,
+                  145
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "piece": "hand_far",
+          "minimum_px": 3,
+          "cover": [
+            "arm_far",
+            "falchion"
+          ],
+          "required_mask": "tucks/front_hand_far.png",
+          "required_pixels": 179,
+          "missing_pixels": 0,
+          "status": "PASS",
+          "owner_bindings": [
+            {
+              "part": "arm_far",
+              "texels": [
+                [
+                  94,
+                  115
+                ],
+                [
+                  105,
+                  119
+                ],
+                [
+                  106,
+                  119
+                ],
+                [
+                  109,
+                  120
+                ],
+                [
+                  115,
+                  120
+                ],
+                [
+                  115,
+                  121
+                ]
+              ]
+            },
+            {
+              "part": "falchion",
+              "texels": [
+                [
+                  86,
+                  138
+                ],
+                [
+                  86,
+                  139
+                ],
+                [
+                  104,
+                  145
+                ],
+                [
+                  106,
+                  145
+                ],
+                [
+                  97,
+                  147
+                ],
+                [
+                  97,
+                  148
+                ],
+                [
+                  106,
+                  148
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "piece": "pelvis",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far",
+            "leg_near",
+            "loincloth",
+            "loincloth_back",
+            "torso"
+          ],
+          "required_mask": "tucks/front_pelvis.png",
+          "required_pixels": 334,
+          "missing_pixels": 0,
+          "status": "PASS",
+          "owner_bindings": [
+            {
+              "part": "torso",
+              "texels": [
+                [
+                  190,
+                  98
+                ],
+                [
+                  190,
+                  99
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "piece": "leg_near",
+          "minimum_px": 3,
+          "cover": [
+            "foot_near",
+            "pelvis"
+          ],
+          "required_mask": "tucks/front_leg_near.png",
+          "required_pixels": 153,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "foot_near",
+          "minimum_px": 3,
+          "cover": [
+            "leg_near"
+          ],
+          "required_mask": "tucks/front_foot_near.png",
+          "required_pixels": 126,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "loincloth",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis"
+          ],
+          "required_mask": "tucks/front_loincloth.png",
+          "required_pixels": 121,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "arm_near",
+          "minimum_px": 3,
+          "cover": [
+            "hand_near",
+            "torso"
+          ],
+          "required_mask": "tucks/front_arm_near.png",
+          "required_pixels": 219,
+          "missing_pixels": 0,
+          "status": "PASS",
+          "owner_bindings": [
+            {
+              "part": "torso",
+              "texels": [
+                [
+                  190,
+                  94
+                ],
+                [
+                  190,
+                  95
+                ],
+                [
+                  190,
+                  96
+                ],
+                [
+                  206,
+                  96
+                ],
+                [
+                  209,
+                  96
+                ],
+                [
+                  190,
+                  97
+                ],
+                [
+                  206,
+                  97
+                ],
+                [
+                  190,
+                  98
+                ],
+                [
+                  190,
+                  99
+                ],
+                [
+                  190,
+                  100
+                ],
+                [
+                  191,
+                  100
+                ]
+              ]
+            },
+            {
+              "part": "hand_near",
+              "texels": [
+                [
+                  203,
+                  127
+                ],
+                [
+                  209,
+                  131
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "piece": "hand_near",
+          "minimum_px": 3,
+          "cover": [
+            "arm_near"
+          ],
+          "required_mask": "tucks/front_hand_near.png",
+          "required_pixels": 89,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "torso",
+          "minimum_px": 3,
+          "cover": [
+            "arm_far",
+            "arm_near",
+            "head",
+            "pelvis"
+          ],
+          "required_mask": "tucks/front_torso.png",
+          "required_pixels": 760,
+          "missing_pixels": 0,
+          "status": "PASS",
+          "owner_bindings": [
+            {
+              "part": "arm_far",
+              "texels": [
+                [
+                  108,
+                  85
+                ],
+                [
+                  109,
+                  85
+                ],
+                [
+                  110,
+                  85
+                ],
+                [
+                  125,
+                  85
+                ],
+                [
+                  130,
+                  91
+                ],
+                [
+                  127,
+                  96
+                ]
+              ]
+            },
+            {
+              "part": "arm_near",
+              "texels": [
+                [
+                  193,
+                  97
+                ],
+                [
+                  205,
+                  97
+                ],
+                [
+                  201,
+                  98
+                ],
+                [
+                  202,
+                  98
+                ],
+                [
+                  200,
+                  99
+                ],
+                [
+                  202,
+                  99
+                ],
+                [
+                  221,
+                  99
+                ],
+                [
+                  219,
+                  100
+                ],
+                [
+                  220,
+                  100
+                ],
+                [
+                  221,
+                  100
+                ],
+                [
+                  219,
+                  101
+                ],
+                [
+                  220,
+                  101
+                ],
+                [
+                  221,
+                  101
+                ],
+                [
+                  216,
+                  102
+                ],
+                [
+                  217,
+                  102
+                ],
+                [
+                  221,
+                  102
+                ],
+                [
+                  222,
+                  102
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "piece": "head",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/front_head.png",
+          "required_pixels": 326,
+          "missing_pixels": 0,
+          "status": "PASS"
+        }
+      ],
+      "front_rest_mismatch_pixels": 0,
+      "not_applicable_tucks": [
+        {
+          "piece": "loincloth_back",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis"
+          ],
+          "required_mask": "tucks/front_loincloth_back.png",
+          "required_pixels": 0,
+          "missing_pixels": 0,
+          "status": "PASS"
+        }
+      ]
+    },
+    "rear": {
+      "rest_mismatch_pixels": 0,
+      "soles": {
+        "near": [
+          64.5,
+          209.0
+        ],
+        "far": [
+          119.5,
+          246.0
+        ]
+      },
+      "anchor": [
+        92.0,
+        227.5
+      ],
+      "head_top": 8,
+      "paint_sha256": "e4e0173adf24a365594f48c48414c2832c3c565449023205d6fb9e615cf542b1",
+      "tucks": [
+        {
+          "piece": "loincloth_back",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis"
+          ],
+          "required_mask": "tucks/rear_loincloth_back.png",
+          "required_pixels": 124,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "leg_far",
+          "minimum_px": 3,
+          "cover": [
+            "foot_far",
+            "pelvis"
+          ],
+          "required_mask": "tucks/rear_leg_far.png",
+          "required_pixels": 194,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "foot_far",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far"
+          ],
+          "required_mask": "tucks/rear_foot_far.png",
+          "required_pixels": 112,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "arm_far",
+          "minimum_px": 3,
+          "cover": [
+            "hand_far",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_arm_far.png",
+          "required_pixels": 289,
+          "missing_pixels": 0,
+          "status": "PASS",
+          "owner_bindings": [
+            {
+              "part": "torso",
+              "texels": [
+                [
+                  152,
+                  94
+                ],
+                [
+                  151,
+                  95
+                ],
+                [
+                  152,
+                  95
+                ],
+                [
+                  151,
+                  96
+                ],
+                [
+                  152,
+                  96
+                ]
+              ]
+            },
+            {
+              "part": "hand_far",
+              "texels": [
+                [
+                  164,
+                  136
+                ],
+                [
+                  164,
+                  137
+                ],
+                [
+                  164,
+                  138
+                ],
+                [
+                  163,
+                  139
+                ],
+                [
+                  139,
+                  140
+                ],
+                [
+                  142,
+                  140
+                ],
+                [
+                  144,
+                  140
+                ],
+                [
+                  145,
+                  140
+                ],
+                [
+                  146,
+                  140
+                ],
+                [
+                  147,
+                  140
+                ],
+                [
+                  148,
+                  140
+                ],
+                [
+                  149,
+                  140
+                ],
+                [
+                  138,
+                  141
+                ],
+                [
+                  139,
+                  141
+                ],
+                [
+                  142,
+                  141
+                ],
+                [
+                  138,
+                  142
+                ],
+                [
+                  139,
+                  142
+                ],
+                [
+                  143,
+                  142
+                ],
+                [
+                  159,
+                  142
+                ],
+                [
+                  160,
+                  142
+                ],
+                [
+                  158,
+                  143
+                ],
+                [
+                  153,
+                  144
+                ],
+                [
+                  154,
+                  144
+                ],
+                [
+                  155,
+                  144
+                ],
+                [
+                  156,
+                  144
+                ],
+                [
+                  165,
+                  144
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "piece": "falchion",
+          "minimum_px": 3,
+          "cover": [
+            "hand_far"
+          ],
+          "required_mask": "tucks/rear_falchion.png",
+          "required_pixels": 134,
+          "missing_pixels": 0,
+          "status": "PASS",
+          "owner_bindings": [
+            {
+              "part": "hand_far",
+              "texels": [
+                [
+                  167,
+                  141
+                ],
+                [
+                  166,
+                  142
+                ],
+                [
+                  167,
+                  142
+                ],
+                [
+                  170,
+                  142
+                ],
+                [
+                  171,
+                  142
+                ],
+                [
+                  172,
+                  142
+                ],
+                [
+                  173,
+                  142
+                ],
+                [
+                  174,
+                  142
+                ],
+                [
+                  166,
+                  143
+                ],
+                [
+                  167,
+                  143
+                ],
+                [
+                  168,
+                  143
+                ],
+                [
+                  169,
+                  143
+                ],
+                [
+                  166,
+                  144
+                ],
+                [
+                  167,
+                  144
+                ],
+                [
+                  168,
+                  144
+                ],
+                [
+                  169,
+                  144
+                ],
+                [
+                  166,
+                  145
+                ],
+                [
+                  167,
+                  145
+                ],
+                [
+                  168,
+                  145
+                ],
+                [
+                  166,
+                  146
+                ],
+                [
+                  167,
+                  146
+                ],
+                [
+                  166,
+                  147
+                ],
+                [
+                  167,
+                  147
+                ],
+                [
+                  174,
+                  147
+                ],
+                [
+                  166,
+                  148
+                ],
+                [
+                  167,
+                  148
+                ],
+                [
+                  172,
+                  149
+                ],
+                [
+                  173,
+                  149
+                ],
+                [
+                  171,
+                  150
+                ],
+                [
+                  171,
+                  151
+                ],
+                [
+                  170,
+                  152
+                ],
+                [
+                  172,
+                  152
+                ],
+                [
+                  173,
+                  152
+                ],
+                [
+                  170,
+                  153
+                ],
+                [
+                  172,
+                  153
+                ],
+                [
+                  169,
+                  154
+                ],
+                [
+                  169,
+                  155
+                ],
+                [
+                  167,
+                  156
+                ],
+                [
+                  168,
+                  156
+                ],
+                [
+                  167,
+                  157
+                ],
+                [
+                  166,
+                  158
+                ],
+                [
+                  158,
+                  159
+                ],
+                [
+                  166,
+                  159
+                ],
+                [
+                  157,
+                  160
+                ],
+                [
+                  158,
+                  160
+                ],
+                [
+                  164,
+                  160
+                ],
+                [
+                  165,
+                  160
+                ],
+                [
+                  155,
+                  161
+                ],
+                [
+                  156,
+                  161
+                ],
+                [
+                  163,
+                  161
+                ],
+                [
+                  155,
+                  162
+                ],
+                [
+                  156,
+                  162
+                ],
+                [
+                  155,
+                  163
+                ],
+                [
+                  155,
+                  164
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "piece": "hand_far",
+          "minimum_px": 3,
+          "cover": [
+            "arm_far",
+            "falchion"
+          ],
+          "required_mask": "tucks/rear_hand_far.png",
+          "required_pixels": 220,
+          "missing_pixels": 0,
+          "status": "PASS",
+          "owner_bindings": [
+            {
+              "part": "arm_far",
+              "texels": [
+                [
+                  161,
+                  133
+                ],
+                [
+                  163,
+                  133
+                ],
+                [
+                  161,
+                  134
+                ],
+                [
+                  164,
+                  134
+                ],
+                [
+                  161,
+                  135
+                ],
+                [
+                  164,
+                  135
+                ],
+                [
+                  159,
+                  136
+                ],
+                [
+                  137,
+                  137
+                ],
+                [
+                  140,
+                  137
+                ],
+                [
+                  138,
+                  138
+                ],
+                [
+                  139,
+                  138
+                ],
+                [
+                  140,
+                  138
+                ],
+                [
+                  141,
+                  138
+                ],
+                [
+                  155,
+                  138
+                ],
+                [
+                  138,
+                  139
+                ],
+                [
+                  140,
+                  139
+                ],
+                [
+                  141,
+                  139
+                ],
+                [
+                  153,
+                  139
+                ],
+                [
+                  154,
+                  139
+                ],
+                [
+                  150,
+                  140
+                ],
+                [
+                  151,
+                  140
+                ],
+                [
+                  161,
+                  140
+                ],
+                [
+                  162,
+                  140
+                ],
+                [
+                  161,
+                  141
+                ],
+                [
+                  162,
+                  141
+                ]
+              ]
+            },
+            {
+              "part": "falchion",
+              "texels": [
+                [
+                  174,
+                  143
+                ],
+                [
+                  174,
+                  144
+                ],
+                [
+                  174,
+                  145
+                ],
+                [
+                  174,
+                  146
+                ],
+                [
+                  173,
+                  153
+                ],
+                [
+                  174,
+                  154
+                ],
+                [
+                  175,
+                  154
+                ],
+                [
+                  174,
+                  155
+                ],
+                [
+                  163,
+                  162
+                ],
+                [
+                  156,
+                  163
+                ],
+                [
+                  161,
+                  163
+                ],
+                [
+                  162,
+                  163
+                ],
+                [
+                  156,
+                  164
+                ],
+                [
+                  161,
+                  164
+                ],
+                [
+                  162,
+                  164
+                ],
+                [
+                  157,
+                  165
+                ],
+                [
+                  158,
+                  165
+                ],
+                [
+                  159,
+                  165
+                ],
+                [
+                  160,
+                  165
+                ],
+                [
+                  163,
+                  165
+                ],
+                [
+                  157,
+                  166
+                ],
+                [
+                  158,
+                  166
+                ],
+                [
+                  159,
+                  166
+                ],
+                [
+                  160,
+                  166
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "piece": "pelvis",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far",
+            "leg_near",
+            "loincloth",
+            "loincloth_back",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_pelvis.png",
+          "required_pixels": 433,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "leg_near",
+          "minimum_px": 3,
+          "cover": [
+            "foot_near",
+            "pelvis"
+          ],
+          "required_mask": "tucks/rear_leg_near.png",
+          "required_pixels": 139,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "foot_near",
+          "minimum_px": 3,
+          "cover": [
+            "leg_near"
+          ],
+          "required_mask": "tucks/rear_foot_near.png",
+          "required_pixels": 125,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "loincloth",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis"
+          ],
+          "required_mask": "tucks/rear_loincloth.png",
+          "required_pixels": 59,
+          "missing_pixels": 0,
+          "status": "PASS"
+        },
+        {
+          "piece": "arm_near",
+          "minimum_px": 3,
+          "cover": [
+            "hand_near",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_arm_near.png",
+          "required_pixels": 212,
+          "missing_pixels": 0,
+          "status": "PASS",
+          "owner_bindings": [
+            {
+              "part": "hand_near",
+              "texels": [
+                [
+                  65,
+                  104
+                ],
+                [
+                  66,
+                  104
+                ],
+                [
+                  65,
+                  105
+                ],
+                [
+                  66,
+                  105
+                ],
+                [
+                  60,
+                  106
+                ],
+                [
+                  61,
+                  106
+                ],
+                [
+                  62,
+                  106
+                ],
+                [
+                  63,
+                  106
+                ],
+                [
+                  64,
+                  106
+                ],
+                [
+                  65,
+                  106
+                ],
+                [
+                  60,
+                  112
+                ],
+                [
+                  61,
+                  112
+                ],
+                [
+                  60,
+                  113
+                ],
+                [
+                  61,
+                  113
+                ],
+                [
+                  62,
+                  114
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "piece": "hand_near",
+          "minimum_px": 3,
+          "cover": [
+            "arm_near"
+          ],
+          "required_mask": "tucks/rear_hand_near.png",
+          "required_pixels": 60,
+          "missing_pixels": 0,
+          "status": "PASS",
+          "owner_bindings": [
+            {
+              "part": "arm_near",
+              "texels": [
+                [
+                  62,
+                  101
+                ],
+                [
+                  65,
+                  101
+                ],
+                [
+                  66,
+                  101
+                ],
+                [
+                  67,
+                  101
+                ],
+                [
+                  62,
+                  102
+                ],
+                [
+                  63,
+                  102
+                ],
+                [
+                  64,
+                  102
+                ],
+                [
+                  65,
+                  102
+                ],
+                [
+                  66,
+                  102
+                ],
+                [
+                  59,
+                  103
+                ],
+                [
+                  60,
+                  103
+                ],
+                [
+                  65,
+                  103
+                ],
+                [
+                  66,
+                  103
+                ],
+                [
+                  57,
+                  104
+                ],
+                [
+                  58,
+                  105
+                ],
+                [
+                  59,
+                  105
+                ],
+                [
+                  58,
+                  106
+                ],
+                [
+                  57,
+                  108
+                ],
+                [
+                  57,
+                  109
+                ],
+                [
+                  58,
+                  111
+                ],
+                [
+                  59,
+                  111
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "piece": "torso",
+          "minimum_px": 3,
+          "cover": [
+            "arm_far",
+            "arm_near",
+            "head",
+            "pelvis"
+          ],
+          "required_mask": "tucks/rear_torso.png",
+          "required_pixels": 734,
+          "missing_pixels": 0,
+          "status": "PASS",
+          "owner_bindings": [
+            {
+              "part": "arm_near",
+              "texels": [
+                [
+                  50,
+                  86
+                ],
+                [
+                  51,
+                  86
+                ],
+                [
+                  53,
+                  86
+                ],
+                [
+                  62,
+                  90
+                ],
+                [
+                  63,
+                  90
+                ],
+                [
+                  64,
+                  96
+                ],
+                [
+                  65,
+                  101
+                ],
+                [
+                  66,
+                  101
+                ],
+                [
+                  67,
+                  101
+                ],
+                [
+                  64,
+                  102
+                ],
+                [
+                  65,
+                  102
+                ],
+                [
+                  66,
+                  102
+                ],
+                [
+                  65,
+                  103
+                ],
+                [
+                  66,
+                  103
+                ]
+              ]
+            },
+            {
+              "part": "arm_far",
+              "texels": [
+                [
+                  152,
+                  97
+                ],
+                [
+                  152,
+                  98
+                ],
+                [
+                  151,
+                  99
+                ],
+                [
+                  152,
+                  99
+                ],
+                [
+                  151,
+                  100
+                ],
+                [
+                  152,
+                  100
+                ],
+                [
+                  148,
+                  101
+                ],
+                [
+                  149,
+                  101
+                ],
+                [
+                  151,
+                  101
+                ],
+                [
+                  152,
+                  101
+                ],
+                [
+                  121,
+                  102
+                ],
+                [
+                  122,
+                  102
+                ],
+                [
+                  148,
+                  102
+                ],
+                [
+                  149,
+                  102
+                ],
+                [
+                  150,
+                  102
+                ],
+                [
+                  122,
+                  103
+                ],
+                [
+                  145,
+                  103
+                ],
+                [
+                  146,
+                  103
+                ],
+                [
+                  147,
+                  103
+                ],
+                [
+                  122,
+                  104
+                ],
+                [
+                  130,
+                  104
+                ],
+                [
+                  142,
+                  104
+                ],
+                [
+                  143,
+                  104
+                ],
+                [
+                  144,
+                  104
+                ],
+                [
+                  145,
+                  104
+                ],
+                [
+                  136,
+                  105
+                ],
+                [
+                  137,
+                  105
+                ],
+                [
+                  138,
+                  105
+                ],
+                [
+                  139,
+                  105
+                ],
+                [
+                  140,
+                  105
+                ],
+                [
+                  141,
+                  105
+                ],
+                [
+                  136,
+                  106
+                ],
+                [
+                  137,
+                  106
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "piece": "head",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/rear_head.png",
+          "required_pixels": 314,
+          "missing_pixels": 0,
+          "status": "PASS"
+        }
+      ],
+      "front_rest_mismatch_pixels": 0,
+      "not_applicable_tucks": []
+    }
+  },
+  "native_pixels": false,
+  "director_sha256": "bd73148007e974725c5136a2fb88fa605447b57f72ec27e4e2ed278f2823adfd",
+  "chosen_defaults": {
+    "proof_canvas_size": 640,
+    "proof_source_offset": 192,
+    "diagnostic_mask_rgba": [
+      255,
+      0,
+      0,
+      255
+    ]
+  },
+  "rest_mismatch_pixels": 0,
+  "soles": {
+    "near": [
+      187.0,
+      246.0
+    ],
+    "far": [
+      118.5,
+      203.0
+    ]
+  },
+  "anchor": [
+    152.75,
+    224.5
+  ],
+  "head_top": 6,
+  "paint_sha256": "865e34d168a07b023704cdcfe52b40d38647d6dec7aee63637a582b34c71db4d",
+  "tucks": [
+    {
+      "piece": "leg_far",
+      "minimum_px": 3,
+      "cover": [
+        "foot_far",
+        "pelvis"
+      ],
+      "required_mask": "tucks/front_leg_far.png",
+      "required_pixels": 140,
+      "missing_pixels": 0,
+      "status": "PASS"
+    },
+    {
+      "piece": "foot_far",
+      "minimum_px": 3,
+      "cover": [
+        "leg_far"
+      ],
+      "required_mask": "tucks/front_foot_far.png",
+      "required_pixels": 86,
+      "missing_pixels": 0,
+      "status": "PASS"
+    },
+    {
+      "piece": "arm_far",
+      "minimum_px": 3,
+      "cover": [
+        "hand_far",
+        "torso"
+      ],
+      "required_mask": "tucks/front_arm_far.png",
+      "required_pixels": 207,
+      "missing_pixels": 0,
+      "status": "PASS",
+      "owner_bindings": [
+        {
+          "part": "torso",
+          "texels": [
+            [
+              114,
+              82
+            ],
+            [
+              115,
+              82
+            ],
+            [
+              124,
+              82
+            ],
+            [
+              129,
+              83
+            ],
+            [
+              130,
+              84
+            ],
+            [
+              130,
+              87
+            ],
+            [
+              131,
+              87
+            ],
+            [
+              132,
+              87
+            ],
+            [
+              128,
+              88
+            ],
+            [
+              129,
+              88
+            ],
+            [
+              132,
+              88
+            ],
+            [
+              130,
+              89
+            ],
+            [
+              131,
+              89
+            ],
+            [
+              130,
+              90
+            ],
+            [
+              131,
+              90
+            ]
+          ]
+        },
+        {
+          "part": "hand_far",
+          "texels": [
+            [
+              94,
+              116
+            ],
+            [
+              94,
+              118
+            ],
+            [
+              94,
+              119
+            ],
+            [
+              95,
+              119
+            ],
+            [
+              109,
+              121
+            ],
+            [
+              109,
+              122
+            ],
+            [
+              110,
+              122
+            ],
+            [
+              109,
+              123
+            ],
+            [
+              112,
+              123
+            ],
+            [
+              113,
+              123
+            ],
+            [
+              109,
+              124
+            ],
+            [
+              112,
+              124
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "piece": "falchion",
+      "minimum_px": 3,
+      "cover": [
+        "hand_far"
+      ],
+      "required_mask": "tucks/front_falchion.png",
+      "required_pixels": 98,
+      "missing_pixels": 0,
+      "status": "PASS",
+      "owner_bindings": [
+        {
+          "part": "hand_far",
+          "texels": [
+            [
+              86,
+              136
+            ],
+            [
+              108,
+              142
+            ],
+            [
+              109,
+              142
+            ],
+            [
+              109,
+              143
+            ],
+            [
+              103,
+              145
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "piece": "hand_far",
+      "minimum_px": 3,
+      "cover": [
+        "arm_far",
+        "falchion"
+      ],
+      "required_mask": "tucks/front_hand_far.png",
+      "required_pixels": 179,
+      "missing_pixels": 0,
+      "status": "PASS",
+      "owner_bindings": [
+        {
+          "part": "arm_far",
+          "texels": [
+            [
+              94,
+              115
+            ],
+            [
+              105,
+              119
+            ],
+            [
+              106,
+              119
+            ],
+            [
+              109,
+              120
+            ],
+            [
+              115,
+              120
+            ],
+            [
+              115,
+              121
+            ]
+          ]
+        },
+        {
+          "part": "falchion",
+          "texels": [
+            [
+              86,
+              138
+            ],
+            [
+              86,
+              139
+            ],
+            [
+              104,
+              145
+            ],
+            [
+              106,
+              145
+            ],
+            [
+              97,
+              147
+            ],
+            [
+              97,
+              148
+            ],
+            [
+              106,
+              148
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "piece": "pelvis",
+      "minimum_px": 3,
+      "cover": [
+        "leg_far",
+        "leg_near",
+        "loincloth",
+        "loincloth_back",
+        "torso"
+      ],
+      "required_mask": "tucks/front_pelvis.png",
+      "required_pixels": 334,
+      "missing_pixels": 0,
+      "status": "PASS",
+      "owner_bindings": [
+        {
+          "part": "torso",
+          "texels": [
+            [
+              190,
+              98
+            ],
+            [
+              190,
+              99
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "piece": "leg_near",
+      "minimum_px": 3,
+      "cover": [
+        "foot_near",
+        "pelvis"
+      ],
+      "required_mask": "tucks/front_leg_near.png",
+      "required_pixels": 153,
+      "missing_pixels": 0,
+      "status": "PASS"
+    },
+    {
+      "piece": "foot_near",
+      "minimum_px": 3,
+      "cover": [
+        "leg_near"
+      ],
+      "required_mask": "tucks/front_foot_near.png",
+      "required_pixels": 126,
+      "missing_pixels": 0,
+      "status": "PASS"
+    },
+    {
+      "piece": "loincloth",
+      "minimum_px": 3,
+      "cover": [
+        "pelvis"
+      ],
+      "required_mask": "tucks/front_loincloth.png",
+      "required_pixels": 121,
+      "missing_pixels": 0,
+      "status": "PASS"
+    },
+    {
+      "piece": "arm_near",
+      "minimum_px": 3,
+      "cover": [
+        "hand_near",
+        "torso"
+      ],
+      "required_mask": "tucks/front_arm_near.png",
+      "required_pixels": 219,
+      "missing_pixels": 0,
+      "status": "PASS",
+      "owner_bindings": [
+        {
+          "part": "torso",
+          "texels": [
+            [
+              190,
+              94
+            ],
+            [
+              190,
+              95
+            ],
+            [
+              190,
+              96
+            ],
+            [
+              206,
+              96
+            ],
+            [
+              209,
+              96
+            ],
+            [
+              190,
+              97
+            ],
+            [
+              206,
+              97
+            ],
+            [
+              190,
+              98
+            ],
+            [
+              190,
+              99
+            ],
+            [
+              190,
+              100
+            ],
+            [
+              191,
+              100
+            ]
+          ]
+        },
+        {
+          "part": "hand_near",
+          "texels": [
+            [
+              203,
+              127
+            ],
+            [
+              209,
+              131
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "piece": "hand_near",
+      "minimum_px": 3,
+      "cover": [
+        "arm_near"
+      ],
+      "required_mask": "tucks/front_hand_near.png",
+      "required_pixels": 89,
+      "missing_pixels": 0,
+      "status": "PASS"
+    },
+    {
+      "piece": "torso",
+      "minimum_px": 3,
+      "cover": [
+        "arm_far",
+        "arm_near",
+        "head",
+        "pelvis"
+      ],
+      "required_mask": "tucks/front_torso.png",
+      "required_pixels": 760,
+      "missing_pixels": 0,
+      "status": "PASS",
+      "owner_bindings": [
+        {
+          "part": "arm_far",
+          "texels": [
+            [
+              108,
+              85
+            ],
+            [
+              109,
+              85
+            ],
+            [
+              110,
+              85
+            ],
+            [
+              125,
+              85
+            ],
+            [
+              130,
+              91
+            ],
+            [
+              127,
+              96
+            ]
+          ]
+        },
+        {
+          "part": "arm_near",
+          "texels": [
+            [
+              193,
+              97
+            ],
+            [
+              205,
+              97
+            ],
+            [
+              201,
+              98
+            ],
+            [
+              202,
+              98
+            ],
+            [
+              200,
+              99
+            ],
+            [
+              202,
+              99
+            ],
+            [
+              221,
+              99
+            ],
+            [
+              219,
+              100
+            ],
+            [
+              220,
+              100
+            ],
+            [
+              221,
+              100
+            ],
+            [
+              219,
+              101
+            ],
+            [
+              220,
+              101
+            ],
+            [
+              221,
+              101
+            ],
+            [
+              216,
+              102
+            ],
+            [
+              217,
+              102
+            ],
+            [
+              221,
+              102
+            ],
+            [
+              222,
+              102
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "piece": "head",
+      "minimum_px": 3,
+      "cover": [
+        "torso"
+      ],
+      "required_mask": "tucks/front_head.png",
+      "required_pixels": 326,
+      "missing_pixels": 0,
+      "status": "PASS"
+    }
+  ],
+  "front_rest_mismatch_pixels": 0,
+  "not_applicable_tucks": [
+    {
+      "piece": "loincloth_back",
+      "minimum_px": 3,
+      "cover": [
+        "pelvis"
+      ],
+      "required_mask": "tucks/front_loincloth_back.png",
+      "required_pixels": 0,
+      "missing_pixels": 0,
+      "status": "PASS"
+    }
+  ]
+}

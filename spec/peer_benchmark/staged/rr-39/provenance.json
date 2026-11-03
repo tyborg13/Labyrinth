@@ -1,0 +1,20 @@
+{
+ "schema": 1,
+ "unit": "rr-39",
+ "what": "director underlay for the Lancer front far-arm hidden fill: the approved r5 front repainted with the far arm (below its pauldron) and the spear removed",
+ "image_job": "img-mq14-lancer-front-underlay-r1 (built-in image generation, edit of the approved r5 front x4)",
+ "prompt": "prompt_front_underlay_r1.md",
+ "prompt_sha256": "89505bfc469aac97f922afef66247f05396e9a07019b0b15504f65865c160eb1",
+ "raw_sha256": "1fb242b9f0d643eedf0ae9d335b5d362d9e092995425b4b31776d44ec1345c28",
+ "raw_size": [
+  1254,
+  1254
+ ],
+ "processing": "Lanczos 1254->1024; tools/art_identity_gate.py process --clean-outline with match_reference spec/art_identity/jobs/frostglass_lancer/mq14_front (palette match); registered to mq14_front/processed.png by +11 px x (alpha IoU 0.990 over the unedited near half)",
+ "files": {
+  "front_far_underlay.png": "7b707557c7ced6fa303ced4206ed404cf7a5958f6a8ad8811b50b628f91f0c43",
+  "front_far_footprint_mask.png": "0500fc56333c7a8ac9153e51e6092bd4a9a5a8e590208b693bfd139b13f3f55b"
+ },
+ "footprint": "union of the rest alphas of arm_far, hand_far and spear from experiments/cutouts/frostglass_lancer/rr37/layouts/front.json at b90356c1a (2622 px)",
+ "approved_by": "director, 2026-10-25 (preview: approved front with the footprint replaced reads as the Lancer with no far arm; seam invisible at 3x)"
+}

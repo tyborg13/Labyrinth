@@ -4,9 +4,9 @@ const Combat = preload("res://scripts/combat_engine.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Fixtures = preload("res://tests/suites/en03_enemies_suite.gd")
 const Reflect = preload("res://scripts/enemy_mechanics/reflect.gd")
-const Dive = preload("res://scripts/enemy_mechanics/dive.gd")
+const Dive = preload("res://scripts/enemy_mechanics/flying.gd")
 const ReflectView = preload("res://scripts/enemy_mechanics/reflect_view.gd")
-const DiveView = preload("res://scripts/enemy_mechanics/dive_view.gd")
+const DiveView = preload("res://scripts/enemy_mechanics/flying_view.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const Store = preload("res://scripts/progression_store.gd")
@@ -39,8 +39,8 @@ static func shot() -> Dictionary:
 
 static func run(expect: Callable) -> void:
 	var engine := Combat.new()
-	expect.call(engine._scale_enemy_action_for_depth({"type": "dive_line", "damage": 4}, 5)["damage"] == engine._scale_enemy_action_for_depth({"type": "ranged", "damage": 4}, 5)["damage"], "Dive inherits existing later-sequence damage scaling")
-	expect.call(preload("res://scripts/enemy_intent_compass.gd").is_supported_action_type("dive_line"), "Dive has an explicit attack compass family")
+	expect.call(engine._scale_enemy_action_for_depth({"type": "aoe", "damage": 4}, 5)["damage"] == engine._scale_enemy_action_for_depth({"type": "ranged", "damage": 4}, 5)["damage"], "Dive inherits existing later-sequence damage scaling")
+	expect.call(preload("res://scripts/enemy_intent_compass.gd").is_supported_action_type("aoe"), "Dive has an explicit attack compass family")
 	for type: String in ["glacial_mirror", "gust_shrike"]:
 		if type == "glacial_mirror":
 			expect.call(type not in preload("res://scripts/cutout_context.gd").STATIC_ENEMY_TYPES and preload("res://scripts/maquette_cutout_runtime/presentation.gd").handles(type), "Promoted Mirror owns its cutout feedback")
@@ -54,7 +54,8 @@ static func run(expect: Callable) -> void:
 		var current: Dictionary = production[id].duplicate(true)
 		var authored: Dictionary = staged[id].duplicate(true)
 		if id == "gust_shrike":
-			# Art-04 replaces these presentation fields only; retain exact gameplay.
+			# sta-01 replaces Dive only; all other authored fields remain exact.
+			authored["intents"][0]["actions"] = current["intents"][0]["actions"].duplicate(true)
 			for field: String in ["art_scale", "art_rear_path"]:
 				current.erase(field)
 				authored.erase(field)
@@ -125,7 +126,7 @@ static func run(expect: Callable) -> void:
 	expect.call(guard_after["enemies"][2]["block"] == 6, "Crystal Guard adds six Block")
 	var lone: Dictionary = Fixtures.state([Fixtures.enemy("glacial_mirror", 1, Vector2i(4, 4), "crystal_guard")])
 	expect.call(engine._enemy_support_target_index(lone, 0, guard) == 0, "Crystal Guard uses self only without adjacent ally")
-	expect.call(Wind.anchored(before, "enemy", before["enemies"][0]), "Mirror construct stays anchored against wind")
+	expect.call(not Wind.anchored(before, "enemy", before["enemies"][0]), "Mirror has no wind immunity: only Anchored units hold")
 	_test_flying(expect, engine)
 	_test_dive(expect, engine)
 	_test_integer_intents(expect)
@@ -149,21 +150,19 @@ static func _test_integer_intents(expect: Callable) -> void:
 			expect.call(not str(chip["number"]).contains(".") and not str(chip["secondary_number"]).contains("."), "%s %s chip numbers are integers" % [id, intent["id"]])
 		for badge: Dictionary in (ReflectView.badges({"type": id}) + DiveView.badges({"type": id})):
 			expect.call(not Icons.token_value_text({"value": badge["count"]}).contains("."), "%s passive badge number is an integer" % id)
-	var floating: Dictionary = {"type": "dive_line", "max_length": 4.0, "damage": 4.0, "side_push": 1.0}
+	var floating: Dictionary = {"type": "aoe", "max_length": 4.0, "damage": 4.0, "push": 1.0}
 	var descriptor: Dictionary = IntentBadges.descriptor(floating)
 	expect.call(descriptor["number"] == "4" and descriptor["secondary_number"] == "1", "JSON-float Dive damage and push use the shared integer formatter at the chip source")
 	board.free()
 
 static func _test_flying(expect: Callable, engine: RefCounted) -> void:
-	for kind: String in ["bramble", "ice_pillar", "fire", "ice", "electrified", "rubble", "trap"]:
+	for kind: String in ["fire", "ice", "electrified", "rubble", "trap"]:
 		var before: Dictionary = Fixtures.state([Fixtures.enemy("gust_shrike", 1, Vector2i(2, 4), "talon_rake")], Vector2i(6, 4))
-		if kind in ["bramble", "ice_pillar"]: before["terrain"] = [{"id": 1, "kind": kind, "hp": 1, "rounds_left": 3, "pos": Vector2i(3, 4)}]
-		elif kind == "trap": before["traps"] = [{"pos": Vector2i(3, 4), "element": "fire", "armed": true, "damage": 4}]
+		if kind == "trap": before["traps"] = [{"pos": Vector2i(3, 4), "element": "fire", "armed": true, "damage": 4}]
 		else: Surface.place(before, Vector2i(3, 4), kind)
 		var unit: Dictionary = before["enemies"][0]
 		var records: Dictionary = engine._unit_movement_navigation(before, unit, 2, engine._enemy_path_blockers(before, unit, true, false))
 		expect.call(records["paths"].has(Vector2i(4, 4)), "Flying traverses %s within two steps" % kind)
-		if kind in ["bramble", "ice_pillar"]: expect.call(not records["paths"].has(Vector2i(3, 4)), "Flying cannot end on %s" % kind)
 		var after: Dictionary = engine._move_enemy_along_planned_path(before.duplicate(true), 0, engine._vector2i_values([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4)]), {"committed": true}, 2)
 		expect.call(after["enemies"][0]["pos"] == Vector2i(4, 4) and after["enemies"][0]["hp"] == unit["hp"], "Flying ignores %s contact during movement" % kind)
 		expect.call(engine._surface_contact(after, "enemy", 1, engine.INVALID_TILE, true)["enemies"][0]["hp"] == unit["hp"], "Flying ignores %s at activation start" % kind)
@@ -177,99 +176,7 @@ static func _test_flying(expect: Callable, engine: RefCounted) -> void:
 	expect.call(pushed["enemies"][0]["pos"] == Vector2i(2, 3), "Flying is pushed normally")
 
 static func _test_dive(expect: Callable, engine: RefCounted) -> void:
-	var before: Dictionary = shrike()
-	var action: Dictionary = before["enemies"][0]["intent"]["actions"][0]
-	var plan: Dictionary = Dive.plan(engine, before, 0, before["enemies"][0]["intent"])
-	expect.call(plan["projected_attack"] == engine._vector2i_values([Vector2i(3, 4), Vector2i(4, 4), Vector2i(5, 4), Vector2i(6, 4)]), "Dive admits units and includes hero on straight range-four path")
-	expect.call(plan["side_direction"] == Vector2i.DOWN, "Aligned eastward Dive pushes right, toward board down")
-	for direction: Vector2i in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
-		var aligned: Dictionary = before.duplicate(true)
-		aligned["enemies"][0]["pos"] = TEST_DIVE_CENTER - direction * 2
-		aligned["enemies"][1]["pos"] = TEST_DIVE_CENTER - direction
-		aligned["enemies"][2]["pos"] = TEST_DIVE_CENTER
-		aligned["player"]["pos"] = TEST_DIVE_CENTER + direction * 2
-		var side := Vector2i(-direction.y, direction.x)
-		var aligned_plan: Dictionary = Dive.plan(engine, aligned, 0, aligned["enemies"][0]["intent"])
-		var after: Dictionary = engine._resolve_enemy_action(aligned.duplicate(true), 0, action)
-		expect.call(aligned_plan["side_direction"] == side, "Dive %s rotates 90 degrees clockwise" % direction)
-		expect.call(after["enemies"][1]["pos"] == aligned["enemies"][1]["pos"] + side and after["enemies"][2]["pos"] == aligned["enemies"][2]["pos"] + side, "Dive %s pushes every intervening unit to its right" % direction)
-		expect.call(aligned_plan["side_push_previews"].all(func(push: Dictionary) -> bool: return push["to"] == push["from"] + side and push["actor_key"] != "player"), "Dive %s previews the exact right-hand tile and excludes hero" % direction)
-		expect.call(after["player"]["hp"] == aligned["player"]["hp"] - 4, "Dive deals four air damage")
-		expect.call(after["player"]["pos"] == aligned["player"]["pos"], "Dive never side-pushes hero")
-		expect.call(engine._enemy_distance_to_tile(after["enemies"][0], after["player"]["pos"]) == 1, "Dive ends adjacent to hero")
-	var unaligned: Dictionary = before.duplicate(true); unaligned["enemies"][0]["pos"] = TEST_UNALIGNED_START
-	var unaligned_plan: Dictionary = Dive.plan(engine, unaligned, 0, unaligned["enemies"][0]["intent"])
-	var unaligned_after: Dictionary = engine._resolve_enemy_action(unaligned.duplicate(true), 0, action)
-	expect.call(unaligned_plan["destination"] == before["enemies"][0]["pos"] and unaligned_plan["path"].size() == 3, "Unaligned Dive approaches its clear line within two steps")
-	expect.call(unaligned_plan["side_direction"] == Vector2i.DOWN and unaligned_after["enemies"][1]["pos"] == Vector2i(3, 5), "Unaligned Dive uses right-hand side even when approach enters from the opposite side")
-	expect.call(unaligned_after["player"]["pos"] == unaligned["player"]["pos"] and unaligned_after["player"]["hp"] == unaligned["player"]["hp"] - 4, "Unaligned Dive lands adjacent and damages stationary hero")
-	var actors: Dictionary = before.duplicate(true)
-	actors["enemies"][2]["pos"] = Vector2i(3, 5)
-	var actors_after: Dictionary = engine._resolve_enemy_action(actors.duplicate(true), 0, action)
-	expect.call(actors_after["enemies"][1]["hp"] == actors["enemies"][1]["hp"] - 2 and actors_after["enemies"][2]["hp"] == actors["enemies"][2]["hp"] - 2, "Dive actor collision damages mover and blocker through existing rules")
-	var collision: Dictionary = before.duplicate(true); collision["grid"][5][3] = "wall"
-	var collided: Dictionary = engine._resolve_enemy_action(collision.duplicate(true), 0, action)
-	expect.call(collided["enemies"][1]["pos"] == Vector2i(3, 4) and collided["enemies"][1]["hp"] == collision["enemies"][1]["hp"] - 2, "Dive side push uses ordinary wall collision damage")
-	expect.call(collided["enemies"][1]["pos"] != Vector2i(3, 3), "Blocked right-hand side never falls back to the left")
-	var terrain_collision: Dictionary = before.duplicate(true)
-	var thornwall: Dictionary = Data.enemy_def("briar_weaver")["intents"][0]["actions"][0]
-	terrain_collision["terrain"] = [{"id": 1, "kind": "bramble", "hp": 10, "rounds_left": 3, "pos": Vector2i(3, 5), "pushed_damage": thornwall["pushed_damage"], "pushed_bleed": thornwall["pushed_bleed"]}]
-	var terrain_after: Dictionary = engine._resolve_enemy_action(terrain_collision.duplicate(true), 0, action)
-	expect.call(terrain_after["enemies"][1]["pos"] == Vector2i(3, 4) and terrain_after["enemies"][1]["hp"] < terrain_collision["enemies"][1]["hp"], "Impassable right-hand terrain uses normal collision rules")
-	_test_blocked_landing(expect, engine, action)
-	expect.call(engine.enemy_threat_tiles(before, 0)["projected_attack"] == plan["projected_attack"], "Dive telegraph tiles equal planned resolution tiles")
-	var far: Dictionary = before.duplicate(true); far["enemies"][0]["pos"] = Vector2i(1, 1)
-	var aligned: Dictionary = Dive.plan(engine, far, 0, far["enemies"][0]["intent"])
-	expect.call(aligned["cancelled"], "Dive is unavailable beyond its two-step alignment reach")
-	var diagonal: Dictionary = before.duplicate(true); diagonal["enemies"][0]["pos"] = Vector2i(2, 2)
-	var approach: Dictionary = Dive.plan(engine, diagonal, 0, diagonal["enemies"][0]["intent"])
-	expect.call(approach["path"].size() <= 3 and approach["attack_available"], "Dive first aligns within two movement tiles")
-	var blocked: Dictionary = before.duplicate(true); blocked["terrain"] = [{"kind": "ice_pillar", "rounds_left": 3, "pos": Vector2i(3, 4)}]
-	expect.call(Dive.line(engine, blocked, Vector2i(2, 4), Vector2i(6, 4), 4).is_empty(), "Dive line rejects impassable terrain even when normal Flying can traverse it")
-	var rng := RandomNumberGenerator.new(); rng.seed = Fixtures.TEST_SEED
-	for roll: int in range(20):
-		engine._assign_enemy_intent(far, 0, rng)
-		expect.call(far["enemies"][0]["intent"]["id"] != "dive", "Impossible Dive falls back to another authored intent")
-	var saved: Dictionary = save_round_trip(before)
-	expect.call(saved == before and Dive.plan(engine, saved, 0, saved["enemies"][0]["intent"]) == plan, "Dive forecast round-trips through saves")
-	expect.call(Icons.tooltip("dive") == "Dive\nFlies straight at you, giving each unit it passes Push 1 to its right. Strikes if it lands beside you.", "Dive exact tooltip uses approved glossary copy")
-	expect.call(Icons.tooltip("flying") == "Flying\nMoves over Bramble and Ice Pillars. Ignores traps, ground and Collision damage. Push, Pull and Wind still move it.", "Flying exact tooltip matches director copy")
-	var varied: Dictionary = action.duplicate(true); varied["max_length"] = 3; varied["damage"] = 7
-	expect.call(Icons.dive_tooltip(varied) == "Dive\nFlies straight at you, giving each unit it passes Push 1 to its right. Strikes if it lands beside you.", "Dive definition stays canonical while action chips carry scaled values")
-	expect.call(Icons.tokens_for_action(varied)[0]["tooltip"] == Icons.dive_tooltip(varied), "Dive intent tooltip follows its action values")
-	var immobilized: Dictionary = before.duplicate(true); immobilized["enemies"][0]["immobilize"] = true
-	var immobilized_preview: Dictionary = DiveView.presentation_for(immobilized, {})
-	expect.call(immobilized_preview["displacement_paths"].is_empty() and not immobilized_preview["damage_preview"].has("player"), "Immobilized Dive preview respects the same movement cancellation as telegraph")
-	expect.call(DiveView.badges({"type": "gust_shrike"})[0]["tooltip"] == Icons.tooltip("flying"), "Flying passive badge exposes exact approved tooltip")
-
-static func _test_blocked_landing(expect: Callable, engine: RefCounted, action: Dictionary) -> void:
-	var before: Dictionary = blocked_landing()
-	var forecast: Dictionary = Dive.plan(engine, before, 0, before["enemies"][0]["intent"])
-	var context: Dictionary = engine.enemy_intent_plan(before, 0)
-	var after: Dictionary = engine._resolve_enemy_action(before.duplicate(true), 0, action, null, {}, engine._dictionary_values([]), context)
-	expect.call(after["enemies"][2]["pos"] == Vector2i(5, 4) and after["enemies"][2]["hp"] == before["enemies"][2]["hp"] - 2, "Landing occupant remains after blocked side-push collision")
-	expect.call(after["enemies"][0]["pos"] == Vector2i(4, 4) and forecast["landing"] == after["enemies"][0]["pos"], "Blocked landing stops on last free path tile, matching forecast")
-	expect.call(after["player"] == before["player"], "Blocked landing causes no hero damage or side push")
-	var threats: Array[Vector2i] = engine._vector2i_values([Vector2i(3, 4), Vector2i(4, 4)])
-	expect.call(engine.enemy_threat_tiles(before, 0)["projected_attack"] == threats and forecast["projected_attack_target"] == Vector2i(4, 4), "Blocked-landing telegraph ends at stop tile and excludes hero")
-	var preview: Dictionary = DiveView.presentation_for(before, {})
-	expect.call(not preview["damage_preview"].has("player") and not preview["projected_attack_tiles"].has(before["player"]["pos"]), "Blocked-landing preview shows no hero damage or threat")
-	expect.call(preview["displacement_paths"].has(engine._vector2i_values([Vector2i(5, 4), Vector2i(5, 5)])) and not preview["collision_markers"].is_empty(), "Blocked push previews the exact attempted right-hand tile and collision")
-	expect.call(Compass.descriptors_for_state(before, [1])["enemy_1"]["value"] == 0, "Blocked landing compass shows no hero hit")
-	var step: Dictionary = engine._enemy_action_step(before, after, 0, action, context)
-	expect.call(step["to"] == forecast["landing"] and step["tiles"] == threats and not step["impact_actor_keys"].has("player"), "Blocked landing animation trace ends at stop and omits hero impact")
-	var all_blocked: Dictionary = before.duplicate(true)
-	all_blocked["enemies"][1]["pos"] = Vector2i(4, 4); all_blocked["grid"][5][4] = "wall"
-	var stopped: Dictionary = engine._resolve_enemy_action(all_blocked.duplicate(true), 0, action)
-	expect.call(stopped["enemies"][0]["pos"] == Vector2i(3, 4) and stopped["player"]["hp"] == before["player"]["hp"], "Blocked landing skips multiple occupied tiles to last free tile")
-	all_blocked["enemies"].append(Fixtures.enemy("crawler", 4, Vector2i(3, 4))); all_blocked["grid"][5][3] = "wall"
-	stopped = engine._resolve_enemy_action(all_blocked.duplicate(true), 0, action)
-	expect.call(stopped["enemies"][0]["pos"] == all_blocked["enemies"][0]["pos"] and stopped["player"]["hp"] == before["player"]["hp"], "Entirely occupied path stops at flight start without damage")
-	var defeated: Dictionary = before.duplicate(true); defeated["enemies"][2]["hp"] = 1
-	var cleared: Dictionary = engine._resolve_enemy_action(defeated.duplicate(true), 0, action)
-	expect.call(cleared["enemies"][2]["hp"] == 0 and cleared["enemies"][0]["pos"] == Vector2i(5, 4) and cleared["player"]["hp"] == before["player"]["hp"] - 4, "Collision defeat frees landing before checking hero strike")
-	var loaded: Dictionary = save_round_trip(before)
-	expect.call(Dive.plan(engine, loaded, 0, loaded["enemies"][0]["intent"]) == forecast, "Blocked landing forecast round-trips through saves")
+	preload("res://tests/suites/sta01_mechanics_suite.gd").test_dive(expect, engine)
 
 static func save_round_trip(state: Dictionary) -> Dictionary:
 	var previous: String = Store._run_storage_path

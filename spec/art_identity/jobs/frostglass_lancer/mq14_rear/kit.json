@@ -1,0 +1,68 @@
+{
+ "K": 4,
+ "anatomy": "biped",
+ "id": "frostglass_lancer",
+ "job_id": "mq14-lancer-rear-r5",
+ "kind": "creature",
+ "kit_kind": "maquette",
+ "kit_version": "a989d935d0e341296985f395308b29739ffd744cc6068a0a359bf95d624886c8",
+ "match_reference": {
+  "job_path": "spec/art_identity/jobs/frostglass_lancer/mq14_front/kit.json",
+  "pixel_sha256": "76a82c443b835caf9d333b8cbfc5f97ed48818d2fcd8a3f8a56bd0c5764fc39e"
+ },
+ "method": "paint-over of the mq-14 rear maquette (true turn of the corrected body) with the r5 front and the approved r4 rear as identity; image tool output (1254 px) resized once (Lanczos) and placed centred with the soles at y 1000 (so the spear clears the canvas top) so its hood-tip-to-sole height equals the front's (224 native px, as in the approved r4 pair); the rig registers each view's maquette separately, so the rear keeps the mq-14 rear proportions; palette matched to mq14_front",
+ "peers": [
+  "glacial_mirror_rear",
+  "hero_rear"
+ ],
+ "prompt_path": "prompt.md",
+ "prompt_sha256": "be0331bbc34314456ce37475e3a233d9f29b7288e732b7f82fc99f87323e5fe8",
+ "prompt_source": "spec/art_identity/maquettes/frostglass_lancer/prompt_rear_r5.md",
+ "refs": [
+  {
+   "canon_id": "maquette_rear_parts_mq14",
+   "file": "refs/01_maquette_rear_parts_mq14.png",
+   "pixel_sha256": "887c5e0decd95117e72f92f7922a0491841c29856fd51bd4b9ea4b40c2cb3f24",
+   "role": "maquette_parts",
+   "source_file": "spec/art_identity/maquettes/frostglass_lancer/delivery/rear_parts.png (mq-14)"
+  },
+  {
+   "canon_id": "maquette_rear_clay_mq14",
+   "file": "refs/02_maquette_rear_clay_mq14.png",
+   "pixel_sha256": "8b429179fb400a7e7e9b35f31954ad0abe2a07cb71c22cc5841d9c2c41b810f6",
+   "role": "maquette_clay",
+   "source_file": "spec/art_identity/maquettes/frostglass_lancer/delivery/rear_clay.png (mq-14)"
+  },
+  {
+   "canon_id": "frostglass_lancer_front_r5_raw",
+   "file": "refs/03_approved_front_r5.png",
+   "pixel_sha256": "82bc7cb846a89676a2e24d91aa9856469fb28de5a9b3ce309296ec7b8c2a6436",
+   "role": "identity",
+   "source_file": "spec/art_identity/jobs/frostglass_lancer/mq14_front/refs/raw_approved.png"
+  },
+  {
+   "canon_id": "frostglass_lancer_rear_r4_approved_raw",
+   "file": "refs/04_approved_rear_r4.png",
+   "pixel_sha256": "6fc7636265e3ec6eb30d5f5bdc487f5f6cb6e9f2cf801d3814fbed41f0f7cf05",
+   "role": "identity",
+   "source_file": "spec/art_identity/jobs/frostglass_lancer/mq4_rear/refs/raw_approved.png"
+  },
+  {
+   "canon_id": "glacial_mirror_rear",
+   "file": "refs/05_glacial_mirror_rear.png",
+   "pixel_sha256": "00f8011727f155d8f97a9ac174b49c5347a6b064fee872484f6926cd55dfcb87",
+   "role": "canon",
+   "source_file": "spec/art_identity/jobs/gloam_stalker/mq5_rear/refs/04_glacial_mirror_rear.png"
+  },
+  {
+   "canon_id": "hero_rear",
+   "file": "refs/06_hero_rear.png",
+   "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+   "role": "canon",
+   "source_file": "spec/art_identity/jobs/gloam_stalker/mq5_rear/refs/05_hero_rear.png"
+  }
+ ],
+ "size_class": "large",
+ "target_h": 240,
+ "view": "creature_rear"
+}

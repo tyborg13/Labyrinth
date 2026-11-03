@@ -1,0 +1,272 @@
+{
+  "unit": "rr-35",
+  "round": "feedback 1",
+  "branch": "codex/rr-35",
+  "uncommitted": true,
+  "full_suites_run": false,
+  "windowed_runs_attempted": false,
+  "headless_acceptance_complete": false,
+  "native_acceptance_complete": false,
+  "tuning_stopped_at_authorized_limits": true,
+  "final_staged_sha256": "b758aeb606a69c659ee8035ea6ef652978e9e6ff152715b74259ace039dd2a5e",
+  "imports_byte_identical": true,
+  "all_other_supplied_bytes_preserved": true,
+  "final_values": {
+    "slash_front_forward_px": {
+      "contact": 30,
+      "follow_through": 25
+    },
+    "slash_rear_forward_px": {
+      "contact": 20,
+      "follow_through": 16,
+      "override_added": false
+    },
+    "gait": {
+      "lift_px": 3,
+      "lane_narrowing": 0.4
+    },
+    "torso": {
+      "lean_deg": [
+        -4,
+        4,
+        3
+      ],
+      "forward_px": {
+        "contact": 6,
+        "follow_through": 5
+      }
+    }
+  },
+  "input_receipt": "feedback1_inputs.json",
+  "director_requirements": {
+    "1_lean": "PASS: -4/4/3 degrees, torso forward 6/5; unchanged 4-degree actual-bone gate passes both views.",
+    "2_slash": "STOPPED AT CAP: front 30/25 still reaches 17.137160 px < 18; rear 20/16 passes at 25.734375 px, no rear forward override.",
+    "3_move": "STOPPED AT FLOOR: lift 3 / lane 0.4 still gives dense rear near minimum 25.094914 px < 25.409323. Presented move frame 43 also fails at phase 0.86.",
+    "4_rebuild_and_proof": "Re-imported/recompiled/rebuilt/density-processed; regenerated motion-conditioned own-surface coverage; all 706 CPU frames pass. Focused tests retain 2 reach failures; both prior lean failures now pass."
+  },
+  "remaining_placeholders": {
+    "TODO_DESIGN_front_slash_reach": "Feedback 1 cap 30/25 still reaches only 17.137160 source px; required 18. Tuning stopped.",
+    "TODO_DESIGN_rear_move_foot_near_reach": "Feedback 1 lift floor 3 with lane_narrowing 0.4 still reaches 25.094914 px; required 25.409323. Tuning stopped."
+  },
+  "unresolved_gate_errors": [
+    "front: slash tip reach 17.137160 px < 18",
+    "rear/move/foot_near: minimum reach 25.094914 px < 25.409323 px at 0.860219238"
+  ],
+  "slash_reach": {
+    "front": {
+      "leading_blade": "hand_far",
+      "source_tip": [
+        49.5,
+        144.5
+      ],
+      "contact": 0.48,
+      "rest_tip": [
+        49.5,
+        144.5
+      ],
+      "contact_tip": [
+        35.40631374716757,
+        154.24937281012544
+      ],
+      "distance_px": 17.137160277714944,
+      "minimum_px": 18,
+      "errors": [
+        "front: slash tip reach 17.137160 px < 18"
+      ]
+    },
+    "rear": {
+      "leading_blade": "hand_far",
+      "source_tip": [
+        205.5,
+        212.5
+      ],
+      "contact": 0.48,
+      "rest_tip": [
+        205.5,
+        212.5
+      ],
+      "contact_tip": [
+        231.0584076493977,
+        209.495693936944
+      ],
+      "distance_px": 25.734374997137706,
+      "minimum_px": 18,
+      "errors": []
+    }
+  },
+  "every_move_frame_reach": {
+    "front": {
+      "presented_move_frames": 51,
+      "target_checks": 204,
+      "errors": []
+    },
+    "rear": {
+      "presented_move_frames": 51,
+      "target_checks": 204,
+      "errors": [
+        {
+          "frame": 43,
+          "phase": 0.86,
+          "target": "foot_near",
+          "distance_px": 25.09500074271054,
+          "minimum_px": 25.409322945390656
+        }
+      ]
+    }
+  },
+  "move_frame_detail": "feedback1_move_frame_reach.json",
+  "cpu_components": {
+    "front": {
+      "ok": true,
+      "frames": 353,
+      "failures": [],
+      "native_pixels": false,
+      "samples_sha256": "08d1d34708a5d55005e094e1d6e894157f687b4b26d5883281ed54995865269a",
+      "rest_components": 1,
+      "maximum_components": 1
+    },
+    "rear": {
+      "ok": true,
+      "frames": 353,
+      "failures": [],
+      "native_pixels": false,
+      "samples_sha256": "08d1d34708a5d55005e094e1d6e894157f687b4b26d5883281ed54995865269a",
+      "rest_components": 1,
+      "maximum_components": 1
+    }
+  },
+  "preservation": {
+    "ok": true,
+    "errors": [],
+    "protected_files_checked": 2959,
+    "generic_changes": [
+      "tools/humanoid_cutout/anatomy.schema.json",
+      "tools/humanoid_cutout/walk_gates.py"
+    ],
+    "authorized_director_replacements": {
+      "spec/peer_benchmark/staged/rr-35/motion_tracks.json": {
+        "supplied_sha256": "269d73dec57b05143695005fa6b2a6f255dd20969a90801e915a6e1518d9f030",
+        "final_sha256": "b758aeb606a69c659ee8035ea6ef652978e9e6ff152715b74259ace039dd2a5e"
+      }
+    },
+    "accepted_cut_pngs_checked": 311,
+    "accepted_cut_pngs_unchanged": true,
+    "foreign_records_unchanged": {
+      "spec/art_identity/registry.json": true,
+      "spec/assets/board_pixel_density/registry.json": true,
+      "spec/assets/board_pixel_density/outputs.json": true
+    },
+    "other_unit_git_changes": []
+  },
+  "checks": [
+    {
+      "name": "focused",
+      "command": "python3 -B -m unittest tests.test_rr35_cutout tests.test_rr35_production",
+      "exit_code": 1,
+      "result_lines": [
+        "Ran 20 tests in 113.650s",
+        "FAILED (failures=2)"
+      ],
+      "log": "logs/feedback1/focused_final.txt"
+    },
+    {
+      "name": "reference rigs",
+      "command": "python3 -B tests/rr35/run_reference_tests.py tests.test_rr10_humanoid tests.test_rr11_humanoid tests.test_rr18_humanoid tests.test_rr17_cutout tests.test_rr17_integration tests.test_rr21_cutout tests.test_rr21_production tests.test_rr26_consolidation tests.test_rr29_mimic tests.test_rr30_mortar tests.test_rr31_calibration tests.test_rr31_storage tests.test_rr32_herald tests.test_rr32_production",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 154 tests in 378.925s",
+        "OK"
+      ],
+      "log": "logs/feedback1/references.txt"
+    },
+    {
+      "name": "all strict motion/cut/lean/direction/reach/slash gates",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_gates.py",
+      "exit_code": 1,
+      "result_lines": [
+        "RR35 ALL GATES: FAIL (2 unique errors; native=False)",
+        "RR35 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 claws=0 facing=0 reach=0 overreach=7",
+        "RR35 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 claws=0 facing=0 reach=1 overreach=5"
+      ],
+      "log": "logs/feedback1/gates_final.txt"
+    },
+    {
+      "name": "all-frame CPU component/seam/clean gates",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_seams.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 FRONT CPU SEAMS/CLEAN: PASS (353 frames; 0 failures)",
+        "RR35 REAR CPU SEAMS/CLEAN: PASS (353 frames; 0 failures)"
+      ],
+      "log": "logs/feedback1/cpu_final.txt"
+    },
+    {
+      "name": "preservation",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_preservation.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 PRESERVATION: PASS (2959 protected files; 2 expected generic changes)"
+      ],
+      "log": "logs/feedback1/preservation.txt"
+    },
+    {
+      "name": "registration audit",
+      "command": "python3 tools/test_registration_audit.py",
+      "exit_code": 0,
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (814 scripts; full suite=461, quarantined=29, windowed probe=324)"
+      ],
+      "log": "logs/feedback1/registration.txt"
+    },
+    {
+      "name": "density check",
+      "command": "python3 tools/process_board_density.py --check --only gloam_stalker_cutout",
+      "exit_code": 1,
+      "result_lines": [
+        "rest rebake needed: assets/units/gloam_stalker_cutout/humanoid_v2/front/rest.png: rest pixels changed since recorded rebake",
+        "rest rebake needed: assets/units/gloam_stalker_cutout/humanoid_v2/rear/rest.png: rest pixels changed since recorded rebake"
+      ],
+      "log": "logs/feedback1/density_check.txt"
+    },
+    {
+      "name": "production contacts/poses front",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_production.py --input experiments/cutouts/gloam_stalker/rr35/proof/logs/production_front/logic_frames.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+      ],
+      "log": "logs/feedback1/production_front_gates.txt"
+    },
+    {
+      "name": "production contacts/poses rear",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_production.py --input experiments/cutouts/gloam_stalker/rr35/proof/logs/production_rear/logic_frames.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+      ],
+      "log": "logs/feedback1/production_rear_gates.txt"
+    }
+  ],
+  "chosen_defaults_this_round": [],
+  "remaining_director_work": [
+    "New design decision for front slash reach at cap and rear move minimum reach at lift floor.",
+    "Native density/rest/shadow refresh and rest/native/sheets/idle/production/review capture at 1920x1080, 100% UI scale.",
+    "Director-owned commit, review, inspection fixture and publication."
+  ],
+  "production_logic": {
+    "front": {
+      "ok": true,
+      "errors": [],
+      "frames": 1166,
+      "movement_records": 284,
+      "native_pixels": false
+    },
+    "rear": {
+      "ok": true,
+      "errors": [],
+      "frames": 1166,
+      "movement_records": 284,
+      "native_pixels": false
+    }
+  }
+}

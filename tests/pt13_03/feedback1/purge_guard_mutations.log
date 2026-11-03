@@ -1,0 +1,26 @@
+Running task-local command:
+  task: pt13-03
+  run: pt13-03-1793059037652179000-39747
+  HOME: /private/tmp/labyrinth-godot-home/pt13-03-1793059037652179000-39747
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-03-1793059037652179000-39747/godot.log --headless --path . --script tests/magic_deck_guard_mutation_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+OWNERSHIP GUARD MUTATION: KILLED (4 regression assertions caught the mutation)
+MUTATION CAUGHT: Unowned valid spell cannot charge Embers
+MUTATION CAUGHT: Unowned valid spell cannot advance magic_purges_this_run
+MUTATION CAUGHT: Unowned valid spell cannot advance priced_magic_purges
+MUTATION CAUGHT: Rejected unowned spell preserves the entire untouched shop fixture
+TEXT FIT GUARD MUTATION: KILLED (2 clipped controls caught)
+SERVICE TEXT FIT GUARD MUTATION (enabled): KILLED
+SERVICE TEXT FIT GUARD MUTATION (disabled): KILLED
+BADGE DISC ALPHA MUTATION: KILLED
+BADGE DISC DRAW MUTATION: KILLED
+PURGE MANUAL FOCUS MUTATION (15 identities): KILLED
+PURGE MANUAL FOCUS MUTATION (20 identities): KILLED
+MAGIC DECK GUARD MUTATIONS: PASS
+TEST RESULT: PASS
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)

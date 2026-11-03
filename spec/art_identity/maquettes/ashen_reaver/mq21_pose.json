@@ -1,0 +1,28 @@
+{
+  "authority": "mq-21 unit brief, 2026-10-28; director exact body-space values",
+  "frame": {
+    "forward": "+X",
+    "outward_near": "+Y",
+    "up": "+Z"
+  },
+  "length_unit": "L: hip-joint height above the sole plane",
+  "knee_bend_degrees": {
+    "near": 24,
+    "far": 20
+  },
+  "near_elbow_bend_degrees": 35,
+  "foot_span_over_shoulder_span": 1.4,
+  "near_step_over_leg_length": 0.18,
+  "far_hand_forward_over_leg_length": 0.28,
+  "far_hand_outward_over_leg_length": 0.22,
+  "blade_tip_clearance_over_height": 0.04,
+  "blade_down_degrees": 30,
+  "blade_outward_degrees": 30,
+  "blade_angle_space": "body",
+  "hip_lean_degrees": 12,
+  "shoulder_rise_per_span": 0.15,
+  "head_pitch_down_degrees": 8,
+  "shoulder_raise_over_H": 0.02,
+  "shoulder_forward_over_H": 0.02,
+  "near_fist_forward_of_thigh_over_L": 0.12
+}

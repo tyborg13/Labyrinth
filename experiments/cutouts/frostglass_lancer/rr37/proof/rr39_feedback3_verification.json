@@ -1,0 +1,72 @@
+{
+  "task": "rr-39",
+  "feedback": 3,
+  "base_head": "179866762c802b114974e6702624c9aa698c940d",
+  "uncommitted": true,
+  "full_suite_run": false,
+  "windowed_run": false,
+  "peer_review_run": false,
+  "acceptance": {
+    "medium": "PASS: only declared optional painted_* bindings with the verified all-zero PNG hash are canonicalized in the retained comparison. Every other geometry/paint binding remains exact.",
+    "clean_checkout": "PASS: actual detached Git worktree of committed HEAD, initially clean with 0 ignored input files; exactly the 5 final-fix files overlaid for pre-commit verification. Default regression tests committed HEAD without an overlay after the owner commits.",
+    "nonempty_absent": "PASS: every one of the 6 non-empty painted certificates fails if absent or replaced by an empty claim. Changed paint/geometry and undeclared/non-certificate zero claims also fail."
+  },
+  "empty_witness": {
+    "path": "experiments/cutouts/frostglass_lancer/rr39_tie_fixture/empty_painted_certificate.png",
+    "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+    "mode": "L",
+    "size": [
+      255,
+      255
+    ],
+    "extrema": [
+      0,
+      0
+    ],
+    "scope": "exact original certificate bytes, copied without re-encoding"
+  },
+  "results": {
+    "clean_focused": "Ran 31 tests in 144.277s / OK",
+    "clean_regression": "Ran 1 test in 172.764s / OK",
+    "binding_negatives": "Ran 5 tests in 3.080s / OK",
+    "bindings": "RR39 RETAINED BINDINGS: PASS (55 absent optional zero certificates; geometry and paint strict)",
+    "native_ties": "RR39 NATIVE UNCOVERED TIES: PASS (64 resolved: 33 outline, 31 missing; 0 remaining; exact retained native pixels)",
+    "historical_native": "RR39 RR37 NATIVE REJECTION: PASS (17 rejected frames; 2 clean rest controls)",
+    "clean_worktree": "RR39 CLEAN CHECKOUT: PASS (HEAD 179866762c802b114974e6702624c9aa698c940d; 0 ignored input files; scoped fix overlay=5 files)",
+    "diff_check": "git diff --check: exit 0"
+  },
+  "commands": {
+    "pre_commit_clean_regression": "RR39_CLEAN_FIX_OVERLAY=/private/tmp/labyrinth_codex/rr39-feedback3-fix-overlay PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.test_rr39_clean_checkout -v",
+    "after_owner_commit": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.test_rr39_clean_checkout -v"
+  },
+  "fix_overlay_sha256": {
+    "experiments/cutouts/frostglass_lancer/rr39_tie_fixture.py": "e650718d17562a5afc310055b89c44dc90f054ca77be72c87cb3f57ec666cc5f",
+    "experiments/cutouts/frostglass_lancer/rr39_tie_fixture/empty_painted_certificate.png": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+    "tests/test_rr39_native_ties.py": "3edbbd2d4844c66dc2223b4deae4b03ff22697a937048e3430201ea329b14633",
+    "tests/test_rr39_retained_bindings.py": "788707742a22e20da09e2def8220c941243dd2c1f69229a22bb9596ea8716932",
+    "tests/test_rr39_clean_checkout.py": "c3f540839c809863f9e652e8cbb818f9a1a84528b77ed9823f38baa570cd6c83"
+  },
+  "logs": {
+    "clean": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback3-clean.log",
+      "sha256": "5eedbd93132810d5f0400934dd5935d28548c8006db2b5ae90fd7f47082b677b"
+    },
+    "binding_negatives": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback3-bindings.log",
+      "sha256": "e31b8b5c173fe5b9293c9280bac8b845d0e6b125a2a0f61c00663608b5d6f806"
+    }
+  },
+  "preservation": {
+    "native_policy_and_runtime_unchanged": true,
+    "production_assets_and_director_inputs_unchanged": true,
+    "density_registry_and_records_unchanged": true,
+    "pre_existing_deletion_preserved": "experiments/cutouts/frostglass_lancer/rr37/proof/native_gates.json"
+  },
+  "chosen_defaults": {
+    "clean_git_timeout_seconds": 180,
+    "clean_suite_timeout_seconds": 600,
+    "negative_binding_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "todo_design": {},
+  "open_issues": []
+}

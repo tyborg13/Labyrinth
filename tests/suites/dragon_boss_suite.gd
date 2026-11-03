@@ -64,7 +64,7 @@ static func _test_boss_rooms_spawn_authored_dragons(expect: Callable) -> void:
 	for boss_id: String in DragonBossLibrary.ELEMENTAL_BOSS_IDS + [DragonBossLibrary.SHADOW_BOSS_ID]:
 		var room: Dictionary = generator.generate_room(TEST_SEED, _boss_room_metadata(boss_id, 4), Vector2i.RIGHT)
 		var enemies: Array = room.get("enemies", []) as Array
-		var expected_count: int = 3 if boss_id in [DragonBossLibrary.LIGHTNING_BOSS_ID, DragonBossLibrary.SHADOW_BOSS_ID] else 1
+		var expected_count: int = 2 if boss_id in ["vyraketh", "vaeloryx"] else 3
 		expect.call(enemies.size() == expected_count, "%s should spawn with its authored encounter roster" % boss_id)
 		if enemies.is_empty():
 			continue
@@ -98,7 +98,7 @@ static func _test_boss_stats_scale_with_depth(expect: Callable) -> void:
 		expect.call(late_damage > early_damage, "%s damage should use the normal depth scaling curve" % boss_id)
 	var early_spires: Dictionary = _resolve_opening("tharokh", 4)
 	var late_spires: Dictionary = _resolve_opening("tharokh", 20)
-	expect.call(_maximum_terrain_health(late_spires) > _maximum_terrain_health(early_spires), "Worldspine health should scale upward with Tharokh's sequence depth")
+	expect.call(int(early_spires["battlefield_rule"]["dials"]["health"]) == 4 and int(late_spires["battlefield_rule"]["dials"]["health"]) == 4, "Tharokh uses the approved four-Health Outcrop dial at every depth")
 
 static func _test_status_immunities_are_atomic(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -135,11 +135,7 @@ static func _test_status_immunities_are_atomic(expect: Callable) -> void:
 
 static func _test_opening_gimmicks_resolve(expect: Callable) -> void:
 	var earth_after: Dictionary = _resolve_opening("tharokh")
-	var earth_spires: int = 0
-	for terrain_var: Variant in earth_after.get("terrain", []):
-		if typeof(terrain_var) == TYPE_DICTIONARY and str((terrain_var as Dictionary).get("kind", "")) == "dragon_spire":
-			earth_spires += 1
-	expect.call(earth_spires == 4, "Tharokh opens with four attackable Worldspines while retaining movement lanes")
+	expect.call(CombatEngine.new()._dragon_spires(earth_after).is_empty(), "Stonewake keeps its lane; Upheaval supplies the Outcrops after player turns")
 
 	var fire_after: Dictionary = _resolve_opening("vyraketh")
 	var cinder_tiles: Array[Vector2i] = Surface.tiles(fire_after, "fire")

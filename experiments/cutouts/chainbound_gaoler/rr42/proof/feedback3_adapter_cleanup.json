@@ -1,0 +1,19 @@
+{
+  "starting_head": "75e4b3896cf1cf46a035b4f34778bc57aae06d21",
+  "inputs": {
+    "production:assets/units/chainbound_gaoler_cutout/renderer.gd": {
+      "before_sha256": "06dede0e54d0c4aba3d659bd11f4992fa7897e3f91390c10cd4af62f72e675c7",
+      "after_sha256": "e4942e454b7d3cd6c1980abbbf892cbcfaf9a7ba8f1ad38378812956c1c83ba6",
+      "reason": "Feedback 3 finding 3: derive move frames and frame seconds through the existing Action adapter; authored data unchanged."
+    },
+    "production:assets/units/chainbound_gaoler_cutout/held_drop.gd": {
+      "before_sha256": "f53e97b3c0313fb5bfc7320607f516b1ef2f81d830dafb3412f50047679e3a59",
+      "after_sha256": "c51a0ec282bac1700a8bb4bd68a501efde02af8d869430693d51e1bcce888af9",
+      "reason": "Feedback 3 finding 4: remove the unused policy lookup helper; release transform and angle calculations unchanged."
+    }
+  },
+  "art_changes": [],
+  "motion_changes": [],
+  "gate_changes": [],
+  "native_manifest_rewritten": false
+}

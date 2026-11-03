@@ -5,6 +5,8 @@ three-quarter view on the 2:1 board, chunky stylized proportions, low detail at 
 palette. This gate makes drift fail loudly instead of relying on someone noticing. It sits on top of the
 [board pixel-density rule](board_pixel_density.md), which still owns pixel treatment.
 
+Board art is judged in the real game with the cel look on, as well as from its review sheet.
+
 ## Why it exists (owner verdicts, 2026-10-12)
 
 The twelve peer-benchmark enemies passed pixel density, but the owner rejected them:
@@ -73,6 +75,10 @@ square base measures +0.02/−0.01 on `base_v`; the crag outcrop measures +0.54/
 and two canon peers, at 1× and 2× NEAREST; front, rear and mirrored front (all four facings); the landmark line and
 the ideal 2:1 diagonal through the near landmark (or the diamond for plinths); the metric table with pass/fail. Never
 approve art from the generated image at generation size.
+
+Judge both the source row and the `as shipped` row: the second shows what the player sees through the shipped cel
+filter. A form the filter merges or a colour it shifts is a reason to reject the art or add a cel override, even if
+the source row looks fine. `--no-cel` skips this comparison row.
 
 ## 6. Independent judge
 
@@ -311,6 +317,17 @@ its other provenance or metric failures. The summary counts skipped replays, and
 `check --kit` requires every director input and prints matching raw and
 processed pixel digests, plus the byte diagnostic. It certifies replay only, without registry/metric/judge approval.
 Neither check writes into the job. Art-05/art-06 add no gaoler registry entries.
+
+The Lancer's `mq14_rear_v2` uses the opt-in, single-step `lancer_rear_v2` recipe.
+It binds the director's raw edit, unchanged recipe bytes and processed front,
+then replays the supplied 4×4 median reduction, key and per-material palette
+transfer. Its output is already registered at 255×255, offset (0,0) to the old
+rear; ordinary BOX reduction, canvas placement and another palette match must
+not run on it. The sidecar records `lancer_rear_v2_registered_native` and the
+front reference binding. The implementation never executes recipe input files;
+it verifies their protected bytes and uses the audited numerical replay helper.
+Other jobs retain their existing processing. Replay certification does not
+approve the review sheet or supply a metric exception.
 
 Once a kit lists its recipe steps and input paths, `record-steps` computes every input file's `sha256`, each
 `output_raw_pixel_sha256`, the intervening `previous_output_pixel_sha256` links, and any match-reference pixel

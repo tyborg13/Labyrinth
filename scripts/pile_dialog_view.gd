@@ -1,5 +1,7 @@
 extends RefCounted
 
+const CardDisplay = preload("res://scripts/card_display_overrides.gd")
+
 # Shared pile-dialog finish. Callers own geometry; the combat viewer's original
 # style and content are passed through unchanged.
 const UiSkin = preload("res://scripts/ui_skin.gd")
@@ -10,7 +12,8 @@ const CardWidget = preload("res://scripts/card_widget.gd")
 const CardScene = preload("res://scenes/card_widget.tscn")
 const Surface = preload("res://scripts/ui_component_surface.gd")
 const Socket = preload("res://scripts/ui_socket.gd")
-const CARD_SIZE := Vector2(196.0, 276.0)
+const LAYOUT_CARD_WIDTH: float = 196.0 # Preserve the existing combat grid region.
+const CARD_SIZE := Vector2(maxf(196.0, CardWidget.MIN_READABLE_CARD_SIZE.x), ceilf(maxf(276.0, CardWidget.MIN_READABLE_CARD_SIZE.y)))
 const STACK_OFFSET := Vector2(6.0, 7.0)
 const STACK_LAYERS: int = 3
 const CARD_BACK_PATH: String = "res://assets/art/ui/card_back.png"
@@ -101,6 +104,7 @@ static func card_cell(host: Node, card_id: String, count: int, activated: Callab
 		cell.add_child(back)
 	cell.widget = CardScene.instantiate() as CardWidget
 	cell.widget.configure(card_id)
+	CardDisplay.bind(cell.widget, host.call("_card_display_state"))
 	cell.widget.focus_mode = Control.FOCUS_NONE
 	var slot: Control = host.call("_scaled_card_slot", cell.widget, CARD_SIZE)
 	cell.add_child(slot)

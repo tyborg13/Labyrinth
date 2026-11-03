@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "results": [
+    {
+      "mutation": "RR35 CARAPACE EXCLUSIVITY GUARD REMOVAL",
+      "caught": true,
+      "tests": 1,
+      "failures": 10,
+      "errors": 0
+    },
+    {
+      "mutation": "RR35 POST-COMMIT SELF-COMPARISON",
+      "caught": true,
+      "tests": 1,
+      "failures": 2,
+      "errors": 0
+    }
+  ]
+}

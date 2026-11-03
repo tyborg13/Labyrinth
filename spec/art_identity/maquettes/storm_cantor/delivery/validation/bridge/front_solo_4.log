@@ -1,0 +1,12 @@
+00:00.422  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_native/native/maquette.blend"
+00:04.560  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_native/front_solo_4/front_silhouette.png'
+00:08.064  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_native/front_solo_4/front_silhouette.png'
+00:11.560  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_native/front_solo_4/front_parts.png'
+00:14.847  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_native/front_solo_4/front_silhouette.png'
+00:17.935  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_native/front_solo_4/front_silhouette.png'
+00:21.150  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_native/front_solo_4/front_silhouette.png'
+00:24.220  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_native/front_solo_4/front_silhouette.png'
+00:27.348  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_native/front_solo_4/front_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+BLENDER_FACING: PASS
+MQ17_BOUNDED_CAPTURE: PASS; front; fore_near,hand_near,upper_far,fore_far

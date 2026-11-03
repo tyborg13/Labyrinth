@@ -1,0 +1,111 @@
+{
+  "sidecars": [
+    {
+      "source": "tests/rr38/board_scales.gd",
+      "sidecar": "tests/rr38/board_scales.gd.uid",
+      "uid": "uid://ggcuj3y2vt4k",
+      "sha256": "338bec697fb1074629e04ec8eaa4671c4e2412011bd8c59513161d3bcf6a30d5",
+      "tracked": true
+    },
+    {
+      "source": "tests/rr38/capture_scene.gd",
+      "sidecar": "tests/rr38/capture_scene.gd.uid",
+      "uid": "uid://chvus8qcx8wv1",
+      "sha256": "46e97adc9fdae884bfd17fccc7cc9d8fbc0d058fbbafdc26477ff0bb1a203178",
+      "tracked": true
+    },
+    {
+      "source": "tests/rr38/contextual.gd",
+      "sidecar": "tests/rr38/contextual.gd.uid",
+      "uid": "uid://dsxsdii0lg52j",
+      "sha256": "ca87a3db208f9a633f9d2165f7efc92a18b21391b1f5317b6baae3e62639d054",
+      "tracked": true
+    },
+    {
+      "source": "tests/rr38/density_capture.gd",
+      "sidecar": "tests/rr38/density_capture.gd.uid",
+      "uid": "uid://bnbbuibrnygea",
+      "sha256": "a2b7eb19464ccb3532c62b1a09dbed7fec93f6d3832e51019c93c06f8c56a1ee",
+      "tracked": true
+    },
+    {
+      "source": "tests/rr38/density_rebake.gd",
+      "sidecar": "tests/rr38/density_rebake.gd.uid",
+      "uid": "uid://daw6a6ha06o04",
+      "sha256": "29331df34575bfb1a5310cba806505ce1a18917adef90b989062811dc361c0ba",
+      "tracked": true
+    },
+    {
+      "source": "tests/rr38/native_capture.gd",
+      "sidecar": "tests/rr38/native_capture.gd.uid",
+      "uid": "uid://colthdy0fnu2s",
+      "sha256": "f8ecec4bb96a53a28bc81239994c521a457c72a18b00f92b21d56d9a46a852bd",
+      "tracked": true
+    },
+    {
+      "source": "tests/rr38/production_capture.gd",
+      "sidecar": "tests/rr38/production_capture.gd.uid",
+      "uid": "uid://bfvyi28qdjv3a",
+      "sha256": "17f10f0090d28f14800c796ed31bf3830615a1aa41fc000714efc81fd78a9d0e",
+      "tracked": true
+    },
+    {
+      "source": "tests/rr38/renderer_sockets.gd",
+      "sidecar": "tests/rr38/renderer_sockets.gd.uid",
+      "uid": "uid://cn6jwk567mdkg",
+      "sha256": "9045d331f6d4a6a6ed9021c012a1ef16f54859529b5adba3598238b958d29dbd",
+      "tracked": true
+    },
+    {
+      "source": "tests/rr38/runtime_checks.gd",
+      "sidecar": "tests/rr38/runtime_checks.gd.uid",
+      "uid": "uid://dbt36sxmoigdu",
+      "sha256": "be5b333d01bbce82086347cd41b05eb4fac824c3dc302c26d4b9a2f2c14b2afc",
+      "tracked": true
+    },
+    {
+      "source": "tests/rr38/samples.gd",
+      "sidecar": "tests/rr38/samples.gd.uid",
+      "uid": "uid://baxj08rrxsmw8",
+      "sha256": "a37bb6e5c27fdd250aee662de97bc32e363b36ce8915959aec1ca42627b58d85",
+      "tracked": true
+    },
+    {
+      "source": "tests/rr38/shadow_refresh.gd",
+      "sidecar": "tests/rr38/shadow_refresh.gd.uid",
+      "uid": "uid://cip5bsap0ejp4",
+      "sha256": "98d42826cfc80df9d03be5353bafb6aa0cbab844e52f30a7d9f581cd709872d6",
+      "tracked": true
+    },
+    {
+      "source": "tests/rr38/sidecars.gd",
+      "sidecar": "tests/rr38/sidecars.gd.uid",
+      "uid": "uid://dmifl5cxwc1vi",
+      "sha256": "de4af31a52ddd533ba7622d77a0c180b7fd2fa89a3757fb2b5e1054f22b2f20b",
+      "tracked": true
+    },
+    {
+      "source": "assets/units/chainbound_gaoler_cutout/held_drop.gd",
+      "sidecar": "assets/units/chainbound_gaoler_cutout/held_drop.gd.uid",
+      "uid": "uid://dol8giqrywu2a",
+      "sha256": "48c2acbc44dbac65d8d0c1547cbd0f5078d0bba2c6a43c390910b40f216f26d1",
+      "tracked": true
+    },
+    {
+      "source": "assets/units/chainbound_gaoler_cutout/renderer.gd",
+      "sidecar": "assets/units/chainbound_gaoler_cutout/renderer.gd.uid",
+      "uid": "uid://3ciyntpkrx3u",
+      "sha256": "870c4d7b5e48a9ced231f41cdeb2332eb7b438d4c6f2851bd08b8ac7678a4be7",
+      "tracked": true
+    },
+    {
+      "source": "assets/units/chainbound_gaoler_cutout/rig.gd",
+      "sidecar": "assets/units/chainbound_gaoler_cutout/rig.gd.uid",
+      "uid": "uid://deu680e31x3qo",
+      "sha256": "2b8ebb44dd30569f35010890c261287e97bb16a06da1e3c6439aa348191e7d8e",
+      "tracked": true
+    }
+  ],
+  "new_gd_sources_this_round": 0,
+  "all_present_and_tracked": true
+}

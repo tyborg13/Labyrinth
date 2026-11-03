@@ -1,0 +1,133 @@
+{
+  "task_id": "enc-03",
+  "feedback_round": 3,
+  "status": "implemented; focused checks pass; director native after inspection pending",
+  "committed": false,
+  "files_changed_this_round": [
+    "scripts/action_caption_scrim.gd",
+    "scripts/run_scene.gd",
+    "tests/enc03_lob_probe.gd",
+    "tests/suites/enc03_slag_suite.gd",
+    "spec/peer_benchmark/enc-03/feedback-3.md",
+    "spec/peer_benchmark/enc-03/feedback-3-proof.json",
+    "spec/peer_benchmark/enc-03/handoff.md",
+    "spec/peer_benchmark/enc-03/proof.json"
+  ],
+  "requirements": [
+    {
+      "number": 1,
+      "status": "implemented",
+      "evidence": "HudSeatScrim subclass; 48px horizontal/10px vertical extent; Palette.INK_0 alpha 0.85; 48px/6px falloff using existing ease; no new material, plate, outline or colour literal."
+    },
+    {
+      "number": 2,
+      "status": "implemented and headless verified",
+      "evidence": "Shared ActionBanner behind-parent child; same canvas, inherited visibility/opacity, no independent clock. Normal and Reduced Motion and non-lob captions checked. No overlay movement or hiding."
+    },
+    {
+      "number": 3,
+      "status": "red/green verified",
+      "evidence": "Real fire Warband fixture intersects leader crest and caption. All intersecting drawn polygon patches cover the full intersection at alpha 0.85. Absent-scrim regression fails before implementation."
+    },
+    {
+      "number": 4,
+      "status": "verified",
+      "evidence": "730 focused checks; live fixture and lifecycle pass; UI identity 25 tests OK; existing pacing suite pass."
+    }
+  ],
+  "negative_regression": {
+    "status": "expected failure observed before implementation",
+    "exit_code": 1,
+    "log": "output/enc-03/feedback-3/scrim-red.log",
+    "result_lines": [
+      "ERROR: Every action caption rests on the shared soft HUD scrim",
+      "ENC03 LOB PROBE: FAIL (3 states; 2 failures)"
+    ]
+  },
+  "checks": [
+    {
+      "name": "Focused geometry, AI and intent",
+      "status": "pass",
+      "exit_code": 0,
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/enc03_slag_test.gd",
+      "log": "output/enc-03/feedback-3/slag-focused.log",
+      "result_lines": [
+        "ENC03 SLAG TEST: PASS (730 checks; 0 failures)"
+      ]
+    },
+    {
+      "name": "Live scrim coverage and caption lifecycle",
+      "status": "pass",
+      "exit_code": 0,
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/enc03_fixture_test.gd",
+      "log": "output/enc-03/feedback-3/live-scrim.log",
+      "result_lines": [
+        "ENC03 CAPTION SCRIM: overlap area=596.051 min_alpha=0.85",
+        "ENC03 CAPTION LIFECYCLE: PASS (shared non-lob caption; normal and Reduced Motion)",
+        "ENC03 LOB PROBE: PASS (3 states; 0 failures)"
+      ]
+    },
+    {
+      "name": "Existing combat pacing",
+      "status": "pass",
+      "exit_code": 0,
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/combat_pacing_regression_test.gd",
+      "log": "output/enc-03/feedback-3/pacing-regression.log",
+      "result_lines": [
+        "COMBAT PACING REGRESSION TEST RESULT: PASS"
+      ]
+    },
+    {
+      "name": "UI identity",
+      "status": "pass",
+      "exit_code": 0,
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tests/test_ui_identity_lint.py",
+      "log": "output/enc-03/feedback-3/ui-identity.log",
+      "result_lines": [
+        "Ran 25 tests in 4.082s",
+        "OK"
+      ]
+    }
+  ],
+  "resolved_design_decisions": [
+    {
+      "name": "TODO_DESIGN_callout_occlusion_treatment",
+      "source": "director feedback 3",
+      "resolution": "Existing soft HUD scrim, exact supplied dimensions/INK_0 alpha/falloff, behind shared caption; visibility/opacity inherited."
+    }
+  ],
+  "TODO_DESIGN": [],
+  "chosen_defaults": {
+    "FALLOFF_STEPS": 8,
+    "SCRIM_TEST_TEXT_SIZE": [
+      661,
+      30
+    ],
+    "CAPTION_TEST_FADE_ALPHA": 0.5,
+    "evidence_directory": "output/enc-03/feedback-3"
+  },
+  "accepted_measurements_changed": false,
+  "raw_measurement_hashes_verified": 12,
+  "known_quarantined_test_unchanged": "tests/combat_hud_badges_test.gd (qa-08); tests/quarantine.json untouched; neither run this round",
+  "native_after": {
+    "status": "assigned to director by feedback 3; not run this round",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/enc03_proof.py --phase after --result-manifest output/enc-03/feedback-3/director-after-visual-result.json",
+    "capture_paths": [],
+    "expected_image_names": [
+      "after_pre_battle_1920x1080.png",
+      "after_aiming_1920x1080.png",
+      "after_landing_1920x1080.png"
+    ],
+    "expected_size": "1920x1080",
+    "ui_scale": 1.0,
+    "capture_directory": "runner-isolated user://probes/enc03_lob/"
+  },
+  "notes": [
+    "No full suite, peer review, commit or publication.",
+    "Pacing assertions and exit pass; log includes dummy-renderer texture_2d_get diagnostics in the existing Veil fixture.",
+    "Earlier director before/after images and result manifests are preserved. Headless CAPTURES paths are output hints, not image proof."
+  ],
+  "open_issues": [
+    "Fresh native after-phase capture and visual inspection remain with the director."
+  ]
+}

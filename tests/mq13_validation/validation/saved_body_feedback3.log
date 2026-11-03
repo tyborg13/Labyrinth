@@ -1,0 +1,15 @@
+test_capture_routes_every_batch_through_the_verified_probe_and_body_bindings (tests.test_mq13_saved_body.SavedBodyTests) ... ok
+test_changed_saved_body_or_report_cannot_reuse_a_resume_receipt (tests.test_mq13_saved_body.SavedBodyTests) ... MQ13_BRIDGE: maquette.blend.receipt; exit=0
+MQ13_BRIDGE: build_report.json.receipt; exit=0
+ok
+test_legacy_receipt_without_body_bindings_cannot_resume (tests.test_mq13_saved_body.SavedBodyTests) ... ok
+test_loaded_world_geometry_recomputes_the_builder_digest (tests.test_mq13_saved_body.SavedBodyTests) ... ok
+test_moved_hood_vertex_fails_both_observation_and_capture_before_output (tests.test_mq13_saved_body.SavedBodyTests) ... ok
+test_object_inventory_world_transform_and_report_digest_are_bound (tests.test_mq13_saved_body.SavedBodyTests) ... ok
+test_rear_view_turn_keeps_the_verified_body_digest_and_local_geometry (tests.test_mq13_saved_body.SavedBodyTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.039s
+
+OK
+MQ13_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=rear; solos=None

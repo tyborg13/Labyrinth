@@ -1,0 +1,179 @@
+{
+  "authority": "mq-26 brief (director, 2026-10-29), then director review round 2 (same day): exact values under 'brief' (round-2 values override); accepted construction values under 'construction.director_decisions'. H = sole to the top of the taller tine (mq-17 gauge), L = mq-17 leg gauge.",
+  "brief": {
+    "proportion_tolerance_fraction": 0.1,
+    "hip_joint_over_H": 0.5,
+    "thigh_width_over_H": 0.065,
+    "shin_width_over_H": 0.055,
+    "upper_arm_width_over_H": 0.05,
+    "forearm_width_over_H": 0.055,
+    "waist_sash_across_over_H": 0.16,
+    "pauldron_span_over_H": 0.27,
+    "chest_across_over_H": 0.18,
+    "elbow_cop": {
+      "wrap_degrees": 180,
+      "overlap_over_H": 0.02,
+      "point_beyond_over_H": 0.025,
+      "points": "back"
+    },
+    "knee_cop": {
+      "overlap_over_H": 0.02,
+      "point_beyond_over_H": 0.02,
+      "side_wings": 2,
+      "points": "front"
+    },
+    "hand": {
+      "fingers": 4,
+      "finger_phalanges": 3,
+      "thumb_phalanges": 2,
+      "finger_width_base_over_H": 0.012,
+      "finger_width_tip_over_H": 0.008,
+      "near_knuckle_curls_degrees": [
+        30,
+        40,
+        45
+      ],
+      "near_finger_spread_degrees": 8,
+      "far_grip": "fingers curl around the shaft, thumb over the top"
+    },
+    "helm": {
+      "face_plate_width_over_H": 0.1,
+      "face_plate_brow_to_chin_over_H": 0.17,
+      "facets_per_side": 2,
+      "visor_width_over_H": 0.01,
+      "visor_height_over_H": 0.07,
+      "tine_base_width_over_H": 0.025,
+      "hood_shoulder_folds": 2,
+      "tines_measured_from": "helm crown (the helm top); both clearly visible above the hood in both views",
+      "far_tine_rise_above_crown_over_H": 0.16,
+      "far_tine_forward_hook_over_H": 0.04,
+      "near_tine_rise_above_crown_over_H": 0.12,
+      "near_tine_backward_hook_over_H": 0.015,
+      "hood_crown_point_above_helm_back_over_H": 0.02,
+      "hood_back_fall": "falls over the shoulder line onto the cloak with 2 folds; no rounded hump"
+    },
+    "ribs": {
+      "per_side": 5,
+      "band_thickness_over_H": 0.012,
+      "droop_over_H": 0.05,
+      "droop_rule": "each rib arcs down and back from the sternum to the flank"
+    },
+    "pauldrons": {
+      "lames_per_side": 3,
+      "lame_size_range_over_H": [
+        0.05,
+        0.07
+      ],
+      "spikes_per_lame": 1,
+      "spike_length_over_H": 0.03,
+      "top_lame": "cups over the shoulder; no can-like cap; 3 lames step down the outside of the upper arm on both sides"
+    },
+    "sabaton_toe_beyond_ankle_over_H": 0.06,
+    "fork": {
+      "tines": 3,
+      "zigzag_bends": 2,
+      "tine_base_width_over_H": 0.02,
+      "side_to_centre_length": 0.7
+    },
+    "bell": {
+      "placement": "inside the cage; mouth at the cage lower edge; dome top just below the sternum top; visible between the ribs; nothing bulges below or in front of the chest",
+      "dome": "mq-17 r3 lathe kept (0.09 H mouth)"
+    }
+  },
+  "measured_original": {
+    "source": "assets/units/storm_cantor.png, sole y=246, taller tine y=14 (232 px = H); measured for vertical layout only",
+    "sash_centre_over_H": 0.534,
+    "top_rib_over_H": 0.675,
+    "bottom_rib_over_H": 0.586
+  },
+  "construction": {
+    "note": "Values the brief does not state. 'derived' ones come from approved inputs; 'director_decisions' were accepted in review round 2.",
+    "derived": {
+      "fork_centre_tine_over_H": {
+        "value": 0.185,
+        "from": "mq-17 source caliper fork_height_px 43 / 232"
+      },
+      "palm_length_over_H": {
+        "value": 0.0302,
+        "from": "approved hand bone (hand to hand_tip), 7 source px"
+      },
+      "finger_phalanx_lengths_over_H": {
+        "value": [
+          0.0244,
+          0.0203,
+          0.0162
+        ],
+        "from": "mq-17 r3 finger sections 2-4 (approved finger construction)"
+      },
+      "thumb_phalanx_lengths_over_H": {
+        "value": [
+          0.0203,
+          0.0162
+        ],
+        "from": "the two distal finger phalanges"
+      },
+      "knuckle_width_over_H": {
+        "value": 0.048,
+        "from": "four 0.012 H finger bases side by side"
+      },
+      "cage_depth_to_width": {
+        "value": 0.588,
+        "from": "mq-17 source ribcage_radius_px 10/17"
+      },
+      "sash_depth_to_width": {
+        "value": 0.692,
+        "from": "mq-17 source sash_radius_px 9/13"
+      },
+      "helm_depth_to_width": {
+        "value": 0.889,
+        "from": "mq-17 source helm_radius_px 8/9"
+      },
+      "cloth_thickness_over_H": {
+        "value": 0.008,
+        "from": "mq-19 cloak two-skin thickness"
+      },
+      "plate_thickness_over_H": {
+        "value": 0.0086,
+        "from": "mq-17 source backplate_thickness_px 2 / 232"
+      }
+    },
+    "director_decisions": {
+      "pauldron_span_over_H": {
+        "value": 0.317,
+        "accepted_rows": [
+          "pauldron_span"
+        ],
+        "decision": "accepted as built: the lames add the width; the shoulders are not narrowed",
+        "gate": "within 10% of the accepted value"
+      },
+      "rib_band_width_over_H": {
+        "value": 0.018,
+        "decision": "accepted as built (director review round 2)"
+      },
+      "near_palm_facing": {
+        "value": "back of the hand toward the board camera",
+        "decision": "accepted as built (director review round 2)"
+      },
+      "fork_zigzag_offset_over_H": {
+        "value": 0.015,
+        "decision": "accepted as built (director review round 2)"
+      },
+      "lame_heights_over_H": {
+        "value": [
+          0.07,
+          0.06,
+          0.05
+        ],
+        "decision": "accepted as built (director review round 2)"
+      },
+      "hood_drop_below_shoulders_over_H": {
+        "value": 0.02,
+        "decision": "accepted as built (director review round 2)"
+      },
+      "interpretations": {
+        "value": "accepted",
+        "decision": "proportions measured like the sprite on the capture; cop points beyond the plate; ribs may show at the flanks in the rear; listed rear occlusions; bell lathe kept"
+      }
+    }
+  }
+}

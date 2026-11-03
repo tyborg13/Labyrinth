@@ -1,0 +1,12 @@
+{
+  "checks": {
+    "other_density_entries_equal": true,
+    "other_density_outputs_equal": true,
+    "other_identity_entries_equal": true,
+    "other_unit_assets_unchanged": true,
+    "protected_sources_unchanged": true,
+    "byte_copy:experiments/cutouts/chainbound_gaoler/rr38/director_motion.json": true,
+    "byte_copy:assets/units/chainbound_gaoler_cutout/humanoid_v2/director_motion.json": true
+  },
+  "protected_motion_sha256": "efccf5fc6890bccfb991c54ff4bf91e063020cd1271a67168124db084790668b"
+}

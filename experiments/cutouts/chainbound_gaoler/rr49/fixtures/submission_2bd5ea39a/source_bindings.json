@@ -1,0 +1,8 @@
+{
+  "head": "2bd5ea39a0a42eff5f768016406d02ac3510fc54",
+  "sha256": {
+    "scripts/maquette_cutout_runtime/stable_paint.gd": "2873a6c932928ec2ee2f75a2d0398f769396bad1b243caed523e037cd8b0c9f0",
+    "scripts/maquette_cutout_runtime/rig.gd": "a44b99faf25108ad681789aa2786b35a386eb683587ed194ffb8f13fa7e14065"
+  },
+  "derivation": "Only relative preload paths expanded; legacy rig points to frozen legacy paint. Production adapter is identical except its extends path."
+}

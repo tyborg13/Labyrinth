@@ -1,6 +1,7 @@
 extends SceneTree
 
-const CombatEngine = preload("res://scripts/combat_engine.gd")
+# Checkpoints use the live engine, including its additive presentation state.
+const CombatEngine = preload("res://scripts/hero_facing_combat.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")

@@ -6,20 +6,27 @@ transactions and previews. `OmenRules` owns timed combat modifiers. `EventView` 
 
 ## Schema and validation
 
-Schema version 1 has `events` and `omens` dictionaries keyed by persistent ids.
+Schema version 2 has `events` and `omens` dictionaries keyed by persistent ids.
 An event has `title`, `body` (at most 70 words), `pool`, `min_section`,
 `max_section`, positive `weight`, and two or three `choices`. Pools are `any`,
 `earth`, `fire`, `air`, `ice`, `lightning`, or `shadow`; section bounds are
 inclusive indices 0–5. Choice ids are unique within their event; labels are at
 most 28 characters. A choice has `id`, `label`, ordered `effects`, optional
-`requires`, and optional `result`. Random outcomes have positive `weight`,
-`effects`, and optional `result`; weights sum to 100.
+`requires`, and optional `result`. The protected director catalog contains 45
+events and 11 unchanged omens. `random` is a retired, invalid effect type;
+validation rejects it, including in a newly supplied catalog.
 
 An omen has `name`, `kind` (`blessing` or `bane`), `description`, positive
 `fights`, and one known `effect`. `EventRules.validate_data()` reports catalog
 problems, including unknown requirement/effect types and missing referenced
 omens. `GameData` caches the file once and exposes `events()`, `event_def(id)`,
 `omens()`, and `omen_def(id)`.
+
+The brief permits delayed delivery of the 18 new paintings. This checkout
+already includes all 45 event paintings in the approved provenance manifest.
+Missing paintings still leave the existing painting control empty and never
+prevent an event opening. Existing approved art/provenance checks remain intact;
+a debug-only missing-art fixture verifies the fallback without changing assets.
 
 Art paths are derived only by `EventRules.art_path(id)` as
 `res://assets/art/events/<event_id>.png`. `EventView` loads this derived path through `AssetLoader`.
@@ -29,14 +36,37 @@ Art paths are derived only by `EventRules.art_path(id)` as
 First entry persists `room.event_id`. The element comes from the section's
 seeded dragon, with Noctyrax mapped to `shadow`. Eligible events match that
 element or `any`, include the current section within their bounds, and are
-absent from `seen_events`. Sort ids before a weighted RNG draw seeded only by
+absent from `seen_events`. Next remove the ids in the run’s `event_memory`; use
+that filtered pool only when at least six candidates remain, otherwise ignore
+memory. Apply the existing fallback order after this filter. Sort ids before a weighted RNG draw seeded only by
 run seed, room coordinate and selection purpose. Selection is independent of
 catalog insertion order. If no eligible event exists, use any unseen `any`
 event ignoring section bounds, then `lost_cartographer`.
 
-Entry does not mark the event seen. Resolving a choice does. The persisted id
-survives save/load on either page. Legacy mid-event saves without an id use
-`lost_cartographer`; its `embers` and `survey` ids are preserved.
+At run creation, `event_memory` owns a snapshot of the ids in the standalone
+`user://recent_events.json` convenience file. Older saves load an empty memory,
+without consulting the file. The snapshot stays fixed throughout the run and
+continues to use the ordinary run serializer.
+
+Entry does not mark the event seen. Resolving a choice does. The live flow,
+after saving the result, also appends the event id to the independent history
+file, retaining the last sixteen in order, including repeats. The console flow
+uses the same transition check. Rejected input, repeated results and Continue
+do not append. `RecentEventStore` writes a small `{recent_events: [ids...]}` JSON
+object to a sibling temp file, flushes and closes it, then atomically renames it
+over the destination.
+
+This file is disposable: a missing, corrupt or unreadable file reads as empty;
+a write failure is silently ignored by the game flow and never blocks a choice,
+Continue, run checkpoint or permanent award. History is absent from progression,
+does not advance any profile/run revision, is never repaired from a save, and
+has no Steam Cloud requirement. Legacy profile `recent_events` is discarded on
+normalization without migration into the file. The failed-award regression
+checks that a subsequent history write leaves profile/checkpoint bytes unchanged
+and that ordinary resume repair still restores the earned Moltshard.
+
+The persisted event id survives save/load on either page. Legacy mid-event saves
+without an id use `lost_cartographer`; its `embers` and `survey` ids are preserved.
 
 ## Requirements
 
@@ -68,35 +98,37 @@ together. Repeated input on the result page cannot apply the choice again.
 | `heal_percent {percent}` | Round max HP × percent / 100, then heal with the same cap. |
 | `max_hp {amount}` | Max HP never below 1; increases also increase current HP; decreases clamp current HP. |
 | `embers {amount}` | Existing held/unbanked add/spend helpers; never banks progression currency. |
-| `relic {rarity}` | Random unowned treasure-offerable relic of rarity; lower rarities then any offerable rarity; excludes retired, Guardian and dragon exclusives. Empty pool substitutes 40 Embers and records `substitution_for`. Uses the ordinary relic claim bonuses. |
-| `card {rarity, element}` | Random reward-pool magic card straight into the deck, marked NEW/unread; requested rarity, lower rarities, then any rarity; empty pool substitutes 40 Embers. |
+| `relic {rarity}` | Seeded unowned treasure-offerable relic of rarity; lower rarities then any offerable rarity; excludes retired, Guardian and dragon exclusives. Empty pool substitutes 40 Embers and records `substitution_for`. Uses the ordinary relic claim bonuses. |
+| `card {rarity, element}` | Seeded reward-pool magic card straight into the deck, marked NEW/unread; requested rarity, lower rarities, then any rarity; empty pool substitutes 40 Embers. |
 | `card_choice {count, element, min_rarity?}` | Distinct reward-pool magic offers using existing reward rarity/card weights, with a minimum rarity floor; deferred until Continue. |
-| `equipment {rarity, slot?}` | Random unowned gear into pack, marked NEW/unread; lower rarity then any; empty pool substitutes 40 Embers. |
-| `reforge {slot, rarity_step}` | Random different same-slot piece at stepped rarity, capped at Legendary; fall back to the old rarity, then any rarity. Success destroys old gear/grafts, equips replacement and rebuilds the deck. An empty pool preserves old gear/grafts and substitutes 40 Embers. |
-| `item {count}` | Random consumables into pack through the Scavenger acquisition semantics. |
-| `lose_item` | One random pack consumable, or equipped consumable when pack is empty. |
-| `transform_magic {count, rarity_step}` | Random distinct spells in the deck, fewer if necessary; different reward spell at stepped rarity, then old rarity, then any rarity, any element. Preserves its deck position, records from/to and rebuilds deck. An empty pool leaves the spell unchanged and records `nothing_changed`. |
+| `equipment {rarity, slot?}` | Seeded unowned gear into pack, marked NEW/unread; lower rarity then any; empty pool substitutes 40 Embers. |
+| `reforge {slot, rarity_step}` | Seeded different same-slot piece at stepped rarity, capped at Legendary; fall back to the old rarity, then any rarity. Success destroys old gear/grafts, equips replacement and rebuilds the deck. An empty pool preserves old gear/grafts and substitutes 40 Embers. |
+| `item {count}` | Seeded consumables into pack through the Scavenger acquisition semantics. |
+| `lose_item` | One seeded pack consumable, or equipped consumable when pack is empty. |
+| `transform_magic {count, rarity_step}` | Seeded distinct spells in the deck, fewer if necessary; different reward spell at stepped rarity, then old rarity, then any rarity, any element. Preserves its deck position, records from/to and rebuilds deck. An empty pool leaves the spell unchanged and records `nothing_changed`. |
 | `omen {id}` | Add or refresh the timed omen, without stacking. |
 | `defiance {amount}` | Increase this run's capacity and remaining charges; persist the run bonus, never progression. |
 | `scout {amount}` | Increase current-section uses. |
 | `reveal {hops}` | Existing Cartographer descendant reveal; record newly identified coordinates. |
-| `random {outcomes}` | Weighted seeded outcome; recursively apply its effects and use its result text. |
 
 Card element `section` resolves from the section dragon; shadow resolves to any.
 `any` includes the existing elemental/radiance magic reward pool. Explicit
-elements filter that pool. Random choices use run seed, room coordinate and
+elements filter that pool. Concrete reward identities use run seed, room coordinate and
 choice id; acquisition pools are sorted before draws.
 
 Outcomes record actual deltas and selected ids, including `hp`, `max_hp`,
 `embers`, acquired `relic`/`card`/`equipment`/`item` ids, `card_choice.cards`,
 `reforge`/`transform_magic` from/to and slot, omen id/duration, Defiance, Scout,
-and revealed rooms. Random wrapper effects produce their concrete inner results.
+and revealed rooms. Acquisition RNG chooses the concrete identity in advance;
+each choice has a fixed ordered tradeoff with no probability branches.
 
 ## Event continuation and rewards
 
 `mode` stays `event` while `event_state` contains `{event_id, page, choice_id,
-result_text, outcomes}`. Pages are `choices` and `result`. The choice's result is
-used unless a random outcome supplies its own result. Empty text is omitted.
+result_text, outcomes}`. Pages are `choices` and `result`. The choice’s authored result is used. Empty text is omitted. A legacy save
+already on the result page keeps its stored result text and concrete outcomes,
+including outcomes from retired probability branches; they never replay. A
+legacy save on the choices page reads the rewritten current catalog choices.
 Continue marks the room cleared and removes `event_state`, returning to `room`.
 
 If the transaction generated card offers, Continue instead opens the existing
@@ -131,32 +163,52 @@ does not tick durations.
 
 No active omens means no additional combat-state fields or changed RNG draws.
 
-## Preview templates
+## Concrete choice previews
 
-`choice_effect_lines()` returns one line per effect, except random effects which
-return one line per outcome. Icons use existing `@icon(name)` markup with spaces
-around them. Rarity is capitalized; element is capitalized and omitted for any.
+`EventRules.preview_choice(state, choice_id) -> Array[Dictionary]` runs the
+ordinary ordered `apply_effects` transaction on an owned copy, seeded with the
+same `choice|<choice_id>` purpose as commitment. It returns exactly the concrete
+outcomes the choice will commit: ids, actual amounts, from/to, deck destinations,
+card offers, omen durations and empty-pool substitutions. It never mutates run
+state, progression, map analytics or another choice’s RNG. Invalid/unavailable
+choices return an empty outcome array.
 
-| Effect | Exact template |
+`EventRules.preview_lines(state, event_id, choice_id) -> Array[Dictionary]`
+returns one `{text, kind, ids}` record per authored effect, in order, including
+multiple item grants and transformations grouped into their original effect.
+The transient `apply_effects.effect_outcomes` grouping is neither saved nor
+logged. For transformations and reforges, ids are ordered from/to pairs; card
+choices retain offer order; item grants retain acquisition order. Other named
+rows contain their concrete id, and plain/substitution rows have no ids.
+
+`EventView` computes all choice lines once when an event opens and caches them
+by event and choice for that screen’s lifetime. Column fit retries, focus,
+frame refreshes and the result transition reuse the cache. Presentation attaches
+the structured row metadata for evt-02’s hover inspection. The console’s
+`choice_effect_lines` adapter returns these same named strings. The existing
+cost/gain/bane tones remain unchanged; no new UI design or animation is added.
+
+| Kind | Exact template |
 | --- | --- |
-| HP cost | `Lose N @icon(health).` |
-| Heal | `Heal N @icon(health).` |
-| Percentage heal | `Heal P% of your max @icon(health).` |
-| Max HP | `+N max @icon(health).` / `−N max @icon(health).` (U+2212 minus) |
-| Embers | `Gain N Embers.` / `Pay N Embers.` |
-| Relic | `Gain a random <Rarity> relic.` |
-| Card | `Gain a random <Rarity> <Element> spell.` |
-| Card choice | `Choose 1 of N <Element> spells.` / `Choose 1 of N <Element> spells, <Rarity> or better.` |
-| Equipment | `Gain a random <Rarity> <slot name>.` / `Gain random <Rarity> boots.` / `Gain a random <Rarity> piece of gear.` |
-| Reforge | `Reforge your <slot name> into a random <next Rarity> one.` |
-| Item | `Gain a random item.` / `Gain N random items.` |
-| Lose item | `Lose a random item.` |
-| Transform | `Transform a random spell.` / `Transform N random spells.` / `Transform a random spell into a higher rarity.` |
-| Omen | `<Blessing\|Bane>: <Name>. <description> (<fights> fights)` |
-| Defiance | `Gain 1 @icon(defiance) for this run.` |
-| Scout | `+N Scout.` |
-| Reveal | `Reveal the routes up to N rooms ahead.` |
-| Random | `<weight>%: <inner lines joined with a space>` / `<weight>%: Nothing.` |
+| `relic`, `equipment`, `card` | `Gain <Name>.` |
+| `item` | `Gain <Name>.` / `Gain <A> and <B>.` |
+| `card_choice` | `Choose 1: <A>, <B> or <C>.` |
+| `reforge` | `Your <Old> becomes <New>.` |
+| `transform` (one) | `<Old> becomes <New>.` |
+| `transform` (several) | `3 spells change: hover to see.` (actual count) |
+| `lose_item` | `Lose <Name>.` |
+| `plain` (empty acquisition pool) | `Gain 40 Embers.` |
+| `plain` (HP cost) | `Lose N @icon(health).` |
+| `plain` (heal) | `Heal N @icon(health).` |
+| `plain` (percentage heal) | `Heal P% of your max @icon(health).` |
+| `plain` (max HP) | `+N max @icon(health).` / `−N max @icon(health).` |
+| `plain` (Embers) | `Gain N Embers.` / `Pay N Embers.` |
+| `omen` | `<Blessing\|Bane>: <Name>. <description> (<fights> fights)` |
+| `plain` (Defiance) | `Gain 1 @icon(defiance) for this run.` |
+| `plain` (Scout) | `+N Scout.` |
+| `plain` (reveal) | Existing layout-specific `effect_lines` survey text. |
+
+Where no concrete named outcome exists, the lines read `Gain nothing.`, `Lose an item.`, `Reforge your gear.`, `Transform a spell.` (nothing to transform) or `Nothing changes.` (an exhausted transformation pool). All available choices in the normal catalog preview test have concrete outcomes.
 
 ## Concrete result rows
 
@@ -190,7 +242,7 @@ choice on arbitrary events. Explicit legacy Cartographer tests keep their
 
 ## Saves, analytics and console
 
-Choice and result pages, room event id, seen ids, outcomes, pending offers,
+Choice and result pages, room event id, seen ids, additive `event_memory`, outcomes, pending offers,
 run-only Defiance bonus and active omens use the existing run serializer.
 Legacy event saves migrate only their event identity/state, preserving map
 layout, Scout uses, recovery, inventories and progression.
@@ -212,14 +264,16 @@ effects above. Add referenced omens there if needed; do not add code or assets
 for an event using existing effect types. Supply every perceivable value in
 data. Run `tests/event_rules_test.gd` through the task runner; its suite validates
 the entire catalog, selection, requirements, effects, omens, persistence,
-reward continuation and exact previews. Runtime regression proof also includes
-the section-map, dragon-boss and full Godot suites.
+reward continuation and exact previews. evt-01 focused proof additionally covers preview equality for every available
+choice over 50 seeds × three Umbra depths × fresh/exhausted inventories,
+rotation, both legacy save pages, event view integration and registration.
+Full Godot/Python suites belong to the design owner’s merge round.
 
 ## Presentation
 
 `EventView` is a full-screen modal over the board. The section map remains
 closed until resolution and any deferred card choice have finished. It reads
-`EventRules.choice_effect_lines`, availability/block reasons and saved
+cached `EventRules.preview_lines`, availability/block reasons and saved
 `event_state` pages/outcomes; all rules, saves and analytics stay owned by ev-01.
 
 At **1920×1080, 100% UI scale**:
@@ -243,8 +297,7 @@ At **1920×1080, 100% UI scale**:
   Its 26 px key disc has a GOLD_DIM ring and a GOLD numeral 1–3. The label is
   UI 24 px TEXT. Effects use Text 19 px, one row per rules effect line.
 - UiPalette event tones: EVENT_COST #e07a6c, EVENT_GAIN #e9cf8f, EVENT_BANE
-  #c58cf0, EVENT_BLESSING #f2d27a. Neutral and odds prefixes are TEXT_2
-  #b5a58a; the rest of each odds line retains its semantic tone.
+  #c58cf0, EVENT_BLESSING #f2d27a. Neutral text uses TEXT_2 #b5a58a.
 - Hover/focus brightens gilding and adds a 22 px ember glow at 28% opacity.
   Unavailable plates stay focusable at 50% opacity, with TEXT_2 labels and
   exact block reasons in italic Text 17 px TEXT_3. They cannot activate.
@@ -254,8 +307,8 @@ At **1920×1080, 100% UI scale**:
   height of 78 px, and is anchored 40 px above the panel bottom.
 - Layout uses the live font shaper. On overflow, reduce body text to 20 px,
   then effects to 18 px. No text is clipped. The suite and probe assert fit
-  for all 27 events and both pages in fresh/rich states, plus every random
-  outcome branch.
+  for all 45 events and both pages in fresh/rich states. The evt-01 worker
+  reports fit regressions for the evt-02 design owner to resolve.
 
 Motion: scrim fade 0.18 s; panel fade/rise 12 px over 0.22 s, ease-out. Painting
 starts once the panel reaches 80% opacity, then settles 1.04→1.00 over 0.9 s.
@@ -343,3 +396,22 @@ Noctyrax: 4.548725 → 4.639225 (Void Claw 3.7239 → 4.0859).
 These are relative health-equivalent package scores, not an encounter simulation;
 boss geometry and unsupported enemy-only actions retain the scorer's existing
 limits. No intrinsic card coefficients or protected tuning values changed.
+
+### evt-01 proof for the design owner
+
+The worker cannot access the macOS window server and does not attempt these
+windowed commands. The new probe captures five matching choice/result pairs,
+including named relics, reforge, transformation, deferred cards and missing art,
+with pointer hover and keyboard focus at 1920×1080 and 100% UI scale:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/evt-01 && python3 tools/godot_task_runner.py --task-id evt-01 --stream -- godot --headless --path . --script tests/evt01_event_preview_probe.gd -- --write-proof-contract /private/tmp/labyrinth_codex/evt-01/preview-proof-contract.json
+cd /Users/borgerding/workspace/Labyrinth.worktrees/evt-01 && python3 tools/visual_probe_runner.py tests/evt01_event_preview_probe.gd --task-id evt-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract /private/tmp/labyrinth_codex/evt-01/preview-proof-contract.json --result-manifest /private/tmp/labyrinth_codex/evt-01/preview-renderer-result.json
+```
+
+Captures are `01_relic_trade_{choices,result}.png`,
+`02_reforge_{choices,result}.png`, `03_transform_{choices,result}.png`,
+`04_card_choice_{choices,result}.png` and `05_missing_art_{choices,result}.png`
+in the runner’s isolated `user://evt-01-preview/`; the probe prints the absolute
+path. Inspection fixture preparation and independent visual review remain
+assigned to the design owner.

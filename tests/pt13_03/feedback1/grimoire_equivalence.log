@@ -1,0 +1,13 @@
+Running task-local command:
+  task: pt13-03
+  run: pt13-03-1793058585026319000-38257
+  HOME: /private/tmp/labyrinth-godot-home/pt13-03-1793058585026319000-38257
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-03-1793058585026319000-38257/godot.log --headless --path . --script tests/grimoire_search_rows_equivalence_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+GRIMOIRE ROW RETENTION RESULT: {"cases":50,"differences":0,"errors":[],"orphan_nodes":0,"reused_rows":371}
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)

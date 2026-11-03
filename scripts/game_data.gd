@@ -1411,6 +1411,7 @@ static func _action_has_field_or_surface_bonus(action: Dictionary, field: String
 
 static func _tag_card_actions_for_combat(card: Dictionary) -> Dictionary:
 	var next_card: Dictionary = card.duplicate(true)
+	var expend: bool = preload("res://scripts/surface_expend_rules.gd").definition_uses_expend(card)
 	var element_id: String = card_element_from_def(card)
 	var card_action_types: Array[String] = _relic_card_action_types(card)
 	var actions: Array = (next_card.get("actions", []) as Array).duplicate(true)
@@ -1419,6 +1420,7 @@ static func _tag_card_actions_for_combat(card: Dictionary) -> Dictionary:
 			continue
 		var action: Dictionary = (actions[index] as Dictionary).duplicate(true)
 		action["_card_element"] = element_id
+		action["_card_surface_consume"] = expend
 		action["_card_action_types"] = card_action_types.duplicate()
 		# A follow-up which reuses this target must not require a second click.
 		# Preserve ordinary unit targets while admitting ground useful to that effect.

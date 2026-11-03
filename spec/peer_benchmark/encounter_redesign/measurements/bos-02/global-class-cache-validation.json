@@ -1,0 +1,390 @@
+{
+  "classes": [
+    {
+      "class": "ActionIconLibrary",
+      "path": "scripts/action_icon_library.gd"
+    },
+    {
+      "class": "AnalyticsStore",
+      "path": "scripts/analytics_store.gd"
+    },
+    {
+      "class": "AssetLoader",
+      "path": "scripts/asset_loader.gd"
+    },
+    {
+      "class": "AttackFxLibrary",
+      "path": "scripts/attack_fx_library.gd"
+    },
+    {
+      "class": "AttackSfxLibrary",
+      "path": "scripts/attack_sfx_library.gd"
+    },
+    {
+      "class": "BoardSurfaceRules",
+      "path": "scripts/board_surface_rules.gd"
+    },
+    {
+      "class": "CardActionContextArt",
+      "path": "scripts/card_action_context_art.gd"
+    },
+    {
+      "class": "CardDragPlayRules",
+      "path": "scripts/card_drag_play_rules.gd"
+    },
+    {
+      "class": "CardDragTargetingArrow",
+      "path": "scripts/card_drag_targeting_arrow.gd"
+    },
+    {
+      "class": "CardFocusTooltipStack",
+      "path": "scripts/card_focus_tooltip_stack.gd"
+    },
+    {
+      "class": "CardWidget",
+      "path": "scripts/card_widget.gd"
+    },
+    {
+      "class": "ChronicleRules",
+      "path": "scripts/chronicle_rules.gd"
+    },
+    {
+      "class": "CombatBoardView",
+      "path": "scripts/combat_board_view.gd"
+    },
+    {
+      "class": "CombatEngine",
+      "path": "scripts/combat_engine.gd"
+    },
+    {
+      "class": "CombatHitStop",
+      "path": "scripts/combat_hit_stop.gd"
+    },
+    {
+      "class": "CombatObjectiveHud",
+      "path": "scripts/combat_objective_hud.gd"
+    },
+    {
+      "class": "CombatObjectiveRules",
+      "path": "scripts/combat_objective_rules.gd"
+    },
+    {
+      "class": "CombatPacing",
+      "path": "scripts/combat_pacing.gd"
+    },
+    {
+      "class": "CombatTerrainRules",
+      "path": "scripts/combat_terrain_rules.gd"
+    },
+    {
+      "class": "ContextualCombatPrompt",
+      "path": "scripts/contextual_combat_prompt.gd"
+    },
+    {
+      "class": "ContextualCombatTutorial",
+      "path": "scripts/contextual_combat_tutorial.gd"
+    },
+    {
+      "class": "ControllerAnalogCursor",
+      "path": "scripts/controller_analog_cursor.gd"
+    },
+    {
+      "class": "ControllerNavigation",
+      "path": "scripts/controller_navigation.gd"
+    },
+    {
+      "class": "ControllerPromptBar",
+      "path": "scripts/controller_prompt_bar.gd"
+    },
+    {
+      "class": "CursorFeedbackController",
+      "path": "scripts/cursor_feedback.gd"
+    },
+    {
+      "class": "CustomCursorGlyph",
+      "path": "scripts/custom_cursor_glyph.gd"
+    },
+    {
+      "class": "DeathEngulfOverlay",
+      "path": "scripts/death_engulf_overlay.gd"
+    },
+    {
+      "class": "DeferredReconciliationQueue",
+      "path": "scripts/deferred_reconciliation_queue.gd"
+    },
+    {
+      "class": "DepthRules",
+      "path": "scripts/depth_rules.gd"
+    },
+    {
+      "class": "DialogueEngine",
+      "path": "scripts/dialogue_engine.gd"
+    },
+    {
+      "class": "DragonBossLibrary",
+      "path": "scripts/dragon_boss_library.gd"
+    },
+    {
+      "class": "DragonTrophyRules",
+      "path": "scripts/dragon_trophy_rules.gd"
+    },
+    {
+      "class": "ElementData",
+      "path": "scripts/element_data.gd"
+    },
+    {
+      "class": "EncounterTables",
+      "path": "scripts/encounter_tables.gd"
+    },
+    {
+      "class": "EnemyIntentCompass",
+      "path": "scripts/enemy_intent_compass.gd"
+    },
+    {
+      "class": "EnemyShadowDissolveEffect",
+      "path": "scripts/enemy_shadow_dissolve_effect.gd"
+    },
+    {
+      "class": "EventRules",
+      "path": "scripts/event_rules.gd"
+    },
+    {
+      "class": "EventView",
+      "path": "scripts/event_view.gd"
+    },
+    {
+      "class": "FloatingCombatText",
+      "path": "scripts/floating_combat_text.gd"
+    },
+    {
+      "class": "GameData",
+      "path": "scripts/game_data.gd"
+    },
+    {
+      "class": "GodotSteamPlugin",
+      "path": "addons/godotsteam/godotsteam_plugin.gd"
+    },
+    {
+      "class": "GraftwrightRules",
+      "path": "scripts/graftwright_rules.gd"
+    },
+    {
+      "class": "GraftwrightView",
+      "path": "scripts/graftwright_view.gd"
+    },
+    {
+      "class": "GrimoireLibrary",
+      "path": "scripts/grimoire_library.gd"
+    },
+    {
+      "class": "GrimoireSearch",
+      "path": "scripts/grimoire_search.gd"
+    },
+    {
+      "class": "GuardianCombatRules",
+      "path": "scripts/guardian_combat_rules.gd"
+    },
+    {
+      "class": "GuardianLibrary",
+      "path": "scripts/guardian_library.gd"
+    },
+    {
+      "class": "GuardianRelicRules",
+      "path": "scripts/guardian_relic_rules.gd"
+    },
+    {
+      "class": "GuidedCombatScenario",
+      "path": "scripts/guided_combat_scenario.gd"
+    },
+    {
+      "class": "HandFanContainer",
+      "path": "scripts/hand_fan_container.gd"
+    },
+    {
+      "class": "HealthGhostTracker",
+      "path": "scripts/health_ghost_tracker.gd"
+    },
+    {
+      "class": "InlineIconText",
+      "path": "scripts/inline_icon_text.gd"
+    },
+    {
+      "class": "InputGlyph",
+      "path": "scripts/input_glyph.gd"
+    },
+    {
+      "class": "InputPrompt",
+      "path": "scripts/input_prompt.gd"
+    },
+    {
+      "class": "LabyrinthMapView",
+      "path": "scripts/labyrinth_map_view.gd"
+    },
+    {
+      "class": "LegacyCardGrowthRefunds",
+      "path": "scripts/legacy_card_growth_refunds.gd"
+    },
+    {
+      "class": "ManeuverRules",
+      "path": "scripts/maneuver_rules.gd"
+    },
+    {
+      "class": "MovementUndoRules",
+      "path": "scripts/movement_undo_rules.gd"
+    },
+    {
+      "class": "MusicLibrary",
+      "path": "scripts/music_library.gd"
+    },
+    {
+      "class": "NewDescentPanel",
+      "path": "scripts/new_descent_panel.gd"
+    },
+    {
+      "class": "OmenRules",
+      "path": "scripts/omen_rules.gd"
+    },
+    {
+      "class": "ParallelRuntime",
+      "path": "scripts/parallel_runtime.gd"
+    },
+    {
+      "class": "PathUtils",
+      "path": "scripts/path_utils.gd"
+    },
+    {
+      "class": "PerformancePhasePartitioner",
+      "path": "scripts/performance_phase_partitioner.gd"
+    },
+    {
+      "class": "PerformanceTelemetrySampler",
+      "path": "scripts/performance_telemetry.gd"
+    },
+    {
+      "class": "PostCombatRewardSequence",
+      "path": "scripts/post_combat_reward_sequence.gd"
+    },
+    {
+      "class": "ProgressionStore",
+      "path": "scripts/progression_store.gd"
+    },
+    {
+      "class": "RelicChestProp",
+      "path": "scripts/relic_chest_prop.gd"
+    },
+    {
+      "class": "RetaliateRules",
+      "path": "scripts/retaliate_rules.gd"
+    },
+    {
+      "class": "RiteRules",
+      "path": "scripts/rite_rules.gd"
+    },
+    {
+      "class": "RoomGenerator",
+      "path": "scripts/room_generator.gd"
+    },
+    {
+      "class": "RoomIconLibrary",
+      "path": "scripts/room_icon_library.gd"
+    },
+    {
+      "class": "RunEndRecapOverlay",
+      "path": "scripts/run_end_recap_overlay.gd"
+    },
+    {
+      "class": "RunEngine",
+      "path": "scripts/run_engine.gd"
+    },
+    {
+      "class": "RunScoreRules",
+      "path": "scripts/run_score_rules.gd"
+    },
+    {
+      "class": "RunSfxLibrary",
+      "path": "scripts/run_sfx_library.gd"
+    },
+    {
+      "class": "ScavengerShopView",
+      "path": "scripts/scavenger_shop_view.gd"
+    },
+    {
+      "class": "SectionMapGraph",
+      "path": "scripts/section_map_graph.gd"
+    },
+    {
+      "class": "SectionMapPanel",
+      "path": "scripts/section_map_panel.gd"
+    },
+    {
+      "class": "SectionMapSkin",
+      "path": "scripts/section_map_skin.gd"
+    },
+    {
+      "class": "SegmentedHealthBar",
+      "path": "scripts/segmented_health_bar.gd"
+    },
+    {
+      "class": "SettingsPanel",
+      "path": "scripts/settings_panel.gd"
+    },
+    {
+      "class": "SettingsStore",
+      "path": "scripts/settings_store.gd"
+    },
+    {
+      "class": "SfxBank",
+      "path": "scripts/sfx_bank.gd"
+    },
+    {
+      "class": "SfxCueRouter",
+      "path": "scripts/sfx_cue_router.gd"
+    },
+    {
+      "class": "SkillTreeLibrary",
+      "path": "scripts/skill_tree_library.gd"
+    },
+    {
+      "class": "SkillTreeView",
+      "path": "scripts/skill_tree_view.gd"
+    },
+    {
+      "class": "SpecialEncounterLibrary",
+      "path": "scripts/special_encounter_library.gd"
+    },
+    {
+      "class": "SurfaceRelicRules",
+      "path": "scripts/surface_relic_rules.gd"
+    },
+    {
+      "class": "SurfaceSaveMigration",
+      "path": "scripts/surface_save_migration.gd"
+    },
+    {
+      "class": "TempoRules",
+      "path": "scripts/tempo_rules.gd"
+    },
+    {
+      "class": "TurnOrderLandingStrip",
+      "path": "scripts/turn_order_landing_strip.gd"
+    },
+    {
+      "class": "UiSkin",
+      "path": "scripts/ui_skin.gd"
+    },
+    {
+      "class": "UiTooltipPanel",
+      "path": "scripts/ui_tooltip_panel.gd"
+    },
+    {
+      "class": "UiTypography",
+      "path": "scripts/ui_typography.gd"
+    },
+    {
+      "class": "UnitShadowCacheResource",
+      "path": "scripts/unit_shadow_cache_resource.gd"
+    }
+  ],
+  "count": 96,
+  "stale": 0
+}

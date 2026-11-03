@@ -1,0 +1,109 @@
+{
+  "art_scale": 0.64,
+  "views": {
+    "front": {
+      "floor_anchor": [
+        138.3921146496421,
+        207.8703555416899
+      ],
+      "height": 101.87035554168989,
+      "lower_line": {
+        "slope": -0.35049231513646434,
+        "intercept": 256.375728201874,
+        "columns": 236
+      },
+      "outside_diamond_columns_source": 9,
+      "mirrored_outside_diamond_columns_source": 9,
+      "board_comparison": {
+        "tile_width_px": 144,
+        "canvas_width_per_tile": 1.03,
+        "occupied_columns": 88,
+        "outside_columns": 3,
+        "basis": "Offline NEAREST sample; real board snapping remains director-rendered proof"
+      },
+      "shadow": {
+        "from": [
+          53.86120086105177,
+          237.49779121605383
+        ],
+        "to": [
+          213.86362061603901,
+          181.41817268869198
+        ],
+        "half_width": 38.136379383960985,
+        "alpha": 0.62
+      },
+      "shadow_axial_overrun_px": [
+        6.0,
+        -7.617495834183984
+      ],
+      "shadow_x_overrun_px": [
+        -5.724821477090785,
+        6.0
+      ],
+      "body_median_normal_thickness_px": 76.27275876792197
+    },
+    "rear": {
+      "floor_anchor": [
+        140.07841208494034,
+        208.4539160880363
+      ],
+      "height": 109.4539160880363,
+      "lower_line": {
+        "slope": -0.4548774359471691,
+        "intercept": 272.17242500878496,
+        "columns": 212
+      },
+      "outside_diamond_columns_source": 10,
+      "mirrored_outside_diamond_columns_source": 10,
+      "board_comparison": {
+        "tile_width_px": 144,
+        "canvas_width_per_tile": 1.03,
+        "occupied_columns": 79,
+        "outside_columns": 4,
+        "basis": "Offline NEAREST sample; real board snapping remains director-rendered proof"
+      },
+      "shadow": {
+        "from": [
+          59.927223303378106,
+          244.91288332911088
+        ],
+        "to": [
+          206.39567463854206,
+          178.28768973861878
+        ],
+        "half_width": 33.60432536145794,
+        "alpha": 0.62
+      },
+      "shadow_axial_overrun_px": [
+        6.000000000000043,
+        -14.912499307785623
+      ],
+      "shadow_x_overrun_px": [
+        -4.322897941920168,
+        6.0
+      ],
+      "body_median_normal_thickness_px": 67.20865072291588
+    }
+  },
+  "action_bounds": [
+    -152.0,
+    -131.0,
+    304.0,
+    228.0
+  ],
+  "basis": "Least-squares lower silhouette line, midpoint of occupied projection interval along that line; texel-edge bottom; exact 255px canvas",
+  "bounds_basis": "rr12 convex texel-square hull method; every sampled transform; floor-relative; both reflections; root travel subtracted once",
+  "rest": {
+    "front": {
+      "outside_paint_texels": 0,
+      "different_rgba_pixels": 0,
+      "crop_4x": "proof/front_rest_outside_4x.png"
+    },
+    "rear": {
+      "outside_paint_texels": 0,
+      "different_rgba_pixels": 0,
+      "crop_4x": "proof/rear_rest_outside_4x.png"
+    }
+  }
+}

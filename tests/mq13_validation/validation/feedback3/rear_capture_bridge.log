@@ -1,0 +1,12 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-1553ddc1a6c241b1b33730d3a75ec0e6
+BLENDER_BRIDGE_STARTED: mq03-1553ddc1a6c241b1b33730d3a75ec0e6
+00:00.282  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/feedback3/build/maquette.blend"
+00:04.675  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/feedback3/capture_rear/rear_parts.png'
+00:13.380  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/feedback3/capture_rear/rear_clay.png'
+00:15.679  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/feedback3/capture_rear/rear_silhouette.png'
+MQ13_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=rear; solos=None
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=16.6; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-1553ddc1a6c241b1b33730d3a75ec0e6.log

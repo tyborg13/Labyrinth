@@ -1,0 +1,25 @@
+{
+  "vyraketh": {
+    "sentence": "When Vyraketh breathes, every Fire tile spreads 1 tile in all four directions.",
+    "at_half_health_sentence": "After every second Vyraketh turn, every Fire tile spreads 1 tile in all four directions."
+  },
+  "tharokh": {
+    "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops.",
+    "at_half_health_sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops."
+  },
+  "iskaldra": {
+    "sentence": "When Iskaldra uses Rime Talon, Frostbite hits everyone on Ice for 3 and Freezes them.",
+    "at_half_health_sentence": "After every second Iskaldra turn, Frostbite hits everyone on Ice for 3 and Freezes them."
+  },
+  "vaeloryx": {
+    "sentence": "After each Vaeloryx turn, its wind Pushes everyone 1 tile, then turns a quarter clockwise.",
+    "at_half_health_sentence": "After each Vaeloryx turn, its wind Pushes everyone 2 tiles, then turns a quarter clockwise."
+  },
+  "zekarion": {
+    "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 1.",
+    "at_half_health_sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 2."
+  },
+  "noctyrax": {
+    "sentence": "When Noctyrax uses Void Claw, hidden Veilbound Acolytes Blink 3 tiles toward you."
+  }
+}

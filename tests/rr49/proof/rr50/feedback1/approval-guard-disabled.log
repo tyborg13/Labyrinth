@@ -1,0 +1,78 @@
+Running task-local command:
+  task: rr-39
+  run: rr-39-1793282233271878000-99055
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793282233271878000-99055
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793282233271878000-99055/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr50-approved-rest-forgery-l0di8__f/clean/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+Running task-local command:
+  task: rr-39
+  run: rr-39-1793282243845295000-99155
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793282243845295000-99155
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793282243845295000-99155/godot.log --headless --path /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr50-approved-rest-forgery-l0di8__f/project --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr50-approved-rest-forgery-l0di8__f/stable_paint/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+Running task-local command:
+  task: rr-39
+  run: rr-39-1793282254267558000-99223
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793282254267558000-99223
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793282254267558000-99223/godot.log --headless --path /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr50-approved-rest-forgery-l0di8__f/project --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr50-approved-rest-forgery-l0di8__f/stable_skin/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+
+test_rr50_forged_after_hash_fails_at_real_rest_call_site (tests.test_rr41_feedback3.ForgedManifestTests) (source='scripts/maquette_cutout_runtime/stable_paint.gd') Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr41_feedback3.py", line 183, in test_rr50_forged_after_hash_fails_at_real_rest_call_site
+    _normalize_rest_report(before, fresh, poses)
+AssertionError: ValueError not raised
+
+test_rr50_forged_after_hash_fails_at_real_rest_call_site (tests.test_rr41_feedback3.ForgedManifestTests) (source='scripts/maquette_cutout_runtime/stable_skin.gd') Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr41_feedback3.py", line 183, in test_rr50_forged_after_hash_fails_at_real_rest_call_site
+    _normalize_rest_report(before, fresh, poses)
+AssertionError: ValueError not raised
+
+RR50 APPROVAL-GUARD MUTATION: PASS (old helper survives both forged after-hashes; new real-call-site test fails twice, with zero errors)

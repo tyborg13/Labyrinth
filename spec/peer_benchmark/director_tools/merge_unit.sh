@@ -32,7 +32,7 @@ echo "=== godot suite $(date +%T)"
 python3 tools/godot_task_runner.py --task-id peer-suite --timeout 1100 --stream -- godot --headless --script tests/run_tests.gd > $S/merge_${UNIT}_godot.log 2>&1; G=$?
 echo "godot rc=$G"; grep -E "TEST RESULT|FAIL" $S/merge_${UNIT}_godot.log | tail -8
 echo "=== python suite $(date +%T)"
-python3 -m unittest discover -s tests -p 'test_*.py' > $S/merge_${UNIT}_python.log 2>&1; P=$?
+rm -rf $S/pysuite_${UNIT}; LABYRINTH_TASK_ID=peer-suite python3 tools/run_python_suite.py --shards 4 --output-dir $S/pysuite_${UNIT} > $S/merge_${UNIT}_python.log 2>&1; P=$?
 tail -4 $S/merge_${UNIT}_python.log
 echo "python rc=$P"
 echo "=== done $(date +%T) head $(git rev-parse --short HEAD)"

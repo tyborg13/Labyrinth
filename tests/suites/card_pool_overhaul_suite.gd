@@ -539,7 +539,7 @@ static func _test_wave3_thorn_crown_pact(expect: Callable) -> void:
 	var enemy_burn: int = 40 - _hp(combat._surface_contact(enemy_fire, "enemy", 1, CombatEngine.INVALID_TILE, true), 1)
 	expect.call(own_burn == enemy_burn + 2 and enemy_burn > 0, "Rite of the Pyre adds 2 to the hero's Fire only (%d vs %d)" % [own_burn, enemy_burn])
 	var tempest: Dictionary = _play_first(combat, _queued_state(combat, ["tempest_form", "overhead_smash"], [{"id": 1, "type": "crawler", "pos": Vector2i(6, 4), "hp": 40, "max_hp": 40}]), [])
-	expect.call(combat.card_time_cost("overhead_smash", tempest) == int(GameData.card_def("overhead_smash").get("time", 0)) - 1 and int(tempest.get("player_turn_time_spent", 0)) == int(GameData.card_def("tempest_form").get("time", 0)), "Tempest Form discounts later cards, never itself")
+	expect.call(combat.card_time_cost("overhead_smash", tempest) == int(GameData.card_def("overhead_smash").get("time", 0)) - 2 and int(tempest.get("player_turn_time_spent", 0)) == int(GameData.card_def("tempest_form").get("time", 0)), "Tempest Form discounts later cards, never itself")
 
 
 static func _test_wave23_grimoire_unlocks(expect: Callable) -> void:
@@ -776,7 +776,7 @@ static func _test_wave4_tuned_numbers(expect: Callable) -> void:
 	# Skybolt's damage is still being tuned: read it from data, and require the
 	# chip and the printed rules text to agree with it.
 	var skybolt_damage: int = int(((GameData.card_def("skybolt").get("actions", []) as Array)[0] as Dictionary).get("damage", 0))
-	expect.call(skybolt_damage > 0 and str(GameData.card_def("skybolt").get("description", "")).begins_with("Deal %d " % skybolt_damage), "Skybolt's rules text prints its data damage %d" % skybolt_damage)
+	expect.call(skybolt_damage > 0 and str(GameData.card_def("skybolt").get("description", "")).begins_with("Exhaust. Deal %d " % skybolt_damage), "Skybolt's rules text prints Exhaust and its data damage %d (bal-01)" % skybolt_damage)
 	for pair: Array in [["vortex", "pull=2"], ["discharge", "aoe=5"], ["skybolt", "ranged=%d" % skybolt_damage]]:
 		expect.call(_row_values(str(pair[0])).has(str(pair[1])), "%s shows its tuned %s chip: %s" % [str(pair[0]), str(pair[1]), str(_row_values(str(pair[0])))])
 	var keg: Dictionary = (GameData.card_def("powder_keg").get("actions", []) as Array)[0]

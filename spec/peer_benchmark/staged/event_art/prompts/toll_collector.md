@@ -1,0 +1,1 @@
+Subject: a hooded figure on a small three-legged stool in the middle of a narrow stone corridor, an iron-bound lockbox between its knees, one thin hand held out, palm up. No gate, no bridge, nothing to pay for. A single lantern on the floor beside the stool. Mood: absurd, patient, quietly threatening.

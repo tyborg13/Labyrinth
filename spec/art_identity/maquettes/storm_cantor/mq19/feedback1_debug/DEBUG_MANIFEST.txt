@@ -1,0 +1,20 @@
+# Diagnostic evidence only; not mq-19 delivery or approval.
+README.json
+bridge_build.json
+bridge_build.log
+bridge_front_clay.json
+bridge_front_clay.log
+bridge_native_audit.json
+bridge_native_audit.log
+bridge_rear_clay.json
+bridge_rear_clay.log
+build_report.json
+contact_sheet.json
+contact_sheet.webp
+front_clay.png
+input_spec.json.gz
+joints_px.json
+native_audit.json
+pose_projection_gates.json
+rear_clay.png
+DEBUG_MANIFEST.txt

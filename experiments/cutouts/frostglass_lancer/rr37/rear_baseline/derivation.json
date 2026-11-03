@@ -1,0 +1,171 @@
+{
+  "painting_sha256": "545c39183294f93ba9d690388b963ad43389ed20faa7e33368e1bbc3bb450317",
+  "delivery": {
+    "joints_px.json": "3797a69b3d0724ee21d39c1b24cbc428e5cfb0d28a6b458b52bebabb1c364481",
+    "rear_parts.png": "48c686487fca7549cd22f318fb5fb5837807a37790ddc48f73244c27e3c44056",
+    "rear_solo_head.png": "e9db75cc8b4d223b94167f83c45833fe7a3a5222dd9a35f14d69b47b4c002bba",
+    "rear_solo_torso.png": "2fe4b60ed35d7866bc585939cb3021ce716edd35df263180b2b39a520df04cca",
+    "rear_solo_pauldron_near.png": "acf93dbd361cb0ab371d0c9fae54b65a0fa285038fb20cd6009231bdd45c7cbc",
+    "rear_solo_pauldron_far.png": "e76ae4b25bf32a0acaac5a433cfbc19d0058ca3e42f66b1b4e8b2790e559fe58",
+    "rear_solo_pelvis.png": "ca137caf5c0d02cbe11eb0baa007b3bcdbd29e2d547d64510e0d6fd39a0bc1c6",
+    "rear_solo_belt.png": "5b17cf9ebff87a93d5ed62c38dcaeb678ec5b9e6bd5338c1ff7e9f617a38f2c7",
+    "rear_solo_tabard.png": "8300c9f707eae145255ff0a507263b55fecb6f62557f83b10c7e9002434a1647",
+    "rear_solo_spear.png": "2273b64098e1bf68c0290fcddaea353d9c80d9a214f45f2e94e2fd565dbaae2c",
+    "rear_solo_cape_near.png": "7c265285272a5d18c51954086c5c90d44fc3bc6071a6b175aa36b976a5190c10",
+    "rear_solo_upper_near.png": "09e658999507e94d74e5e233a8b93941bdbf17d54ebfd082201f7fef015031ec",
+    "rear_solo_fore_near.png": "cf812cbf1948aa59c91023d90375fc0eb07e57948de5d1f76d01a780218dd855",
+    "rear_solo_hand_near.png": "c4a3b7d7ba967a31bd1c12e2e7c0d2e9e425217d3306422170bb042d8a8efb94",
+    "rear_solo_thigh_near.png": "3bf1b32faf97c955892323de1d8e5b3cf59ed969c3760ba65b03bf98dd911c3a",
+    "rear_solo_shin_near.png": "f6dd143e378bef39bab6a48f71ff3f521ace42110e6ebce59797b8aeb6a62a54",
+    "rear_solo_foot_near.png": "b35b1e2a7e63cb84cac8bee6fbb6a32e47ac0df6fc67bde1db97afc448da9d56",
+    "rear_solo_cape_far.png": "6e78063b10d585b1edd5a7fc7a35a2ba2895280b40c10f755eb0ac5ade9443db",
+    "rear_solo_upper_far.png": "96e05a33a8b5bdcfe137bc9a3d9bf4ff9ad04ffdd247a6be19ea105d63ca724d",
+    "rear_solo_fore_far.png": "91326e2bca8fdf089a090f6e4660056344f39303fefa30e3f71350bd4e17a53e",
+    "rear_solo_hand_far.png": "34c1c281ade9cd7840bd09c4e9926dff677541453af7bda212d2925acf797f57",
+    "rear_solo_thigh_far.png": "bc7215d07ebc0c760f00f19b0513c02d01ee34cddd982075699f4456563563b4",
+    "rear_solo_shin_far.png": "68d2e1ee3f41ba5e751d9bfb87d049d6c73720d607824ef248fcc05445742ace",
+    "rear_solo_foot_far.png": "fe581b829ffb8f9c4f0a5811cbea5ed88bc716532be26a5f5b4f2721db3a698f"
+  },
+  "policy": "rr07 genuine categorical seeds / nearest ownership; rr05 non-outline same-surface edge texels",
+  "nearest_assignment": {
+    "head": {
+      "painted_pixels": 5881,
+      "reassigned_pixels": 328,
+      "reassigned_share": 0.055772827750382586,
+      "above_15_percent": false
+    },
+    "torso": {
+      "painted_pixels": 0,
+      "reassigned_pixels": 0,
+      "reassigned_share": 0,
+      "above_15_percent": false
+    },
+    "pelvis": {
+      "painted_pixels": 0,
+      "reassigned_pixels": 0,
+      "reassigned_share": 0,
+      "above_15_percent": false
+    },
+    "belt": {
+      "painted_pixels": 0,
+      "reassigned_pixels": 0,
+      "reassigned_share": 0,
+      "above_15_percent": false
+    },
+    "tabard": {
+      "painted_pixels": 14,
+      "reassigned_pixels": 5,
+      "reassigned_share": 0.35714285714285715,
+      "above_15_percent": true
+    },
+    "cape_near": {
+      "painted_pixels": 2612,
+      "reassigned_pixels": 271,
+      "reassigned_share": 0.10375191424196019,
+      "above_15_percent": false
+    },
+    "cape_far": {
+      "painted_pixels": 6748,
+      "reassigned_pixels": 649,
+      "reassigned_share": 0.09617664493183166,
+      "above_15_percent": false
+    },
+    "pauldron_near": {
+      "painted_pixels": 210,
+      "reassigned_pixels": 189,
+      "reassigned_share": 0.9,
+      "above_15_percent": true
+    },
+    "upper_near": {
+      "painted_pixels": 193,
+      "reassigned_pixels": 113,
+      "reassigned_share": 0.5854922279792746,
+      "above_15_percent": true
+    },
+    "fore_near": {
+      "painted_pixels": 66,
+      "reassigned_pixels": 38,
+      "reassigned_share": 0.5757575757575758,
+      "above_15_percent": true
+    },
+    "hand_near": {
+      "painted_pixels": 0,
+      "reassigned_pixels": 0,
+      "reassigned_share": 0,
+      "above_15_percent": false
+    },
+    "pauldron_far": {
+      "painted_pixels": 36,
+      "reassigned_pixels": 22,
+      "reassigned_share": 0.6111111111111112,
+      "above_15_percent": true
+    },
+    "upper_far": {
+      "painted_pixels": 125,
+      "reassigned_pixels": 41,
+      "reassigned_share": 0.328,
+      "above_15_percent": true
+    },
+    "fore_far": {
+      "painted_pixels": 256,
+      "reassigned_pixels": 139,
+      "reassigned_share": 0.54296875,
+      "above_15_percent": true
+    },
+    "hand_far": {
+      "painted_pixels": 30,
+      "reassigned_pixels": 12,
+      "reassigned_share": 0.4,
+      "above_15_percent": true
+    },
+    "thigh_near": {
+      "painted_pixels": 0,
+      "reassigned_pixels": 0,
+      "reassigned_share": 0,
+      "above_15_percent": false
+    },
+    "shin_near": {
+      "painted_pixels": 96,
+      "reassigned_pixels": 77,
+      "reassigned_share": 0.8020833333333334,
+      "above_15_percent": true
+    },
+    "foot_near": {
+      "painted_pixels": 62,
+      "reassigned_pixels": 43,
+      "reassigned_share": 0.6935483870967742,
+      "above_15_percent": true
+    },
+    "thigh_far": {
+      "painted_pixels": 0,
+      "reassigned_pixels": 0,
+      "reassigned_share": 0,
+      "above_15_percent": false
+    },
+    "shin_far": {
+      "painted_pixels": 241,
+      "reassigned_pixels": 143,
+      "reassigned_share": 0.5933609958506224,
+      "above_15_percent": true
+    },
+    "foot_far": {
+      "painted_pixels": 711,
+      "reassigned_pixels": 303,
+      "reassigned_share": 0.42616033755274263,
+      "above_15_percent": true
+    },
+    "spear": {
+      "painted_pixels": 970,
+      "reassigned_pixels": 928,
+      "reassigned_share": 0.9567010309278351,
+      "above_15_percent": true
+    }
+  },
+  "connected_neighbour_transfers": [
+    {
+      "from": "shin_far",
+      "to": "cape_far",
+      "pixels": 8
+    }
+  ]
+}

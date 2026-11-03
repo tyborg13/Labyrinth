@@ -1,0 +1,191 @@
+{
+  "ok": false,
+  "clip": "death",
+  "source": "pelvis.forward_px",
+  "step": 0.25,
+  "minimum": 0,
+  "candidates": [
+    {
+      "peak": 2.0,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 32,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 39,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 40,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 1.75,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 32,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 39,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 40,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 1.5,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 32,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 39,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 1.25,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 32,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 39,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 1.0,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 32,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 39,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 0.75,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 32,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        },
+        {
+          "view": "rear",
+          "frame": 39,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 0.5,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 32,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 0.25,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 32,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    },
+    {
+      "peak": 0.0,
+      "witness_errors": [
+        {
+          "view": "rear",
+          "frame": 32,
+          "kinds": [
+            "missing",
+            "seam"
+          ]
+        }
+      ]
+    }
+  ],
+  "native_pixels": false
+}

@@ -1,0 +1,5 @@
+00:00.563  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_native/native/maquette.blend"
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/native_checks.py:16: RuntimeWarning: invalid value encountered in scalar divide
+  return math.degrees(math.acos(float(np.clip(np.dot(a,b)/(np.linalg.norm(a)*np.linalg.norm(b)),-1,1))))
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+MQ17_NATIVE_AUDIT: PASS; mutations={'wrong_polygon_owner': True, 'stale_mesh_hash': True, 'staff_detached_from_fist': True, 'flattened_native_finger': True, 'rear_bell_exposed': True}

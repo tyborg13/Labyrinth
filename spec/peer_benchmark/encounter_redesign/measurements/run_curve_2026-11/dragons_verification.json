@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "n_per_section": 24,
+  "selected_fights": 144,
+  "raw_fights": 187,
+  "input_snapshots": 54,
+  "recovered_ladders": 9,
+  "full_recovered_records_identical": true,
+  "distinct_rng_seeds_per_retained_loadout": 4,
+  "late_measured_starts": 0,
+  "prior_artifacts_unchanged": 12,
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "raw_sha256": "2fcf6591111f52a4865ee395d7a7625070558c5f20956e02f4807760b73792d2",
+  "loadouts_sha256": "6c31b7abf6f64b626b4581bac6c126affa27d7027bc6ffb91cdae8ae979af965"
+}

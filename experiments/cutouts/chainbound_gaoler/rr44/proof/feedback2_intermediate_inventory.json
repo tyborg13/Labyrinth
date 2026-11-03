@@ -1,0 +1,2315 @@
+{
+  "scope": "feedback-2 intermediate inventory before the last symmetric caps, fringe transfer and effective-paint authority; superseded by final proof",
+  "native_pixels": false,
+  "samples_sha256": "5b6676111ba6986dd25965ca706dadca47a2e342cf1299064da3ac8a5bcbf225",
+  "frames": 892,
+  "findings": {
+    "missing": 11,
+    "seam": 11,
+    "foreign": 12,
+    "flat_region": 50,
+    "painted_exposure": 239,
+    "detached": 9,
+    "floating": 14,
+    "released": 5
+  },
+  "failing_frames": [
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 11,
+      "kinds": [
+        "missing",
+        "seam"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 61,
+      "kinds": [
+        "foreign"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 62,
+      "kinds": [
+        "foreign"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 63,
+      "kinds": [
+        "foreign"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 64,
+      "kinds": [
+        "foreign"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 65,
+      "kinds": [
+        "foreign"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 66,
+      "kinds": [
+        "foreign"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 67,
+      "kinds": [
+        "foreign"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 68,
+      "kinds": [
+        "foreign"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 69,
+      "kinds": [
+        "foreign"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 70,
+      "kinds": [
+        "foreign"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 76,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 80,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 81,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 82,
+      "kinds": [
+        "foreign"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 83,
+      "kinds": [
+        "foreign"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 84,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 87,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 89,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 90,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 91,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 92,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 93,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 94,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 95,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 1,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 2,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 3,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 4,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 5,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 6,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 7,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 8,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 10,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 13,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 16,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 17,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 20,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 21,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 22,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 23,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 27,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 28,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 29,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 30,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 33,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 34,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 36,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 37,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 38,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 39,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 40,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 42,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 43,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 45,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 46,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 47,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 7,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 8,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 9,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 10,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 11,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 12,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 13,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 14,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 15,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 16,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 17,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 18,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 19,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 20,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 21,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 22,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 23,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 24,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 27,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 28,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 29,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 30,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 31,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 32,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 33,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 34,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 35,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 36,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 37,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 38,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 39,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 40,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 41,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 42,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 43,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 44,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 45,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 46,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 47,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 48,
+      "kinds": [
+        "detached",
+        "floating"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 49,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 52,
+      "kinds": [
+        "detached",
+        "floating",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 53,
+      "kinds": [
+        "detached",
+        "floating"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 54,
+      "kinds": [
+        "detached",
+        "floating"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 55,
+      "kinds": [
+        "detached",
+        "floating"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 56,
+      "kinds": [
+        "detached",
+        "floating"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 57,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 58,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 59,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 60,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 61,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 6,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 7,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 8,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 9,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 10,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 11,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 12,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 13,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 14,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 15,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 16,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 17,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 20,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 21,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 36,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 37,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 38,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 39,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 40,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "pin",
+      "frame": 41,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 5,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 6,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 7,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 8,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 9,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 10,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 11,
+      "kinds": [
+        "detached",
+        "floating",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 12,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 16,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 17,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 18,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 19,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 20,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 21,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 22,
+      "kinds": [
+        "missing",
+        "painted_exposure",
+        "seam"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 23,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 24,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 25,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 26,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 27,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 28,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 29,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 30,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 31,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 32,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 33,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 34,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 35,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 36,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 37,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 38,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 39,
+      "kinds": [
+        "missing",
+        "painted_exposure",
+        "seam"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 44,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 45,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 46,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 5,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 6,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 7,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 9,
+      "kinds": [
+        "detached",
+        "floating"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 12,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 13,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 43,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 46,
+      "kinds": [
+        "detached",
+        "floating"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 48,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "guard",
+      "frame": 49,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 2,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 3,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 4,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 5,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 6,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 7,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 8,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 9,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 10,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 11,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 12,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 13,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 14,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 8,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 9,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 10,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 11,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 12,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 13,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 14,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 15,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 16,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 17,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 18,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 19,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 20,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 21,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 22,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 23,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 24,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 25,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 26,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 27,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 28,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 29,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 30,
+      "kinds": [
+        "missing",
+        "painted_exposure",
+        "seam"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 31,
+      "kinds": [
+        "missing",
+        "painted_exposure",
+        "seam"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 32,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 33,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 34,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 35,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 36,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 37,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 38,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 39,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 40,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 43,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 44,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 47,
+      "kinds": [
+        "flat_region",
+        "missing",
+        "seam"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 48,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 49,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 50,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 51,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 53,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 54,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 55,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 56,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 57,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 58,
+      "kinds": [
+        "flat_region",
+        "missing",
+        "painted_exposure",
+        "seam"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 59,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 60,
+      "kinds": [
+        "flat_region"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 61,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 62,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 63,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 64,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 65,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 66,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 67,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 68,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 69,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 70,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 71,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 72,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 73,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 74,
+      "kinds": [
+        "flat_region",
+        "missing",
+        "painted_exposure",
+        "seam"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 75,
+      "kinds": [
+        "flat_region",
+        "floating",
+        "missing",
+        "painted_exposure",
+        "released",
+        "seam"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 76,
+      "kinds": [
+        "flat_region",
+        "missing",
+        "painted_exposure",
+        "seam"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 77,
+      "kinds": [
+        "flat_region",
+        "floating",
+        "missing",
+        "painted_exposure",
+        "released",
+        "seam"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 78,
+      "kinds": [
+        "flat_region",
+        "floating",
+        "painted_exposure",
+        "released"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 79,
+      "kinds": [
+        "flat_region",
+        "floating",
+        "painted_exposure",
+        "released"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 80,
+      "kinds": [
+        "flat_region",
+        "floating",
+        "painted_exposure",
+        "released"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 81,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 82,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 83,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 84,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 85,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 86,
+      "kinds": [
+        "flat_region",
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 87,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 88,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 89,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 90,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 91,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 92,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 93,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 94,
+      "kinds": [
+        "painted_exposure"
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 95,
+      "kinds": [
+        "painted_exposure"
+      ]
+    }
+  ]
+}

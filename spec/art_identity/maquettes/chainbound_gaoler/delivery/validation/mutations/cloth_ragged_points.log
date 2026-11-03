@@ -1,0 +1,14 @@
+test_ragged_hems_require_the_directors_point_counts (tests.test_mq15_cloth.ClothTests) ... FAIL
+
+======================================================================
+FAIL: test_ragged_hems_require_the_directors_point_counts (tests.test_mq15_cloth.ClothTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_cloth.py", line 45, in test_ragged_hems_require_the_directors_point_counts
+    self.assertFalse(hem_points_passed(limits[0]-1,limits))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

@@ -3,7 +3,7 @@ extends RefCounted
 const Rules = preload("res://scripts/enemy_mechanics/reflect.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
-const Contact = preload("res://scripts/enemy_mechanics/tether_view.gd")
+const Contact = preload("res://scripts/enemy_mechanics/lightning_contact_view.gd")
 const COLOR := Color("9cc8e6")
 const FLASH_SECONDS: float = 0.08
 const RETURN_SPEED: float = 1.5
@@ -16,7 +16,7 @@ const PROJECTILE_TRAVEL_FRACTION: float = 0.48 # Existing projectile's .18–.66
 static func badges(unit: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	if str(unit.get("type", "")) == "glacial_mirror":
-		result.append({"icon": "reflect", "count": 0, "fill": COLOR, "border": COLOR, "icon_tint": Color.WHITE, "tooltip": Rules.TOOLTIP})
+		result.append({"status_class": "trait", "icon": "reflect", "count": 0, "fill": COLOR, "border": COLOR, "icon_tint": Color.WHITE, "tooltip": Rules.TOOLTIP})
 	return result
 
 static func decorate_preview(scene: Control, result: Dictionary, before: Dictionary, after: Dictionary, action: Dictionary, target: Vector2i) -> void:

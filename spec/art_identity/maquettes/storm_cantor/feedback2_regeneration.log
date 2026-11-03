@@ -1,0 +1,36 @@
+MQ17_BRIDGE_SUBMITTED: build; mq03-3f62f147c001466d9d244951ef1fe3c2
+MQ17_BRIDGE_RESULT: build; exit=0; seconds=1.8
+MQ17_BRIDGE_SUBMITTED: front_preview; mq03-460901f0fbf94ca986cb09351a190d86
+MQ17_BRIDGE_RESULT: front_preview; exit=0; seconds=21.2
+MQ17_BRIDGE_SUBMITTED: front_solo_0; mq03-d637469e9d31421a9c000b648e6e34c4
+MQ17_BRIDGE_RESULT: front_solo_0; exit=0; seconds=19.9
+MQ17_BRIDGE_SUBMITTED: front_solo_4; mq03-fcfc1c5f249b49debd52c0ae52556d68
+MQ17_BRIDGE_RESULT: front_solo_4; exit=0; seconds=20.0
+MQ17_BRIDGE_SUBMITTED: front_solo_8; mq03-4ff2d5a59f114a1c80776900e9da3a7d
+MQ17_BRIDGE_RESULT: front_solo_8; exit=0; seconds=29.1
+MQ17_BRIDGE_SUBMITTED: front_solo_12; mq03-e0db941e586848d59963aba02bf799bd
+MQ17_BRIDGE_RESULT: front_solo_12; exit=0; seconds=28.1
+MQ17_BRIDGE_SUBMITTED: front_solo_16; mq03-a29df6af610e4f96bf25839119b65ca8
+MQ17_BRIDGE_RESULT: front_solo_16; exit=0; seconds=29.6
+MQ17_BRIDGE_SUBMITTED: front_solo_20; mq03-c3fd62eccdb94a7fa7a4aa713f75cfe2
+MQ17_BRIDGE_RESULT: front_solo_20; exit=0; seconds=20.3
+MQ17_BRIDGE_SUBMITTED: rear_preview; mq03-278cd1edf55a4c6d804b666e83815a60
+MQ17_BRIDGE_RESULT: rear_preview; exit=0; seconds=14.8
+MQ17_BRIDGE_SUBMITTED: rear_solo_0; mq03-158b1cb57d9e4237956636689934b1a8
+MQ17_BRIDGE_RESULT: rear_solo_0; exit=0; seconds=20.5
+MQ17_BRIDGE_SUBMITTED: rear_solo_4; mq03-4a59e917ff38408098a0971057ffca7d
+MQ17_BRIDGE_RESULT: rear_solo_4; exit=0; seconds=21.0
+MQ17_BRIDGE_SUBMITTED: rear_solo_8; mq03-85c604f1586d4280952aebb7ab8c5e59
+MQ17_BRIDGE_RESULT: rear_solo_8; exit=0; seconds=19.2
+MQ17_BRIDGE_SUBMITTED: rear_solo_12; mq03-199becb2b0b646f1aa612bff84d6016e
+MQ17_BRIDGE_RESULT: rear_solo_12; exit=0; seconds=21.0
+MQ17_BRIDGE_SUBMITTED: rear_solo_16; mq03-702887b5379e49f99f646d19fdaa05a7
+MQ17_BRIDGE_RESULT: rear_solo_16; exit=0; seconds=18.7
+MQ17_BRIDGE_SUBMITTED: rear_solo_20; mq03-71294f45dd384f62a0a221f5b3c970e9
+MQ17_BRIDGE_RESULT: rear_solo_20; exit=0; seconds=12.9
+MQ17_CAPTURE_MERGE: PASS; views=2; solos=44
+MQ17_BRIDGE_SUBMITTED: fresh_native_probe; mq03-0656b33f7882460c8a51053855b4a587
+MQ17_BRIDGE_RESULT: fresh_native_probe; exit=0; seconds=1.6
+MQ17_ACCEPTANCE: PASS; unexplained_parts=[]
+MQ17_ACCEPTANCE: PASS; unexplained_parts=[]
+MQ17_CLEAN_REGENERATION: PASS; clays=2/2; part_maps=2/2; cache_reused=false

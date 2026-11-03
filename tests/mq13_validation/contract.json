@@ -1,0 +1,13 @@
+{
+  "task_id": "mq-13",
+  "authorization": "Uncommitted implementation only; design owner owns peer review, commit, inspection and publication.",
+  "risk": "Offline maquette authoring; focused Python/native Blender proof; no .gd or runtime changes.",
+  "inspection": "Native 1024 panels, joint table, measured gate outputs and input-only regeneration.",
+  "acceptance_criteria": {
+    "1": "Fixed hips; ankles (650,900)/(430,790) +/-12; existing leg lengths; facing-side knees; flat feet.",
+    "2": "Head (440,330) +/-10; forward sagittal bend; level shoulders; arm/claw relative pose preserved. Director accepts the built r3 profile; rear hood height is report-only.",
+    "3": "Carapace 60%, flush on the shoulder/back cloak; <=40 px overhang in both views.",
+    "4": "Source labels, hood/drape/claw/wrap measurements unchanged; other figures unchanged.",
+    "5": "Promote the accepted r3 recipe and complete sealed native delivery to canonical Gloam; preserve every other figure; fresh regeneration and <=6 MB manifests."
+  }
+}

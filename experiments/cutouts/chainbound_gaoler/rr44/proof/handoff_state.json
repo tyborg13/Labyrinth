@@ -1,0 +1,10 @@
+{
+  "branch": "codex/rr-44",
+  "head": "fd9a0e43971553ba5db0dac1627a2d67d625f683",
+  "uncommitted": true,
+  "native_attempted": false,
+  "peer_review_run": false,
+  "protected_inputs_unchanged": true,
+  "changed_files": 1348,
+  "outside_owned_or_allowed_generic_paths": []
+}

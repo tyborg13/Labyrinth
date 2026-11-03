@@ -1,0 +1,41 @@
+{
+  "source_underlay": {
+    "ok": true,
+    "errors": [],
+    "texel_checks": 8435,
+    "scope": "source",
+    "native_pixels": false
+  },
+  "production_underlay": {
+    "ok": true,
+    "errors": [],
+    "texel_checks": 8435,
+    "scope": "production",
+    "native_pixels": false
+  },
+  "source_floor": {
+    "ok": true,
+    "errors": [],
+    "checks": 144,
+    "final_angle_deg": {
+      "front": 15.94539613547251,
+      "rear": -11.309933143775382
+    },
+    "native_pixels": false
+  },
+  "production_floor": {
+    "ok": true,
+    "errors": [],
+    "checks": 144,
+    "final_angle_deg": {
+      "front": 15.94539613547251,
+      "rear": -11.309933143775382
+    },
+    "native_pixels": false
+  },
+  "root_follow": {
+    "ok": true,
+    "errors": [],
+    "checks": 8
+  }
+}

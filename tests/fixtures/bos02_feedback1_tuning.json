@@ -1,0 +1,100 @@
+{
+  "source": "bos-02 director feedback 1 retained values; Zekarion superseded by feedback 2 cumulative ladder",
+  "selected_rungs": {
+    "tharokh": 3,
+    "vyraketh": 4,
+    "vaeloryx": 4,
+    "zekarion": 5,
+    "noctyrax": 2,
+    "iskaldra": 0
+  },
+  "bosses": {
+    "tharokh": {
+      "max_hp": 72,
+      "helpers": [
+        "burrow_grub",
+        "burrow_grub"
+      ],
+      "actions": {
+        "stonewake": {
+          "damage": 6
+        },
+        "worldspine_claw": {
+          "damage": 14
+        },
+        "bedrock_breath": {
+          "damage": 10
+        }
+      }
+    },
+    "vyraketh": {
+      "max_hp": 52,
+      "helpers": [
+        "cinder_droplet"
+      ],
+      "actions": {
+        "cinder_maw": {
+          "damage": 8
+        },
+        "cinderfall": {
+          "damage": 6
+        }
+      }
+    },
+    "vaeloryx": {
+      "max_hp": 50,
+      "helpers": [
+        "gust_shrike"
+      ],
+      "actions": {
+        "hollow_gale": {
+          "damage": 6,
+          "push": 1
+        },
+        "razor_dive": {
+          "damage": 6
+        },
+        "eye_of_storm": {
+          "damage": 8
+        }
+      }
+    },
+    "zekarion": {
+      "max_hp": 50,
+      "actions": {
+        "skybreak": {
+          "damage": 5
+        },
+        "storm_claw": {
+          "damage": 4
+        },
+        "tempest_breath": {
+          "damage": 3
+        }
+      }
+    },
+    "noctyrax": {
+      "max_hp": 64,
+      "actions": {
+        "void_claw": {
+          "damage": 10
+        },
+        "starless_breath": {
+          "damage": 8
+        }
+      }
+    },
+    "iskaldra": {
+      "max_hp": 62,
+      "helpers": [
+        "rime_spitter",
+        "rime_spitter"
+      ],
+      "actions": {
+        "rime_talon": {
+          "damage": 10
+        }
+      }
+    }
+  }
+}

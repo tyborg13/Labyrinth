@@ -1,0 +1,296 @@
+{
+  "enemies": {
+    "last_lamplighter": {
+      "name": "Last Lamplighter",
+      "ai_profile": {
+        "role": "guardian",
+        "preferred_range": 1,
+        "retreat_distance": 2
+      },
+      "max_hp": 44,
+      "base_initiative": 10,
+      "reward_embers": 8,
+      "accent": "#b6ab88",
+      "art_path": "res://assets/units/last_lamplighter.png",
+      "art_scale": 1.15,
+      "intent_cycle": true,
+      "guardian": true,
+      "intents": [
+        {
+          "id": "snuff",
+          "name": "Snuff",
+          "time": 4,
+          "weight": 1,
+          "actions": [
+            {
+              "type": "summon_minions",
+              "minion_type": "wick_shade",
+              "count": 1,
+              "guardian_cap": 2,
+              "snuff_brazier": true
+            }
+          ]
+        },
+        {
+          "id": "mourning_hook",
+          "name": "Mourning Hook",
+          "time": 5,
+          "weight": 1,
+          "actions": [
+            {
+              "type": "move_toward",
+              "range": 2
+            },
+            {
+              "type": "ranged",
+              "range": 4,
+              "damage": 4,
+              "guardian_shape": "line",
+              "pull": 1
+            }
+          ]
+        },
+        {
+          "id": "last_procession",
+          "name": "Last Procession",
+          "time": 7,
+          "weight": 1,
+          "actions": [
+            {
+              "type": "move_toward",
+              "range": 3
+            },
+            {
+              "type": "melee",
+              "range": 1,
+              "damage": 8
+            }
+          ],
+          "restore_braziers": true
+        }
+      ]
+    },
+    "wick_shade": {
+      "name": "Wick Shade",
+      "ai_profile": {
+        "role": "frontliner",
+        "preferred_range": 1,
+        "retreat_distance": 2
+      },
+      "max_hp": 4,
+      "base_initiative": 9,
+      "reward_embers": 0,
+      "accent": "#b6ab88",
+      "art_path": "res://assets/units/wick_shade.png",
+      "art_scale": 0.75,
+      "intent_cycle": true,
+      "guardian": false,
+      "intents": [
+        {
+          "id": "grasp",
+          "name": "Grasp",
+          "time": 4,
+          "weight": 1,
+          "actions": [
+            {
+              "type": "move_toward",
+              "range": 3
+            },
+            {
+              "type": "melee",
+              "range": 1,
+              "damage": 2
+            }
+          ]
+        },
+        {
+          "id": "drift",
+          "name": "Hooking Grasp",
+          "time": 4,
+          "weight": 1,
+          "actions": [
+            {
+              "type": "move_toward",
+              "range": 2
+            },
+            {
+              "type": "melee",
+              "range": 1,
+              "damage": 2,
+              "pull": 1
+            }
+          ]
+        }
+      ]
+    },
+    "storm_cantor": {
+      "name": "Storm Cantor",
+      "ai_profile": {
+        "role": "guardian",
+        "preferred_range": 3,
+        "retreat_distance": 2
+      },
+      "max_hp": 38,
+      "base_initiative": 11,
+      "reward_embers": 8,
+      "accent": "#9884cf",
+      "art_path": "res://assets/units/storm_cantor.png",
+      "art_scale": 1.15,
+      "intent_cycle": true,
+      "guardian": true,
+      "intents": [
+        {
+          "id": "lay_the_choir",
+          "name": "Lay the Choir",
+          "time": 4,
+          "weight": 1,
+          "actions": [
+            {
+              "type": "move_toward",
+              "range": 2
+            },
+            {
+              "type": "surface",
+              "surface": "electrified",
+              "range": 5,
+              "guardian_shape": "connector",
+              "guardian_count": 4
+            }
+          ]
+        },
+        {
+          "id": "peal",
+          "name": "Peal",
+          "time": 6,
+          "weight": 1,
+          "actions": [
+            {
+              "type": "move_toward",
+              "range": 1
+            }
+          ]
+        },
+        {
+          "id": "broken_rhythm",
+          "name": "Broken Rhythm",
+          "time": 5,
+          "weight": 1,
+          "actions": [
+            {
+              "type": "move_toward",
+              "range": 2
+            },
+            {
+              "type": "melee",
+              "range": 2,
+              "damage": 5
+            }
+          ]
+        },
+        {
+          "id": "call_the_spark",
+          "name": "Call the Spark",
+          "time": 6,
+          "weight": 1,
+          "actions": [
+            {
+              "type": "summon_minions",
+              "minion_type": "lightning_wisp",
+              "count": 1,
+              "guardian_cap": 1
+            }
+          ]
+        }
+      ]
+    },
+    "rimejaw": {
+      "name": "Rimejaw",
+      "ai_profile": {
+        "role": "guardian",
+        "preferred_range": 1,
+        "retreat_distance": 2
+      },
+      "max_hp": 38,
+      "base_initiative": 10,
+      "reward_embers": 8,
+      "accent": "#97c6d7",
+      "art_path": "res://assets/units/rimejaw.png",
+      "art_scale": 1.15,
+      "intent_cycle": true,
+      "guardian": true,
+      "intents": [
+        {
+          "id": "rime_trail",
+          "name": "Rime Trail",
+          "time": 4,
+          "weight": 1,
+          "actions": [
+            {
+              "type": "move_toward",
+              "range": 2,
+              "trail_surface": "ice"
+            },
+            {
+              "type": "melee",
+              "range": 1,
+              "damage": 3
+            }
+          ]
+        },
+        {
+          "id": "harrowing_pounce",
+          "name": "Harrowing Pounce",
+          "time": 6,
+          "weight": 1,
+          "actions": [
+            {
+              "type": "move_toward",
+              "range": 3
+            },
+            {
+              "type": "melee",
+              "range": 1,
+              "damage": 7,
+              "element": "ice",
+              "surface": "ice"
+            }
+          ]
+        },
+        {
+          "id": "frostbite",
+          "name": "Rime Bite",
+          "time": 5,
+          "weight": 1,
+          "actions": [
+            {
+              "type": "move_toward",
+              "range": 2
+            },
+            {
+              "type": "melee",
+              "range": 1,
+              "damage": 6,
+              "element": "ice"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "storm_cantor_rule": {
+    "rule": "lightning_storm",
+    "source": {
+      "kind": "enemy",
+      "id": -1
+    },
+    "cadence": {
+      "anchor": "on_intent",
+      "intent": "peal"
+    },
+    "dials": {
+      "damage": 3,
+      "chain": 2
+    },
+    "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 3, with Chain 2."
+  }
+}

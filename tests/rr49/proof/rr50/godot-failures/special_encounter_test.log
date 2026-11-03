@@ -1,0 +1,199 @@
+Running task-local command:
+  task: rr-50-1793277827591310000-83979-special_encounter_test
+  run: rr-50-1793277827591310000-83979-special-1793278320809196000-85319
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979-special-1793278320809196000-85319
+  Steam: disabled
+  command: /Applications/Godot.app/Contents/MacOS/Godot --log-file '/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/godot.log' --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-50 --script '/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd'
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+PROGRAM SUITE PATHS: {"log_file":"/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/godot.log","user_data":"/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979-special-1793278320809196000-85319/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979-special-1793278320809196000-85319","user_file":"/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979-special-1793278320809196000-85319/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979-special-1793278320809196000-85319/program-suite-isolation.json"}
+SPX release fallback regression: checked 6 sections of revisions 6 and 7 with assertions removed
+SPX Snare exit regression: checked 64 seeds with one-exit rejection and two-exit placement
+SPX legacy golden graphs: checked 9 seeds across revisions 3–5
+SPX equipment pity regression: positive misses reset through pre-battle and direct entry
+SPX deferred reward regression: seed 1 keeps three Lightning slots; general-only Rare floor repaired
+SPX special reward filters: checked 64 seeds x 6 room elements; forced Rare floor in each filter
+ERROR: Unable to open file: res://.godot/imported/warband.png-36e0819407154ef4571d43c67738b1c0.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:42)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:333)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://.godot/imported/warband.png-36e0819407154ef4571d43c67738b1c0.ctex.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:333)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://assets/art/icons/map/warband.png.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:333)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Unable to open file: res://.godot/imported/warband.png-0ff2b9726028d5a2fbae85eabd697e93.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:42)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:335)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://.godot/imported/warband.png-0ff2b9726028d5a2fbae85eabd697e93.ctex.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:335)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://spec/peer_benchmark/staged/spx/emblems/warband.png.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:335)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Unable to open file: res://.godot/imported/umbral_snare.png-80cf781239058c30b1e212ab279689c1.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:42)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:333)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://.godot/imported/umbral_snare.png-80cf781239058c30b1e212ab279689c1.ctex.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:333)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://assets/art/icons/map/umbral_snare.png.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:333)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Unable to open file: res://.godot/imported/umbral_snare.png-2723cf62b2cbb9607fc9874daed8123b.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:42)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:335)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://.godot/imported/umbral_snare.png-2723cf62b2cbb9607fc9874daed8123b.ctex.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:335)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://spec/peer_benchmark/staged/spx/emblems/umbral_snare.png.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:335)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Unable to open file: res://.godot/imported/ember_hoarder.png-5074e3199897bfcdf310f691bd86083a.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:42)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:333)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://.godot/imported/ember_hoarder.png-5074e3199897bfcdf310f691bd86083a.ctex.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:333)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://assets/art/icons/map/ember_hoarder.png.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:333)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Unable to open file: res://.godot/imported/ember_hoarder.png-9ffc7c67e46a4df793d1aca2fb818211.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:42)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:335)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://.godot/imported/ember_hoarder.png-9ffc7c67e46a4df793d1aca2fb818211.ctex.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:335)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://spec/peer_benchmark/staged/spx/emblems/ember_hoarder.png.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:335)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Unable to open file: res://.godot/imported/last_light.png-5ed94f4b5b9fb0489220d7e4fc6ccfc4.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:42)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:333)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://.godot/imported/last_light.png-5ed94f4b5b9fb0489220d7e4fc6ccfc4.ctex.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:333)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://assets/art/icons/map/last_light.png.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:333)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Unable to open file: res://.godot/imported/last_light.png-df757f5d72ece91c4d79714c3e51b334.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:42)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:335)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://.godot/imported/last_light.png-df757f5d72ece91c4d79714c3e51b334.ctex.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:335)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Failed loading resource: res://spec/peer_benchmark/staged/spx/emblems/last_light.png.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _test_names (res://tests/suites/special_encounter_suite.gd:335)
+       [1] run (res://tests/suites/special_encounter_suite.gd:36)
+       [2] _initialize (res://tests/special_encounter_test.gd:17)
+       [3] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+SPX revision 6 maps: checked 64 seeds x 6 sections, exhaustive routes
+ERROR: Approved emblem imports load through Godot’s real resource loader
+   at: push_error (core/variant/variant_utility.cpp:1024)
+SPX special encounter suite: 2 failures
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/special_encounter_test.gd:18)
+       [1] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)
+ERROR: Director-staged emblem sidecars load through Godot’s real resource loader
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/special_encounter_test.gd:18)
+       [1] _initialize (/private/tmp/labyrinth-godot-home/rr-50-1793277827591310000-83979/Library/Application Support/Escape the Umbra Parallel rr-50-1793277827591310000-83979/program-suites.logs/188/special_encounter_test.gd:7)

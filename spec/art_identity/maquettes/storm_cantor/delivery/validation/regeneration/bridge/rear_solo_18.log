@@ -1,0 +1,7 @@
+00:00.597  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_final_clean/native/maquette.blend"
+00:05.151  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_final_clean/rear_solo_18/rear_parts.png'
+00:09.306  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_final_clean/rear_solo_18/rear_silhouette.png'
+00:13.343  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_final_clean/rear_solo_18/rear_silhouette.png'
+00:17.460  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_final_clean/rear_solo_18/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+MQ17_BOUNDED_CAPTURE: PASS; rear; sash,tabard

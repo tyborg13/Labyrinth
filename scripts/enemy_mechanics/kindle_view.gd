@@ -9,6 +9,30 @@ const GLOW_TILE_SIZE: Vector2 = Vector2(0.70, 0.40)
 const ABDOMEN_SOURCE_CENTER: Vector2 = Vector2(140.0, 185.0)
 const PULSE_SECONDS: float = 1.2
 const PULSE_ALPHA: float = 0.10
+const BADGE_POP_SECONDS: float = 0.25
+const BADGE_POP_PEAK: float = 1.35
+# Director feedback 1: the badge peaks halfway through its pop.
+const BADGE_POP_PEAK_PROGRESS: float = 0.5
+
+static func badge_scale(presentation: Dictionary, actor_key: String) -> float:
+	var pop: Dictionary = presentation.get("kindle_pop", {})
+	if str(pop.get("actor_key", "")) != actor_key or bool(presentation.get("reduced_motion", false)): return 1.0
+	var t: float = clampf(float(pop.get("elapsed", BADGE_POP_SECONDS)) / BADGE_POP_SECONDS, 0.0, 1.0)
+	var peak: float = BADGE_POP_PEAK_PROGRESS
+	return lerpf(1.0, BADGE_POP_PEAK, t / peak) if t < peak else lerpf(BADGE_POP_PEAK, 1.0, (t - peak) / (1.0 - peak))
+
+static func texts(step: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	if int(step.get("amount", 0)) <= 0: return result
+	result.append({"tile": step.get("tile", Vector2i.ZERO), "text": "Burst +%d" % int(step["amount"]),
+		"color": preload("res://scripts/enemy_mechanics/death_burst_view.gd").FIRE, "offset": -6.0,
+		"anchor_id": str(step.get("actor_key", "")), "unit_anchor_key": str(step.get("actor_key", "")), "automatic_anchor": true})
+	return result
+
+static func decorate(presentation: Dictionary, elapsed: float) -> void:
+	var step: Dictionary = presentation.get("effect", {})
+	if str(step.get("action_type", "")) != "kindle": return
+	presentation["kindle_pop"] = {"actor_key": step.get("actor_key", ""), "elapsed": elapsed}
 
 class Glow extends Node2D:
 	var bounds: Rect2
@@ -26,7 +50,7 @@ class Glow extends Node2D:
 		draw_colored_polygon(points, Color(ORANGE, alpha * pulse))
 
 static func draw_under(view: Control, unit: Dictionary) -> void:
-	if str(unit.get("type", "")) != "ember_tick": return
+	if str(unit.get("type", "")) not in ["ember_tick", "ember_hoarder"]: return
 	var key: String = "KindleGlow_%d" % int(unit.get("id", -1))
 	var glow: Glow = view.get_node_or_null(key) as Glow
 	if glow == null:
@@ -52,7 +76,7 @@ static func draw_under(view: Control, unit: Dictionary) -> void:
 static func rows(intent: Dictionary) -> Array:
 	for action: Dictionary in intent.get("actions", []):
 		if str(action.get("type", "")) == "kindle":
-			return [[preload("res://scripts/action_icon_library.gd").icon_text_token(KINDLE_ICON, "Kindle +%d" % int(action.get("amount", 0)), "Burst damage increases until death; stacks to max +4.")]]
+			return [[preload("res://scripts/action_icon_library.gd").icon_text_token(KINDLE_ICON, "Burst +%d" % int(action.get("amount", 0)), "Its Burst hits %d harder, up to +4." % int(action.get("amount", 0)))]]
 	return []
 
 static func descriptor(unit: Dictionary, fallback: Dictionary) -> Dictionary:

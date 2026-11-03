@@ -23,15 +23,33 @@ python3 tools/parallel_task.py preflight
 
 Risk tiers determine proof breadth, not whether review happens:
 
-- `low`: isolated documentation or tooling behavior. Check changed links/frontmatter for documentation and run focused behavioral checks for executable changes; a playable fixture may be not applicable.
-- `standard`: normal gameplay, content, data, or UI work. Run focused checks and every affected integration suite/probe.
-- `high`: shared runtime behavior, saves, combat/reward flow, broad UI, workflow infrastructure, or ambiguous acceptance. Runtime changes require the full Godot suite plus focused checks. Workflow infrastructure requires the affected Python/workflow suites and relevant CLI integration checks; engine tests are needed only if runtime behavior is affected. UI work also needs semantic visual proof and a verified inspection fixture when playable.
+- `low`: isolated documentation or tooling behavior. Units run their focused tests plus code review; a playable fixture may be not applicable.
+- `standard`: normal gameplay, content, data, or UI work. Units run their focused tests and affected integration probes plus code review.
+- `high`: shared runtime behavior, saves, combat/reward flow, broad UI, workflow infrastructure, or ambiguous acceptance. Units run their focused tests and affected integration probes plus code review. UI work also needs semantic visual proof and a verified inspection fixture when playable.
+
+The Python merge suite and the full Godot suite run once, at merge, on the integration branch. Save the integration HEAD before the merge, then select Python groups from that ref to the merged working tree:
+
+```bash
+python3 tools/run_python_suite.py --shards 4 --changed-since <the integration HEAD before the merge>
+```
+
+Python runs the explicit product-pass inventory in `tools/python_suite_groups.json`. `--changed-since` selects only pass groups; invalid Git refs fall back to all pass groups. Neither defaults nor `--all-groups` includes on-demand modules. Run `python3 tools/run_python_suite.py --on-demand <group> --shards 4` for authoring/tool checks (`rig`, `ui`, `sound`, `timing`, `tools`), or use `--on-demand all`. Speed-marked methods still require `--perf` on a quiet machine. See `tests/README.md` and the owner-approved `spec/peer_benchmark/test_cut_list_2026-10-31.md` for the bounded pass policy and accepted coverage gaps.
+
+Byte pins are for approved art and rig assets only; source code and historical approval/re-seal chains are not byte-pinned. The single `tests/test_approved_content_manifest.py` checks the approved inventory and one production-only pack/rig load. Updating its pins requires the owner's asset approval.
 
 Select proof for changed behavior and plausible regressions. Art-only work needs visual/integration proof, not unrelated balance scoring. Repeat successful checks only after relevant changes, failures, or new evidence.
 
 Every finished Labyrinth branch still receives substantive peer review. Risk tier controls proof scope so low-risk work does not acquire unrelated ceremony and high-risk work cannot ship on a narrow smoke test.
 
 Queued tasks store the same tier at `proposal.risk_tier`; `ready` tasks must have non-empty `acceptance_criteria` and `required_proof`.
+
+## Generated cel look
+
+Players see `all` when `LABYRINTH_CEL_LOOK` is unset; test and visual-probe runners default to `off` so gates measure source art. Explicit runner values still win. Inspection launches default to `all`, rebuilding stale variants first; fixture generation and verification use `off`.
+
+`cel_look_variants/` is generated, never committed and never hand-edited. Tuning lives in `tools/cel_look.json`; the protected reference filter remains in `spec/peer_benchmark/staged/cel-01/reference_filter.py`. Run `python3 tools/cel_look.py build --if-stale` to refresh, or `python3 tools/cel_look.py status` to fail on stale/missing output. The stamp binds inventory paths, source bytes, config and cel tools. `.celpng` files contain PNG bytes loaded directly, avoiding imports in development and exports.
+
+Steam and playtest exports must use `python3 tools/export_game.py --task-id <task-id> --preset 'Steam macOS' --output <output.zip>` (or `Steam Windows` / `Steam Linux`). The wrapper refreshes and validates every variant before export, then verifies the packaged manifest, every variant hash and runtime loading. `--pack-only --output <output.pck>` verifies a platform pack without creating an application. `report.json` stays local; `manifest.json` ships.
 
 ## Worker Bootstrap
 
@@ -47,177 +65,86 @@ The task runner disables Steam by default for deterministic tests and fixtures. 
 
 Do not use an editor launch as a parser check. On a clean isolated worktree, `godot --editor` performs a full filesystem scan and writes adjacent `.import` and `.uid` metadata throughout the project. Those files contain import settings and stable Godot resource identities, so globally ignoring them would hide legitimate source metadata. `godot_task_runner.py` blocks `--editor` by default; `--allow-editor-scan` is reserved for workflows that intentionally inspect and reconcile every metadata change.
 
-The full `tests/run_tests.gd` runner starts `tools/program_suite_runner.py` before
-executing its main body. The scheduler uses `min(6, logical_cpus // 3)` child slots (at least one on
-small hosts), alongside the main Godot process: five slots on this 15-logical-CPU
-machine. The original three-slot pool exceeded the integrated 600-second target.
-Every child uses `godot_task_runner.py` with its own HOME, APPDATA, LOCALAPPDATA
-and XDG data/config/cache/state roots. A generated SceneTree bootstrap applies
-`ParallelRuntime` before calling the standalone suite's `_initialize`, including
-suites that do not initialize their own namespace. Each child gets an explicit
-absolute `--log-file` path, independent of executable spelling (`godot`, `Godot`
-or `Godot.exe`); the general task runner recognizes those spellings too. The
-bootstrap prints the resolved `user://` and engine log paths for inspection.
-Child output is buffered and printed whole in the historical manifest
-order, regardless of completion order. Any child failure, script failure marker,
-launch error or timeout fails the full run and names the child. Closing the
-parent pipe cancels the scheduler and terminates its children.
-
-On Windows, both runners create a non-inheritable, kill-on-close Job Object
-with `ctypes`, launch each child suspended, assign it to the job, then resume
-its initial thread. The owner retains the job handle until cleanup, including
-after the root exits; owner death closes the handle too. Descendants inherit
-membership and cannot break away. Nested jobs require Windows 8 or later.
-Assignment/resume failures kill the suspended child and fail the launch.
-[`taskkill /PID <owned-pid> /T /F`](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/taskkill)
-remains the fallback for unowned processes or a job-close error while the root
-is alive. POSIX retains process-group termination and its parent-death watchdog.
-See [Windows Job Object semantics](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects).
-
-`tools/program_suite_runner.py:SUITES` contains the complete program manifest:
-en04/en05/en06 and static_facing first, then combat_feel (including
-combat_pacing_regression), event_view, event_rules, biome, health_ghost,
-movement_undo, threats_at_rest, run_score, sfx_bank, sfx_sync_bank and section_map_v2.
-The former encounter_tables slot now contains rules/renderers, two equal seed
-ranges of the original placement sweep, and its aggregate assertion. The latter
-runs once on the summed counts and maximum of the completed ranges, transported
-through atomic JSON files in a fresh scheduler-owned report directory. This
-prevents stale aggregates when reusing a focused result path. The original
-standalone encounter program still runs the complete sweep unchanged in meaning.
-The former sfx_sync_harness slot contains three frame-profile groups (2/2/1),
-each retaining onset assertions for its original speed/scenario runs. The final
-group verifies the unchanged full sample-duration set once. Together they run
-all 15 original profile/speed combinations. The manifest continues with
-en01/en02/en03, magic_deck_input, run_end_recap and main_menu_resume. The scene
-children under `tests/suites/` run presentation, shared cutouts, creature
-cutouts, audio, map/card controls, turn-clock/card-pool presentation, choices,
-and interaction. They inherit their unchanged test bodies. The 96 original
-invocations retain their order across the partitions; the split keeps each
-child below the 110-second load target without dropping cases.
-Keep coherent domains in focused suites rather than adding to the main body.
-
-The same manifest appends the supplemental entries from
-`tests/headless_test_programs.json`, preserving their order and fixture modes.
-These use the shared scheduler, not a nested supplemental worker pool. The
-boon-recovery and revision-5 map programs are also registered. A serial package
-or capture-settings fixture occupies one child slot through
-`tools/program_suite_fixture.py`: package builds/verification use their original
-arguments and empty-project boundary, and capture settings use a private startup
-override. Every Godot stage gets the same namespace bootstrap and task-runner
-HOME/APPDATA/XDG isolation, plus an explicit stage log. The child retains one
-outer 180-second deadline across all its stages. The manifest guard includes
-every supplemental entry, its invocation mode, and the merged headless additions.
-Fixture modes are pinned independently in `tests/test_program_suite_runner.py`;
-using another recognized mode still fails. Fixture bootstraps preload
-`res://scripts/parallel_runtime.gd` inside the repository project and the absolute
-runtime path only inside foreign stage projects, avoiding a duplicate class.
-
-`suites/section_map_performance_program` owns the complete fix-05 regression,
-including the hang seed and 20 slowest seed cases; the v5 aggregate no longer
-runs that regression inside its own child or the main body. Its assertion
-bodies and timing limits remain unchanged. EN06 boots with the deterministic
-timestamp-window regression seed before installing its existing enemy fixture.
-Set `LABYRINTH_EN06_PROFILE=1` to log phase durations and ten-second wait samples
-without changing the scene, time scale or presentation clock. The profile
-asserts the boot seed and retains all existing enemy checks.
-
-The explicit partitions in `tools/test_execution_sources.py` retain the original
-standalone entrypoints while the full manifest expands them into bounded children.
-Map v5 separates current-map checks from two equal 100-seed revision-3/4 hash
-ranges; the original 200-seed standalone and 50-seed in-process calls keep their
-ranges. Forced-movement query equivalence runs one child per existing fixture,
-each retaining all four variants and its entire action matrix. The completeness
-guard requires every partition before a shared-wrapper call can count as coverage.
-
-Use the unchanged 900-second hard cap for the complete command (each child also
-retains a 180-second cap):
+The full Godot suite is launched through the task runner:
 
 ```bash
-cd <task-worktree> && python3 tools/godot_task_runner.py --task-id <task-id> --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd
+cd <task-worktree> && python3 tools/godot_task_runner.py --task-id <task-id> --timeout 0 --stream -- godot --headless --path . --script tests/run_tests.gd
 ```
 
-The runner prints the main-body time and assertion count, each child's time,
-the total `FULL SUITE RUNTIME`, and the unchanged final `TEST RESULT` line.
-The integrated wall-time target is at most 600 seconds on an otherwise idle development
-machine; 900 seconds remains the failure budget. Preserve assertion coverage
-when extracting domains: compare test bodies and invocation order, and count
-assertion call sites before and after the move. The main-body and extracted
-`MAIN DOMAIN ASSERTIONS` counters report executed callbacks; existing assertions
-inside animation-frame loops repeat a scheduling-dependent number of times.
-Use assertion-message traces to distinguish those repeated frame samples from
-lost coverage. Runner plumbing checks and deliberate failure fixtures are
-separate from content assertions.
-`tests/test_program_suite_runner.py` exercises concurrency, isolation, ordered
-output, named failures, timeouts, the overall deadline and parent cancellation,
-including a real headless Godot parent fixture. Its manifest guard requires the
-complete ordered list, including all scene, encounter and SFX program children. Its deadline guard
-uses a controlled monotonic clock and bounded simulated cleanup; a doubled
-budget must fail the guard. The native early-storage fixture asserts the
-requested namespace before its first write; deleting bootstrap initialization
-must fail without creating that file. `tests/test_runner_cancellation.py`
-exercises the Windows ctypes job implementation through a simulated Win32 API
-on POSIX, checking suspended launch, assignment before resume, kill-on-close,
-and real child/grandchild liveness with both alive and already-exited roots.
-It also asserts the complete fallback command (owned PID, `/T`, `/F`) and that
-an unrelated process survives. Fixture cleanup skips exited PIDs, rechecks
-liveness after exit races (including Windows ERROR_ACCESS_DENIED for retained
-handles), and reaps the unrelated sleeper in its own finally. Win32 flag values
-are asserted independently as 0x2000 and 0x4; the simulation obeys the recorded
-bits. The real-interpreter timeout fixture includes its five-second startup
-budget before its short hang interval; controlled-clock deadline tests retain
-their strict original budget checks. On Windows those same tree fixtures use native
-Job Objects and taskkill instead of the simulation.
+Before Godot parses that entry point, `tools/godot_import_cache.py` checks the
+script-class cache and each source with an `.import` sidecar. A missing imported
+artifact, or one older than its source, triggers an intentional
+`godot --headless --import` through the task runner. Import errors stop the suite.
+A warm cache only incurs the filesystem check, whose cost is printed separately.
+A cached destination index avoids rereading sidecars; directory and sidecar
+mtimes invalidate that index, while source/artifact mtimes decide freshness.
+Godot writes sidecars after artifacts, so sidecar timestamps alone cannot mean
+stale. The one-time import has a separate 1,800-second cap for fresh asset trees.
+This bootstrap is not an editor parser check. Fresh worktrees need no manual import.
 
-The qa-07 proof is native macOS headless Godot and POSIX cancellation. Windows
-Win32 calls and taskkill semantics were simulated on POSIX; native Windows Job
-Objects/taskkill and Windows/Linux Godot path resolution remain unverified.
-APPDATA/XDG root creation and isolation are checked in actual child environments.
-The load proof runs three consecutive complete suites, each paired with an
-independent full Python discovery as concurrent load; all three discoveries
-must pass too. A repeating independent Godot program is another supported load.
-Check every child's measured time; split any domain above 110 seconds under
-load without dropping cases or changing predicates. The scheduler owns at most its configured number of child slots; the main
-Godot process and independent load run alongside them. Existing domain-owned
-serial regression subprocesses run while their calling child waits. Keep the 180/900
-second caps when repeating this proof.
+The main Godot body runs alongside `tools/program_suite_runner.py`. Its pool has
+`min(6, max(1, logical_cpus // 3))` slots. Each program receives its own 300-second
+timeout; `timeout_seconds` in `tests/headless_test_programs.json` can override it
+for measured long workloads. The complete suite has no shared runtime budget or
+wall-time assertion. The task runner disables its implicit outer timeout for
+this full-suite entry point. `--timeout 0` makes that policy explicit; an
+explicit nonzero timeout remains available for cancellation/debug fixtures. The manifest's two long diagnostics
+have 600-second caps: owned combat creation measured 129.339 seconds and the
+48-warning dragon escape sweep 169.930 seconds outside the full pool; both had
+previously exceeded 180 seconds under load.
 
-`python3 tools/test_registration_audit.py` is the registration completeness guard,
-also run by both full suites. It follows executed calls, including inherited
-constants, nested suite aliases, partitioned encounter programs, and exact shared
-wrapper methods, for every `tests/**/*_test.gd`, `*_suite.gd` and `*_probe.gd`.
-The call reader tokenizes comments and string literals separately from code.
-Literal paths and deferred method names are arguments, never scanned as source.
-Function-local `var`/`const` aliases belong only to that function; class aliases
-remain available through inheritance. Untyped, explicitly typed and inferred
-(`:=`) assignments are supported.
-Native-only checks require an exact path and reason in
-`tests/windowed_test_allowlist.json`. Every other script must execute in the full
-suite or have an entry in `tests/quarantine.json`. The scheduler's injected-child
-Godot fixture is covered by actual reachable subprocess commands in Python's
-full suite; starting that driver with its default children inside the full Godot
-runner would recurse. Quarantine entries require
-`path`, `category`, `reason`, `evidence_log` (a project-relative proof log path),
-and one `follow_up` owner. Accepted categories and owners are `stale-reference`
-→ `qa-09`, `legacy-cutout` → `qa-10`, `long-diagnostic` → `qa-11`,
-`export-workflow` → `qa-12`, `possible-bug` → `bug-01`, and `needs-design`
-→ `design-01`. Library suites additionally name an `entrypoint` that actually
-executes their assertions. Missing fields, unknown owners, duplicate paths,
-deleted tests, and overlaps with registered or windowed tests fail the guard.
-Evidence logs are local proof artifacts and need not be present on fresh clones.
+Only exit 124 is eligible for one retry. All first attempts finish before retries
+run serially, each with its full program timeout and a fresh isolated HOME. A
+second timeout, assertion failure, script check or launch failure fails the suite.
+A failure marker printed before a timeout also fails immediately and is never
+retried. The JSON report retains both attempt logs and lists retries; the Godot
+summary prints those logs, each final verdict, and `PROGRAM SUITE RETRIES`.
+Manifest ordering controls log presentation, not scheduling or acceptance.
 
-Run the separate slow guard before handing off registration or quarantine changes:
-`python3 tools/test_registration_audit.py --check-quarantine --output-dir output/qa-08/quarantine-check`.
-It reruns all quarantined programs through `godot_task_runner.py`, with four
-workers and the normal 180-second child cap (30 seconds per package stage).
-Explicit shared suite entrypoints run once. Nonzero exits and timeouts retain
-quarantine; any passing entry fails the slow guard and must be registered and
-removed from quarantine. Each invocation writes per-program logs and
-`results.json`; a timeout is evidence of an unresolved budget/fixture issue,
-never an assertion pass. Keep this slow check separate from the normal full
-suite so known failures do not consume its runtime budget. The supplemental JSON
-is part of qa-07's guarded manifest; it no longer has a separate scheduler.
+Every Godot child uses `godot_task_runner.py`, separate HOME/APPDATA/LOCALAPPDATA
+and XDG roots, an explicit engine log, and a generated SceneTree bootstrap that
+applies `ParallelRuntime` before the standalone initializer. A package fixture
+occupies one slot across build and empty-project verification, sharing only that
+program's cap. Closing the parent pipe cancels the pool and cleans owned children.
+Windows uses kill-on-close Job Objects; POSIX uses the existing process-group
+and parent-death watchdog cleanup. Neither path targets unrelated processes.
 
-Run Python checks from the task worktree with `python3 -m unittest discover -s tests -p 'test_*.py' -v`; verbose output lists every skip and its reason. Optional audio tests use `unittest.skipUnless` when their Python modules are absent, while dependency import errors remain failures when those modules are installed. Run the sound-lab checks with `/Users/borgerding/.cache/umbra-sfx/venv/bin/python -m unittest discover -s tests -p 'test_sfx_lab.py' -v`; run the classical arrangement checks with `.venv-classical-soundtrack/bin/python -m unittest discover -s tests -p 'test_*arrangement.py' -v` after preparing that environment with `tools/classical_soundtrack_requirements.txt`. The Chopin approved-artifact checks (`-p 'test_chopin_death_music.py'`) need no optional music modules. Python discovery includes headless fixture checks through the task runners; it does not replace the full Godot suite required for runtime changes.
+Speed guards are opt-in. Functional assertions and deterministic-clock contracts
+stay in the default suite. Mixed card-display, skill-tree, main-menu, threat-layout,
+shop-preparation, status-plate movement and persistence programs register `perf_checks: true`; their speed
+thresholds run only with
+`--perf-checks` (or `--perf`). Run that group separately:
+
+```bash
+cd <task-worktree> && python3 tools/program_suite_runner.py --task-id <task-id> --on-demand timing --perf --jobs 1 --result-file /private/tmp/labyrinth_codex/<task-id>/perf.json
+```
+
+A manifest entry may use `group: "perf"` for a program containing only speed
+checks or a wrapper whose functional suite already runs in the default main body
+(the dense-Light relic navigation case). Native shop glyph speed checks use the
+same flag in their real-renderer invocation. Performance telemetry tests, deterministic search-node budgets, animation
+clock contracts and completion watchdogs remain functional coverage. A machine's
+load can affect reported timings without turning the default suite red.
+
+`tests/test_program_suite_runner.py` verifies independent timeouts, serial retry,
+non-retryable failures, cancellation, ordered output, storage isolation, package
+stages, perf selection, and import freshness/failure. It checks behavior and valid
+fixture modes instead of freezing manifest prefixes, lengths or insertion order.
+`tools/test_execution_sources.py` retains the encounter/map partitions. `python3 tools/test_registration_audit.py` validates explicit Godot/Python pass and on-demand registries, including missing-file and duplicate entries. Unit-local tests need not execute in a pass. The recursive registration/mutation guard and quarantine execution commands were retired by the approved test cut. Existing windowed entries remain on demand in `tests/windowed_test_allowlist.json`.
+
+For this infrastructure change, proof is a before/after full Godot result and
+wall time on the same machine, a fresh-worktree run with no `.godot` cache and no
+manual import, a loaded full run, and the separate perf-group result. A repeating
+owned CPU workload is supported load when another worktree's Python suite is not
+available. Keep all runner logs and retries, including failing results. Windows
+process ownership is covered by the existing cancellation fixtures; actual native
+Windows engine execution remains a separate platform check.
+
+Merges and CI run Python checks on the integration branch with `python3 tools/run_python_suite.py --shards 4 --changed-since <the integration HEAD before the merge> --output-dir output/python-suite/<run-id>`. `tools/python_suite_groups.json` assigns every resource-table module to exactly one input group and declares conservative repository-relative trigger globs. Keep these triggers current when inputs or helpers change. Selection happens after the complete isolation audit; declared import dependencies and package hooks promote any required groups, and the worker import guard retains the entire audited inventory, including excluded modules. Logs, plans and summaries record selected groups and their first matching file (or fallback/dependency reason). Per-group module-seconds and maximum attributed shard costs are reported separately from total wall time. The runner audits discoverable modules, then selects the explicit pass or on-demand inventory. Raw unittest discovery also runs on-demand modules and is not the product-pass command. `--perf` selects only performance-marked methods; other TestCase fixtures do not run. Both groups use the complete isolation audit and import guard. It assigns whole modules to timing-balanced shards after an isolation audit. Every discovered module must have an explicit entry in `tools/python_suite_resources.json`; unclassified modules fail before scheduling. Entries list shared written resources, or `[]` after auditing that writes stay in per-test temporary directories or unique runner HOME. Include indirect helper writes and readers of temporarily mutated production data. Modules sharing a declared resource stay together. Workers discover only their assigned modules and required package ancestry. A first `sys.meta_path` finder resolves imports through the normal finder chain, checks the resolved origin against the full audited file inventory, and rejects another shard's test module before execution. A guard hit fails the shard with the importing/imported module names and its log, even if test code catches `ImportError`. Package trees stay together. Static imports are a scheduling aid, not the correctness rule: each module may instead use an object declaration such as `{"resources": [], "imports": ["test_a"]}` to declare dependencies the scan cannot see. Declared and statically found edges are colocated. Read both test and helper Python sources with `tokenize.open`; encoding or parse failures are audit errors naming the file. Parent enumeration and auditing read files without importing tests. Resolve a guard failure by declaring the reported edge and rerunning; never bypass the guard. The checked-in table is the scheduling authority; module-name families do not classify new writers. Each Godot runner invocation has its own HOME and user-state namespace even when a test supplies a fixed task name. The declarations conservatively group shared case paths; they do not promise four equal shard durations. Inspect `isolation-audit.md`, `isolation-audit.json` and `plan.json` in the output directory (`--audit-only` writes the plan without executing tests). Review written-resource declarations for new modules, changed write paths and cross-case readers before adding concurrency.
+
+The combined log includes all skip reasons, module durations, tracebacks and unittest totals. `summary.json` retains test identities for serial/parallel inventory comparison. The owner-supplied `spec/peer_benchmark/staged/perf-06/python_suite_timing.json` is read-only seed data. Each complete default discovery updates learned module durations in `$(git rev-parse --git-common-dir)/labyrinth-test-timings/python-suite.json`; later runs use those durations over the seed. Focused patterns never replace full-suite timings. Before each launch the runner removes the previous shard result, gives the worker a unique invocation id and accepts only the matching result. Missing, malformed or mismatched results fail with the shard log attached. `--shard-timeout` caps each shard at 2,400 seconds by default; positive finite overrides are supported. Expiry terminates the shard's process tree using POSIX process groups or Windows ownership jobs; Godot task-runner signal handling and parent-death watchdogs collect detached engine children. Interrupted, crashed or timed-out shards fail the run with their logs rather than reporting incomplete totals as a passing suite.
+
+The historical rr/mq sweeps and per-creature package tests were retired by the approved test cut. Their approved outputs are covered by the single manifest test; rendered correctness remains the owner's inspection responsibility. Optional sound-authoring checks run with `python3 tools/run_python_suite.py --on-demand sound --shards 4`; dependencies and skips remain local to those checks.
 
 Before suites/probes, run `python3 tools/output_gdignore.py` from the task worktree.
 Repeat after creating new output folders; `--check` reports missing or conflicting

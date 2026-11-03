@@ -1,0 +1,8 @@
+test_eight_reading_contexts_share_minimum (test_card_legibility.CardLegibilityTest) ... ok
+test_sabatons_and_no_self_shrink (test_card_legibility.CardLegibilityTest) ... ok
+test_windows_safe_typed_arrays (test_card_legibility.CardLegibilityTest) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 15.652s
+
+OK

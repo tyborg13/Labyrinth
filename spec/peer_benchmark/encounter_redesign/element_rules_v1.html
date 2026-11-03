@@ -1,0 +1,243 @@
+<title>One Rule per Element</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; the six rules as a 3x2 grid of plates, then the element x encounter matrix as the centrepiece. Single dark look, the game's own ink and gold. */
+:root {
+  color-scheme: dark;
+  --ink: #120e0b; --ink-2: #1b1511; --ink-3: #251d17; --rule: #3a2f25;
+  --text: #efe3c8; --text-2: #b8a88d; --text-3: #85776a;
+  --gold: #c9a25e; --gold-bright: #f0cf8a;
+  --earth: #c99a5b; --fire: #e8893a; --air: #cfe3f2; --ice: #86cbe6; --lightning: #a8bfff; --shadow: #a48af2;
+  --ok: #8fcf7d; --change: #e8b45a; --new: #8fb3d9;
+  --display: "Alegreya SC", "Iowan Old Style", Georgia, serif;
+  --body: "Alegreya Sans", "Gill Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+body { background: var(--ink); color: var(--text); font: 17px/1.55 var(--body); }
+.page { max-width: 1120px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 56px; }
+header { display: grid; gap: 14px; max-width: 760px; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); }
+h1 { font: 700 clamp(34px, 5.4vw, 56px)/1.02 var(--display); margin: 0; color: var(--gold-bright); letter-spacing: 0.01em; text-wrap: balance; }
+h2 { font: 700 26px/1.15 var(--display); margin: 0; color: var(--gold); text-wrap: balance; }
+h3 { font: 700 19px/1.2 var(--display); margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.lede { font-size: 20px; line-height: 1.5; color: var(--text); }
+.muted { color: var(--text-2); }
+section { display: grid; gap: 20px; }
+.intro { display: grid; gap: 10px; max-width: 720px; }
+
+/* The six rules */
+.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.rule { background: var(--ink-2); border: 1px solid var(--rule); border-top: 3px solid var(--el); border-radius: 6px;
+  padding: 16px 18px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.rule h3 { color: var(--el); }
+.rule .el { font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); }
+.rule .does { color: var(--text); }
+.rule dl { margin: 0; display: grid; gap: 6px; font-size: 15px; }
+.rule dt { font: 500 11px/1.3 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+.rule dd { margin: 0 0 4px; color: var(--text-2); }
+
+/* The dials */
+.dials { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.dial { border-left: 2px solid var(--rule); padding: 2px 0 2px 14px; display: grid; gap: 6px; min-width: 0; }
+.dial h3 { color: var(--gold-bright); font-size: 18px; }
+.dial p { font-size: 15.5px; color: var(--text-2); }
+.dial .stop { font-size: 14.5px; color: var(--text); }
+
+/* Matrix */
+.matrix-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--ink-2); }
+table { border-collapse: collapse; width: 100%; min-width: 960px; }
+th, td { text-align: left; vertical-align: top; padding: 14px 14px; border-bottom: 1px solid var(--rule); }
+thead th { font: 500 12px/1.3 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); background: var(--ink-3); border-bottom: 1px solid var(--rule); }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+tbody th { width: 128px; }
+tbody th .name { display: block; font: 700 17px/1.2 var(--display); color: var(--el); }
+tbody th .core { display: block; margin-top: 4px; font-size: 14px; color: var(--text-2); }
+td { font-size: 15px; line-height: 1.45; color: var(--text); min-width: 0; }
+td .who { display: block; font: 500 11px/1.3 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 5px; }
+td .lever { display: block; margin-top: 7px; color: var(--text-2); font-size: 14px; }
+td .lever::before { content: "Lever · "; color: var(--text-3); font: 500 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.chip { display: inline-block; margin-top: 9px; font: 500 11px/1 var(--mono); letter-spacing: 0.06em; padding: 4px 7px; border-radius: 3px; border: 1px solid currentColor; }
+.chip.ok { color: var(--ok); } .chip.change { color: var(--change); } .chip.new { color: var(--new); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; color: var(--text-2); align-items: center; }
+.legend .chip { margin-top: 0; }
+.exemplar td, .exemplar th { background: color-mix(in srgb, var(--air) 6%, transparent); }
+
+/* Lists */
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.two > div { display: grid; gap: 12px; align-content: start; min-width: 0; }
+ul { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; }
+li { color: var(--text-2); }
+li b { color: var(--text); font-weight: 500; }
+ol.calls { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+ol.calls li { color: var(--text); }
+.note { font-size: 15px; color: var(--text-3); }
+.el-earth { --el: var(--earth); } .el-fire { --el: var(--fire); } .el-air { --el: var(--air); }
+.el-ice { --el: var(--ice); } .el-lightning { --el: var(--lightning); } .el-shadow { --el: var(--shadow); }
+
+@media (max-width: 900px) {
+  .rules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dials { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .rules, .dials, .two { grid-template-columns: minmax(0, 1fr); }
+  body { font-size: 16px; }
+}
+</style>
+
+<main class="page">
+  <header>
+    <span class="eyebrow">Escape the Umbra · encounter design · proposal, 23 October 2026</span>
+    <h1>One rule per element</h1>
+    <p class="lede">Each element gets one board rule, and it is the rule that element's cards already use. You learn it once, from your own deck. Every special fight then changes who wields it, where it points, how long it lasts and how big it gets. No special fight adds a keyword of its own.</p>
+    <p class="muted">Wind is the model. The Stormcaller aims it, the Snare blows it at you from the entry, and Vaeloryx turns it into a storm that circles the board. One rule each time: everything not Anchored slides, and a blocked slide is a Collision.</p>
+  </header>
+
+  <section>
+    <div class="intro">
+      <h2>The six rules</h2>
+      <p class="muted">All six exist in the game today, with the wording below. Each works the same for you and for them.</p>
+    </div>
+    <div class="rules">
+      <article class="rule el-earth">
+        <span class="el">Earth</span>
+        <h3>Outcrops</h3>
+        <p class="does">Stone rises on marked tiles and blocks movement. A burst hits everything beside it. Broken stone leaves Rubble.</p>
+        <dl><dt>Your side</dt><dd>Your Earth cards leave Rubble and hit harder on it.</dd><dt>Answer anywhere</dt><dd>Break the stone (it has Health), or stand clear of it when it bursts.</dd></dl>
+      </article>
+      <article class="rule el-fire">
+        <span class="el">Fire</span>
+        <h3>Fire ground</h3>
+        <p class="does">Entering Fire deals 2. Starting a turn in it deals 3. Detonate makes it erupt and hit everyone in it.</p>
+        <dl><dt>Your side</dt><dd>Your Fire cards place Fire and Detonate it.</dd><dt>Answer anywhere</dt><dd>Ice overwrites Fire. Lure them into their own field.</dd></dl>
+      </article>
+      <article class="rule el-air">
+        <span class="el">Air</span>
+        <h3>Wind</h3>
+        <p class="does">At the end of the wielder's turn, everything not Anchored slides with the wind. A blocked slide is a Collision: 2 damage per tile lost.</p>
+        <dl><dt>Your side</dt><dd>Your Air cards Push and Pull under the same Collision rule.</dd><dt>Answer anywhere</dt><dd>Anchor, keep a clear lane downwind, or let it throw them into walls.</dd></dl>
+      </article>
+      <article class="rule el-ice">
+        <span class="el">Ice</span>
+        <h3>Ice ground</h3>
+        <p class="does">A unit on Ice is Chilled: it takes 2 more damage, and an Ice attack Freezes it.</p>
+        <dl><dt>Your side</dt><dd>Your Ice cards place Ice and Freeze the Chilled.</dd><dt>Answer anywhere</dt><dd>Stay off it, melt it with Fire, or bring them onto it.</dd></dl>
+      </article>
+      <article class="rule el-lightning">
+        <span class="el">Lightning</span>
+        <h3>Electrified ground</h3>
+        <p class="does">A Lightning hit that touches it spreads to everyone on the connected Electrified tiles.</p>
+        <dl><dt>Your side</dt><dd>Your Lightning cards place it and spread through it.</dd><dt>Answer anywhere</dt><dd>Stand off the network when a strike is marked. Your Lightning rides theirs.</dd></dl>
+      </article>
+      <article class="rule el-shadow">
+        <span class="el">Shadow</span>
+        <h3>The Umbra</h3>
+        <p class="does">Beyond your sight, enemies are hidden: no intents, and they can't be targeted. Light reveals them.</p>
+        <dl><dt>Your side</dt><dd>Your Light, Vision and Truesight push it back.</dd><dt>Answer anywhere</dt><dd>Bring Light, fight close, or keep the braziers lit.</dd></dl>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="intro">
+      <h2>What each fight changes</h2>
+      <p class="muted">Each fight changes the same few things about the rule: who wields it, where it points, how long it lasts and how big it gets. What the rule does never changes, and neither does the way to stop it.</p>
+    </div>
+    <div class="dials">
+      <div class="dial"><h3>Warband</h3><p>The captain wields the rule and aims it. It lasts as long as the captain stands.</p><p class="stop">Stop it: kill the captain.</p></div>
+      <div class="dial"><h3>Umbral Snare</h3><p>The room wields the rule against your escape. It always comes from the entry, and it grows every round.</p><p class="stop">Stop it: get out.</p></div>
+      <div class="dial"><h3>Guardian</h3><p>One twist on the rule, always on and shown on its boss bar. Two helpers serve the twist.</p><p class="stop">Stop it: its lever.</p></div>
+      <div class="dial"><h3>Dragon</h3><p>The rule at full scale. Act two remakes the arena with it. The cataclysm is the rule over the whole board, and its shelter comes from the same rule.</p><p class="stop">Stop it: Break the cataclysm.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="intro">
+      <h2>Every encounter, by element</h2>
+      <div class="legend"><span class="chip ok">Built, fits</span><span class="chip change">Built, changes</span><span class="chip new">Not built</span><span>Air is the model row.</span></div>
+    </div>
+    <div class="matrix-wrap">
+      <table>
+        <thead><tr><th scope="col">Element</th><th scope="col">Warband captain</th><th scope="col">Umbral Snare</th><th scope="col">Guardian</th><th scope="col">Dragon</th></tr></thead>
+        <tbody>
+          <tr class="el-air exemplar">
+            <th scope="row"><span class="name">Air</span><span class="core">Wind</span></th>
+            <td><span class="who">The Stormcaller</span>Aims the wind at the nearest hazard, or toward itself. The wind never drops while it stands.<span class="lever">let the wind carry its Shrikes into pillars</span><span class="chip ok">Built, fits</span></td>
+            <td><span class="who">Headwind</span>Blows toward the entry at the end of each of your turns.<span class="lever">read the ghosts and walk with it</span><span class="chip ok">Built, fits</span></td>
+            <td><span class="who">Gallows Roc</span>Its wind blows toward the Roc every round, hauling you into its talons.<span class="lever">put a pillar or an Anchor between you</span><span class="chip new">Replaces "every Collision +2"</span></td>
+            <td><span class="who">Vaeloryx</span>Its wind turns a quarter clockwise every round, shown a round ahead. Act two: 2 tiles per gust. Cataclysm, Hollow Sky: one 4-tile gale.<span class="lever">a clear lane downwind is shelter; walls make Collisions</span><span class="chip new">Not built</span></td>
+          </tr>
+          <tr class="el-earth">
+            <th scope="row"><span class="name">Earth</span><span class="core">Outcrops</span></th>
+            <td><span class="who">The Thornmother</span>Raises a 5-tile line of Outcrops between you and her: stone bound in thorn.<span class="lever">break a gap, or push her escort into it</span><span class="chip change">Bramble becomes Outcrops</span></td>
+            <td><span class="who">The way out closes</span>Each round an Outcrop rises on your shortest way out. A route always stays open.<span class="lever">break through, or take the long way</span><span class="chip change">Rubble becomes Outcrops</span></td>
+            <td><span class="who">Craghide</span>Raises three Outcrops at a time around itself, then bursts them.<span class="lever">break them before the burst</span><span class="chip new">Drops "Crag Armour"</span></td>
+            <td><span class="who">Tharokh</span>Its spires are Outcrops. Act two: the outer ring rises. Cataclysm, Worldbreak: every spire bursts at once.<span class="lever">break spires early; its Mites repair them</span><span class="chip new">Not built</span></td>
+          </tr>
+          <tr class="el-fire">
+            <th scope="row"><span class="name">Fire</span><span class="core">Fire ground</span></th>
+            <td><span class="who">The Slagmaster</span>Barrage: two crosses of slag that land as Fire.<span class="lever">drag the Hounds onto the marks</span><span class="chip change">Its slag now leaves Fire</span></td>
+            <td><span class="who">The floor burns</span>Fire spreads one row from the entry every round.<span class="lever">keep moving; Ice cuts a path</span><span class="chip ok">Built, fits</span></td>
+            <td><span class="who">Ashen Reaver</span>Its Fire lanes never burn out, so the yard fills up.<span class="lever">Ice overwrites the lanes</span><span class="chip new">Not built</span></td>
+            <td><span class="who">Vyraketh</span>Its marks land as Fire. Act two: its Fire stops burning out. Cataclysm, Crown of Cinders: every Fire tile on the board detonates, the dragon included.<span class="lever">overwrite with Ice; lure it into its own field</span><span class="chip new">Not built</span></td>
+          </tr>
+          <tr class="el-ice">
+            <th scope="row"><span class="name">Ice</span><span class="core">Ice ground</span></th>
+            <td><span class="who">The Rime Oracle</span>Icefall lands as a sheet of Ice between you and her. Her Rime Bolt Freezes anyone Chilled.<span class="lever">go around, or bring her escort onto it</span><span class="chip change">Ice Pillars become Ice</span></td>
+            <td><span class="who">The doors frost</span>The tile in front of each sealing door is Ice. A Whelp's Ice bite Freezes you there.<span class="lever">kill the Whelps first, or melt the threshold</span><span class="chip ok">Built, fits</span></td>
+            <td><span class="who">Rimejaw</span>Its trail is Ice, and its Pounce lands on its own trail.<span class="lever">it is Chilled on its own Ice; an Ice attack Freezes it</span><span class="chip new">Not built</span></td>
+            <td><span class="who">Iskaldra</span>Her Spitters lay Ice. Act two: the outer ring freezes. Cataclysm, Absolute Zero: the whole floor turns to Ice, then Shatterstorm Freezes everyone Chilled.<span class="lever">melt a patch with Fire; it's your shelter</span><span class="chip new">Not built</span></td>
+          </tr>
+          <tr class="el-lightning">
+            <th scope="row"><span class="name">Lightning</span><span class="core">Electrified ground</span></th>
+            <td><span class="who">The Dynamo</span>Its Thralls Electrify the ground between them. Arc Burst strikes the whole network.<span class="lever">kill a Thrall to cut a line; your Lightning rides the network to it</span><span class="chip change">Replaces the tether and the 2-Charge order</span></td>
+            <td><span class="who">Live lanes</span>The Thralls' lines are Electrified ground, and the network is struck at the end of every round.<span class="lever">cross between strikes</span><span class="chip change">Tethers become Electrified ground</span></td>
+            <td><span class="who">Storm Cantor</span>Lays the network. Peal strikes it, so it spreads through every connected tile.<span class="lever">kill a Bell Tender to cut the chain</span><span class="chip new">Not built</span></td>
+            <td><span class="who">Zekarion</span>Skybreak's marks become Electrified ground. Act two: the field stops resetting. Cataclysm, Thunderhead: the whole network is struck.<span class="lever">stay off-network; your Lightning reaches his Wisps through it</span><span class="chip new">Not built</span></td>
+          </tr>
+          <tr class="el-shadow">
+            <th scope="row"><span class="name">Shadow</span><span class="core">The Umbra</span></th>
+            <td><span class="who">The Hollow Prior</span>While it lives, its followers more than 2 tiles from you stay hidden.<span class="lever">bring Light, or go straight for the Prior</span><span class="chip ok">Built, fits</span></td>
+            <td><span class="who">The dark closes</span>The Umbra closes one ring every two rounds.<span class="lever">Light and speed</span><span class="chip ok">Built, fits</span></td>
+            <td><span class="who">Last Lamplighter</span>It snuffs the braziers, so the dark grows and its Shades hide in it.<span class="lever">relight the braziers; bring your own Light</span><span class="chip new">Drops "+3 damage in Light"</span></td>
+            <td><span class="who">Noctyrax</span>Each act closes the dark one ring. Cataclysm, Totality: everyone outside Light is hit.<span class="lever">guard the braziers and kill the snuffers</span><span class="chip new">Not built</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">The Ember Hoarder and Last Light are on hold until you've played the Warband and the Snare. When they're built, they take their row from this table the same way: the Hollow Gale gang's wind blows toward the Hoarder's door, and so on.</p>
+  </section>
+
+  <section class="two">
+    <div>
+      <h2>What gets simpler</h2>
+      <ul>
+        <li><b>Six rules to learn, not two dozen.</b> Retired keywords: Bramble (becomes Outcrops), Ice Pillar (becomes Ice ground) and Tether (becomes Electrified ground). The Guardians' custom signatures (Gallows, Crag Armour, Vigil) are dropped, and so is Iskaldra's "Mantle on Ice".</li>
+        <li><b>Six callouts, total.</b> The first time you meet an element's rule anywhere, cards included, one short card explains it. Bosses don't need their own callouts. Their pre-battle names their element and their one twist.</li>
+        <li><b>One counter per element, everywhere.</b> Fire melts Ice. Ice smothers Fire. Anchor beats Wind. Light beats the Umbra. Breaking stone beats Outcrops. Staying off the network beats Lightning. A deck built around one element is also built to answer it.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>What stays from the boss proposals</h2>
+      <ul>
+        <li><b>Dragons:</b> Wrath at half health, a telegraphed cataclysm you can Break, and lieutenants. Now the cataclysm is always the dragon's rule at full scale, and the lieutenants feed that rule.</li>
+        <li><b>Guardians:</b> one twist each, two finite helpers, and Fury at half health. Storm Cantor and Gallows Roc go back to their designed pace.</li>
+        <li><b>Clarity:</b> the next-three intent strip for bosses, and the compact Guardian boss bar.</li>
+        <li><b>Built work to change:</b> four Warband orders (Thornmother, Slagmaster, Rime Oracle, Dynamo) and two Snare pressures (earth, lightning). The Stormcaller, the Prior and the other four pressures already fit.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Your calls</h2>
+    <ol class="calls">
+      <li>Are these the right six rules, especially Outcrops for earth, Ice ground for ice and Electrified ground for lightning?</li>
+      <li>Should ordinary enemies follow too? I recommend yes, so the whole game speaks one rule per element: the Briar Weaver grows Outcrops, the Seer's Icefall leaves Ice, and Arc Thralls Electrify the ground.</li>
+      <li>Pilot: Vaeloryx first, since Wind is built and proven. Then retrofit the four Warband orders and two Snare pressures, then Tharokh and the Guardians.</li>
+    </ol>
+  </section>
+</main>

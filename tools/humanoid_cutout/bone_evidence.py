@@ -47,6 +47,8 @@ def evidence_errors(data, report, current_bindings, tolerance):
     for view, clips in data['view_tracks'].items():
         for clip, definition in data['clips'].items():
             phases = {0., 1.}
+            for drop in data.get('view_held_drops', {}).get(view, {}).get(clip, {}).values():
+                phases.update((drop['start'], (drop['start']+drop['land'])/2., drop['land']))
             for track in clips[clip]:
                 keys = track['keys']
                 for index, key in enumerate(keys):

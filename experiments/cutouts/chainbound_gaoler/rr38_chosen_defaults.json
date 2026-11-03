@@ -1,0 +1,141 @@
+{
+  "purpose": "Non-player diagnostic defaults only; source cuts/landmarks are measurements and motion/tuning remain director data.",
+  "proof_geometry": {
+    "canvas_size_px": 640,
+    "source_offset_px": 192,
+    "sample_origin_px": [
+      0,
+      0
+    ],
+    "settle_frames": 8,
+    "run_seed": 91210,
+    "runtime_query_step_px": 96.0,
+    "runtime_epsilon": 0.0001
+  },
+  "capture_layout": {
+    "view_x_px": {
+      "front": 560,
+      "rear": 1360
+    },
+    "label_y_px": 60,
+    "label_height_px": 60,
+    "vertical_offset_px": 40,
+    "representative_frames": 6,
+    "idle_comparison_loops": 5,
+    "background_rgba_hex": "1e1e24ff",
+    "hit_recheck_frames": [
+      6,
+      7
+    ],
+    "defect_recheck_frames": {
+      "move": [
+        0,
+        13,
+        20,
+        27
+      ],
+      "reel": [
+        17,
+        33,
+        51
+      ],
+      "press": [
+        15,
+        25
+      ],
+      "pin": [
+        14,
+        24
+      ],
+      "guard": [
+        16,
+        30
+      ]
+    }
+  },
+  "production_fixtures": {
+    "front_tile": [
+      2,
+      4
+    ],
+    "rear_tile": [
+      6,
+      4
+    ],
+    "player_tile": [
+      4,
+      4
+    ],
+    "hit_hp": 30,
+    "idle_sample_seconds": 0.016666666666666666,
+    "guard_front_target": [
+      5,
+      4
+    ],
+    "guard_rear_target": [
+      3,
+      4
+    ]
+  },
+  "diagnostics": {
+    "shard_frames": 4,
+    "shard_workers": 2,
+    "shard_timeout_seconds": 90,
+    "flat_variance_ratio": 0.25,
+    "flat_min_region_px": 4,
+    "flat_context_px": 3,
+    "crop_zoom": 4,
+    "hook_feature_rows_px": 8,
+    "triangle_batch_size": 128
+  },
+  "mutations": {
+    "translation_px": 10,
+    "rotation": 0.2,
+    "rgba": [
+      1,
+      255,
+      1,
+      255
+    ]
+  },
+  "inherited_binding_constants": {
+    "mesh_grid_px": 2,
+    "cuff_rows_px": 4,
+    "blend_half_width_px": 4,
+    "near_straight_deg": 6,
+    "minimum_tuck_px": 3,
+    "interior_margin_px": 2,
+    "tiny_component_px": 3
+  },
+  "derived_gate_only_values": {
+    "pin_angle_limit_deg": 55.5,
+    "derivation": "55-degree protected key rounded to the existing 1.5-degree presentation step; no motion keys changed."
+  },
+  "feedback1_diagnostics": {
+    "measurement_epsilon": 0.0001,
+    "test_fixture_size_px": 8,
+    "test_fixture_pixel": [
+      3,
+      3
+    ],
+    "test_min_knee_bend_deg": 60,
+    "test_mutation_px": 5,
+    "round0_contact_sheet_zoom": 2,
+    "round0_contact_sheet_columns": 2,
+    "near_arm_representative_frames": [
+      0,
+      15,
+      25,
+      33,
+      50
+    ]
+  },
+  "feedback2_diagnostics": {
+    "pose_equivalence_epsilon": 0.0001,
+    "maximum_frames_per_shard": 4,
+    "shard_workers": 2,
+    "shard_timeout_seconds": 90,
+    "native_witness_fixture_rows": 4,
+    "stale_pose_mutation_px": 1
+  }
+}

@@ -17,6 +17,13 @@
   impacts), reward-card flip (no gain boost), door −10 dB, victory −7 dB,
   accepted reward −12 dB, hover tick −17 dB, the 8 %/4 % reverbs, and the
   no-overlap music transition.
+- `hit.blade.light` (blade contact, 5 damage or less, including Sidestep Slash and
+  Low Sweep) is a layered design since pol-12: the owner's blade tick over the first
+  220 ms of the owner's heavy blade hit, pitched up three semitones. The tick alone
+  ended after 40 ms, sat 3 to 6 dB under the other hits and level with the card
+  swish, and limiter gain could only raise its noise. It now measures -13.4 on the
+  100 ms window, level with the other light hits and 3 to 4 LU under the heavy blade
+  on the 400 ms window. Recipe: `spec/peer_benchmark/staged/sfx/recipes_pol12.json`.
 - **Changed:** `card_play_take.wav` (+13 dB then limited; it measured ~−37 dB
   RMS and was nearly inaudible — owner approved the louder play after testing), `item_equip.wav`
   (+6 dB then limited, playback −1 dB), relic-choices-open playback −2.5 dB,
@@ -141,8 +148,11 @@ Shale Bloomer is the current `bile_bloomer` id and has the director's stone deat
   no stagger queue. Chain-hop contact uses its shown lightning element at
   −5 dB, at that hop's contact time.
 - Beast/avian wind-up vocals use a deterministic presentation seed per action
-  with a 30% branch; the bank enforces the authored 900 ms cooldown. Dragon first
-  action requests a roar once per fight. Big area roars align their RMS peak to the wind-up release;
+  with a 30% branch; the bank enforces the authored 900 ms cooldown. A dragon roars
+  once as its fight opens (`scripts/dragon_arrival.gd`): the previous track fades over a
+  0.4 s hold, the roar plays with a 1.5 s board rumble, and the dragon's theme rises from
+  it before the objective and the hand. That counts as its first roar, so its first action
+  does not repeat it. Big area roars align their RMS peak to the wind-up release;
   the per-call rule below handles each release duration. The data's 4000 ms
   cooldown still applies. Dragon travel requests wings on the first frame of
   each tile's movement segment; heavy footsteps remain at tile arrival.

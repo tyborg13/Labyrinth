@@ -1,0 +1,9332 @@
+{
+  "schema": 1,
+  "authority": "director feedback 1: exact RGBA or clear at every exposed hidden source UV",
+  "director_sha256": "4d08d52bdea94604d3438a363512e95808073213e3a32110c08daa3278e2706b",
+  "texels": [
+    {
+      "part": "hidden_arm_far",
+      "uv": [
+        104,
+        62
+      ],
+      "before_rgba": [
+        111,
+        88,
+        79,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "reel",
+          33
+        ]
+      ]
+    },
+    {
+      "part": "hidden_arm_far",
+      "uv": [
+        105,
+        62
+      ],
+      "before_rgba": [
+        111,
+        88,
+        79,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "reel",
+          29
+        ]
+      ]
+    },
+    {
+      "part": "hidden_arm_near",
+      "uv": [
+        158,
+        163
+      ],
+      "before_rgba": [
+        63,
+        28,
+        20,
+        255
+      ],
+      "director_rgba": [
+        108,
+        77,
+        67,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          37
+        ],
+        [
+          "death",
+          78
+        ]
+      ]
+    },
+    {
+      "part": "hidden_arm_near",
+      "uv": [
+        159,
+        161
+      ],
+      "before_rgba": [
+        123,
+        63,
+        42,
+        255
+      ],
+      "director_rgba": [
+        108,
+        78,
+        69,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          12
+        ]
+      ]
+    },
+    {
+      "part": "hidden_arm_near",
+      "uv": [
+        159,
+        162
+      ],
+      "before_rgba": [
+        88,
+        42,
+        29,
+        255
+      ],
+      "director_rgba": [
+        108,
+        78,
+        69,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          75
+        ]
+      ]
+    },
+    {
+      "part": "hidden_arm_near",
+      "uv": [
+        164,
+        162
+      ],
+      "before_rgba": [
+        88,
+        42,
+        29,
+        255
+      ],
+      "director_rgba": [
+        86,
+        61,
+        54,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "press",
+          37
+        ]
+      ]
+    },
+    {
+      "part": "hidden_arm_near",
+      "uv": [
+        164,
+        163
+      ],
+      "before_rgba": [
+        63,
+        28,
+        20,
+        255
+      ],
+      "director_rgba": [
+        75,
+        54,
+        48,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "press",
+          24
+        ],
+        [
+          "press",
+          37
+        ]
+      ]
+    },
+    {
+      "part": "hidden_arm_near",
+      "uv": [
+        165,
+        163
+      ],
+      "before_rgba": [
+        63,
+        28,
+        20,
+        255
+      ],
+      "director_rgba": [
+        102,
+        73,
+        63,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "press",
+          21
+        ],
+        [
+          "press",
+          22
+        ],
+        [
+          "press",
+          23
+        ],
+        [
+          "press",
+          24
+        ],
+        [
+          "press",
+          25
+        ],
+        [
+          "press",
+          26
+        ],
+        [
+          "press",
+          27
+        ],
+        [
+          "press",
+          28
+        ],
+        [
+          "press",
+          29
+        ],
+        [
+          "press",
+          30
+        ],
+        [
+          "press",
+          31
+        ],
+        [
+          "press",
+          32
+        ],
+        [
+          "press",
+          33
+        ],
+        [
+          "press",
+          35
+        ],
+        [
+          "press",
+          36
+        ],
+        [
+          "press",
+          37
+        ],
+        [
+          "press",
+          38
+        ],
+        [
+          "press",
+          39
+        ],
+        [
+          "press",
+          40
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        61,
+        77
+      ],
+      "before_rgba": [
+        54,
+        46,
+        46,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          65
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        62,
+        77
+      ],
+      "before_rgba": [
+        72,
+        56,
+        53,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          65
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        62,
+        78
+      ],
+      "before_rgba": [
+        72,
+        56,
+        53,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          65
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        62,
+        79
+      ],
+      "before_rgba": [
+        72,
+        56,
+        53,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          65
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        63,
+        77
+      ],
+      "before_rgba": [
+        158,
+        134,
+        127,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        63,
+        78
+      ],
+      "before_rgba": [
+        129,
+        106,
+        100,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        63,
+        79
+      ],
+      "before_rgba": [
+        158,
+        134,
+        127,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        64,
+        72
+      ],
+      "before_rgba": [
+        100,
+        77,
+        73,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        64,
+        73
+      ],
+      "before_rgba": [
+        100,
+        77,
+        73,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        64,
+        74
+      ],
+      "before_rgba": [
+        100,
+        77,
+        73,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        64,
+        75
+      ],
+      "before_rgba": [
+        100,
+        77,
+        73,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          64
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        64,
+        76
+      ],
+      "before_rgba": [
+        100,
+        77,
+        73,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        64,
+        77
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        64,
+        78
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        64,
+        79
+      ],
+      "before_rgba": [
+        100,
+        77,
+        73,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        65,
+        68
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        65,
+        69
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        65,
+        70
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        65,
+        71
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        65,
+        72
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        65,
+        73
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        65,
+        74
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        65,
+        75
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        65,
+        76
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        65,
+        77
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        65,
+        78
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        65,
+        79
+      ],
+      "before_rgba": [
+        55,
+        40,
+        38,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        66
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        67
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        68
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        69
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        70
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        71
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        72
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          64
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        73
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        74
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        75
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        76
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        77
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        78
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          64
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        66,
+        79
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        67,
+        65
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        67,
+        66
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        67,
+        67
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        67,
+        68
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        67,
+        69
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        67,
+        77
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        67,
+        78
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        67,
+        79
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        67,
+        80
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        68,
+        64
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        68,
+        65
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        68,
+        66
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        68,
+        67
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        68,
+        77
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          63
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        68,
+        78
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        68,
+        79
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        68,
+        80
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        69,
+        64
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        69,
+        65
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        69,
+        66
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        69,
+        76
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        69,
+        77
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        69,
+        78
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        69,
+        79
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        69,
+        80
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        64
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        65
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        66
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        67
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        68
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        69
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        70
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        71
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        72
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        73
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        74
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        75
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        76
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        77
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        78
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        79
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        70,
+        80
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        65
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        66
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        67
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        68
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        69
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        70
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        71
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        72
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "reason": "released item backing is exposed after the authored chain drop",
+      "frames": [
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        73
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          63
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        74
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        75
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        76
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        78
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        79
+      ],
+      "before_rgba": [
+        25,
+        17,
+        18,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        71,
+        80
+      ],
+      "before_rgba": [
+        29,
+        20,
+        22,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          66
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        72,
+        67
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        72,
+        68
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        72,
+        69
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        72,
+        70
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        72,
+        71
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        72,
+        72
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        72,
+        73
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        72,
+        78
+      ],
+      "before_rgba": [
+        21,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        72,
+        79
+      ],
+      "before_rgba": [
+        25,
+        17,
+        18,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          66
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        72,
+        80
+      ],
+      "before_rgba": [
+        29,
+        20,
+        22,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          66
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        72,
+        81
+      ],
+      "before_rgba": [
+        29,
+        20,
+        22,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          65
+        ],
+        [
+          "death",
+          66
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        73,
+        78
+      ],
+      "before_rgba": [
+        29,
+        20,
+        22,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        73,
+        79
+      ],
+      "before_rgba": [
+        29,
+        20,
+        22,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          66
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        73,
+        80
+      ],
+      "before_rgba": [
+        29,
+        20,
+        22,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          66
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        74,
+        78
+      ],
+      "before_rgba": [
+        29,
+        20,
+        22,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ]
+      ]
+    },
+    {
+      "part": "hidden_chain",
+      "uv": [
+        74,
+        79
+      ],
+      "before_rgba": [
+        29,
+        20,
+        22,
+        255
+      ],
+      "director_rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "decision": "clear",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          66
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ]
+      ]
+    },
+    {
+      "part": "hidden_coat_far",
+      "uv": [
+        117,
+        159
+      ],
+      "before_rgba": [
+        24,
+        15,
+        15,
+        255
+      ],
+      "director_rgba": [
+        111,
+        84,
+        76,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          22
+        ],
+        [
+          "reel",
+          23
+        ],
+        [
+          "reel",
+          24
+        ],
+        [
+          "reel",
+          25
+        ],
+        [
+          "reel",
+          26
+        ],
+        [
+          "reel",
+          27
+        ],
+        [
+          "reel",
+          28
+        ],
+        [
+          "reel",
+          29
+        ],
+        [
+          "reel",
+          30
+        ],
+        [
+          "reel",
+          31
+        ],
+        [
+          "reel",
+          32
+        ],
+        [
+          "reel",
+          33
+        ],
+        [
+          "reel",
+          34
+        ],
+        [
+          "reel",
+          35
+        ],
+        [
+          "reel",
+          36
+        ],
+        [
+          "reel",
+          37
+        ],
+        [
+          "reel",
+          38
+        ],
+        [
+          "reel",
+          39
+        ],
+        [
+          "reel",
+          40
+        ],
+        [
+          "hit",
+          4
+        ],
+        [
+          "hit",
+          5
+        ],
+        [
+          "hit",
+          6
+        ],
+        [
+          "hit",
+          7
+        ],
+        [
+          "hit",
+          8
+        ],
+        [
+          "hit",
+          9
+        ],
+        [
+          "hit",
+          10
+        ],
+        [
+          "hit",
+          11
+        ],
+        [
+          "hit",
+          12
+        ],
+        [
+          "hit",
+          13
+        ]
+      ]
+    },
+    {
+      "part": "hidden_coat_far",
+      "uv": [
+        117,
+        160
+      ],
+      "before_rgba": [
+        18,
+        10,
+        13,
+        255
+      ],
+      "director_rgba": [
+        105,
+        80,
+        70,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          22
+        ],
+        [
+          "reel",
+          23
+        ],
+        [
+          "reel",
+          24
+        ],
+        [
+          "reel",
+          25
+        ],
+        [
+          "reel",
+          26
+        ],
+        [
+          "reel",
+          27
+        ],
+        [
+          "reel",
+          28
+        ],
+        [
+          "reel",
+          29
+        ],
+        [
+          "reel",
+          30
+        ],
+        [
+          "reel",
+          31
+        ],
+        [
+          "reel",
+          32
+        ],
+        [
+          "reel",
+          33
+        ],
+        [
+          "reel",
+          34
+        ],
+        [
+          "reel",
+          35
+        ],
+        [
+          "reel",
+          36
+        ],
+        [
+          "reel",
+          37
+        ],
+        [
+          "reel",
+          38
+        ],
+        [
+          "reel",
+          39
+        ],
+        [
+          "reel",
+          40
+        ],
+        [
+          "hit",
+          3
+        ],
+        [
+          "hit",
+          4
+        ],
+        [
+          "hit",
+          5
+        ],
+        [
+          "hit",
+          6
+        ],
+        [
+          "hit",
+          7
+        ],
+        [
+          "hit",
+          8
+        ],
+        [
+          "hit",
+          9
+        ],
+        [
+          "hit",
+          10
+        ],
+        [
+          "hit",
+          11
+        ],
+        [
+          "hit",
+          12
+        ],
+        [
+          "hit",
+          13
+        ],
+        [
+          "hit",
+          14
+        ],
+        [
+          "hit",
+          15
+        ]
+      ]
+    },
+    {
+      "part": "hidden_coat_far",
+      "uv": [
+        117,
+        161
+      ],
+      "before_rgba": [
+        19,
+        12,
+        14,
+        255
+      ],
+      "director_rgba": [
+        107,
+        78,
+        69,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          22
+        ],
+        [
+          "reel",
+          23
+        ],
+        [
+          "reel",
+          24
+        ],
+        [
+          "reel",
+          25
+        ],
+        [
+          "reel",
+          26
+        ],
+        [
+          "reel",
+          27
+        ],
+        [
+          "reel",
+          28
+        ],
+        [
+          "reel",
+          29
+        ],
+        [
+          "reel",
+          30
+        ],
+        [
+          "reel",
+          31
+        ],
+        [
+          "reel",
+          32
+        ],
+        [
+          "reel",
+          33
+        ],
+        [
+          "reel",
+          34
+        ],
+        [
+          "reel",
+          35
+        ],
+        [
+          "reel",
+          36
+        ],
+        [
+          "reel",
+          37
+        ],
+        [
+          "reel",
+          38
+        ],
+        [
+          "reel",
+          39
+        ],
+        [
+          "reel",
+          40
+        ],
+        [
+          "hit",
+          3
+        ],
+        [
+          "hit",
+          4
+        ],
+        [
+          "hit",
+          5
+        ],
+        [
+          "hit",
+          6
+        ],
+        [
+          "hit",
+          7
+        ],
+        [
+          "hit",
+          8
+        ],
+        [
+          "hit",
+          9
+        ],
+        [
+          "hit",
+          10
+        ],
+        [
+          "hit",
+          11
+        ],
+        [
+          "hit",
+          12
+        ],
+        [
+          "hit",
+          13
+        ],
+        [
+          "hit",
+          14
+        ],
+        [
+          "hit",
+          15
+        ]
+      ]
+    },
+    {
+      "part": "hidden_coat_far",
+      "uv": [
+        117,
+        162
+      ],
+      "before_rgba": [
+        22,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        112,
+        85,
+        77,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          20
+        ],
+        [
+          "reel",
+          22
+        ],
+        [
+          "reel",
+          23
+        ],
+        [
+          "reel",
+          24
+        ],
+        [
+          "reel",
+          25
+        ],
+        [
+          "reel",
+          26
+        ],
+        [
+          "reel",
+          40
+        ],
+        [
+          "hit",
+          3
+        ],
+        [
+          "hit",
+          4
+        ],
+        [
+          "hit",
+          5
+        ],
+        [
+          "hit",
+          11
+        ],
+        [
+          "hit",
+          12
+        ],
+        [
+          "hit",
+          13
+        ],
+        [
+          "hit",
+          14
+        ],
+        [
+          "hit",
+          15
+        ]
+      ]
+    },
+    {
+      "part": "hidden_coat_far",
+      "uv": [
+        117,
+        163
+      ],
+      "before_rgba": [
+        23,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        115,
+        85,
+        73,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          18
+        ],
+        [
+          "reel",
+          19
+        ],
+        [
+          "reel",
+          20
+        ],
+        [
+          "reel",
+          22
+        ],
+        [
+          "reel",
+          23
+        ],
+        [
+          "reel",
+          24
+        ],
+        [
+          "reel",
+          25
+        ],
+        [
+          "reel",
+          26
+        ],
+        [
+          "reel",
+          40
+        ],
+        [
+          "hit",
+          3
+        ],
+        [
+          "hit",
+          4
+        ],
+        [
+          "hit",
+          5
+        ],
+        [
+          "hit",
+          11
+        ],
+        [
+          "hit",
+          12
+        ],
+        [
+          "hit",
+          13
+        ],
+        [
+          "hit",
+          14
+        ],
+        [
+          "hit",
+          15
+        ]
+      ]
+    },
+    {
+      "part": "hidden_coat_far",
+      "uv": [
+        117,
+        164
+      ],
+      "before_rgba": [
+        23,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        122,
+        88,
+        79,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          18
+        ],
+        [
+          "reel",
+          19
+        ],
+        [
+          "reel",
+          20
+        ],
+        [
+          "reel",
+          22
+        ],
+        [
+          "reel",
+          23
+        ],
+        [
+          "reel",
+          24
+        ],
+        [
+          "reel",
+          25
+        ],
+        [
+          "reel",
+          26
+        ],
+        [
+          "reel",
+          40
+        ],
+        [
+          "hit",
+          3
+        ],
+        [
+          "hit",
+          4
+        ],
+        [
+          "hit",
+          5
+        ],
+        [
+          "hit",
+          11
+        ],
+        [
+          "hit",
+          12
+        ],
+        [
+          "hit",
+          13
+        ],
+        [
+          "hit",
+          14
+        ],
+        [
+          "hit",
+          15
+        ]
+      ]
+    },
+    {
+      "part": "hidden_coat_far",
+      "uv": [
+        117,
+        165
+      ],
+      "before_rgba": [
+        15,
+        10,
+        11,
+        255
+      ],
+      "director_rgba": [
+        130,
+        96,
+        80,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          17
+        ],
+        [
+          "reel",
+          18
+        ],
+        [
+          "reel",
+          19
+        ],
+        [
+          "hit",
+          3
+        ],
+        [
+          "hit",
+          14
+        ],
+        [
+          "hit",
+          15
+        ]
+      ]
+    },
+    {
+      "part": "hidden_coat_far",
+      "uv": [
+        117,
+        167
+      ],
+      "before_rgba": [
+        24,
+        14,
+        16,
+        255
+      ],
+      "director_rgba": [
+        122,
+        88,
+        79,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          27
+        ],
+        [
+          "reel",
+          28
+        ],
+        [
+          "reel",
+          29
+        ],
+        [
+          "reel",
+          30
+        ],
+        [
+          "reel",
+          31
+        ],
+        [
+          "reel",
+          32
+        ],
+        [
+          "reel",
+          33
+        ],
+        [
+          "reel",
+          34
+        ],
+        [
+          "reel",
+          35
+        ],
+        [
+          "reel",
+          36
+        ],
+        [
+          "reel",
+          37
+        ],
+        [
+          "reel",
+          38
+        ],
+        [
+          "reel",
+          39
+        ],
+        [
+          "hit",
+          6
+        ],
+        [
+          "hit",
+          7
+        ],
+        [
+          "hit",
+          8
+        ],
+        [
+          "hit",
+          9
+        ],
+        [
+          "hit",
+          10
+        ]
+      ]
+    },
+    {
+      "part": "hidden_coat_far",
+      "uv": [
+        118,
+        162
+      ],
+      "before_rgba": [
+        22,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        106,
+        77,
+        66,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          27
+        ],
+        [
+          "reel",
+          28
+        ],
+        [
+          "reel",
+          29
+        ],
+        [
+          "reel",
+          30
+        ],
+        [
+          "reel",
+          31
+        ],
+        [
+          "reel",
+          32
+        ],
+        [
+          "reel",
+          33
+        ],
+        [
+          "reel",
+          34
+        ],
+        [
+          "reel",
+          35
+        ],
+        [
+          "reel",
+          36
+        ],
+        [
+          "reel",
+          37
+        ],
+        [
+          "reel",
+          38
+        ],
+        [
+          "reel",
+          39
+        ],
+        [
+          "hit",
+          6
+        ],
+        [
+          "hit",
+          7
+        ],
+        [
+          "hit",
+          8
+        ],
+        [
+          "hit",
+          9
+        ],
+        [
+          "hit",
+          10
+        ]
+      ]
+    },
+    {
+      "part": "hidden_coat_far",
+      "uv": [
+        118,
+        163
+      ],
+      "before_rgba": [
+        23,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        113,
+        78,
+        70,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          27
+        ],
+        [
+          "reel",
+          28
+        ],
+        [
+          "reel",
+          29
+        ],
+        [
+          "reel",
+          30
+        ],
+        [
+          "reel",
+          31
+        ],
+        [
+          "reel",
+          32
+        ],
+        [
+          "reel",
+          33
+        ],
+        [
+          "reel",
+          34
+        ],
+        [
+          "reel",
+          35
+        ],
+        [
+          "reel",
+          36
+        ],
+        [
+          "reel",
+          37
+        ],
+        [
+          "reel",
+          38
+        ],
+        [
+          "reel",
+          39
+        ],
+        [
+          "hit",
+          6
+        ],
+        [
+          "hit",
+          7
+        ],
+        [
+          "hit",
+          8
+        ],
+        [
+          "hit",
+          9
+        ],
+        [
+          "hit",
+          10
+        ]
+      ]
+    },
+    {
+      "part": "hidden_coat_far",
+      "uv": [
+        118,
+        164
+      ],
+      "before_rgba": [
+        23,
+        14,
+        15,
+        255
+      ],
+      "director_rgba": [
+        113,
+        78,
+        70,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          27
+        ],
+        [
+          "reel",
+          28
+        ],
+        [
+          "reel",
+          29
+        ],
+        [
+          "reel",
+          30
+        ],
+        [
+          "reel",
+          31
+        ],
+        [
+          "reel",
+          32
+        ],
+        [
+          "reel",
+          33
+        ],
+        [
+          "reel",
+          34
+        ],
+        [
+          "reel",
+          35
+        ],
+        [
+          "reel",
+          36
+        ],
+        [
+          "reel",
+          37
+        ],
+        [
+          "reel",
+          38
+        ],
+        [
+          "reel",
+          39
+        ],
+        [
+          "hit",
+          6
+        ],
+        [
+          "hit",
+          7
+        ],
+        [
+          "hit",
+          8
+        ],
+        [
+          "hit",
+          9
+        ],
+        [
+          "hit",
+          10
+        ]
+      ]
+    },
+    {
+      "part": "hidden_coat_far",
+      "uv": [
+        157,
+        108
+      ],
+      "before_rgba": [
+        97,
+        71,
+        59,
+        255
+      ],
+      "director_rgba": [
+        28,
+        19,
+        19,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          59
+        ],
+        [
+          "death",
+          60
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        158,
+        140
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        71,
+        29,
+        20,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          16
+        ],
+        [
+          "move",
+          17
+        ],
+        [
+          "move",
+          36
+        ],
+        [
+          "move",
+          37
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        158,
+        142
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        68,
+        26,
+        20,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          16
+        ],
+        [
+          "move",
+          17
+        ],
+        [
+          "move",
+          36
+        ],
+        [
+          "move",
+          37
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        158,
+        143
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        30,
+        12,
+        9,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          16
+        ],
+        [
+          "move",
+          17
+        ],
+        [
+          "move",
+          36
+        ],
+        [
+          "move",
+          37
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        159,
+        139
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        77,
+        30,
+        23,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          16
+        ],
+        [
+          "move",
+          17
+        ],
+        [
+          "move",
+          36
+        ],
+        [
+          "move",
+          37
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        160,
+        134
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        68,
+        26,
+        20,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          8
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        160,
+        136
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        79,
+        32,
+        21,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          16
+        ],
+        [
+          "move",
+          17
+        ],
+        [
+          "move",
+          36
+        ],
+        [
+          "move",
+          37
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        161,
+        128
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        13,
+        8,
+        10,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          55
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        161,
+        129
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        3,
+        2,
+        2,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        161,
+        130
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        50,
+        18,
+        12,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          10
+        ],
+        [
+          "move",
+          19
+        ],
+        [
+          "move",
+          30
+        ],
+        [
+          "death",
+          53
+        ],
+        [
+          "death",
+          54
+        ],
+        [
+          "death",
+          55
+        ],
+        [
+          "death",
+          56
+        ],
+        [
+          "death",
+          57
+        ],
+        [
+          "death",
+          58
+        ],
+        [
+          "death",
+          59
+        ],
+        [
+          "death",
+          60
+        ],
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        161,
+        131
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        92,
+        32,
+        22,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          8
+        ],
+        [
+          "move",
+          9
+        ],
+        [
+          "move",
+          10
+        ],
+        [
+          "move",
+          19
+        ],
+        [
+          "move",
+          29
+        ],
+        [
+          "move",
+          30
+        ],
+        [
+          "death",
+          53
+        ],
+        [
+          "death",
+          54
+        ],
+        [
+          "death",
+          55
+        ],
+        [
+          "death",
+          56
+        ],
+        [
+          "death",
+          57
+        ],
+        [
+          "death",
+          58
+        ],
+        [
+          "death",
+          59
+        ],
+        [
+          "death",
+          60
+        ],
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          65
+        ],
+        [
+          "death",
+          66
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        161,
+        132
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        120,
+        52,
+        33,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          8
+        ],
+        [
+          "move",
+          9
+        ],
+        [
+          "move",
+          15
+        ],
+        [
+          "move",
+          16
+        ],
+        [
+          "move",
+          17
+        ],
+        [
+          "move",
+          29
+        ],
+        [
+          "move",
+          36
+        ],
+        [
+          "move",
+          37
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          65
+        ],
+        [
+          "death",
+          66
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        162,
+        128
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        32,
+        23,
+        23,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "reel",
+          14
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        162,
+        129
+      ],
+      "before_rgba": [
+        63,
+        35,
+        27,
+        255
+      ],
+      "director_rgba": [
+        20,
+        9,
+        10,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          14
+        ],
+        [
+          "move",
+          15
+        ],
+        [
+          "move",
+          18
+        ],
+        [
+          "move",
+          19
+        ],
+        [
+          "move",
+          30
+        ],
+        [
+          "move",
+          34
+        ],
+        [
+          "move",
+          38
+        ],
+        [
+          "move",
+          39
+        ],
+        [
+          "death",
+          47
+        ],
+        [
+          "death",
+          48
+        ],
+        [
+          "death",
+          49
+        ],
+        [
+          "death",
+          51
+        ],
+        [
+          "death",
+          52
+        ],
+        [
+          "death",
+          53
+        ],
+        [
+          "death",
+          54
+        ],
+        [
+          "death",
+          55
+        ],
+        [
+          "death",
+          56
+        ],
+        [
+          "death",
+          57
+        ],
+        [
+          "death",
+          58
+        ],
+        [
+          "death",
+          59
+        ],
+        [
+          "death",
+          60
+        ],
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          65
+        ],
+        [
+          "death",
+          66
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          75
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        177,
+        181
+      ],
+      "before_rgba": [
+        77,
+        59,
+        54,
+        255
+      ],
+      "director_rgba": [
+        54,
+        39,
+        39,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          12
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        177,
+        182
+      ],
+      "before_rgba": [
+        87,
+        67,
+        61,
+        255
+      ],
+      "director_rgba": [
+        54,
+        39,
+        39,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          13
+        ],
+        [
+          "move",
+          14
+        ],
+        [
+          "move",
+          33
+        ],
+        [
+          "move",
+          34
+        ],
+        [
+          "press",
+          5
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        177,
+        183
+      ],
+      "before_rgba": [
+        19,
+        15,
+        16,
+        255
+      ],
+      "director_rgba": [
+        61,
+        44,
+        42,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          14
+        ],
+        [
+          "move",
+          17
+        ],
+        [
+          "move",
+          34
+        ],
+        [
+          "move",
+          38
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        177,
+        184
+      ],
+      "before_rgba": [
+        17,
+        15,
+        16,
+        255
+      ],
+      "director_rgba": [
+        63,
+        45,
+        43,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          16
+        ],
+        [
+          "move",
+          17
+        ],
+        [
+          "move",
+          18
+        ],
+        [
+          "move",
+          35
+        ],
+        [
+          "move",
+          36
+        ],
+        [
+          "move",
+          37
+        ],
+        [
+          "move",
+          38
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        178,
+        182
+      ],
+      "before_rgba": [
+        82,
+        63,
+        58,
+        255
+      ],
+      "director_rgba": [
+        64,
+        46,
+        44,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          13
+        ],
+        [
+          "move",
+          14
+        ],
+        [
+          "move",
+          33
+        ],
+        [
+          "move",
+          34
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        178,
+        183
+      ],
+      "before_rgba": [
+        19,
+        15,
+        16,
+        255
+      ],
+      "director_rgba": [
+        76,
+        54,
+        51,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          14
+        ],
+        [
+          "move",
+          15
+        ],
+        [
+          "move",
+          16
+        ],
+        [
+          "move",
+          17
+        ],
+        [
+          "move",
+          34
+        ],
+        [
+          "move",
+          35
+        ],
+        [
+          "move",
+          36
+        ],
+        [
+          "move",
+          38
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        178,
+        184
+      ],
+      "before_rgba": [
+        17,
+        15,
+        16,
+        255
+      ],
+      "director_rgba": [
+        79,
+        56,
+        51,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          15
+        ],
+        [
+          "move",
+          16
+        ],
+        [
+          "move",
+          17
+        ],
+        [
+          "move",
+          18
+        ],
+        [
+          "move",
+          35
+        ],
+        [
+          "move",
+          36
+        ],
+        [
+          "move",
+          37
+        ],
+        [
+          "move",
+          38
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        179,
+        181
+      ],
+      "before_rgba": [
+        77,
+        59,
+        54,
+        255
+      ],
+      "director_rgba": [
+        52,
+        39,
+        38,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          12
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        179,
+        182
+      ],
+      "before_rgba": [
+        87,
+        67,
+        61,
+        255
+      ],
+      "director_rgba": [
+        53,
+        40,
+        39,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          16
+        ],
+        [
+          "move",
+          17
+        ],
+        [
+          "move",
+          34
+        ],
+        [
+          "move",
+          35
+        ],
+        [
+          "move",
+          36
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        179,
+        183
+      ],
+      "before_rgba": [
+        19,
+        15,
+        16,
+        255
+      ],
+      "director_rgba": [
+        66,
+        47,
+        46,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          15
+        ],
+        [
+          "move",
+          16
+        ],
+        [
+          "move",
+          17
+        ],
+        [
+          "move",
+          35
+        ],
+        [
+          "move",
+          36
+        ],
+        [
+          "move",
+          37
+        ],
+        [
+          "move",
+          38
+        ]
+      ]
+    },
+    {
+      "part": "hidden_leg_near",
+      "uv": [
+        179,
+        184
+      ],
+      "before_rgba": [
+        17,
+        15,
+        16,
+        255
+      ],
+      "director_rgba": [
+        66,
+        47,
+        46,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "move",
+          15
+        ],
+        [
+          "move",
+          35
+        ]
+      ]
+    },
+    {
+      "part": "hidden_pelvis",
+      "uv": [
+        153,
+        94
+      ],
+      "before_rgba": [
+        68,
+        30,
+        22,
+        255
+      ],
+      "director_rgba": [
+        64,
+        46,
+        44,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ]
+      ]
+    },
+    {
+      "part": "hidden_pelvis",
+      "uv": [
+        155,
+        100
+      ],
+      "before_rgba": [
+        68,
+        30,
+        23,
+        255
+      ],
+      "director_rgba": [
+        48,
+        34,
+        34,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        117,
+        53
+      ],
+      "before_rgba": [
+        71,
+        55,
+        52,
+        255
+      ],
+      "director_rgba": [
+        35,
+        41,
+        15,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          76
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        117,
+        54
+      ],
+      "before_rgba": [
+        71,
+        55,
+        52,
+        255
+      ],
+      "director_rgba": [
+        35,
+        41,
+        15,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          76
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        117,
+        55
+      ],
+      "before_rgba": [
+        71,
+        55,
+        52,
+        255
+      ],
+      "director_rgba": [
+        35,
+        41,
+        15,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          76
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        117,
+        56
+      ],
+      "before_rgba": [
+        71,
+        55,
+        52,
+        255
+      ],
+      "director_rgba": [
+        35,
+        41,
+        15,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          76
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        118,
+        54
+      ],
+      "before_rgba": [
+        71,
+        55,
+        52,
+        255
+      ],
+      "director_rgba": [
+        29,
+        19,
+        15,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          71
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        118,
+        55
+      ],
+      "before_rgba": [
+        71,
+        55,
+        52,
+        255
+      ],
+      "director_rgba": [
+        35,
+        23,
+        21,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          76
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        118,
+        61
+      ],
+      "before_rgba": [
+        71,
+        55,
+        50,
+        255
+      ],
+      "director_rgba": [
+        26,
+        14,
+        13,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          76
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        119,
+        65
+      ],
+      "before_rgba": [
+        57,
+        46,
+        41,
+        255
+      ],
+      "director_rgba": [
+        95,
+        53,
+        41,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          76
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        119,
+        66
+      ],
+      "before_rgba": [
+        34,
+        28,
+        26,
+        255
+      ],
+      "director_rgba": [
+        80,
+        45,
+        36,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          76
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        119,
+        67
+      ],
+      "before_rgba": [
+        27,
+        24,
+        24,
+        255
+      ],
+      "director_rgba": [
+        76,
+        42,
+        34,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          65
+        ],
+        [
+          "death",
+          66
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          82
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        119,
+        68
+      ],
+      "before_rgba": [
+        33,
+        28,
+        27,
+        255
+      ],
+      "director_rgba": [
+        80,
+        40,
+        30,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          61
+        ],
+        [
+          "death",
+          62
+        ],
+        [
+          "death",
+          63
+        ],
+        [
+          "death",
+          64
+        ],
+        [
+          "death",
+          65
+        ],
+        [
+          "death",
+          66
+        ],
+        [
+          "death",
+          67
+        ],
+        [
+          "death",
+          68
+        ],
+        [
+          "death",
+          69
+        ],
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        119,
+        69
+      ],
+      "before_rgba": [
+        52,
+        42,
+        39,
+        255
+      ],
+      "director_rgba": [
+        67,
+        33,
+        27,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        119,
+        70
+      ],
+      "before_rgba": [
+        45,
+        36,
+        34,
+        255
+      ],
+      "director_rgba": [
+        63,
+        33,
+        26,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          74
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        119,
+        71
+      ],
+      "before_rgba": [
+        38,
+        31,
+        30,
+        255
+      ],
+      "director_rgba": [
+        63,
+        33,
+        26,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          70
+        ],
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        120,
+        66
+      ],
+      "before_rgba": [
+        34,
+        28,
+        26,
+        255
+      ],
+      "director_rgba": [
+        53,
+        26,
+        19,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          76
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        120,
+        67
+      ],
+      "before_rgba": [
+        30,
+        26,
+        26,
+        255
+      ],
+      "director_rgba": [
+        111,
+        55,
+        34,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          76
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        120,
+        68
+      ],
+      "before_rgba": [
+        30,
+        26,
+        26,
+        255
+      ],
+      "director_rgba": [
+        155,
+        78,
+        49,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          80
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        120,
+        69
+      ],
+      "before_rgba": [
+        52,
+        42,
+        39,
+        255
+      ],
+      "director_rgba": [
+        104,
+        53,
+        37,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          84
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        120,
+        70
+      ],
+      "before_rgba": [
+        45,
+        36,
+        34,
+        255
+      ],
+      "director_rgba": [
+        77,
+        33,
+        23,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        120,
+        71
+      ],
+      "before_rgba": [
+        38,
+        31,
+        30,
+        255
+      ],
+      "director_rgba": [
+        73,
+        32,
+        22,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        120,
+        72
+      ],
+      "before_rgba": [
+        14,
+        13,
+        15,
+        255
+      ],
+      "director_rgba": [
+        92,
+        32,
+        22,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          71
+        ],
+        [
+          "death",
+          72
+        ],
+        [
+          "death",
+          73
+        ],
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          77
+        ],
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        120,
+        73
+      ],
+      "before_rgba": [
+        12,
+        13,
+        15,
+        255
+      ],
+      "director_rgba": [
+        139,
+        47,
+        12,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          78
+        ],
+        [
+          "death",
+          79
+        ],
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          82
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ],
+        [
+          "death",
+          85
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          89
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        120,
+        74
+      ],
+      "before_rgba": [
+        19,
+        15,
+        17,
+        255
+      ],
+      "director_rgba": [
+        107,
+        39,
+        27,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          86
+        ],
+        [
+          "death",
+          87
+        ],
+        [
+          "death",
+          88
+        ],
+        [
+          "death",
+          90
+        ],
+        [
+          "death",
+          91
+        ],
+        [
+          "death",
+          92
+        ],
+        [
+          "death",
+          93
+        ],
+        [
+          "death",
+          94
+        ],
+        [
+          "death",
+          95
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        121,
+        69
+      ],
+      "before_rgba": [
+        52,
+        42,
+        39,
+        255
+      ],
+      "director_rgba": [
+        141,
+        63,
+        44,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          76
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        121,
+        72
+      ],
+      "before_rgba": [
+        14,
+        13,
+        15,
+        255
+      ],
+      "director_rgba": [
+        104,
+        45,
+        22,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          80
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        121,
+        73
+      ],
+      "before_rgba": [
+        16,
+        14,
+        16,
+        255
+      ],
+      "director_rgba": [
+        137,
+        59,
+        35,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          76
+        ],
+        [
+          "death",
+          83
+        ],
+        [
+          "death",
+          84
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        121,
+        74
+      ],
+      "before_rgba": [
+        16,
+        14,
+        16,
+        255
+      ],
+      "director_rgba": [
+        108,
+        54,
+        38,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          80
+        ],
+        [
+          "death",
+          84
+        ]
+      ]
+    },
+    {
+      "part": "hidden_torso",
+      "uv": [
+        121,
+        75
+      ],
+      "before_rgba": [
+        21,
+        19,
+        20,
+        255
+      ],
+      "director_rgba": [
+        103,
+        52,
+        37,
+        255
+      ],
+      "decision": "paint",
+      "frames": [
+        [
+          "death",
+          81
+        ],
+        [
+          "death",
+          83
+        ]
+      ]
+    }
+  ]
+}

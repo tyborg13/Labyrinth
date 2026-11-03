@@ -22,10 +22,10 @@ const PLACEMENT_TEST_ANCHOR := Vector2(600, 500)
 const PLACEMENT_TEST_HEALTH := Rect2(100, 100, 140, 20)
 const ZONE_PREVIEW_OFFSET := Vector2i.UP
 const WAVE_E2_ROSTER: Array = [
-	{"type": "briar_weaver", "offset": Vector2i.RIGHT, "intent": "thornwall", "icon": "bramble"},
+	{"type": "briar_weaver", "offset": Vector2i.RIGHT, "intent": "thornwall", "icon": "upheaval"},
 	{"type": "slag_mortar", "offset": Vector2i(-3, 0), "intent": "lob_slag", "icon": "lob"},
 	{"type": "glacial_mirror", "offset": Vector2i(0, -3), "intent": "refraction", "icon": "aoe"},
-	{"type": "gust_shrike", "offset": Vector2i(3, 0), "intent": "dive", "icon": "dive"},
+	{"type": "gust_shrike", "offset": Vector2i(3, 0), "intent": "dive", "icon": "aoe"},
 ]
 
 static func run(expect: Callable) -> void:
@@ -71,7 +71,7 @@ static func _test_wave_e2(expect: Callable) -> void:
 		expect.call(not str(badge.get("number", "")).contains(".") and not str(badge.get("secondary_number", "")).contains("."), "%s chip displays only integer numbers" % entry["type"])
 	var presentation: Dictionary = board.presentation
 	expect.call(presentation.get("enemy_threat_previews", []).is_empty(), "Wave E2 rest leaves detailed popups and compass disclosure off")
-	expect.call(presentation.get("en05_dive_telegraphs", []).size() == 1 and presentation.get("displacement_paths", []).has(combat._vector2i_values([Vector2i(5, 4), Vector2i(5, 3)])), "Wave E2 Dive retains its dashed line and right-hand side-push preview through v2")
+	expect.call(not presentation.has("en05_dive_telegraphs"), "Dive has no special rest line or side-push preview")
 	expect.call(state == original, "Wave E2 threat presentation leaves combat, queue and events unchanged")
 	board.free()
 
@@ -232,7 +232,8 @@ static func _test_callouts(expect: Callable) -> void:
 			var texts: Array[String]
 			for step: Dictionary in annotated:
 				if str(step.get("kind", "")) == "intent_callout": texts.append(str(step["text"]))
-			expect.call(texts.is_empty() if reason == "normal" else texts == ["Cancelled"], "%s (commits=%s) produces exactly the expected resolution callout" % [reason, include_commits])
+			var expected: Array = {"normal": [], "shock": ["Shocked"], "freeze": ["Frozen"], "kill": [], "moved_target": ["Out of range"]}[reason]
+			expect.call(texts == expected, "%s (commits=%s) produces exactly the expected resolution callout" % [reason, include_commits])
 	# A resolver step hitting a different actor after a push is redirected.
 	var state: Dictionary = staged_state(combat)
 	var callouts := Callouts.new()
@@ -263,10 +264,10 @@ static func _test_callouts(expect: Callable) -> void:
 	print("THREATS PUSH REDIRECT PROOF: announced=%s after_push=%s callouts=%d" % [original_plan.get("projected_attack_target"), combat.enemy_threat_tiles(displaced, 3).get("projected_attack_target"), actual_redirects])
 	expect.call(actual_redirects == 1, "A real pushed enemy resolves on a different target with exactly one Redirected callout")
 	for progress: float in [0.0, 0.15, 0.3, 0.5, 0.8, 1.0]:
-		var shared: Dictionary = FloatingText.animate_entry({"kind": FloatingText.KIND_EFFECT, "text": "Cancelled", "font_size": 22}, progress, false)
-		var normal: Dictionary = Callouts.frame({"text": "Cancelled"}, progress * Callouts.DURATION_SECONDS, false)
-		var reduced: Dictionary = Callouts.frame({"text": "Cancelled"}, progress * Callouts.DURATION_SECONDS, true)
-		expect.call((normal["motion_offset"] as Vector2).is_equal_approx(shared["motion_offset"]), "Callout motion reuses the status popup curves at %s" % progress)
+		var shared: Dictionary = FloatingText.animate_entry({"kind": FloatingText.KIND_EFFECT, "text": "Redirected", "font_size": 22}, progress, false)
+		var normal: Dictionary = Callouts.frame({"text": "Redirected"}, progress * Callouts.REDIRECT_DURATION_SECONDS, false)
+		var reduced: Dictionary = Callouts.frame({"text": "Redirected"}, progress * Callouts.REDIRECT_DURATION_SECONDS, true)
+		expect.call((normal["motion_offset"] as Vector2).is_equal_approx(Vector2(0.0, minf(0.0, (shared["motion_offset"] as Vector2).y))), "Callout rises above its HUD anchor without lateral drift or falling through it at %s" % progress)
 		expect.call(is_equal_approx(float(normal["alpha"]), float(shared["alpha"])), "Callout fade reuses the status popup curve at %s" % progress)
 		expect.call(reduced["motion_offset"] == Vector2.ZERO and is_equal_approx(float(reduced["alpha"]), float(normal["alpha"])), "Reduced callout stays fixed with identical alpha at %s" % progress)
 
@@ -282,7 +283,7 @@ static func _test_style_and_overlap(expect: Callable) -> void:
 	var placed: Dictionary = Badges.place_chip(anchor, badge, font, [], [])
 	var default_rect: Rect2 = placed["rect"]
 	expect.call(placed["center"] == anchor + Vector2(26, 4) and placed["placement"] == "lower_right", "Default medallion is 26px right and 4px below feet")
-	for blocker: String in ["unit", "prop", "chip"]:
+	for blocker: String in ["HUD", "chip"]:
 		var obstacles: Array[Rect2]
 		var previous: Array[Dictionary]
 		if blocker == "chip": previous.append({"rect": default_rect})
@@ -295,7 +296,7 @@ static func _test_style_and_overlap(expect: Callable) -> void:
 	blocked.append(default_rect)
 	blocked.append(left_rect)
 	placed = Badges.place_chip(anchor, badge, font, blocked, [])
-	expect.call(placed["rect"] == default_rect and bool(placed["above_everything"]), "Both blocked retains lower-right chip above everything")
+	expect.call(bool(placed["above_everything"]) and placed["rect"] == default_rect, "Both full-size homes blocked exhausts 24px and draws at home above HUD")
 	var health: Rect2 = PLACEMENT_TEST_HEALTH
 	var disc: Rect2 = Badges.order_rect(health, "1", font)
 	expect.call(disc.size == Vector2(24, 24) and disc.get_center() == Vector2(86, 110), "24px order disc centres 14px left of health frame")
@@ -314,8 +315,8 @@ static func _test_style_and_overlap(expect: Callable) -> void:
 		for candidate: Dictionary in board.call("_visible_units"):
 			if candidate["key"] == layout["key"]: unit = candidate
 		var feet: Vector2 = board.call("_unit_center", unit)
-		expect.call(is_equal_approx((layout["center"] as Vector2).y, feet.y + 4.0), "Crowded chip never docks at the health bar")
-		expect.call((layout["order_rect"] as Rect2).get_center() == Vector2(Badges.health_rect(board, unit).position.x - 14.0, Badges.health_rect(board, unit).get_center().y), "Disc follows collision-resolved health frame")
+		expect.call(bool(layout["above_everything"]) or not (layout["rect"] as Rect2).intersects(Badges.health_rect(board, unit), false), "Crowded chip never overlaps the health bar while searching vertically")
+		expect.call((layout["order_rect"] as Rect2).get_center() == Vector2(Badges.order_anchor_rect(board, unit).position.x - 14.0, Badges.order_anchor_rect(board, unit).get_center().y), "Disc retains its fixed original health-frame anchor")
 	var boss: Dictionary = {"key": "enemy_1", "role": "enemy", "boss_bar": true}
 	board.set("presentation", {"boss_health_frame_global_rect": Rect2(570, 28, 780, 90)})
 	expect.call(Badges.health_rect(board, boss) == Rect2(570, 28, 780, 90), "Boss disc uses its real global health frame")

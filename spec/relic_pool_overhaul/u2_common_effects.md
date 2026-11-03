@@ -1,5 +1,7 @@
 # U2 common relic implementation
 
+Flurry is dormant (flu-01). References below apply only to preserved engine behavior, tested with synthetic cards rather than Blade Dance.
+
 Rules text and numbers remain in `relic_data.py` and `data/relics.json`.
 `scripts/common_relic_rules.gd` owns automatic opening, defense and consumption
 hooks. The engine and existing card/surface helpers call them for both the real

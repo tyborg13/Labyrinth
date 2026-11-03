@@ -1,0 +1,40 @@
+MQ17_BRIDGE_SUBMITTED: build; mq03-a30726e2c96244ae9d563fcd9c815161
+MQ17_BRIDGE_RESULT: build; exit=0; seconds=2.4
+MQ17_BRIDGE_SUBMITTED: front_preview; mq03-92ab733163f64e559e0fdd3a0742e2f1
+MQ17_BRIDGE_RESULT: front_preview; exit=0; seconds=23.0
+MQ17_BRIDGE_SUBMITTED: front_solo_0; mq03-998f8a93af5a41fc89e2d7b5b5677e92
+MQ17_BRIDGE_RESULT: front_solo_0; exit=0; seconds=31.0
+MQ17_BRIDGE_SUBMITTED: front_solo_4; mq03-e5cbf8f2f95e4399be8e693458b4d29c
+MQ17_BRIDGE_RESULT: front_solo_4; exit=0; seconds=27.8
+MQ17_BRIDGE_SUBMITTED: front_solo_8; mq03-70a40c3ce8434187849230eb04bdb0fd
+MQ17_BRIDGE_RESULT: front_solo_8; exit=0; seconds=27.2
+MQ17_BRIDGE_SUBMITTED: front_solo_12; mq03-ae5b57278f554d9b95fb7c18783231cb
+MQ17_BRIDGE_RESULT: front_solo_12; exit=0; seconds=29.5
+MQ17_BRIDGE_SUBMITTED: front_solo_16; mq03-8703adfef9e743fbbc9fcac5812d13fa
+MQ17_BRIDGE_RESULT: front_solo_16; exit=0; seconds=25.3
+MQ17_BRIDGE_SUBMITTED: front_solo_20; mq03-1b234cec5f604891b738de6bb8f99323
+MQ17_BRIDGE_RESULT: front_solo_20; exit=0; seconds=19.0
+MQ17_BRIDGE_SUBMITTED: rear_preview; mq03-d5dfe67e75e647ecbfec50c3bc5c5115
+MQ17_BRIDGE_RESULT: rear_preview; exit=0; seconds=15.0
+MQ17_BRIDGE_SUBMITTED: rear_solo_0; mq03-770f74248a8d4e549a205263b44b2ffa
+MQ17_BRIDGE_RESULT: rear_solo_0; exit=0; seconds=15.6
+MQ17_BRIDGE_SUBMITTED: rear_solo_4; mq03-f24a3558502d4ac3813ae408a5e13661
+MQ17_BRIDGE_RESULT: rear_solo_4; exit=0; seconds=19.5
+MQ17_BRIDGE_SUBMITTED: rear_solo_8; mq03-a359d7f81e3047f7bb94c158b06de8e0
+MQ17_BRIDGE_RESULT: rear_solo_8; exit=0; seconds=31.5
+MQ17_BRIDGE_SUBMITTED: rear_solo_12; mq03-329074d95e22457baeb3787e7e5680a2
+MQ17_BRIDGE_RESULT: rear_solo_12; exit=0; seconds=18.9
+MQ17_BRIDGE_SUBMITTED: rear_solo_16; mq03-e219adaf28004496a659e415e1612236
+MQ17_BRIDGE_RESULT: rear_solo_16; exit=0; seconds=29.8
+MQ17_BRIDGE_SUBMITTED: rear_solo_20; mq03-a770749f3847485d8427d4d26e2a2757
+MQ17_BRIDGE_RESULT: rear_solo_20; exit=0; seconds=19.6
+MQ17_CAPTURE_MERGE: PASS; views=2; solos=44
+MQ17_BRIDGE_SUBMITTED: native_probe; mq03-5b6efe316ebd405a90e03a215228094c
+MQ17_BRIDGE_RESULT: native_probe; exit=0; seconds=2.2
+MQ17_ACCEPTANCE: PASS; unexplained_parts=[]
+MQ17_BRIDGE_SUBMITTED: cold_replay; mq03-076eb781fb4d420c8f79f3b8e311416c
+MQ17_BRIDGE_RESULT: cold_replay; exit=0; seconds=4.8
+MQ17_BRIDGE_SUBMITTED: exact_replay; mq03-52b3d1ceef38416583229135c2e2c41b
+MQ17_BRIDGE_RESULT: exact_replay; exit=0; seconds=1.1
+MQ17_CONTACT_SHEET: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-17/spec/art_identity/maquettes/storm_cantor/proof/feedback3_native/capture/contact_sheet.webp
+MQ17_NATIVE_DELIVERY: PASS

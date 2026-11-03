@@ -1,0 +1,7 @@
+{
+  "native_pixels": false,
+  "diagnostic_case": "experiments/cutouts/chainbound_gaoler/rr42/proof/production_case",
+  "sweep_sha256": "0e882bda08281fa741c0d0ef6c50ae336aceca0a3e6c1e1f8177254c5c232ebe",
+  "holes": [],
+  "rule": "report only; no rear paint synthesized"
+}

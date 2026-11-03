@@ -4,6 +4,8 @@ import re
 import unittest
 from pathlib import Path
 
+from marked_glossary_contract import MARKED_DEFINITION, MARKED_RETIRED, marked_glossary_supersession
+
 ROOT = Path(__file__).resolve().parents[1]
 # Read the renderer's grammar rather than maintaining a narrower Python copy.
 SYNTAX = (ROOT / "scripts/inline_token_syntax.gd").read_text()
@@ -16,7 +18,10 @@ def syntax_pattern(name):
 
 TOKEN = syntax_pattern("TOKEN_PATTERN")
 TOKEN_START = syntax_pattern("TOKEN_START_PATTERN")
-TEXT_ONLY = {"wait", "turns", "ice_pillar", "movement", "item", "outcrop"}
+FLURRY_RETIREMENT = json.loads((ROOT / "tests/fixtures/flurry_retirement_copy.json").read_text())
+# sta-01 and flu-01 supersede these records; keep protected design sources verbatim.
+RETIRED_TERMS = {"dive", "veil", *FLURRY_RETIREMENT["retired_glossary_ids"]}
+TEXT_ONLY = {"wait", "turns", "movement", "item", "outcrop"}
 
 
 def read(path):
@@ -66,14 +71,34 @@ class TextBudgetTest(unittest.TestCase):
     def test_glossary_matches_approved_copy_and_budget(self):
         approved = read("spec/peer_benchmark/staged/text/glossary_rewrite.json")
         self.assertTrue(approved["final"])
-        live = {e["id"]: e for e in approved["entries"] if not e.get("deleted")}
+        approved_live = {e["id"]: e for e in approved["entries"] if not e.get("deleted")}
+        self.assertEqual(len(approved_live), 147)
+        live = {key: entry for key, entry in approved_live.items() if key not in RETIRED_TERMS}
+        live.pop("mirror")
+        # tt-01 supersedes glossary definitions only; retain the original
+        # approved identities, aliases, entry set and word-budget assertions.
+        short_copy = {e["id"]: e["tooltip"]
+                      for e in read("spec/peer_benchmark/staged/tt-01/tooltips.json")["entries"]}
+        short_copy.update({e["id"]: e["text"] for e in
+                           read("spec/peer_benchmark/staged/tt-02/card_panels.json")["glossary_edits"]})
+        short_copy = {key: text for key, text in short_copy.items() if key not in RETIRED_TERMS}
+        self.assertTrue(RETIRED_TERMS.isdisjoint(self.glossary))
+        short_copy.pop("mirror")
+        short_copy["retaliate"] = "Until its next turn, whoever hits this unit up close takes that much damage."
+        self.assertTrue(set(short_copy).issubset(live))
+        self.assertEqual(len(live), 143)
+        # mrk-01 replaces four keywords with Marked, without rewriting the
+        # historical director source or relaxing any other copy/word budget.
+        live = marked_glossary_supersession(live)
+        short_copy = {key: text for key, text in short_copy.items() if key not in MARKED_RETIRED}
+        short_copy["marked"] = MARKED_DEFINITION
         self.assertEqual(set(self.glossary), set(live))
-        self.assertEqual(len(live), 145)
+        self.assertEqual(len(live), 140)
         for key, source in live.items():
             with self.subTest(entry=key):
                 actual = self.glossary[key]
                 self.assertEqual(actual["name"], source["name"])
-                self.assertEqual(actual["definition"], source["definition"])
+                self.assertEqual(actual["definition"], short_copy.get(key, source["definition"]))
                 self.assertTrue(set(source["aliases"]).issubset(actual["aliases"]))
                 if source.get("current_name") and source["current_name"] != source["name"]:
                     self.assertIn(source["current_name"], actual["aliases"])
@@ -90,7 +115,9 @@ class TextBudgetTest(unittest.TestCase):
             with self.subTest(relic=source["id"]):
                 actual = relics[source["id"]]
                 self.assertEqual(actual["name"], source["name"])
-                self.assertEqual(actual["description"], source["description"])
+                # Flurry retirement explicitly supersedes Crown's exclusion copy.
+                description = FLURRY_RETIREMENT["relic_descriptions"].get(source["id"], source["description"])
+                self.assertEqual(actual["description"], description)
                 if source.get("retired_redirect_to"):
                     retired += 1
                     self.assertTrue(actual["retired"])

@@ -296,10 +296,12 @@ static func section_text(record: Dictionary) -> String:
 	return "Section %s · %s" % [Score.roman(int(record.get("section_index", 0)) + 1), str(record.get("section_name", TODO_DESIGN_SECTION_NAME))]
 
 static func subline(record: Dictionary) -> String:
-	var text: String = "%s, room %d of %d · %d min" % [where_text(record), int(record.get("room_index", 0)), int(record.get("room_total", 0)), floori(float(record.get("run_seconds", 0)) / 60)]
+	var minutes: String = "%d min" % floori(float(record.get("run_seconds", 0)) / 60)
+	var victory: bool = record.get("outcome") == "victory"
+	var text: String = "%s · %s" % [where_text(record), minutes] if victory else "%s, room %d of %d · %s" % [where_text(record), int(record.get("room_index", 0)), int(record.get("room_total", 0)), minutes]
 	if int(record.get("umbra_depth", 0)) > 0:
 		text += " · Umbra Depth %d" % int(record["umbra_depth"])
-	return text + " · " + str(record.get("killer_text", ""))
+	return text if victory else text + " · " + str(record.get("killer_text", ""))
 
 # Whole spell entries wrap together. The eighth line is reserved for overflow
 # only when the complete text needs more than eight lines.

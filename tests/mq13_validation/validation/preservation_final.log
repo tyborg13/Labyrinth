@@ -1,0 +1,11 @@
+....
+----------------------------------------------------------------------
+Ran 4 tests in 1.322s
+
+OK
+MQ12_CURRENT_PRESERVATION: PASS; figures=8; delivery_files=791
+MQ12_APPROVED_DELIVERIES: PASS; recipes_and_delivery_bytes_exact=True
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5715009, "figure": "gale_herald", "files": 168}
+MQ12_GIT_VISIBLE_CURATION: PASS; gale_herald
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5954022, "figure": "gloam_stalker", "files": 166}
+MQ12_GIT_VISIBLE_CURATION: PASS; gloam_stalker

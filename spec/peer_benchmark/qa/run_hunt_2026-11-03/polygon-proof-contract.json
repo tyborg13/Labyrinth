@@ -1,0 +1,48 @@
+{
+  "min_images": 8,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*art_01_before.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*art_02_after.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*art_03_direct_floor.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*art_04_targeting.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*art_05_moving_actor.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*art_06_umbra_clip.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*art_07_campfire.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*art_08_normal_motion.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+00:00.403  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/cold/maquette.blend"
+00:04.211  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/rear_1/rear_parts.png'
+00:06.354  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/rear_1/rear_silhouette.png'
+00:08.426  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/rear_1/rear_silhouette.png'
+00:10.737  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/rear_1/rear_silhouette.png'
+00:12.873  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/rear_1/rear_silhouette.png'
+00:15.019  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/rear_1/rear_silhouette.png'
+00:17.502  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-12/spec/art_identity/maquettes/gloam_stalker/proof/feedback1/native/capture_jobs/rear_1/rear_silhouette.png'
+MQ12_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=rear; solos=['fore_near', 'claw_near', 'upper_far', 'fore_far', 'claw_far']
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit

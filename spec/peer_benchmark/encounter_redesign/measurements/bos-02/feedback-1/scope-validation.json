@@ -1,0 +1,22 @@
+{
+  "approved_ladders_only": true,
+  "normal_helper_entries_unchanged": true,
+  "iskaldra_unchanged": true,
+  "battlefield_instances_and_panel_sentences_unchanged": true,
+  "nine_grimoire_bodies_verbatim": true,
+  "other_grimoire_values_unchanged": true,
+  "meteorfall_card_paragraphs_unchanged": true,
+  "matched_new_fights": 800,
+  "matched_rungs": 16,
+  "iskaldra_accepted_cohort_reused": 50,
+  "selected_rungs": {
+    "tharokh": 3,
+    "vyraketh": 4,
+    "vaeloryx": 4,
+    "zekarion": 3,
+    "noctyrax": 2,
+    "iskaldra": 0
+  },
+  "selected_boss_definitions_match_final_source": true,
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+}

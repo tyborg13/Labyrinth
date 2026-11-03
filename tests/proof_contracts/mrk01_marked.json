@@ -1,0 +1,178 @@
+{
+  "min_images": 10,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*hoarfrost_seer_01_aim.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*hoarfrost_seer_02_marked.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*hoarfrost_seer_03_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*slag_mortar_01_aim.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*slag_mortar_02_marked.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*slag_mortar_03_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*burrow_grub_01_aim.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*burrow_grub_02_marked.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*burrow_grub_03_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*marked_grimoire.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    }
+  ]
+}

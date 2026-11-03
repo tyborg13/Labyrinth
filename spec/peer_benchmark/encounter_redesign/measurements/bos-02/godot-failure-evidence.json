@@ -1,0 +1,44 @@
+[
+  {
+    "name": "threats_at_rest_test",
+    "returncode": 1,
+    "log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793197437860845000-77583/Library/Application Support/Escape the Umbra Parallel bos-02-1793197437860845000-77583/program-suites.logs/11-threats_at_rest_test.log",
+    "evidence": [
+      "THREATS AT REST TEST RESULT: FAIL (1 failures / 17269 assertions)",
+      "       [0] _initialize (res://tests/threats_at_rest_test.gd:35)",
+      "       [1] _test_live_stage (res://tests/threats_at_rest_test.gd:220)"
+    ]
+  },
+  {
+    "name": "board_surface_presentation_test",
+    "returncode": 1,
+    "log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793197437860845000-77583/Library/Application Support/Escape the Umbra Parallel bos-02-1793197437860845000-77583/program-suites.logs/56-board_surface_presentation_test.log",
+    "evidence": [
+      "SCRIPT ERROR: Assertion failed: Unresolved sequence spends a one-shot attack bonus once",
+      "          at: _test_action_step_damage (res://tests/board_surface_presentation_test.gd:199)",
+      "          GDScript backtrace (most recent call first):"
+    ]
+  },
+  {
+    "name": "card_display_performance_test",
+    "returncode": 1,
+    "log_path": "/private/tmp/labyrinth-godot-home/bos-02-1793197437860845000-77583/Library/Application Support/Escape the Umbra Parallel bos-02-1793197437860845000-77583/program-suites.logs/61-card_display_performance_test.log",
+    "evidence": [
+      "ERROR: Unchanged-text refresh stays below 2 ms: count=20 layout=unique case=visible_health_unchanged_text",
+      "   at: push_error (core/variant/variant_utility.cpp:1024)",
+      "   GDScript backtrace (most recent call first):",
+      "ERROR: Unchanged-text refresh stays below 2 ms: count=60 layout=duplicate case=visible_bleed_unchanged_text",
+      "CARD DISPLAY CACHE PERFORMANCE RESULT: FAIL (4 failures)",
+      "   at: push_error (core/variant/variant_utility.cpp:1024)",
+      "CARD DISPLAY CACHE PERFORMANCE RESULT: FAIL (4 failures)",
+      "   at: push_error (core/variant/variant_utility.cpp:1024)",
+      "   GDScript backtrace (most recent call first):",
+      "ERROR: Unchanged-text refresh stays below 2 ms: count=60 layout=unique case=visible_health_unchanged_text",
+      "   at: push_error (core/variant/variant_utility.cpp:1024)",
+      "   GDScript backtrace (most recent call first):",
+      "ERROR: Unchanged-text refresh stays below 2 ms: count=60 layout=unique case=visible_bleed_unchanged_text",
+      "   at: push_error (core/variant/variant_utility.cpp:1024)",
+      "   GDScript backtrace (most recent call first):"
+    ]
+  }
+]

@@ -1,0 +1,21 @@
+extends SceneTree
+
+const Fixture = preload("res://tests/suites/en03_enemies_suite.gd")
+const Combat = preload("res://scripts/combat_engine.gd")
+const Stalker = preload("res://scripts/enemy_mechanics/stalker.gd")
+const FIXTURE_ACTOR_POS: Vector2i = Vector2i(2, 2)
+const FIXTURE_HERO_POS: Vector2i = Vector2i(6, 6)
+const FIXTURE_ACTOR_ID: int = 1
+
+func _initialize() -> void:
+	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	var engine := Combat.new()
+	var actor: Dictionary = Fixture.enemy("gloam_stalker", FIXTURE_ACTOR_ID, FIXTURE_ACTOR_POS, "ambush")
+	var before: Dictionary = Fixture.state([actor], FIXTURE_HERO_POS)
+	var action: Dictionary = Fixture.action(before)
+	var context: Dictionary = {"blink_state": before, "blink_from": FIXTURE_ACTOR_POS, "blink_to": FIXTURE_ACTOR_POS}
+	var step: Dictionary = Stalker.animation_step(engine, before, before, 0, action, context)
+	var strike: Dictionary = step.get("strike_step", {})
+	var observed: bool = step.has("actor_key") and strike.has("enemy_after") and not strike.has("actor_key")
+	print("QA23 NO-EFFECT AMBUSH PAYLOAD: %s; outer actor_key=%s; nested keys=%s" % ["DEFECT OBSERVED" if observed else "NOT OBSERVED", step.get("actor_key"), str(strike.keys())])
+	quit(0 if observed else 1)

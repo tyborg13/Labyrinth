@@ -1,0 +1,242 @@
+{
+  "pose_numerics": {
+    "size_px": 1024,
+    "epsilon": 1e-10,
+    "revision": 1
+  },
+  "seating_numerics": {
+    "epsilon": 1e-10
+  },
+  "ground_numerics": {
+    "skinning_error_max_m": 0.0001
+  },
+  "bridge": {
+    "job_timeout_s": 110,
+    "answer_timeout_s": 120
+  },
+  "proof_only": {
+    "panel_size": 1024,
+    "joint_radius_px": 4,
+    "joint_colour": "cyan",
+    "background": "black",
+    "caption_colour": "white",
+    "caption_position": [
+      12,
+      12
+    ],
+    "joint_tolerance_m": 0.0001,
+    "webp_method": 6,
+    "caption_font": "Pillow default"
+  },
+  "pose_test_fixtures": {
+    "tolerance": 1e-09,
+    "unreachable": [
+      100,
+      100,
+      100
+    ],
+    "weight_points": [
+      [
+        0,
+        0,
+        -1
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0.5
+      ],
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        2
+      ]
+    ],
+    "slice_triangle": [
+      [
+        -1,
+        0,
+        -1
+      ],
+      [
+        1,
+        0,
+        -1
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "floor_strip_x": [
+      0,
+      1,
+      1.5,
+      2,
+      3
+    ],
+    "floor_strip_z": [
+      0,
+      0,
+      -0.5,
+      -1,
+      -1
+    ],
+    "limb_fixture": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        2
+      ]
+    ],
+    "fixture_facing": [
+      1,
+      0,
+      0
+    ],
+    "positive_clip": [
+      100,
+      200,
+      100,
+      150,
+      250
+    ],
+    "negative_clip": [
+      100,
+      200,
+      -100,
+      50,
+      150
+    ],
+    "impossible_clip": [
+      100,
+      200,
+      0,
+      150,
+      250
+    ],
+    "support_normal": [
+      -1,
+      0,
+      0
+    ],
+    "support_lateral": [
+      0,
+      -1,
+      0
+    ],
+    "thin_plate": [
+      [
+        -2,
+        -1,
+        -0.1
+      ],
+      [
+        2,
+        -1,
+        -0.1
+      ],
+      [
+        2,
+        1,
+        -0.1
+      ],
+      [
+        -2,
+        1,
+        -0.1
+      ],
+      [
+        -2,
+        -1,
+        0.1
+      ],
+      [
+        2,
+        -1,
+        0.1
+      ],
+      [
+        2,
+        1,
+        0.1
+      ],
+      [
+        -2,
+        1,
+        0.1
+      ]
+    ],
+    "plate_lateral": [
+      1,
+      0,
+      0
+    ],
+    "plate_exposed": [
+      0,
+      0,
+      1
+    ]
+  },
+  "delivery_test_fixtures": {
+    "mutation_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "pose_fixture": {
+      "synthetic_fixture": true
+    },
+    "rear_hood_projection_px": 122.31101044510253
+  },
+  "native_binding_probe": {
+    "vertex_delta_m": 0.001
+  },
+  "saved_body_test_fixtures": {
+    "vertices": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ]
+    ],
+    "faces": [
+      [
+        0,
+        1,
+        2
+      ]
+    ],
+    "vertex_delta_m": 0.001,
+    "blend_bytes": "synthetic saved body",
+    "changed_blend_bytes": "changed synthetic saved body",
+    "mutation_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

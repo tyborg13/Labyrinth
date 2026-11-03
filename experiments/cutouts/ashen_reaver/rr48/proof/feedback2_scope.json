@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "checks": {
+    "spec/art_identity/registry.json": "all non-Reaver entries byte-equivalent as JSON",
+    "spec/assets/board_pixel_density/registry.json": "all non-Reaver entries byte-equivalent as JSON",
+    "spec/assets/board_pixel_density/outputs.json": "all non-Reaver entries byte-equivalent as JSON",
+    "baseline/round0": 187,
+    "baseline/round1": 226,
+    "protected_director_inputs": 9
+  },
+  "earlier_unit_asset_changes": [],
+  "native_pixels": false
+}

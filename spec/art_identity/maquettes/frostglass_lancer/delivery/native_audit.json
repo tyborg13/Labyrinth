@@ -1,0 +1,75 @@
+{
+  "passed": true,
+  "checks": {
+    "current_spec": true,
+    "native_geometry": true,
+    "both_feet_planted": true,
+    "spear_planted": true,
+    "spear_at_grip": true,
+    "native_endpoints": true,
+    "material_mutation_caught": true,
+    "features_in_required_views": true
+  },
+  "spec_hash": "7762a280781b2330bb691b9bd065920fb2188943445a594ec9648ab7ec1124bd",
+  "native_mesh_hash": "c2d90282955c8cfaddd2e1b5d38256c8749ab564c9981c690c16327b07cf2fc4",
+  "foot_min_z_m": {
+    "near": 0.031236140057444572,
+    "far": 0.029006820172071457
+  },
+  "spear_min_z_m": 0.0290067195892334,
+  "grip_error_m": 1.2412670766236366e-16,
+  "joint_errors_m": {
+    "pelvis": 1.228781230931777e-07,
+    "torso": 1.0745380149674383e-07,
+    "head": 1.2013700229374393e-07,
+    "shoulder_near": 2.6718878702647625e-08,
+    "elbow_near": 2.460542961895373e-07,
+    "hand_near": 1.2111849187716082e-07,
+    "hip_near": 6.3735449436008624e-06,
+    "knee_near": 5.932926849013106e-07,
+    "ankle_near": 2.5386698599756987e-07,
+    "shoulder_far": 1.7881393432617188e-07,
+    "elbow_far": 1.1920928955078125e-07,
+    "hand_far": 0.0,
+    "hip_far": 5.584815266829271e-06,
+    "knee_far": 7.171159634301642e-07,
+    "ankle_far": 1.802055034406159e-07
+  },
+  "features": {
+    "cyan_cross_visor": {
+      "visible_native_face_samples": {
+        "front": 260,
+        "rear": 0
+      },
+      "expected_views": [
+        "front"
+      ],
+      "passed": true
+    },
+    "chest_crystal": {
+      "visible_native_face_samples": {
+        "front": 8,
+        "rear": 0
+      },
+      "expected_views": [
+        "front"
+      ],
+      "passed": true
+    },
+    "crystal_spearhead": {
+      "visible_native_face_samples": {
+        "front": 45,
+        "rear": 46
+      },
+      "expected_views": [
+        "front",
+        "rear"
+      ],
+      "passed": true
+    }
+  },
+  "defaults": {
+    "contact_tolerance_m": 0.02,
+    "endpoint_tolerance_m": 0.0001
+  }
+}

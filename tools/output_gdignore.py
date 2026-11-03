@@ -20,8 +20,10 @@ OUTPUT_REFERENCE = re.compile(r"res://" r"output/([^\s\"'`<>\\]*)")
 # Audited sinks: these constants feed mkdir, save_png or FileAccess.WRITE only.
 # Match source AND literal; a reference added elsewhere stays importable.
 WRITE_ONLY_REFERENCES = {
-    ("tests/en03_enemies_probe.gd", "en03-enemies"),
-    ("tests/en06_enemies_probe.gd", "en06-enemies"),
+    # Generated perf reports/save round trips; never ResourceLoader assets.
+    ("tests/perf/combat_frame_scenarios.gd", "perf-03/before.json"),
+    ("tests/perf/quit_flush_fixture.gd", "perf-03/quit-flush"),
+    ("tests/perf/turn_order_retention_probe.gd", "perf-03/turn-order-proof"),
     ("tests/health_ghost_probe.gd", "feel-02/health_ghost"),
     ("tests/relic_u2_probe.gd", "relic-u2-probe"),
     ("tests/section_map_flow_probe.gd", "fix-01"),

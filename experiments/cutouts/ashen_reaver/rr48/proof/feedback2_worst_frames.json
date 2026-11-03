@@ -1,0 +1,105 @@
+{
+  "frames": [
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 0,
+      "phase": 0.0,
+      "round1_findings": 0
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 4,
+      "phase": 0.08,
+      "round1_findings": 16
+    },
+    {
+      "view": "front",
+      "clip": "rake",
+      "frame": 6,
+      "phase": 0.101694915254237,
+      "round1_findings": 18
+    },
+    {
+      "view": "front",
+      "clip": "sweep",
+      "frame": 11,
+      "phase": 0.196428571428571,
+      "round1_findings": 22
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "frame": 18,
+      "phase": 0.233766233766234,
+      "round1_findings": 17
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 3,
+      "phase": 0.103448275862069,
+      "round1_findings": 12
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 26,
+      "phase": 0.273684210526316,
+      "round1_findings": 16
+    },
+    {
+      "view": "rear",
+      "clip": "idle",
+      "frame": 0,
+      "phase": 0.0,
+      "round1_findings": 0
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "phase": 0.36,
+      "round1_findings": 22
+    },
+    {
+      "view": "rear",
+      "clip": "rake",
+      "frame": 53,
+      "phase": 0.898305084745763,
+      "round1_findings": 17
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "frame": 19,
+      "phase": 0.339285714285714,
+      "round1_findings": 20
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "frame": 24,
+      "phase": 0.311688311688312,
+      "round1_findings": 22
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 8,
+      "phase": 0.275862068965517,
+      "round1_findings": 15
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 44,
+      "phase": 0.463157894736842,
+      "round1_findings": 20
+    }
+  ],
+  "source_revision": "7b4198b20",
+  "tie_rule": "lowest frame index",
+  "native_pixels": false
+}

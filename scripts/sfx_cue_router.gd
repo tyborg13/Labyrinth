@@ -17,7 +17,7 @@ const ENEMY_ATTACK_FAMILIES: Dictionary = {
 	"last_lamplighter": "blunt", "ash_hound": "claw", "rime_whelp": "claw",
 	"rime_spitter": "claw", "bell_tender": "blunt", "roc_fledgling": "claw",
 	"stoneback_mite": "claw", "wick_shade": "claw",
-	"burrow_grub": "claw", "ember_tick": "claw", "hoarfrost_seer": "blunt",
+	"burrow_grub": "claw", "ember_tick": "claw", "ember_hoarder": "claw", "hoarfrost_seer": "blunt",
 	"gale_herald": "blunt", "arc_thrall": "blunt", "gloam_stalker": "blade",
 	"briar_weaver": "claw", "slag_mortar": "blunt", "glacial_mirror": "blunt",
 	"gust_shrike": "claw", "storm_capacitor": "blunt", "hollow_mimic": "blade",
@@ -33,7 +33,7 @@ const DEATH_FAMILIES: Dictionary = {
 	"last_lamplighter": "humanoid", "ash_hound": "beast", "rime_whelp": "beast",
 	"rime_spitter": "beast", "bell_tender": "humanoid", "roc_fledgling": "avian",
 	"stoneback_mite": "beast", "wick_shade": "spirit",
-	"burrow_grub": "beast", "ember_tick": "beast", "hoarfrost_seer": "humanoid",
+	"burrow_grub": "beast", "ember_tick": "beast", "ember_hoarder": "beast", "hoarfrost_seer": "humanoid",
 	"gale_herald": "humanoid", "arc_thrall": "humanoid", "gloam_stalker": "spirit",
 	"briar_weaver": "stone", "slag_mortar": "humanoid", "glacial_mirror": "stone",
 	"gust_shrike": "avian", "storm_capacitor": "stone", "hollow_mimic": "spirit",
@@ -49,6 +49,10 @@ const WEAPON_FAMILIES: Dictionary = {
 }
 const HEAVY_TYPES: Array[String] = ["warden", "craghide", "ashen_reaver", "rimejaw", "storm_cantor", "gallows_roc", "last_lamplighter", "tharokh", "vyraketh", "vaeloryx", "iskaldra", "noctyrax", "zekarion"]
 const EQUIPMENT_FAMILIES: Dictionary = {"phoenix_brand": "blade", "worldbreaker": "blunt", "dawnlight_censer": "blunt", "galewhip": "blade"}
+# A retort is a hit on the attacker in its own step, not a tick: it takes a contact, never the attacker's own attack family.
+const RETORT_FAMILIES: Dictionary = {"retaliate": "pierce", "illusion_retort": "arcane"}
+# A walk or a turn's start strikes nobody: health lost then is the burning ground's, never a hit.
+const GROUND_BURN_KINDS: Array[String] = ["move", "blink", "turn_start"]
 const AREA_GAIN_DB: float = -6.0
 const CHAIN_GAIN_DB: float = -5.0
 const BEAST_VOCAL_CHANCE: float = 0.30
@@ -79,6 +83,8 @@ var _relic_logs: Array = []
 var _relic_names: Array[String] = []
 var _collisions: Dictionary = {}
 var _merged_hits: Dictionary = {}
+var _surface_sequence: int = 0
+var _ground_burns: Dictionary = {}
 var _run_hp: int = -1
 var _trap_impact_pending: bool = false
 var _radiance_played: bool = false
@@ -134,6 +140,8 @@ func _map_node_entered(button: Node) -> void:
 	if bool(button.get("actionable")): map_hover()
 
 func attack_family(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> String:
+	var retort: String = str(action.get("action_type", ""))
+	if RETORT_FAMILIES.has(retort): return RETORT_FAMILIES[retort]
 	var kind: String = str(action.get("type", action.get("kind", "")))
 	if kind in ["push", "pull", "charge", "force_area"]: return "blunt"
 	if not actor.is_empty() and str(actor.get("type", "player")) != "player":
@@ -161,6 +169,12 @@ func begin_player_action(before: Dictionary, action: Dictionary, weapon: String 
 
 func begin_enemy_action(before: Dictionary, action: Dictionary, actor: Dictionary) -> void:
 	begin_action(before, action, actor)
+
+# A dragon roars as its fight opens. That is its first roar of the fight, so its
+# first action does not repeat it; big area attacks still roar.
+func dragon_arrival(actor_key: String) -> void:
+	_dragons[actor_key] = true
+	request("dragon.roar")
 
 func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, weapon: String = "") -> void:
 	_roar_pending = false
@@ -205,8 +219,8 @@ func _has_profiled_presentation(action: Dictionary) -> bool:
 	if Dragon.profile(action).is_empty() or bool(action.get("hidden_by_umbra", false)): return false
 	for key: String in ["en05_after", "en04_mechanic", "en02_mechanic", "guardian_board_after"]:
 		if action.has(key): return false
-	if bool(action.get("en03_veil", false)) or bool(action.get("en06_mirror", false)): return false
-	if str(action.get("action_type", "")) in ["chain_discharge", "tether_beam"]: return false
+	if bool(action.get("en03_veil", false)): return false
+	if str(action.get("action_type", "")) == "chain_discharge": return false
 	return str(action.get("kind", action.get("type", ""))) in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "umbra_eclipse", "summon", "block", "heal", "stoneskin", "status"]
 
 func wind_up(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> void:
@@ -240,6 +254,9 @@ func hit(action: Dictionary, actor: Dictionary, weapon: String, target_before: D
 	var merge_ms: int = int(bank.data.get("rules", {}).get("merge_window_ms", 60)) if bank != null else 60
 	if _merged_hits.has(key) and now - int(_merged_hits[key]) < merge_ms: return
 	_merged_hits[key] = now
+	if _ground_burns.has(key):
+		surface("fire")
+		return
 	var cue: String = impact_cue(action, actor, weapon, target_before, hp_loss, absorbed, _collisions.has(key))
 	var frame: int = bank.frame_id() if bank != null else Engine.get_process_frames()
 	# Collapse identical cues on one frame; a blocked and a damaging contact
@@ -308,6 +325,7 @@ func ambience(biome: String = "stone") -> void: request("ambience." + biome)
 
 func baseline(state: Dictionary) -> void:
 	_units = _unit_snapshot(state)
+	_surface_sequence = int(state.get("surface_event_sequence", 0))
 	_terrain = _indexed(state.get("terrain", []), "id")
 	_illusions = _indexed(state.get("illusions", []), "id")
 	_deck = (state.get("deck", {}) as Dictionary).duplicate(true)
@@ -354,6 +372,7 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 	var chain_hop: bool = int(effect.get("chain_index", 0)) > 0
 	if chain_hop: _impact_count = 0
 	var hit_action: Dictionary = effect if chain_hop else _action
+	_ground_burns = ground_fire_burns(state)
 	var next_units: Dictionary = _unit_snapshot(state)
 	for key: String in next_units:
 		var after: Dictionary = next_units[key]
@@ -363,7 +382,8 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 		if loss > 0 or absorbed > 0:
 			if str(_action.get("kind", "")) == "status_damage":
 				if str(_action.get("label", "")) == "Bleed": status("bleed")
-				elif str(_action.get("label", "")) == "Fire": request("spell.fire")
+				elif str(_action.get("label", "")) == "Fire": surface("fire") # The ground's own short flare, like Bleed's tick; never the 1.1 s spell impact.
+				elif RETORT_FAMILIES.has(str(_action.get("action_type", ""))): hit(_action, _actor, _weapon, before, after)
 			elif str(_action.get("kind", "")) != "fatigue" and not _trap_impact_pending: hit(hit_action, _actor, _weapon, before, after, CHAIN_GAIN_DB if chain_hop else 0.0)
 			if _trap_impact_pending and loss >= 5 and key == "player": request("hurt.hero")
 			if not _resolved:
@@ -403,6 +423,17 @@ func deck_transition(deck: Dictionary) -> void:
 	if (deck.get("burned", []) as Array).size() > (_deck.get("burned", []) as Array).size(): card_exhaust()
 	_deck = deck.duplicate(true)
 
+# Units that Fire burned in the current walk or turn start. An enemy step or a
+# turn start carries its own events; a hero walk presents the committed state.
+func ground_fire_burns(state: Dictionary) -> Dictionary:
+	var burned: Dictionary = {}
+	if str(_action.get("type", _action.get("kind", ""))) not in GROUND_BURN_KINDS: return burned
+	var own_events: bool = _action.has("surface_events")
+	for event: Dictionary in (_action.get("surface_events", []) if own_events else state.get("surface_events", [])):
+		if str(event.get("kind", "")) == "surface_damage" and str(event.get("surface", "")) == "fire" and (own_events or int(event.get("sequence", 0)) > _surface_sequence):
+			burned["player" if str(event.get("actor_kind", "")) == "player" else "enemy:%s" % event.get("id", -1)] = true
+	return burned
+
 func outcomes(events: Array) -> void:
 	var seen: Dictionary = {}
 	for event: Dictionary in events:
@@ -430,13 +461,13 @@ func run_context(state: Dictionary) -> void:
 		_deaths.clear()
 		baseline(state.get("combat_state", {}))
 	var hp: int = int(state.get("player_hp", -1))
-	if _run_hp >= 0 and hp > _run_hp and str(state.get("mode", "")) != "combat": heal()
+	if _run_hp >= 0 and hp > _run_hp and str(state.get("mode", "")) not in ["combat", "event"]: heal()
 	_run_hp = hp
 	var next_ids: Dictionary = {}
 	for entry: Dictionary in Omens.active(state):
 		var id: String = str(entry.get("id", ""))
 		next_ids[id] = true
-		if _run_baselined and not _omen_ids.has(id): omen(str(entry.get("kind", "blessing")))
+		if _run_baselined and not _omen_ids.has(id) and str(state.get("mode", "")) != "event": omen(str(entry.get("kind", "blessing")))
 	_omen_ids = next_ids
 	_run_baselined = true
 

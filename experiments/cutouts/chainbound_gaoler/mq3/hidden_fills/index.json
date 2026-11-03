@@ -17,7 +17,7 @@
     "diffusion_max_iterations": 4096,
     "diffusion_residual_tolerance": 1e-06
   },
-  "implementation_sha256": "a7a2f878309a7a6d1186af5113a027a19249e31e44d678a5fe7ae6782793e27e",
+  "implementation_sha256": "666f85561163ab26d7ace840b69d683d6438930e363855cd7273ebbecbd03ad9",
   "recipe_sha256": "d0199e6a697b8b9e743207c6480452acf3ed7b5f64505ad3021b135e6ece399d",
   "protected_inputs": {
     "hidden_requests/contact_sheet.png": "a5ef3a28e220abeacf228fa8d53c03276bdfbf88d7656039f2bf6b8a9f2d734f",

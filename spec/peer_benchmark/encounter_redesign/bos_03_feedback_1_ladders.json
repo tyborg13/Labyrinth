@@ -1,0 +1,124 @@
+{
+  "last_lamplighter": [
+    {
+      "label": "Last Procession melee 8 → 6",
+      "intents": {
+        "last_procession": {
+          "melee": {
+            "damage": 6
+          }
+        }
+      }
+    },
+    {
+      "label": "Lamplighter HP 44 → 36",
+      "fields": {
+        "max_hp": 36
+      }
+    },
+    {
+      "label": "Snuff cap 2 → 1",
+      "intents": {
+        "snuff": {
+          "summon_minions": {
+            "guardian_cap": 1
+          }
+        }
+      }
+    },
+    {
+      "label": "Mourning Hook damage 4 → 3",
+      "intents": {
+        "mourning_hook": {
+          "ranged": {
+            "damage": 3
+          }
+        }
+      }
+    },
+    {
+      "label": "Guardian Wick Shade Grasp / Hooking Grasp melee 2 → 1",
+      "helper_fields": {
+        "wick_shade": {
+          "guardian_intent_action_overrides": {
+            "grasp": {
+              "melee": {
+                "damage": 1
+              }
+            },
+            "drift": {
+              "melee": {
+                "damage": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "storm_cantor": [
+    {
+      "label": "Cantor HP 38 → 46",
+      "fields": {
+        "max_hp": 46
+      }
+    },
+    {
+      "label": "Broken Rhythm melee 5 → 7",
+      "intents": {
+        "broken_rhythm": {
+          "melee": {
+            "damage": 7
+          }
+        }
+      }
+    },
+    {
+      "label": "Call the Spark cap 1 → 2",
+      "intents": {
+        "call_the_spark": {
+          "summon_minions": {
+            "guardian_cap": 2
+          }
+        }
+      }
+    },
+    {
+      "label": "Lightning Storm damage 3 → 4",
+      "rule": {
+        "dials": {
+          "damage": 4
+        },
+        "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 4, with Chain 2."
+      }
+    }
+  ],
+  "rimejaw": [
+    {
+      "label": "Harrowing Pounce melee 7 → 6",
+      "intents": {
+        "harrowing_pounce": {
+          "melee": {
+            "damage": 6
+          }
+        }
+      }
+    },
+    {
+      "label": "Rimejaw HP 38 → 34",
+      "fields": {
+        "max_hp": 34
+      }
+    },
+    {
+      "label": "Rime Bite melee 6 → 5",
+      "intents": {
+        "frostbite": {
+          "melee": {
+            "damage": 5
+          }
+        }
+      }
+    }
+  ]
+}

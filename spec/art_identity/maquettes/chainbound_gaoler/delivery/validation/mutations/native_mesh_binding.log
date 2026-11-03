@@ -1,0 +1,14 @@
+test_changed_native_mesh_with_old_copied_hash_is_rejected (tests.test_mq15_native_geometry.NativeGeometryTests) ... FAIL
+
+======================================================================
+FAIL: test_changed_native_mesh_with_old_copied_hash_is_rejected (tests.test_mq15_native_geometry.NativeGeometryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_native_geometry.py", line 73, in test_changed_native_mesh_with_old_copied_hash_is_rejected
+    self.assertFalse(after['passed']);self.assertNotEqual(after['native_mesh_hash'],report['combined_mesh_hash'])
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

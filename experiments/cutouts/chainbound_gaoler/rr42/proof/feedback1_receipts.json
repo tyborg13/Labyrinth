@@ -1,0 +1,1470 @@
+{
+  "native_pixels": false,
+  "painted_exposure": true,
+  "frames": 892,
+  "findings": 0,
+  "sweep_sha256": "0e882bda08281fa741c0d0ef6c50ae336aceca0a3e6c1e1f8177254c5c232ebe",
+  "headless_ok": true,
+  "native_acceptance": "pending director windowed proof",
+  "fragment_decisions": [
+    {
+      "view": "front",
+      "source": "torso",
+      "target": null,
+      "decision": "clear",
+      "reason": "isolated speck under 6 px",
+      "source_pixels": 4,
+      "bbox": [
+        112,
+        115,
+        114,
+        119
+      ],
+      "contacts": {
+        "pelvis": 5
+      },
+      "texels": [
+        [
+          113,
+          115
+        ],
+        [
+          113,
+          116
+        ],
+        [
+          112,
+          117
+        ],
+        [
+          112,
+          118
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "source": "torso",
+      "target": null,
+      "decision": "clear",
+      "reason": "isolated speck under 6 px",
+      "source_pixels": 1,
+      "bbox": [
+        107,
+        97,
+        108,
+        98
+      ],
+      "contacts": {
+        "arm_far": 2
+      },
+      "texels": [
+        [
+          107,
+          97
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "source": "pelvis",
+      "target": "tabard",
+      "decision": "re-own",
+      "reason": "largest shared rest boundary",
+      "source_pixels": 14,
+      "bbox": [
+        149,
+        155,
+        151,
+        165
+      ],
+      "contacts": {
+        "tabard": 13,
+        "leg_near": 10
+      },
+      "texels": [
+        [
+          150,
+          155
+        ],
+        [
+          150,
+          156
+        ],
+        [
+          150,
+          157
+        ],
+        [
+          150,
+          158
+        ],
+        [
+          150,
+          159
+        ],
+        [
+          150,
+          160
+        ],
+        [
+          149,
+          161
+        ],
+        [
+          150,
+          161
+        ],
+        [
+          149,
+          162
+        ],
+        [
+          150,
+          162
+        ],
+        [
+          149,
+          163
+        ],
+        [
+          150,
+          163
+        ],
+        [
+          149,
+          164
+        ],
+        [
+          150,
+          164
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "source": "arm_near",
+      "target": "torso",
+      "decision": "re-own",
+      "reason": "largest shared rest boundary",
+      "source_pixels": 6,
+      "bbox": [
+        176,
+        79,
+        180,
+        84
+      ],
+      "contacts": {
+        "torso": 7
+      },
+      "texels": [
+        [
+          176,
+          79
+        ],
+        [
+          176,
+          80
+        ],
+        [
+          177,
+          80
+        ],
+        [
+          177,
+          81
+        ],
+        [
+          178,
+          82
+        ],
+        [
+          179,
+          83
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "source": "leg_far",
+      "target": "coat_far",
+      "decision": "re-own",
+      "reason": "touching coat",
+      "source_pixels": 37,
+      "bbox": [
+        112,
+        168,
+        116,
+        187
+      ],
+      "contacts": {
+        "tabard": 20,
+        "coat_far": 10
+      },
+      "texels": [
+        [
+          115,
+          168
+        ],
+        [
+          115,
+          169
+        ],
+        [
+          115,
+          170
+        ],
+        [
+          115,
+          171
+        ],
+        [
+          115,
+          172
+        ],
+        [
+          115,
+          173
+        ],
+        [
+          115,
+          174
+        ],
+        [
+          115,
+          175
+        ],
+        [
+          113,
+          176
+        ],
+        [
+          114,
+          176
+        ],
+        [
+          115,
+          176
+        ],
+        [
+          112,
+          177
+        ],
+        [
+          113,
+          177
+        ],
+        [
+          114,
+          177
+        ],
+        [
+          112,
+          178
+        ],
+        [
+          113,
+          178
+        ],
+        [
+          114,
+          178
+        ],
+        [
+          112,
+          179
+        ],
+        [
+          113,
+          179
+        ],
+        [
+          114,
+          179
+        ],
+        [
+          112,
+          180
+        ],
+        [
+          113,
+          180
+        ],
+        [
+          114,
+          180
+        ],
+        [
+          112,
+          181
+        ],
+        [
+          113,
+          181
+        ],
+        [
+          114,
+          181
+        ],
+        [
+          112,
+          182
+        ],
+        [
+          113,
+          182
+        ],
+        [
+          114,
+          182
+        ],
+        [
+          112,
+          183
+        ],
+        [
+          113,
+          183
+        ],
+        [
+          114,
+          183
+        ],
+        [
+          113,
+          184
+        ],
+        [
+          114,
+          184
+        ],
+        [
+          113,
+          185
+        ],
+        [
+          114,
+          185
+        ],
+        [
+          114,
+          186
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "source": "leg_far",
+      "target": "coat_far",
+      "decision": "re-own",
+      "reason": "touching coat",
+      "source_pixels": 6,
+      "bbox": [
+        116,
+        160,
+        117,
+        166
+      ],
+      "contacts": {
+        "tabard": 7,
+        "coat_far": 7
+      },
+      "texels": [
+        [
+          116,
+          160
+        ],
+        [
+          116,
+          161
+        ],
+        [
+          116,
+          162
+        ],
+        [
+          116,
+          163
+        ],
+        [
+          116,
+          164
+        ],
+        [
+          116,
+          165
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "source": "leg_far",
+      "target": null,
+      "decision": "clear",
+      "reason": "isolated speck under 6 px",
+      "source_pixels": 1,
+      "bbox": [
+        114,
+        135,
+        115,
+        136
+      ],
+      "contacts": {
+        "pelvis": 2,
+        "coat_far": 1
+      },
+      "texels": [
+        [
+          114,
+          135
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "source": "foot_far",
+      "target": null,
+      "decision": "clear",
+      "reason": "isolated speck under 6 px",
+      "source_pixels": 1,
+      "bbox": [
+        145,
+        204,
+        146,
+        205
+      ],
+      "contacts": {
+        "tabard": 2
+      },
+      "texels": [
+        [
+          145,
+          204
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "source": "foot_far",
+      "target": null,
+      "decision": "clear",
+      "reason": "isolated speck under 6 px",
+      "source_pixels": 1,
+      "bbox": [
+        143,
+        205,
+        144,
+        206
+      ],
+      "contacts": {
+        "tabard": 1
+      },
+      "texels": [
+        [
+          143,
+          205
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "torso",
+      "target": "pelvis",
+      "decision": "re-own",
+      "reason": "largest shared rest boundary",
+      "source_pixels": 6,
+      "bbox": [
+        140,
+        128,
+        144,
+        133
+      ],
+      "contacts": {
+        "pelvis": 6,
+        "arm_far": 4
+      },
+      "texels": [
+        [
+          140,
+          128
+        ],
+        [
+          141,
+          129
+        ],
+        [
+          141,
+          130
+        ],
+        [
+          143,
+          130
+        ],
+        [
+          142,
+          131
+        ],
+        [
+          142,
+          132
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "pelvis",
+      "target": "coat_near",
+      "decision": "re-own",
+      "reason": "touching coat",
+      "source_pixels": 45,
+      "bbox": [
+        63,
+        126,
+        72,
+        136
+      ],
+      "contacts": {
+        "torso": 6,
+        "coat_near": 10
+      },
+      "texels": [
+        [
+          67,
+          126
+        ],
+        [
+          67,
+          127
+        ],
+        [
+          67,
+          128
+        ],
+        [
+          68,
+          128
+        ],
+        [
+          67,
+          129
+        ],
+        [
+          68,
+          129
+        ],
+        [
+          65,
+          130
+        ],
+        [
+          66,
+          130
+        ],
+        [
+          67,
+          130
+        ],
+        [
+          68,
+          130
+        ],
+        [
+          69,
+          130
+        ],
+        [
+          65,
+          131
+        ],
+        [
+          66,
+          131
+        ],
+        [
+          67,
+          131
+        ],
+        [
+          68,
+          131
+        ],
+        [
+          69,
+          131
+        ],
+        [
+          70,
+          131
+        ],
+        [
+          65,
+          132
+        ],
+        [
+          66,
+          132
+        ],
+        [
+          67,
+          132
+        ],
+        [
+          68,
+          132
+        ],
+        [
+          69,
+          132
+        ],
+        [
+          70,
+          132
+        ],
+        [
+          71,
+          132
+        ],
+        [
+          63,
+          133
+        ],
+        [
+          64,
+          133
+        ],
+        [
+          65,
+          133
+        ],
+        [
+          66,
+          133
+        ],
+        [
+          67,
+          133
+        ],
+        [
+          68,
+          133
+        ],
+        [
+          69,
+          133
+        ],
+        [
+          70,
+          133
+        ],
+        [
+          63,
+          134
+        ],
+        [
+          64,
+          134
+        ],
+        [
+          65,
+          134
+        ],
+        [
+          66,
+          134
+        ],
+        [
+          67,
+          134
+        ],
+        [
+          68,
+          134
+        ],
+        [
+          69,
+          134
+        ],
+        [
+          63,
+          135
+        ],
+        [
+          64,
+          135
+        ],
+        [
+          65,
+          135
+        ],
+        [
+          66,
+          135
+        ],
+        [
+          67,
+          135
+        ],
+        [
+          68,
+          135
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "coat_near",
+      "target": null,
+      "decision": "clear",
+      "reason": "isolated speck under 6 px",
+      "source_pixels": 3,
+      "bbox": [
+        74,
+        182,
+        75,
+        185
+      ],
+      "contacts": {
+        "leg_near": 4
+      },
+      "texels": [
+        [
+          74,
+          182
+        ],
+        [
+          74,
+          183
+        ],
+        [
+          74,
+          184
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "coat_near",
+      "target": null,
+      "decision": "clear",
+      "reason": "isolated speck under 6 px",
+      "source_pixels": 1,
+      "bbox": [
+        75,
+        179,
+        76,
+        180
+      ],
+      "contacts": {
+        "leg_near": 2
+      },
+      "texels": [
+        [
+          75,
+          179
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "foot_near",
+      "target": "leg_near",
+      "decision": "re-own",
+      "reason": "largest shared rest boundary",
+      "source_pixels": 7,
+      "bbox": [
+        72,
+        186,
+        74,
+        190
+      ],
+      "contacts": {
+        "leg_near": 4
+      },
+      "texels": [
+        [
+          72,
+          186
+        ],
+        [
+          73,
+          186
+        ],
+        [
+          72,
+          187
+        ],
+        [
+          73,
+          187
+        ],
+        [
+          72,
+          188
+        ],
+        [
+          73,
+          188
+        ],
+        [
+          72,
+          189
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "coat_far",
+      "target": "foot_near",
+      "decision": "re-own",
+      "reason": "touching foot",
+      "source_pixels": 53,
+      "bbox": [
+        102,
+        204,
+        107,
+        221
+      ],
+      "contacts": {
+        "leg_near": 2,
+        "foot_near": 15
+      },
+      "texels": [
+        [
+          102,
+          204
+        ],
+        [
+          103,
+          204
+        ],
+        [
+          102,
+          205
+        ],
+        [
+          103,
+          205
+        ],
+        [
+          102,
+          206
+        ],
+        [
+          103,
+          206
+        ],
+        [
+          104,
+          206
+        ],
+        [
+          105,
+          206
+        ],
+        [
+          102,
+          207
+        ],
+        [
+          103,
+          207
+        ],
+        [
+          104,
+          207
+        ],
+        [
+          105,
+          207
+        ],
+        [
+          103,
+          208
+        ],
+        [
+          104,
+          208
+        ],
+        [
+          105,
+          208
+        ],
+        [
+          106,
+          208
+        ],
+        [
+          103,
+          209
+        ],
+        [
+          104,
+          209
+        ],
+        [
+          105,
+          209
+        ],
+        [
+          106,
+          209
+        ],
+        [
+          104,
+          210
+        ],
+        [
+          105,
+          210
+        ],
+        [
+          106,
+          210
+        ],
+        [
+          105,
+          211
+        ],
+        [
+          106,
+          211
+        ],
+        [
+          104,
+          212
+        ],
+        [
+          105,
+          212
+        ],
+        [
+          106,
+          212
+        ],
+        [
+          103,
+          213
+        ],
+        [
+          104,
+          213
+        ],
+        [
+          105,
+          213
+        ],
+        [
+          106,
+          213
+        ],
+        [
+          103,
+          214
+        ],
+        [
+          104,
+          214
+        ],
+        [
+          105,
+          214
+        ],
+        [
+          106,
+          214
+        ],
+        [
+          103,
+          215
+        ],
+        [
+          104,
+          215
+        ],
+        [
+          105,
+          215
+        ],
+        [
+          106,
+          215
+        ],
+        [
+          103,
+          216
+        ],
+        [
+          104,
+          216
+        ],
+        [
+          105,
+          216
+        ],
+        [
+          106,
+          216
+        ],
+        [
+          102,
+          217
+        ],
+        [
+          103,
+          217
+        ],
+        [
+          104,
+          217
+        ],
+        [
+          105,
+          217
+        ],
+        [
+          103,
+          218
+        ],
+        [
+          104,
+          218
+        ],
+        [
+          105,
+          218
+        ],
+        [
+          103,
+          219
+        ],
+        [
+          103,
+          220
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "coat_far",
+      "target": "leg_near",
+      "decision": "re-own",
+      "reason": "largest shared rest boundary",
+      "source_pixels": 8,
+      "bbox": [
+        107,
+        176,
+        109,
+        180
+      ],
+      "contacts": {
+        "leg_near": 4
+      },
+      "texels": [
+        [
+          107,
+          176
+        ],
+        [
+          108,
+          176
+        ],
+        [
+          107,
+          177
+        ],
+        [
+          108,
+          177
+        ],
+        [
+          107,
+          178
+        ],
+        [
+          108,
+          178
+        ],
+        [
+          107,
+          179
+        ],
+        [
+          108,
+          179
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "coat_far",
+      "target": null,
+      "decision": "clear",
+      "reason": "isolated speck under 6 px",
+      "source_pixels": 4,
+      "bbox": [
+        106,
+        184,
+        107,
+        188
+      ],
+      "contacts": {
+        "leg_near": 5
+      },
+      "texels": [
+        [
+          106,
+          184
+        ],
+        [
+          106,
+          185
+        ],
+        [
+          106,
+          186
+        ],
+        [
+          106,
+          187
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "leg_far",
+      "target": "foot_far",
+      "decision": "re-own",
+      "reason": "touching foot",
+      "source_pixels": 18,
+      "bbox": [
+        143,
+        213,
+        148,
+        220
+      ],
+      "contacts": {
+        "coat_far": 4,
+        "foot_far": 6
+      },
+      "texels": [
+        [
+          143,
+          213
+        ],
+        [
+          144,
+          213
+        ],
+        [
+          143,
+          214
+        ],
+        [
+          144,
+          214
+        ],
+        [
+          145,
+          214
+        ],
+        [
+          146,
+          214
+        ],
+        [
+          143,
+          215
+        ],
+        [
+          144,
+          215
+        ],
+        [
+          145,
+          215
+        ],
+        [
+          146,
+          215
+        ],
+        [
+          144,
+          216
+        ],
+        [
+          145,
+          216
+        ],
+        [
+          146,
+          216
+        ],
+        [
+          145,
+          217
+        ],
+        [
+          146,
+          217
+        ],
+        [
+          146,
+          218
+        ],
+        [
+          147,
+          218
+        ],
+        [
+          147,
+          219
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "leg_far",
+      "target": null,
+      "decision": "clear",
+      "reason": "isolated speck under 6 px",
+      "source_pixels": 4,
+      "bbox": [
+        141,
+        138,
+        143,
+        141
+      ],
+      "contacts": {
+        "pelvis": 5
+      },
+      "texels": [
+        [
+          142,
+          138
+        ],
+        [
+          141,
+          139
+        ],
+        [
+          142,
+          139
+        ],
+        [
+          141,
+          140
+        ]
+      ]
+    },
+    {
+      "view": "rear",
+      "source": "foot_far",
+      "target": null,
+      "decision": "clear",
+      "reason": "isolated presented speck under 6 px",
+      "source_pixels": 1,
+      "texels": [
+        [
+          115,
+          221
+        ]
+      ],
+      "witness": [
+        "reel",
+        54
+      ],
+      "presented_pixels": 1
+    }
+  ],
+  "motion_clamps": [
+    {
+      "clip": "death",
+      "source": "coat_near_tip.lift_px",
+      "peak": 2.5,
+      "director_peak": 4,
+      "search_step": 0.25,
+      "receipt": "proof/feedback1_death_coat_near_tip_lift_px_search.json",
+      "search_receipt_sha256": "b8482f97544081c2aac4c6773f030cb3a08ab3f24fcfe5a33b216f255d2b5d0b"
+    },
+    {
+      "clip": "pin",
+      "source": "chain.angle_deg",
+      "peak": 30.5,
+      "director_peak": 55,
+      "search_step": 0.25,
+      "receipt": "proof/feedback1_pin_chain_angle_deg_search.json",
+      "search_receipt_sha256": "121ab64bf221ab9e0dc11e6a93181ef3f7192da9ed5b92f18785ff3c9cc01eb4"
+    },
+    {
+      "clip": "reel",
+      "source": "chain.angle_deg",
+      "peak": 38.25,
+      "director_peak": 75,
+      "search_step": 0.25,
+      "receipt": "proof/feedback1_reel_chain_angle_deg_search.json",
+      "search_receipt_sha256": "8e78a8313f2502b65ca7d6aab5597202d53637e3743677425d099eeeb7451d38"
+    }
+  ],
+  "repair_receipt": "experiments/cutouts/chainbound_gaoler/rr42_feedback1_repairs.json",
+  "repair_sha256": "0576a4c5fe5a3f0287e4ba964473481214d04974418f08a97d4d95871bffe34b",
+  "repair_texels": 188,
+  "repair_decisions": {
+    "clear": 116,
+    "paint": 72
+  },
+  "chosen_defaults": {
+    "SHARD_FRAMES": 4,
+    "SHARD_WORKERS": 2,
+    "SHARD_TIMEOUT_SECONDS": 180,
+    "CROP_CONTEXT_PX": 12,
+    "CROP_ZOOM": 4,
+    "CHANNEL_SEARCH_STEP": 0.25,
+    "BATCH_TIMEOUT_SECONDS": 300,
+    "triangle_batch_size": 128
+  },
+  "logs": {
+    "build": {
+      "file": "proof/logs/feedback1_final/build.log",
+      "sha256": "ebf332830ef2b9ad572f6a36dd05b85912b7eed350f3f25a607295b43e1e3fa5",
+      "result_lines": [
+        "RR42 PARTITION BUILD: PASS (protected paint; retired generated coat/boot islands; native proof pending)"
+      ]
+    },
+    "density": {
+      "file": "proof/logs/feedback1_final/density.log",
+      "sha256": "d5772ee527bbeeeb8516e02848ddc2a944c72967a0bf47e8be203d07718cbbe4",
+      "result_lines": [
+        "RR38 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR42 DENSITY PARTITIONS: PASS (exact changed texels; retained baseline production elsewhere)"
+      ]
+    },
+    "rest": {
+      "file": "proof/logs/feedback1_final/rest.log",
+      "sha256": "13e09d44b6c50b4a939fc2bf378753edda0bf4498b74501071528b2a9acde092",
+      "result_lines": [
+        "RR38 BONE SAMPLES: PASS (2 poses; headless transforms only)",
+        "RR42 REST EQUIVALENCE: PASS (front=0px rear=0px; native_pixels=False)"
+      ]
+    },
+    "samples": {
+      "file": "proof/logs/feedback1_final/samples.log",
+      "sha256": "29473574c8c2221fdc1324ef4facf51ccd21092cea21670cb8d61774525ea521",
+      "result_lines": [
+        "RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)",
+        "RR38 COMPACT SAMPLES: PASS (1352 poses; full transforms in ignored logs)"
+      ]
+    },
+    "sweep": {
+      "file": "proof/logs/feedback1_final/sweep.log",
+      "sha256": "65c71bbc9a794526f789fdb96fc7f8a955f454cda696b5ee9874e336d5880dd7",
+      "result_lines": [
+        "RR42 CALIBRATED SWEEP: PASS (892 frames; 0 findings; painted_exposure=True; native_pixels=False)"
+      ]
+    },
+    "focused": {
+      "file": "proof/logs/feedback1_final/focused.log",
+      "sha256": "49598f9ccdeb49b2def0c1f82b5a7600c72afada07077899cb65b0a41d93eee6",
+      "result_lines": [
+        "Ran 86 tests in 156.182s",
+        "OK",
+        "RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)",
+        "CHECK-OK",
+        "CHECK-OK"
+      ]
+    },
+    "mutations": {
+      "file": "proof/logs/feedback1_final/mutations.log",
+      "sha256": "19dbfb4a8684bb6fc6a1a7e0f74a02294c471da9a28f51418758f30b39967e06",
+      "result_lines": [
+        "Ran 9 tests in 29.234s",
+        "OK"
+      ]
+    },
+    "references": {
+      "file": "proof/logs/feedback1_final/references.log",
+      "sha256": "cbc0926a8b84b40bfbdc9d707f4e0b989c91e580e4a980fce852ee526729ed54",
+      "result_lines": [
+        "test_fresh_cpu_reproduces_every_native_frame_and_kind (tests.test_rr38_feedback3.Feedback3Tests) ... RR38 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)",
+        "RR38 CPU/NATIVE CALIBRATION: PASS (263/263 frame/kind signatures; 314 native errors; 0 misses)",
+        "test_all_64_director_errors_resolve_as_exact_source_edge_ties (tests.test_rr39_native_ties.RetainedNativeTieTests) ... RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR39 RETAINED BINDINGS: PASS (55 absent optional zero certificates; geometry and paint strict)",
+        "test_non_object_front_kit_is_a_clean_cli_error (tests.test_art_identity_gate.GateTests) ... RR39 NATIVE UNCOVERED TIES: PASS (64 resolved: 33 outline, 31 missing; 0 remaining; exact retained native pixels)",
+        "Ran 125 tests in 276.047s",
+        "OK"
+      ]
+    },
+    "runtime": {
+      "file": "proof/logs/feedback1_final/runtime.log",
+      "sha256": "a25149044cf7298f9b13294c8fcf78ec86fb6accba158fa583ed5c34793ea25a",
+      "result_lines": [
+        "RR38 RUNTIME: PASS (239 checks; headless registration, views, portraits and clocks)"
+      ]
+    },
+    "canvas": {
+      "file": "proof/logs/feedback1_final/canvas.log",
+      "sha256": "2479202dd3c791bcb262f5adba73babae1b733309e344b4b3f879f25a348fef2",
+      "result_lines": [
+        "V2 BOARD SPRITE GEOMETRY: {\"cases\":88,\"errors\":[],\"native\":false,\"orientation_mutations_rejected\":0,\"placement_mutations_rejected\":0}",
+        "PREPARED UNIT CANVAS RESULT: {\"cases\":64,\"checks\":4864,\"errors\":[],\"native\":false,\"orphans\":0,\"pixel_differences\":[]}"
+      ]
+    },
+    "registration": {
+      "file": "proof/logs/feedback1_final/registration.log",
+      "sha256": "472ce837ab453dbcd4456a560e4d18854356b14492457052a53cd31f304b5cfb",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (841 scripts; full suite=487, quarantined=29, windowed probe=325)"
+      ]
+    },
+    "shadow": {
+      "file": "proof/logs/feedback1_final/shadow.log",
+      "sha256": "2e4261e972664a33b55aeb51dc1d8d54b9b89b0d116482eef8aea368b6c9f14d",
+      "result_lines": [
+        "RR38 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ]
+    },
+    "density-check": {
+      "file": "proof/logs/feedback1_final/density-check.log",
+      "sha256": "fc0805f5b885ebfa08b1ef349d1c7530594734c814cbaf6d4a218eda454d3c77",
+      "result_lines": [
+        "CHECK-OK"
+      ]
+    },
+    "source-gates": {
+      "file": "proof/logs/feedback1_final/source-gates.log",
+      "sha256": "b40892dd86f887aed07e8553f5554d8e8843e424dc9d2b1612476341586ee846",
+      "result_lines": [
+        "RR42 SOURCE AUTHORITY: PASS (0 errors; 4589 justified clear texels)"
+      ]
+    },
+    "all-gates": {
+      "file": "proof/logs/feedback1_final/all-gates.log",
+      "sha256": "fc517fb18eb9eba6ea8160dca242f597fd45f772b4e080940d5c1b6b3fbc4d75",
+      "result_lines": [
+        "RR42 ALL GATES: PASS (0 errors; native=False)"
+      ]
+    }
+  },
+  "resolved_attempts": {
+    "unpaired-sweep": {
+      "file": "proof/logs/feedback1_final/unpaired-sweep.log",
+      "sha256": "5d210717411be555bd241780974ac8bc4c8c8329e1ff871e125d8e298ce1ba75",
+      "resolution": "Same-layer UV pairing corrected; final sweep has zero findings."
+    },
+    "mutation-fixture": {
+      "file": "proof/logs/feedback1_final/mutation-fixture.log",
+      "sha256": "142c0a13cc0c61875c7c2be4385bc23c15c9f7dd5ad448ec48c89f70e0d8a746",
+      "resolution": "Selected UV was inside another footprint; corrected outside-footprint UV passes the mutation test."
+    },
+    "helper-entrypoint": {
+      "file": "proof/logs/feedback1_final/helper-entrypoint.log",
+      "sha256": "ba746158da1aa2b130f484903c275e4dedda9d7bbe20aa51c791a40b78a68a4e",
+      "resolution": "Direct RefCounted helper invocation timed out; the prepared-canvas entry point passed all 88 geometry cases."
+    },
+    "reference-sidecars": {
+      "file": "proof/logs/feedback1_final/reference-sidecars.log",
+      "sha256": "8ba1f5eb7775dd1e8969dc21245abd5b6a00406c60af1f639db1dfb31447dfb2",
+      "resolution": "Generated candidate proof outputs scoped in the case ignore file; final sidecar/focused group passes."
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "only_bound_changed_files": {
+    "tests/rr35/run_reference_tests.py": "runtime:tests/rr35/run_reference_tests.py"
+  },
+  "receipts": [
+    {
+      "manifest": "native_rest/frames.json",
+      "stage": "rest",
+      "sha256_untouched_receipt": "0704553c24d9281248f4b941e1031498650c0394b8bf6c89dbeb18977ca8aee9",
+      "binding_differences": {
+        "runtime:tests/rr35/run_reference_tests.py": {
+          "receipt": "4b12ca85db2b4b63f4ef69bc249b2992c08434ef7a1e9d55a944ef4fb5fafb62",
+          "current": "426ef5f86895f55d8f9732fdc0a1f17de540639e3d4edbcc77b4952df51548d7"
+        }
+      }
+    },
+    {
+      "manifest": "native/frames.json",
+      "stage": "native",
+      "sha256_untouched_receipt": "f06e5a578950fac3d617245d603aba654260482358c08efc4540a41e16094f1c",
+      "binding_differences": {
+        "runtime:tests/rr35/run_reference_tests.py": {
+          "receipt": "4b12ca85db2b4b63f4ef69bc249b2992c08434ef7a1e9d55a944ef4fb5fafb62",
+          "current": "426ef5f86895f55d8f9732fdc0a1f17de540639e3d4edbcc77b4952df51548d7"
+        }
+      }
+    },
+    {
+      "manifest": "idle_native/frames.json",
+      "stage": "idle",
+      "sha256_untouched_receipt": "0704553c24d9281248f4b941e1031498650c0394b8bf6c89dbeb18977ca8aee9",
+      "binding_differences": {
+        "runtime:tests/rr35/run_reference_tests.py": {
+          "receipt": "4b12ca85db2b4b63f4ef69bc249b2992c08434ef7a1e9d55a944ef4fb5fafb62",
+          "current": "426ef5f86895f55d8f9732fdc0a1f17de540639e3d4edbcc77b4952df51548d7"
+        }
+      }
+    },
+    {
+      "manifest": "production_native/front/frames.json",
+      "stage": "production",
+      "sha256_untouched_receipt": "e94d259600b22fa06ad8c5ce98b1c9a7f5ec7a96d77987f4fce66419f01b9aa7",
+      "binding_differences": {
+        "runtime:tests/rr35/run_reference_tests.py": {
+          "receipt": "4b12ca85db2b4b63f4ef69bc249b2992c08434ef7a1e9d55a944ef4fb5fafb62",
+          "current": "426ef5f86895f55d8f9732fdc0a1f17de540639e3d4edbcc77b4952df51548d7"
+        }
+      }
+    },
+    {
+      "manifest": "production_native/rear/frames.json",
+      "stage": "production",
+      "sha256_untouched_receipt": "fb2500929c46a6772690c2660e3547b7bf34e9954c6b1824cbbae8e7c709d6fe",
+      "binding_differences": {
+        "runtime:tests/rr35/run_reference_tests.py": {
+          "receipt": "4b12ca85db2b4b63f4ef69bc249b2992c08434ef7a1e9d55a944ef4fb5fafb62",
+          "current": "426ef5f86895f55d8f9732fdc0a1f17de540639e3d4edbcc77b4952df51548d7"
+        }
+      }
+    }
+  ],
+  "required_windowed_capture_stages": [
+    "rest",
+    "native",
+    "idle",
+    "production"
+  ],
+  "required_derived_stages": [
+    "sheets",
+    "review"
+  ],
+  "density_rerun_required": false,
+  "density_reason": "No density inputs, painted surfaces, production rests, shadow cache or density capture script/contract changed.",
+  "old_receipts_rewritten": false,
+  "motion_layout_cut_asset_changes": false
+}

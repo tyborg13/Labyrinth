@@ -1,0 +1,61 @@
+{
+  "K": 4,
+  "drawn_size": [
+    102,
+    240
+  ],
+  "fit_scale": 0.9486166007905138,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.11401287274678527,
+    "edge_light_share": 0.047619047619047616,
+    "feature_px": 5.498206724514918,
+    "height": 240,
+    "height_drawn": 240.0,
+    "orphan_share": 0.1026943151361264,
+    "regions": 469,
+    "run_length": 1.790151515151515,
+    "symmetry": 0.6371057731837669,
+    "thin_abs": 0.013471575680631953,
+    "thin_rel": 0.05529693891945264,
+    "value": 0.17480700920232672,
+    "width": 102
+  },
+  "pixel_sha256": "0b5fbb439891d09c85fa4f5cf44b50c7cf85e200c29afc84d8b4f8677aae8ea8",
+  "placement": [
+    77,
+    6
+  ],
+  "post_steps": [
+    {
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "28f41703ba3afb866b6ecb0bc0aa91f982fb65d4fe78f5220e12c276d23e47ed",
+      "protected_body_share": {
+        "front": 0.044817156997525434,
+        "rear": 0.03963147119040655
+      },
+      "reference": "spec/art_identity/jobs/last_lamplighter/mq_rear/front_match.png",
+      "reference_pixel_sha256": "985a53108ab56bbd3dc9ce8bebafc4d8cd841377643311c86e94586a66c02e96",
+      "step": "palette_match"
+    }
+  ],
+  "raw_sha256": "51cc46e9f60148b30b0fd97b7b2e6fa836e0aa98538113a33210a50c70e84932",
+  "shift": [
+    0,
+    0
+  ]
+}

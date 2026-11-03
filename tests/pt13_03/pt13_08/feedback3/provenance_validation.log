@@ -1,0 +1,5 @@
+CATALOG PROVENANCE: PASS (309 base, 2025 modified definitions; 11 base-only, 21 both contexts; 52413 samples; 0 unsupported samples)
+MODIFIED COVERAGE: PASS (all 2025 modified definitions retained)
+MODIFIED ITEM PROOF: PASS (nail_bomb/item_once_per_combat sampled in 21 contexts; 0 base-only contexts)
+STRICT GRAFT IDENTITY: PASS (309 base definitions, one visible nonempty match each)
+RESULT SOURCE TABLE: PASS (32 contexts with matching production calls and source labels)

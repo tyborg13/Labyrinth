@@ -1,0 +1,1 @@
+{"front": {"far": [100, 58], "near": [164, 68], "kind": "shoulders", "note": "Shoulder joints from the mq-18 joints_px.json mapped onto the processed sprite. The feet pair (115,217)->(140,243) measures 46 deg because the narrow stance steps the near foot forward along the stride; the gate allows shoulders for this case."}}

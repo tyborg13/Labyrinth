@@ -1,0 +1,13 @@
+{
+  "files": {
+    "native_r1_all_poses.json.gz": "c1ed3c0d4c094714ccf19b6c60272ab845963c8c28264664d02203b750b44dde"
+  },
+  "anchors": {
+    "passed": true,
+    "anchors": 14,
+    "pose_count": 892,
+    "native_fixture_sha256": "1ba4c6511c9ac48dafb38408b5f80b600d3eb25a82baba20b03877429ebba2ad",
+    "poses_sha256": "0825ff8b8562f8437323920ca15c3167185943ce53373fbc0b9e8613fecf68bc"
+  },
+  "native_flat_sha256": "9e4bbe462255ec5f47d3fc0142745227418b073665b7187ea4a13b03e9d07add"
+}

@@ -43,6 +43,19 @@ def bone_table(spec):
     return spec['armature']['bones']
 
 
+def source_piece(spec, identifier):
+    """Exact authored ids win; only generated lames use a numeric suffix."""
+    exact = next((p for p in spec['pieces'] if p['id'] == identifier), None)
+    if exact is not None:
+        return exact
+    parent, separator, index = identifier.rpartition('_')
+    if separator and index.isdecimal():
+        match = next((p for p in spec['pieces'] if p['id'] == parent and p['type'] == 'lames'), None)
+        if match is not None:
+            return match
+    raise ValueError('Unknown native piece: ' + identifier)
+
+
 def vector(value, size, name):
     if not isinstance(value, (list, tuple)) or len(value) != size or any(
             not isinstance(x, (int, float)) or not math.isfinite(x) for x in value):
@@ -55,6 +68,12 @@ def validate(spec):
     missing = todos(spec)
     if missing:
         raise ValueError('Unresolved design: ' + '; '.join(missing))
+    extra_reports = spec.get('delivery_reports', [])
+    if (not isinstance(extra_reports, list) or any(not isinstance(name, str) for name in extra_reports) or
+            len(set(extra_reports)) != len(extra_reports) or
+            any(not name.endswith('.json') or '/' in name or '\\' in name or name.startswith('.')
+                for name in extra_reports)):
+        raise ValueError('Additional delivery reports require distinct local JSON names')
     if not spec['base']['asset']:
         raise ValueError('base.asset is required')
     if len(spec['base']['matrix']) != 4:
@@ -151,6 +170,9 @@ def validate(spec):
             if piece['neck_region'] not in labels or min(piece['neck_clearance'], piece['tube_diameter']) <= 0 or not chain['length'] > chain['width'] > chain['wire_diameter'] > 0 or type(chain['count']) is not int or chain['count'] < 1 or chain.get('alternate_degrees') != 90:
                 raise ValueError('Invalid metric collar or chain dimensions')
         if piece['type'] == 'cloth':
+            if piece.get('back_attachment'):
+                from .static_drape import validate as validate_static_drape
+                validate_static_drape(piece)
             if piece['kind'] not in CLOTH_KINDS:
                 raise ValueError('Unknown cloth kind')
             if 'side_parts' in piece and (len(piece['side_parts']) != 2 or

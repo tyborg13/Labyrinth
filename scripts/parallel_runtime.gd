@@ -1,6 +1,7 @@
 extends RefCounted
 class_name ParallelRuntime
 
+const ENGINE_CACHE_DIRECTORIES: String = "res://scripts/engine_cache_directories.gd"
 const TASK_ENV: String = "LABYRINTH_TASK_ID"
 const USER_DIR_ENV: String = "LABYRINTH_USER_DIR_NAME"
 const DEFAULT_PREFIX: String = "Escape the Umbra Parallel"
@@ -16,16 +17,19 @@ static func apply_from_environment() -> String:
 	if requested_name.is_empty() and not task_id.is_empty():
 		requested_name = "%s %s" % [DEFAULT_PREFIX, _safe_fragment(task_id)]
 	if not requested_name.is_empty():
-		var initial_shader_cache: String = ProjectSettings.globalize_path("user://shader_cache")
+		var initial_user_dir: String = ProjectSettings.globalize_path("user://")
 		_namespace = _safe_user_dir_name(requested_name)
 		ProjectSettings.set_setting("application/config/use_custom_user_dir", true)
 		ProjectSettings.set_setting("application/config/custom_user_dir_name", _namespace)
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://logs"))
-		# Native rendering initializes built-in shader directories before script
-		# startup. Preserve those empty directories after user:// is namespaced;
-		# otherwise newly compiled variants fail to save their cache files. Never
-		# copy compiled binaries, so isolated cold benchmarks remain cold.
-		_mirror_cache_directories(initial_shader_cache, ProjectSettings.globalize_path("user://shader_cache"))
+		# Native rendering initializes its cache directories before script startup,
+		# so the namespaced user:// must keep reaching them (see engine_cache_directories.gd).
+		# The runner gives every run a fresh HOME, so cold benchmarks stay cold. Foreign
+		# fixture projects copy only this script: they keep the directory mirror.
+		if ResourceLoader.exists(ENGINE_CACHE_DIRECTORIES):
+			load(ENGINE_CACHE_DIRECTORIES).preserve(initial_user_dir, ProjectSettings.globalize_path("user://"))
+		else:
+			_mirror_cache_directories(initial_user_dir.path_join("shader_cache"), ProjectSettings.globalize_path("user://shader_cache"))
 	_applied = true
 	return _namespace
 

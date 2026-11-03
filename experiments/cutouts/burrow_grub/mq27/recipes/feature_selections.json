@@ -1,0 +1,86 @@
+{
+  "source": "Owner-approved mq27 paintings; rr55 tooth ring owned by head",
+  "selections": {
+    "maw_tooth_ring": {
+      "owner": "head",
+      "colour": "tooth_ring",
+      "front": [
+        14,
+        181,
+        63,
+        242
+      ],
+      "rear": null
+    }
+  },
+  "policy": "Registered polygon selects existing tooth ring; one-pixel rim, bounded holes filled, intersect approved opaque paint",
+  "ember_colour_selection": {
+    "r_exclusive_min": 180,
+    "g_exclusive_min": 40,
+    "r_gt_g": true,
+    "g_gt_twice_b": true
+  },
+  "proof_defaults": {
+    "input_cell_px": 255,
+    "input_columns": 6,
+    "input_label_height_px": 30,
+    "outline_zoom": 8,
+    "outline_crop_margin_px": 3,
+    "full_godot_timeout_seconds": 900,
+    "registration_joint_tolerance_px": 0.02
+  },
+  "registered_polygon": [
+    [
+      28,
+      183
+    ],
+    [
+      39,
+      181
+    ],
+    [
+      49,
+      186
+    ],
+    [
+      57,
+      197
+    ],
+    [
+      62,
+      210
+    ],
+    [
+      61,
+      223
+    ],
+    [
+      55,
+      236
+    ],
+    [
+      45,
+      241
+    ],
+    [
+      33,
+      238
+    ],
+    [
+      23,
+      229
+    ],
+    [
+      17,
+      218
+    ],
+    [
+      14,
+      204
+    ],
+    [
+      17,
+      193
+    ]
+  ]
+}

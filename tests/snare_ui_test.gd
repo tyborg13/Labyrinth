@@ -5,20 +5,14 @@ const Fixture = preload("res://tools/snare_inspection.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Run = preload("res://scripts/run_engine.gd")
 const WindView = preload("res://scripts/enemy_mechanics/wind_view.gd")
+const BattlefieldRules = preload("res://scripts/battlefield_rules/dispatcher.gd")
+const RuleHud = preload("res://scripts/battlefield_rule_hud.gd")
+const Typography = preload("res://scripts/ui_typography.gd")
 const TEST_NAVIGATION_ZOOM: float = 1.25
 const TEST_BOARD_SIZE := Vector2(1920, 1080)
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const Store = preload("res://scripts/progression_store.gd")
 var failures: Array[String]
-
-class WindChipHost extends Control:
-	var ui_root := Control.new()
-	var _turn_order_panel := Control.new()
-	var _combat_state: Dictionary = {}
-	var _run_state: Dictionary = {}
-	func _init() -> void:
-		add_child(ui_root)
-		ui_root.add_child(_turn_order_panel)
 
 class ChipBoard extends "res://scripts/combat_board_view.gd":
 	const TEST_DOOR_RECT := Rect2(100, 100, 100, 100)
@@ -61,10 +55,23 @@ func _run() -> void:
 	board._refresh_snare_chips()
 	await process_frame
 	await process_frame
-	var wind_host := WindChipHost.new()
-	root.add_child(wind_host)
-	WindView.refresh_chip(wind_host)
-	var wind: PanelContainer = wind_host.ui_root.get_node("En02WindChip")
+	var rule_hud: PanelContainer = RuleHud.new()
+	root.add_child(rule_hud)
+	var air: Dictionary = Suite.battle("air")
+	rule_hud.set_combat_state(air, combat)
+	_expect(rule_hud.visible and rule_hud.find_child("RuleTitle", true, false).text == "GUST" and rule_hud.find_child("RuleSentence", true, false).text == "After each of your turns, a headwind Pushes everyone 1 tile toward the entry.", "Air Snare rule panel names Gust with its headwind sentence")
+	var headwind: Dictionary = BattlefieldRules.forecast(combat, air)
+	_expect(headwind.get("direction") == air["wind"]["direction"] and rule_hud.find_child("RuleDirection", true, false).heading == WindView.screen_direction(air["wind"]["direction"]), "Headwind panel arrow points toward the entry")
+	_expect(rule_hud.find_child("RuleKicker", true, false).text == "BATTLEFIELD", "The room's own rule has no beat countdown")
+	rule_hud.set_combat_state({}, combat)
+	_expect(not rule_hud.visible, "Rule panel hides outside the fight")
+	# The Seals chips keep the shared HUD surface the old wind chip used.
+	var reference := PanelContainer.new()
+	UiSkin.new().apply_panel_surface(reference, UiSkin.SURFACE_HUD)
+	var reference_title := Label.new()
+	reference_title.add_theme_font_override("font", Typography.ui_font())
+	reference.add_child(reference_title)
+	root.add_child(reference)
 	var holder: Node = board.get_node("SnareSealChips")
 	_expect(_chips(holder) == _strings(["Seals · 2", "Seals · 4"]), "Opening chip wording and no icons")
 	for chip: Control in holder.get_children():
@@ -73,11 +80,10 @@ func _run() -> void:
 		_expect(not panel_style is StyleBoxEmpty and panel_style.get_minimum_size().x > 0 and plate.get_parent().get_parent() == chip and chip.get_parent() == holder and holder is Control and plate.size.x >= 48 and plate.size.y >= 36, "HUD panel draws a non-empty shared plate and stylebox above the board")
 		_expect(chip.get_child_count() > 0 and chip.mouse_filter == Control.MOUSE_FILTER_IGNORE and chip.focus_mode == Control.FOCUS_NONE, "Chips preserve board pointer and keyboard/controller paths")
 		var title: Label = chip.get_node("Title")
-		var wind_title: Label = wind.get_node("Contents/Title")
-		_expect(title.get_theme_font_size("font_size") == wind_title.get_theme_font_size("font_size") and title.get_theme_font("font") == wind_title.get_theme_font("font"), "Seals title matches the actual Wind title font and size")
-		_expect(chip.get_meta("surface_variant") == wind.get_meta("surface_variant") and plate.get_script() == wind.get_node(UiSkin.PANEL_ORNAMENT_NAME).get_script(), "Seals plate uses the actual Wind fill and border painter")
+		_expect(title.get_theme_font_size("font_size") == reference_title.get_theme_font_size("font_size") and title.get_theme_font("font") == reference_title.get_theme_font("font"), "Seals title matches the shared HUD title font and size")
+		_expect(chip.get_meta("surface_variant") == reference.get_meta("surface_variant") and plate.get_script() == reference.get_node(UiSkin.PANEL_ORNAMENT_NAME).get_script(), "Seals plate uses the shared HUD fill and border painter")
 		for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-			_expect(panel_style.get_content_margin(side) == wind.get_theme_stylebox("panel").get_content_margin(side), "Seals plate keeps Wind padding")
+			_expect(panel_style.get_content_margin(side) == reference.get_theme_stylebox("panel").get_content_margin(side), "Seals plate keeps the shared HUD padding")
 		_expect(plate.position == Vector2.ZERO and plate.size == chip.size, "HUD plate covers the full panel, not its padded content rect")
 		var medallion: Rect2 = board._door_icon_visual_rect(null, ChipBoard.TEST_DOOR_RECT)
 		_expect(is_equal_approx(chip.position.x + chip.size.x * chip.scale.x * 0.5, medallion.get_center().x) and is_equal_approx(chip.position.y + chip.size.y * chip.scale.y, medallion.position.y - 6.0), "Chip is centred 6px above the actual destination medallion")
@@ -116,7 +122,8 @@ func _run() -> void:
 	board._refresh_snare_chips()
 	_expect(_chips(holder).is_empty(), "Chips leave when combat changes")
 	board.queue_free()
-	wind_host.queue_free()
+	rule_hud.queue_free()
+	reference.queue_free()
 	_check_door_draws()
 	var engine := Run.new()
 	var fixture_source: Dictionary = engine.create_new_run(Fixture.FIXTURE_SEED, Store.default_data())

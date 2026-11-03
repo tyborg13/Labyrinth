@@ -165,8 +165,22 @@ func _sanitize_native_tooltip_wrapper() -> void:
 		wrapper.about_to_popup.connect(queue_tighten)
 	if not wrapper.visibility_changed.is_connected(queue_tighten):
 		wrapper.visibility_changed.connect(queue_tighten)
+	var content: Control = _native_tooltip_content(wrapper)
+	if content != null and not content.minimum_size_changed.is_connected(queue_tighten):
+		content.minimum_size_changed.connect(queue_tighten)
 	_queue_native_tooltip_tighten()
 
+
+func _native_tooltip_content(wrapper: Window) -> Control:
+	# A native tooltip may contain a VBox of independent panels. Its first
+	# ornament owns wrapper cleanup, but sizing/positioning belongs to the
+	# complete custom tooltip returned to Godot, never that first panel alone.
+	var content: Control = _panel
+	var ancestor: Node = _panel.get_parent() if _panel != null else null
+	while ancestor != null and ancestor != wrapper:
+		if ancestor is Control: content = ancestor as Control
+		ancestor = ancestor.get_parent()
+	return content if ancestor == wrapper else null
 
 func _queue_native_tooltip_tighten() -> void:
 	call_deferred("_tighten_native_tooltip_wrapper")
@@ -220,13 +234,16 @@ func _tighten_native_tooltip_wrapper() -> void:
 	var wrapper: Window = _native_tooltip_wrapper()
 	if wrapper == null or _panel == null or not _panel.is_inside_tree():
 		return
+	var content: Control = _native_tooltip_content(wrapper)
+	if content == null: return
 	var desired_size := Vector2i(
-		ceili(_panel.get_combined_minimum_size().x),
-		ceili(_panel.get_combined_minimum_size().y)
+		ceili(content.get_combined_minimum_size().x),
+		ceili(content.get_combined_minimum_size().y)
 	)
 	if desired_size.x <= 0 or desired_size.y <= 0:
 		return
-	var viewport_size: Vector2 = get_tree().root.get_visible_rect().size
+	var viewport_rect: Rect2 = wrapper.get_parent().get_viewport().get_visible_rect()
+	var viewport_size: Vector2 = viewport_rect.size
 	var available_size := Vector2(
 		maxf(1.0, viewport_size.x - 32.0),
 		maxf(1.0, viewport_size.y - 32.0)
@@ -244,11 +261,13 @@ func _tighten_native_tooltip_wrapper() -> void:
 	)
 	if wrapper.size != wrapper_size:
 		wrapper.size = wrapper_size
-	_panel.position = Vector2.ZERO
-	_panel.size = Vector2(desired_size)
-	_panel.pivot_offset = Vector2.ZERO
-	_panel.scale = Vector2.ONE * content_scale
-	_panel.set_meta("tooltip_content_scale", content_scale)
+	content.position = Vector2.ZERO
+	content.size = Vector2(desired_size)
+	content.pivot_offset = Vector2.ZERO
+	content.scale = Vector2.ONE * content_scale
+	content.set_meta("tooltip_content_scale", content_scale)
+	if wrapper.is_embedded():
+		wrapper.position = Vector2i(Vector2(wrapper.position).clamp(viewport_rect.position, viewport_rect.end - Vector2(wrapper_size)))
 	wrapper.set_meta("tooltip_native_wrapper_size", wrapper_size)
 
 

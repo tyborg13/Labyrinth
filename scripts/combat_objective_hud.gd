@@ -67,7 +67,7 @@ func set_combat_state(state: Dictionary) -> bool:
 		return changed
 	var objective_type: String = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
 	var icon_path: String = CombatObjectiveRules.icon_path(objective_type)
-	var title_text: String = CombatObjectiveRules.title_for_objective(objective).to_upper()
+	var title_text: String = CombatObjectiveRules.hud_title_for_objective(objective).to_upper()
 	var detail_text: String = _live_detail(state, objective)
 	var next_tooltip: String = "%s\n%s" % [CombatObjectiveRules.title_for_objective(objective), CombatObjectiveRules.description_for_objective(objective)]
 	var next_signature: String = "%s|%s|%s|%s" % [icon_path, title_text, detail_text, next_tooltip]
@@ -78,7 +78,7 @@ func set_combat_state(state: Dictionary) -> bool:
 	_icon.texture = AssetLoader.load_texture(icon_path)
 	_title.text = title_text
 	_detail.text = detail_text
-	_intro_title.text = title_text
+	_intro_title.text = CombatObjectiveRules.title_for_objective(objective).to_upper()
 	tooltip_text = next_tooltip
 	return true
 
@@ -130,10 +130,8 @@ func _build() -> void:
 	row.add_child(text_stack)
 	var kicker := Label.new()
 	kicker.text = "OBJECTIVE"
-	kicker.add_theme_font_override("font", UiTypography.eyebrow_font())
-	kicker.add_theme_font_size_override("font_size", 11)
-	kicker.add_theme_color_override("font_color", Palette.GOLD)
-	kicker.add_theme_color_override("font_outline_color", Color("160e0c"))
+	UiTypography.apply_eyebrow(kicker, UiTypography.SIZE_CAPTION, Palette.GOLD)
+	kicker.add_theme_color_override("font_outline_color", Palette.TEXT_OUTLINE)
 	kicker.add_theme_constant_override("outline_size", 1)
 	text_stack.add_child(kicker)
 	_title = Label.new()
@@ -459,7 +457,7 @@ func opening_glyph_preparation_jobs(state: Dictionary) -> Array[Dictionary]:
 	for requested: int in range(INTRO_KICKER_START_FONT_SIZE, INTRO_KICKER_FONT_SIZE + 1):
 		jobs.append_array(Glyphs.text_jobs(_intro_kicker.text, _intro_kicker.get_theme_font("font"), requested, _intro_kicker.get_theme_constant("outline_size"), _intro_kicker.get_theme_constant("shadow_outline_size"), oversampling, _intro_kicker.language))
 	var kicker: Label = _title.get_parent().get_child(0) as Label
-	for entry: Dictionary in [{"label": kicker, "text": kicker.text}, {"label": _title, "text": title}, {"label": _detail, "text": _live_detail(state, objective)}]:
+	for entry: Dictionary in [{"label": kicker, "text": kicker.text}, {"label": _title, "text": CombatObjectiveRules.hud_title_for_objective(objective).to_upper()}, {"label": _detail, "text": _live_detail(state, objective)}]:
 		var label: Label = entry["label"]
 		jobs.append_array(Glyphs.text_jobs(str(entry["text"]) + (" …" if label.clip_text else ""), label.get_theme_font("font"), label.get_theme_font_size("font_size"), label.get_theme_constant("outline_size"), label.get_theme_constant("shadow_outline_size"), oversampling, label.language))
 	return jobs
@@ -518,7 +516,7 @@ func _live_detail(state: Dictionary, objective: Dictionary) -> String:
 				var enemy: Dictionary = enemy_var
 				if int(enemy.get("id", -2)) != leader_id:
 					continue
-				var enemy_name: String = preload("res://scripts/enemy_identity.gd").display_name(enemy)
+				var enemy_name: String = "Before it escapes" if str(objective.get("special_type", "")) == "ember_hoarder" else preload("res://scripts/enemy_identity.gd").display_name(enemy)
 				var hp: int = maxi(0, int(enemy.get("hp", 0)))
 				return "%s · %d/%d HP" % [enemy_name, hp, int(enemy.get("max_hp", hp))]
 			return "The leader has fallen"
@@ -528,8 +526,8 @@ func _live_detail(state: Dictionary, objective: Dictionary) -> String:
 			var remaining: int = maxi(0, target_clock - current_clock)
 			var next_wave: int = int(objective.get("next_reinforcement_clock", target_clock))
 			if next_wave < target_clock:
-				return "%d time remaining · Reinforcements in %d" % [remaining, maxi(0, next_wave - current_clock)]
-			return "%d time remaining · Final wave deployed" % remaining
+				return "Dawn in %d · Reinforcements in %d" % [remaining, maxi(0, next_wave - current_clock)]
+			return "Dawn in %d · Final wave deployed" % remaining
 		CombatObjectiveRules.REACH_EXIT:
 			var exit_count: int = CombatObjectiveRules.exit_target_tiles(objective).size()
 			return "Reach any of %d marked threshold%s" % [exit_count, "s" if exit_count != 1 else ""]

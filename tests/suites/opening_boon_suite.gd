@@ -1,6 +1,7 @@
 extends RefCounted
 
 const Rules = preload("res://scripts/opening_boon_rules.gd")
+const HeirloomFixture = preload("res://tests/helpers/heirloom_fixture.gd")
 const Fixture = preload("res://tests/helpers/opening_boon_fixture.gd")
 const Run = preload("res://scripts/run_engine.gd")
 const Store = preload("res://scripts/progression_store.gd")
@@ -18,6 +19,7 @@ static func run(expect: Callable) -> void:
 	_rolls_and_eligibility(expect)
 	_effects(expect)
 	_heirlooms(expect)
+	_heirloom_eligibility(expect)
 	_debt(expect)
 	_analytics(expect)
 	print("OPENING BOON RULES: deterministic rolls, eligibility, all effects, heirlooms, Debt and event receipts checked")
@@ -118,9 +120,9 @@ static func _effects(expect: Callable) -> void:
 	expect.call(Rules.choose(engine, gift, "") == gift, "Boon decisions are accepted only in the start room")
 
 static func _heirlooms(expect: Callable) -> void:
-	var state: Dictionary = Fixture.state(true)
+	var state: Dictionary = HeirloomFixture.equip(Fixture.state(true))
 	expect.call(state[Rules.STATE_KEY]["offers"][0]["boon"] == "heirloom", "A stored heirloom always occupies column one")
-	expect.call(state["equipped_equipment"]["weapon"] != Fixture.PROOF_HEIRLOOM, "Heirloom is never automatically equipped")
+	expect.call(Fixture.state(true)["equipped_equipment"]["weapon"] != Fixture.PROOF_HEIRLOOM, "Heirloom is never automatically equipped")
 	var taken: Dictionary = Rules.choose(Run.new(), state, "heirloom")
 	expect.call(Store.heirloom(taken["progression"]).is_empty(), "Taking an heirloom consumes the progression piece")
 	state["mode"] = "defeat"
@@ -139,7 +141,7 @@ static func _heirlooms(expect: Callable) -> void:
 		state["mode"] = outcome
 		var prompt: Dictionary = Dialogue.new().heirloom_dialogue(state)
 		expect.call(Rules.heirloom_prompt_pending(state) and prompt["lines"][0]["text"] == Rules.definitions()["dialogue"]["heirloom_prompt"], outcome + " prompts with the exact approved line")
-		expect.call(prompt["lines"][0]["options"].size() == state["equipped_equipment"].size() + 1, "Run end lists each equipped piece plus Leave nothing")
+		expect.call(not prompt["lines"][0].has("options"), "Heirloom dialogue has no option buttons")
 
 static func _debt(expect: Callable) -> void:
 	var engine := Run.new()
@@ -181,3 +183,16 @@ static func _analytics(expect: Callable) -> void:
 	var events: Array = state[Rules.EVENTS_KEY]
 	expect.call(events.size() == 3 and events[0]["type"] == "run_start_boon_offered" and events[1]["type"] == "run_start_boon_chosen" and events[2]["type"] == "heirloom_left", "All three additive event receipts travel in the saved run")
 	expect.call(events[0]["payload"].has("rolled_contents") and events[0]["payload"].has("columns") and events[1]["payload"]["boon"] == "vitality" and events[2]["payload"]["none"], "Event payloads identify columns, rolled content, chosen boon and empty heirloom")
+
+static func _heirloom_eligibility(expect: Callable) -> void:
+	var starter: Dictionary = HeirloomFixture.terminal(0)
+	var skipped: Dictionary = Rules.leave_heirloom(starter, "")
+	expect.call(not Rules.heirloom_prompt_pending(starter) and Rules.heirloom_pieces(starter).is_empty(), "All-starter gear has no heirloom prompt")
+	expect.call(skipped[Rules.HEIRLOOM_END_KEY] == {"item": "", "done": true}, "No eligible gear records exactly Leave nothing")
+	expect.call(skipped[Rules.EVENTS_KEY].back()["payload"].get("skipped_no_eligible", false), "Automatic skip has the additive analytics field")
+	var mixed: Dictionary = HeirloomFixture.terminal(4)
+	expect.call(Rules.heirloom_pieces(mixed) == HeirloomFixture.PROOF_ITEMS, "Mixed equipment offers only non-starter pieces in weapon/offhand/armor/boots/trinket order")
+	var starter_id: String = str(Data.starting_equipped_equipment()["armor"])
+	expect.call(Rules.leave_heirloom(mixed, starter_id) == mixed, "Starter id is rejected even while equipped")
+	expect.call(Rules.leave_heirloom(mixed, HeirloomFixture.PROOF_ARMOR) == mixed, "Unowned non-starter is rejected")
+	expect.call(Rules.leave_heirloom(skipped, "") == skipped, "Repeated skip cannot duplicate the receipt")

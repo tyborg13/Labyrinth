@@ -5,7 +5,6 @@ extends RefCounted
 ## to the protected clip contact. No resolver or analytics call originates here.
 const Action = preload("res://scripts/maquette_cutout_runtime/action.gd")
 const Icefall = preload("res://scripts/enemy_mechanics/icefall_view.gd")
-const Tether = preload("res://scripts/enemy_mechanics/tether_view.gd")
 const Sfx = preload("res://scripts/attack_sfx_library.gd")
 const Floating = preload("res://scripts/floating_combat_text.gd")
 const Wind = preload("res://scripts/enemy_mechanics/wind_view.gd")
@@ -14,7 +13,7 @@ static func handles(step: Dictionary, actor: Dictionary) -> bool:
 	if bool(step.get("cancelled", false)): return false
 	var type: String = str(actor.get("type", ""))
 	var clip: String = Action.clip_for(step, actor)
-	return (type == "hoarfrost_seer" and clip in ["mark", "land", "ward"]) or (type == "arc_thrall" and clip == "tether")
+	return (type == "hoarfrost_seer" and clip in ["mark", "land", "ward"])
 
 static func phase_at(frame: int, count: int, contact: float) -> float:
 	return Action.contact_phase(float(frame) / count, ceilf(contact * count) / count, contact)
@@ -37,7 +36,6 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 	var fired: Dictionary = {"contact": false}
 	var texts: Array[Dictionary]
 	if clip == "land": texts.assign(Wind.damage_texts(scene, step))
-	elif clip == "tether": texts.assign(scene._floating_texts_for_target_losses(step.get("target_losses", [])))
 	else: texts.assign(scene._enemy_phase_status_presentation(step).get("floating_texts", []))
 	step["icefall_puff_seconds"] = Icefall.PUFF_SECONDS
 	scene._set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
@@ -51,16 +49,12 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 				state.merge(step["en02_state_after"].duplicate(true), true)
 			else: scene._apply_animation_step(state, step)
 			if clip == "land": scene._play_sfx(Sfx.entry_for_enemy_step(step))
-			elif clip == "tether": scene._play_sfx(Sfx.entry_for_enemy_step({"kind": "ranged", "element": "lightning", "enemy_type": type}))
 		var presentation: Dictionary = {"maquette_explicit_clip": true,
 			type + "_motion": {key: {"clip": clip, "phase": phase, "direction": direction}}}
 		if clip == "land" and (reduced or (elapsed >= contact_seconds - Icefall.FALL_SECONDS and elapsed < contact_seconds + Icefall.PUFF_SECONDS)):
 			step["icefall_phase"] = "fall" if phase < contact else "puff"
 			presentation["effect"] = step
 			presentation["effect_progress"] = (elapsed - contact_seconds + Icefall.FALL_SECONDS) / (Icefall.FALL_SECONDS + Icefall.PUFF_SECONDS)
-		elif clip == "tether" and phase >= contact and (reduced or elapsed < contact_seconds + Tether.BEAM_SECONDS + Tether.FADE_SECONDS):
-			presentation["effect"] = step
-			presentation["effect_progress"] = 0.0 if reduced else (elapsed - contact_seconds) / (Tether.BEAM_SECONDS + Tether.FADE_SECONDS)
 		if phase >= contact:
 			presentation["floating_texts"] = Floating.animate_entries(texts, elapsed - contact_seconds, reduced)
 		scene._render_board_state(state, scene._attack_feedback_death_hold_presentation(before, state, presentation), true)

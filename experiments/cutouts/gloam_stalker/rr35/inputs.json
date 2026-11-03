@@ -1,0 +1,8 @@
+{
+  "front_job": "spec/art_identity/jobs/gloam_stalker/mq13_front",
+  "rear_job": "spec/art_identity/jobs/gloam_stalker/mq13_rear",
+  "front_delivery": "spec/art_identity/maquettes/gloam_stalker/delivery",
+  "rear_delivery": "spec/art_identity/maquettes/gloam_stalker/delivery",
+  "fused_occlusion": true,
+  "design_placeholders": {}
+}

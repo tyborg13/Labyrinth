@@ -1,11 +1,11 @@
 {
-  "min_images": 9,
+  "min_images": 8,
   "expected_sizes": [
     "1920x1080"
   ],
   "required_images": [
     {
-      "pattern": "*01_thralls_rest_beam_friendly_fire.png",
+      "pattern": "*01_thrall_rest.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -22,7 +22,7 @@
       ]
     },
     {
-      "pattern": "*02_thralls_beam_mid_resolution.png",
+      "pattern": "*02_thrall_arc_bolt_hover.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -39,24 +39,7 @@
       ]
     },
     {
-      "pattern": "*03_thralls_after_resolution.png",
-      "width": 1920,
-      "height": 1080,
-      "regions": [
-        {
-          "rect": [
-            260,
-            110,
-            1400,
-            780
-          ],
-          "min_luma_range": 8,
-          "min_luma_stdev": 2
-        }
-      ]
-    },
-    {
-      "pattern": "*04_thrall_align_move_preview.png",
+      "pattern": "*03_thrall_after_arc_bolt.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -107,7 +90,7 @@
       ]
     },
     {
-      "pattern": "*07_stalker_veiled_behind_hero_rest.png",
+      "pattern": "*07_stalker_windup_behind_hero_rest.png",
       "width": 1920,
       "height": 1080,
       "regions": [

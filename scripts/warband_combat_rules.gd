@@ -6,6 +6,17 @@ const Identity = preload("res://scripts/enemy_identity.gd")
 const FLEE_TILES: int = 2
 const Library = preload("res://scripts/special_encounter_library.gd")
 
+static func initialize(engine: RefCounted, state: Dictionary) -> void:
+	if not active(state) or not state.get("battlefield_rule", {}).is_empty(): return
+	var leader: Dictionary = captain(state)
+	var key: String = str(order_for_objective(state["objective"]).get("battlefield_instance", ""))
+	if leader.is_empty() or key.is_empty(): return
+	var dispatcher: GDScript = load("res://scripts/battlefield_rules/dispatcher.gd")
+	var instance: Dictionary = dispatcher.instance_for(key, int(leader["id"]))
+	if str(instance["rule"]) == "gust":
+		instance["locked_direction"] = preload("res://scripts/battlefield_rules/gust.gd").direction(engine, state, leader)
+	dispatcher.install(engine, state, instance)
+
 static func order_for_objective(objective: Dictionary) -> Dictionary:
 	if str(objective.get("special_type", "")) != "warband": return {}
 	return Library.definition("warband")["variants"].get(str(objective.get("special_variant", "")), {}).get("order", {})
@@ -63,7 +74,7 @@ static func intent(state: Dictionary, enemy: Dictionary, original: Dictionary) -
 # Selected live intents can react to a Thrall death. Authored known-move lists
 # keep every move, so pre-battle inspection never collapses Charge/Burst rows.
 static func current_intent(state: Dictionary, enemy: Dictionary, original: Dictionary) -> Dictionary:
-	return intent(state, enemy, preload("res://scripts/enemy_mechanics/capacitor.gd").effective_intent(state, enemy, original))
+	return intent(state, enemy, original)
 
 static func retreat_path(engine: RefCounted, state: Dictionary, enemy: Dictionary) -> Array[Vector2i]:
 	var empty: Array[Vector2i]
@@ -105,7 +116,7 @@ static func break_followers(engine: RefCounted, state: Dictionary, leader_id: in
 	# whose own Fade flag was active. This does not execute their Ambush.
 	if str(order_for_objective(objective).get("id", "")) == "prior_veil":
 		for follower: Dictionary in state["enemies"]:
-			if int(follower["id"]) != leader_id: follower["veiled"] = false
+			if int(follower["id"]) != leader_id: follower.erase("veiled")
 	var cleared: int = 0
 	# Resolve all escape routes before removing anyone. Reserving destinations
 	# prevents followers crossing/stacking in the simultaneous presentation beat.

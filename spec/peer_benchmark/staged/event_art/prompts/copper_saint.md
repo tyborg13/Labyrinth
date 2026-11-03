@@ -1,0 +1,1 @@
+Subject: a tall copper statue of a robed saint with raised arms in a flooded crypt, the metal melted and run like wax from countless lightning strikes, a tilted halo barely attached. Violet-white sparks crawl across the dark water. Mood: holy, ruined, dangerous.

@@ -1,0 +1,26 @@
+Running task-local command:
+  task: pt13-03
+  run: pt13-03-1793058649424176000-38452
+  HOME: /private/tmp/labyrinth-godot-home/pt13-03-1793058649424176000-38452
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-03-1793058649424176000-38452/godot.log --headless --path . --script tests/magic_deck_input_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+PURGE BADGE PARENT-BOUNDS MUTATION: KILLED
+PURGE BADGE VIEWPORT MUTATION (bottom): KILLED
+PURGE BADGE VIEWPORT MUTATION (right): KILLED
+PURGE WHOLE-ROW SCROLL CHECKS: PASS
+PURGE INTERLEAVED FOCUS CHECKS (15 identities): PASS
+PURGE INTERLEAVED FOCUS CHECKS (20 identities): PASS
+PURGE POLISH TEXT FIT MUTATION (Title): KILLED
+PURGE POLISH TEXT FIT MUTATION (Count): KILLED
+PURGE POLISH TEXT FIT MUTATION (Text): KILLED
+PURGE POLISH TEXT FIT MUTATION (Title): KILLED
+PURGE POLISH TEXT FIT MUTATION (Count): KILLED
+PURGE POLISH TEXT FIT MUTATION (Text): KILLED
+MAGIC DECK INPUT TEST: PASS
+TEST RESULT: PASS
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)

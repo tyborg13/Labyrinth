@@ -8,6 +8,14 @@ const RunEngineScript = preload("res://scripts/run_engine.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Objectives = preload("res://scripts/combat_objective_rules.gd")
 const EventViewSuite = preload("res://tests/suites/event_view_suite.gd")
+const NATIVE_FOCUS_STEP_LIMIT: int = 128
+const NATIVE_FOCUS_INPUTS: Dictionary = {
+	SIDE_LEFT: {"key": KEY_LEFT, "joy": JOY_BUTTON_DPAD_LEFT},
+	SIDE_TOP: {"key": KEY_UP, "joy": JOY_BUTTON_DPAD_UP},
+	SIDE_RIGHT: {"key": KEY_RIGHT, "joy": JOY_BUTTON_DPAD_RIGHT},
+	SIDE_BOTTOM: {"key": KEY_DOWN, "joy": JOY_BUTTON_DPAD_DOWN}
+}
+const INPUT_READY_TIMEOUT_MSEC: int = 5000
 const PAUSE_FOCUS_CHOICE_INDEX: int = 1
 const PAUSE_PROOF_CONTRACT_PATH: String = "res://output/fix-01/pause-proof-contract.json"
 const PAUSE_PROOF_CONTRACT: Dictionary = {
@@ -23,6 +31,9 @@ var instance: Node
 var failed: bool = false
 
 func _initialize() -> void:
+	if DisplayServer.get_name() == "headless":
+		print("HEADLESS SEMANTICS ONLY: no renderer captures")
+		process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
 	if OS.get_cmdline_user_args().has("--write-pause-proof-contract"):
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://output/fix-01"))
 		var contract := FileAccess.open(PAUSE_PROOF_CONTRACT_PATH, FileAccess.WRITE)
@@ -35,6 +46,10 @@ func _initialize() -> void:
 		await _pause_event_proof()
 		return
 	var engine := RunEngineScript.new()
+	if OS.get_cmdline_user_args().has("--reach-exit-only"):
+		await _exercise_reach_exit(engine)
+		await _finish_probe("SECTION MAP REACH EXIT PROBE TEST RESULT")
+		return
 	var state: Dictionary = engine.create_new_run(81, Progression.default_data())
 	# Use a real reward transaction with the current generated room and exits.
 	state = engine.move_to_room(state, engine.available_moves(state)[0])
@@ -121,6 +136,15 @@ func _initialize() -> void:
 		_load(state.duplicate(true))
 		await process_frame
 		await process_frame
+		# A fixture reload can leave the map closed after the preceding entry.
+		# Open it through the same shortcut as the player before sending Accept.
+		await _wait_map_input_ready()
+		if not scrim.visible:
+			if input_kind == "controller": await _joy(JOY_BUTTON_BACK)
+			else: await _key(KEY_M)
+		await process_frame
+		await process_frame
+		_check(scrim.visible, input_kind + " entry begins on the visible map")
 		panel.call("center_on_current")
 		target_button = (panel.get("node_buttons") as Dictionary).get(selected)
 		var feedback: Node = root.get_node("CursorFeedback")
@@ -128,7 +152,8 @@ func _initialize() -> void:
 		if input_kind == "pointer":
 			await _pointer_click(target_button.get_global_rect().get_center(), 0.2)
 		else:
-			target_button.grab_focus()
+			await _navigate_map_room(target_button, input_kind)
+			_check(viewport.gui_get_focus_owner() == target_button, input_kind + " navigation reaches the chosen room through viewport events")
 			if input_kind == "keyboard": await _key(KEY_ENTER)
 			else: await _joy(JOY_BUTTON_A)
 		_check(panel.get("activation_coord") == selected and (instance.get("_run_state") as Dictionary).get("current_room") == before_coord, "Entry acknowledges " + input_kind + " activation before changing rooms")
@@ -141,52 +166,13 @@ func _initialize() -> void:
 		await _capture("04c_ack_" + input_kind + ".png")
 		# Repeated activation while acknowledging must not queue another entry.
 		if panel.get("activation_coord") != Graph.INVALID:
-			panel.call("activate_room", selected)
+			if input_kind == "controller": await _joy(JOY_BUTTON_A)
+			else: await _key(KEY_ENTER)
 		await _wait_travel(selected)
 		_check(_route_choices(instance.get("_run_state")) == _route_choices(state) + 1, "Direct " + input_kind + " activation commits exactly one route analytics event")
 		_check((instance.get("_run_state") as Dictionary).get("current_room") == selected, "One " + input_kind + " activation enters the exact chosen room")
 		await _capture("04c_direct_" + input_kind + ".png")
-	_set_reduced_motion(true)
-	router.call("set_forced_state_for_test", "pointer", "xbox")
-	# Match a generated reach-exit room to its real board doors.
-	state = engine.create_new_run(92, Progression.default_data())
-	for opening: Dictionary in (state.get("rooms", {}) as Dictionary).values():
-		if str(opening.get("type", "")) == "combat" and int(opening.get("map_step", 0)) == 1:
-			opening["cleared"] = true
-			opening["visited"] = true
-	var found: bool = false
-	for room: Dictionary in (state.get("rooms", {}) as Dictionary).values():
-		if str(room.get("type", "")) != "combat" or int(room.get("map_step",0)) <= 1: continue
-		var objective: Dictionary = Objectives.build_for_room(92, room, Vector2i.RIGHT)
-		if str(objective.get("type", "")) != Objectives.REACH_EXIT: continue
-		state["current_room"] = room.get("coord", Vector2i.ZERO)
-		room["visited"] = true
-		room["revealed"] = true
-		Graph.refresh_knowledge(state)
-		state["mode"] = "pre_battle"
-		state["pre_battle_travel_dir"] = Vector2i.RIGHT
-		state = engine.begin_pre_battle_combat(state)
-		found = str((state.get("combat_state", {}) as Dictionary).get("objective", {}).get("type", "")) == Objectives.REACH_EXIT
-		if found: break
-	_check(found, "Probe finds a generated reach-exit encounter")
-	_load(state)
-	await process_frame
-	await process_frame
-	await _exercise_toolbar("05a_combat_toolbar")
-	var map_button: Control = instance.get("_section_map_hud_button")
-	var rail: Control = instance.get("_turn_order_panel")
-	_check(not map_button.get_global_rect().intersects(rail.get_global_rect()), "Map stays clear of the combat turn-order rail")
-	await _capture("05b_combat_header_clear.png")
-	instance.call("_open_large_map")
-	await _capture("05_reach_exit_map.png")
-	choices = panel.call("available_destinations")
-	if not choices.is_empty():
-		var origin: Vector2i = (instance.get("_run_state") as Dictionary).get("current_room")
-		var door_button: Control = (panel.get("node_buttons") as Dictionary)[choices[0]]
-		await _pointer_click(door_button.get_global_rect().get_center())
-		await _wait_acknowledgement()
-		_check((instance.get("_run_state") as Dictionary).get("current_room") == origin and not scrim.visible, "One room click shows its physical exit without committing travel")
-	await _capture("06_reach_exit_board.png")
+	await _exercise_reach_exit(engine)
 	state = engine.create_new_run(93, Progression.default_data())
 	for room: Dictionary in (state.get("rooms", {}) as Dictionary).values():
 		if str(room.get("type", "")) == "event":
@@ -233,11 +219,97 @@ func _initialize() -> void:
 	_check(_prompt_labels().has("Enter"), "The room confirm cue explicitly means direct entry")
 	await _capture("08c_event_focus_restored.png")
 	await _exercise_door_emblems()
+	await _finish_probe("SECTION MAP FLOW PROBE TEST RESULT")
+
+func _exercise_reach_exit(engine: RefCounted) -> void:
+	var panel: Control = instance.get("_large_map_view")
+	var scrim: Control = instance.get("_large_map_scrim")
+	var router: Node = root.get_node("InputRouter")
+	_set_reduced_motion(true)
+	router.call("set_forced_state_for_test", "pointer", "xbox")
+	# Revision 6+ standard fights use Defeat All; the Snare owns Reach Exit now.
+	var state: Dictionary = engine.create_new_run(92, Progression.default_data())
+	var found: bool = false
+	for room: Dictionary in (state.get("rooms", {}) as Dictionary).values():
+		if str(room.get("special_type", "")) != "umbral_snare": continue
+		state["current_room"] = room.get("coord", Vector2i.ZERO)
+		room["visited"] = true
+		room["revealed"] = true
+		Graph.refresh_knowledge(state)
+		state["mode"] = "pre_battle"
+		state["pre_battle_travel_dir"] = Vector2i.RIGHT
+		state = engine.begin_pre_battle_combat(state)
+		found = str((state.get("combat_state", {}) as Dictionary).get("objective", {}).get("type", "")) == Objectives.REACH_EXIT
+		if found: break
+	_check(found, "Probe finds a generated Umbral Snare Reach Exit encounter")
+	_load(state)
+	await process_frame
+	await process_frame
+	await _exercise_toolbar("05a_combat_toolbar")
+	var map_button: Control = instance.get("_section_map_hud_button")
+	var rail: Control = instance.get("_turn_order_panel")
+	_check(not map_button.get_global_rect().intersects(rail.get_global_rect()), "Map stays clear of the combat turn-order rail")
+	await _capture("05b_combat_header_clear.png")
+	instance.call("_open_large_map")
+	await _capture("05_snare_map.png")
+	var choices: Array = panel.call("available_destinations")
+	_check(not choices.is_empty(), "The Snare map exposes its physical exits")
+	if not choices.is_empty():
+		var origin: Vector2i = (instance.get("_run_state") as Dictionary).get("current_room")
+		var door_button: Control = (panel.get("node_buttons") as Dictionary)[choices[0]]
+		await _pointer_click(door_button.get_global_rect().get_center())
+		await _wait_acknowledgement()
+		_check((instance.get("_run_state") as Dictionary).get("current_room") == origin and not scrim.visible, "One room click shows its physical exit without committing travel")
+	await _capture("06_snare_board.png")
+
+func _finish_probe(label: String) -> void:
 	instance.queue_free()
 	await process_frame
 	print(ProjectSettings.globalize_path(output_dir))
-	print("SECTION MAP FLOW PROBE TEST RESULT: %s" % ("FAIL" if failed else "PASS"))
+	print("%s: %s" % [label, "FAIL" if failed else "PASS"])
 	quit(1 if failed else 0)
+
+func _navigate_map_room(target: Control, input_kind: String) -> void:
+	# Exercise navigation as well as Accept. Follow live native focus edges;
+	# scrolling to a room can change geometric neighbors along the way.
+	if input_kind == "keyboard":
+		await _key(KEY_TAB)
+		await _key(KEY_DOWN)
+	else: await _joy(JOY_BUTTON_DPAD_DOWN)
+	for step: int in range(NATIVE_FOCUS_STEP_LIMIT):
+		var current: Control = viewport.gui_get_focus_owner()
+		if current == target: return
+		var side: int = _focus_step_toward(current, target)
+		if side < 0:
+			if input_kind == "keyboard": await _key(KEY_TAB)
+			else: await _joy(JOY_BUTTON_DPAD_UP)
+		elif input_kind == "keyboard": await _key(int(NATIVE_FOCUS_INPUTS[side]["key"]))
+		else: await _joy(int(NATIVE_FOCUS_INPUTS[side]["joy"]))
+
+func _focus_step_toward(start: Control, target: Control) -> int:
+	if start == null: return -1
+	var pending: Array[Control]
+	pending.append(start)
+	var first_steps: Dictionary = {start.get_instance_id(): -1}
+	while not pending.is_empty():
+		var current: Control = pending.pop_front()
+		for side: int in NATIVE_FOCUS_INPUTS:
+			var neighbor: Control = current.find_valid_focus_neighbor(side)
+			if neighbor == null or not instance.is_ancestor_of(neighbor) or first_steps.has(neighbor.get_instance_id()): continue
+			var first: int = side if current == start else int(first_steps[current.get_instance_id()])
+			if neighbor == target: return first
+			first_steps[neighbor.get_instance_id()] = first
+			pending.append(neighbor)
+	return -1
+
+func _wait_map_input_ready() -> void:
+	# The preceding pointer case enters an event in this v7 fixture. Reloading
+	# the source starts its real 0.16s dismiss; two frames do not finish it.
+	var scrim: Control = instance.get("_large_map_scrim")
+	var deadline: int = Time.get_ticks_msec() + INPUT_READY_TIMEOUT_MSEC
+	while not scrim.visible and not bool(instance.call("_map_shortcut_can_open")) and Time.get_ticks_msec() < deadline:
+		await process_frame
+	_check(scrim.visible or bool(instance.call("_map_shortcut_can_open")), "Map input becomes ready after the previous fixture's modal closes")
 
 func _known_room_count(state: Dictionary) -> int:
 	var count: int = 0

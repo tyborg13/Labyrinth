@@ -1,0 +1,8 @@
+{
+ "front": {
+  "far": [117, 210],
+  "near": [155, 241],
+  "kind": "feet",
+  "note": "Foot-tip contacts from the mq-19 feedback-3 delivery joints_px.json, mapped onto the processed sprite by the silhouette bounding boxes (the mq-18/mq-20 method). Feet, not shoulders: the Cantor leans 14 degrees onto the staff on its far side, which flattens the shoulder line to 5.4 degrees; the feet carry the 3/4 ground stance (38.8 degrees)."
+ }
+}

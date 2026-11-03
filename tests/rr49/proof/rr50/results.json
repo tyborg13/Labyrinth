@@ -1,0 +1,116 @@
+{
+  "head": "6135c6ec6c9c2ac63a91545e27f74aa79c964ce0",
+  "peer_revision": "ba97b48fec48429622b414e87f95d998b42f6389",
+  "python": {
+    "tests": 2525,
+    "seconds": 2069.065,
+    "failures": 6,
+    "errors": 3,
+    "skipped": 66,
+    "failure_comparisons": [
+      {
+        "test": "test_tracked_sources_have_sidecars_and_sidecars_have_sources (test_godot_sidecars.GodotSidecarRepositoryTests)",
+        "kind": "failures",
+        "peer_benchmark": "same failure/error reproduced",
+        "resolution": "Pre-existing; assertions unchanged",
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_godot_sidecars.py\", line 92, in test_tracked_sources_have_sidecars_and_sidecars_have_sources\n    assert_sidecars_versioned(git_files(ROOT), root=ROOT)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_godot_sidecars.py\", line 87, in assert_sidecars_versioned\n    raise AssertionError(\"\\n\\n\".join(problems + [REPAIR_HINT]))\nAssertionError: Stale tracked Godot sidecars (6):\nspec/peer_benchmark/staged/rr-48/front_body_underlay.png.import\nspec/peer_benchmark/staged/rr-48/front_underlay_raw.png.import\nspec/peer_benchmark/staged/rr-48/rear_body_underlay.png.import\nspec/peer_benchmark/staged/rr-48/rear_underlay_raw.png.import\nspec/peer_benchmark/staged/rr-48/ref_front_approved_x4.png.import\nspec/peer_benchmark/staged/rr-48/ref_rear_approved_x4.png.import\n\nRun godot --headless --import (through tools/godot_task_runner.py), commit the .import/.uid sidecars with their sources, and remove stale sidecars.\n"
+      },
+      {
+        "test": "test_approved_inputs_are_byte_identical (test_rr46_preserve_frostglass_lancer.PreservationTests)",
+        "kind": "failures",
+        "peer_benchmark": "same failure/error reproduced",
+        "resolution": "Pre-existing; assertions unchanged",
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr46_preserve_frostglass_lancer.py\", line 8, in test_approved_inputs_are_byte_identical\n    count = assert_preserved(self, [\"assets/units/frostglass_lancer_cutout\"])\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr46/preservation.py\", line 80, in assert_preserved\n    test.assertEqual(digest, expected, name)\nAssertionError: '391f9d639f0a49a9a92ccf6ac355ff0943e3ddb6' != '8ea3676f96a6860710c08d1ecf1a939df32e46af'\n- 391f9d639f0a49a9a92ccf6ac355ff0943e3ddb6\n+ 8ea3676f96a6860710c08d1ecf1a939df32e46af\n : assets/units/frostglass_lancer_cutout/humanoid_v2/front.json\n"
+      },
+      {
+        "test": "test_historical_runtime_pin_rejects_unowned_changes (test_rr46_playback.PlaybackTests)",
+        "kind": "failures",
+        "peer_benchmark": "same failure/error reproduced",
+        "resolution": "Pre-existing; assertions unchanged",
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr46_playback.py\", line 57, in test_historical_runtime_pin_rejects_unowned_changes\n    self.assertEqual(before_rr46_runtime(path, current), expected)\nAssertionError: b'ext[3424 chars]onst ActionCaptionScrimScript = preload(\"res:/[1775489 chars]()\\n' != b'ext[3424 chars]onst TurnBannerScript = preload(\"res://scripts[1777180 chars]()\\n'\n"
+      },
+      {
+        "test": "test_motion_and_reference_inputs_are_byte_identical (test_rr46_playback.PlaybackTests)",
+        "kind": "failures",
+        "peer_benchmark": "same failure/error reproduced",
+        "resolution": "Pre-existing; assertions unchanged",
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr46_playback.py\", line 311, in test_motion_and_reference_inputs_are_byte_identical\n    count = assert_preserved(self, paths)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr46/preservation.py\", line 80, in assert_preserved\n    test.assertEqual(digest, expected, name)\nAssertionError: '4748efda9ea6418a4ab2576b1feea9ad694544b2' != '8d969bddf1fed503490e388ad2d227c4d2ecd068'\n- 4748efda9ea6418a4ab2576b1feea9ad694544b2\n+ 8d969bddf1fed503490e388ad2d227c4d2ecd068\n : spec/peer_benchmark/staged/tt-01/tooltips.json\n"
+      },
+      {
+        "test": "test_repository_headless_registration_guard (test_test_registration_audit.RegistrationAuditTests)",
+        "kind": "failures",
+        "peer_benchmark": "PASS",
+        "resolution": "Generated peer bootstrap scripts relocated outside tests; unchanged focused guard passes",
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_test_registration_audit.py\", line 411, in test_repository_headless_registration_guard\n    self.assertEqual(errors, [], \"\\n\" + \"\\n\".join(errors))\nAssertionError: Lists differ: ['Unregistered headless test: tests/rr49/p[414 chars].gd'] != []\n\nFirst list contains 5 additional elements.\nFirst extra element 0:\n'Unregistered headless test: tests/rr49/proof/rr50/peer-godot.logs/00/special_encounter_test.gd'\n\n+ []\n- ['Unregistered headless test: '\n-  'tests/rr49/proof/rr50/peer-godot.logs/00/special_encounter_test.gd',\n-  'Unregistered headless test: '\n-  'tests/rr49/proof/rr50/peer-godot.logs/01/enemy_no_action_test.gd',\n-  'Unregistered headless test: '\n-  'tests/rr49/proof/rr50/peer-godot.logs/02/fix_11_test.gd',\n-  'Unregistered headless test: '\n-  'tests/rr49/proof/rr50/peer-godot.logs/03/fix_11_probe.gd',\n-  'Unregistered headless test: '\n-  'tests/rr49/proof/rr50/peer-godot.logs/04/hero_facing_test.gd'] : \nUnregistered headless test: tests/rr49/proof/rr50/peer-godot.logs/00/special_encounter_test.gd\nUnregistered headless test: tests/rr49/proof/rr50/peer-godot.logs/01/enemy_no_action_test.gd\nUnregistered headless test: tests/rr49/proof/rr50/peer-godot.logs/02/fix_11_test.gd\nUnregistered headless test: tests/rr49/proof/rr50/peer-godot.logs/03/fix_11_probe.gd\nUnregistered headless test: tests/rr49/proof/rr50/peer-godot.logs/04/hero_facing_test.gd\n"
+      },
+      {
+        "test": "test_native_archive_requires_complete_painted_coverage (test_rr46_playback.PlaybackTests)",
+        "kind": "errors",
+        "peer_benchmark": "same failure/error reproduced",
+        "resolution": "Pre-existing; assertions unchanged",
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr46_playback.py\", line 155, in test_native_archive_requires_complete_painted_coverage\n    inventory = load_inventory()\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr46/verify_native.py\", line 46, in load_inventory\n    raise ValueError('Stale independent inventory: ' + name)\nValueError: Stale independent inventory: assets/units/frostglass_lancer_cutout/integration.json\n"
+      },
+      {
+        "test": "setUpClass (test_rr47_feedback1.FeedbackOneTests)",
+        "kind": "errors",
+        "peer_benchmark": "same failure/error reproduced",
+        "resolution": "Pre-existing; assertions unchanged",
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr47_feedback1.py\", line 51, in setUpClass\n    cls.inventory = load_inventory()\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr46/verify_native.py\", line 46, in load_inventory\n    raise ValueError('Stale independent inventory: ' + name)\nValueError: Stale independent inventory: assets/units/frostglass_lancer_cutout/integration.json\n"
+      },
+      {
+        "test": "test_runtime_boundary_and_reverts (test_pt14_04_coverage.HeroCoverage)",
+        "kind": "failures",
+        "peer_benchmark": "same failure/error reproduced",
+        "resolution": "Pre-existing; assertions unchanged",
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_pt14_04_coverage.py\", line 204, in test_runtime_boundary_and_reverts\n    self.assertEqual(before_rr46_runtime(name, actual), expected, name)\nAssertionError: b'ext[513066 chars]itch.reset(self, next_run_state.get(\"combat_st[1265020 chars]()\\n' != b'ext[513066 chars]itch.baseline(next_run_state.get(\"combat_state[1264947 chars]()\\n' : scripts/run_scene.gd\n"
+      },
+      {
+        "test": "test_omitting_native_midpoint_and_corner_route_fails (test_rr47_feedback2.FeedbackTwoTests)",
+        "kind": "errors",
+        "peer_benchmark": "same failure/error reproduced",
+        "resolution": "Pre-existing; assertions unchanged",
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr47_feedback2.py\", line 100, in test_omitting_native_midpoint_and_corner_route_fails\n    inventory = load_inventory()\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/rr46/verify_native.py\", line 46, in load_inventory\n    raise ValueError('Stale independent inventory: ' + name)\nValueError: Stale independent inventory: assets/units/frostglass_lancer_cutout/integration.json\n"
+      }
+    ],
+    "registration_correction": {
+      "tests": 1,
+      "seconds": 5.975,
+      "result": "OK",
+      "peer_tests": 1,
+      "peer_seconds": 5.912,
+      "peer_result": "OK"
+    },
+    "submission_module_seconds": 148.156,
+    "submission_module_result": "PASS; 5/5 clean timing; all negative controls, identity, reload and pins"
+  },
+  "godot": {
+    "programs": 262,
+    "passed": 257,
+    "failures": 5,
+    "seconds": 813.421,
+    "main_body_assertions": 495984
+  },
+  "only_changed_production_files": [
+    "scripts/maquette_cutout_runtime/stable_paint.gd",
+    "scripts/maquette_cutout_runtime/stable_skin.gd"
+  ],
+  "reviewer_evidence_sha256": {
+    "fast-path-disabled.patch": "431166de260164a1f83f06eea0e3cb6d7c183897d700e7f178a7010b1b20fbcf",
+    "cost-clean.json": "086639f5b6284395e36500c1231aa66d5cb7d2d9ecd44538f53f3bca438f2321",
+    "cost-fast-disabled.json": "a98779a9618516e673953691a2eb99ab5ddfc441e0171bafb15dc3163f96fded"
+  },
+  "source_sha256": {
+    "scripts/maquette_cutout_runtime/stable_paint.gd": "06abd3523e15c73ea1d957cbfced52217ebde111792c82a1815f0f569bd8196d",
+    "scripts/maquette_cutout_runtime/stable_skin.gd": "81c2970dd401601a7a70c7fe0b3838e359eb152aa91e3ce8c0a3e6c102748b1a",
+    "tests/rr49/submission_cost.gd": "0ab7daf43f32c98b6ec7a9e9fa90d03e9a98e15938ff265a6ddd18a68032bd45",
+    "tests/rr49/paired_cost.gd": "b69e9d51864488f04c3a423a1582e5e38d7e067025b9fa389beab6bc809f8e7d",
+    "tests/rr49/paired_cost.gd.uid": "ede575b37e94ec9a1eb2c4431159dd658d836421363f29f02ffd669cb99d5b6b",
+    "tests/rr49/cache_payload.gd": "acba00e84f9bb72fc2b1400092ba654247fad170975dc8cbbc5132b3590f07a6",
+    "tests/rr49/cache_payload.gd.uid": "bc6149dbbf2956b2c105fac6119ed16df72221f6cc86017b88be42f2c9b5d536",
+    "tests/rr49/runtime_provenance.py": "a9cd47906f2014bd26cea6ff0e04ddb54898e736f04afb0008e29d01f6bcc07f",
+    "tests/rr49/runtime_binding_changes.json": "4fd3c86b72f988fd5331059fa591d63e421e886c8b31223c858db9b8567680a5",
+    "tests/test_rr49_submission.py": "9dd35469837d5a49497bf7b87a3b95361af40814d55cb9835dc858ecfbddec29",
+    "tests/test_rr41_feedback3.py": "13912e64a24b6de577b5ece0fa5788327be07b6d74bc0b82f61ea29b4a7a1728"
+  },
+  "todos_design": []
+}

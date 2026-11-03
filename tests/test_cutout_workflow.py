@@ -18,6 +18,18 @@ from cutout_pipeline.proof import input_hashes, pack, verify_render
 from cutout_pipeline.cases import digest
 from cutout_pipeline.validation import validate, validate_layout
 
+import contextlib
+import io
+import os
+import subprocess
+import export_game
+import cel_look_export
+from cel_look_export import verify_pack
+
+ROOT = PROJECT
+FIXTURE_SIZE = (4, 4)
+FIXTURE_RGBA = (60, 70, 80, 255)
+
 
 class CutoutWorkflowTests(unittest.TestCase):
     def setUp(self):
@@ -271,6 +283,129 @@ class CutoutWorkflowTests(unittest.TestCase):
             fork_case(case, self.root / "failed-fork", "crawler_variant")
         self.assertFalse((self.root / "failed-fork").exists())
 
+
+
+# Transferred from retired test_cel_look: explicit on-demand export validation.
+class CelExportValidationTests(unittest.TestCase):
+
+    def test_template_copy_when_windows_denies_symlinks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            host = root / 'host'
+            appdata = host / 'AppData/Roaming'
+            source = appdata / 'Godot/export_templates'
+            template = source / 'fixture-version/windows_release_x86_64.exe'
+            template.parent.mkdir(parents=True)
+            template_bytes = b'fixture template'
+            template.write_bytes(template_bytes)
+            denied = OSError('A required privilege is not held by the client')
+            denied.winerror = 1314
+            with patch.object(export_game.Path, 'home', return_value=host), \
+                    patch.dict(os.environ, {'APPDATA': str(appdata), 'XDG_DATA_HOME': str(host / '.local/share')}), \
+                    patch.object(export_game.sys, 'platform', 'win32'), \
+                    patch.object(export_game.Path, 'symlink_to', side_effect=denied):
+                export_game.expose_templates(root / 'isolated')
+            copied = root / 'isolated/export/AppData/Roaming/Godot/export_templates'
+            self.assertFalse(copied.is_symlink())
+            self.assertEqual((copied / template.relative_to(source)).read_bytes(), template_bytes)
+            self.assertEqual(template.read_bytes(), template_bytes)
+        print('CEL_TEMPLATE_COPY WinError 1314 fallback PASS')
+
+    def test_release_fails_closed_before_export(self):
+        with patch.object(export_game, 'build'), patch.object(export_game, 'inventory', return_value=([], [])), \
+                patch.object(export_game, 'status', return_value=(False, 'missing variant')), \
+                patch.object(export_game.subprocess, 'run') as run:
+            with self.assertRaisesRegex(ValueError, 'Refusing export.*missing variant'):
+                export_game.export('Steam Windows', Path('unused.exe'), 'cel-03')
+            run.assert_not_called()
+
+    def test_real_pack_missing_path_mutation_and_runtime_decode(self):
+        import hashlib
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            source = project / 'fixture.png'
+            Image.new('RGBA', FIXTURE_SIZE, FIXTURE_RGBA).save(source)
+            relative = 'fixture.png.celpng'
+            manifest = {'stamp': 'fixture-current', 'files': {'fixture.png': 'actors'}, 'variants': {'fixture.png': relative},
+                        'sha256': {relative: hashlib.sha256(source.read_bytes()).hexdigest()}}
+            manifest_path = project / 'manifest.json'
+            for case in ('current', 'missing', 'missing_manifest', 'obsolete_stamp', 'obsolete_inventory'):
+                packed = copy.deepcopy(manifest)
+                if case == 'obsolete_stamp':
+                    packed['stamp'] = 'fixture-obsolete'
+                if case == 'obsolete_inventory':
+                    packed['files']['fixture.png'] = 'all'
+                manifest_path.write_text(json.dumps(packed))
+                pack = project / (case + '.pck')
+                files = {'cel_look_variants/manifest.json': manifest_path,
+                         'scripts/asset_loader.gd': ROOT / 'scripts/asset_loader.gd',
+                         'scripts/cel_look.gd': ROOT / 'scripts/cel_look.gd'}
+                if case == 'missing_manifest':
+                    del files['cel_look_variants/manifest.json']
+                if case != 'missing':
+                    files['cel_look_variants/' + relative] = source
+                script = project / 'pack.gd'
+                lines = ['extends SceneTree', 'func _initialize() -> void:',
+                         '\tvar pack := PCKPacker.new()', '\tassert(pack.pck_start(%s) == OK)' % json.dumps(str(pack))]
+                for name, path in files.items():
+                    lines.append('\tassert(pack.add_file(%s, %s) == OK)' % (json.dumps('res://' + name), json.dumps(str(path))))
+                script.write_text('\n'.join(lines + ['\tassert(pack.flush() == OK)', '\tquit()']) + '\n')
+                result = subprocess.run([sys.executable, str(ROOT / 'tools/godot_task_runner.py'),
+                    '--task-id', 'cel-03', '--stream', '--', 'godot', '--headless', '--path', str(ROOT),
+                    '--script', str(script)], cwd=ROOT, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    code = verify_pack(pack, 'cel-03', expected=manifest)
+                self.assertEqual(code, 0 if case == 'current' else 1, output.getvalue())
+                if case.startswith('obsolete') or case == 'missing_manifest':
+                    lines = output.getvalue().splitlines()
+                    self.assertEqual(len(lines), 1, output.getvalue())
+                    self.assertIn('CEL_PACK_STALE', lines[0])
+                    self.assertIn('re-export with tools/export_game.py', lines[0])
+                if case == 'obsolete_stamp':
+                    self._check_upload_only_refuses_pack(project, pack)
+        print('CEL_PACK_MUTATIONS missing path,obsolete stamp,obsolete inventory CAUGHT; exact decode OK')
+
+    def _check_upload_only_refuses_pack(self, project, pack):
+        # Execute the real upload-only main/validator; stub network/upload and
+        # host configuration, preserving the validation order and real CLI.
+        definitions = (ROOT / 'scripts/build_and_upload_steam.sh').read_text().rsplit('main "$@"', 1)[0]
+        folder = project / 'upload-only'
+        folder.mkdir()
+        shutil.copyfile(pack, folder / 'obsolete.pck')
+        script = project / 'upload-only.sh'
+        script.write_text(definitions + '''
+PROJECT_ROOT="$1"
+CEL_TEST_PACK_ROOT="$2"
+load_config() { :; }
+validate_environment() { :; }
+select_targets() { TARGET_MAIN=1; TARGET_PLAYTEST=0; }
+select_platforms() { EXPORT_MACOS=1; EXPORT_WINDOWS=0; EXPORT_LINUX=0; }
+validate_unique_target_depots() { :; }
+ensure_export_outputs_exist() { :; }
+pck_search_root() { printf '%s' "$CEL_TEST_PACK_ROOT"; }
+ensure_steamcmd() { printf 'UPLOAD_REACHED'; }
+run_steamcmd_upload() { printf 'UPLOAD_REACHED'; }
+main --upload-only
+''')
+        result = subprocess.run(['bash', str(script), str(ROOT), str(folder)],
+                                cwd=ROOT, capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.stdout.count('CEL_PACK_STALE '), 1, result.stdout + result.stderr)
+        self.assertNotIn('UPLOAD_REACHED', result.stdout)
+        print('CEL_UPLOAD_ONLY obsolete pack refused before upload PASS')
+
+    def test_pack_verifier_defaults_to_current_source_expectation(self):
+        expected = {'stamp': 'current-inputs', 'files': {}, 'variants': {}}
+        with patch.object(cel_look_export, 'current_expected_manifest', return_value=expected) as current, \
+                patch.object(cel_look_export.subprocess, 'run') as run:
+            def inspect(command, **kwargs):
+                self.assertEqual(json.loads(Path(command[-1]).read_text()), expected)
+                return subprocess.CompletedProcess(command, 0, '', '')
+            run.side_effect = inspect
+            self.assertEqual(verify_pack(Path('fixture.pck'), 'cel-03'), 0)
+            current.assert_called_once_with()
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,328 @@
+{
+  "checks": {
+    "knee_angles_within_brief": true,
+    "near_elbow_angle_within_brief": true,
+    "hip_lean_5_degrees": true,
+    "head_level_and_chest_facing": true,
+    "near_foot_forward_half_step": true,
+    "stance_width_1_25_shoulders": true,
+    "far_hand_director_position": true,
+    "falchion_grip_through_fist": true,
+    "falchion_pommel_above_fist": true,
+    "falchion_tip_forward_of_far_foot": true,
+    "falchion_director_axis_angles": true,
+    "falchion_tip_above_floor": true,
+    "scarf_covers_both_shoulders": true,
+    "falchion_length_0_48_H": true,
+    "falchion_guard_width": true,
+    "falchion_maximum_width": true,
+    "falchion_width_peak_at_two_thirds": true,
+    "falchion_spine_straight_before_clip": true,
+    "falchion_clipped_back_last_0_08_H": true,
+    "falchion_convex_cutting_edge": true,
+    "falchion_vertical_plane": true,
+    "native_blade_projected_area_ratio": true,
+    "near_three_closed_shells": true,
+    "near_one_third_overlaps": true,
+    "near_drop_0_07_H": true,
+    "near_domed_top_over_joint": true,
+    "near_cylinder_bands_follow_arm": true,
+    "near_equal_lame_heights": true,
+    "near_no_horizontal_disc_faces": true,
+    "near_joint_covered": true,
+    "far_three_closed_shells": true,
+    "far_one_third_overlaps": true,
+    "far_drop_0_07_H": true,
+    "far_domed_top_over_joint": true,
+    "far_cylinder_bands_follow_arm": true,
+    "far_equal_lame_heights": true,
+    "far_no_horizontal_disc_faces": true,
+    "far_joint_covered": true,
+    "accepted_native_meshes_unchanged": true,
+    "opened_mesh_hash_matches_build": true,
+    "native_joint_endpoints": true,
+    "whole_native_features": true,
+    "geometry_report": true,
+    "material_mutation_rejected": true,
+    "geometry_mutation_rejected": true,
+    "native_geometry_restored": true
+  },
+  "feedback2": {
+    "blade": {
+      "checks": {
+        "falchion_length_0_48_H": true,
+        "falchion_guard_width": true,
+        "falchion_maximum_width": true,
+        "falchion_width_peak_at_two_thirds": true,
+        "falchion_spine_straight_before_clip": true,
+        "falchion_clipped_back_last_0_08_H": true,
+        "falchion_convex_cutting_edge": true,
+        "falchion_vertical_plane": true,
+        "native_blade_projected_area_ratio": true
+      },
+      "edge_direction": [
+        -0.6644629358386259,
+        0.24184494782526816,
+        -0.7071068010619805
+      ],
+      "face_normal": [
+        0.34202025176076173,
+        0.9396925813187391,
+        1.7352343398280293e-07
+      ],
+      "pommel_to_tip_over_H": 0.4800000425413662,
+      "guard_to_tip_over_H": 0.34160716684537523,
+      "guard_width_over_H": 0.04000000344388947,
+      "maximum_width_over_H": 0.0700000189677476,
+      "maximum_width_fraction_from_guard": 0.6666666456309984,
+      "clipped_back_axis_length_over_H": 0.08000002802493918,
+      "projected_area_px2": {
+        "front": 13029.539932940155,
+        "rear": 13029.539670042694
+      },
+      "rear_over_front_area": 0.9999999798229666,
+      "area_method": "Opened native midplane cutting-edge/spine outline; unoccluded blade only, excluding hilt and glow."
+    },
+    "pauldrons": {
+      "checks": {
+        "near_three_closed_shells": true,
+        "near_one_third_overlaps": true,
+        "near_drop_0_07_H": true,
+        "near_domed_top_over_joint": true,
+        "near_cylinder_bands_follow_arm": true,
+        "near_equal_lame_heights": true,
+        "near_no_horizontal_disc_faces": true,
+        "near_joint_covered": true,
+        "far_three_closed_shells": true,
+        "far_one_third_overlaps": true,
+        "far_drop_0_07_H": true,
+        "far_domed_top_over_joint": true,
+        "far_cylinder_bands_follow_arm": true,
+        "far_equal_lame_heights": true,
+        "far_no_horizontal_disc_faces": true,
+        "far_joint_covered": true
+      },
+      "sides": {
+        "near": {
+          "z_bounds_m": [
+            [
+              1.6597938537597656,
+              1.7810308933258057
+            ],
+            [
+              1.578969120979309,
+              1.7002061605453491
+            ],
+            [
+              1.4981443881988525,
+              1.6193814277648926
+            ]
+          ],
+          "heights_m": [
+            0.12123703956604004,
+            0.12123703956604004,
+            0.12123703956604004
+          ],
+          "overlap_fractions": [
+            0.33333300557516643,
+            0.33333300557516643
+          ],
+          "drop_over_H": 0.06999999483781179,
+          "upper_arm_axis_error_m": [
+            2.6726776434768188e-08,
+            1.6871418001042506e-08
+          ],
+          "horizontal_face_area_m2": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "far": {
+          "z_bounds_m": [
+            [
+              1.6597938537597656,
+              1.7810308933258057
+            ],
+            [
+              1.578969120979309,
+              1.7002061605453491
+            ],
+            [
+              1.4981443881988525,
+              1.6193814277648926
+            ]
+          ],
+          "heights_m": [
+            0.12123703956604004,
+            0.12123703956604004,
+            0.12123703956604004
+          ],
+          "overlap_fractions": [
+            0.33333300557516643,
+            0.33333300557516643
+          ],
+          "drop_over_H": 0.06999999483781179,
+          "upper_arm_axis_error_m": [
+            4.208606812288552e-08,
+            3.433391803815088e-08
+          ],
+          "horizontal_face_area_m2": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    }
+  },
+  "joints_world": {
+    "pelvis": [
+      1.4901161193847656e-08,
+      -2.9802322387695312e-08,
+      1.2577319145202637
+    ],
+    "torso": [
+      0.02390158362686634,
+      -7.105427357601002e-15,
+      1.5309280157089233
+    ],
+    "head": [
+      0.04780307784676552,
+      3.834172562777738e-15,
+      1.8041235208511353
+    ],
+    "head_tip": [
+      0.04780307412147522,
+      -1.743664067299644e-11,
+      2.3092780113220215
+    ],
+    "shoulder_near": [
+      -0.14523650705814362,
+      0.335051566362381,
+      1.6597938537597656
+    ],
+    "elbow_near": [
+      -0.1452365517616272,
+      0.3350515067577362,
+      1.3411262035369873
+    ],
+    "hand_near": [
+      -0.07272793352603912,
+      0.3350515067577362,
+      1.0000001192092896
+    ],
+    "hand_tip_near": [
+      -0.07272793352603912,
+      0.3350515067577362,
+      0.8969073295593262
+    ],
+    "hip_near": [
+      -0.11934972554445267,
+      0.22164946794509888,
+      0.9999999403953552
+    ],
+    "knee_near": [
+      0.006557620596140623,
+      0.2966075837612152,
+      0.6786109805107117
+    ],
+    "ankle_near": [
+      0.11000000685453415,
+      0.418814480304718,
+      0.15463916957378387
+    ],
+    "foot_tip_near": [
+      0.32649481296539307,
+      0.4188139736652374,
+      0.07731955498456955
+    ],
+    "shoulder_far": [
+      0.21558822691440582,
+      -0.3350515365600586,
+      1.6597938537597656
+    ],
+    "elbow_far": [
+      0.067125603556633,
+      -0.3281310498714447,
+      1.3190938234329224
+    ],
+    "hand_far": [
+      0.3193496763706207,
+      -0.32164955139160156,
+      1.0
+    ],
+    "hand_tip_far": [
+      0.31934964656829834,
+      -0.32164955139160156,
+      0.8969072103500366
+    ],
+    "hip_far": [
+      0.11934972554445267,
+      -0.22164946794509888,
+      0.9999998807907104
+    ],
+    "knee_far": [
+      0.06581651419401169,
+      -0.30095094442367554,
+      0.6599885821342468
+    ],
+    "ankle_far": [
+      -0.10999999940395355,
+      -0.41881442070007324,
+      0.15463918447494507
+    ],
+    "foot_tip_far": [
+      0.10649485886096954,
+      -0.41881418228149414,
+      0.0773196592926979
+    ]
+  },
+  "sole_min_z_m": {
+    "near": 0.0,
+    "far": 0.0
+  },
+  "observed": {
+    "leg_length_m": 0.9999999105930328,
+    "height_m": 2.3092782497406006,
+    "knee_angles_degrees": {
+      "near": 10.000003133027345,
+      "far": 9.999995155783997
+    },
+    "near_elbow_degrees": 12.000012963852772,
+    "hip_lean_degrees": 4.999999120222761,
+    "stance_ratio": 1.2500000333556758,
+    "near_step_over_L": 0.22000002592802279,
+    "far_hand_offset_over_L": [
+      0.1999999687075587,
+      -0.10000009238720767,
+      1.1920930020892324e-07
+    ],
+    "blade_down_degrees": 44.999997802659706,
+    "blade_outward_degrees": 19.999996669442343,
+    "blade_tip_clearance_over_H": 0.15044554846442967,
+    "blade_tip_world": [
+      0.9325737953186035,
+      -0.5448447465896606,
+      0.3474206328392029
+    ],
+    "grip_world": [
+      0.3193497241785129,
+      -0.32164947812755906,
+      0.9999999950329462
+    ],
+    "edge_direction": [
+      -0.6644629358386259,
+      0.24184494782526816,
+      -0.7071068010619805
+    ],
+    "scarf_shoulder_hits": {
+      "near": true,
+      "far": true
+    }
+  },
+  "spec_hash": "fa7df679eb9c8c19978d44932adc8082d79b83b937702b1108071ee3c167f5c5",
+  "native_mesh_hash": "2b649e22b26aac0e780c94c8a7347625c339604c1121ddb076248b12b4eea7c7",
+  "max_joint_error_m": 1.4502472627214942e-06,
+  "passed": true
+}

@@ -1,0 +1,306 @@
+{
+  "native_windowed_run": false,
+  "publication": false,
+  "all_changes_uncommitted": true,
+  "records": [
+    {
+      "name": "focused",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=tools:experiments/cutouts/chainbound_gaoler python3 -m unittest tests.test_rr38_gaoler tests.test_maquette_cutout.GaolerCaseTests.test_production_motion_and_approved_paint_are_untouched_copies -v",
+      "log": "/private/tmp/rr38-focused-sealed.log",
+      "log_sha256": "3a4bea8ecce06d0a32adfa9fe02c10e24c7e2a79f22182dec6650c2cd596a973",
+      "result_lines": [
+        "Ran 12 tests in 19.092s",
+        "OK",
+        "RR38 BONE SAMPLES: PASS (1348 poses; headless transforms only)"
+      ]
+    },
+    {
+      "name": "source_numeric_gates",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/chainbound_gaoler/rr38_gates.py",
+      "log": "/private/tmp/rr38-source-gates-sealed.log",
+      "log_sha256": "89bea9620c19dbc9defdbd2d33c4d7b9160c8af183779d410b40d6b0f37cb632",
+      "result_lines": [
+        "RR38 ALL GATES: PASS (0 unique errors; native=False)",
+        "RR38 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 chain=0 facing=0 reach=0 overreach=5",
+        "RR38 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 chain=0 facing=0 reach=0 overreach=4"
+      ]
+    },
+    {
+      "name": "treated_numeric_gates",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/chainbound_gaoler/rr38_gates.py --case experiments/cutouts/chainbound_gaoler/rr38/proof/production_case",
+      "log": "/private/tmp/rr38-treated-gates-sealed.log",
+      "log_sha256": "89bea9620c19dbc9defdbd2d33c4d7b9160c8af183779d410b40d6b0f37cb632",
+      "result_lines": [
+        "RR38 ALL GATES: PASS (0 unique errors; native=False)",
+        "RR38 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 chain=0 facing=0 reach=0 overreach=5",
+        "RR38 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 chain=0 facing=0 reach=0 overreach=4"
+      ]
+    },
+    {
+      "name": "full_godot",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path . --script tests/run_tests.gd",
+      "log": "/private/tmp/rr38-full-godot-final.log",
+      "log_sha256": "580f0e37cb7790497607d662fa840542cc207db204327a4094d7c1da16397a64",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (841 scripts; full suite=487, quarantined=29, windowed probe=325)",
+        "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)",
+        "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)",
+        "SFX SYNC HARNESS RESULT: PASS (1688 observations, 0 failures)",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 main menu resume safety",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 board hover input-batch coalescing",
+        "TEST RESULT: PASS board surface presentation",
+        "TEST RESULT: PASS migrated presentation probe scripts",
+        "TEST RESULT: PASS card presentation cache 35 raw and imported byte-identical images, source and algorithm invalidation",
+        "TEST RESULT: PASS \u2014 bounded card proxy reuse and reset semantics",
+        "TEST RESULT: PASS \u2014 44 analytics-context/boundary comparisons (0 failures)",
+        "TEST RESULT: PASS Dragon exchange presentation []",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 2470 forced-movement query comparisons (0 failures)",
+        "TEST RESULT: PASS \u2014 7978 forced-movement query comparisons (0 failures)",
+        "TEST RESULT: PASS \u2014 2200 forced-movement query comparisons (0 failures)",
+        "TEST RESULT: PASS \u2014 3910 forced-movement query comparisons (0 failures)",
+        "TEST RESULT: PASS \u2014 868 forced-movement query comparisons (0 failures)",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 main menu input and startup transitions",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 profile read and repair equivalence (0 failures)",
+        "TEST RESULT: PASS \u2014 save pipeline compatibility and cleanup",
+        "TEST RESULT: PASS \u2014 committed save/resume boundary matrix",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS surface analytics batch and partial append recovery",
+        "TEST RESULT: PASS ui_components_gallery_fixture",
+        "RR38 RUNTIME: PASS (239 checks; headless registration, views, portraits and clocks)",
+        "FULL SUITE RUNTIME: 806.222 seconds (budget 900 seconds)",
+        "ERROR: Program sub-suite failed: special_encounter_test (exit 1)",
+        "ERROR: Program sub-suite failed: enemy_no_action_test (exit 124) (timed out)",
+        "ERROR: Program sub-suite failed: fix_11_test (exit 1)",
+        "ERROR: Program sub-suite failed: fix_11_probe (exit 1)",
+        "TEST RESULT: FAIL (4 failure(s))"
+      ]
+    },
+    {
+      "name": "art_identity",
+      "command": "python3 tests/test_art_identity_gate.py",
+      "log": "/private/tmp/rr38-art-last.log",
+      "log_sha256": "8615a9218264b81463accb67640f3646d3a96df1401abe2170d0a11b094e0ace",
+      "result_lines": [
+        "Ran 111 tests in 49.864s",
+        "OK"
+      ]
+    },
+    {
+      "name": "icon_identity",
+      "command": "python3 tests/test_icon_identity_policy.py",
+      "log": "/private/tmp/rr38-icons-last.log",
+      "log_sha256": "640bf7fdb0d5e9c16d5c2deb593359f2b02ae3ffe8e00da72241e69615ca4abe",
+      "result_lines": [
+        "Ran 8 tests in 0.075s",
+        "OK"
+      ]
+    },
+    {
+      "name": "registration",
+      "command": "python3 tools/test_registration_audit.py",
+      "log": "/private/tmp/rr38-registration-last.log",
+      "log_sha256": "472ce837ab453dbcd4456a560e4d18854356b14492457052a53cd31f304b5cfb",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (841 scripts; full suite=487, quarantined=29, windowed probe=325)"
+      ]
+    },
+    {
+      "name": "stock_export_runtime",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- /private/tmp/rr38-export-template/Godot --headless",
+      "log": "/private/tmp/rr38-export-runtime-verified.log",
+      "log_sha256": "03e24f047782efd50cc35a95f7bcae3d3fe5a1b8d6d29c3ab276eccb37bc70c7",
+      "result_lines": [
+        "GAOLER CUTOUT EXPORT RUNTIME: PASS (editor=false)"
+      ]
+    },
+    {
+      "name": "shadow",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path . --script res://tests/rr38/shadow_refresh.gd",
+      "log": "/private/tmp/rr38-shadow-sealed.log",
+      "log_sha256": "f29a8776bf5e01206e0636e715a8d258226946a90200b369af0619e27b19fb1f",
+      "result_lines": [
+        "RR38 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ]
+    },
+    {
+      "name": "native_density_pending",
+      "command": "python3 tools/process_board_density.py --check --only chainbound_gaoler_cutout",
+      "log": "/private/tmp/rr38-density-sealed-check.log",
+      "log_sha256": "0cb6084a8e8172e91d0024ccf456d60bec7a849521c1c1d41dd6d6d9bae29a89",
+      "result_lines": [
+        "rest rebake needed: assets/units/chainbound_gaoler_cutout/humanoid_v2/front/rest.png: no rebake record; run --record-rests after native rebake",
+        "rest rebake needed: assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/rest.png: no rebake record; run --record-rests after native rebake"
+      ]
+    },
+    {
+      "name": "production_front",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path . --script tests/rr38/production_capture.gd -- --type chainbound_gaoler --logic-only --output /private/tmp/rr38-production-front-verified",
+      "runner": "tools/godot_task_runner.py --task-id rr-38 --stream --",
+      "log": "/private/tmp/rr38-production-front-verified.log",
+      "log_sha256": "3b4d7568107866b640b3528fb432c43aad417f5eeec8bea5518f6f2dc98c7ead",
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1440 frames)"
+      ]
+    },
+    {
+      "name": "production_rear",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path . --script tests/rr38/production_capture.gd -- --type chainbound_gaoler --rear --logic-only --output /private/tmp/rr38-production-rear-verified",
+      "runner": "tools/godot_task_runner.py --task-id rr-38 --stream --",
+      "log": "/private/tmp/rr38-production-rear-verified.log",
+      "log_sha256": "fefa854fd2e6a70770d30cb80b2a1f6cbc6d0028d376a7df34083adb3de67961",
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1440 frames)"
+      ]
+    },
+    {
+      "name": "pack_build",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path . --script tests/chainbound_gaoler_cutout_pack_test.gd -- build /private/tmp/rr38-export.pck",
+      "log": "/private/tmp/rr38-export-build.log",
+      "log_sha256": "92b4d66fc3ae533f288411be84f299e8faec67b68fd814f0ab4f7d292a20007a",
+      "result_lines": [
+        "GAOLER CUTOUT PACK TEST RESULT: PASS (build, editor=true)"
+      ]
+    },
+    {
+      "name": "empty_project_pack",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path /private/tmp/rr38-empty --script /Users/borgerding/workspace/Labyrinth.worktrees/rr-38/tests/chainbound_gaoler_cutout_pack_test.gd -- verify /private/tmp/rr38-export.pck",
+      "log": "/private/tmp/rr38-export-empty-verified.log",
+      "log_sha256": "e09e297635f5034c704c7d6ae6634eb1744449c86d68ff80eb77cefaa35cbb01",
+      "result_lines": [
+        "GAOLER CUTOUT PACK TEST RESULT: PASS (verify, editor=true)"
+      ]
+    },
+    {
+      "name": "benchmark_script_load",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path . --script /private/tmp/rr38-benchmark-load.gd",
+      "log": "/private/tmp/rr38-benchmark-load.log",
+      "log_sha256": "c3ca794dcd632d33a37f1b1ead89796635c725f28d3afe517a9ae43f9c9a4234",
+      "result_lines": [
+        "RR38 BENCHMARK SCRIPT LOAD: PASS (2 scripts; no windowed run)"
+      ]
+    },
+    {
+      "name": "native_probe_load",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path . --script tests/rr38/native_capture.gd -- --validate-only --output /private/tmp/rr38-native-probe-final",
+      "log": "/private/tmp/rr38-native-probe-closure.log",
+      "log_sha256": "71117fd2385db7b108aa0c569faef05e8d8a2e5c941f253835c06af6c77b8af5",
+      "result_lines": [
+        "RR38 NATIVE PROBE LOAD: PASS"
+      ]
+    },
+    {
+      "name": "source_cpu_sweep",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=tools python3 experiments/cutouts/chainbound_gaoler/rr38_sweep.py",
+      "log": "/private/tmp/rr38-source-sweep-final.log",
+      "log_sha256": "cbcfdcdc427a68fc51cae508b6391ec8fcea6d33c2b69b11e8e4d13fbe085f76",
+      "result_lines": [
+        "RR38 CPU SWEEP: FAIL (892 frames; 422 findings; 5449 flat regions; native=False)"
+      ]
+    },
+    {
+      "name": "treated_cpu_sweep",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=tools python3 experiments/cutouts/chainbound_gaoler/rr38_sweep.py --case experiments/cutouts/chainbound_gaoler/rr38/proof/production_case",
+      "log": "/private/tmp/rr38-treated-sweep-final.log",
+      "log_sha256": "ea61baf6f2211f4b9288ec176d4646df68d1f5b47e27fac4977c2516a5f02392",
+      "result_lines": [
+        "RR38 CPU SWEEP: FAIL (892 frames; 422 findings; 5300 flat regions; native=False)"
+      ]
+    },
+    {
+      "name": "optional_legacy_cpu_benchmark",
+      "command": "godot --log-file /private/tmp/labyrinth-godot-home/rr-38-1792965910553007000-80199/godot.log --headless --path . --script tests/cutout_cpu_performance_benchmark.gd",
+      "log": "/private/tmp/rr38-cpu-benchmark.log",
+      "log_sha256": "c0c68bfbcf1da325551c4d90a0efad4570307506c0ebb2e0a600138810aef274",
+      "result_lines": [
+        "SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'."
+      ],
+      "status": "Failed: unchanged Lightning Wisp crown dictionary access in scripts/lightning_wisp_cutout/motion.gd:42; no performance success claimed."
+    },
+    {
+      "name": "post_fix_integration_python",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=tools:tests python3 -m unittest test_board_pixel_density test_program_suite_runner test_proof_runtime_paths -v",
+      "log": "/private/tmp/rr38-integration-python-final.log",
+      "log_sha256": "61855f4e0b6623c645afc95f3a5704ac886a3d899e2226f50391adfbcf82a77f",
+      "result_lines": [
+        "FAIL: test_shipped_derivations_and_manifest_are_current (test_board_pixel_density.BoardPixelDensityTest)",
+        "Ran 82 tests in 140.745s",
+        "FAILED (failures=1)"
+      ],
+      "remaining": "Only the two absent native Gaoler rest certificates; 81 other tests pass."
+    },
+    {
+      "name": "weaver_ignored_output_bootstrap",
+      "command": "mkdir -p experiments/cutouts/briar_weaver/mq9/proof/logs; PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=tools:tests python3 -m unittest test_rr21_review.ReviewTests.test_native_preflight_requires_current_capture_and_never_rebinds_it test_rr21_review.ReviewTests.test_review_from_clean_proof_state_regenerates_real_direction_evidence -v",
+      "log": "/private/tmp/rr38-weaver-bootstrap-check.log",
+      "log_sha256": "ec2039a546aacb08f474c94974aacb09a2f05cdf2db034c8096b58684901aee6",
+      "result_lines": [
+        "Ran 2 tests in 36.241s",
+        "OK"
+      ],
+      "note": "Only the ignored output parent was created. No Weaver source or assertion changes; validation-only, no GUI."
+    },
+    {
+      "name": "full_python",
+      "command": "LABYRINTH_TASK_ID=rr-38 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "log": "/private/tmp/rr38-full-python-final.log",
+      "log_sha256": "6637850f97faad6f2064f396a1cf8cc3a7ee6f25c1cdbdea0bd897c3f11fea8d",
+      "result_lines": [
+        "Ran 1969 tests in 4027.597s",
+        "FAILED (failures=8, errors=4, skipped=66)"
+      ],
+      "failure_list": [
+        "ERROR: test_every_transitive_probe_preload_and_base_is_bound (test_proof_runtime_paths.ProofRuntimePathsTests)",
+        "ERROR: test_storage_production_preloads_are_bound_only_for_production (test_proof_runtime_paths.ProofRuntimePathsTests)",
+        "ERROR: test_native_preflight_requires_current_capture_and_never_rebinds_it (test_rr21_review.ReviewTests)",
+        "ERROR: test_review_from_clean_proof_state_regenerates_real_direction_evidence (test_rr21_review.ReviewTests)",
+        "FAIL: test_shipped_derivations_and_manifest_are_current (test_board_pixel_density.BoardPixelDensityTest)",
+        "FAIL: test_silhouette_probe_cases_pin_density_sources (test_board_pixel_density.BoardPixelDensityTest)",
+        "FAIL: test_manifest_preserves_all_existing_children_and_order (test_program_suite_runner.ProgramSuiteRunnerTests)",
+        "FAIL: test_dependency_form_mutations_are_caught (test_proof_runtime_paths.ProofRuntimePathsTests) (form='class_name_extends')",
+        "FAIL: test_dependency_form_mutations_are_caught (test_proof_runtime_paths.ProofRuntimePathsTests) (form='class_name_call')",
+        "FAIL: test_dependency_form_mutations_are_caught (test_proof_runtime_paths.ProofRuntimePathsTests) (form='shader_preload')",
+        "FAIL: test_dependency_form_mutations_are_caught (test_proof_runtime_paths.ProofRuntimePathsTests) (form='case_motion_preload')",
+        "FAIL: test_dependency_form_mutations_are_caught (test_proof_runtime_paths.ProofRuntimePathsTests) (form='archived_case_motion_preload')"
+      ],
+      "note": "This full run imported the tests before the integration fixes. Subsequent 82-test integration and 2-test Weaver reruns resolve every listed issue except native rest certification. The full run was not repeated after those fixes."
+    }
+  ],
+  "note": "Full Godot programs completed before the diagnostic-only constant-donor amendment; focused Python coverage ran after it.",
+  "current_known_issues": [
+    "Native rest rebake and certification require windowed owner proof.",
+    "CPU construction in both views retains 422 findings; 5449 source / 5300 treated flat-region crops require judgment.",
+    "Three TODO_DESIGN placeholders remain in inputs/integration.",
+    "Four full Godot program failures remain in untouched SPX import / GameData dependencies.",
+    "Optional legacy benchmark fails on unchanged Lightning Wisp crown access."
+  ],
+  "static_checks": {
+    "git_diff_check": "PASS (exit 0)",
+    "proof_shell_syntax": "PASS (sh -n, exit 0)",
+    "python_compile": "PASS (py_compile, task-local cache)"
+  }
+}

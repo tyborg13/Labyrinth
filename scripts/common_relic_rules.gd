@@ -97,7 +97,8 @@ static func consume_melee_target(engine: RefCounted, state: Dictionary, action: 
 			continue
 		var amount: int = Data.fixed_point_amount(int(effect.get("amount", 0)))
 		var was_chilled: bool = bool(state["enemies"][index].get("chilled", false))
-		Surface.remove(state, tile, "elemental", "consume")
+		var source: Dictionary = preload("res://scripts/surface_expend_rules.gd").relic_source(state.get("damage_context", {}), effect, Data.relic_def(str(effect.get("relic_id", ""))))
+		Surface.remove(state, tile, "elemental", "consume", source)
 		Surface.sync_chilled(state)
 		var tiles: Array[Vector2i]
 		tiles.append(tile)

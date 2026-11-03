@@ -1,0 +1,100 @@
+{
+  "character_id": "gale_herald",
+  "rig": "humanoid_v2",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {},
+  "direction_clips": [
+    "move",
+    "call_the_wind",
+    "still_air",
+    "hit",
+    "death"
+  ],
+  "body_direction_clips": {
+    "gust_bolt": "torso"
+  },
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the protagonist's cut-out bob: upper body down 2 px and back as one rigid piece; the horn arm follows a beat later (the Thrall's pre-computed sword-lag curve on upper_far, moving the whole arm and horn rigidly); banners, tabard, legs and boots still (director, rr-33 feedback 1 applied to rr-32)",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.9,
+      "intents": [],
+      "note": "a stocky march on the protagonist's model: both legs step, six steps per tile rest to rest, near foot leading; the horn stays at the mask; the banners stream 2 px further back while walking",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 6,
+        "lane_narrowing": 0.7,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.5,
+          "down": 3.0,
+          "passing": 0.8,
+          "up": 0.4
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "hand_near",
+            "px": 3
+          }
+        },
+        "max_fit_px": 6
+      },
+      "release_at": {}
+    },
+    "call_the_wind": {
+      "seconds": 1.2,
+      "contact": 0.6,
+      "intents": [
+        "call_the_wind:call_wind"
+      ],
+      "note": "draws a breath (leans back, chest up), then blows the horn: the body pushes forward behind the horn, the horn bell lifts toward the sky, the near hand flings open, and both banners billow up as the wind rises (contact); holds the note; settles",
+      "release_at": {}
+    },
+    "gust_bolt": {
+      "seconds": 0.8,
+      "contact": 0.45,
+      "intents": [
+        "gust_bolt:ranged"
+      ],
+      "note": "a short sharp blast: a quick lean back, then the body drives the horn toward the target as the bolt leaves (contact) and the bell kicks up; the near hand braces back; recoil and settle. The horn arm stays folded at the mask (its rest is at the elbow's fold limit), so the horn moves with the body and its own angle",
+      "release_at": {}
+    },
+    "still_air": {
+      "seconds": 0.9,
+      "contact": 0.5,
+      "intents": [
+        "still_air:block"
+      ],
+      "note": "stills the air: tips the horn down across its body (horn angle only; the arm stays folded at the mask), raises the near hand palm-out in front, settles its weight; the banners fall slack and hang (contact); holds; recovers",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, the near hand trails 1 px; banners flick 2 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.5,
+      "terminal": true,
+      "intents": [],
+      "note": "the wind leaves it: it sinks to its knees and pitches forward, the hood bows, the horn tips down as the body falls (the folded horn arm rides with the torso), and the banners sink toward the floor; terminal pose held, then the existing fade",
+      "release_at": {}
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

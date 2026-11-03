@@ -1,0 +1,98 @@
+{
+  "all_57_source_piece_hashes_preserved": true,
+  "all_protected_input_bytes_preserved": true,
+  "fresh_cold_replay_passed": true,
+  "fresh_exact_replay_passed": true,
+  "cold_mesh_hashes": {
+    "cold": "943a4519b9f457746fc3d53609c2a26e533e8b253cf1ac7668a45df1d50e05bd",
+    "replay": "943a4519b9f457746fc3d53609c2a26e533e8b253cf1ac7668a45df1d50e05bd",
+    "independent_cold": "943a4519b9f457746fc3d53609c2a26e533e8b253cf1ac7668a45df1d50e05bd"
+  },
+  "native_mutations": {
+    "status": "opened_native",
+    "overall_baseline_passed": true,
+    "caught": 6,
+    "survived": 0,
+    "rows": [
+      {
+        "mutation": "plate_readded",
+        "caught": true,
+        "target_gate_baseline_passed": true,
+        "failed_checks": [
+          "no_pauldrons",
+          "object_inventory",
+          "nothing_rises_beside_hood"
+        ],
+        "failed_rows": []
+      },
+      {
+        "mutation": "two_fingers_fused",
+        "caught": true,
+        "target_gate_baseline_passed": true,
+        "failed_checks": [
+          "front_claw_tip_separation",
+          "numeric_rows"
+        ],
+        "failed_rows": [
+          "fan_0",
+          "fan_1",
+          "finger_far_1_root_lateral",
+          "finger_far_1_fan_rule"
+        ]
+      },
+      {
+        "mutation": "finger_shortened_20_percent",
+        "caught": true,
+        "target_gate_baseline_passed": true,
+        "failed_checks": [
+          "numeric_rows"
+        ],
+        "failed_rows": [
+          "finger_far_0_length",
+          "finger_far_0_base_thickness",
+          "finger_far_0_segment_0",
+          "finger_far_0_segment_1",
+          "finger_far_0_segment_2",
+          "finger_far_0_radius_0",
+          "finger_far_0_radius_1",
+          "finger_far_0_radius_2"
+        ]
+      },
+      {
+        "mutation": "curl_zero",
+        "caught": true,
+        "target_gate_baseline_passed": true,
+        "failed_checks": [
+          "numeric_rows"
+        ],
+        "failed_rows": [
+          "finger_far_0_knuckle_1",
+          "finger_far_0_knuckle_2"
+        ]
+      },
+      {
+        "mutation": "ring_outside_fist",
+        "caught": true,
+        "target_gate_baseline_passed": true,
+        "failed_checks": [
+          "retained_geometry",
+          "near_wrist_roll_within_limit"
+        ],
+        "failed_rows": []
+      },
+      {
+        "mutation": "arm_scaled_2_percent",
+        "caught": true,
+        "target_gate_baseline_passed": true,
+        "failed_checks": [
+          "retained_geometry",
+          "numeric_rows"
+        ],
+        "failed_rows": [
+          "upper_plate_near_length_ratio"
+        ]
+      }
+    ]
+  },
+  "all_57_fresh_native_mesh_hashes_preserved": true
+}

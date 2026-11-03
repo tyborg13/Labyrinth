@@ -1,0 +1,11 @@
+[
+ {
+  "name": "leather and brass: red-orange cast -> the identity's duller, more yellow-brown (hue 50 -> ~58, chroma 28 -> ~22)",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.04,
+  "hue_deg": [0, 75],
+  "lab_scale": [1.0, 0.68, 0.86],
+  "box": [0, 0, 1024, 1024]
+ }
+]

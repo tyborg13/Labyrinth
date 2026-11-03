@@ -326,5 +326,5 @@ func _pass_and_compare(label: String, required_clip: String) -> void:
 		_assert(after.get(key) == expected.get(key), "Actual RunScene preserves exact resolved " + key + ": " + label)
 	_assert((_manifest["clips"][-1]["phases_seen"] as Array).has(required_clip), "Actual intent selects " + required_clip + ": " + label)
 	var definition: Dictionary = GameData.enemy_def("tharokh")
-	_assert(int(definition["max_hp"]) == 64 and int(definition["reward_embers"]) == 80 and bool(definition["boss_bar"]), "Boss identity and natural values remain unchanged")
+	_assert(int(definition["max_hp"]) == 72 and int(definition["reward_embers"]) == 80 and bool(definition["boss_bar"]), "Boss identity and natural values remain unchanged")
 	_manifest["clips"][-1]["outcome"] = {"player_hp":after["player"]["hp"], "enemies":after["enemies"], "terrain":after["terrain"], "initiative_clock":after["initiative_clock"]}

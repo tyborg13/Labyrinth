@@ -47,6 +47,9 @@ def load_registry() -> dict:
             if path in paths:
                 raise ValueError(f"duplicate registered path: {path}")
             paths.add(path)
+        partitions = entry.get("source_partitions", {})
+        if not isinstance(partitions, dict) or set(partitions) - set(entry["paths"]):
+            raise ValueError("source_partitions must name registered paint paths: " + entry["id"])
     for entry in registry["entries"]:
         alpha_source_entry(entry, registry)
         recorded_calibration(entry)
@@ -224,9 +227,14 @@ def derive(entry: dict, path: str) -> tuple[Image.Image, dict]:
         else:
             output = process(original, settings["mode"], settings["grid"], entry["frames"],
                              settings.get("scale", 1.0), alpha.get("alpha_class"))
+        partition = entry.get("source_partitions", {}).get(path)
+        if partition is not None:
+            from humanoid_cutout.density_partitions import apply as apply_partition
+            output, partition_binding = apply_partition(ROOT, original, output, partition)
         source_digest = pixel_digest(original)
     record = {"pixel_sha256": pixel_digest(output), "source_pixel_sha256": source_digest,
               "id": entry["id"], "mode": settings["mode"], "grid": settings["grid"]}
+    if partition is not None: record["source_partition"] = partition_binding
     if "facings" in entry:
         record["facing"] = "front" if entry.get("exact_source_partition") else Path(path).parent.name
     if settings["mode"] == "resample":

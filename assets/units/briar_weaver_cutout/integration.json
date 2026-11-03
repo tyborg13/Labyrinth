@@ -2,7 +2,7 @@
   "ready": false,
   "rig": "humanoid_v2",
   "case": "experiments/cutouts/briar_weaver/mq9",
-  "director_sha256": "44906439aafd02f3fb0953f0c74ef2384b91f34fc6a6dbd2a1b47e9ccbbcecff",
+  "director_sha256": "f9cead6a8b5ea1e3cd3e07f368316cf0767a8f6a50d57cc7d8711f650811eb5d",
   "design_placeholders": {},
   "native_proof": "pending director rest/native/production/idle/review",
   "rest_identity": {
@@ -18,8 +18,8 @@
   "files": {
     "actions.gd": "7896d6daf75009ddb23ab8964f25f0582c7a4d1dfe6c6134b6e7c01a4e3df609",
     "front.json": "74aa927bf10edc8cc94b711d052db999a4a7613d661221362ee7097eb0681ed3",
-    "humanoid_v2/compiled_motion.json": "2e544002927a945c119f9f03bdc2f5d54fa5259d8026b22188ff97b85b65fd46",
-    "humanoid_v2/director_motion.json": "44906439aafd02f3fb0953f0c74ef2384b91f34fc6a6dbd2a1b47e9ccbbcecff",
+    "humanoid_v2/compiled_motion.json": "30103aaae94d37a2a8004956788707589d256481dbca4a5ac4d08469b1bd4fc4",
+    "humanoid_v2/director_motion.json": "f9cead6a8b5ea1e3cd3e07f368316cf0767a8f6a50d57cc7d8711f650811eb5d",
     "humanoid_v2/front/arm_far.png": "937ad40f0abab7c22e6d3b314b54679c616c059a98592ce2aacbe25b274b04ff",
     "humanoid_v2/front/arm_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/arm_near.png": "5be2fd3a3a5d284a13f087e246f0cb244129b2cd06679d9e9ba60264557f2611",
@@ -133,8 +133,6 @@
   },
   "idle_phase_seed": "slot",
   "death_timing": {
-    "clip_seconds": 1.5,
-    "dissolve_frames": 28,
-    "dissolve_frame_seconds": 0.037
+    "reduced_motion_sequence": true
   }
 }

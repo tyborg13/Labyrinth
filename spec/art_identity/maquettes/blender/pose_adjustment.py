@@ -52,7 +52,14 @@ def corrected_joints(spec, constraints):
                   (.5 - y / POSE_DEFAULTS['source_size']) * scale + basis[1] @ (camera_target - matrix[:3, 3]),
                   joints[item['shoulder_height_joint']][2]]
         target = np.linalg.solve([right, up, [0, 0, 1]], values)
-        middle, end = solve_two_bone(origin, joints[elbow], joints[hand], target)
+        mode = item.get('arm_mode', 'minimum_hand_displacement')
+        if mode == 'translate':
+            middle = (np.asarray(joints[elbow]) + target - origin).tolist()
+            end = (np.asarray(joints[hand]) + target - origin).tolist()
+        elif mode == 'minimum_hand_displacement':
+            middle, end = solve_two_bone(origin, joints[elbow], joints[hand], target)
+        else:
+            raise ValueError('Unknown arm correction mode: ' + mode)
         translation = np.subtract(end, joints[hand])
         joints.update({shoulder: target.tolist(), elbow: middle, hand: end})
         for name in item.get('translate_with_hand', []):

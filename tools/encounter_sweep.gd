@@ -11,7 +11,10 @@ const DEFAULT_FIRST_SEED: int = 1
 const DEFAULT_SEEDS: int = 2000
 const FREE_TILES_PER_TURN: int = 2
 const GOLDEN_SEEDS: PackedInt32Array = [1, 19, 421]
+# Compatibility constant used by the byte-frozen policy-v2 CLI.
 const CURRENT_REVISION: int = 6
+const LATEST_REVISION: int = 7
+const SUPPORTED_REVISIONS: PackedInt32Array = [5, 6, 7]
 const LEGACY_REVISION: int = 5
 const MAX_SEED_SCAN: int = 100000
 
@@ -20,24 +23,52 @@ static func option(args: PackedStringArray, name: String, fallback: String) -> S
 	return args[index + 1] if index >= 0 and index + 1 < args.size() else fallback
 
 static func cohorts(revision: int) -> PackedStringArray:
-	return PackedStringArray(["standard", "warband"] if revision == CURRENT_REVISION else ["standard"])
+	return PackedStringArray(["standard", "warband", "guardian", "boss"] if revision >= 6 else ["standard", "guardian", "boss"])
 
-static func map_for_seed(seed_value: int, revision: int = CURRENT_REVISION) -> Dictionary:
-	assert(revision in [LEGACY_REVISION, CURRENT_REVISION])
+static func bin_keys(revision: int) -> PackedStringArray:
+	var result: PackedStringArray
+	for cohort: String in cohorts(revision):
+		for tier: int in range(1, 4):
+			if cohort == "boss" and tier != 3: continue
+			for biome: String in Bosses.BOSS_ELEMENTS.values(): result.append("%s/%s/%s" % [cohort, biome, tier])
+	return result
+
+static func room_matches(room: Dictionary, cohort: String) -> bool:
+	match cohort:
+		"standard": return room["type"] == "combat"
+		"warband": return room["type"] == "special" and room.get("special_type", "") == "warband"
+		"guardian", "boss": return room["type"] == cohort
+	# Bot-only cohorts for the other enabled special types (spx-09). The sweep's
+	# own bins keep the four cohorts above.
+	return special_cohort(cohort, LATEST_REVISION) and room["type"] == "special" and room.get("special_type", "") == ("umbral_snare" if cohort == "snare" else cohort)
+
+static func special_cohort(cohort: String, revision: int) -> bool:
+	# One measurement-only API for every enabled special, including the legacy snare alias.
+	var type: String = "umbral_snare" if cohort == "snare" else cohort
+	var definition: Dictionary = preload("res://scripts/special_encounter_library.gd").definition(type)
+	return revision >= maxi(6, int(definition.get("first_layout_revision", 0))) and type != "warband" and bool(definition.get("enabled", false))
+
+static func sample_tier(room: Dictionary) -> int:
+	# Dragons occupy depth band 4, but the brief measures them with deck 3.
+	# Retain the unmodified room band separately in every new record.
+	return 3 if room["type"] == "boss" else posmod(int(room["depth"]) - 1, 4) + 1
+
+static func map_for_seed(seed_value: int, revision: int = LATEST_REVISION) -> Dictionary:
+	assert(revision in SUPPORTED_REVISIONS)
 	var state: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room", "section_map_layout_revision": revision}
 	Graph.initialize(state)
 	return state
 
-static func samples(state: Dictionary) -> Array[Dictionary]:
+static func samples(state: Dictionary, selected: PackedStringArray = PackedStringArray()) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	for section: Dictionary in state["map_sections"]:
 		var biome: String = Bosses.element_for_boss(str(section["boss_id"]))
 		for tier: int in range(1, 4):
-			for cohort: String in cohorts(int(state["section_map_layout_revision"])):
+			for cohort: String in (cohorts(int(state["section_map_layout_revision"])) if selected.is_empty() else selected):
 				var candidates: Array[Dictionary]
 				for room: Dictionary in state["rooms"].values():
-					var matches: bool = room["type"] == "combat" if cohort == "standard" else room["type"] == "special" and room.get("special_type", "") == "warband"
-					if matches and int(room["section_index"]) == int(section["index"]) and posmod(int(room["depth"]) - 1, 4) + 1 == tier:
+					var matches: bool = room_matches(room, cohort)
+					if matches and int(room["section_index"]) == int(section["index"]) and sample_tier(room) == tier:
 						candidates.append(room)
 				if candidates.is_empty(): continue
 				var room: Dictionary = candidates[posmod(int(state["seed"]), candidates.size())]
@@ -77,6 +108,8 @@ static func composition(sample: Dictionary, room: Dictionary) -> Dictionary:
 	var objective: Dictionary = room["objective"]
 	var result: Dictionary = {"seed": sample["seed"], "tier": sample["tier"], "biome": sample["biome"], "section_index": sample["section_index"], "coord": sample["room"]["coord"], "travel_dir": sample["travel_dir"], "objective": objective["type"], "encounter_id": room.get("encounter_id", ""), "unit_count": room["enemies"].size(), "base_hp": 0, "spawn_hp": 0, "roles": {}, "leader_type": "", "leader_distance": null, "leader_closest": null, "exit_path_length": null, "exit_free_turns": null}
 	result.merge({"revision": sample["revision"], "cohort": sample["cohort"], "special_type": room.get("special_type", ""), "special_variant": room.get("special_variant", "")})
+	if sample["cohort"] in ["guardian", "boss"]:
+		result.merge({"room_type": sample["room"]["type"], "room_tier": posmod(int(sample["room"]["depth"]) - 1, 4) + 1, "boss_id": room.get("boss_id", ""), "guardian_id": room.get("guardian_id", "")})
 	var closest: int = 1000000
 	for enemy: Dictionary in room["enemies"]:
 		var definition: Dictionary = Game.enemy_def(enemy["type"])
@@ -105,7 +138,7 @@ static func golden(combat_snapshot_normalizer: Callable = Callable()) -> Diction
 		var state: Dictionary = map_for_seed(seed_value, LEGACY_REVISION)
 		var rooms: Array = []
 		var combat: Array = []
-		for sample: Dictionary in samples(state):
+		for sample: Dictionary in samples(state, PackedStringArray(["standard"])):
 			var generated: Dictionary = layout(sample, state)
 			rooms.append(generated)
 			var engine := Combat.new()
@@ -136,8 +169,8 @@ func _initialize() -> void:
 		return
 	var count: int = int(option(args, "--seeds", str(DEFAULT_SEEDS)))
 	var first: int = int(option(args, "--first-seed", str(DEFAULT_FIRST_SEED)))
-	var revision: int = int(option(args, "--revision", str(CURRENT_REVISION)))
-	assert(revision in [LEGACY_REVISION, CURRENT_REVISION])
+	var revision: int = int(option(args, "--revision", str(LATEST_REVISION)))
+	assert(revision in SUPPORTED_REVISIONS)
 	assert(count > 0 and first >= 0)
 	var counts: Dictionary = {}
 	var generated: int = 0
@@ -160,6 +193,7 @@ func _initialize() -> void:
 			assert(int(row["revision"]) == revision and int(row["seed"]) >= first)
 			var key: String = "%s/%s/%s" % [row["cohort"], row["biome"], int(row["tier"])]
 			var identity: String = "%s/%s" % [key, int(row["seed"])]
+			assert(key in bin_keys(revision), "Unknown bin in sweep checkpoint")
 			assert(not resumed.has(identity), "Duplicate seed in sweep checkpoint")
 			resumed[identity] = true
 			counts[key] = int(counts.get(key, 0)) + 1
@@ -167,7 +201,8 @@ func _initialize() -> void:
 			generated += 1
 			seed_value = maxi(seed_value, int(row["seed"]))
 		file.seek_end()
-	while counts.size() < 18 * cohorts(revision).size() or counts.values().min() < count:
+	var expected_keys: PackedStringArray = bin_keys(revision)
+	while counts.size() < expected_keys.size() or counts.values().min() < count:
 		if seed_value - first >= MAX_SEED_SCAN:
 			push_error("Seed scan exhausted before every cohort/tier/biome bin was filled")
 			quit(1)

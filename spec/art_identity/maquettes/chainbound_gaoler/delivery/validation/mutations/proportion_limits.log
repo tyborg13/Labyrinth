@@ -1,0 +1,14 @@
+test_proportions_are_measured_against_the_declared_limit (tests.test_mq15_maquette.DeliveryTests) ... FAIL
+
+======================================================================
+FAIL: test_proportions_are_measured_against_the_declared_limit (tests.test_mq15_maquette.DeliveryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 195, in test_proportions_are_measured_against_the_declared_limit
+    self.assertFalse(proportions(recipe, self.spec, self.folder, native, joints)['passed'])
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.164s
+
+FAILED (failures=1)

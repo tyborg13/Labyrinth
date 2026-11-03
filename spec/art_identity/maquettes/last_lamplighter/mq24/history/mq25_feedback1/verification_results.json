@@ -1,0 +1,96 @@
+{
+  "status": "FEEDBACK1_COLUMN_RULE_CONFLICT",
+  "accepted": false,
+  "requirements": {
+    "1_top_bar": "Implemented director 8 px allowance. Current 6 px passes; regression at 12 px fails.",
+    "2_per_column": "Global bottom removed; every occupied visible lower-grip-ring/held-chain column checked. Front columns 722\u2013726 still fail. Counting lantern_cap_ring would pass 30/30 columns in both views, but that scope is unselected pending clarification.",
+    "accepted_delivery": "Not issued: strict per-column acceptance fails. Safe stage CLI is implemented and refuses failed proof before touching the existing delivery.",
+    "verify": "mq20 passes; mq24 rejects the remaining per-column check.",
+    "tests": "Focused only; no full Python or Godot suite, review, commit or Git write."
+  },
+  "todo_design_fields": [
+    "TODO_DESIGN_ring_chain_scope"
+  ],
+  "geometry": "feedback1_validation/geometry_preservation.json",
+  "capture_acceptance": "feedback1_validation/mq24_acceptance.json",
+  "hardware_scope_options": "feedback1_validation/hardware_scope_options.json",
+  "new_native_capture_scope": "Existing round-0 native PNGs revalidated against matching compiled spec and fresh cold/exact/native-geometry audit. No new bitmap or geometry was chosen.",
+  "tests": {
+    "mq24": {
+      "command": "python3 -B -m unittest tests.test_mq24_maquette",
+      "exit_code": 1,
+      "result_lines": [
+        "FAIL: test_native_delivery_meets_ratified_image_contract (tests.test_mq24_maquette.ProofTests)",
+        "Ran 48 tests in 28.591s",
+        "FAILED (failures=1)"
+      ],
+      "log": "feedback1_validation/mq24_final.log"
+    },
+    "art_identity": {
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 111 tests in 86.519s",
+        "OK"
+      ],
+      "log": "feedback1_validation/art_identity.log"
+    },
+    "delivery_and_sidecars": {
+      "command": "python3 -B -m unittest spec.art_identity.maquettes.blender.test_delivery_validation tests.test_godot_sidecars",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 30 tests in 9.254s",
+        "OK"
+      ],
+      "log": "feedback1_validation/delivery_sidecars.log"
+    },
+    "mq20_verify": {
+      "command": "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq20.proof verify",
+      "exit_code": 0,
+      "result_lines": [
+        "MQ20_HASH_BOUND_DELIVERY: PASS"
+      ],
+      "log": "feedback1_validation/mq20_verify.log"
+    },
+    "resource_audit": {
+      "command": "python3 -B tools/run_python_suite.py --shards 4 --audit-only --output-dir spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-feedback1-resource-audit",
+      "exit_code": 0,
+      "result_lines": [
+        "ISOLATION AUDIT: 236 modules; /Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-feedback1-resource-audit/isolation-audit.md"
+      ],
+      "log": "feedback1_validation/resource_audit.log"
+    },
+    "mq24_verify": {
+      "exit_code": 1,
+      "result_lines": [
+        "ValueError: mq-24 acceptance failed"
+      ],
+      "log": "feedback1_validation/mq24_verify.log",
+      "command": "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq24.proof verify --capture spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-feedback1-native/capture --regeneration spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-regeneration"
+    }
+  },
+  "native_result_lines": [
+    "FITTED_RECIPE_PROOF: PASS; raw_hashes_identical=true; max_joint_error=1.8373953533280221e-06",
+    "EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=57",
+    "MQ24_NATIVE_AUDIT: PASS; caught=6; survived=0"
+  ],
+  "chosen_defaults": {
+    "new_player_visible_values": null,
+    "test_mask_dimensions": [
+      20,
+      4
+    ],
+    "test_fixture_fields": "tests/test_mq24_maquette.py FIXTURE_DEFAULTS",
+    "top_bar_measurement": "Native silhouette top per the director y=570/576 example; same 128 alpha and containing-pixel projection as round 0.",
+    "stage_archive_path": "history/feedback1_delivery_before_acceptance.tar.gz (not written until accepted proof verifies)"
+  },
+  "final_readback": {
+    "code_and_contract_snapshot_matches": true,
+    "protected_geometry_inputs_match": true,
+    "all_57_source_meshes_match": true,
+    "all_57_fresh_native_meshes_match": true,
+    "unowned_changes": [],
+    "sidecars_unchanged": true,
+    "accepted": false
+  }
+}

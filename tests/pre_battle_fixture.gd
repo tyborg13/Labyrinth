@@ -116,7 +116,7 @@ func _assert_foe_fit(panel: Control, count: int) -> void:
 			line_center = center
 
 func _assert_cards(panel: Control, ids: Array, kind: String) -> void:
-	var grid := panel.find_child("PreBattleDeckFlow" if kind == "deck" else "PreBattleAttunedRow", true, false) as Control
+	var grid := panel.find_child("PreBattleDeckFlow", true, false) as Control
 	var represented: Array = []
 	var top_y: float = (grid.get_child(0) as Control).position.y if grid.get_child_count() > 0 else 0.0
 	var first_row_count: int = 0

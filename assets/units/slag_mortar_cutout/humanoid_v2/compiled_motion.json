@@ -2,7 +2,7 @@
   "rig": "humanoid_v2",
   "units": "source_px",
   "creature": "slag_mortar",
-  "director_sha256": "f8351c6a1a6bbb5eda7796c3ec030064de2df869e21c303b353aea9bfaaac6a2",
+  "director_sha256": "3d3e6ddab598c28132b90f78b577d8a5744254c3cc280cb03bb08d56568c8821",
   "projection": {
     "front": {
       "forward": [
@@ -28,14 +28,14 @@
       "release_at": {}
     },
     "move": {
-      "seconds": 0.85,
+      "seconds": 0.3333333333333333,
       "intents": [
         "brace:move_away"
       ],
       "note": "a heavy plod on the protagonist's model: both legs step, six stomping steps per tile rest to rest, the near foot leading; 5 px lift; the pelvis settles 3.5 px after each landing and the torso jolts 1 px on the four full-step landings; the crucible rides the torso; the fists swing 2 px; the loincloth flap trails 2 px",
       "gait": {
         "model": "protagonist_walk",
-        "steps_per_tile": 6,
+        "steps_per_tile": 4,
         "lead": "near",
         "stance_fraction": 0.6,
         "lift_px": 5,
@@ -194,62 +194,32 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.28,
+              "at": 0.4666666666666667,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.3,
+              "at": 0.5176666666666666,
               "value": -1,
               "interpolation": "linear"
             },
             {
-              "at": 0.34,
+              "at": 0.6196666666666667,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.48,
+              "at": 0.8,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.5,
+              "at": 0.851,
               "value": -1,
               "interpolation": "linear"
             },
             {
-              "at": 0.54,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.7,
-              "value": -1,
-              "interpolation": "linear"
-            },
-            {
-              "at": 0.74,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.9,
-              "value": -1,
-              "interpolation": "linear"
-            },
-            {
-              "at": 0.94,
+              "at": 0.9530000000000001,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -318,27 +288,17 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.08000000000000002,
-              "value": 0.2,
+              "at": 0.13333333333333333,
+              "value": 0.3333333333333333,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.32,
-              "value": 0.2,
+              "at": 0.5333333333333333,
+              "value": 0.3333333333333333,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.48,
-              "value": 0.6,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.72,
-              "value": 0.6,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
+              "at": 0.8,
               "value": 1.0,
               "interpolation": "smoothstep"
             },
@@ -361,42 +321,27 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.04000000000000001,
+              "at": 0.06666666666666667,
               "value": 5,
               "interpolation": "sine_power"
             },
             {
-              "at": 0.08000000000000002,
+              "at": 0.13333333333333333,
               "value": 0.0,
               "interpolation": "sine_power"
             },
             {
-              "at": 0.32,
+              "at": 0.5333333333333333,
               "value": 0.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.4,
+              "at": 0.6666666666666667,
               "value": 5,
               "interpolation": "sine_power"
-            },
-            {
-              "at": 0.48,
-              "value": 0.0,
-              "interpolation": "sine_power"
-            },
-            {
-              "at": 0.72,
-              "value": 0.0,
-              "interpolation": "smoothstep"
             },
             {
               "at": 0.8,
-              "value": 5,
-              "interpolation": "sine_power"
-            },
-            {
-              "at": 0.88,
               "value": 0.0,
               "interpolation": "sine_power"
             },
@@ -419,27 +364,17 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.08000000000000002,
+              "at": 0.13333333333333333,
               "value": -8.088500000000005,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.32,
+              "at": 0.5333333333333333,
               "value": -8.088500000000005,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.48,
-              "value": -8.088500000000005,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.72,
-              "value": -8.088500000000005,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
+              "at": 0.8,
               "value": 0.0,
               "interpolation": "smoothstep"
             },
@@ -462,28 +397,18 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.12,
+              "at": 0.19999999999999998,
               "value": 0.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.28,
-              "value": 0.4,
+              "at": 0.4666666666666667,
+              "value": 0.6666666666666666,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.52,
-              "value": 0.4,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": 0.8,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.92,
-              "value": 0.8,
+              "at": 0.8666666666666666,
+              "value": 0.6666666666666666,
               "interpolation": "smoothstep"
             },
             {
@@ -505,42 +430,27 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.12,
+              "at": 0.19999999999999998,
               "value": 0.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.2,
+              "at": 0.3333333333333333,
               "value": 5,
               "interpolation": "sine_power"
             },
             {
-              "at": 0.28,
+              "at": 0.4666666666666667,
               "value": 0.0,
               "interpolation": "sine_power"
             },
             {
-              "at": 0.52,
+              "at": 0.8666666666666666,
               "value": 0.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.6000000000000001,
-              "value": 5,
-              "interpolation": "sine_power"
-            },
-            {
-              "at": 0.68,
-              "value": 0.0,
-              "interpolation": "sine_power"
-            },
-            {
-              "at": 0.92,
-              "value": 0.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.96,
+              "at": 0.9333333333333333,
               "value": 5,
               "interpolation": "sine_power"
             },
@@ -563,27 +473,17 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.12,
+              "at": 0.19999999999999998,
               "value": 0.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.28,
+              "at": 0.4666666666666667,
               "value": 5.255249999999995,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.52,
-              "value": 5.255249999999995,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": 5.255249999999995,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.92,
+              "at": 0.8666666666666666,
               "value": 5.255249999999995,
               "interpolation": "smoothstep"
             },
@@ -606,117 +506,77 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.012800000000000002,
+              "at": 0.021333333333333333,
               "value": -1.75,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.04000000000000001,
+              "at": 0.06666666666666667,
               "value": -0.5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.06400000000000002,
+              "at": 0.10666666666666667,
               "value": -0.25,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.08000000000000002,
+              "at": 0.13333333333333333,
               "value": -2.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.11200000000000002,
+              "at": 0.18666666666666668,
               "value": -3.5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.18000000000000002,
+              "at": 0.30000000000000004,
               "value": -1.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.24000000000000005,
+              "at": 0.4,
               "value": -0.5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.28,
+              "at": 0.4666666666666667,
               "value": -2.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.312,
+              "at": 0.52,
               "value": -3.5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.38,
+              "at": 0.6333333333333333,
               "value": -1.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.44,
+              "at": 0.7333333333333334,
               "value": -0.5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.48,
-              "value": -2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.512,
-              "value": -3.5,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.5800000000000001,
+              "at": 0.8,
               "value": -1.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.64,
-              "value": -0.5,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": -2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.7120000000000001,
-              "value": -3.5,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.78,
-              "value": -1.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.8400000000000001,
-              "value": -0.5,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
-              "value": -1.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.8992,
+              "at": 0.8320000000000001,
               "value": -1.75,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.94,
+              "at": 0.9,
               "value": -0.5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.976,
+              "at": 0.96,
               "value": -0.25,
               "interpolation": "smoothstep"
             },
@@ -739,27 +599,17 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.08000000000000002,
+              "at": 0.13333333333333333,
               "value": -1.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.28,
+              "at": 0.4666666666666667,
               "value": 2.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.48,
-              "value": -2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": 2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
+              "at": 0.8,
               "value": -2.0,
               "interpolation": "smoothstep"
             },
@@ -782,27 +632,17 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.08000000000000002,
+              "at": 0.13333333333333333,
               "value": 1.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.28,
+              "at": 0.4666666666666667,
               "value": -2.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.48,
-              "value": 2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": -2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
+              "at": 0.8,
               "value": 2.0,
               "interpolation": "smoothstep"
             },
@@ -2133,62 +1973,32 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.28,
+              "at": 0.4666666666666667,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.3,
+              "at": 0.5176666666666666,
               "value": -1,
               "interpolation": "linear"
             },
             {
-              "at": 0.34,
+              "at": 0.6196666666666667,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.48,
+              "at": 0.8,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.5,
+              "at": 0.851,
               "value": -1,
               "interpolation": "linear"
             },
             {
-              "at": 0.54,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.7,
-              "value": -1,
-              "interpolation": "linear"
-            },
-            {
-              "at": 0.74,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.9,
-              "value": -1,
-              "interpolation": "linear"
-            },
-            {
-              "at": 0.94,
+              "at": 0.9530000000000001,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -2257,27 +2067,17 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.08000000000000002,
-              "value": 0.2,
+              "at": 0.13333333333333333,
+              "value": 0.3333333333333333,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.32,
-              "value": 0.2,
+              "at": 0.5333333333333333,
+              "value": 0.3333333333333333,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.48,
-              "value": 0.6,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.72,
-              "value": 0.6,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
+              "at": 0.8,
               "value": 1.0,
               "interpolation": "smoothstep"
             },
@@ -2300,42 +2100,27 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.04000000000000001,
+              "at": 0.06666666666666667,
               "value": 5,
               "interpolation": "sine_power"
             },
             {
-              "at": 0.08000000000000002,
+              "at": 0.13333333333333333,
               "value": 0.0,
               "interpolation": "sine_power"
             },
             {
-              "at": 0.32,
+              "at": 0.5333333333333333,
               "value": 0.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.4,
+              "at": 0.6666666666666667,
               "value": 5,
               "interpolation": "sine_power"
-            },
-            {
-              "at": 0.48,
-              "value": 0.0,
-              "interpolation": "sine_power"
-            },
-            {
-              "at": 0.72,
-              "value": 0.0,
-              "interpolation": "smoothstep"
             },
             {
               "at": 0.8,
-              "value": 5,
-              "interpolation": "sine_power"
-            },
-            {
-              "at": 0.88,
               "value": 0.0,
               "interpolation": "sine_power"
             },
@@ -2358,27 +2143,17 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.08000000000000002,
+              "at": 0.13333333333333333,
               "value": 8.088499999999994,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.32,
+              "at": 0.5333333333333333,
               "value": 8.088499999999994,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.48,
-              "value": 8.088499999999994,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.72,
-              "value": 8.088499999999994,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
+              "at": 0.8,
               "value": 0.0,
               "interpolation": "smoothstep"
             },
@@ -2401,28 +2176,18 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.12,
+              "at": 0.19999999999999998,
               "value": 0.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.28,
-              "value": 0.4,
+              "at": 0.4666666666666667,
+              "value": 0.6666666666666666,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.52,
-              "value": 0.4,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": 0.8,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.92,
-              "value": 0.8,
+              "at": 0.8666666666666666,
+              "value": 0.6666666666666666,
               "interpolation": "smoothstep"
             },
             {
@@ -2444,42 +2209,27 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.12,
+              "at": 0.19999999999999998,
               "value": 0.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.2,
+              "at": 0.3333333333333333,
               "value": 5,
               "interpolation": "sine_power"
             },
             {
-              "at": 0.28,
+              "at": 0.4666666666666667,
               "value": 0.0,
               "interpolation": "sine_power"
             },
             {
-              "at": 0.52,
+              "at": 0.8666666666666666,
               "value": 0.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.6000000000000001,
-              "value": 5,
-              "interpolation": "sine_power"
-            },
-            {
-              "at": 0.68,
-              "value": 0.0,
-              "interpolation": "sine_power"
-            },
-            {
-              "at": 0.92,
-              "value": 0.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.96,
+              "at": 0.9333333333333333,
               "value": 5,
               "interpolation": "sine_power"
             },
@@ -2502,27 +2252,17 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.12,
+              "at": 0.19999999999999998,
               "value": 0.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.28,
+              "at": 0.4666666666666667,
               "value": -5.255249999999995,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.52,
-              "value": -5.255249999999995,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": -5.255249999999995,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.92,
+              "at": 0.8666666666666666,
               "value": -5.255249999999995,
               "interpolation": "smoothstep"
             },
@@ -2545,117 +2285,77 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.012800000000000002,
+              "at": 0.021333333333333333,
               "value": -1.75,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.04000000000000001,
+              "at": 0.06666666666666667,
               "value": -0.5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.06400000000000002,
+              "at": 0.10666666666666667,
               "value": -0.25,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.08000000000000002,
+              "at": 0.13333333333333333,
               "value": -2.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.11200000000000002,
+              "at": 0.18666666666666668,
               "value": -3.5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.18000000000000002,
+              "at": 0.30000000000000004,
               "value": -1.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.24000000000000005,
+              "at": 0.4,
               "value": -0.5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.28,
+              "at": 0.4666666666666667,
               "value": -2.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.312,
+              "at": 0.52,
               "value": -3.5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.38,
+              "at": 0.6333333333333333,
               "value": -1.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.44,
+              "at": 0.7333333333333334,
               "value": -0.5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.48,
-              "value": -2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.512,
-              "value": -3.5,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.5800000000000001,
+              "at": 0.8,
               "value": -1.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.64,
-              "value": -0.5,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": -2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.7120000000000001,
-              "value": -3.5,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.78,
-              "value": -1.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.8400000000000001,
-              "value": -0.5,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
-              "value": -1.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.8992,
+              "at": 0.8320000000000001,
               "value": -1.75,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.94,
+              "at": 0.9,
               "value": -0.5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.976,
+              "at": 0.96,
               "value": -0.25,
               "interpolation": "smoothstep"
             },
@@ -2678,27 +2378,17 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.08000000000000002,
+              "at": 0.13333333333333333,
               "value": -1.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.28,
+              "at": 0.4666666666666667,
               "value": 2.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.48,
-              "value": -2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": 2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
+              "at": 0.8,
               "value": -2.0,
               "interpolation": "smoothstep"
             },
@@ -2721,27 +2411,17 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.08000000000000002,
+              "at": 0.13333333333333333,
               "value": 1.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.28,
+              "at": 0.4666666666666667,
               "value": -2.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.48,
-              "value": 2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": -2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
+              "at": 0.8,
               "value": 2.0,
               "interpolation": "smoothstep"
             },

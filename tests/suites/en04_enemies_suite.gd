@@ -3,10 +3,11 @@ extends RefCounted
 const CombatScript = preload("res://scripts/combat_engine.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Bramble = preload("res://scripts/enemy_mechanics/bramble.gd")
-const Lob = preload("res://scripts/enemy_mechanics/lob.gd")
+const Lob = preload("res://scripts/enemy_mechanics/marked_strike.gd")
 const BrambleView = preload("res://scripts/enemy_mechanics/bramble_view.gd")
 const LobView = preload("res://scripts/enemy_mechanics/lob_view.gd")
 const Wind = preload("res://scripts/enemy_mechanics/wind.gd")
+const BattlefieldRules = preload("res://scripts/battlefield_rules/dispatcher.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Scene = preload("res://scripts/run_scene.gd")
@@ -50,8 +51,9 @@ static func intent(type: String, id: String) -> Dictionary:
 static func enemy(id: int, pos: Vector2i, hp: int = FIXTURE_HELPER_HP, type: String = "crawler") -> Dictionary:
 	return {"id": id, "type": type, "pos": pos, "hp": hp, "max_hp": hp, "block": 0, "stoneskin": 0, "intent": {}}
 
-static func terrain(tile: Vector2i, rounds: int = 3) -> Dictionary:
-	return {"id": "proof_bramble", "kind": "bramble", "pos": tile, "rounds_left": rounds, "pushed_damage": 2, "pushed_bleed": 1, "blocks_sight": false}
+static func terrain(tile: Vector2i, _rounds: int = 3) -> Dictionary:
+	return {"id": "proof_outcrop", "kind": "crag_outcrop", "pos": tile, "hp": 3, "max_hp": 3, "blocks_sight": true}
+
 
 static func run(expect: Callable) -> void:
 	var engine: RefCounted = CombatScript.new()
@@ -64,7 +66,6 @@ static func run(expect: Callable) -> void:
 	_save(engine, expect)
 	_presentation(engine, expect)
 	_integration_boundaries(engine, expect)
-	_bramble_paint(expect)
 	_terrain_health_bars(engine, expect)
 	_itb03_presentation(engine, expect)
 	_shared_animation_hook(expect)
@@ -97,7 +98,7 @@ static func _itb03_presentation(engine: RefCounted, expect: Callable) -> void:
 	_rest_clock(state)
 	var rest: Dictionary = Badges.build(engine, state, state)
 	var chip: Dictionary = rest["badges"][0]
-	expect.call(chip["icon"] == "bramble" and chip["number"] == "3", "Thornwall feet chip uses the approved Bramble icon and lifetime")
+	expect.call(chip["icon"] == "upheaval" and chip["number"] == "3", "Thornwall feet chip uses the approved Upheaval icon and Outcrop health")
 	expect.call(chip["family"] == Compass.FAMILY_SUPPORT, "Thornwall retains the itb-03 support-chip family")
 	expect.call(chip["order"] == "1" and bool(chip["acting"]), "Thornwall has the projected health-bar order disc")
 	expect.call(not Badges.details_discloses_compass({"threats_at_rest": rest}, "enemy_1"), "Thornwall has no compass at rest")
@@ -133,31 +134,6 @@ static func _terrain_health_bars(engine: RefCounted, expect: Callable) -> void:
 	var board: Control = Board.new()
 	board.combat_state = fixture(engine)
 	var tile: Vector2i = FIXTURE_HERO + Vector2i.UP
-	var non_destructible: Array[Dictionary]
-	non_destructible.append(terrain(tile))
-	for max_hp: int in [0, -1]:
-		var bramble: Dictionary = terrain(tile)
-		bramble["max_hp"] = max_hp
-		non_destructible.append(bramble)
-	var pillar: Dictionary = terrain(tile)
-	pillar["kind"] = "ice_pillar"
-	non_destructible.append(pillar)
-	var pillar_with_hp: Dictionary = pillar.duplicate(true)
-	pillar_with_hp.merge({"hp": FIXTURE_TERRAIN_MAX_HP, "max_hp": FIXTURE_TERRAIN_MAX_HP}, true)
-	non_destructible.append(pillar_with_hp)
-	for entry: Dictionary in non_destructible:
-		var label: String = "%s (max_hp %s)" % [entry["kind"], entry.get("max_hp", "absent")]
-		board.attack_tiles = engine._vector2i_values([])
-		board.presentation = {}
-		expect.call(not board._should_show_terrain_health_bar(entry), "%s has no health bar at rest" % label)
-		board.attack_tiles = engine._vector2i_values([tile])
-		expect.call(not board._should_show_terrain_health_bar(entry), "%s has no health bar in attack tiles" % label)
-		board.attack_tiles = engine._vector2i_values([])
-		var previews: Dictionary = {}
-		previews[board._terrain_key(entry)] = {"hp": 1, "hp_loss": 2, "lethal": false}
-		board.presentation = {"effect": {"preview": true, "damage_preview": previews}}
-		expect.call(not board._should_show_terrain_health_bar(entry), "%s has no health bar under damage preview" % label)
-		expect.call(board._terrain_damage_preview(entry).is_empty(), "%s excludes terrain damage preview bars" % label)
 	for kind: String in ["wooden_box", "wooden_crate", "powder_keg"]:
 		var entry: Dictionary = {"id": kind, "kind": kind, "pos": tile, "hp": FIXTURE_TERRAIN_MAX_HP, "max_hp": FIXTURE_TERRAIN_MAX_HP}
 		board.attack_tiles = engine._vector2i_values([])
@@ -182,6 +158,24 @@ static func _schema(engine: RefCounted, expect: Callable) -> void:
 	var production: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/enemies.json"))
 	for type: String in ["briar_weaver", "slag_mortar"]:
 		var expected: Dictionary = staged[type].duplicate(true)
+		if type == "briar_weaver":
+			for entry: Dictionary in expected["intents"]:
+				for action: Dictionary in entry["actions"]:
+					if str(action["type"]) == "grow_bramble":
+						action.clear()
+						action.merge({"type": "upheaval_mark", "pattern": "line_between", "length": 3.0, "health": 3.0})
+		if type == "slag_mortar":
+			# enc-03 changes only the approved availability, weight and Brace action.
+			for entry: Dictionary in expected["intents"]:
+				match str(entry["id"]):
+					"lob_slag":
+						entry["weight"] = 4.0
+						entry["actions"][0]["min_range"] = 2.0
+						entry["actions"][0]["tile_filter"] = "in_bounds"
+					"brace":
+						entry["requires_hero_within"] = 1.0
+						entry["actions"].resize(1)
+					"scatter_shot": entry["requires_hero_within"] = 1.0
 		var presentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
 		# rr-21 promotes the Weaver renderer while retaining its approved
 		# painting paths for still consumers; rr-25 promotes Mortar rest paths.
@@ -195,7 +189,7 @@ static func _schema(engine: RefCounted, expect: Callable) -> void:
 		for entry: Dictionary in definition["intents"]:
 			expect.call(not ids.has(entry["id"]) and not str(entry["name"]).is_empty() and int(entry["time"]) > 0 and int(entry["weight"]) >= 0, "%s valid unique intent %s" % [type, entry["id"]])
 			ids[entry["id"]] = true
-			for action: Dictionary in entry["actions"]: expect.call(str(action["type"]) in ["grow_bramble", "heal_ally", "lob_mark", "lob_land", "ranged", "block", "move_away"], "Supported unit verb")
+			for action: Dictionary in entry["actions"]: expect.call(str(action["type"]) in ["upheaval_mark", "heal_ally", "lob_mark", "lob_land", "ranged", "block", "move_away"], "Supported unit verb")
 		expect.call(Assets.load_texture(definition["art_path"]) != null, "%s static art loads" % type)
 		var portrait: String = Scene.TURN_ORDER_PORTRAITS.get(type, "")
 		expect.call(portrait == "res://assets/art/portraits/%s.png" % type and Assets.load_texture(portrait) != null, "%s registered portrait loads" % type)
@@ -205,69 +199,33 @@ static func _schema(engine: RefCounted, expect: Callable) -> void:
 			if str(actor.get("key", actor.get("actor_key", ""))) == "enemy_1" or str(actor.get("type", actor.get("enemy_type", ""))) == type: found = true
 		expect.call(found, "%s present in turn clock" % type)
 		expect.call(Strikes.REGISTRY.has(type), "%s static strike registration" % type)
-	for concept: String in ["bramble", "lob"]: expect.call(Icons.icon_texture(concept) != null, "%s distinct approved icon loads" % concept)
+	for concept: String in ["upheaval", "lob"]: expect.call(Icons.icon_texture(concept) != null, "%s distinct approved icon loads" % concept)
 
 static func _thornwall(engine: RefCounted, expect: Callable) -> void:
-	var grow: Dictionary = intent("briar_weaver", "thornwall")["actions"][0]
-	for delta: Vector2i in [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.UP, Vector2i.DOWN, Vector2i(1, 1), Vector2i(-1, 1), Vector2i(1, -1), Vector2i(-1, -1)]:
+	for delta: Vector2i in [Vector2i(0, 3), Vector2i(3, 0), Vector2i(3, 3)]:
 		var state: Dictionary = fixture(engine)
-		state["enemies"][0]["pos"] = FIXTURE_HERO - delta * 3
-		state["enemies"][0]["intent"] = intent("briar_weaver", "thornwall")
-		var front: Vector2i = FIXTURE_HERO - delta
-		var axis := Vector2i.DOWN if delta.y == 0 else Vector2i.RIGHT
-		var expected: Array[Vector2i] = engine._vector2i_values([front - axis, front, front + axis])
-		expect.call(Bramble.tiles(engine, state, state["enemies"][0]) == expected, "Thornwall front/perpendicular for %s" % delta)
-		expect.call(engine.enemy_threat_tiles(state, 0)["projected_attack"] == expected, "Thornwall real projected tiles for %s" % delta)
-		var after: Dictionary = engine._resolve_enemy_action(state.duplicate(true), 0, grow)
-		for tile: Vector2i in expected: expect.call(engine._terrain_index_at_tile(after, tile) >= 0, "Telegraphed tile grows immediately")
-	var state: Dictionary = fixture(engine)
-	state["grid"][4][4] = "pillar"
-	state["enemies"].append(enemy(2, Vector2i(5, 4)))
-	state["terrain"].append({"id": "box", "kind": "wooden_box", "pos": Vector2i(6, 4), "hp": 3})
-	expect.call(Bramble.tiles(engine, state, state["enemies"][0]).is_empty(), "Thornwall skips occupied, terrain and impassable tiles")
-	state = fixture(engine)
-	state["player"]["pos"] = Vector2i(0, 0)
-	state["enemies"][0]["pos"] = Vector2i(0, -3)
-	expect.call(Bramble.tiles(engine, state, state["enemies"][0]).is_empty(), "Off-board and wall line clips safely")
-	state = fixture(engine)
-	state["illusions"] = [{"id": 7, "pos": Vector2i(4, 4), "hp": 2}]
-	expect.call(not Bramble.tiles(engine, state, state["enemies"][0]).has(Vector2i(4, 4)), "Thornwall skips living illusion")
+		state["enemies"][0]["pos"] = Vector2i(state["player"]["pos"]) - delta
+		var marks: Array[Vector2i] = Bramble.tiles(engine, state, state["enemies"][0])
+		expect.call(marks.size() == 3, "Thornwall retains three-tile front geometry: " + str(delta))
+		state["enemies"].append(enemy(2, marks[0]))
+		expect.call(Bramble.tiles(engine, state, state["enemies"][0]).has(marks[0]), "Upheaval marks occupied tiles for displacement")
+
 
 static func _collision_and_lifetime(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = fixture(engine)
-	state["terrain"].append(terrain(Vector2i(6, 5)))
-	expect.call(engine.combat_line_of_sight(state, Vector2i(5, 5), Vector2i(7, 5)), "Bramble does not block sight")
-	expect.call(not engine.player_movement_targets(state).has(Vector2i(6, 5)), "Bramble blocks voluntary movement")
-	expect.call(not Bramble.attackable(state["terrain"][0]) and not Surfaces.can_place(state, Vector2i(6, 5)), "Bramble has no attack durability and occupies terrain")
-	var after: Dictionary = engine._force_move_actor(state.duplicate(true), "player", -1, Vector2i.RIGHT, 3, {}, true)
-	expect.call(after["player"]["pos"] == FIXTURE_HERO and int(after["player"]["hp"]) == 48 and int(after["player"].get("bleed", 0)) == 1, "Bramble hero push: 2 damage, Bleed 1, no movement")
-	expect.call(after["terrain"] == state["terrain"], "Push collision preserves Bramble and lifetime")
-	state["enemies"].append(enemy(2, Vector2i(7, 5)))
-	after = engine._force_move_actor(state.duplicate(true), "enemy", 2, Vector2i.LEFT, 2, {}, true)
-	expect.call(int(after["enemies"][1]["hp"]) == 18 and int(after["enemies"][1].get("bleed", 0)) == 1 and after["enemies"][1]["pos"] == Vector2i(7, 5), "Bramble enemy push has same damage, Bleed and stop")
-	state["player"]["block"] = 2
-	after = engine._force_move_actor(state.duplicate(true), "player", -1, Vector2i.RIGHT, 1, {}, true)
-	expect.call(int(after["player"]["hp"]) == 50 and int(after["player"].get("bleed", 0)) == 1, "Existing defense absorbs collision damage; Bleed remains")
-	state = fixture(engine)
-	state["enemies"][0]["intent"] = intent("briar_weaver", "thornwall")
-	after = engine.resolve_enemy_turn_with_steps(state, 0)["state"]
-	expect.call(after["terrain"].size() == 3 and int(after["terrain"][0]["rounds_left"]) == 2, "Grow turn consumes first terrain boundary")
-	var steps: Array[Dictionary]
-	Bramble.end_turn(after, steps)
-	expect.call(after["terrain"].size() == 3 and int(after["terrain"][0]["rounds_left"]) == 1, "Bramble remains at second boundary")
-	Bramble.end_turn(after, steps)
-	expect.call(after["terrain"].is_empty() and str(steps.back()["en04_mechanic"]) == "bramble_expiry", "Third boundary removes Bramble and supplies sink animation")
-	state = fixture(engine, "gale_herald")
-	state["terrain"].append(terrain(Vector2i(6, 5), 1))
-	state["wind"] = {"direction": Vector2i.RIGHT, "rounds_left": 1, "source_id": 1, "push": 1}
-	var forecast: Dictionary = Wind.preview(engine, state, state["wind"])
-	after = Bramble.complete_turn(engine, state.duplicate(true), steps)
-	expect.call(after["player"] == forecast["state"]["player"] and int(after["player"]["hp"]) == 48 and int(after["player"].get("bleed", 0)) == 1, "Last-round Bramble collides with wind before expiry; preview agrees")
-	expect.call(after["terrain"].is_empty(), "Terrain expires after wind")
-	state = fixture(engine)
-	state["enemies"][0]["freeze"] = 1
-	state["terrain"].append(terrain(Vector2i(6, 5), 1))
-	expect.call(engine.resolve_enemy_turn_with_steps(state, 0)["state"]["terrain"].is_empty(), "Frozen turns still expire terrain")
+	var action: Dictionary = intent("briar_weaver", "thornwall")["actions"][0]
+	state = Bramble.resolve(engine, state, 0, action)
+	expect.call(state["terrain"].is_empty() and state["enemies"][0].has("upheaval_pending"), "Thornwall marks without raising immediately")
+	var marks: Array = state["enemies"][0]["upheaval_pending"]["marks"].duplicate()
+	state = Bramble.begin_turn(engine, state, 0)
+	expect.call(state["terrain"].is_empty() and state["enemies"][0].has("upheaval_pending"), "Same-phase Weaver turn preserves fresh Thornwall marks")
+	state = engine.prepare_next_player_turn(state)
+	state = Bramble.begin_turn(engine, state, 0)
+	for tile: Vector2i in marks:
+		var index: int = engine._terrain_index_at_tile(state, tile)
+		expect.call(index >= 0 and int(state["terrain"][index]["hp"]) == 3, "Next Weaver turn raises health-3 Outcrops")
+	expect.call(not state["enemies"][0].has("upheaval_pending"), "Thornwall consumes its marks once")
+
 
 static func _mend(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = fixture(engine)
@@ -329,17 +287,17 @@ static func _lob(engine: RefCounted, expect: Callable) -> void:
 static func _gating(engine: RefCounted, expect: Callable) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = FIXTURE_SEED
-	for distance: int in [1, 2, 3, 6, 7]:
+	for distance: int in [1, 2, 3, 4, 5, 6, 7]:
 		var state: Dictionary = fixture(engine, "slag_mortar")
 		state["enemies"][0]["pos"] = Vector2i(1, 2)
 		state["player"]["pos"] = Vector2i(1 + distance, 2)
-		expect.call(Lob.available(engine, state, state["enemies"][0], intent("slag_mortar", "lob_slag")) == (distance >= 3 and distance <= 6), "Lob legal distance %d" % distance)
-		expect.call(Lob.available(engine, state, state["enemies"][0], intent("slag_mortar", "scatter_shot")) == (distance <= 2), "Scatter gating distance %d" % distance)
+		expect.call(Lob.available(engine, state, state["enemies"][0], intent("slag_mortar", "lob_slag")) == (distance >= 2 and distance <= 6), "Lob legal distance %d" % distance)
+		expect.call(Lob.available(engine, state, state["enemies"][0], intent("slag_mortar", "scatter_shot")) == (distance == 1), "Scatter gating distance %d" % distance)
 		for iteration: int in range(AI_ROLL_COUNT):
 			state["enemies"][0]["intent"] = {}
 			engine._assign_enemy_intent(state, 0, rng)
-			var id: String = state["enemies"][0]["intent"]["id"]
-			expect.call(id == "brace" or (id == "lob_slag" and distance >= 3 and distance <= 6) or (id == "scatter_shot" and distance <= 2), "Seeded AI never rolls impossible Lob, Scatter or zero-weight landing")
+			var id: String = str(state["enemies"][0]["intent"].get("id", ""))
+			expect.call((id in ["brace", "scatter_shot"] and distance == 1) or (id == "lob_slag" and distance >= 2 and distance <= 6) or (distance > 6 and id not in ["brace", "scatter_shot", "lob_slag", "slag_lands"]), "Seeded AI never rolls impossible Lob, Scatter or zero-weight landing")
 	var state: Dictionary = fixture(engine)
 	state["enemies"][0]["intent"] = {}
 	for iteration: int in range(AI_ROLL_COUNT):
@@ -374,8 +332,7 @@ static func _save(engine: RefCounted, expect: Callable) -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
 
 static func _presentation(engine: RefCounted, expect: Callable) -> void:
-	expect.call(Icons.action_icon_key({"type": "grow_bramble"}) == "bramble" and Icons.action_icon_key({"type": "lob_mark"}) == "lob" and Icons.action_icon_key({"type": "lob_land"}) == "lob", "Intent and terrain/mark share concept identities")
-	expect.call(BrambleView.tooltip(terrain(Vector2i(6, 5), 2)) == "Bramble\nBlocks movement, not sight, for 3 enemy turns. A unit forced into it takes 2 damage and Bleed 1.\n2 turns left", "Exact Bramble tooltip with remaining lifetime")
+	expect.call(Icons.action_icon_key({"type": "upheaval_mark"}) == "upheaval" and Icons.action_icon_key({"type": "lob_mark"}) == "lob" and Icons.action_icon_key({"type": "lob_land"}) == "lob", "Intent and terrain/mark share concept identities")
 	var state: Dictionary = fixture(engine, "slag_mortar")
 	state["enemies"][0]["intent"] = intent("slag_mortar", "lob_slag")
 	state = engine.resolve_enemy_turn_with_steps(state, 0)["state"]
@@ -383,7 +340,7 @@ static func _presentation(engine: RefCounted, expect: Callable) -> void:
 	board.combat_state = state
 	var marks: Dictionary = LobView.marks(board)
 	expect.call(marks.size() == 5 and int(marks[FIXTURE_HERO]["damage"]) == 5 and int(marks[FIXTURE_HERO + Vector2i.LEFT]["damage"]) == 3, "At-rest medallions expose real centre/arm values")
-	expect.call(LobView.mark_tooltip(state["enemies"][0], FIXTURE_HERO, 5, FIXTURE_HERO) == "Lob Slag\nMarks your tile and the 4 around it. On its next turn, they take the shown damage and become Fire.\n5 damage.\nYou are standing on it.", "Exact Lob delayed tooltip and standing warning")
+	expect.call(LobView.mark_tooltip(state, state["enemies"][0]) == "Marked tiles take the hit: 5 in the centre, 3 around it, and they become Fire.", "Exact Lob landing tooltip")
 	expect.call(Compass.descriptor_for_enemy(state["enemies"][0]["intent"])["value"] == 5, "Landing compass exposes centre damage")
 	expect.call(Compass.descriptor_for_enemy(intent("briar_weaver", "thornwall"))["family"] == Compass.FAMILY_SUPPORT, "Thornwall compass is terrain support")
 	expect.call(LobView.arc_point(Vector2.ZERO, Vector2(100, 0), 50, 0.5) == Vector2(50, -110), "Arc apex is exactly 2.2 tiles over midpoint")
@@ -439,57 +396,15 @@ static func _integration_boundaries(engine: RefCounted, expect: Callable) -> voi
 		var mark_state: Dictionary = fixture(engine, "slag_mortar")
 		mark_state["room_depth"] = depth
 		mark_state["enemies"][0]["intent"] = intent("slag_mortar", "lob_slag")
-		expect.call(Compass.descriptors_for_state(mark_state)["enemy_1"]["value"] == scaled["center_damage"], "Mark compass follows real landing damage at depth %d" % depth)
+		expect.call(Compass.descriptors_for_state(mark_state)["enemy_1"]["value"] == scaled["center_damage"], "Lob centre intent matches scaled landing preview at depth %d" % depth)
 		var ordinary: Dictionary = engine._scale_enemy_action_for_depth({"type": "ranged", "damage": 5, "range": 3}, depth)
 		expect.call(int(scaled["center_damage"]) == int(ordinary["damage"]) and int(scaled["arm_damage"]) == int(ordinary["damage"]) - 2, "Lob follows existing local/sequence damage curve at depth %d" % depth)
 	state = fixture(engine, "slag_mortar")
 	state["room_element"] = "fire"
 	state["enemies"][0]["intent"] = intent("slag_mortar", "brace")
 	after = engine.resolve_enemy_turn_with_steps(state, 0)["state"]
-	expect.call(int(after["enemies"][0]["block"]) == 6 and absi(after["enemies"][0]["pos"].x - FIXTURE_SOURCE.x) + absi(after["enemies"][0]["pos"].y - FIXTURE_SOURCE.y) <= 2 and absi(after["enemies"][0]["pos"].x - FIXTURE_HERO.x) + absi(after["enemies"][0]["pos"].y - FIXTURE_HERO.y) > 3, "Brace grants six Block and retreats within two, bounded by board")
+	expect.call(int(after["enemies"][0]["block"]) == 6 and after["enemies"][0]["pos"] == FIXTURE_SOURCE, "Brace grants six Block without retreat")
 	state["enemies"][0]["pos"] = Vector2i(5, 3)
 	state["enemies"][0]["intent"] = intent("slag_mortar", "scatter_shot")
 	after = engine.resolve_enemy_turn_with_steps(state, 0)["state"]
 	expect.call(int(after["player"]["hp"]) == 47 and after["player"]["pos"] == Vector2i(5, 6), "Elemental-room Scatter deals three and pushes one")
-
-static func _bramble_paint(expect: Callable) -> void:
-	var board: Control = Board.new()
-	board.size = Vector2(960, 680) # Existing headless board-consumer fixture size.
-	board._load_assets(false)
-	var texture: Texture2D = board._terrain_textures.get("bramble", null)
-	expect.call(texture != null and Assets.load_texture(BrambleView.PROP_PATH) != null, "Approved thicket loads in the ordinary terrain texture registry")
-	if texture == null:
-		board.free()
-		return
-	var tile := Vector2i(5, 4)
-	var full: Rect2 = board._terrain_rect_for_tile(tile, texture, "bramble")
-	var crate: Texture2D = board._terrain_textures["wooden_crate"]
-	var crate_rect: Rect2 = board._terrain_rect_for_tile(tile, crate, "wooden_crate")
-	var crate_bounds: Rect2i = board._texture_used_rect(crate)
-	var crate_visible_height: float = crate_rect.size.y * float(crate_bounds.size.y) / crate.get_height()
-	var outcrop: Rect2 = board._terrain_rect_for_tile(tile, board._terrain_textures["crag_outcrop"], "crag_outcrop")
-	expect.call(is_equal_approx(full.size.y / crate_visible_height, 1.1), "Thicket visible height is 1.1 times the existing crate")
-	expect.call(full.size.x <= outcrop.size.x and is_equal_approx(full.size.aspect(), texture.get_size().aspect()), "Thicket preserves approved paint aspect and fits the one-tile outcrop footprint")
-	expect.call(is_equal_approx(full.end.y, crate_rect.position.y + crate_rect.size.y * float(crate_bounds.end.y) / crate.get_height()), "Thicket base matches the crate's visible ground baseline")
-	expect.call(absf((full.size.x / texture.get_width()) / board.protagonist_source_pixel_scale() - 1.0) < 0.01, "Thicket source pixels match hero density within native rounding")
-	expect.call(is_equal_approx(BrambleView.BRAMBLE_HEIGHT_TILES, 0.6), "Director's 0.6 rise reference is retained")
-	var grow: Dictionary = {"en04_mechanic": "grow_bramble", "tiles": [tile]}
-	var expired: Array[Dictionary]
-	expired.append(terrain(tile, 0))
-	var expiry: Dictionary = {"en04_mechanic": "bramble_expiry", "expired_bramble": expired}
-	for progress: float in [0.0, 0.25, 0.5, 0.75, 1.0]:
-		for expiring: bool in [false, true]:
-			var step: Dictionary = expiry if expiring else grow
-			board.presentation = BrambleView.presentation_for_step(step, progress)
-			var rect: Rect2 = board._terrain_rect_for_tile(tile, texture, "bramble")
-			var scale: float = 1.0 - pow(progress, 3.0) if expiring else 1.0 - pow(1.0 - progress, 3.0)
-			expect.call(is_equal_approx(rect.end.y, full.end.y) and is_equal_approx(rect.size.x, full.size.x), "Growth and expiry retain the full width and planted base")
-			expect.call(is_equal_approx(rect.size.y, full.size.y * scale), "Grow uses ease-out cubic; expiry is its time reverse")
-			if expiring: expect.call((board.presentation.get("terrain_destruction_units", []) as Array).size() == 1, "Expiry draws as a depth-sorted terrain ghost, not an effects overlay")
-	board.presentation = BrambleView.presentation_for_step(grow, 0.5, true)
-	expect.call(board._terrain_rect_for_tile(tile, texture, "bramble").is_equal_approx(full), "Reduced motion grows instantly")
-	board.presentation = BrambleView.presentation_for_step(expiry, 0.5, true)
-	expect.call(board._terrain_rect_for_tile(tile, texture, "bramble").size.y == 0.0 and not board.presentation.has("terrain_destruction_units"), "Reduced motion expires instantly without a ghost")
-	expect.call(BrambleView.fleck_records(Vector2.ZERO, full.size.x, 0.6, 0.5).size() == 3, "Transition has exactly three small dust/leaf flecks")
-	expect.call(BrambleView.fleck_records(Vector2.ZERO, full.size.x, 0.6, 0.0).is_empty() and BrambleView.fleck_records(Vector2.ZERO, full.size.x, 0.6, 1.0).is_empty(), "Dust/leaf flecks do not remain at rest")
-	board.free()

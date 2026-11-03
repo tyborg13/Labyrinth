@@ -1,0 +1,14 @@
+test_native_facing_requires_a_rejected_frontal_control (tests.test_mq15_maquette.DeliveryTests) ... FAIL
+
+======================================================================
+FAIL: test_native_facing_requires_a_rejected_frontal_control (tests.test_mq15_maquette.DeliveryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 175, in test_native_facing_requires_a_rejected_frontal_control
+    validate_delivery(self.spec, self.folder, require_binding=False)
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.160s
+
+FAILED (failures=1)

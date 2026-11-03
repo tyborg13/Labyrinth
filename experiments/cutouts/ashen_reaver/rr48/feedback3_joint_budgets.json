@@ -1,0 +1,179 @@
+{
+  "profiles": [
+    {
+      "clip": "idle",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "idle",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "idle",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "idle",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "move",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "move",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "move",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "move",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "rake",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "rake",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "rake",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "rake",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "sweep",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "sweep",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "sweep",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "sweep",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "fall",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "fall",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "fall",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "fall",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "hit",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "hit",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "hit",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "hit",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "death",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "death",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "death",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "death",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    }
+  ],
+  "clamps": [],
+  "status": "measured_full_requested",
+  "minimum_action_scale": 0.6,
+  "walk_arm_minimum_scale": 1.0,
+  "rule": "Whole exact underlay resolves all paint-mapped holes; approved motion retained at 100%; source-space calibration before changes is a CPU superset of every native finding.",
+  "native_pixels": false,
+  "measurement": "proof/feedback3_sweep_uv.json"
+}

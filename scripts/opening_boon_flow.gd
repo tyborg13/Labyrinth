@@ -5,6 +5,7 @@ extends RefCounted
 ## selection never charges, rerolls, consumes an heirloom, or declines a boon.
 const Rules = preload("res://scripts/opening_boon_rules.gd")
 const Overlay = preload("res://scripts/opening_boon_overlay.gd")
+const HeirloomView = preload("res://scripts/heirloom_view.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Router = preload("res://scripts/input_router.gd")
 var overlay: Control
@@ -45,6 +46,7 @@ func dialogue_closed(host: Node, dialogue: Dictionary) -> void:
 		"opening_boon_taken", "opening_boon_declined":
 			_restore_dialogue(host)
 		"opening_boon_heirloom_confirmation":
+			_restore_dialogue(host)
 			var state: Dictionary = (host.get("_run_state") as Dictionary).duplicate(true)
 			state[Rules.HEIRLOOM_END_KEY]["done"] = true
 			if _commit(host, state, "heirloom_confirmed"): host.call("_show_run_end_recap", _ending_outcome)
@@ -100,7 +102,7 @@ func layout_dialogue(host: Node) -> void:
 	dialog.custom_minimum_size = OFFER_DIALOGUE_RECT.size
 	dialog.position = OFFER_DIALOGUE_RECT.position
 	dialog.size = OFFER_DIALOGUE_RECT.size
-	var offer: bool = str(host.get("_dialogue_script").get("id", "")) == "opening_boon_offer"
+	var offer: bool = str(host.get("_dialogue_script").get("id", "")) in ["opening_boon_offer", "opening_boon_heirloom_prompt"]
 	host.get("_dialogue_footer").visible = not offer
 
 func _restore_dialogue(host: Node) -> void:
@@ -122,24 +124,59 @@ func handle_input(host: Node, event: InputEvent) -> bool:
 	return true
 
 func intercept_recap(host: Node, outcome: String) -> bool:
+	if _presenting_ending or (active() and overlay is HeirloomView): return true
 	var state: Dictionary = host.get("_run_state")
-	if not Rules.heirloom_prompt_pending(state): return false
+	if not Rules.heirloom_end_pending(state): return false
 	if _loading: return true
 	_ending_outcome = outcome
+	if not state[Rules.HEIRLOOM_END_KEY].has("item") and Rules.heirloom_pieces(state).is_empty():
+		_presenting_ending = true
+		var saved: bool = _commit(host, Rules.leave_heirloom(state, ""), "heirloom_left")
+		_presenting_ending = false
+		return not saved
 	if not bool(host.get("_dialogue_active")) and not _presenting_ending:
 		_presenting_ending = true
 		host.call("_start_dialogue", host.get("_dialogue_engine").heirloom_dialogue(state))
+		_seat_dialogue(host)
+		if not state[Rules.HEIRLOOM_END_KEY].has("item"):
+			overlay = HeirloomView.new()
+			host.get("ui_root").add_child(overlay)
+			overlay.configure(host, state)
+			overlay.chosen.connect(func(item: String) -> void: leave_heirloom(host, item))
+			overlay.confirmation.connect(_heirloom_confirmation.bind(host))
+			overlay.finished.connect(_heirloom_finished.bind(host))
+			host.call("_schedule_controller_modal_refresh")
 		_presenting_ending = false
 	return true
 
 func leave_heirloom(host: Node, item: String) -> void:
 	var before: Dictionary = host.get("_run_state")
 	var next: Dictionary = Rules.leave_heirloom(before, item)
-	if next == before or not _commit(host, next, "heirloom_left"): return
+	if next == before: return
+	_presenting_ending = true
+	var saved: bool = _commit(host, next, "heirloom_left")
+	_presenting_ending = false
+	if not saved: return
+	if active() and overlay is HeirloomView:
+		overlay.play(item)
+	else:
+		_heirloom_finished(host)
+
+func _heirloom_confirmation(host: Node) -> void:
+	host.call("_start_dialogue", host.get("_dialogue_engine").boon_dialogue("heirloom_confirmation"))
+	layout_dialogue(host)
+
+func _heirloom_finished(host: Node) -> void:
+	close(host, false)
+	var item: String = str(host.get("_run_state").get(Rules.HEIRLOOM_END_KEY, {}).get("item", ""))
+	if not item.is_empty():
+		if str(host.get("_dialogue_script").get("id", "")) != "opening_boon_heirloom_confirmation": _heirloom_confirmation(host)
+		return
 	# Replace this dialogue directly: closing the prompt cannot be interpreted
 	# as the confirmation acknowledgment, and never requests the start-room map.
 	host.set("_dialogue_script", {})
 	host.call("_close_dialogue")
+	_restore_dialogue(host)
 	host.call("_show_run_end_recap", _ending_outcome)
 
 func _commit(host: Node, candidate: Dictionary, boundary: String) -> bool:
@@ -170,5 +207,8 @@ func flush_events(host: Node, state: Dictionary) -> bool:
 	for index: int in range(events.size()):
 		var event: Dictionary = events[index]
 		var key: String = Rules.event_key(context, index, event)
-		if not host.get("_analytics_store").write_event(str(event["type"]), context, event["payload"], key): return false
+		var analytics: RefCounted = host.get("_analytics_store")
+		if analytics.has_idempotency_key(key): continue
+		if not Store.flush_pending_run_saves(): return false
+		if not analytics.write_event_durable(str(event["type"]), context, event["payload"], key): return false
 	return true

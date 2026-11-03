@@ -1,0 +1,14 @@
+test_no_see_through_rejects_both_background_and_pants (tests.test_mq15_maquette.MassGuardTests) ... FAIL
+
+======================================================================
+FAIL: test_no_see_through_rejects_both_background_and_pants (tests.test_mq15_maquette.MassGuardTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 252, in test_no_see_through_rejects_both_background_and_pants
+    self.assertFalse(no_see_through(maps,top,bottom,envelope)['passed'])
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

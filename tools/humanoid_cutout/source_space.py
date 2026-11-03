@@ -78,7 +78,7 @@ class DetachedSource:
                 self.references.append({'piece': name, 'source_bbox': bounds(component),
                     'source_pixel_count': size, 'texture': paint[y:y+h, x:x+w]})
 
-    def report(self, layers, transforms):
+    def report(self, layers, transforms, released_components=()):
         visible = np.zeros_like(layers[0][1])
         owner = np.full(visible.shape[:2], '', dtype=object)
         for row, image, _ in sorted(layers, key=lambda item: item[0]['z_index']):
@@ -99,8 +99,19 @@ class DetachedSource:
                 for candidate in samples.candidates:
                     matching |= samples.ties & np.all(visible == candidate, axis=-1) & (candidate[..., 3] > 0)
                 references.append((record, matching & (owner == name)))
-            for label, size in groups[1:]:
+            # Normally the largest component is the connected figure. A
+            # declared released item is never used as that implicit anchor.
+            body_groups = [(label, size) for label, size in groups
+                           if not any(np.array_equal(labels == label, mask) for mask in released_components)]
+            anchor = body_groups[0][0] if body_groups else None
+            for label, size in groups:
+                if label == anchor:
+                    continue
                 component = labels == label
+                # Only a complete item component certified by the declared
+                # motion release policy can bypass rest-source provenance.
+                if any(np.array_equal(component, mask) for mask in released_components):
+                    continue
                 for record, matching in references:
                     if matching[component].all():
                         passed.append({key: value for key, value in record.items() if key != 'texture'} |

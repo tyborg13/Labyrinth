@@ -1,0 +1,56 @@
+{
+  "scope": "Internal topology, numerical, debug-test and proof controls only. No visible design defaults.",
+  "inherited_numerical_and_proof_controls": "../chosen_defaults.json (unchanged)",
+  "plate_topology": {
+    "corner_samples": 9,
+    "radial_stations": 9
+  },
+  "robe_topology": {
+    "rows": 97,
+    "columns": 145
+  },
+  "feedback1_numeric_transcription": {
+    "curl_sample_degrees": 10,
+    "json_coordinate_decimals": 12
+  },
+  "feedback1_grip_construction": "The prescribed knuckle X determines azimuth on the outside of the top ring. Curl about that bar in its radial/normal plane for 270 degrees, then project the final tip radially onto the retained ellipsoid palm. The thumb follows the outside of the index middle 90-degree arc at one inherited tube diameter. See design_feedback1.py; all generated coordinates are retained in design_details.json.",
+  "proof_only_owner_colours": {
+    "pauldron_near": [
+      0.9,
+      0.7,
+      0.3
+    ],
+    "pauldron_far": [
+      0.3,
+      0.7,
+      0.9
+    ]
+  },
+  "source_registration": "Both mq-20 views use 1088px canvases with orthographic scale mq18_scale * 1088/1024, preserving mq-18 physical pixels per world unit. Captured extent is checked against native projected geometry; no individual fitting.",
+  "contact_sheet": "Five 1088px panels; all native clays at 1:1 capture pixels, old production art at exact 4x; common sole baseline and inherited background/font. 1248px sheet height.",
+  "test_fixtures": "tests/test_mq20_maquette.py:FIXTURE_DEFAULTS; explicitly passed to compiler only, never installed as design data.",
+  "native_mutations": {
+    "displacement_over_H": 0.2,
+    "collapse_scale": 0.0
+  },
+  "execution": {
+    "job_timeout_s": 110,
+    "response_timeout_s": 120,
+    "poll_s": 1
+  },
+  "inspection": "Offline Blender maquette only; no Godot UI, gameplay fixture, input, analytics, balance or icon registry change.",
+  "feedback2_overlap_raster": {
+    "size_px": 1024,
+    "depth_epsilon_m": 1e-07,
+    "denominator": "cap-to-base lantern body, excluding held chain and both rings",
+    "near_leg": "thigh, knee, shin and foot; union of triangle coverage"
+  },
+  "feedback2_shoulder_mount": "Torso-owned stems span the approved plate-to-mantle gap; diameter is the existing rim width. Endpoints are checked against opened mantle and panel geometry. Approved plate shape and placement stay unchanged.",
+  "compiled_spec_storage": {
+    "file": "measurements.json.xz",
+    "encoding": "Lossless XZ JSON",
+    "lzma_preset": 6
+  },
+  "near_plate_visibility": "1088px opened-native triangle depth test. Panel/rims/rivets/cross must have zero pixels hidden by another part. The internal mounting stem is excluded. Raw antialiased renderer owner fractions remain reported.",
+  "report_packing": "Inherited mq-18 packing: discard only redundant visible_points_body arrays from delivery after archiving raw reports with SHA-256; counts, checks and measurements remain intact."
+}

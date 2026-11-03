@@ -1,0 +1,467 @@
+{
+  "observations": [
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "bbox": [
+        309,
+        333,
+        310,
+        334
+      ],
+      "pixels": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 0,
+        "torso": 1,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 44,
+      "bbox": [
+        352,
+        354,
+        353,
+        356
+      ],
+      "pixels": 2,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 0,
+        "torso": 1,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 44,
+      "bbox": [
+        353,
+        353,
+        354,
+        354
+      ],
+      "pixels": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 1,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "frame": 16,
+      "bbox": [
+        288,
+        344,
+        289,
+        345
+      ],
+      "pixels": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 1,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "frame": 17,
+      "bbox": [
+        288,
+        344,
+        289,
+        345
+      ],
+      "pixels": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 1,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "frame": 18,
+      "bbox": [
+        288,
+        344,
+        289,
+        345
+      ],
+      "pixels": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 1,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "frame": 19,
+      "bbox": [
+        288,
+        345,
+        289,
+        346
+      ],
+      "pixels": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 1,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "frame": 20,
+      "bbox": [
+        288,
+        345,
+        289,
+        346
+      ],
+      "pixels": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 1,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "frame": 21,
+      "bbox": [
+        288,
+        345,
+        289,
+        346
+      ],
+      "pixels": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 1,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "frame": 22,
+      "bbox": [
+        288,
+        345,
+        289,
+        346
+      ],
+      "pixels": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 1,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "frame": 30,
+      "bbox": [
+        288,
+        344,
+        289,
+        345
+      ],
+      "pixels": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 1,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "frame": 31,
+      "bbox": [
+        288,
+        345,
+        289,
+        346
+      ],
+      "pixels": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 1,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 87,
+      "bbox": [
+        265,
+        309,
+        267,
+        310
+      ],
+      "pixels": 2,
+      "painted_pixels": 2,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 2,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 88,
+      "bbox": [
+        265,
+        309,
+        267,
+        310
+      ],
+      "pixels": 2,
+      "painted_pixels": 2,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 2,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 89,
+      "bbox": [
+        265,
+        309,
+        267,
+        310
+      ],
+      "pixels": 2,
+      "painted_pixels": 2,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 2,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 90,
+      "bbox": [
+        265,
+        309,
+        267,
+        310
+      ],
+      "pixels": 2,
+      "painted_pixels": 2,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 2,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 91,
+      "bbox": [
+        265,
+        309,
+        267,
+        310
+      ],
+      "pixels": 2,
+      "painted_pixels": 2,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 2,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 92,
+      "bbox": [
+        265,
+        309,
+        267,
+        310
+      ],
+      "pixels": 2,
+      "painted_pixels": 2,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 2,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 93,
+      "bbox": [
+        265,
+        309,
+        267,
+        310
+      ],
+      "pixels": 2,
+      "painted_pixels": 2,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 2,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 94,
+      "bbox": [
+        265,
+        309,
+        267,
+        310
+      ],
+      "pixels": 2,
+      "painted_pixels": 2,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 2,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 95,
+      "bbox": [
+        265,
+        309,
+        267,
+        310
+      ],
+      "pixels": 2,
+      "painted_pixels": 2,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 2,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    }
+  ],
+  "native_pixels": false
+}

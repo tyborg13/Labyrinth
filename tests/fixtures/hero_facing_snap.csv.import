@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://23owuwjbdyd0"
+
+[deps]
+
+files=["res://tests/fixtures/hero_facing_snap.rear.translation", "res://tests/fixtures/hero_facing_snap.0.translation"]
+
+source_file="res://tests/fixtures/hero_facing_snap.csv"
+dest_files=["res://tests/fixtures/hero_facing_snap.rear.translation", "res://tests/fixtures/hero_facing_snap.0.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

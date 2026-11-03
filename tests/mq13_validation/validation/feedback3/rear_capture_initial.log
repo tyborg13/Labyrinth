@@ -1,0 +1,23 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-55d211fc96724f2cba4700b4681be026
+BLENDER_BRIDGE_STARTED: mq03-55d211fc96724f2cba4700b4681be026
+00:00.277  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/feedback3/build/maquette.blend"
+00:04.644  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/feedback3/capture_rear/rear_parts.png'
+00:13.304  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/feedback3/capture_rear/rear_clay.png'
+00:15.648  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/feedback3/capture_rear/rear_silhouette.png'
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/capture_probe.py", line 74, in <module>
+    main(sys.argv[sys.argv.index('--') + 1:])
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/capture_probe.py", line 59, in main
+    verify_geometry(objects, report)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/saved_body.py", line 13, in verify_geometry
+    raise ValueError('Loaded saved geometry differs from the build report')
+ValueError: Loaded saved geometry differs from the build report
+
+Error: script failed, file: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/capture_probe.py', exiting.
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit
+
+BLENDER_BRIDGE_RESULT: exit=2; seconds=17.1; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-55d211fc96724f2cba4700b4681be026.log

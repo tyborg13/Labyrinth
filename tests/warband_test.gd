@@ -6,7 +6,11 @@ func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	var report_index: int = args.find(OPENING_DAMAGE_REPORT_FLAG)
-	var report: Dictionary = Suite.run(_expect, report_index >= 0)
+	var report: Dictionary = {}
+	if args.has("--composite-command-only"):
+		Suite._command_composite_movement(_expect)
+	else:
+		report = Suite.run(_expect, report_index >= 0)
 	if report_index >= 0:
 		if report_index + 1 >= args.size():
 			_expect(false, OPENING_DAMAGE_REPORT_FLAG + " needs an output path")

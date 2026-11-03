@@ -1,0 +1,10 @@
+{
+  "crop_context_px": 12,
+  "crop_zoom": 4,
+  "sample_timeout_s": 85,
+  "sweep_shard_frames": 2,
+  "sweep_shard_timeout_s": 85,
+  "sweep_workers": 8,
+  "matrix_tolerance": 0.0001,
+  "presentation_angle_tolerance_deg": 0.751
+}

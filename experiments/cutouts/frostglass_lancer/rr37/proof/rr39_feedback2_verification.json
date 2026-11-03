@@ -1,0 +1,120 @@
+{
+  "task": "rr-39",
+  "feedback": 2,
+  "base_head": "7768b7172bab1b2446b4689c19c474f7dc69f349",
+  "uncommitted": true,
+  "full_suite_run": false,
+  "windowed_run": false,
+  "peer_review_run": false,
+  "acceptance": {
+    "1": "PASS: all 64 retained native errors resolve as exact real-source UV ties; 33 outline, 31 missing; no new pixel tolerance. CPU, interior, component, pocket, invalid-colour and cross-layer disagreements stay blocking; 17 historical failures rejected; reviewer remnant rejected. Fresh windowed provenance pending director.",
+    "2": "PASS: absolute, parent-component and escaping-symlink guards tested with valid hashes for mask and outside baseline. Disabling guard causes all three regressions to fail for both inputs (6 expected failures)."
+  },
+  "retained_native_ties": {
+    "source_manifest_sha256": "0cac78e6e3aa4a9d77020b9d2756b521f3a5adfc7758576e1cd815a60ce1feed",
+    "source_gate_log_sha256": "11f7873d6ae4f8025afc101fb5f12ac514a75db2fd56432b0357d63782fc9c5b",
+    "frames": 64,
+    "ties": {
+      "uncovered_outline_pixels": 33,
+      "uncovered_missing_pixels": 31
+    },
+    "remaining_errors": 0,
+    "current_renderer_proof": false
+  },
+  "results": {
+    "focused": "Ran 44 tests in 131.033s / OK",
+    "remnant": "Ran 1 test in 1.777s / OK; native resolver still rejects foreign texel and tiny component",
+    "old_native": "RR39 RR37 NATIVE REJECTION: PASS (17 rejected frames; 2 clean rest controls)",
+    "paths": "RR39 PATH GUARD MUTATION: PASS (guard disabled: all 3 regressions fail for both bound inputs; 6 failures)",
+    "source_gates": "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+    "production_gates": "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+    "density_all_units": "CHECK-OK",
+    "registration": "TEST REGISTRATION AUDIT: PASS (814 scripts; full suite=461, quarantined=29, windowed probe=324)",
+    "rests": "RR39 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)",
+    "syntax_and_diff": "git diff --check and sh -n rr37_proof.sh: exit 0"
+  },
+  "preservation": {
+    "production_assets_unchanged": true,
+    "protected_director_inputs_unchanged": true,
+    "density_registry_and_native_rest_records_unchanged": true,
+    "old_native_capture_and_report_not_resigned": true
+  },
+  "logs": {
+    "focused": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback2-focused-final.log",
+      "sha256": "eee938adca405d3fc8bea4e5baabc83bc2ff08ae0284b154a32e4d5333a6d3ec"
+    },
+    "remnant": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback2-remnant.log",
+      "sha256": "190e1a7292fe98ff7cf75469fba08ffda79c97e11062072eaf9beee6686a3213"
+    },
+    "path_guard_mutation": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback2-path-guard-mutation.log",
+      "sha256": "79ad62775440508a8b27469dc77d4eb5fd78191025c987db30efa2e92ca74417"
+    },
+    "source_evidence": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback2-source-evidence-final.log",
+      "sha256": "a94a490831ddac0ed1f56bfbce7996e68388ce9b13d87fb5f723f9491846e640"
+    },
+    "production_evidence": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback2-production-evidence-final.log",
+      "sha256": "46043ab8673ee2e159dca4c70858ecec4d1eb928c0e2978b655ad6bdb5c5a5b8"
+    },
+    "source_gates": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback2-source-gates-final.log",
+      "sha256": "5a5d5a1d1a0999f815d768b706b8cf85d9a97aba909b9fab50ff9934735e6ce4"
+    },
+    "production_gates": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback2-production-gates-final.log",
+      "sha256": "5a5d5a1d1a0999f815d768b706b8cf85d9a97aba909b9fab50ff9934735e6ce4"
+    },
+    "density": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback2-density-check.log",
+      "sha256": "fc0805f5b885ebfa08b1ef349d1c7530594734c814cbaf6d4a218eda454d3c77"
+    },
+    "registration": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback2-registration.log",
+      "sha256": "2b1a7adb25e1c29054be6051a329e30b280c01af8e708ba178f7711401f174ba"
+    },
+    "rest_equivalence": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback2-rest-equivalence.log",
+      "sha256": "b314f852b3c3ac109a2e5004c6eed082cff1ee5270c6e398e9b7cbfafd1f6b06"
+    },
+    "fixture": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback2-fixture.log",
+      "sha256": "0ac44b01b95d5e69673528c66c8435775347a6bb633093254ef6c09222f84c45"
+    },
+    "native_crops": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback2-crops.log",
+      "sha256": "a36a2e659f0a19e5ef1acd24cac8af1b443e033e9e8a7d128b097363b81af138"
+    }
+  },
+  "commands": [
+    "PYTHONPATH=tests LABYRINTH_TASK_ID=rr-39 python3 -m unittest tests.test_rr39_native_ties tests.test_rr39_density_partitions tests.test_rr39_lancer tests.test_rr39_proof_rerun tests.test_maquette_native_ties tests.test_maquette_native_raster -v",
+    "PYTHONPATH=tests python3 -m unittest tests.test_rr39_lancer.CleanupTests.test_outside_cloak_remnant_fails_full_vacated_footprint -v",
+    "PYTHONPATH=tools python3 -B experiments/cutouts/frostglass_lancer/rr39_density.py --verify-rests",
+    "LABYRINTH_TASK_ID=rr-39 PYTHONPATH=tools python3 -B experiments/cutouts/frostglass_lancer/rr37_evidence.py --refresh",
+    "LABYRINTH_TASK_ID=rr-39 PYTHONPATH=tools python3 -B experiments/cutouts/frostglass_lancer/rr37_evidence.py --refresh --case experiments/cutouts/frostglass_lancer/rr37/proof/production_case",
+    "PYTHONPATH=tools python3 -B experiments/cutouts/frostglass_lancer/rr37_gates.py",
+    "PYTHONPATH=tools python3 -B experiments/cutouts/frostglass_lancer/rr37_gates.py --case experiments/cutouts/frostglass_lancer/rr37/proof/production_case",
+    "python3 tools/process_board_density.py --check",
+    "python3 tools/test_registration_audit.py"
+  ],
+  "windowed_commands": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-39 && LABYRINTH_TASK_ID=rr-39 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-39 && LABYRINTH_TASK_ID=rr-39 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh review"
+  ],
+  "chosen_defaults": [
+    "Synthetic data in tests/test_rr39_native_ties.py::FIXTURE; native skin half-weight fixture vertices [10,20] and [20,10]. No player-facing defaults.",
+    "Proof-only native contact sheet: source crop 17px, zoom 6, columns 8; exact pixels copied from retained native capture."
+  ],
+  "todo_design": {},
+  "open_issues": [
+    "Fresh native/review windowed provenance pending director. Existing director visual acceptance is retained."
+  ],
+  "corrected_initial_attempts": [
+    "The CPU rest-equivalence PNG byte hashes were stale after the director native rebake; refreshed from fresh headless rest poses without changing assertions or native rest records.",
+    "General raster tests require PYTHONPATH=tests; corrected invocation without rewriting tests.",
+    "Reference and native packed skin geometry use the same UV tie band; source-boundary and both-side candidate guards are covered by negative controls."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "native_pixels": false,
+  "method": "CPU assembly using fresh headless production Godot rest poses",
+  "pose_sha256": "f41078d82e1156904d8cf388f46365bd308eae7f26ca42b2b3fcedb53765016b",
+  "mismatch_pixels": {
+    "front": 0,
+    "rear": 0
+  }
+}

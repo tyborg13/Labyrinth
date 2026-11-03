@@ -1,0 +1,16 @@
+{
+  "complete": true,
+  "results": [
+    {
+      "name": "rr38/runtime_checks",
+      "returncode": 0,
+      "seconds": 8.466,
+      "log_path": "/private/tmp/rr44-f2-rr38-runtime.logs/00-rr38-runtime_checks.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-rr38-runtime.logs/00/godot.log",
+      "reason": ""
+    }
+  ],
+  "seconds": 8.496,
+  "failed": false
+}

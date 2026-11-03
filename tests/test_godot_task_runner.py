@@ -32,6 +32,17 @@ INTERRUPTED_COMMAND_TIMEOUT_SECONDS = 0.5
 
 
 class GodotTaskRunnerTests(unittest.TestCase):
+    def test_cel_default_and_explicit_modes(self):
+        for value in (None, 'all', 'actors', 'off', ''):
+            with self.subTest(value=value), mock.patch.dict(os.environ):
+                os.environ.pop('LABYRINTH_CEL_LOOK', None)
+                if value is not None:
+                    os.environ['LABYRINTH_CEL_LOOK'] = value
+                result = self.run_fake_command('cel-default',
+                    "import os; print('CEL_ENV=' + os.environ['LABYRINTH_CEL_LOOK'])")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn('CEL_ENV=' + ('off' if value is None else value) + '\n', result.stdout)
+
     def setUp(self) -> None:
         self.home_root = tempfile.TemporaryDirectory()
         self.addCleanup(self.home_root.cleanup)

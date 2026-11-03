@@ -57,12 +57,12 @@ func _run() -> void:
 	await _load(instance, normal)
 	await _capture("01_normal_combat")
 	var intents := instance.get("_enemy_intent_toggle_button") as Button
-	_expect(intents.visible and not intents.button_pressed and intents.text == "INTENTS [I]", "Intents starts off with its semantic label intact")
+	_expect(intents.visible and not intents.button_pressed and (intents.get_node("IntentContents/IntentTitle") as Label).text == "Details" and intents.tooltip_text == "Show every enemy's full plan [I]", "Intents starts off with its semantic label intact")
 	_expect((intents.get_node("IntentContents/VisionIcon") as TextureRect).texture != null, "Intents uses the vision icon")
 	await _capture("02_intents_off")
 	await _click(intents)
 	_expect(intents.button_pressed and bool(instance.get("_show_all_enemy_intents")), "Pointer toggles all enemy intents")
-	_expect(intents.text == "INTENTS ON [I]" and (intents.get_theme_stylebox("normal") as StyleBoxFlat).border_color == Palette.GOLD_BRIGHT, "ON retains semantic text and brightens the plate")
+	_expect(intents.tooltip_text == "Hide full plans [I]" and (intents.get_theme_stylebox("normal") as StyleBoxFlat).border_color == Palette.GOLD_BRIGHT, "ON retains semantic text and brightens the plate")
 	await _pointer(Vector2(960, 500))
 	await _capture("03_intents_on")
 	await _key(KEY_I)
@@ -188,7 +188,14 @@ func _assert_inspection(instance: Node, frame: Control, router: Node) -> void:
 	for prompt: Dictionary in prompts:
 		_expect(str(prompt.get("action", "")) != str(InputRouter.ACTION_ACCEPT), "Focused tooltip frames must not advertise an A prompt")
 	var cursor: Dictionary = (instance.get("_controller_analog_cursor") as Node).call("cursor_snapshot")
-	_expect(frame.has_focus() and str(cursor.get("detail_text", "")) == frame.tooltip_text.strip_edges(), "Controller focus must expose the complete inspection tooltip")
+	if frame.has_meta("glossary_relic"):
+		var stack: Control = instance.get("_card_focus_tooltip_stack") as Control
+		var entries: Array = stack.get("_entries") as Array
+		_expect(frame.has_focus() and stack.visible and stack.get("_follow_target") == frame and not entries.is_empty(), "Controller focus opens the owned relic glossary stack")
+		if not entries.is_empty():
+			_expect(str(entries[0].get("description", "")) == frame.tooltip_text.substr(frame.tooltip_text.find("\n") + 1), "Relic inspection retains the complete live rules and reserve counter")
+	else:
+		_expect(frame.has_focus() and str(cursor.get("detail_text", "")) == frame.tooltip_text.strip_edges(), "Controller focus must expose the complete inspection tooltip")
 	var unchanged: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	instance.call("_controller_activate_current")
 	await _key(KEY_ENTER)

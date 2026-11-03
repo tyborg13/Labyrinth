@@ -110,21 +110,8 @@ def fixture_command(project: Path, task_id: str, name: str, dry_run: bool) -> li
 
 
 def launch_command(project: Path, task_id: str, name: str) -> list[str]:
-    run_id = slugify(f"{task_id}-umbra-{name}")
-    return [
-        sys.executable,
-        "tools/godot_task_runner.py",
-        "--project",
-        str(project),
-        "--task-id",
-        task_id,
-        "--run-id",
-        run_id,
-        "--",
-        "godot",
-        "--path",
-        ".",
-    ]
+    # Keep named fixtures on the same fresh-variants/player-default launch path.
+    return fixture_command(project, task_id, name, False) + ["--launch"]
 
 
 def main() -> int:

@@ -1,0 +1,1603 @@
+{
+  "task_id": "pt14-01",
+  "pixel_proof": false,
+  "summary": {
+    "fixture_states": 159,
+    "sweep_states": 150,
+    "mirror_chips": 107,
+    "fallbacks": 49,
+    "weighted_coverage_before": 222482.52046410748,
+    "weighted_coverage_after": 181249.7745426745,
+    "maximum_distance": 17.9535274505615,
+    "coverage_increase_boards": 0
+  },
+  "fixtures": [
+    {
+      "chips": 1,
+      "coverage_after": 2257.484375,
+      "coverage_before": 5332.1640625,
+      "fallbacks": 0,
+      "fixture": "owner_sprite_regression",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 1,
+      "coverage_after": 6336.0,
+      "coverage_before": 6336.0,
+      "fallbacks": 0,
+      "fixture": "terrain_health_bar",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 6336.0,
+      "coverage_before": 6336.0,
+      "fallbacks": 0,
+      "fixture": "fading_health_bar",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 6336.0,
+      "coverage_before": 6336.0,
+      "fallbacks": 0,
+      "fixture": "external_boss_health_frame",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 2257.484375,
+      "coverage_before": 5332.1640625,
+      "fallbacks": 0,
+      "fixture": "owner expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 1,
+      "coverage_after": 2257.484375,
+      "coverage_before": 5332.1640625,
+      "fallbacks": 0,
+      "fixture": "owner expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "rest_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "rest_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 4,
+      "coverage_after": 258.079086303711,
+      "coverage_before": 258.079086303711,
+      "fallbacks": 0,
+      "fixture": "rest_crowded_props expanded=false",
+      "max_distance": 4.593017578125,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 1011.91196537018,
+      "coverage_before": 1011.91196537018,
+      "fallbacks": 0,
+      "fixture": "rest_crowded_props expanded=true",
+      "max_distance": 4.593017578125,
+      "mirrors": 2
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "wave_E2 expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "wave_E2 expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 8,
+      "coverage_after": 12933.847755827,
+      "coverage_before": 17791.05263073,
+      "fallbacks": 2,
+      "fixture": "mixed_stress expanded=false",
+      "max_distance": 6.21875,
+      "mirrors": 3
+    },
+    {
+      "chips": 8,
+      "coverage_after": 12933.847755827,
+      "coverage_before": 17791.05263073,
+      "fallbacks": 2,
+      "fixture": "mixed_stress expanded=true",
+      "max_distance": 6.21875,
+      "mirrors": 3
+    },
+    {
+      "chips": 11,
+      "coverage_after": 16936.7262552232,
+      "coverage_before": 21883.9038565606,
+      "fallbacks": 6,
+      "fixture": "movement_stress_11 expanded=false",
+      "max_distance": 13.0352783203125,
+      "mirrors": 4
+    },
+    {
+      "chips": 11,
+      "coverage_after": 16936.7262552232,
+      "coverage_before": 21883.9038565606,
+      "fallbacks": 6,
+      "fixture": "movement_stress_11 expanded=true",
+      "max_distance": 13.0352783203125,
+      "mirrors": 4
+    },
+    {
+      "chips": 3,
+      "coverage_after": 3150.12471413612,
+      "coverage_before": 3150.12471413612,
+      "fallbacks": 2,
+      "fixture": "boss_crowded expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 3150.12471413612,
+      "coverage_before": 3150.12471413612,
+      "fallbacks": 2,
+      "fixture": "boss_crowded expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 3150.127815485,
+      "coverage_before": 3150.127815485,
+      "fallbacks": 2,
+      "fixture": "dragon_crowded expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 3150.127815485,
+      "coverage_before": 3150.127815485,
+      "fallbacks": 2,
+      "fixture": "dragon_crowded expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_air_1_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_air_1_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 2
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_air_1_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_air_1_crowd expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 5,
+      "coverage_after": 391.007382392883,
+      "coverage_before": 896.469764947891,
+      "fallbacks": 0,
+      "fixture": "warband_air_2_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 5,
+      "coverage_after": 3709.99802112579,
+      "coverage_before": 4215.4604036808,
+      "fallbacks": 0,
+      "fixture": "warband_air_2_open expanded=true",
+      "max_distance": 3.0517578125e-05,
+      "mirrors": 3
+    },
+    {
+      "chips": 5,
+      "coverage_after": 391.007382392883,
+      "coverage_before": 896.469764947891,
+      "fallbacks": 0,
+      "fixture": "warband_air_2_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 5,
+      "coverage_after": 1893.49732303619,
+      "coverage_before": 2398.9597055912,
+      "fallbacks": 0,
+      "fixture": "warband_air_2_crowd expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 2
+    },
+    {
+      "chips": 6,
+      "coverage_after": 706.023741722107,
+      "coverage_before": 706.023741722107,
+      "fallbacks": 0,
+      "fixture": "warband_air_3_open expanded=false",
+      "max_distance": 15.970458984375,
+      "mirrors": 0
+    },
+    {
+      "chips": 6,
+      "coverage_after": 2526.85704267025,
+      "coverage_before": 2526.85704267025,
+      "fallbacks": 0,
+      "fixture": "warband_air_3_open expanded=true",
+      "max_distance": 15.970458984375,
+      "mirrors": 1
+    },
+    {
+      "chips": 6,
+      "coverage_after": 1398.19450378418,
+      "coverage_before": 1398.19450378418,
+      "fallbacks": 0,
+      "fixture": "warband_air_3_crowd expanded=false",
+      "max_distance": 17.1478271484375,
+      "mirrors": 1
+    },
+    {
+      "chips": 6,
+      "coverage_after": 2761.37691426277,
+      "coverage_before": 2761.37691426277,
+      "fallbacks": 0,
+      "fixture": "warband_air_3_crowd expanded=true",
+      "max_distance": 17.9535274505615,
+      "mirrors": 2
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_air_first_turn expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_air_first_turn expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 1006.89984607697,
+      "coverage_before": 1006.89984607697,
+      "fallbacks": 1,
+      "fixture": "snare_air_first_seal expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 6979.08343982697,
+      "coverage_before": 6979.08343982697,
+      "fallbacks": 1,
+      "fixture": "snare_air_first_seal expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 1006.89984607697,
+      "coverage_before": 1006.89984607697,
+      "fallbacks": 1,
+      "fixture": "snare_air_kept_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 6979.08343982697,
+      "coverage_before": 6979.08343982697,
+      "fallbacks": 1,
+      "fixture": "snare_air_kept_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_air_escape expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_air_escape expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 1006.89984607697,
+      "coverage_before": 1006.89984607697,
+      "fallbacks": 1,
+      "fixture": "snare_air_pressure_turn3 expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 6979.08343982697,
+      "coverage_before": 6979.08343982697,
+      "fallbacks": 1,
+      "fixture": "snare_air_pressure_turn3 expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_earth_1_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_earth_1_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 2
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_earth_1_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_earth_1_crowd expanded=true",
+      "max_distance": 11.970458984375,
+      "mirrors": 2
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_earth_2_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_earth_2_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 2
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_earth_2_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_earth_2_crowd expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 2
+    },
+    {
+      "chips": 6,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_earth_3_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 6,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_earth_3_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 6,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_earth_3_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 6,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_earth_3_crowd expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_earth_first_turn expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_earth_first_turn expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_earth_first_seal expanded=false",
+      "max_distance": 11.218017578125,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_earth_first_seal expanded=true",
+      "max_distance": 11.218017578125,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_earth_kept_open expanded=false",
+      "max_distance": 11.218017578125,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_earth_kept_open expanded=true",
+      "max_distance": 11.218017578125,
+      "mirrors": 1
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_earth_escape expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_earth_escape expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_earth_pressure_turn3 expanded=false",
+      "max_distance": 11.218017578125,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_earth_pressure_turn3 expanded=true",
+      "max_distance": 11.218017578125,
+      "mirrors": 1
+    },
+    {
+      "chips": 4,
+      "coverage_after": 308.82036074996,
+      "coverage_before": 308.82036074996,
+      "fallbacks": 0,
+      "fixture": "warband_fire_1_open expanded=false",
+      "max_distance": 4.6826171875,
+      "mirrors": 1
+    },
+    {
+      "chips": 4,
+      "coverage_after": 308.82036074996,
+      "coverage_before": 308.82036074996,
+      "fallbacks": 0,
+      "fixture": "warband_fire_1_open expanded=true",
+      "max_distance": 4.6826171875,
+      "mirrors": 1
+    },
+    {
+      "chips": 4,
+      "coverage_after": 179.43771442771,
+      "coverage_before": 179.43771442771,
+      "fallbacks": 1,
+      "fixture": "warband_fire_1_crowd expanded=false",
+      "max_distance": 10.3175659179688,
+      "mirrors": 1
+    },
+    {
+      "chips": 4,
+      "coverage_after": 179.43771442771,
+      "coverage_before": 179.43771442771,
+      "fallbacks": 1,
+      "fixture": "warband_fire_1_crowd expanded=true",
+      "max_distance": 10.3175659179688,
+      "mirrors": 1
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_fire_2_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_fire_2_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_fire_2_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_fire_2_crowd expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 6,
+      "coverage_after": 308.820613354445,
+      "coverage_before": 308.820613354445,
+      "fallbacks": 0,
+      "fixture": "warband_fire_3_open expanded=false",
+      "max_distance": 4.6826171875,
+      "mirrors": 0
+    },
+    {
+      "chips": 6,
+      "coverage_after": 308.820613354445,
+      "coverage_before": 308.820613354445,
+      "fallbacks": 0,
+      "fixture": "warband_fire_3_open expanded=true",
+      "max_distance": 4.6826171875,
+      "mirrors": 0
+    },
+    {
+      "chips": 6,
+      "coverage_after": 179.437791675329,
+      "coverage_before": 179.437791675329,
+      "fallbacks": 3,
+      "fixture": "warband_fire_3_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 6,
+      "coverage_after": 179.437791675329,
+      "coverage_before": 179.437791675329,
+      "fallbacks": 3,
+      "fixture": "warband_fire_3_crowd expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_fire_first_turn expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_fire_first_turn expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 109.294756412506,
+      "coverage_before": 109.294756412506,
+      "fallbacks": 0,
+      "fixture": "snare_fire_first_seal expanded=false",
+      "max_distance": 4.6826171875,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 109.294756412506,
+      "coverage_before": 109.294756412506,
+      "fallbacks": 0,
+      "fixture": "snare_fire_first_seal expanded=true",
+      "max_distance": 4.6826171875,
+      "mirrors": 2
+    },
+    {
+      "chips": 3,
+      "coverage_after": 109.294756412506,
+      "coverage_before": 109.294756412506,
+      "fallbacks": 0,
+      "fixture": "snare_fire_kept_open expanded=false",
+      "max_distance": 4.6826171875,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 109.294756412506,
+      "coverage_before": 109.294756412506,
+      "fallbacks": 0,
+      "fixture": "snare_fire_kept_open expanded=true",
+      "max_distance": 4.6826171875,
+      "mirrors": 2
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_fire_escape expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_fire_escape expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 109.294756412506,
+      "coverage_before": 109.294756412506,
+      "fallbacks": 0,
+      "fixture": "snare_fire_pressure_turn3 expanded=false",
+      "max_distance": 4.6826171875,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 109.294756412506,
+      "coverage_before": 109.294756412506,
+      "fallbacks": 0,
+      "fixture": "snare_fire_pressure_turn3 expanded=true",
+      "max_distance": 4.6826171875,
+      "mirrors": 2
+    },
+    {
+      "chips": 4,
+      "coverage_after": 710.773218154907,
+      "coverage_before": 710.773218154907,
+      "fallbacks": 0,
+      "fixture": "warband_ice_1_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 710.773218154907,
+      "coverage_before": 710.773218154907,
+      "fallbacks": 0,
+      "fixture": "warband_ice_1_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 769.266586303711,
+      "coverage_before": 769.266586303711,
+      "fallbacks": 0,
+      "fixture": "warband_ice_1_crowd expanded=false",
+      "max_distance": 7.948486328125,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 769.266586303711,
+      "coverage_before": 769.266586303711,
+      "fallbacks": 0,
+      "fixture": "warband_ice_1_crowd expanded=true",
+      "max_distance": 7.948486328125,
+      "mirrors": 0
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_ice_2_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_ice_2_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 2
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_ice_2_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_ice_2_crowd expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 2
+    },
+    {
+      "chips": 6,
+      "coverage_after": 56.0027890205383,
+      "coverage_before": 56.0027890205383,
+      "fallbacks": 0,
+      "fixture": "warband_ice_3_open expanded=false",
+      "max_distance": 7.051513671875,
+      "mirrors": 1
+    },
+    {
+      "chips": 6,
+      "coverage_after": 56.0027890205383,
+      "coverage_before": 56.0027890205383,
+      "fallbacks": 0,
+      "fixture": "warband_ice_3_open expanded=true",
+      "max_distance": 7.051513671875,
+      "mirrors": 2
+    },
+    {
+      "chips": 6,
+      "coverage_after": 8.10504695773125,
+      "coverage_before": 8.10504695773125,
+      "fallbacks": 1,
+      "fixture": "warband_ice_3_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 6,
+      "coverage_after": 8.10504695773125,
+      "coverage_before": 8.10504695773125,
+      "fallbacks": 1,
+      "fixture": "warband_ice_3_crowd expanded=true",
+      "max_distance": 15.2753610610962,
+      "mirrors": 3
+    },
+    {
+      "chips": 4,
+      "coverage_after": 56.0029764175415,
+      "coverage_before": 56.0029764175415,
+      "fallbacks": 0,
+      "fixture": "snare_ice_first_turn expanded=false",
+      "max_distance": 7.05157470703125,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 56.0029764175415,
+      "coverage_before": 56.0029764175415,
+      "fallbacks": 0,
+      "fixture": "snare_ice_first_turn expanded=true",
+      "max_distance": 7.05157470703125,
+      "mirrors": 2
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_ice_first_seal expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_ice_first_seal expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_ice_kept_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_ice_kept_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 616.76038312912,
+      "coverage_before": 616.76038312912,
+      "fallbacks": 0,
+      "fixture": "snare_ice_escape expanded=false",
+      "max_distance": 7.05157470703125,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 616.76038312912,
+      "coverage_before": 616.76038312912,
+      "fallbacks": 0,
+      "fixture": "snare_ice_escape expanded=true",
+      "max_distance": 7.05157470703125,
+      "mirrors": 1
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_ice_pressure_turn3 expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_ice_pressure_turn3 expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 1664.46894836426,
+      "coverage_before": 1664.46894836426,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_1_open expanded=false",
+      "max_distance": 15.970458984375,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 1664.46894836426,
+      "coverage_before": 1664.46894836426,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_1_open expanded=true",
+      "max_distance": 15.970458984375,
+      "mirrors": 1
+    },
+    {
+      "chips": 4,
+      "coverage_after": 425.201579809189,
+      "coverage_before": 1664.46894836426,
+      "fallbacks": 1,
+      "fixture": "warband_lightning_1_crowd expanded=false",
+      "max_distance": 15.970458984375,
+      "mirrors": 1
+    },
+    {
+      "chips": 4,
+      "coverage_after": 425.201579809189,
+      "coverage_before": 1664.46894836426,
+      "fallbacks": 1,
+      "fixture": "warband_lightning_1_crowd expanded=true",
+      "max_distance": 15.970458984375,
+      "mirrors": 2
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_2_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_2_open expanded=true",
+      "max_distance": 11.000732421875,
+      "mirrors": 1
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_2_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 5,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_2_crowd expanded=true",
+      "max_distance": 15.970458984375,
+      "mirrors": 1
+    },
+    {
+      "chips": 6,
+      "coverage_after": 763.387506008148,
+      "coverage_before": 763.387506008148,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_3_open expanded=false",
+      "max_distance": 15.970458984375,
+      "mirrors": 1
+    },
+    {
+      "chips": 6,
+      "coverage_after": 763.387506008148,
+      "coverage_before": 763.387506008148,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_3_open expanded=true",
+      "max_distance": 15.970458984375,
+      "mirrors": 1
+    },
+    {
+      "chips": 6,
+      "coverage_after": 763.387506008148,
+      "coverage_before": 763.387506008148,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_3_crowd expanded=false",
+      "max_distance": 15.970458984375,
+      "mirrors": 1
+    },
+    {
+      "chips": 6,
+      "coverage_after": 763.387506008148,
+      "coverage_before": 763.387506008148,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_3_crowd expanded=true",
+      "max_distance": 15.970458984375,
+      "mirrors": 1
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_first_turn expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_first_turn expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_first_seal expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 6086.34401941299,
+      "coverage_before": 6086.34401941299,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_first_seal expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_kept_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 3,
+      "coverage_after": 6086.34401941299,
+      "coverage_before": 6086.34401941299,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_kept_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_escape expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_escape expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 0.0,
+      "coverage_before": 1709.778819561,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_pressure_turn3 expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 3,
+      "coverage_after": 0.0,
+      "coverage_before": 1709.778819561,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_pressure_turn3 expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 1,
+      "coverage_after": 587.129061698914,
+      "coverage_before": 587.129061698914,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_1_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 587.129061698914,
+      "coverage_before": 587.129061698914,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_1_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 587.129061698914,
+      "coverage_before": 587.129061698914,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_1_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 587.129061698914,
+      "coverage_before": 587.129061698914,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_1_crowd expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_2_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_2_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_2_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_2_crowd expanded=true",
+      "max_distance": 5.218994140625,
+      "mirrors": 1
+    },
+    {
+      "chips": 1,
+      "coverage_after": 564.891932964325,
+      "coverage_before": 564.891932964325,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_3_open expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 564.891932964325,
+      "coverage_before": 564.891932964325,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_3_open expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 564.891932964325,
+      "coverage_before": 564.891932964325,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_3_crowd expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 1,
+      "coverage_after": 564.891932964325,
+      "coverage_before": 564.891932964325,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_3_crowd expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 0,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_shadow_first_turn expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 0,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_shadow_first_turn expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 2,
+      "coverage_after": 579.389007627964,
+      "coverage_before": 579.389007627964,
+      "fallbacks": 1,
+      "fixture": "snare_shadow_first_seal expanded=false",
+      "max_distance": 8.1231689453125,
+      "mirrors": 0
+    },
+    {
+      "chips": 2,
+      "coverage_after": 579.389007627964,
+      "coverage_before": 579.389007627964,
+      "fallbacks": 1,
+      "fixture": "snare_shadow_first_seal expanded=true",
+      "max_distance": 8.1231689453125,
+      "mirrors": 0
+    },
+    {
+      "chips": 2,
+      "coverage_after": 579.389007627964,
+      "coverage_before": 579.389007627964,
+      "fallbacks": 1,
+      "fixture": "snare_shadow_kept_open expanded=false",
+      "max_distance": 8.1231689453125,
+      "mirrors": 0
+    },
+    {
+      "chips": 2,
+      "coverage_after": 579.389007627964,
+      "coverage_before": 579.389007627964,
+      "fallbacks": 1,
+      "fixture": "snare_shadow_kept_open expanded=true",
+      "max_distance": 8.1231689453125,
+      "mirrors": 0
+    },
+    {
+      "chips": 0,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_shadow_escape expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 0,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "snare_shadow_escape expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 2,
+      "coverage_after": 579.389007627964,
+      "coverage_before": 579.389007627964,
+      "fallbacks": 1,
+      "fixture": "snare_shadow_pressure_turn3 expanded=false",
+      "max_distance": 8.1231689453125,
+      "mirrors": 0
+    },
+    {
+      "chips": 2,
+      "coverage_after": 579.389007627964,
+      "coverage_before": 579.389007627964,
+      "fallbacks": 1,
+      "fixture": "snare_shadow_pressure_turn3 expanded=true",
+      "max_distance": 8.1231689453125,
+      "mirrors": 0
+    },
+    {
+      "chips": 5,
+      "coverage_after": 1465.77734375,
+      "coverage_before": 5945.77734375,
+      "fallbacks": 0,
+      "fixture": "warband_air_2_midfight expanded=false",
+      "max_distance": 0.0,
+      "mirrors": 1
+    },
+    {
+      "chips": 5,
+      "coverage_after": 7893.79321289062,
+      "coverage_before": 7893.79321289062,
+      "fallbacks": 0,
+      "fixture": "warband_air_2_midfight expanded=true",
+      "max_distance": 0.0,
+      "mirrors": 3
+    },
+    {
+      "chips": 1,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 1,
+      "fixture": "owner_hand_zoom1_4",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "live_rest",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 229.573916435242,
+      "coverage_before": 229.573916435242,
+      "fallbacks": 0,
+      "fixture": "live_rest",
+      "max_distance": 8.383056640625,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "live_rest",
+      "max_distance": 0.0,
+      "mirrors": 0
+    },
+    {
+      "chips": 4,
+      "coverage_after": 0.0,
+      "coverage_before": 0.0,
+      "fallbacks": 0,
+      "fixture": "live_rest",
+      "max_distance": 0.0,
+      "mirrors": 1
+    }
+  ],
+  "headless_probe_preparation": [
+    {
+      "before": true,
+      "board_enemies": 1,
+      "captured": false,
+      "case": "owner",
+      "chips": 1,
+      "drawn_checked": false,
+      "fallbacks": 0,
+      "max_distance": 0.0,
+      "mirrors": 0,
+      "path": "user://probes/pt14-01/owner_before_1920x1080.png",
+      "prepared": true,
+      "weighted_coverage": 3716.29978561401
+    },
+    {
+      "before": false,
+      "board_enemies": 1,
+      "captured": false,
+      "case": "owner",
+      "chips": 1,
+      "drawn_checked": false,
+      "fallbacks": 0,
+      "max_distance": 0.0,
+      "mirrors": 1,
+      "path": "user://probes/pt14-01/owner_after_1920x1080.png",
+      "prepared": true,
+      "weighted_coverage": 246.074144363403
+    },
+    {
+      "before": true,
+      "board_enemies": 5,
+      "captured": false,
+      "case": "air_pre_battle",
+      "chips": 5,
+      "drawn_checked": false,
+      "fallbacks": 0,
+      "max_distance": 0.0,
+      "mirrors": 1,
+      "path": "user://probes/pt14-01/air_pre_battle_before_1920x1080.png",
+      "prepared": true,
+      "weighted_coverage": 3860.46551591158
+    },
+    {
+      "before": false,
+      "board_enemies": 5,
+      "captured": false,
+      "case": "air_pre_battle",
+      "chips": 5,
+      "drawn_checked": false,
+      "fallbacks": 0,
+      "max_distance": 0.0,
+      "mirrors": 1,
+      "path": "user://probes/pt14-01/air_pre_battle_after_1920x1080.png",
+      "prepared": true,
+      "weighted_coverage": 3860.46551591158
+    },
+    {
+      "before": true,
+      "board_enemies": 5,
+      "captured": false,
+      "case": "air_opening",
+      "chips": 5,
+      "drawn_checked": false,
+      "fallbacks": 0,
+      "max_distance": 0.0,
+      "mirrors": 1,
+      "path": "user://probes/pt14-01/air_opening_before_1920x1080.png",
+      "prepared": true,
+      "weighted_coverage": 3860.46551591158
+    },
+    {
+      "before": false,
+      "board_enemies": 5,
+      "captured": false,
+      "case": "air_opening",
+      "chips": 5,
+      "drawn_checked": false,
+      "fallbacks": 0,
+      "max_distance": 0.0,
+      "mirrors": 1,
+      "path": "user://probes/pt14-01/air_opening_after_1920x1080.png",
+      "prepared": true,
+      "weighted_coverage": 3860.46551591158
+    },
+    {
+      "before": true,
+      "board_enemies": 5,
+      "captured": false,
+      "case": "air_midfight",
+      "chips": 5,
+      "drawn_checked": false,
+      "fallbacks": 0,
+      "max_distance": 0.0,
+      "mirrors": 0,
+      "path": "user://probes/pt14-01/air_midfight_before_1920x1080.png",
+      "prepared": true,
+      "weighted_coverage": 5791.65348673239
+    },
+    {
+      "before": false,
+      "board_enemies": 5,
+      "captured": false,
+      "case": "air_midfight",
+      "chips": 5,
+      "drawn_checked": false,
+      "fallbacks": 0,
+      "max_distance": 0.0,
+      "mirrors": 2,
+      "path": "user://probes/pt14-01/air_midfight_after_1920x1080.png",
+      "prepared": true,
+      "weighted_coverage": 1955.60176968947
+    },
+    {
+      "before": true,
+      "board_enemies": 5,
+      "captured": false,
+      "case": "shadow_warband",
+      "chips": 1,
+      "drawn_checked": false,
+      "fallbacks": 0,
+      "max_distance": 0.0,
+      "mirrors": 0,
+      "path": "user://probes/pt14-01/shadow_warband_before_1920x1080.png",
+      "prepared": true,
+      "weighted_coverage": 1104.0
+    },
+    {
+      "before": false,
+      "board_enemies": 5,
+      "captured": false,
+      "case": "shadow_warband",
+      "chips": 1,
+      "drawn_checked": false,
+      "fallbacks": 0,
+      "max_distance": 0.0,
+      "mirrors": 1,
+      "path": "user://probes/pt14-01/shadow_warband_after_1920x1080.png",
+      "prepared": true,
+      "weighted_coverage": 0.0
+    }
+  ],
+  "headless_probe_preparation_revision": "9eb80cf4b (before feedback 1)",
+  "source_check": "tests/threats_at_rest_test.gd",
+  "measurement_round": "pt14-01 feedback 3",
+  "preparation": {
+    "source_check": "tests/pt14_01_preparation_check.gd",
+    "new_run_max_added_main_thread_ms": 0.21,
+    "continue_max_added_main_thread_ms": 0.227,
+    "equip_max_added_main_thread_ms": 0.398,
+    "new_run_builds": 2,
+    "continue_builds": 2,
+    "empty_loadout_builds": 0,
+    "main_thread_builds": 0,
+    "ready_before_reveal": true
+  }
+}

@@ -3,6 +3,8 @@ class_name GrimoireLibrary
 
 const GameData = preload("res://scripts/game_data.gd")
 const BoardSurfaces = preload("res://scripts/board_surface_rules.gd")
+const Glossary = preload("res://scripts/glossary.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 
 const GRIMOIRE_PATH: String = "res://data/grimoire.json"
 const UNLOCKED_KEY: String = "grimoire_unlocked"
@@ -136,6 +138,12 @@ const ACTION_FIELD_ENTRY_IDS := {
 const LINKED_ENTRY_IDS := {
 	"keyword:push": ["keyword:collision"],
 	"keyword:pull": ["keyword:collision"]
+}
+
+# Permanent badges are encountered with the enemy type, just like its intents.
+const ENEMY_TRAIT_ENTRY_IDS := {
+	"reflect_ranged": "keyword:reflect",
+	"flying": "keyword:flying"
 }
 
 static var _cache: Dictionary = {}
@@ -525,6 +533,7 @@ static func _entry_id_set(value: Variant) -> Dictionary:
 		return result
 	for id_var: Variant in value:
 		var entry_id: String = str(id_var)
+		if entry_id in ["keyword:icefall", "keyword:lob", "keyword:burrow", "keyword:erupt"]: entry_id = "keyword:marked"
 		if not entry_id.is_empty():
 			result[entry_id] = true
 	return result
@@ -648,6 +657,7 @@ static func entry_ids_for_card_def(card: Dictionary) -> Array[String]:
 	return _ordered_entry_ids_from_set(wanted)
 
 static func _collect_entry_ids_for_card_def(card: Dictionary, wanted: Dictionary) -> void:
+	_collect_glossary_keyword("element_" + GameData.card_element_from_def(card), wanted)
 	if bool(card.get("radiance", false)):
 		wanted["keyword:radiance"] = true
 	if bool(card.get("burn", false)):
@@ -729,6 +739,9 @@ static func entry_ids_for_enemy_def(enemy: Dictionary) -> Array[String]:
 	return _ordered_entry_ids_from_set(wanted)
 
 static func _collect_entry_ids_for_enemy_def(enemy: Dictionary, wanted: Dictionary) -> void:
+	for field: String in ENEMY_TRAIT_ENTRY_IDS:
+		if bool(enemy.get(field, false)):
+			wanted[ENEMY_TRAIT_ENTRY_IDS[field]] = true
 	for intent_var: Variant in enemy.get("intents", []):
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
@@ -744,6 +757,8 @@ static func entry_ids_for_combat_state(combat_state: Dictionary) -> Array[String
 	var umbra_stage: String = str(umbra.get("stage", "clear"))
 	if not umbra_stage.is_empty() and umbra_stage != "clear":
 		wanted["combat:umbra"] = true
+	if umbra_stage == "eclipse":
+		wanted["keyword:eclipse"] = true
 	if not (combat_state.get("traps", []) as Array).is_empty():
 		wanted["combat:traps"] = true
 	var enemy_types_seen: Dictionary = {}
@@ -815,6 +830,10 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 			continue
 		var action: Dictionary = action_var as Dictionary
 		var action_type: String = str(action.get("type", ""))
+		# Reuse authored aliases and the same concept identity shown by the
+		# card/intent, including self_flag stances and text-only Outcrops.
+		_collect_glossary_keyword(action_type, wanted)
+		_collect_glossary_keyword(ActionIcons.action_icon_key(action), wanted)
 		var type_entry: String = str(ACTION_TYPE_ENTRY_IDS.get(action_type, ""))
 		if not type_entry.is_empty():
 			wanted[type_entry] = true
@@ -859,6 +878,12 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 			if not field_entry.is_empty():
 				wanted[field_entry] = true
 		_collect_nested_action_entry_ids(action, wanted)
+
+static func _collect_glossary_keyword(concept: String, wanted: Dictionary) -> void:
+	var term: Dictionary = Glossary.lookup(concept)
+	if not term.is_empty():
+		# The final catalog ordering discards terms without a keyword entry.
+		wanted["keyword:" + str(term["id"])] = true
 
 static func _entry_ids_for_nested_action_values(value: Variant) -> Array[String]:
 	var wanted: Dictionary = {}

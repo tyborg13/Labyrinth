@@ -1,0 +1,11 @@
+{
+  "front_job": "spec/art_identity/jobs/gloam_stalker/mq13_front",
+  "rear_job": "spec/art_identity/jobs/gloam_stalker/mq13_rear",
+  "front_delivery": "spec/art_identity/maquettes/gloam_stalker/delivery",
+  "rear_delivery": "spec/art_identity/maquettes/gloam_stalker/delivery",
+  "fused_occlusion": true,
+  "design_placeholders": {
+    "TODO_DESIGN_front_slash_reach": "Feedback 1 cap 30/25 still reaches only 17.137160 source px; required 18. Tuning stopped.",
+    "TODO_DESIGN_rear_move_foot_near_reach": "Feedback 1 lift floor 3 with lane_narrowing 0.4 still reaches 25.094914 px; required 25.409323. Tuning stopped."
+  }
+}

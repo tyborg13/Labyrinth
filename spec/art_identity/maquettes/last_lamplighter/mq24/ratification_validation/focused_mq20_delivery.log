@@ -1,0 +1,17 @@
+......MQ20_CONTACT_SHEET: PASS; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/mq20_sheet_fe9airl0/contact_sheet.webp
+....MQ20_SOURCE_GEOMETRY: FAIL; rows=89; clearance_over_H=0.0; unresolved=[]
+.........................E
+======================================================================
+ERROR: test_maquette_delivery_validation (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_maquette_delivery_validation
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 154, in loadTestsFromName
+    module = __import__(module_name)
+ModuleNotFoundError: No module named 'tests.test_maquette_delivery_validation'
+
+
+----------------------------------------------------------------------
+Ran 36 tests in 65.040s
+
+FAILED (errors=1)

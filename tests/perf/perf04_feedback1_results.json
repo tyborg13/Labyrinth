@@ -1,0 +1,496 @@
+{
+  "task": "perf-04 feedback 1",
+  "reviewed_head": "26e30a0f1",
+  "reference_algorithms_from": "cd8cd0e64",
+  "status": "Requested correctness fixes verified headless; windowed pixel proof remains for the design owner.",
+  "director_decisions": {
+    "finding_4": "Closed by the director: ordinary hover 5.40 ms headless / 12.6 ms native min-of-3 accepted. These are director-supplied measurements; no timing rerun or further optimization in this feedback pass.",
+    "finding_5": "Ignored as directed: base-advance ledger artifact; no spec/ changes."
+  },
+  "requirements": [
+    {
+      "number": 1,
+      "status": "met",
+      "change": "Warmup completes before retained synchronization. Regression uses Arena.arena(), first enemy hover, an obstacle over the expanded intent rectangle, then controller focus on that same enemy. Checks parent HUD, actual retained HUD and effects geometry against an independent reference."
+    },
+    {
+      "number": 2,
+      "status": "met",
+      "change": "Deferred flush checks tree membership before clearing its dirty flag; _enter_tree reschedules it. Regression detaches after hovering enemy 2, lets the deferred callback run while detached, reattaches and requires enemy 2 without further input. A second regression reattaches before the original deferred callback runs."
+    },
+    {
+      "number": 3,
+      "status": "met headless; native pixels pending",
+      "change": "Frozen pre-perf04 submission and layout oracle never invokes candidate warmup or submission reuse. Its untimed final HUD solve bypasses the HUD LRU and directly publishes HUD/effects bindings. Badge reference has original catalog keys. Pose and catalog mutation/restoration cases exercise invalidation. Production retained overlay and foreground callbacks run with changing selectors/clocks. Compare per-tile overlay inputs and glow polygons plus complete ordered torch sprite/trail inputs, including exact texture pixels and atlas selection. Native probe keeps real retained layers and has a 42-image pixel-equivalence contract.",
+      "mutation_result": "PERF04 MUTATION RESULT: 8/8 CAUGHT"
+    }
+  ],
+  "files_changed": [
+    "scripts/combat_board_view.gd",
+    "tests/perf/hover_board_reference.gd",
+    "tests/perf/hover_catalog_cases.gd",
+    "tests/perf/hover_draw_candidate.gd",
+    "tests/perf/hover_draw_cases.gd",
+    "tests/perf/hover_draw_manifest.gd",
+    "tests/perf/hover_draw_reference.gd",
+    "tests/perf/hover_equivalence.gd",
+    "tests/perf/hover_equivalence_probe.gd",
+    "tests/perf/hover_equivalence_proof.json",
+    "tests/perf/hover_lifecycle_cases.gd",
+    "tests/perf/hover_mutations.json",
+    "tests/perf/intent_badges_reference.gd",
+    "tests/perf/perf04_feedback1_results.json",
+    "tests/perf/run_hover_mutations.py",
+    "tests/perf/run_perf03_checks.py"
+  ],
+  "source_sha256": {
+    "scripts/combat_board_view.gd": "11863dbd47c9b43818e3a6121e2a23edd175d63c8ec84e2b5ecfa8e3e4118dec",
+    "tests/perf/hover_board_reference.gd": "3f3d3a3522716b18545667b82ac4bb31bb8ac9e68bf1306b0b85d681588f736e",
+    "tests/perf/hover_catalog_cases.gd": "3b32859a41b59f9d0d8c0eb12056971e87572fddbd91bcbcca0c57974464d486",
+    "tests/perf/hover_draw_candidate.gd": "dd29dd9246a324e45b4e1171d37cbe6093ab55d4e4f0ff358df54cf2cdf25a12",
+    "tests/perf/hover_draw_cases.gd": "99b16d6abeedd2f4de26637028045f7d8afe87cce0fc57321c0dd87a85a4a928",
+    "tests/perf/hover_draw_manifest.gd": "02b223086b06b74e419634553dbbf8dc4aa6d3409a8ca250ae9f2d06f402b7db",
+    "tests/perf/hover_draw_reference.gd": "a37a5722da7f8bf7e74f84bc9e4984ef88e419cc5bbc23835607b5551b8088d0",
+    "tests/perf/hover_equivalence.gd": "24b393aae10a396dcbe09ee68cea250b3eee4f1c26af017731798be8eb6d0b98",
+    "tests/perf/hover_equivalence_probe.gd": "06e92b8c96f21d04ab764362e468a1fc52728587591f936d2f73ed5f7c6d1a42",
+    "tests/perf/hover_equivalence_proof.json": "2cbd0692efda7bf79159071c04a920bf76856eaaebdaaf4d880b53e0739d29e1",
+    "tests/perf/hover_lifecycle_cases.gd": "475b227448525506f57eb667adc241a374df0100628d4ab0e6c3cdcc02213c1b",
+    "tests/perf/hover_mutations.json": "02598ed85511de406792f8c10e347b934001f013f1fceb81d5206dbd72504ff7",
+    "tests/perf/intent_badges_reference.gd": "1d25dbe7f935cf2d47c31669dec65025207a73e37d1c9d40940373af1d0c2010",
+    "tests/perf/run_hover_mutations.py": "d1df10ceecad3a16265b51191a887aafd85b6220b7150021e73bff15a709dd09",
+    "tests/perf/run_perf03_checks.py": "9ef3bda43cf5ab571a7872c76a19971d84340e1900b7cc75d59ec46cc46a7aba"
+  },
+  "requested_checks": [
+    {
+      "suite": "equivalence",
+      "repetition": 0,
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "perf-04",
+        "--stream",
+        "--timeout",
+        "90",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/perf/combat_frame_scenarios.gd",
+        "--",
+        "--equivalence-only",
+        "--output=/Users/borgerding/workspace/Labyrinth.worktrees/perf-04/output/perf-04/feedback1-focused-equivalence-samples-0.json"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "PERF03 PATH EQUIVALENCE: 294 ordered command comparisons; stale redraw mutation detected",
+        "PERF03 PRODUCTION PATH ROUTING: old/new/cleared tiles queued and actually drawn",
+        "PERF03 TELEGRAPH EQUIVALENCE: owning layer and stale-flight mutation checked",
+        "PERF03 RECT EQUIVALENCE: 11 ordered rect/bounds/ownership comparisons; forced-hash and stale-geometry mutations detected",
+        "PERF03 UI RETENTION EQUIVALENCE: 13 complete layout/style/texture/text/input comparisons; stale-clock mutation caught",
+        "PERF03 CARD PROXY PREPARATION: cold/prepared full property equivalence; changed-card stale-content mutation; hidden/state/identity guards",
+        "PERF03 GRIMOIRE DIRTY EQUIVALENCE: 9 relevant mutations including empty/nonempty progression, unchanged/HP skips, forced-key stale-source guards",
+        "PERF04 HOVER LIFECYCLE RESULT: obstacle/controller and both detach/re-entry regressions exercised",
+        "PERF04 BADGE CATALOG RESULT: in-place catalog mutation/restoration checked against original keys and uncached orders",
+        "PERF04 CUTOUT POSE RESULT: front/rear/restored registration and retained HUD equivalence",
+        "PERF04 RETAINED DRAW RESULT: 4 live overlay/torch comparisons; leader, burrow, burst, zone and clock mutations exercised",
+        "PERF04 TORCH EQUIVALENCE: 32 exact motion/ordered-command comparisons; seed and room mutations detected",
+        "PERF04 HOVER EQUIVALENCE: 39 complete HUD/badge/retained-state comparisons; submission and catalog mutations detected",
+        "PERF03 FRAME RESULT: PASS (0 failures) report=/Users/borgerding/workspace/Labyrinth.worktrees/perf-04/output/perf-04/feedback1-focused-equivalence-samples-0.json",
+        "PERF03 BUDGET RESULT: PASS (0 misses)",
+        "PERF03 CHECKPOINT OWNERSHIP: 0 identical copied/direct inputs; caller mutation isolated"
+      ],
+      "log": "output/perf-04/feedback1-focused-equivalence.log"
+    },
+    {
+      "suite": "hover_equivalence",
+      "repetition": 0,
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "perf-04",
+        "--stream",
+        "--timeout",
+        "90",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/perf/hover_equivalence_test.gd"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "PERF04 HOVER LIFECYCLE RESULT: obstacle/controller and both detach/re-entry regressions exercised",
+        "PERF04 BADGE CATALOG RESULT: in-place catalog mutation/restoration checked against original keys and uncached orders",
+        "PERF04 CUTOUT POSE RESULT: front/rear/restored registration and retained HUD equivalence",
+        "PERF04 RETAINED DRAW RESULT: 4 live overlay/torch comparisons; leader, burrow, burst, zone and clock mutations exercised",
+        "PERF04 TORCH EQUIVALENCE: 32 exact motion/ordered-command comparisons; seed and room mutations detected",
+        "PERF04 HOVER EQUIVALENCE: 39 complete HUD/badge/retained-state comparisons; submission and catalog mutations detected",
+        "PERF04 EQUIVALENCE RESULT: PASS (0 failures)"
+      ],
+      "log": "output/perf-04/feedback1-focused-hover_equivalence.log"
+    },
+    {
+      "suite": "warband_ui",
+      "repetition": 0,
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "perf-04",
+        "--stream",
+        "--timeout",
+        "300",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/warband_ui_test.gd"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "SPX07 WIND COLLISION RESULT: hash=2943709617; hero (2,3) -> (8,8) -> (2,3)",
+        "SPX07 CACHE OWNERSHIP RESULT: 249 nested mutation boundaries exercised",
+        "SPX07 PATH DRAW RESULT: 100 exact cold/warm command comparisons with original depth renderer",
+        "SPX07 PATH BATCH RESULT: polygon triangles, RGBA and antialiased line ordering match original commands",
+        "SPX07 CATALOG CACHE RESULT: 43 exact definitions; private copies and in-place invalidation checked",
+        "Warband UI semantics: 0 failures"
+      ],
+      "log": "output/perf-04/feedback1-focused-warband_ui.log"
+    },
+    {
+      "suite": "card_keywords",
+      "repetition": 0,
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "perf-04",
+        "--stream",
+        "--timeout",
+        "300",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/card_keywords_test.gd"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "CARD KEYWORDS TEST RESULT: PASS"
+      ],
+      "log": "output/perf-04/feedback1-focused-card_keywords.log"
+    },
+    {
+      "suite": "full_scene_controls_program",
+      "repetition": 0,
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "perf-04",
+        "--stream",
+        "--timeout",
+        "300",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/suites/full_scene_controls_program.gd"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "MAIN DOMAIN ASSERTIONS full_scene_controls_program: 376",
+        "TEST RESULT: PASS"
+      ],
+      "log": "output/perf-04/feedback1-focused-full_scene_controls_program.log"
+    }
+  ],
+  "mutations": {
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "perf-04",
+      "--stream",
+      "--timeout",
+      "90",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/perf/hover_equivalence_test.gd"
+    ],
+    "baseline_log": "output/perf-04/feedback1-mutations-baseline.log",
+    "mutations": [
+      {
+        "mutation": "hud_registration_key",
+        "result": "CAUGHT",
+        "exit_code": 1,
+        "log": "output/perf-04/feedback1-mutations-hud_registration_key.log",
+        "expected_failure": "HUD registration key invalidates cached pose",
+        "result_lines": [
+          "PERF04 EQUIVALENCE RESULT: FAIL (2 failures)"
+        ],
+        "errors": [
+          "ERROR: HUD registration key invalidates cached pose: rear"
+        ]
+      },
+      {
+        "mutation": "warmup_restore_hover",
+        "result": "CAUGHT",
+        "exit_code": 1,
+        "log": "output/perf-04/feedback1-mutations-warmup_restore_hover.log",
+        "expected_failure": "Warmup restores hover/focus before submission returns",
+        "result_lines": [
+          "PERF04 EQUIVALENCE RESULT: FAIL (14 failures)"
+        ],
+        "errors": [
+          "ERROR: Warmup restores hover/focus before submission returns"
+        ]
+      },
+      {
+        "mutation": "torch_live_clock",
+        "result": "CAUGHT",
+        "exit_code": 1,
+        "log": "output/perf-04/feedback1-mutations-torch_live_clock.log",
+        "expected_failure": "Live torch cycle preserves every ordered sprite/trail command",
+        "result_lines": [
+          "PERF04 EQUIVALENCE RESULT: FAIL (3 failures)"
+        ],
+        "errors": [
+          "ERROR: Live torch cycle preserves every ordered sprite/trail command: 0.3",
+          "ERROR: Live torch cycle preserves every ordered sprite/trail command: 1.1",
+          "ERROR: Live torch cycle preserves every ordered sprite/trail command: 4.8"
+        ]
+      },
+      {
+        "mutation": "badge_catalog_keys",
+        "result": "CAUGHT",
+        "exit_code": 1,
+        "log": "output/perf-04/feedback1-mutations-badge_catalog_keys.log",
+        "expected_failure": "Badge catalog mutation invalidates presentation and orders",
+        "result_lines": [
+          "PERF04 EQUIVALENCE RESULT: FAIL (2 failures)"
+        ],
+        "errors": [
+          "ERROR: Badge catalog mutation invalidates presentation and orders: 99"
+        ]
+      },
+      {
+        "mutation": "overlay_leader_key",
+        "result": "CAUGHT",
+        "exit_code": 1,
+        "log": "output/perf-04/feedback1-mutations-overlay_leader_key.log",
+        "expected_failure": "Retained overlay draw inputs/glow geometry match independent selectors",
+        "result_lines": [
+          "PERF04 EQUIVALENCE RESULT: FAIL (4 failures)"
+        ],
+        "errors": [
+          "ERROR: Retained overlay draw inputs/glow geometry match independent selectors: 0",
+          "ERROR: Retained overlay draw inputs/glow geometry match independent selectors: 1",
+          "ERROR: Retained overlay draw inputs/glow geometry match independent selectors: 3"
+        ]
+      },
+      {
+        "mutation": "overlay_burrow_key",
+        "result": "CAUGHT",
+        "exit_code": 1,
+        "log": "output/perf-04/feedback1-mutations-overlay_burrow_key.log",
+        "expected_failure": "Retained overlay draw inputs/glow geometry match independent selectors",
+        "result_lines": [
+          "PERF04 EQUIVALENCE RESULT: FAIL (4 failures)"
+        ],
+        "errors": [
+          "ERROR: Retained overlay draw inputs/glow geometry match independent selectors: 0",
+          "ERROR: Retained overlay draw inputs/glow geometry match independent selectors: 1",
+          "ERROR: Retained overlay draw inputs/glow geometry match independent selectors: 2"
+        ]
+      },
+      {
+        "mutation": "overlay_burst_key",
+        "result": "CAUGHT",
+        "exit_code": 1,
+        "log": "output/perf-04/feedback1-mutations-overlay_burst_key.log",
+        "expected_failure": "Retained overlay draw inputs/glow geometry match independent selectors",
+        "result_lines": [
+          "PERF04 EQUIVALENCE RESULT: FAIL (4 failures)"
+        ],
+        "errors": [
+          "ERROR: Retained overlay draw inputs/glow geometry match independent selectors: 0",
+          "ERROR: Retained overlay draw inputs/glow geometry match independent selectors: 1",
+          "ERROR: Retained overlay draw inputs/glow geometry match independent selectors: 2"
+        ]
+      },
+      {
+        "mutation": "overlay_zone_key",
+        "result": "CAUGHT",
+        "exit_code": 1,
+        "log": "output/perf-04/feedback1-mutations-overlay_zone_key.log",
+        "expected_failure": "Retained overlay draw inputs/glow geometry match independent selectors",
+        "result_lines": [
+          "PERF04 EQUIVALENCE RESULT: FAIL (4 failures)"
+        ],
+        "errors": [
+          "ERROR: Retained overlay draw inputs/glow geometry match independent selectors: 0",
+          "ERROR: Retained overlay draw inputs/glow geometry match independent selectors: 1",
+          "ERROR: Retained overlay draw inputs/glow geometry match independent selectors: 2"
+        ]
+      }
+    ],
+    "result": "PERF04 MUTATION RESULT: 8/8 CAUGHT"
+  },
+  "additional_checks": [
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id perf-04 --stream -- godot --headless --path . --script tests/perf/hover_equivalence_probe.gd -- --setup-only",
+      "exit_code": 0,
+      "result_line": "PERF04 NATIVE SETUP RESULT: PASS (0 failures); pixels not checked",
+      "log": "output/perf-04/feedback1-native-setup.log"
+    },
+    {
+      "command": "ast.parse on run_hover_mutations.py and run_perf03_checks.py; json.loads on hover_mutations.json and hover_equivalence_proof.json",
+      "result_line": "PERF04 PYTHON/JSON CHECK: PASS"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result_line": "No output."
+    }
+  ],
+  "not_run": [
+    "No full suites, per user instruction.",
+    "No performance reruns or additional optimization, per director acceptance.",
+    "No windowed runs: sandbox has no macOS window-server access; no retries attempted."
+  ],
+  "proof_for_design_owner": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/perf-04 && python3 tools/visual_probe_runner.py --task-id perf-04 --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --expect-size 1920x1080 --proof-contract tests/perf/hover_equivalence_proof.json --result-manifest output/perf-04/feedback1-hover-equivalence-manifest.json tests/perf/hover_equivalence_probe.gd",
+    "contract": "tests/perf/hover_equivalence_proof.json",
+    "expected_images": 42,
+    "expected_capture_paths": [
+      "output/perf-04/native/ordinary-overlay-candidate.png",
+      "output/perf-04/native/ordinary-overlay-reference.png",
+      "output/perf-04/native/ordinary-hud-candidate.png",
+      "output/perf-04/native/ordinary-hud-reference.png",
+      "output/perf-04/native/air-overlay-candidate.png",
+      "output/perf-04/native/air-overlay-reference.png",
+      "output/perf-04/native/air-hud-candidate.png",
+      "output/perf-04/native/air-hud-reference.png",
+      "output/perf-04/native/lightning-overlay-candidate.png",
+      "output/perf-04/native/lightning-overlay-reference.png",
+      "output/perf-04/native/lightning-hud-candidate.png",
+      "output/perf-04/native/lightning-hud-reference.png",
+      "output/perf-04/native/ordinary-foreground-candidate.png",
+      "output/perf-04/native/ordinary-foreground-reference.png",
+      "output/perf-04/native/air-foreground-candidate.png",
+      "output/perf-04/native/air-foreground-reference.png",
+      "output/perf-04/native/lightning-foreground-candidate.png",
+      "output/perf-04/native/lightning-foreground-reference.png",
+      "output/perf-04/native/selectors-0-overlay-candidate.png",
+      "output/perf-04/native/selectors-0-overlay-reference.png",
+      "output/perf-04/native/selectors-0-foreground-candidate.png",
+      "output/perf-04/native/selectors-0-foreground-reference.png",
+      "output/perf-04/native/selectors-1-overlay-candidate.png",
+      "output/perf-04/native/selectors-1-overlay-reference.png",
+      "output/perf-04/native/selectors-1-foreground-candidate.png",
+      "output/perf-04/native/selectors-1-foreground-reference.png",
+      "output/perf-04/native/selectors-2-overlay-candidate.png",
+      "output/perf-04/native/selectors-2-overlay-reference.png",
+      "output/perf-04/native/selectors-2-foreground-candidate.png",
+      "output/perf-04/native/selectors-2-foreground-reference.png",
+      "output/perf-04/native/selectors-3-overlay-candidate.png",
+      "output/perf-04/native/selectors-3-overlay-reference.png",
+      "output/perf-04/native/selectors-3-foreground-candidate.png",
+      "output/perf-04/native/selectors-3-foreground-reference.png",
+      "output/perf-04/native/obstacle-hover-hud-candidate.png",
+      "output/perf-04/native/obstacle-hover-hud-reference.png",
+      "output/perf-04/native/obstacle-controller-hud-candidate.png",
+      "output/perf-04/native/obstacle-controller-hud-reference.png",
+      "output/perf-04/native/pose-front-hud-candidate.png",
+      "output/perf-04/native/pose-front-hud-reference.png",
+      "output/perf-04/native/pose-rear-hud-candidate.png",
+      "output/perf-04/native/pose-rear-hud-reference.png"
+    ],
+    "configuration": "1920x1080; 100% UI scale; native renderer; production retained layers isolated only by visibility for per-layer captures.",
+    "inspection_fixture": "No inspection_fixture.py command requested by this brief; design owner owns fixture preparation."
+  },
+  "todo_design": [],
+  "chosen_defaults": {
+    "scope": "Test/proof-only values. No player-visible defaults or tuning changed.",
+    "proof_size": [
+      1920,
+      1080
+    ],
+    "settle_frames": 3,
+    "no_tile": [
+      -1,
+      -1
+    ],
+    "obstacle_margin": 25.0,
+    "catalog_proof_type": "crawler",
+    "catalog_initiatives": [
+      1,
+      99,
+      1
+    ],
+    "catalog_player_queue_time": 50,
+    "torch_clocks_seconds": [
+      0.0,
+      0.3,
+      1.1,
+      4.8
+    ],
+    "draw_fixture_tiles": {
+      "PILLAR_TILE": [
+        4,
+        3
+      ],
+      "ERUPT_TILE": [
+        3,
+        4
+      ],
+      "BURROW_TILE": [
+        2,
+        3
+      ],
+      "BURST_TILE": [
+        3,
+        2
+      ],
+      "ZONE_TILE": [
+        5,
+        4
+      ],
+      "NEXT_ZONE_TILE": [
+        5,
+        5
+      ]
+    },
+    "draw_fixture_order_labels": [
+      "1\u00b73",
+      "2"
+    ],
+    "mutation_engine_timeout_seconds": 90,
+    "native_proof_clock_seconds": 0.3,
+    "native_controller_variant": "air",
+    "native_probe_timeout_seconds": 180,
+    "source_fields": "Named constants and fixture dictionary fields in hover_lifecycle_cases.gd, hover_catalog_cases.gd, hover_draw_cases.gd, hover_equivalence_probe.gd, run_hover_mutations.py. Existing Arena fixtures and approved runtime assets only."
+  },
+  "open_issues": [
+    "Fresh windowed pixel comparison/captures remain for the design owner. Headless --setup-only validates setup/bindings and does not claim pixel proof."
+  ],
+  "working_tree": "All changes uncommitted. No commit/push/merge/rebase/stash/branch change, task queue edit or reviewer agents. scripts/run_scene.gd and spec/ untouched.",
+  "environment_diagnostic": "Godot launches emit the sandbox/macOS get_system_ca_certificates ret != noErr diagnostic. All five requested checks and native setup returned exit 0 with the result lines recorded here."
+}

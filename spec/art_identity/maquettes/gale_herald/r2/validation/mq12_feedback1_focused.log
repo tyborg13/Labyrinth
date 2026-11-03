@@ -1,0 +1,21 @@
+...........BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+.BUILD_STAGE: append anatomy
+...BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+MQ07_REVIEW_MUTATION_REJECTED: procedural_chain
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+MQ07_REVIEW_MUTATION_REJECTED: repose
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+...........ss..............................MQ07_REVIEW_MUTATION_REJECTED: append_tucks
+MQ07_REVIEW_MUTATION_REJECTED: socket_contract
+MQ07_REVIEW_MUTATION_REJECTED: foot_exception
+DELIVERY_STAGE: PASS; staged
+BLENDER_BRIDGE_STARTED: long
+.......................
+----------------------------------------------------------------------
+Ran 81 tests in 5.187s
+
+OK (skipped=2)

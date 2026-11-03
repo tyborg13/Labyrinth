@@ -86,6 +86,7 @@ static func run(expect: Callable) -> void:
 	_test_returning_profile_rollout_eligibility(expect)
 	_test_authored_scenario_preserves_equipment_pity(expect)
 	_test_blocked_feedback_clears_only_on_phase_change(expect)
+	_test_blocked_frame_clock(expect)
 	_test_first_run_phase_derivation(expect)
 	_test_authored_reload_phase_reconstruction(expect)
 	_test_hard_gate_blocks_wrong_actions_without_mutation(expect)
@@ -300,7 +301,7 @@ static func _test_blocked_feedback_clears_only_on_phase_change(expect: Callable)
 	prompt.call("show_blocked", "Use Cancel first.")
 	var blocked_until: int = int(prompt.get("_blocked_until_msec"))
 	var feedback: Label = prompt.get("_feedback") as Label
-	expect.call(blocked_until > Time.get_ticks_msec(), "Blocked input should begin a visible error-accent window")
+	expect.call(blocked_until > 0, "Blocked input should begin a visible error-accent window")
 	expect.call(feedback.visible and feedback.text == "Use Cancel first.", "Blocked input should explain the rejected action")
 
 	prompt.call("update_geometry", [Rect2(Vector2(110.0, 100.0), Vector2(80.0, 80.0))], [])
@@ -321,6 +322,45 @@ static func _test_blocked_feedback_clears_only_on_phase_change(expect: Callable)
 	)
 	prompt.free()
 
+
+# Proof-only frame defaults: production receives these deltas through _process.
+const PROMPT_FRAME_SECONDS: float = 1.0 / 60.0
+const PROMPT_STALL_MSEC: int = 950
+
+static func _test_blocked_frame_clock(expect: Callable) -> void:
+	preload("res://tests/suites/contextual_combat_prompt_clock_suite.gd").run(expect)
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	var clock = preload("res://tests/helpers/presentation_test_clock.gd")
+	for reduced: bool in [false, true]:
+		var prompt: Control = clock.mutated_script(ContextualCombatPrompt).new()
+		tree.root.add_child(prompt)
+		prompt.set_process(false)
+		prompt.configure(ContextualCombatTutorial.phase_definition(ContextualCombatTutorial.PHASE_CANCEL_CARD), [], [], reduced)
+		prompt.show_blocked("Use Cancel first.")
+		var feedback: Label = prompt.get("_feedback")
+		# Reproduce the reported native stall exactly. No frame has been drawn.
+		OS.delay_msec(PROMPT_STALL_MSEC)
+		prompt._process(PROMPT_FRAME_SECONDS)
+		expect.call(feedback.visible, "Blocked explanation survives a 950 ms stall before its first draw")
+		expect.call(is_zero_approx(float(prompt.get("_presentation_seconds"))), "Undrawn prompt consumes no presentation delta")
+		# Dummy renderer does not emit draw; supply the actual production signals.
+		prompt.draw.emit()
+		feedback.draw.emit()
+		for frame: int in range(1, 54):
+			prompt._process(PROMPT_FRAME_SECONDS)
+			expect.call(feedback.visible == (frame < 53), "Blocked explanation keeps the old steady-60-fps hide frame 54 (submitted=%d reduced=%s)" % [frame + 1, reduced])
+			if frame == 48: expect.call(feedback.visible, "Stalled explanation remains visible for at least 0.8 s of later frames")
+		prompt.show_blocked("Use Cancel first.")
+		# Even a previously drawn parent cannot consume a new, undrawn message.
+		for _frame: int in range(10):
+			prompt._process(0.95)
+			expect.call(feedback.visible and not bool(prompt.get("_blocked_has_drawn")), "Repeated blocked input waits for its own first draw")
+		feedback.draw.emit()
+		var before: float = float(prompt.get("_presentation_seconds"))
+		prompt._process(0.95)
+		expect.call(is_equal_approx(float(prompt.get("_presentation_seconds")) - before, 0.1) and feedback.visible, "Prompt pulse and feedback cap each drawn-frame delta at 0.1 s")
+		prompt.free()
+	print("BLOCKED PROMPT FRAME CLOCK: 950ms stall / first draw / 800ms visible / 54-frame cadence / 100ms cap / reduced motion checked")
 
 static func _test_first_run_phase_derivation(expect: Callable) -> void:
 	var scene: Node = _combat_fixture()

@@ -1,0 +1,18 @@
+00:00.315  blend            | Read blend: "/private/tmp/labyrinth_codex/mq-14/final_delivery/cold/maquette.blend"
+00:03.247  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_parts.png'
+00:05.518  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_silhouette.png'
+00:07.697  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_silhouette.png'
+00:09.807  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_silhouette.png'
+00:11.932  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_silhouette.png'
+00:14.048  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_silhouette.png'
+00:16.175  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_silhouette.png'
+00:18.294  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_silhouette.png'
+00:20.434  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_silhouette.png'
+00:22.488  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_silhouette.png'
+00:24.515  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_silhouette.png'
+00:26.517  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_silhouette.png'
+00:28.998  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_0/rear_silhouette.png'
+MQ12_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=rear; solos=['head', 'torso', 'pelvis', 'belt', 'tabard', 'cape_near', 'cape_far', 'pauldron_near', 'upper_near', 'fore_near', 'hand_near']
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit

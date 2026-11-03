@@ -554,6 +554,13 @@ static func absorb_player_hit(state: Dictionary, player: Dictionary, damage: int
 
 # ------------------------------------------------------------------ petrify
 
+const PETRIFY_BLOCK := 5
+
+static func petrified_tooltip(queued_turn: bool = false) -> String:
+	if queued_turn:
+		return "Petrified: skips this turn (still costs its Time)"
+	return "Petrified: skips its next turn (still paying its Time) and has %d Block through your next turn. Dragons are immune." % PETRIFY_BLOCK
+
 static func is_petrified(enemy: Dictionary) -> bool:
 	return int(enemy.get(PETRIFY_FIELD, 0)) > 0
 
@@ -580,21 +587,28 @@ static func petrify_targets(engine: RefCounted, state: Dictionary, action: Dicti
 					result.append(tile)
 	return result
 
-static func apply_petrify(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
+static func apply_petrify(engine: RefCounted, state: Dictionary, _action: Dictionary, target: Vector2i) -> Dictionary:
 	var index: int = engine._enemy_index_at_tile(state, target)
 	if index < 0:
 		return state
 	var enemies: Array = state.get("enemies", []) as Array
 	var enemy: Dictionary = engine._normalized_enemy(enemies[index])
-	if int(enemy.get("hp", 0)) <= 0 or petrify_immune(enemy):
+	if not petrify_enemy(engine, state, enemy, state.get("damage_context", {}) as Dictionary):
 		return state
-	var block: int = maxi(0, int(action.get("block", 0)))
-	enemy["block"] = int(enemy.get("block", 0)) + block
-	enemy[PETRIFY_FIELD] = 1
 	enemies[index] = enemy
 	state["enemies"] = enemies
-	Surfaces.record_event(state, {"kind": PETRIFY_EVENT, "enemy_id": int(enemy.get("id", -1)), "actor_key": engine._enemy_key(enemy), "tile": enemy.get("pos", INVALID), "block": block, "source": (state.get("damage_context", {}) as Dictionary).duplicate(true)})
 	return state
+
+## Every source applies the complete keyword. Only newly Petrified enemies gain
+## the Block drawback; repeated applications record no additional Block.
+static func petrify_enemy(engine: RefCounted, state: Dictionary, enemy: Dictionary, source: Dictionary) -> bool:
+	if int(enemy.get("hp", 0)) <= 0 or petrify_immune(enemy):
+		return false
+	var block: int = 0 if is_petrified(enemy) else PETRIFY_BLOCK
+	enemy["block"] = int(enemy.get("block", 0)) + block
+	enemy[PETRIFY_FIELD] = maxi(int(enemy.get(PETRIFY_FIELD, 0)), 1)
+	Surfaces.record_event(state, {"kind": PETRIFY_EVENT, "enemy_id": int(enemy.get("id", -1)), "actor_key": engine._enemy_key(enemy), "tile": enemy.get("pos", INVALID), "block": block, "source": source.duplicate(true)})
+	return true
 
 ## Petrify Block survives the skipped activation's start-of-turn reset; the
 ## next real activation clears it like any enemy Block.

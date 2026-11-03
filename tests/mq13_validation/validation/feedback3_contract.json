@@ -1,0 +1,13 @@
+{
+  "task_id": "mq-13",
+  "scope": "Feedback 3 only: saved-body geometry and resume binding; remove unused configuration.",
+  "acceptance": [
+    "Recompute the loaded world-space geometry digest and require an exact match to the build report before observations or capture.",
+    "Bind the saved maquette.blend and build_report.json in observation/capture resume receipts; reject changed inputs.",
+    "Catch a moved hood vertex and a changed saved body with focused mutation tests.",
+    "Remove the unused solo_batch_size and SURFACE_DEFAULTS without changing consumers or canonical pixels.",
+    "All canonical delivery files and other figures remain byte-identical."
+  ],
+  "proof": "Focused Python tests and native Blender probes through the director bridge only, with the existing 110 s execution / 120 s answer limits.",
+  "inspection": "Offline verification only; no new design or windowed proof. Director owns review and publication."
+}

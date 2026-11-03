@@ -5,6 +5,7 @@ const Data = preload("res://scripts/game_data.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Run = preload("res://scripts/run_engine.gd")
+const Flurry = preload("res://tests/fixtures/dormant_flurry_cards.gd")
 const Tempo = preload("res://scripts/tempo_rules.gd")
 
 static func run(expect: Callable) -> void:
@@ -237,6 +238,7 @@ static func _test_leaden_pommel(expect: Callable) -> void:
 	expect.call(engine._apply_stagger_to_enemy(dragon, 1, 20) <= 4, "Normal per-activation Stagger limit applies")
 
 static func _test_fencers_gloves(expect: Callable) -> void:
+	Flurry.install()
 	var engine := Combat.new()
 	var value: Dictionary = state(engine, ["fencers_gloves"], ["brace", "overhead_smash", "quick_stab"])
 	var base: int = engine.card_time_cost("overhead_smash", {})
@@ -250,9 +252,9 @@ static func _test_fencers_gloves(expect: Callable) -> void:
 	expect.call(engine.card_time_cost("overhead_smash", value) == base, "Fencer's Gloves idle on the third card")
 	value = engine.prepare_next_player_turn(_resume(value, expect))
 	expect.call(engine.card_time_cost("overhead_smash", value) == base, "Fencer's Gloves resets next turn")
-	var flurry: Dictionary = state(engine, ["fencers_gloves"], ["blade_dance", "overhead_smash"])
+	var flurry: Dictionary = state(engine, ["fencers_gloves"], [Flurry.MELEE_ID, "overhead_smash"])
 	flurry["cards_per_turn"] = 3
-	var repeats: Array = engine.card_play_actions("blade_dance", flurry)
+	var repeats: Array = engine.card_play_actions(Flurry.MELEE_ID, flurry)
 	for action: Dictionary in repeats:
 		flurry = engine.apply_player_action(flurry, action, Vector2i(3, 4))
 	flurry = engine.finish_player_card(flurry, 0, engine.card_plays_spent_for_actions(repeats))
@@ -260,6 +262,7 @@ static func _test_fencers_gloves(expect: Callable) -> void:
 	expect.call(engine.card_time_cost("overhead_smash", flurry) == base - 1, "Flurry's repeated plays count as one card for Gloves")
 	flurry["turn_flags"]["quicken_pending"] = 99
 	expect.call(engine.card_time_cost("overhead_smash", flurry) == 1, "Gloves stack with Quicken and clamp at one Time")
+	Flurry.remove()
 
 static func _test_duelist_whetstone(expect: Callable) -> void:
 	var engine := Combat.new()
@@ -312,6 +315,7 @@ static func _test_coffin_nails(expect: Callable) -> void:
 	expect.call(int((engine._resolved_surface_action(value, player_attack) as Dictionary).get("bleed", 0)) == 0, "Coffin Nails no longer adds Bleed to hero attacks")
 
 static func _test_briar_vambrace(expect: Callable) -> void:
+	Flurry.install()
 	var engine := Combat.new()
 	var value: Dictionary = state(engine, ["briar_vambrace"], ["brace", "brace"])
 	var block: Dictionary = engine.card_play_actions("brace", value)[0]
@@ -335,11 +339,12 @@ static func _test_briar_vambrace(expect: Callable) -> void:
 	Surface.place(reward, Vector2i(2, 4), "rubble")
 	reward = _forecast(engine, reward, {"type": "consume_surface", "surface": "rubble", "range": 0, "_card_id": "brace", "rewards": [{"type": "block", "amount": 2}, {"type": "block", "amount": 2}]}, engine.INVALID_TILE, expect)
 	expect.call(int(reward.get("retaliate", {}).get("amount", 0)) == 1, "Briar counts actual Block from nested card action rewards once")
-	var flurry: Dictionary = state(engine, ["briar_vambrace"], ["blade_dance"])
+	var flurry: Dictionary = state(engine, ["briar_vambrace"], [Flurry.MELEE_ID])
 	flurry["cards_per_turn"] = 3
-	for action: Dictionary in engine.card_play_actions("blade_dance", flurry):
+	for action: Dictionary in engine.card_play_actions(Flurry.MELEE_ID, flurry):
 		flurry = engine.apply_player_action(flurry, action, Vector2i(3, 4))
 	expect.call(int(flurry.get("retaliate", {}).get("amount", 0)) == 1, "Briar grants once across actual Flurry Block repetitions")
+	Flurry.remove()
 
 static func _test_flint_edge(expect: Callable) -> void:
 	var engine := Combat.new()

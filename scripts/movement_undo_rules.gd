@@ -3,6 +3,8 @@ class_name MovementUndoRules
 
 ## Exact paths only: unknown state (including new nested fields) fails closed.
 const IGNORED_FIELDS: Dictionary = {
+	"hero_facing.facing": "The pre-walk front/rear facing is restored by the snapshot.",
+	"hero_facing.mirrored": "The pre-walk mirror is restored by the snapshot.",
 	"hero_last_move.turn": "The round-tagged Veil direction is restored by the walk snapshot.",
 	"hero_last_move.direction": "The last voluntary step direction is restored with the walked position.",
 	"player.pos": "The walked position is restored by the snapshot.",

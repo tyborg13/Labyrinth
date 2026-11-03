@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "approved_sha256": {
+    "front": "22acf51acc6a96f76886916ec2b6b9f189eaa3b7466b06359b5603d7e0869666",
+    "rear": "b4750db10b7a48eaa090ef3d02783bf2c1da705f53e80ccc9d5c4b0b874f48b6"
+  },
+  "features": [
+    {
+      "name": "maw_tooth_ring",
+      "views": {
+        "front": {
+          "owner": "head",
+          "mask": "features/front_maw_tooth_ring.png"
+        },
+        "rear": {
+          "owner": "head",
+          "mask": "features/rear_maw_tooth_ring.png",
+          "occluded_reason": "The rear occludes the maw tooth ring (rr-12 brief)."
+        }
+      }
+    }
+  ]
+}

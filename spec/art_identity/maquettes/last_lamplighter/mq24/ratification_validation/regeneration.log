@@ -1,0 +1,50 @@
+MQ18_BRIDGE_SUBMITTED: build; mq03-1461076b240848868a3e5ea6a4917e89
+MQ18_BRIDGE_RESULT: build; exit=0; seconds=8.3
+MQ18_BRIDGE_SUBMITTED: native_probe; mq03-f208910f05a24ec984755d8de3fda45a
+MQ18_BRIDGE_RESULT: native_probe; exit=0; seconds=16.5
+MQ18_BRIDGE_SUBMITTED: front_pass_clay; mq03-6a9c6c6f8741479db682f34b68b77635
+MQ18_BRIDGE_RESULT: front_pass_clay; exit=0; seconds=24.4
+MQ18_BRIDGE_SUBMITTED: front_pass_parts; mq03-e28010b883bc4f689781514413c134ff
+MQ18_BRIDGE_RESULT: front_pass_parts; exit=0; seconds=11.1
+MQ18_BRIDGE_SUBMITTED: front_pass_facing; mq03-3ebdc7a5eb8e4ba089e53837dc040870
+MQ18_BRIDGE_RESULT: front_pass_facing; exit=0; seconds=30.0
+MQ18_BRIDGE_SUBMITTED: front_solo_0; mq03-a7d71600ee7b494a8f7307a0177ec067
+MQ18_BRIDGE_RESULT: front_solo_0; exit=0; seconds=37.0
+MQ18_BRIDGE_SUBMITTED: front_solo_4; mq03-64db244ea9f44ce0b3acfc1fa0ae6694
+MQ18_BRIDGE_RESULT: front_solo_4; exit=0; seconds=22.0
+MQ18_BRIDGE_SUBMITTED: front_solo_8; mq03-efa88415682840deb91979acd4624a12
+MQ18_BRIDGE_RESULT: front_solo_8; exit=0; seconds=22.9
+MQ18_BRIDGE_SUBMITTED: front_solo_12; mq03-43bef6e73f6540509ac72abbb1be26df
+MQ18_BRIDGE_RESULT: front_solo_12; exit=0; seconds=21.9
+MQ18_BRIDGE_SUBMITTED: front_solo_16; mq03-ad78aca16e9440eb9bd1b9f75d3487c5
+MQ18_BRIDGE_RESULT: front_solo_16; exit=0; seconds=20.2
+MQ18_BRIDGE_SUBMITTED: rear_pass_clay; mq03-636525837ae44350be53fff484facdef
+MQ18_BRIDGE_RESULT: rear_pass_clay; exit=0; seconds=15.6
+MQ18_BRIDGE_SUBMITTED: rear_pass_parts; mq03-727ed93bf44c49268203f73a8505af28
+MQ18_BRIDGE_RESULT: rear_pass_parts; exit=0; seconds=7.6
+MQ18_BRIDGE_SUBMITTED: rear_pass_silhouette; mq03-a917af12d6d24d54a1275df147897b51
+MQ18_BRIDGE_RESULT: rear_pass_silhouette; exit=0; seconds=6.9
+MQ18_BRIDGE_SUBMITTED: rear_solo_0; mq03-b8e18097fa0f410bae5f20591df71cee
+MQ18_BRIDGE_RESULT: rear_solo_0; exit=0; seconds=31.0
+MQ18_BRIDGE_SUBMITTED: rear_solo_4; mq03-258c8c3dbeaf4da7b64d0d5bdf35219c
+MQ18_BRIDGE_RESULT: rear_solo_4; exit=0; seconds=40.4
+MQ18_BRIDGE_SUBMITTED: rear_solo_8; mq03-51ad87d485474124ac3b83a52117a641
+MQ18_BRIDGE_RESULT: rear_solo_8; exit=0; seconds=20.5
+MQ18_BRIDGE_SUBMITTED: rear_solo_12; mq03-a67fc4287aa144d1a584cca2ee0a3af7
+MQ18_BRIDGE_RESULT: rear_solo_12; exit=0; seconds=20.4
+MQ18_BRIDGE_SUBMITTED: rear_solo_16; mq03-556fddc86c1c4a4c9fc16ac94be5168c
+MQ18_BRIDGE_RESULT: rear_solo_16; exit=0; seconds=22.3
+MQ18_CAPTURE_MERGE: PASS; views=2; solos=44
+MQ24_CLEAN_REGENERATION: FAIL; cache_reused=false; saved_model_reused=false
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof.py", line 184, in <module>
+    if __name__=='__main__':raise SystemExit(main())
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof.py", line 179, in main
+    elif args.operation=='regenerate':regenerate(args.out,args.capture,args.diagnostic)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof.py", line 162, in regenerate
+    if not report['passed']:raise ValueError('Fresh regeneration differs')
+ValueError: Fresh regeneration differs

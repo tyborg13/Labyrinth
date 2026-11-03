@@ -1,0 +1,12 @@
+{
+  "tools/art_identity_gate.py": {
+    "before_sha256": "e6e3706b4b88a8934171bfba9ed902773824574220c6f6f43fb85934d7322a09",
+    "after_sha256": "20bd5676f2fe4a056594193169e6556551bf4c7f2d6e1a5f556f8cc3f78b300c",
+    "proof": "rr44_references.py + original compiler/art-identity reference sets"
+  },
+  "scripts/maquette_cutout_runtime/humanoid_motion.gd": {
+    "before_sha256": "8db4fe462d45cfe131b02d1c03928a6fb1e0343777ba33f1bb4f5bcf1c74fc80",
+    "after_sha256": "f8a426c31cacedc9ebc4652b3b40a6ef30cfea209b8f395f145788c71ab68b96",
+    "proof": "rr44_references.py + original compiler/art-identity reference sets"
+  }
+}

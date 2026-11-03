@@ -1,0 +1,6 @@
+MQ13_BRIDGE: rear_capture_bridge; exit=2
+Traceback (most recent call last):
+  File "<stdin>", line 14, in <module>
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/workflow.py", line 58, in job
+    raise ValueError('Bridge job failed; see ' + str(receipt.with_suffix('.log')))
+ValueError: Bridge job failed; see /Users/borgerding/workspace/Labyrinth.worktrees/mq-13/tests/mq13_validation/validation/feedback3/rear_capture_bridge.log

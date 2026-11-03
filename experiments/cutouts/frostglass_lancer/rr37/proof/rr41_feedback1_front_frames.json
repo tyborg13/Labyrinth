@@ -1,0 +1,84 @@
+{
+  "front": {
+    "ok": true,
+    "frames": 512,
+    "failures": [],
+    "death_frames": 96,
+    "released_component_frames": 57,
+    "uncovered_totals_by_clip": {
+      "idle": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_leg_texels": 0
+      },
+      "move": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_leg_texels": 0
+      },
+      "lunge": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_leg_texels": 0
+      },
+      "jab": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_leg_texels": 0
+      },
+      "cast": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_leg_texels": 0
+      },
+      "pin": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_leg_texels": 0
+      },
+      "guard": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_leg_texels": 0
+      },
+      "hit": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_leg_texels": 0
+      },
+      "death": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0,
+        "uncovered_procedural_leg_texels": 0
+      }
+    },
+    "native_pixels": false
+  }
+}

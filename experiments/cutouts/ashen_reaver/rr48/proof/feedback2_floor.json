@@ -1,0 +1,154 @@
+{
+  "front": {
+    "angle_deg": -90.0,
+    "first_contact": [
+      27,
+      211
+    ],
+    "hull_source": [
+      [
+        27,
+        207
+      ],
+      [
+        39,
+        184
+      ],
+      [
+        85,
+        135
+      ],
+      [
+        91,
+        135
+      ],
+      [
+        108,
+        142
+      ],
+      [
+        109,
+        143
+      ],
+      [
+        109,
+        144
+      ],
+      [
+        107,
+        152
+      ],
+      [
+        76,
+        189
+      ],
+      [
+        64,
+        201
+      ],
+      [
+        61,
+        203
+      ],
+      [
+        57,
+        205
+      ],
+      [
+        48,
+        209
+      ],
+      [
+        41,
+        211
+      ],
+      [
+        27,
+        211
+      ]
+    ],
+    "protected_direction": -1.0,
+    "support_direction": -1.0,
+    "rotation_sign": 1.0,
+    "bound_deg": 95.0,
+    "second_support_reached": true,
+    "rule": "First new silhouette support in keyed direction, bounded to director 95 degrees; opaque cell hull includes the grip cap",
+    "status": "PASS"
+  },
+  "rear": {
+    "angle_deg": 90.0,
+    "first_contact": [
+      214,
+      209
+    ],
+    "hull_source": [
+      [
+        156,
+        163
+      ],
+      [
+        157,
+        161
+      ],
+      [
+        170,
+        143
+      ],
+      [
+        175,
+        143
+      ],
+      [
+        206,
+        189
+      ],
+      [
+        214,
+        206
+      ],
+      [
+        214,
+        209
+      ],
+      [
+        205,
+        209
+      ],
+      [
+        200,
+        208
+      ],
+      [
+        196,
+        206
+      ],
+      [
+        189,
+        202
+      ],
+      [
+        183,
+        198
+      ],
+      [
+        181,
+        196
+      ],
+      [
+        157,
+        167
+      ],
+      [
+        156,
+        165
+      ]
+    ],
+    "protected_direction": 1.0,
+    "support_direction": 1.0,
+    "rotation_sign": 1.0,
+    "bound_deg": 95.0,
+    "second_support_reached": true,
+    "rule": "First new silhouette support in keyed direction, bounded to director 95 degrees; opaque cell hull includes the grip cap",
+    "status": "PASS"
+  }
+}

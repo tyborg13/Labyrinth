@@ -60,7 +60,6 @@ func _card_structure() -> void:
 		if not before.has(id): continue
 		var card: Dictionary = GameData.card_def(id)
 		var leading: Array = []
-		if int(card.get("time", 0)) > 0: leading.append("time")
 		if ActionIcons.card_is_rite(card): leading.append("rite")
 		var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(ActionIcons.rows_for_card(card), leading)
 		var expected: Array = preload("res://tests/fixtures/approved_glossary_structure.gd").entries(id, before)
@@ -68,14 +67,17 @@ func _card_structure() -> void:
 		for index: int in range(mini(entries.size(), expected.size())):
 			_expect(entries[index]["icon"] == expected[index]["icon"], "Keyword panel order unchanged: %s/%d" % [id, index])
 			var lines: int = str(entries[index]["description"]).split("\n", false).size()
-			var approved_body_lines: Dictionary = {"glowstone_ward/2": 0, "beacon/1": 0, "blessed_salve/3": 0, "censer_swing/3": 0, "sun_flash/2": 0, "flashsteam/5": 1, "frost_heave/6": 1, "plasma_arc/5": 1, "pyroclasm/4": 1, "rooted_stance/2": 1, "shield_wall/2": 1}
-			var expected_lines: int = int(approved_body_lines.get("%s/%d" % [id, index], expected[index]["body_lines"]))
+			var expected_lines: int = int(expected[index]["body_lines"])
 			_expect(lines == expected_lines, "Keyword body-line count unchanged: %s/%d (%s): base=%d current=%d" % [id, index, entries[index]["icon"], expected[index]["body_lines"], lines])
 
 func _test_data() -> void:
 	_expect(Glossary.lookup("Skill Points")["id"] == "skill_point", "Existing plural resource label remains an alias")
 	for key: String in ActionIcons.KEYWORDS:
-		if key != "dive":
+		if ActionIcons.MARKED_MOVE_DESCRIPTIONS.has(key):
+			_expect(ActionIcons.description(key) == ActionIcons.MARKED_MOVE_DESCRIPTIONS[key] and Glossary.lookup(key)["id"] == "marked", "Move copy is contextual; shared keyword is Marked: " + key)
+		elif key == "flurry":
+			_expect(Glossary.lookup(key).is_empty() and not ActionIcons.all_icon_keys().has(key), "Dormant Flurry stays outside the live glossary and icon inventory")
+		elif key != "dive":
 			_expect(ActionIcons.description(key) == Glossary.definition(key), "Card/nested token reads glossary: " + key)
 	var skill: Dictionary = Glossary._entries["skill_quick_wits"]
 	var saved_skill: Dictionary = skill.duplicate(true)

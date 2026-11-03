@@ -1,0 +1,46 @@
+{
+  "proof_camera": {
+    "ortho_scale": 2.8,
+    "target": [
+      0,
+      0,
+      1.0
+    ]
+  },
+  "static_panel_sampling": {
+    "panel_columns": 17,
+    "static_frames": 1
+  },
+  "workflow": {
+    "root": "/private/tmp/labyrinth_codex/mq-14/final_delivery",
+    "timeout_s": 110,
+    "solo_batch_size": 11
+  },
+  "native_audit": {
+    "contact_tolerance_m": 0.02,
+    "endpoint_tolerance_m": 0.0001
+  },
+  "review_sheet": {
+    "size": 1024,
+    "caption": 28,
+    "columns": 4,
+    "rows": 2,
+    "background": [
+      24,
+      24,
+      24,
+      255
+    ],
+    "foreground": "white",
+    "padding": 4,
+    "encoding": "lossless WebP method 6",
+    "font": "Pillow default"
+  },
+  "proof": {
+    "overlay_opacity": 0.4,
+    "shoulder_tolerance_px": 10,
+    "numerical_epsilon": 1e-10
+  },
+  "source_registration": "Front source sole alpha centroid x=150.5; rear director-provided sole landmark x=148. The rear alpha-centroid result x=143.14814814814815 is retained as a sensitivity diagnostic. All frames are explicit in measurements.json.",
+  "runtime_tuning": "No gameplay, motion, balance, text, audio, font, icon or runtime values were introduced."
+}

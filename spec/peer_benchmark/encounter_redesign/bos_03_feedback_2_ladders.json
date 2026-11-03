@@ -1,0 +1,19 @@
+{
+  "storm_cantor": {
+    "start_rung": 4,
+    "rungs": [
+      {"label": "Lay the Choir charged tiles 4 → 6", "intents": {"lay_the_choir": {"surface": {"guardian_count": 6}}}},
+      {"label": "Cantor HP 46 → 56", "fields": {"max_hp": 56}},
+      {"label": "Broken Rhythm melee 7 → 9", "intents": {"broken_rhythm": {"melee": {"damage": 9}}}},
+      {"label": "Lightning Storm Chain 2 → 3", "rule": {"dials": {"chain": 3}, "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 4, with Chain 3."}}
+    ]
+  },
+  "last_lamplighter": {
+    "start_rung": 5,
+    "rungs": [
+      {"label": "Lamplighter HP 36 → 30", "fields": {"max_hp": 30}},
+      {"label": "Last Procession melee 6 → 5", "intents": {"last_procession": {"melee": {"damage": 5}}}},
+      {"label": "Starting Shades 1 → 0 (Snuff cap stays 1)", "fields": {"guardian_initial_helpers": []}}
+    ]
+  }
+}

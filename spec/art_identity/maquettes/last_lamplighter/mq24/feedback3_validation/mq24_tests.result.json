@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.test_mq24_maquette"
+  ],
+  "exit_code": 0
+}

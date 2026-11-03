@@ -1,0 +1,165 @@
+{
+  "min_images": 142,
+  "expected_sizes": [
+    "512x512",
+    "6656x1024"
+  ],
+  "required_images": [
+    {
+      "pattern": "tharokh_roar_contact_sheet.png",
+      "min_count": 1,
+      "width": 6656,
+      "height": 1024
+    },
+    {
+      "pattern": "vyraketh_roar_contact_sheet.png",
+      "min_count": 1,
+      "width": 6656,
+      "height": 1024
+    },
+    {
+      "pattern": "iskaldra_roar_contact_sheet.png",
+      "min_count": 1,
+      "width": 6656,
+      "height": 1024
+    },
+    {
+      "pattern": "vaeloryx_roar_contact_sheet.png",
+      "min_count": 1,
+      "width": 6656,
+      "height": 1024
+    },
+    {
+      "pattern": "noctyrax_roar_contact_sheet.png",
+      "min_count": 1,
+      "width": 6656,
+      "height": 1024
+    },
+    {
+      "pattern": "zekarion_roar_contact_sheet.png",
+      "min_count": 1,
+      "width": 6656,
+      "height": 1024
+    },
+    {
+      "pattern": "*/tharokh/*front_baseline_breath_0p42.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/tharokh/*front_baseline_breath_0p55.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/tharokh/*front_baseline_brace_0p42.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/tharokh/*front_baseline_claw_0p55.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/tharokh/*front_baseline_faultline_0p55.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/vyraketh/*front_baseline_crownfire_0p43.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/vyraketh/*front_baseline_crownfire_0p55.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/iskaldra/*front_baseline_storm_0p35.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/iskaldra/*front_baseline_storm_0p5.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/iskaldra/*front_baseline_hit_0p15.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/vaeloryx/*front_baseline_dive_0p34.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/vaeloryx/*front_baseline_dive_0p42.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/vaeloryx/*front_baseline_gale_0p42.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/vaeloryx/*front_baseline_guard_0p3.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/vaeloryx/*front_baseline_pull_0p42.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/noctyrax/*front_baseline_eclipse_0p4.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/noctyrax/*front_baseline_eclipse_0p5.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/zekarion/*front_baseline_call_0p55.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/zekarion/*front_baseline_charge_0p55.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "pattern": "*/zekarion/*front_baseline_hit_0p15.png",
+      "min_count": 2,
+      "width": 512,
+      "height": 512
+    }
+  ]
+}

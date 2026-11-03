@@ -1,0 +1,562 @@
+[
+  {
+    "replay": "replay-default-seed-5",
+    "baseline": {
+      "decision": 0,
+      "mode": "room",
+      "nodes": 1548,
+      "orphans": 0,
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 5,
+      "tree_nodes": 1548
+    },
+    "section_5": {
+      "decision": 2289,
+      "mode": "room",
+      "nodes": 5380,
+      "orphans": 0,
+      "room": "(-20, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(21, -21)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -20)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -19)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(-20, 0)",
+        "depth": 20,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "start",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 5,
+      "tree_nodes": 5380
+    },
+    "pools_before": {
+      "_card_proxy_pool": 0,
+      "_hand_card_pool": 0,
+      "_pile_dialog_card_pool": 0
+    },
+    "pools_after": {
+      "_card_proxy_pool": 2,
+      "_hand_card_pool": 16,
+      "_pile_dialog_card_pool": 16
+    },
+    "largest_host_deltas": [
+      [
+        "UiLayer",
+        2472
+      ],
+      [
+        "BoardUnderlay",
+        644
+      ],
+      [
+        "HandCardPool",
+        602
+      ],
+      [
+        "RetainedSkillTreeHost",
+        113
+      ],
+      [
+        "SfxPlayer32",
+        0
+      ],
+      [
+        "SfxPlayer261",
+        0
+      ],
+      [
+        "RunPersistence",
+        0
+      ],
+      [
+        "SfxPlayer51",
+        0
+      ]
+    ]
+  },
+  {
+    "replay": "replay-no-embrace-seed-1",
+    "baseline": {
+      "decision": 0,
+      "mode": "room",
+      "nodes": 1533,
+      "orphans": 0,
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 1,
+      "tree_nodes": 1533
+    },
+    "section_5": {
+      "decision": 2529,
+      "mode": "room",
+      "nodes": 5905,
+      "orphans": 0,
+      "room": "(-20, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(21, -21)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -20)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -19)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(-20, 0)",
+        "depth": 20,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "start",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 1,
+      "tree_nodes": 5905
+    },
+    "pools_before": {
+      "_card_proxy_pool": 0,
+      "_hand_card_pool": 0,
+      "_pile_dialog_card_pool": 0
+    },
+    "pools_after": {
+      "_card_proxy_pool": 2,
+      "_hand_card_pool": 16,
+      "_pile_dialog_card_pool": 15
+    },
+    "largest_host_deltas": [
+      [
+        "UiLayer",
+        2398
+      ],
+      [
+        "BoardUnderlay",
+        1380
+      ],
+      [
+        "HandCardPool",
+        593
+      ],
+      [
+        "SfxPlayer32",
+        0
+      ],
+      [
+        "SfxPlayer261",
+        0
+      ],
+      [
+        "RunPersistence",
+        0
+      ],
+      [
+        "SfxPlayer51",
+        0
+      ],
+      [
+        "SfxPlayer71",
+        0
+      ]
+    ]
+  },
+  {
+    "replay": "replay-no-embrace-seed-2",
+    "baseline": {
+      "decision": 0,
+      "mode": "room",
+      "nodes": 1542,
+      "orphans": 0,
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 2,
+      "tree_nodes": 1542
+    },
+    "section_5": {
+      "decision": 2583,
+      "mode": "room",
+      "nodes": 7985,
+      "orphans": 0,
+      "room": "(-20, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(21, -21)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -20)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -19)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(-20, 0)",
+        "depth": 20,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "start",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 2,
+      "tree_nodes": 7985
+    },
+    "pools_before": {
+      "_card_proxy_pool": 0,
+      "_hand_card_pool": 0,
+      "_pile_dialog_card_pool": 0
+    },
+    "pools_after": {
+      "_card_proxy_pool": 2,
+      "_hand_card_pool": 22,
+      "_pile_dialog_card_pool": 20
+    },
+    "largest_host_deltas": [
+      [
+        "UiLayer",
+        3135
+      ],
+      [
+        "BoardUnderlay",
+        2303
+      ],
+      [
+        "HandCardPool",
+        891
+      ],
+      [
+        "RetainedSkillTreeHost",
+        113
+      ],
+      [
+        "SfxPlayer32",
+        0
+      ],
+      [
+        "SfxPlayer261",
+        0
+      ],
+      [
+        "RunPersistence",
+        0
+      ],
+      [
+        "SfxPlayer51",
+        0
+      ]
+    ]
+  },
+  {
+    "replay": "replay-no-embrace-seed-3",
+    "baseline": {
+      "decision": 0,
+      "mode": "room",
+      "nodes": 1549,
+      "orphans": 0,
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 3,
+      "tree_nodes": 1549
+    },
+    "section_5": {
+      "decision": 2463,
+      "mode": "room",
+      "nodes": 5447,
+      "orphans": 0,
+      "room": "(-20, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(21, -21)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -20)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -19)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(-20, 0)",
+        "depth": 20,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "start",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 3,
+      "tree_nodes": 5447
+    },
+    "pools_before": {
+      "_card_proxy_pool": 0,
+      "_hand_card_pool": 0,
+      "_pile_dialog_card_pool": 0
+    },
+    "pools_after": {
+      "_card_proxy_pool": 2,
+      "_hand_card_pool": 17,
+      "_pile_dialog_card_pool": 16
+    },
+    "largest_host_deltas": [
+      [
+        "UiLayer",
+        2309
+      ],
+      [
+        "BoardUnderlay",
+        819
+      ],
+      [
+        "HandCardPool",
+        656
+      ],
+      [
+        "RetainedSkillTreeHost",
+        113
+      ],
+      [
+        "SfxPlayer32",
+        0
+      ],
+      [
+        "SfxPlayer261",
+        0
+      ],
+      [
+        "RunPersistence",
+        0
+      ],
+      [
+        "SfxPlayer51",
+        0
+      ]
+    ]
+  }
+]

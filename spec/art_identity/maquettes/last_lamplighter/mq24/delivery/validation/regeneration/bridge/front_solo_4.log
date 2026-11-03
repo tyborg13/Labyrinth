@@ -1,0 +1,7 @@
+00:00.759  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof/director-f2-regeneration/native/maquette.blend"
+00:05.637  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof/director-f2-regeneration/front_solo_4/front_silhouette.png'
+00:08.998  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof/director-f2-regeneration/front_solo_4/front_silhouette.png'
+00:12.444  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof/director-f2-regeneration/front_solo_4/front_silhouette.png'
+00:15.713  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof/director-f2-regeneration/front_solo_4/front_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+MQ18_BOUNDED_CAPTURE: PASS; front; fore_near,hand_near,thigh_near,shin_near

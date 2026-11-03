@@ -1,0 +1,43 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 10582 anatomy vertices
+BUILD_STAGE: bucket_helm
+BUILD_STAGE: helm_top_ring
+BUILD_STAGE: gambeson
+BUILD_STAGE: scarf
+BUILD_STAGE: pelvis_gambeson
+BUILD_STAGE: belt_buckle
+BUILD_STAGE: belt
+BUILD_STAGE: upper_near_gambeson
+BUILD_STAGE: fore_near_gambeson
+BUILD_STAGE: thigh_near_gambeson
+BUILD_STAGE: shin_near_gambeson
+BUILD_STAGE: glove_near
+BUILD_STAGE: boot_near
+BUILD_STAGE: boot_cuff_near
+BUILD_STAGE: upper_far_gambeson
+BUILD_STAGE: fore_far_gambeson
+BUILD_STAGE: thigh_far_gambeson
+BUILD_STAGE: shin_far_gambeson
+BUILD_STAGE: glove_far
+BUILD_STAGE: grip_finger_1
+BUILD_STAGE: grip_finger_2
+BUILD_STAGE: grip_finger_3
+BUILD_STAGE: grip_finger_4
+BUILD_STAGE: grip_thumb
+BUILD_STAGE: boot_far
+BUILD_STAGE: boot_cuff_far
+BUILD_STAGE: coat_near
+BUILD_STAGE: coat_far
+BUILD_STAGE: tabard
+BUILD_STAGE: tabard_emblem
+BUILD_STAGE: chain_link_1
+BUILD_STAGE: chain_link_2
+BUILD_STAGE: chain_link_3
+BUILD_STAGE: chain_link_4
+BUILD_STAGE: chain_link_5
+BUILD_STAGE: chain_link_6
+BUILD_STAGE: chain_link_7
+BUILD_STAGE: iron_hook
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_MAQUETTE: PASS

@@ -8,7 +8,7 @@ const Graph = preload("res://scripts/section_map_graph.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Rules = preload("res://scripts/guardian_combat_rules.gd")
-const CASES = ["encounter", "pre_battle", "map_entry", "map_choice", "relic", "reward", "outage", "telegraph", "outcrops", "summon", "reinforcements", "network", "ground_targeting", "occupied_summon", "displaced_pattern", "sweep", "occlusion", "relight"]
+const CASES = ["beat", "encounter", "pre_battle", "map_entry", "map_choice", "relic", "reward", "outage", "telegraph", "outcrops", "summon", "reinforcements", "network", "ground_targeting", "occupied_summon", "displaced_pattern", "sweep", "occlusion", "relight"]
 
 static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, options: Dictionary) -> Dictionary:
 	var state: Dictionary = source.duplicate(true)
@@ -64,7 +64,9 @@ static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, op
 	if study == "pre_battle": return state
 	state = engine.begin_pre_battle_combat(state)
 	var battle: Dictionary = state["combat_state"]
-	if study in ["relic","ground_targeting"]:
+	if study == "beat":
+		battle = preload("res://tools/guardian_beat_fixture.gd").before_beat(combat,battle)
+	elif study in ["relic","ground_targeting"]:
 		state = _relic_study(engine, combat, state, info, study=="relic")
 		battle = state["combat_state"]
 	elif study == "reward":
@@ -79,10 +81,21 @@ static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, op
 		assert(combat.is_player_turn(battle))
 		assert(not bool(battle["guardian_braziers"][0]["lit"]))
 		battle["player"]["hp"] = state["player_hp"]
-	elif study in ["outcrops","summon","network"]:
-		assert(id==("craghide" if study=="outcrops" else "storm_cantor"))
+	elif study == "outcrops":
+		assert(id=="craghide")
+		# The rule now raises stone after the second source turn. Reuse the
+		# real beat boundary, then declare this existing focused quake study.
+		battle = preload("res://tools/guardian_beat_fixture.gd").before_beat(combat,battle)
+		battle = combat.advance_to_next_player_turn_with_steps(combat.finish_player_activation(battle))["state"]
+		var rng := RandomNumberGenerator.new()
+		rng.seed=51
+		battle["enemies"][0]["guardian_cycle"]=0
+		combat._assign_enemy_intent(battle,0,rng)
+		battle["player"]["hp"]=state["player_hp"]
+	elif study in ["summon","network"]:
+		assert(id=="storm_cantor")
 		# Advance the real opening setup intent and stop at the next player turn.
-		battle["player_turn_time_spent"]=18 if study in ["summon","network"] else 7
+		battle["player_turn_time_spent"]=18
 		battle=combat.advance_to_next_player_turn_with_steps(combat.finish_player_activation(battle))["state"]
 		assert(combat.is_player_turn(battle))
 		if study=="summon":
@@ -97,9 +110,10 @@ static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, op
 		battle["enemies"][1]["hp"]=0
 		var rng := RandomNumberGenerator.new()
 		rng.seed=51
-		battle["enemies"][0]["guardian_cycle"]=int(battle["enemies"][0].get("guardian_cycle",0))-1
+		battle["enemies"][0]["guardian_cycle"]=(2 if id=="storm_cantor" else -1) if study=="occupied_summon" else int(battle["enemies"][0].get("guardian_cycle",0))-1
 		combat._assign_enemy_intent(battle,0,rng)
 		if study=="occupied_summon":
+			assert(id in ["storm_cantor","last_lamplighter"],"Only authored Guardian summons reserve helper tiles")
 			var reserved: Array = combat.enemy_intent_plan(battle,0).get("projected_summon",[])
 			assert(not reserved.is_empty())
 			battle["player"]["pos"]=reserved[0]

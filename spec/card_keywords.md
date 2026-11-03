@@ -1,5 +1,7 @@
 # Card Keywords: Stagger, Follow-up, Empower, State and Scale Bonuses
 
+Flurry is dormant (flu-01): no shipped card uses it and it has no glossary or Grimoire topic. References below describe preserved synthetic-test engine behavior only.
+
 Owner code: `scripts/card_keyword_rules.gd` (rules), hooks in
 `scripts/combat_engine.gd`, rows in `scripts/action_icon_library.gd`, UI in
 `scripts/run_scene.gd` (search `Card keywords`). Tests:

@@ -1,0 +1,115 @@
+{
+  "character_id": "chainbound_gaoler",
+  "rig": "humanoid_v2",
+  "proof_geometry": {
+    "canvas_size": 640,
+    "source_offset": 192
+  },
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {},
+  "direction_clips": [
+    "move",
+    "reel",
+    "pin",
+    "press",
+    "guard"
+  ],
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the protagonist's cut-out bob: the upper body drops 2 px and returns as one rigid piece; the raised chain arm with its hanging chain follows a beat later as one rigid group (the Thrall's pre-computed sword-lag curve on upper_far, as the Gloam's claw arm); the chain never swings, and the coat tails, tabard, legs and boots stay still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.85,
+      "intents": [],
+      "note": "a heavy jailer's plod on the protagonist's model: both legs step, six steps per tile, near foot leading, a short 4 px lift on the stocky legs; a 3 degree forward lean; the free fist swings 3 px; the chain arm stays raised and the hanging chain sways 3 degrees against the stride; the coat tails trail 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 4,
+        "lane_narrowing": 0.5,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.5,
+          "down": 3.0,
+          "passing": 0.8,
+          "up": 0.4
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "hand_near",
+            "px": 3
+          }
+        },
+        "max_fit_px": 6
+      },
+      "release_at": {}
+    },
+    "reel": {
+      "seconds": 1.1,
+      "contact": 0.5,
+      "intents": [
+        "chain_reel:pull"
+      ],
+      "note": "winds the chain back with the arm drawn in, then casts the hook out at the target (the chain swings forward to nearly level, contact), then heaves it back hand over shoulder with a lean back and a dropped hip (the pull); the free fist counter-balances; the chain falls back to hang",
+      "release_at": {}
+    },
+    "pin": {
+      "seconds": 0.8,
+      "contact": 0.5,
+      "intents": [
+        "manacle_pin:ranged"
+      ],
+      "note": "a short whip: the chain flicks back, then snaps the hook forward at the target's feet (contact), held a beat, then hangs again",
+      "release_at": {}
+    },
+    "press": {
+      "seconds": 0.85,
+      "contact": 0.5,
+      "intents": [
+        "cudgel_press:melee"
+      ],
+      "note": "after the step in (the move clip), a hammer blow with the free fist: wound up high and back with a lean back, then slammed forward and down into the target (contact) with the body behind it and the hips dropped; held, then recovered; the hanging chain swings back with the lunge",
+      "budget_note": "rr-38 feedback 1: these are director targets; if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp",
+      "release_at": {}
+    },
+    "guard": {
+      "seconds": 0.9,
+      "contact": 0.3,
+      "intents": [
+        "iron_guard:block"
+      ],
+      "note": "after the step in, hunkers down behind the chain: the hips drop, the body hunches forward, the chain arm draws in before the chest so the chain hangs across the body, and the free fist comes up to the belly; holds; then eases back",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, the helm nods back 4 degrees, the hanging chain swings back 6 degrees and returns, the coat tails flick 2 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.6,
+      "terminal": true,
+      "intents": [],
+      "note": "staggers back; the chain slips from the grip at 0.3, drops straight to the floor under the fist and tips forward to lie along it; the knees buckle into a kneel (hips drop 15 px) and the body folds forward 18 degrees, helm bowed; the chain arm falls; the coat tails and tabard settle; terminal pose held, then the existing fade",
+      "budget_note": "rr-38 feedback 1: hand_far.lift_px -36 is a target (the chain arm falls to hang at the hip); clamp to the measured joint budget and report",
+      "release_at": {
+        "chain": 0.3
+      }
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ],
+  "paint_scope": "exact density-treated production parts"
+}

@@ -1,0 +1,8 @@
+proof/logs/
+proof/native*/
+proof/contact_sheets/
+proof/idle_native/
+proof/production_native/
+proof/*.mp4
+proof/production_case/
+proof/feedback3_cpu/

@@ -1,0 +1,596 @@
+{
+  "errors": [],
+  "after_frames": 7442,
+  "jobs": 20,
+  "occluder_overlap_pixels": {
+    "floor_front": 7132331,
+    "floor_behind": 41163126,
+    "wall_front": 0,
+    "wall_behind": 0,
+    "prop_front": 18577558,
+    "prop_behind": 4613030
+  },
+  "board_origins": [
+    {
+      "board": "earth_t3_r7",
+      "actor": "arc_thrall",
+      "board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        0.0,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.0,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "earth_t3_r7",
+      "actor": "briar_weaver",
+      "board_origin": [
+        959.9998779296911,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        -0.00012207031090838427,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.00012207031090838427,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "earth_t3_r7",
+      "actor": "chainbound_gaoler",
+      "board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        0.0,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.0,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "earth_t3_r7",
+      "actor": "frostglass_lancer",
+      "board_origin": [
+        960.000000000002,
+        230.61169433593597
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        0.0,
+        5.570495605465851
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.0,
+        6.103516005850906e-05
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "earth_t3_r7",
+      "actor": "gale_herald",
+      "board_origin": [
+        959.9998779296911,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        -0.00012207031090838427,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.00012207031090838427,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "earth_t3_r7",
+      "actor": "glacial_mirror",
+      "board_origin": [
+        960.000000000002,
+        230.69714355468597
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        0.0,
+        5.655944824215851
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.0,
+        6.103516005850906e-05
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "earth_t3_r7",
+      "actor": "gloam_stalker",
+      "board_origin": [
+        959.9998779296911,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        -0.00012207031090838427,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.00012207031090838427,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "earth_t3_r7",
+      "actor": "hoarfrost_seer",
+      "board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        0.0,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.0,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "earth_t3_r7",
+      "actor": "hollow_mimic",
+      "board_origin": [
+        959.9998779296911,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        -0.00012207031090838427,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.00012207031090838427,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "earth_t3_r7",
+      "actor": "slag_mortar",
+      "board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        0.0,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.0,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "fire_t1_r6",
+      "actor": "arc_thrall",
+      "board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        0.0,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.0,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "fire_t1_r6",
+      "actor": "briar_weaver",
+      "board_origin": [
+        959.9998779296911,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        -0.00012207031090838427,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.00012207031090838427,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "fire_t1_r6",
+      "actor": "chainbound_gaoler",
+      "board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        0.0,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.0,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "fire_t1_r6",
+      "actor": "frostglass_lancer",
+      "board_origin": [
+        960.000000000002,
+        230.61169433593597
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        0.0,
+        5.570495605465851
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.0,
+        6.103516005850906e-05
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "fire_t1_r6",
+      "actor": "gale_herald",
+      "board_origin": [
+        959.9998779296911,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        -0.00012207031090838427,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.00012207031090838427,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "fire_t1_r6",
+      "actor": "glacial_mirror",
+      "board_origin": [
+        960.000000000002,
+        230.69714355468597
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        0.0,
+        5.655944824215851
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.0,
+        6.103516005850906e-05
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "fire_t1_r6",
+      "actor": "gloam_stalker",
+      "board_origin": [
+        959.9998779296911,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        -0.00012207031090838427,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.00012207031090838427,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "fire_t1_r6",
+      "actor": "hoarfrost_seer",
+      "board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        0.0,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.0,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "fire_t1_r6",
+      "actor": "hollow_mimic",
+      "board_origin": [
+        959.9998779296911,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        -0.00012207031090838427,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.00012207031090838427,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    },
+    {
+      "board": "fire_t1_r6",
+      "actor": "slag_mortar",
+      "board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "origin_uncertainty_pixels": [
+        0.00018310546875,
+        7.62939453125e-05
+      ],
+      "inventory_board_origin": [
+        960.000000000002,
+        225.04119873047011
+      ],
+      "translation_from_inventory": [
+        0.0,
+        0.0
+      ],
+      "origin_source": "captured_floor_lattice",
+      "max_relative_error_pixels": [
+        0.0,
+        0.0
+      ],
+      "max_float32_rounding_bound_pixels": [
+        0.00048828125,
+        0.000213623046875
+      ]
+    }
+  ],
+  "inventory_sha256": "0fc1fab9f32fa30c11562a3b940356d4e42062ae6de17d4b458e77d8178c893a"
+}

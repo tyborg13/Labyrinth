@@ -33,6 +33,7 @@ var reduced_motion_source: Callable
 var active: bool = true
 var _idle_seconds: float = 0.0
 var _pose_signature: Array = []
+var _persistent_facing: bool = false
 var _equipped: Dictionary = {}
 var _gear_signature: String = ""
 var _gear_revision: int = 0
@@ -156,7 +157,7 @@ func strike_samples(direction_delta: Vector2i, progress_from: float,
 	var samples: Array[Dictionary]
 	if rigs.is_empty() or step <= 0.0 or progress_to < progress_from:
 		return samples
-	var direction: Dictionary = direction_for_delta(direction_delta) if direction_delta != Vector2i.ZERO else {"facing": facing, "mirrored": mirrored}
+	var direction: Dictionary = direction_for_delta(direction_delta) if not _persistent_facing and direction_delta != Vector2i.ZERO else {"facing": facing, "mirrored": mirrored}
 	var view: String = str(direction["facing"])
 	var layout: Dictionary = rigs[view].layout
 	var grip: Dictionary = layout["weapon_grip"]
@@ -180,11 +181,16 @@ func strike_samples(direction_delta: Vector2i, progress_from: float,
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	reduced_motion = reduce
 	active = enabled
+	var held: Variant = motion.get("hero_facing")
+	_persistent_facing = preload("res://scripts/hero_facing_state.gd").valid(held)
+	if _persistent_facing:
+		facing = held["facing"]
+		mirrored = held["mirrored"]
 	var guard_clip: String = "block_shield" if str(motion.get("clip", "")) == "block" and offhand_kind() == "shield" else ""
 	if ReactionPlayback.present(self, motion, guard_clip):
 		return
 	var delta: Vector2i = motion.get("direction", Vector2i.ZERO)
-	if delta != Vector2i.ZERO:
+	if not _persistent_facing and delta != Vector2i.ZERO:
 		var direction: Dictionary = direction_for_delta(delta)
 		facing = direction["facing"]
 		mirrored = bool(direction["mirrored"])
@@ -203,8 +209,9 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	if clip == "shoot" and not ranged_motion().is_empty():
 		clip = "shoot_" + ranged_motion()
 	if clip == "idle":
-		facing = "front"
-		mirrored = false
+		if not _persistent_facing:
+			facing = "front"
+			mirrored = false
 		if previous_clip != "idle":
 			_idle_seconds = 0.0
 	_apply_pose()
@@ -254,7 +261,7 @@ func source_socket(shot: bool = false, released: bool = false, direction_delta: 
 		return SOURCE_SIZE * 0.5
 	var socket_facing: String = facing
 	var socket_mirrored: bool = mirrored
-	if released and direction_delta != Vector2i.ZERO:
+	if not _persistent_facing and released and direction_delta != Vector2i.ZERO:
 		var direction: Dictionary = direction_for_delta(direction_delta)
 		socket_facing = direction["facing"]
 		socket_mirrored = bool(direction["mirrored"])

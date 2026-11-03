@@ -1,0 +1,35 @@
+..................F
+======================================================================
+FAIL: test_tracked_sources_have_sidecars_and_sidecars_have_sources (__main__.GodotSidecarRepositoryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/tests/test_godot_sidecars.py", line 92, in test_tracked_sources_have_sidecars_and_sidecars_have_sources
+    assert_sidecars_versioned(git_files(ROOT), root=ROOT)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/tests/test_godot_sidecars.py", line 87, in assert_sidecars_versioned
+    raise AssertionError("\n\n".join(problems + [REPAIR_HINT]))
+AssertionError: Missing tracked Godot sidecars (17):
+spec/art_identity/jobs/last_lamplighter/mq24_front/processed.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_front/raw.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_front/refs/01_maquette_front_parts.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_front/refs/02_maquette_front_clay.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_front/refs/03_approved_take_two.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_front/refs/04_gloam_stalker_front.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_front/refs/05_hero_front.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_front/sheet.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_rear/front_match.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_rear/processed.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_rear/raw.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_rear/refs/01_maquette_rear_parts.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_rear/refs/02_maquette_rear_clay.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_rear/refs/03_approved_front.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_rear/refs/04_gloam_stalker_rear.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_rear/refs/05_hero_rear.png.import
+spec/art_identity/jobs/last_lamplighter/mq24_rear/sheet_pair.png.import
+
+Run godot --headless --import (through tools/godot_task_runner.py), commit the .import/.uid sidecars with their sources, and remove stale sidecars.
+
+----------------------------------------------------------------------
+Ran 19 tests in 5.875s
+
+FAILED (failures=1)
+GODOT SIDECARS: gitignored exemptions = 2151

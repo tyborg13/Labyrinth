@@ -1,0 +1,10 @@
+{
+  "min_images": 8,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "rest_pair.png", "width": 1920, "height": 1080},
+    {"pattern": "*/pair_hit/frame_*.png", "width": 1920, "height": 1080, "min_count": 7},
+    {"pattern": "*/pair_hit/frame_0006.png", "width": 1920, "height": 1080},
+    {"pattern": "*/pair_hit/frame_0007.png", "width": 1920, "height": 1080}
+  ]
+}

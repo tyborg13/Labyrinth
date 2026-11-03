@@ -1,5 +1,7 @@
 extends RefCounted
 
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
+const RoutineClock = preload("res://tests/helpers/presentation_routine_clock.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
 const RunSfxLibrary = preload("res://scripts/run_sfx_library.gd")
@@ -20,6 +22,11 @@ const EXPECTED_VOLUME_DB: Dictionary = {
 }
 
 static func run(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _run_scoped(scope, tree, expect)
+	)
+
+static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	_test_registry_and_trimmed_assets(expect)
 	_test_victory_timing_contract(expect)
 	await _test_live_run_hooks(tree, expect)
@@ -58,11 +65,34 @@ static func _test_victory_timing_contract(expect: Callable) -> void:
 	expect.call(PostCombatRewardSequence.victory_sequence_seconds(false) >= 0.85, "Victory should retain its authored default cadence when no cue is available")
 
 static func _test_live_run_hooks(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _test_live_run_hooks_scoped(scope, tree, expect)
+	)
+
+static func _test_live_run_hooks_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
+	TestClock.now_usec = TestClock.FIXTURE_START_USEC
 	var packed_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	expect.call(packed_scene != null, "Run scene should load for run SFX coverage")
 	if packed_scene == null:
 		return
 	var instance: Node = packed_scene.instantiate()
+	instance.get("_combat_pacing").free()
+	var observed := GDScript.new()
+	var original: Script = load("res://scripts/run_scene.gd")
+	var door: String = TestClock.method_source(original, "_play_door_opening_animation")
+	door = door.replace("get_tree().create_timer(", "RoutineClock.timer(get_tree(), ")
+	var victory: String = TestClock.method_source(original, "_play_post_combat_victory")
+	victory = victory.replace("PostCombatRewardSequence.play_victory", "test_sequence.play_victory")
+	var frames: String = TestClock.method_source(original, "_play_timed_animation_frames")
+	observed.source_code = """extends "res://scripts/run_scene.gd"
+const RoutineClock = preload("res://tests/helpers/presentation_routine_clock.gd")
+var test_sequence: Script
+""" + door + victory + frames
+	assert(observed.reload() == OK)
+	instance.set_script(observed)
+	instance.set("test_sequence", RoutineClock.sequence_script(PostCombatRewardSequence))
+	instance.get("_combat_pacing").free()
+	instance.set("_combat_pacing", TestClock.clocked_script(preload("res://scripts/combat_pacing.gd")).new())
 	tree.root.add_child(instance)
 	await tree.process_frame
 	instance.call("_close_dialogue")
@@ -81,9 +111,14 @@ static func _test_live_run_hooks(tree: SceneTree, expect: Callable) -> void:
 	instance.call("_update_ambient_sfx_for_context", "victory")
 	expect.call(ambient_player != null and not ambient_player.playing and ambient_player.stream == null, "Terminal screens should stop room ambience")
 
-	var door_started_msec: int = Time.get_ticks_msec()
+	var door_clock := RoutineClock.new()
+	tree.root.add_child(door_clock)
 	await instance.call("_play_door_opening_animation", Vector2i(4, 0))
-	var door_elapsed: float = float(Time.get_ticks_msec() - door_started_msec) / 1000.0
+	var door_elapsed: float = float(door_clock.elapsed_usec) / 1000000.0
+	door_clock.expect_completed_timers(expect, "Door transition")
+	expect.call(door_clock.timers.size() == 1, "Door transition retains its settle timer")
+	if not door_clock.timers.is_empty():
+		expect.call(door_clock.timers[0].completed and door_clock.timers[0].completed_usec - door_clock.timers[0].started_usec >= 40000, "Door settle retains the full 40 ms before returning")
 	var door_seconds: float = float(EXPECTED_DURATIONS[RunSfxLibrary.DOOR_OPEN_ID])
 	expect.call(door_elapsed >= door_seconds - 0.06 and door_elapsed <= door_seconds + 0.30, "Door transition should remain gated for the complete trimmed creak")
 	expect.call(_has_played_sfx(instance, RunSfxLibrary.DOOR_OPEN_ID), "Door opening should route the creak through a run SFX channel")
@@ -110,15 +145,21 @@ static func _test_live_run_hooks(tree: SceneTree, expect: Callable) -> void:
 	expect.call(_played_sfx_count(instance, RunSfxLibrary.REWARD_ACCEPTED_ID) >= 2, "Card and relic claims should each emit their own accepted-reward cue")
 
 	var victory_board: Dictionary = instance.call("_board_display_state")
-	var victory_started_msec: int = Time.get_ticks_msec()
+	var victory_clock: Node = door_clock
+	victory_clock.timers.clear()
+	var victory_started_usec: int = victory_clock.elapsed_usec
 	await instance.call("_play_post_combat_victory", victory_board)
-	var victory_elapsed: float = float(Time.get_ticks_msec() - victory_started_msec) / 1000.0
+	var victory_elapsed: float = float(victory_clock.elapsed_usec - victory_started_usec) / 1000000.0
+	victory_clock.expect_completed_timers(expect, "Victory beat")
+	expect.call(victory_clock.timers.size() == 1, "Victory beat retains its hold timer")
+	victory_clock.free()
 	var victory_seconds: float = PostCombatRewardSequence.victory_sequence_seconds(false)
 	expect.call(victory_elapsed >= victory_seconds - 0.06 and victory_elapsed <= victory_seconds + 0.35, "Victory should finish its visual beat without waiting for the audio tail")
 	expect.call(_has_played_sfx(instance, RunSfxLibrary.VICTORY_RESOLUTION_ID), "Victory presentation should play the resolution cue")
 	var victory_overlay: Control = instance.get("_post_combat_victory_overlay") as Control
 	expect.call(victory_overlay != null and not victory_overlay.visible, "Victory overlay should clear after its visual beat")
 
+	print("RUN SFX GAME CLOCK: door=%.3fs victory=%.3fs" % [door_elapsed, victory_elapsed])
 	instance.queue_free()
 	await tree.process_frame
 

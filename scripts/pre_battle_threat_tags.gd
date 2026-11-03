@@ -3,7 +3,11 @@ extends RefCounted
 const GameData = preload("res://scripts/game_data.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 
-static func build(enemy_type: String) -> Array:
+static func build(enemy_type: String, unit: Dictionary = {}) -> Array:
+	if GameData.enemies().get(enemy_type, {}).has("death_burst"):
+		var shown: Dictionary = unit if not unit.is_empty() else {"type": enemy_type}
+		var burst_trait: Dictionary = preload("res://scripts/enemy_mechanics/death_burst_view.gd").trait_token(shown)
+		return [{"text": burst_trait["value"], "icon_key": "burst", "tooltip": burst_trait["tooltip"]}]
 	return from_intents(GameData.enemy_def(enemy_type).get("intents", []) as Array)
 
 static func from_intents(intents: Array) -> Array:
@@ -42,7 +46,8 @@ static func _append(tags: Array, seen: Dictionary, word: String, icon_key: Strin
 	tags.append({"text": word, "icon_key": icon_key if not ActionIcons.icon_path(icon_key).is_empty() else ""})
 
 static func _word(action: Dictionary) -> String:
-	if str(action.get("type", "")) not in ["grow_bramble", "lob_mark", "lob_land", "melee", "ranged", "aoe", "lightning_strikes", "block", "guard_ally", "stoneskin", "heal", "heal_self", "heal_ally", "move_away", "pull", "push", "summon_minions", "raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "frost_armor", "umbra_eclipse", "split"]:
+	if str(action.get("type", "")) == "chain_discharge": return "Arc Burst"
+	if str(action.get("type", "")) not in ["upheaval_mark", "lob_mark", "lob_land", "melee", "ranged", "aoe", "lightning_strikes", "block", "guard_ally", "stoneskin", "heal", "heal_self", "heal_ally", "move_away", "pull", "push", "summon_minions", "raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "frost_armor", "umbra_eclipse", "split"]:
 		return ""
 	var icon_key: String = ActionIcons.action_icon_key(action)
 	return ActionIcons.label(icon_key) if not icon_key.is_empty() else str(action.get("type", "")).capitalize()

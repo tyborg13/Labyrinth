@@ -121,6 +121,7 @@ static func _fixture(scene: Node, equipped: Dictionary, card: String, direction:
 	scene.set("_progression", progression)
 	scene.set("_run_state", run)
 	var settings: Dictionary = scene.get("_settings").duplicate()
+	settings["hero_facing"] = "snap" # Preserve this suite's legacy front-idle contract.
 	settings["reduced_motion"] = reduced
 	settings["ui_scale"] = 1.0
 	scene.set("_settings", settings)

@@ -44,7 +44,7 @@ func _initialize() -> void:
 	quit(0 if failures.is_empty() else 1)
 
 func _test_patterns() -> void:
-	_expect(str(Icons.surface_condition_token({"surface": "fire", "subject": "consumed"}).get("suffix")) == "consumed:", "Fire fuel condition names consumption")
+	_expect(str(Icons.surface_condition_token({"surface": "fire", "subject": "consumed"}).get("suffix")) == "Expended:", "Fire fuel condition names consumption")
 	_expect(str(Icons.surface_condition_token({"surface": "electrified", "subject": "conducted"}).get("suffix")) == "used:", "Reusable conductor condition names use, not consumption")
 	var halo: Dictionary = Data.card_def("wildfire_halo")
 	_expect(_pattern_count(Icons.rows_for_actions(halo.get("actions", []))) == 1, "Wildfire Halo shares one target pattern")
@@ -213,22 +213,8 @@ func _test_drag() -> void:
 	await scene.call("_animate_magic_proxy_to_rect", resize_proxy, Rect2(fx.global_position + Vector2(600, 400), Vector2(300, 64)), 0.1)
 	_expect(resize_proxy.size.is_equal_approx(Vector2(300, 64)), "Shared proxy animation reaches smaller slot bounds")
 	resize_proxy.queue_free()
-	scene.call("_open_character_overlay", "magic")
-	await _settle()
-	var magic: Control = (scene.get("_magic_inventory_tiles") as Dictionary)[0] as Control
-	var magic_rect: Rect2 = magic.get_global_rect()
-	scene.call("_begin_magic_overlay_drag", "inventory", 0, "firebrand_volley", magic_rect, magic, Vector2(1080, 540))
-	await _settle()
-	_expect((scene.get("_magic_held_proxy") as Control).size.is_equal_approx(magic_rect.size), "Shared magic proxy stays within source bounds")
-	await _capture("magic_drag_compact.png")
-	await scene.call("_cancel_magic_overlay_drag", true)
-	_expect(magic.modulate == Color.WHITE and str(scene.get("_magic_drag_card_id")).is_empty(), "Magic drag cancel restores the source")
-	scene.call("_begin_magic_overlay_drag", "inventory", 0, "firebrand_volley", magic_rect, magic, magic_rect.get_center())
-	var magic_destination: Control = (scene.get("_magic_attuned_tiles") as Dictionary)[0] as Control
-	await scene.call("_release_magic_overlay_drag", magic_destination.get_global_rect().get_center())
-	await _settle()
-	_expect(((scene.get("_run_state") as Dictionary).get("attuned_magic_cards", []) as Array).has("firebrand_volley"), "Shared magic proxy still drops into attunement")
-	await _capture("magic_after_drop.png")
+	# Reserve-to-slot magic dragging was removed by spells-in-deck. The current
+	# deck/purge input contract is exercised by magic_deck_test.
 	scene.queue_free()
 	await process_frame
 

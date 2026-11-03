@@ -1,0 +1,166 @@
+{
+  "status": "feedback_1_complete",
+  "source_head": "5c099f24b39841012673d71134c2126ce68e7917",
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "policy_matches_revision7_baseline": true,
+  "measurement_runs": 4200,
+  "default_runs": 3600,
+  "shadow_dark_off_runs": 600,
+  "first_seed": 1,
+  "runs_per_group": 200,
+  "last_catalog_seed": 202,
+  "sampling": "first 200 eligible production samples per tier/element; seeds without a standard room are skipped",
+  "acceptance": {
+    "1": {
+      "groups": 18,
+      "runs_per_group": 200,
+      "default_policy_unchanged": true,
+      "worker_cap": "four after correction; initial transient fifth worker recorded below"
+    },
+    "2": {
+      "groups": 3,
+      "runs_per_group": 200,
+      "setup_field": "shadow room copy umbra.stage = clear; no engine/policy/data edits"
+    },
+    "3": "non-shadow groups below 25% are reported from default runs; no dark-off reruns",
+    "4": "Mimic/Stalker/other-type presence cuts overlap; N, win rate, median HP lost, N<30 flags",
+    "5": "first 10 tier-2 shadow losses by seed; full decision/end records; all shared outcome fields compared with default"
+  },
+  "checks": [
+    {
+      "result": "SHADOW OPTION TEST: PASS (342 checks; 0 failures)",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-04 && python3 tools/godot_task_runner.py --task-id meas-04 --stream -- godot --headless --path . --script /private/tmp/labyrinth_codex/meas-04/shadow_option_test.gd",
+      "log": "/private/tmp/labyrinth_codex/meas-04/option_test.log"
+    },
+    {
+      "result": "SHADOW INVALID OPTION: PASS (exit 1; --room-dark must be on or off)",
+      "log": "/private/tmp/labyrinth_codex/meas-04/invalid_option.log"
+    },
+    {
+      "result": "Ran 8 tests in 0.000s\n\nOK",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-04 && python3 /private/tmp/labyrinth_codex/meas-04/test_shadow_helpers.py",
+      "log": "/private/tmp/labyrinth_codex/meas-04/helper_tests.log"
+    },
+    {
+      "result": "Ran 4 tests in 0.002s\n\nOK",
+      "tests": [
+        "tests.test_encounter_measurement.EncounterReportTests.test_quantiles_and_even_median",
+        "tests.test_encounter_measurement.EncounterReportTests.test_escape_rate_includes_losses",
+        "tests.test_encounter_measurement.EncounterReportTests.test_gzip_reports_are_deterministic_and_lossless",
+        "tests.test_encounter_measurement.EncounterReportTests.test_revision7_measurement_groups_and_legacy_availability"
+      ]
+    },
+    {
+      "result": "DEFAULT DRIVER PARITY: PASS (seed 1, tier 2, earth; every original result field identical)",
+      "log": "/private/tmp/labyrinth_codex/meas-04/original-default.log"
+    },
+    {
+      "result": "SHADOW MEASUREMENTS: PASS (4200 runs; 200 per group)",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-04 && python3 tools/encounter_shadow_measurement.py --workers 4",
+      "log": "/private/tmp/labyrinth_codex/meas-04/measurement-complete.log"
+    },
+    {
+      "result": "SHADOW AUDIT: PASS (10 tier-2 shadow losses)",
+      "log": "audit.log.gz"
+    },
+    {
+      "result": "SHADOW SAMPLING CATALOG: PASS (3600 rooms; first 200 eligible seeds per tier/element; scanned 1..202)",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-04 && python3 tools/godot_task_runner.py --task-id meas-04 --timeout 7200 --stream -- godot --headless --path . --script /private/tmp/labyrinth_codex/meas-04/sampling_catalog.gd",
+      "log": "/private/tmp/labyrinth_codex/meas-04/sampling_catalog.log"
+    },
+    {
+      "result": "ELIGIBLE SEED PREFIX: PASS (4200 unique rooms; every seed, coordinate and entrance matches first 200 eligible production samples per group)"
+    },
+    {
+      "result": "DEFAULT POLICY SHA256: PASS (unchanged; matches revision7/baseline.json)"
+    },
+    {
+      "result": "TRACKED GAMEPLAY / DATA / POLICY: PASS (no tracked changes)"
+    },
+    {
+      "result": "PYTHON SYNTAX: PASS (2 modules)"
+    },
+    {
+      "result": "SHADOW REPORT: PASS (4200 runs; 21 groups; 10 matched loss replays)",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-04 && python3 tools/encounter_shadow_report.py",
+      "log": "/private/tmp/labyrinth_codex/meas-04/report.log"
+    },
+    {
+      "result": "FINAL ARTIFACT CHECK: PASS (two inline tables in both reports; 21 groups, 18 enemy cuts; complete source/artifact hashes; no tracked changes)"
+    }
+  ],
+  "source_sha256": {
+    "tools/encounter_shadow_sweep.gd": "48624235e859751cfb744e45adf558289a4e9fe2c57a2e9a0b7be3a6a5d3a3cd",
+    "tools/encounter_shadow_audit.gd": "c337983a89a2df0afdfce6c92ea661eefa7e32f2c29bd90b57fb57372899242f",
+    "tools/encounter_shadow_audit_run.gd": "9e0c612b4a1efe371e775c70a14990abf77c8d879a3885e73777342a087c7299",
+    "tools/encounter_shadow_measurement.py": "177b7a76e2e14f5d2aa1994c6aabfa664a20f7327558b1758c2be4b89723559c",
+    "tools/encounter_shadow_report.py": "f7c1861e8b7a7f7e6fdcfb230eb2a350bafcf8d022f2e774ce0de0a97d818875"
+  },
+  "chosen_defaults": {
+    "SEEDS_PER_BATCH": 20,
+    "MEASUREMENT_TIMEOUT_SECONDS": 7200,
+    "option_test_ranged_range": 99
+  },
+  "todo_design": [],
+  "new_permanent_guards": false,
+  "full_suites_run": false,
+  "windowed_runs": 0,
+  "inspection_fixture": "not applicable: offline headless measurement only; no player-facing changes",
+  "initial_stop": {
+    "status": "stopped_by_requirement_1",
+    "todo_design": "TODO_DESIGN_bot_full_sight_knowledge_boundary",
+    "measurement_runs": 0
+  },
+  "execution_notes": [
+    "Headless asset import completed: GODOT IMPORT RESULT: PASS (223.836 seconds). One generated unrelated UID was removed.",
+    "The macOS headless startup CA-certificate message appeared; the focused test and completed measurements exited zero.",
+    "Direct os.kill for rebatching was denied: PermissionError: [Errno 1] Operation not permitted. Session controls successfully stopped runners; checkpoints were retained.",
+    "A fifth Godot process was briefly launched before those stops completed. It was cancelled immediately. All subsequent pool work is capped at four.",
+    "Initial py_compile could not write its default cache outside the sandbox; rerun with PYTHONPYCACHEPREFIX under /private/tmp passed.",
+    "Initial collation failed its too-strict seed-range assertion: some bins have no eligible room at some seeds. Tier-2 air and fire had two and one identical overlapping records respectively. Deduplication plus three new matches at seeds201/202 restored 200 unique rooms per group. A separate production catalog then verified every accepted seed/coordinate/entrance, not just counts.",
+    "No assertions on master or existing tests were edited. Focused tests live only under /private/tmp; no permanent test modules were added."
+  ],
+  "feedback_1_proof_note": "Files changed: five `tools/encounter_shadow_*` tools plus `shadow_2026-11/` reports, raw records and proof; all uncommitted. Requirements 1\u20135: 3,600 default rooms, 600 shadow dark-off rooms, controls reported without reruns, enemy presence cuts with small-cell flags, and ten logged tier-2 losses. Checks: `SHADOW OPTION TEST: PASS (342 checks; 0 failures)`; `SHADOW INVALID OPTION: PASS (exit 1)`; `Ran 8 tests in 0.000s` / `OK`; `ELIGIBLE SEED PREFIX: PASS (4200 unique rooms)`; unchanged default policy hash. Chosen defaults: nominal seed-start batch stride/quota 20, existing measurement timeout 7,200 seconds, diagnostic attack range 99. TODO_DESIGN: none. No full suites, permanent test guards, windowed proof or inspection fixture. Execution deviation: a fifth worker briefly launched before cancellation; subsequent pool work was capped at four. Other resolved execution issues and exact checks are in proof.json.",
+  "audit_totals": {
+    "turn_ends": 37,
+    "ends_with_playable_cards": 20,
+    "unseen_target_turns": 1,
+    "unseen_target_turns_with_approach": 0,
+    "unseen_target_pass_ends": 0,
+    "turns_with_any_visibility_blocked_action": 5,
+    "partial_sight_approaches": 0,
+    "hidden_collisions": 0
+  },
+  "audit_seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "controls": [
+    {
+      "tier": 3,
+      "element": "lightning",
+      "win_rate": 0.205
+    }
+  ],
+  "artifact_sha256": {
+    "audit.json.gz": "216d807f1a0722f7efc3c6505a57486fb8a1bb3cb2277755037f07faa015f594",
+    "audit.log.gz": "7f47160b6d3fb91b1dce608526454799864b82415147dc1630bdb70b17795526",
+    "clear-t1.json.gz": "fcac66ad0772ebcfc39f95fe707f8cc35571b1befd9f83770abfe033272e86cf",
+    "clear-t2.json.gz": "fb20c1198611314891f9ddf351c3d162c819587c24cdccf99aa7d50a5f9b6534",
+    "clear-t3.json.gz": "ddf3abdc83b49a7ce0ff32ce5c38baf8c45ad7054772a6357ac6cc9f854fd749",
+    "default-t1.json.gz": "0b1680c990365afcf69aa3886bf74c112d6beb0412a86ef7e54eebde5b975333",
+    "default-t2.json.gz": "dd78e610079befd24d0aa47e610811802c20cbd9c48b8adfc6b0ae1c544d6b12",
+    "default-t3.json.gz": "5c22cda5418d27467b9c377c9451c597d28dc669b5ee0624021634a23dca8890",
+    "sampling_catalog.json.gz": "d59d6946fdea8908b3a26fc4d3b0ba833703baea65bc58ee7db3f2548922b6b3",
+    "shadow_report.md": "16f48acf47562ea6c2511fcd39e150f387722fa158547db50715b436908ef338",
+    "summary.json": "06387eaf1e991d457f2900f6fec6a26c1511c9344582b13c6fc810775f27d223"
+  }
+}

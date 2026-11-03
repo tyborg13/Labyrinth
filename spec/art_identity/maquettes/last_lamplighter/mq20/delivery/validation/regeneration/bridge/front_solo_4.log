@@ -1,0 +1,12 @@
+00:00.727  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/native/maquette.blend"
+00:04.325  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_4/front_silhouette.png'
+00:06.957  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_4/front_silhouette.png'
+00:09.719  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_4/front_parts.png'
+00:12.076  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_4/front_silhouette.png'
+00:14.503  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_4/front_silhouette.png'
+00:17.084  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_4/front_silhouette.png'
+00:19.389  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_4/front_silhouette.png'
+00:21.981  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-20/spec/art_identity/maquettes/last_lamplighter/mq20/proof/feedback2-clean-regeneration-r2/front_solo_4/front_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+BLENDER_FACING: PASS
+MQ18_BOUNDED_CAPTURE: PASS; front; fore_near,hand_near,thigh_near,shin_near

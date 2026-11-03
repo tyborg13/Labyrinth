@@ -22,7 +22,7 @@
       ]
     },
     {
-      "pattern": "*02_thornwall_mid_rise.png",
+      "pattern": "*02_thornwall_marked.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -56,7 +56,7 @@
       ]
     },
     {
-      "pattern": "*04_bramble_push_collision.png",
+      "pattern": "*04_outcrop_push_collision.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -124,7 +124,7 @@
       ]
     },
     {
-      "pattern": "*08_bramble_mid_sink.png",
+      "pattern": "*08_outcrops_persist.png",
       "width": 1920,
       "height": 1080,
       "regions": [

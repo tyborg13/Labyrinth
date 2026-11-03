@@ -1,0 +1,218 @@
+{
+  "task": "rr-38",
+  "round": "feedback2",
+  "status": "partial acceptance; same-row fixes implemented and focused checks complete",
+  "full_suites": "Not rerun this round, per director instruction. Round1 full results remain in feedback1_verification.json.",
+  "runs": {
+    "focused_existing_references_sidecars": {
+      "command": "LABYRINTH_TASK_ID=rr-38 python3 -m unittest tests.test_rr38_feedback1 tests.test_rr38_gaoler tests.test_godot_sidecars tests.test_rr14_continuation_domains tests.test_rr28_continuations -v",
+      "log": "/private/tmp/rr38-f2-focused-base.log",
+      "log_sha256": "8b0cbd76de2dcf8e7d3b97d9ce32ff91944da07170ad4e6f78f4beb4be84107b",
+      "result_lines": [
+        "Ran 50 tests in 62.917s",
+        "OK"
+      ],
+      "failures": []
+    },
+    "focused_feedback2": {
+      "command": "LABYRINTH_TASK_ID=rr-38 python3 -m unittest tests.test_rr38_feedback2 -v",
+      "log": "/private/tmp/rr38-f2-focused-new-final.log",
+      "log_sha256": "bc9d9edf1d8bf8d14a6710160d923a47f1f82b43fc98ef0287a936c38d1c8d9c",
+      "result_lines": [
+        "Ran 6 tests in 7.946s",
+        "OK"
+      ],
+      "failures": []
+    },
+    "art_and_source_continuations": {
+      "command": "LABYRINTH_TASK_ID=rr-38 python3 -m unittest tests.test_rr13_continuations tests.test_art_identity_gate -v",
+      "log": "/private/tmp/rr38-f2-focused-art-continuations.log",
+      "log_sha256": "8bea126be9ad3d0a6059f0638465799ca472926d6efa704e1a0df05358069a9c",
+      "result_lines": [
+        "Ran 113 tests in 49.205s",
+        "OK"
+      ],
+      "failures": []
+    },
+    "default_continuations": {
+      "command": "LABYRINTH_TASK_ID=rr-38 python3 -m unittest tests.test_gait01.GaitTests.test_gait_continuations_are_own_edge_copies_and_preserve_non_move_textures tests.test_gait01.GaitTests.test_opaque_duplicate_and_out_of_bounds_targets_are_rejected tests.test_gait01.GaitTests.test_disabling_transparent_target_guard_is_caught -v",
+      "log": "/private/tmp/rr38-f2-focused-defaults.log",
+      "log_sha256": "8e989c4bf5e4405195cbb8e3dfaf295a6629740ea8cbc9d988b3b01bf4a10863",
+      "result_lines": [
+        "Ran 3 tests in 14.854s",
+        "OK"
+      ],
+      "failures": []
+    },
+    "runtime": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path . --script tests/rr38/runtime_checks.gd",
+      "log": "/private/tmp/rr38-f2-runtime.log",
+      "log_sha256": "cada67d51b7e67c1b7f5892cdb66b11bda131dd86d2d171f4301808c7cbf5cce",
+      "result_lines": [
+        "RR38 RUNTIME: PASS (239 checks; headless registration, views, portraits and clocks)"
+      ],
+      "failures": []
+    },
+    "native_load_only": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-38 --stream -- godot --headless --path . --script tests/rr38/native_capture.gd -- --case res://experiments/cutouts/chainbound_gaoler/rr38/proof/production_case --output res://experiments/cutouts/chainbound_gaoler/rr38/proof/logs/feedback2/native_load --validate-only",
+      "log": "/private/tmp/rr38-f2-native-load.log",
+      "log_sha256": "01f24aa69afc1af31389b95be008ca651e1bf28c6780706e8fcb5eb9cb9250e5",
+      "result_lines": [
+        "RR38 NATIVE PROBE LOAD: PASS"
+      ],
+      "failures": []
+    },
+    "source_numeric": {
+      "command": "python3 -B experiments/cutouts/chainbound_gaoler/rr38_gates.py",
+      "log": "/private/tmp/rr38-f2-gates-source.log",
+      "log_sha256": "d0892764f4b1db9eaa0db4ac92c7d3e3f18d26230361e8c60826ff139b2e5b69",
+      "result_lines": [
+        "RR38 ALL GATES: PASS (0 unique errors; native=False)"
+      ],
+      "failures": []
+    },
+    "treated_numeric": {
+      "command": "python3 -B experiments/cutouts/chainbound_gaoler/rr38_gates.py --case experiments/cutouts/chainbound_gaoler/rr38/proof/production_case",
+      "log": "/private/tmp/rr38-f2-gates-treated.log",
+      "log_sha256": "d0892764f4b1db9eaa0db4ac92c7d3e3f18d26230361e8c60826ff139b2e5b69",
+      "result_lines": [
+        "RR38 ALL GATES: PASS (0 unique errors; native=False)"
+      ],
+      "failures": []
+    },
+    "density_registration": {
+      "command": "python3 -B experiments/cutouts/chainbound_gaoler/rr38_density.py --rebuild-derived-sources",
+      "log": "/private/tmp/rr38-f2-density-final.log",
+      "log_sha256": "7154bf4ce7eed2f0115d11a18558d6cb7f83c260b88b20856dc109e7f6380c68",
+      "result_lines": [
+        "ADOPTED 21 source file(s)",
+        "PROCESSED 60 file(s)",
+        "RR38 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)",
+        "RR38 DENSITY PAINT: PASS (both views adopted/processed; native rest pending director)"
+      ],
+      "failures": []
+    },
+    "density_check": {
+      "command": "python3 tools/process_board_density.py --check --only chainbound_gaoler_cutout",
+      "log": "/private/tmp/rr38-f2-density-check.log",
+      "log_sha256": "698f293a0b50db64541f06504e75f0edceef75bcc42745c490729ead0eff0a39",
+      "result_lines": [
+        "rest rebake needed: assets/units/chainbound_gaoler_cutout/humanoid_v2/front/rest.png: rig part pixels changed since recorded rebake",
+        "rest rebake needed: assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/rest.png: rig part pixels changed since recorded rebake"
+      ],
+      "failures": [
+        "Native rest provenance must be rebaked after changed hidden parts; cannot certify this headlessly."
+      ]
+    },
+    "source_cpu": {
+      "command": "python3 -B experiments/cutouts/chainbound_gaoler/rr38_sweep.py",
+      "log": "/private/tmp/rr38-f2-source-final.log",
+      "log_sha256": "4adfe8331606895eb584e6f0375ad954230f9ccaa5aee4a6b71380b7a2a1beef",
+      "result_lines": [
+        "RR38 CPU SWEEP: FAIL (892 frames; 74 findings; 5871 flat regions; native=False)"
+      ],
+      "failures": [
+        {
+          "complete_failure_list": "feedback2_cpu_source.json",
+          "cause": "67 joint-seam and7 tiny-component findings remain. No gate threshold or assertion was weakened."
+        }
+      ]
+    },
+    "source_triage": {
+      "command": "python3 -B experiments/cutouts/chainbound_gaoler/rr38_triage_sweep.py --case experiments/cutouts/chainbound_gaoler/rr38/proof/logs/feedback2/baseline_source --treated-case experiments/cutouts/chainbound_gaoler/rr38/proof/logs/feedback2/baseline_treated --native experiments/cutouts/chainbound_gaoler/rr38/proof/native --retained experiments/cutouts/chainbound_gaoler/rr38/proof/logs/feedback2/round0_case --output experiments/cutouts/chainbound_gaoler/rr38/proof/logs/feedback2/triage_source_final",
+      "log": "/private/tmp/rr38-f2-triage-source-final.log",
+      "log_sha256": "21540f5ddb3dbb7f2935731d13d23f84a95c5cb488a8d891b50aae707b4da777",
+      "result_lines": [
+        "RR38 TRIAGE INVENTORY: PASS {'flat/a_native': 3158, 'gate/a_native': 88, 'flat/c_accepted_rule': 93, 'flat/pending_native': 2681, 'gate/pending_native': 73, 'flat/b_cpu_only': 4, 'gate/c_accepted_rule': 316}"
+      ],
+      "failures": []
+    },
+    "treated_cpu": {
+      "command": "python3 -B experiments/cutouts/chainbound_gaoler/rr38_sweep.py --case experiments/cutouts/chainbound_gaoler/rr38/proof/production_case",
+      "log": "/private/tmp/rr38-f2-treated-final.log",
+      "log_sha256": "66d00df4f5e24f843e5feb5ef3cf91948b585b41efba7694ef0aa67c03b768e1",
+      "result_lines": [
+        "RR38 CPU SWEEP: FAIL (892 frames; 74 findings; 5819 flat regions; native=False)"
+      ],
+      "failures": [
+        {
+          "complete_failure_list": "feedback2_cpu_treated.json",
+          "cause": "67 joint-seam and7 tiny-component findings remain. No gate threshold or assertion was weakened."
+        }
+      ]
+    },
+    "treated_triage": {
+      "command": "python3 -B experiments/cutouts/chainbound_gaoler/rr38_triage_sweep.py --case experiments/cutouts/chainbound_gaoler/rr38/proof/logs/feedback2/baseline_treated --treated-case experiments/cutouts/chainbound_gaoler/rr38/proof/logs/feedback2/baseline_treated --native experiments/cutouts/chainbound_gaoler/rr38/proof/native --retained experiments/cutouts/chainbound_gaoler/rr38/proof/logs/feedback2/round0_case --output experiments/cutouts/chainbound_gaoler/rr38/proof/logs/feedback2/triage_treated_final",
+      "log": "/private/tmp/rr38-f2-triage-treated-final.log",
+      "log_sha256": "a591152b9771782c63ec742e0aa4e7e4bf781521c4e284eff0fd79aac8691ce0",
+      "result_lines": [
+        "RR38 TRIAGE INVENTORY: PASS {'flat/a_native': 3184, 'gate/a_native': 88, 'flat/pending_native': 2666, 'gate/pending_native': 73, 'flat/b_cpu_only': 4, 'gate/c_accepted_rule': 316}"
+      ],
+      "failures": []
+    }
+  },
+  "focused_unittest_count": 172,
+  "acceptance": {
+    "1": "Original rear3px knee pocket repaired; both rests remain0px. Rear walk has0 joint holes in51 frames per source/treated view. All-clips zero-hole target remains unmet:67 CPU joint findings elsewhere.",
+    "2": "All477 original gate findings and both original flat inventories are classified where evidence permits.88 gate findings are in matching native frames;316 are accepted empty-node surface requirements;73 await fresh changed press/death captures. Four flat flags are CPU-only with native pixel witnesses;93 raw-source flags are absent from both exact treated CPU/native references.42 source continuation targets and23 own-row fill surfaces implemented; crop-backed row-paint decisions retained.",
+    "3": "PASS: contextual.gd.uid and all15 owned sidecars are present and tracked; no new GDScript sources or UIDs this round. Sidecar guard passes.",
+    "4": "PASS for focused scope and command handoff; director windowed judgment remains outstanding."
+  },
+  "preservation": "PASS: protected painting/maquette/motion unchanged; other units and registries unchanged; other density outputs unchanged; both production rest RGBA unchanged.",
+  "uid_manifest": "feedback2_uid_manifest.json",
+  "chosen_defaults": "../../rr38_chosen_defaults.json",
+  "unresolved": [
+    "67 CPU joint-seam findings and7 tiny-component findings; see source/treated complete error lists.",
+    "Source5871/treated5819 low-texture diagnostic flags require director judgment.",
+    "21 exact native/source row-donor gaps have crops and named TODO_DESIGN fields; they are diagnostic decisions, not automatic art rejection.",
+    "73 historical gate findings and changed press/death texture flags lack matching local native evidence.",
+    "Both native rest rebakes and all seven current windowed stages remain director-run."
+  ],
+  "windowed_commands": [
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh density",
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh rest",
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh native",
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh sheets",
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh idle",
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh production",
+    "LABYRINTH_TASK_ID=rr-38 sh experiments/cutouts/chainbound_gaoler/rr38_proof.sh review"
+  ],
+  "underlay_diagnostic_seconds": 4.660701958,
+  "static_validation": {
+    "python_compile": "PASS",
+    "compiled_files": [
+      "experiments/cutouts/chainbound_gaoler/rr38_build.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_case.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_flat_underlays.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_repair_measurements.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_repair_sweep.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_row_fills.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_seam.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_triage.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_triage_sweep.py",
+      "experiments/cutouts/chainbound_gaoler/rr38_uncovered.py",
+      "tests/test_rr38_feedback1.py",
+      "tests/test_rr38_feedback2.py",
+      "tools/humanoid_cutout/gait_continuations.py"
+    ],
+    "shell_syntax": "PASS",
+    "git_diff_check": "PASS",
+    "all_log_hashes_and_result_lines": "PASS",
+    "full_cpu_and_triage_hashes": "PASS",
+    "native_pixel_fixture_shard_hashes": "PASS",
+    "all_reported_crop_paths": "PASS",
+    "uid_hashes": "PASS"
+  },
+  "proof_artifact_hashes": {
+    "feedback2_cpu_source.json": "96c1dc5ce02b02d68473a6e0db96483a062ca6067684778f0d00f644d0897bba",
+    "feedback2_cpu_treated.json": "ad04a45de8fd2a45457c0ebcb6845502eb4dd23191f876fc4f153ce4aa339310",
+    "feedback2_front_row_fills.json": "18662c63881814ff1086902b1d6b5dafd2c5a5fc371b06928713ddaef252e966",
+    "feedback2_native_fixture.json": "69a5193ddb106d04fc0699dba7a3523c50cb15d031e8b9e46795dbf813013922",
+    "feedback2_rear_row_fills.json": "1abf1aaafc04a217609039d66489c8dfb78a20a5c6ed6e59f43048c68c2f5f04",
+    "feedback2_seam.json": "c43d43f816b5370d5b39204147e7e66629940cea2aa470be958dd1e18011e29d",
+    "feedback2_triage_source.json": "5231403b8473fbbb3efd369d90a38e90048b655eac0ec7ac651e9c91c580a06d",
+    "feedback2_triage_treated.json": "7d3357afde1edb9ac401499a63ec6e33d18501cbaa52591a5e69e2d2bd8e6b28",
+    "feedback2_uid_manifest.json": "46b96bd7fa2be306a75682e8797b6977ea9c4c45995336f445a1b7c285b370c1",
+    "feedback2_underlay_requests.json": "bed2da4b9ed433b80e0cdaf133e6fb2d28f91d0872d3c55631f16ed66044fce0"
+  }
+}

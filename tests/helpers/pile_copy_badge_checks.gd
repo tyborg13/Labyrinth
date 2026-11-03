@@ -127,7 +127,18 @@ static func assert_viewport_mutations(modal: Control, expect: Callable) -> void:
 	# so the viewport can shrink without reflowing the already laid-out cards.
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	for edge: String in ["bottom", "right"]:
-		scroll.size = original_size - (Vector2(0, 24) if edge == "bottom" else Vector2(24, 0))
+		if edge == "bottom":
+			scroll.size = original_size - Vector2(0, 24)
+		else:
+			# Reflow can leave spare space beside the last column. Clip through
+			# a drawn medallion, rather than assuming a full-width seven-card row.
+			var rightmost: float = 0.0
+			var grid: Control = modal.find_child("MagicPurgeRows", true, false)
+			for cell: Node in grid.get_children():
+				var badge: Control = cell.get_node_or_null("PileCopyCount")
+				if badge != null and badge.is_visible_in_tree():
+					rightmost = maxf(rightmost, badge.get_global_rect().get_center().x - scroll.global_position.x)
+			scroll.size.x = rightmost
 		var caught: Array[String] = viewport_failures(modal)
 		scroll.size = original_size
 		expect.call(not caught.is_empty(), "Badge viewport regression catches clipping at the " + edge)

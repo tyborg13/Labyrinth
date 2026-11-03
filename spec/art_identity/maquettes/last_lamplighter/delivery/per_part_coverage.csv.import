@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://mhq7utemb2n8"
+
+[deps]
+
+files=["res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.part.translation", "res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.solo.translation", "res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.visible.translation", "res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.pure.translation", "res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.clipped.translation", "res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.explicit.translation"]
+
+source_file="res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.csv"
+dest_files=["res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.part.translation", "res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.solo.translation", "res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.visible.translation", "res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.pure.translation", "res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.clipped.translation", "res://spec/art_identity/maquettes/last_lamplighter/delivery/per_part_coverage.explicit.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

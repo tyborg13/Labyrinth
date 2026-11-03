@@ -1,0 +1,126 @@
+{
+  "task": "mq-20",
+  "status": "uncommitted implementation; design fields and native acceptance pending",
+  "full_suites_run": false,
+  "blender_jobs_submitted": 0,
+  "windowed_runs_attempted": 0,
+  "source_geometry": {
+    "exit_code": 1,
+    "result_line": "MQ20_SOURCE_GEOMETRY: FAIL; rows=74; clearance_over_H=0.0",
+    "numeric_rows": 74,
+    "passing_numeric_rows": 74,
+    "failed_checks": [
+      "top_ring_at_fist",
+      "fingers_wrapped_through_top_ring",
+      "lantern_leg_clearance",
+      "pauldron_near_present",
+      "pauldron_far_present",
+      "mq20_robe_layout_present",
+      "design_resolved"
+    ],
+    "design_pending": [
+      "TODO_DESIGN_pauldron_surface",
+      "TODO_DESIGN_pauldron_placement",
+      "TODO_DESIGN_lantern_grip",
+      "TODO_DESIGN_robe_layout"
+    ]
+  },
+  "checks": [
+    {
+      "command": "python3 -B -m unittest tests.test_mq20_maquette -v",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 22 tests in 17.208s",
+        "OK"
+      ],
+      "log": "mq20_final_checks.log.gz"
+    },
+    {
+      "command": "python3 -B -m unittest tests.test_mq20_maquette tests.test_mq18_maquette tests.test_maquette_geometry tests.test_maquette_builder_wiring tests.test_maquette_native_raster tests.test_maquette_rear_turn tests.test_maquette_regressions -q",
+      "exit_code": 1,
+      "result_lines": [
+        "Ran 122 tests in 91.108s",
+        "FAILED (failures=2, errors=7)"
+      ],
+      "log": "focused_checks.log.gz",
+      "resolution": "The mq-20 hole-cutout failure was corrected and its 22 tests rerun passing. The remaining 8 baseline cases are independently confirmed below."
+    },
+    {
+      "command": "python3 -B -m unittest tests.test_mq18_maquette.CuratedDeliveryTests.test_fresh_regeneration_and_all_foreign_bytes_are_preserved tests.test_mq18_maquette.RegenerationVerificationTests tests.test_maquette_rear_turn.RearTurnTests.test_all_committed_deliveries_turn_feet_and_depth_order -q",
+      "exit_code": 1,
+      "result_lines": [
+        "Ran 8 tests in 12.328s",
+        "FAILED (failures=1, errors=7)"
+      ],
+      "log": "baseline_failures.log.gz",
+      "baseline_causes": [
+        "mq-18 retained regeneration input inventory omits tracked blender/render_plan.py; seven errors.",
+        "Unchanged mq-18 front delivery contains zero near/far body-side owner pixels; rear-turn assertion fails."
+      ],
+      "assertions_changed": false
+    },
+    {
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 111 tests in 180.578s",
+        "OK"
+      ],
+      "warnings": "Existing NumPy matmul RuntimeWarnings and Pillow mode DeprecationWarning."
+    },
+    {
+      "command": "python3 -B tools/run_python_suite.py --shards 4 --audit-only --output-dir /private/tmp/mq20-python-audit",
+      "exit_code": 0,
+      "result_lines": [
+        "ISOLATION AUDIT: 234 modules; /private/tmp/mq20-python-audit/isolation-audit.md"
+      ],
+      "new_module_resources": []
+    },
+    {
+      "command": "ast.parse of mq20/*.py",
+      "exit_code": 0,
+      "result_lines": [
+        "MQ20_PYTHON_SYNTAX: PASS; files=13"
+      ]
+    }
+  ],
+  "protected_mq18_inputs": {
+    "spec/art_identity/maquettes/last_lamplighter/director_pose.json": {
+      "unchanged": true,
+      "sha256": "2683f9068d1a7ac0d83dd02b651de615d23ffdf3e1c8ee478c5468f91915ac3e"
+    },
+    "spec/art_identity/maquettes/last_lamplighter/dimensions.json": {
+      "unchanged": true,
+      "sha256": "6d5070de1374d530d8567ddfaf26b8c9faeb4dc511f0dfbe92d98a8efa632d56"
+    },
+    "spec/art_identity/maquettes/last_lamplighter/prompt_front.md": {
+      "unchanged": true,
+      "sha256": "314314a393c7538198200d420be289c1112878a4aac2fb99c9cd7822376bcd71"
+    },
+    "spec/art_identity/maquettes/last_lamplighter/prompt_rear.md": {
+      "unchanged": true,
+      "sha256": "a6475d018dae4128647e45d39df35159a252839b3cb8d4688f9ff237e80c9df0"
+    },
+    "spec/art_identity/maquettes/last_lamplighter/measurements.json": {
+      "unchanged": true,
+      "sha256": "890c22ca98be669a5cf915e94cb18bdaf4352d7fb336d38647219ef93c920983"
+    }
+  },
+  "shared_builder_changes": false,
+  "other_figure_regeneration": "Not applicable: no shared builder or foreign figure bytes changed.",
+  "fresh_native_capture_paths": [],
+  "logs": {
+    "mq20_final_checks.log.gz": {
+      "sha256": "78c774ff62b460e75800a764de1ada9ae2a25699faafecc8a1249ac59aa6f09c",
+      "uncompressed_bytes": 2478
+    },
+    "baseline_failures.log.gz": {
+      "sha256": "943eaa1d14af282fccdb485727d9a953726b165ae7cb7d86a81615ec7155c9a7",
+      "uncompressed_bytes": 13614
+    },
+    "focused_checks.log.gz": {
+      "sha256": "fe7e0a380cb578081fcc8dbdd056bbb13f557ce40f6a149fb87814ae97c5ec03",
+      "uncompressed_bytes": 43430
+    }
+  }
+}

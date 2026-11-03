@@ -7,7 +7,6 @@ const Spell = preload("res://scripts/elemental_spell_fx.gd")
 const Fixture = preload("res://tests/pixel_fx_fixture.gd")
 const Board = preload("res://scripts/combat_board_view.gd")
 const Chain = preload("res://scripts/chain_attack_fx.gd")
-const Tether = preload("res://scripts/enemy_mechanics/tether_view.gd")
 const SurfaceDependencies = preload("res://scripts/board_surface_render_dependencies.gd")
 const Runtime = preload("res://scripts/parallel_runtime.gd")
 const LineReference = preload("res://tests/pixel_fx_line_reference.gd")
@@ -56,7 +55,7 @@ func _run() -> void:
 	for element: String in Pixel.style()["ramps"]:
 		await _gradient(element)
 	await _cropped_dither()
-	for kind: String in ["conduction", "chain", "tether", "lightning"]:
+	for kind: String in ["conduction", "chain", "lightning"]:
 		await _line_core(kind)
 	await _line_fade_and_width()
 	for element: String in Fixture.ELEMENTS:
@@ -230,9 +229,6 @@ func _line_core(kind: String) -> void:
 		pixel.submit("lightning", _draw_conduction, [board, sample["presentation"]], Transform2D.IDENTITY)
 	elif kind == "chain":
 		pixel.submit("lightning", Chain.draw_hop, [LINE_FIXTURE["start"], LINE_FIXTURE["end"], LINE_FIXTURE["width"], LINE_PROGRESS, false], Transform2D.IDENTITY)
-	elif kind == "tether":
-		var points: PackedVector2Array = Tether.beam_points(LINE_FIXTURE["start"], LINE_FIXTURE["end"], LINE_FIXTURE["key"], 0)
-		pixel.submit("lightning", Pixel.draw_line_command, [points, Color(0.94, 0.96, 1.0, 1.0), Color(Tether.COLOR, 0.82)], Transform2D.IDENTITY)
 	else:
 		pixel.submit("lightning", Pixel.draw_line_command, [PackedVector2Array(LINE_FIXTURE["lightning_zigzag"]), Color(0.94, 0.96, 1.0, 0.72), Color(0.72, 0.65, 1.0, 0.82)], Transform2D.IDENTITY)
 		pixel.submit("lightning", Spell.impact, ["lightning", LINE_FIXTURE["lightning_center"], LINE_FIXTURE["width"], LINE_PROGRESS, 1.0, false, false], Transform2D.IDENTITY)
@@ -282,24 +278,6 @@ func _line_core(kind: String) -> void:
 	_expect(core_capture.save_png(OUTPUT.path_join(kind + "_core_mask.png")) == OK, "Save actual GPU core coverage")
 	if kind in ["conduction", "chain"]:
 		_expect(_connected(all_core), "%s GPU cores join across segments/tributaries" % kind)
-	if kind == "tether":
-		var halo_mask: Image = await _line_mask(lines, strokes, 2)
-		var halo_cells: Dictionary = _opaque_cells(halo_mask, lines.get("cell_rect").position)
-		var normal: Image = await _line_mask(lines, strokes, 0)
-		var halo: Color = strokes[0]["halo"]
-		var bad: int = 0
-		var on_cells: int = 0
-		var off_cells: int = 0
-		for cell: Vector2i in halo_cells:
-			if all_core.has(cell): continue
-			var beside: bool = false
-			for y: int in range(-1, 2):
-				for x: int in range(-1, 2): beside = beside or all_core.has(cell + Vector2i(x, y))
-			var expected: Color = Pixel.quantize(halo, cell, "lightning")
-			if not beside or _color_error(normal.get_pixelv(cell - lines.get("cell_rect").position), expected) > 1: bad += 1
-			on_cells += int(expected.a > 0.0)
-			off_cells += int(expected.a == 0.0)
-		_expect(bad == 0 and on_cells > 0 and off_cells > 0, "GPU tether halo stays one cell wide with the original Bayer phase")
 	await _line_mask(lines, strokes, 0)
 	# Round-3 reference at the identical authored frame. Raster differences and
 	# the newly requested below-floor fade are reported, not exact-byte gated.

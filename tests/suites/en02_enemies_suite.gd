@@ -4,7 +4,7 @@ const Glossary = preload("res://scripts/glossary.gd")
 
 const EngineScript = preload("res://scripts/combat_engine.gd")
 const Data = preload("res://scripts/game_data.gd")
-const Icefall = preload("res://scripts/enemy_mechanics/icefall.gd")
+const Icefall = preload("res://scripts/enemy_mechanics/marked_strike.gd")
 const Wind = preload("res://scripts/enemy_mechanics/wind.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Store = preload("res://scripts/progression_store.gd")
@@ -59,7 +59,16 @@ static func _schema(engine: RefCounted, expect: Callable) -> void:
 	var staged: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/enemies/wave_e1.json"))
 	var production: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/enemies.json"))
 	for type: String in ["hoarfrost_seer", "gale_herald"]:
-		expect.call(production[type] == staged[type], "%s director-owned entry is verbatim" % type)
+		var expected: Dictionary = staged[type].duplicate(true)
+		if type == "hoarfrost_seer":
+			for entry: Dictionary in expected["intents"]:
+				for action: Dictionary in entry["actions"]:
+					for key: String in ["terrain", "terrain_rounds", "pillar_shatter_damage"]: action.erase(key)
+					if str(action["type"]) == "icefall_mark":
+						action["tile_filter"] = "passable_without_terrain"
+						action["ignore_line_of_sight"] = true
+					if str(action["type"]) == "icefall_land": action["surface"] = "ice"
+		expect.call(production[type] == expected, "%s director-owned entry is verbatim" % type)
 		var definition: Dictionary = Data.enemy_def(type)
 		for field: String in ["name", "max_hp", "base_initiative", "reward_embers", "accent", "art_path", "intents"]:
 			expect.call(definition.has(field), "%s schema field %s" % [type, field])
@@ -106,21 +115,14 @@ static func _icefall(engine: RefCounted, expect: Callable) -> void:
 	expect.call(int(landed["enemies"][1]["hp"]) == 0 and int(landed["enemies"][2]["hp"]) == 15, "Icefall hits any enemy on its fixed marked tile")
 	expect.call(int(landed.get("death_bonus_card_plays_this_turn", 0)) == 0, "Enemy kill never grants a card-play bonus")
 	expect.call(int(landed["room_embers"]) == int(Data.enemy_def("crawler")["reward_embers"]), "Enemy kill preserves existing Ember rules")
-	expect.call(engine._terrain_index_at_tile(landed, Vector2i(4, 5)) >= 0 and engine._terrain_index_at_tile(landed, Vector2i(5, 5)) >= 0 and engine._terrain_index_at_tile(landed, Vector2i(6, 5)) < 0, "Pillars appear only on tiles unoccupied after damage")
-	expect.call(not engine.combat_line_of_sight(landed, Vector2i(4, 4), Vector2i(4, 6)), "Ice Pillar blocks line of sight")
-	var pillar_index: int = engine._terrain_index_at_tile(landed, Vector2i(4, 5))
-	expect.call(int(landed["terrain"][pillar_index]["rounds_left"]) == 2, "Pillar counts down at the end of the landing turn")
-	Icefall.end_turn(landed)
-	expect.call(engine._terrain_index_at_tile(landed, Vector2i(4, 5)) >= 0, "Pillar remains for the second turn boundary")
-	Icefall.end_turn(landed)
-	expect.call(engine._terrain_index_at_tile(landed, Vector2i(4, 5)) < 0 and engine.combat_line_of_sight(landed, Vector2i(4, 4), Vector2i(4, 6)), "Third turn boundary expires the pillar and clears sight")
+	for tile: Vector2i in tiles:
+		expect.call(Surfaces.element_at(landed, tile) == "ice" and engine._terrain_index_at_tile(landed, tile) < 0, "Icefall turns every marked tile into Ice ground, including occupied tiles")
+	expect.call(landed["player"]["hp"] == marked["player"]["hp"] and landed["player"]["pos"] == marked["player"]["pos"], "Icefall keeps its marks fixed after the hero moves away")
+	expect.call(not landed["enemies"][0].has("icefall_tiles"), "Icefall clears held marks after landing")
 	state = fixture(engine)
 	state["enemies"][0]["icefall_tiles"] = engine._vector2i_values([Vector2i(5, 5)])
 	var hero_hit: Dictionary = engine._resolve_enemy_action(state, 0, land)
-	expect.call(int(hero_hit["player"]["hp"]) == 45 and engine._terrain_index_at_tile(hero_hit, Vector2i(5, 5)) < 0, "Living hero takes five and receives no pillar underneath")
-	hero_hit["terrain"] = [{"id": "proof_pillar", "kind": "ice_pillar", "pos": Vector2i(6, 5), "rounds_left": 3, "shatter_damage": 2, "blocks_sight": true}]
-	var shattered: Dictionary = engine._force_move_actor(hero_hit, "player", -1, Vector2i(1, 0), 3, {}, true)
-	expect.call(int(shattered["player"]["hp"]) == 43 and engine._terrain_index_at_tile(shattered, Vector2i(6, 5)) < 0 and shattered["player"]["pos"] == Vector2i(5, 5), "Pillar collision takes exactly two, shatters, and stops the push")
+	expect.call(int(hero_hit["player"]["hp"]) == 45 and Surfaces.element_at(hero_hit, Vector2i(5, 5)) == "ice" and engine._terrain_index_at_tile(hero_hit, Vector2i(5, 5)) < 0, "Living hero takes five and stands on fresh Ice ground")
 	var rng := RandomNumberGenerator.new()
 	rng.seed = FIXTURE_SEED
 	for iteration: int in range(50):
@@ -154,15 +156,15 @@ static func _wind(engine: RefCounted, expect: Callable) -> void:
 	expect.call(after["player"]["pos"] == Vector2i(6, 5) and after["enemies"][1]["pos"] == Vector2i(7, 5) and after["enemies"][2]["pos"] == Vector2i(8, 5), "Downwind-first ordering opens a packed line without collision")
 	expect.call(after["enemies"][0]["pos"] == state["enemies"][0]["pos"], "Herald itself is anchored")
 	expect.call(forecast["state"]["player"] == after["player"] and forecast["state"]["enemies"] == after["enemies"], "Wind preview equals actual push resolution")
-	expect.call(int(after["wind"]["rounds_left"]) == 1 and int(state["wind"]["rounds_left"]) == 2, "Wind uses one round per enemy turn and preview is pure")
+	expect.call(int(after["wind"]["rounds_left"]) == 1 and int(state["wind"]["rounds_left"]) == 2, "Gust uses one round per source turn and preview is pure")
 	after = Wind.end_turn(engine, after, steps)
 	expect.call(not after.has("wind"), "Two turns exhaust wind")
 	state["player"]["pos"] = Vector2i(9, 5)
 	forecast = Wind.preview(engine, state, state["wind"])
 	after = Wind.end_turn(engine, state.duplicate(true), steps)
 	expect.call(int(after["player"]["hp"]) == 48 and forecast["collision_markers"].size() == 1 and int(forecast["collision_markers"][0]["damage"]) == 2, "Wind wall collision uses normal damage and preview marker")
-	expect.call(Wind.anchored(state, "enemy", {"type": "zekarion", "hp": 20}) and not Wind.anchored(state, "enemy", {"type": "crawler", "construct": true}) and Wind.anchored(state, "enemy", {"type": "crawler", "anchored": true}), "Bosses and Anchored resist wind; a runtime-only construct flag does not classify an enemy")
-	expect.call(Wind.anchored(state, "enemy", {"type": "storm_cantor"}) and not Wind.anchored(state, "enemy", {"type": "roc_fledgling"}) and not Wind.anchored(state, "enemy", {"type": "rime_whelp"}), "Guardian leaders resist wind but their cycle-driven helpers remain pushable")
+	expect.call(not Wind.anchored(state, "enemy", {"type": "zekarion", "hp": 20}) and not Wind.anchored(state, "enemy", {"type": "crawler", "construct": true}) and Wind.anchored(state, "enemy", {"type": "crawler", "anchored": true}), "Only existing Anchored status protects from Gust; a boss or construct label does not")
+	expect.call(not Wind.anchored(state, "enemy", {"type": "storm_cantor"}) and not Wind.anchored(state, "enemy", {"type": "roc_fledgling"}) and not Wind.anchored(state, "enemy", {"type": "rime_whelp"}), "Guardian rank and helper rank confer no Gust immunity")
 	state["player"]["anchored"] = true
 	expect.call(Wind.anchored(state, "player", state["player"]), "Explicit anchored hero resists wind")
 	state = fixture(engine, "gale_herald")
@@ -184,7 +186,7 @@ static func _persistence(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = fixture(engine, "gale_herald")
 	state["wind"] = {"direction": Vector2i(1, 0), "rounds_left": 2, "source_id": 1}
 	state["enemies"][0]["icefall_tiles"] = engine._vector2i_values([Vector2i(2, 3), Vector2i(3, 3)])
-	state["terrain"] = [{"id": "saved_ice", "kind": "ice_pillar", "pos": Vector2i(6, 5), "rounds_left": 2, "blocks_sight": true}]
+	state["terrain"] = [{"id": "saved_outcrop", "kind": "crag_outcrop", "pos": Vector2i(6, 5), "hp": 3, "max_hp": 3, "blocks_sight": true}]
 	var file: FileAccess = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	file.store_var({"combat_state": state})
 	file.close()
@@ -228,24 +230,27 @@ static func _presentation(engine: RefCounted, expect: Callable) -> void:
 	state["enemies"].append(enemy(2, Vector2i(6, 5)))
 	state = engine.GuardianRelicRules.force_group(engine, state, 1, {"type": "push", "push": 1}, Vector2i(5, 5))
 	expect.call(state["enemies"][0]["pos"] == Vector2i(7, 5) and state["enemies"][1]["pos"] == Vector2i(6, 5) and int(state["enemies"][0]["hp"]) == 12, "A carried enemy line collides with the Anchored Herald instead of carrying it")
-	state = fixture(engine)
-	state["terrain"] = [{"id": "aim_blocker", "kind": "ice_pillar", "pos": Vector2i(5, 3), "rounds_left": 3, "blocks_sight": true}]
-	var bolt_plan: Dictionary = engine.enemy_intent_plan(state, 0, intent("hoarfrost_seer", "rime_bolt"))
-	expect.call(not bool(bolt_plan["attack_available"]) and int(bolt_plan["blocking_terrain_index"]) == -1 and (bolt_plan["projected_attack"] as Array).is_empty(), "Untargetable terrain cannot become an impossible obstacle-clearing bolt")
-	expect.call(not engine.valid_targets_for_player_action(state, {"type": "ranged", "damage": 3, "range": 5}).has(Vector2i(5, 3)), "Ice Pillar terrain cannot be targeted by a ranged attack")
 	var scene: Control = SceneScript.new()
 	scene.ui_root = Control.new()
 	scene.add_child(scene.ui_root)
 	scene._turn_order_panel = PanelContainer.new()
 	scene.ui_root.add_child(scene._turn_order_panel)
-	scene._combat_state = fixture(engine, "gale_herald")
-	scene._combat_state["wind"] = {"direction": Vector2i(1, 0), "rounds_left": 2, "source_id": 1}
-	scene._run_state = {"mode": "combat"}
-	WindView.refresh_chip(scene)
-	var chip: PanelContainer = scene.ui_root.get_node("En02WindChip")
-	expect.call(chip.visible and chip.get_node("Contents/Title").text == "Wind · 2", "Wind HUD shows exact approved rounds text")
-	expect.call((chip.get_node("Contents/Direction") as Control).custom_minimum_size == Vector2(12, 12) and chip.get_node("Contents/Direction").heading == WindView.screen_direction(Vector2i(1, 0)), "Wind HUD includes a 12-pixel screen-relative arrow")
-	expect.call(chip.tooltip_text == "Wind\nAfter each of the next 2 enemy turns, Push every unit 1 tile downwind. Anchored units and bosses are immune.\ntoward the lower right.", "Wind HUD uses exact approved screen-relative direction wording")
+	var herald: Dictionary = fixture(engine, "gale_herald")
+	herald["wind"] = {"direction": Vector2i(1, 0), "rounds_left": 2, "source_id": 1}
+	preload("res://scripts/battlefield_rules/dispatcher.gd").adopt_wind(engine, herald)
+	var hud: PanelContainer = preload("res://scripts/battlefield_rule_hud.gd").new()
+	hud.set_combat_state(herald, engine)
+	expect.call(hud.visible and hud.find_child("RuleKicker", true, false).text == "BATTLEFIELD · 2 BEATS LEFT" and hud.find_child("RuleTitle", true, false).text == "GUST", "Rule panel names Gust and the beats left")
+	expect.call(hud.find_child("RuleSentence", true, false).text == "After each of the Gale Herald's turns, its wind Pushes everyone 1 tile.", "Rule panel shows the instance's approved sentence")
+	var next_beat: Dictionary = preload("res://scripts/battlefield_rules/dispatcher.gd").forecast(engine, herald)
+	expect.call(hud.find_child("RuleDirection", true, false).visible and hud.find_child("RuleDirection", true, false).heading == WindView.screen_direction(next_beat["direction"]), "Rule panel arrow points where the next beat blows (a pending Call's announcement)")
+	expect.call(hud.tooltip_text == "Gust\nOn its beat, the wind pushes every unit downwind.", "Rule panel tooltip is the Gust glossary entry")
+	herald["battlefield_rule"]["beats_remaining"] = 1
+	hud.set_combat_state(herald, engine)
+	expect.call(hud.find_child("RuleKicker", true, false).text == "BATTLEFIELD · 1 BEAT LEFT", "One beat left reads in the singular")
+	hud.set_combat_state({}, engine)
+	expect.call(not hud.visible, "Rule panel hides without a rule")
+	hud.free()
 	for type: String in ["hoarfrost_seer", "gale_herald"]:
 		expect.call(scene._turn_order_portrait_path({"kind": "enemy", "type": type}) == "res://assets/art/portraits/%s.png" % type, "%s actual turn-clock resolver uses explicit portrait" % type)
 	scene.free()
@@ -258,11 +263,10 @@ static func _presentation(engine: RefCounted, expect: Callable) -> void:
 	state["player"]["pos"] = Vector2i(2, 6)
 	state["enemies"][0]["icefall_tiles"] = engine._vector2i_values([Vector2i(5, 5)])
 	state = engine._resolve_enemy_action(state, 0, intent("hoarfrost_seer", "icefall_land")["actions"][0])
-	var first_pillar_id: String = str(state["terrain"][0]["id"])
-	for boundary: int in range(3): Icefall.end_turn(state)
+	expect.call(state["terrain"].is_empty() and Surfaces.element_at(state, Vector2i(5, 5)) == "ice", "Icefall leaves ground instead of a pillar")
 	state["enemies"][0]["icefall_tiles"] = engine._vector2i_values([Vector2i(5, 5)])
 	state = engine._resolve_enemy_action(state, 0, intent("hoarfrost_seer", "icefall_land")["actions"][0])
-	expect.call(str(state["terrain"][0]["id"]) != first_pillar_id, "Repeated landing produces unique terrain ids even through the legacy phase API")
+	expect.call(state["terrain"].is_empty() and Surfaces.element_at(state, Vector2i(5, 5)) == "ice", "Repeated landing refreshes Ice without terrain")
 	scene = SceneScript.new()
 	var animated: Dictionary = fixture(engine)
 	scene._apply_animation_step(animated, {"kind": "surface", "hidden_by_umbra": true, "en02_state_after": state})
@@ -311,25 +315,19 @@ static func _additional_boundaries(engine: RefCounted, expect: Callable) -> void
 	state["player"]["chilled"] = true
 	state["enemies"][0]["icefall_tiles"] = engine._vector2i_values([state["player"]["pos"]])
 	state = engine._resolve_enemy_action(state, 0, intent("hoarfrost_seer", "icefall_land")["actions"][0])
-	expect.call(int(state["player"]["freeze"]) == 1 and Surfaces.element_at(state, state["player"]["pos"]).is_empty(), "Elemental-room Icefall preserves existing Chilled to Freeze conversion")
+	expect.call(int(state["player"]["freeze"]) == 1 and Surfaces.element_at(state, state["player"]["pos"]) == "ice", "Elemental-room Icefall Freezes and leaves fresh Ice ground")
 	state = fixture(engine, "gale_herald")
 	state["room_element"] = "air"
 	state["wind"] = {"direction": Vector2i(1, 0), "rounds_left": 2, "source_id": 1}
 	state["enemies"].append(enemy(2, Vector2i(3, 3)))
 	state["enemies"][1]["intent"] = {"id": "proof_guard", "name": "Proof", "time": 4, "weight": 1, "actions": [{"type": "block", "amount": 1}]}
 	state = engine.resolve_enemy_turn_with_steps(state, 1)["state"]
-	expect.call(int(state["wind"]["rounds_left"]) == 1 and state["player"]["pos"] == Vector2i(6, 5), "Wind also resolves after another enemy's turn in an air room")
+	expect.call(int(state["wind"]["rounds_left"]) == 2 and state["player"]["pos"] == Vector2i(5, 5), "Gust waits for its source rather than another enemy turn in an air room")
 	state = fixture(engine, "gale_herald")
 	state["enemies"][0]["pos"] = Vector2i(4, 8)
 	Surfaces.place(state, Vector2i(4, 5), "fire")
 	Surfaces.place(state, Vector2i(6, 5), "fire")
 	expect.call(Wind.direction(engine, state, state["enemies"][0]) == Vector2i(-1, 0), "A tied minor axis still points toward the Herald")
-	state["terrain"] = [{"id": "expiry", "kind": "ice_pillar", "pos": Vector2i(6, 6), "rounds_left": 1, "blocks_sight": true}]
-	var before_expiry: Dictionary = state.duplicate(true)
-	steps.clear()
-	Icefall.end_turn(state, steps)
-	expect.call(steps.size() == 1 and steps[0]["en02_mechanic"] == "icefall_expiry" and (steps[0]["en02_state_after"]["terrain"] as Array).is_empty(), "Pillar expiry is presented before the following actor's movement")
-	expect.call(engine._terrain_target_losses(before_expiry, state).is_empty(), "Terrain expiry never becomes a displayed HP damage amount")
 	var board: Control = BoardScript.new()
 	board.combat_state = fixture(engine)
 	board.presentation = {"collision_markers": [{"actor_key": "player", "tile": Vector2i(9, 5), "blocked_tile": Vector2i(10, 5), "damage": 2}]}
@@ -351,44 +349,21 @@ static func _additional_boundaries(engine: RefCounted, expect: Callable) -> void
 
 static func _director_feedback(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = fixture(engine, "gale_herald")
-	state["wind"] = {"direction": Vector2i(1, 0), "rounds_left": 2, "source_id": 1}
-	state["terrain"] = [{"id": "last_round", "kind": "ice_pillar", "pos": Vector2i(6, 5), "rounds_left": 1, "blocks_sight": true, "shatter_damage": 2}]
-	var pillar: Dictionary = state["terrain"][0]
-	expect.call(not pillar.has("hp") and not pillar.has("max_hp") and engine._live_terrain(state).size() == 1, "Ice Pillars are live terrain with no hidden HP sentinel")
-	expect.call(not Surfaces.can_place(state, Vector2i(6, 5)), "Surface placement respects HP-free Ice Pillar occupancy")
-	expect.call(not engine.valid_targets_for_player_action(state, {"type": "melee", "damage": 3, "range": 1}).has(Vector2i(6, 5)), "Melee cannot target Ice Pillar terrain")
-	var undamaged: Dictionary = state.duplicate(true)
-	undamaged = engine._damage_terrain(undamaged, 0, 99)
-	expect.call(undamaged["terrain"] == state["terrain"], "Direct and area attack damage cannot remove an Ice Pillar")
-	var preview: Dictionary = Wind.preview(engine, state, state["wind"])
-	var steps: Array[Dictionary]
-	state = Wind.complete_turn(engine, state, steps)
-	expect.call(state["player"]["pos"] == Vector2i(5, 5) and int(state["player"]["hp"]) == 48 and (state["terrain"] as Array).is_empty(), "Last-round Ice Pillar blocks wind, deals two and shatters before terrain expiry")
-	expect.call(state["player"] == preview["state"]["player"] and preview["collision_markers"].size() == 1 and int(preview["collision_markers"][0]["damage"]) == 2, "Last-round pillar wind collision forecast equals resolution")
-	expect.call(steps.size() == 1 and steps[0]["en02_mechanic"] == "wind_push", "Wind snapshot presents the shatter without a second terrain-expiry step")
-	state = fixture(engine, "gale_herald")
-	state["wind"] = {"direction": Vector2i(1, 0), "rounds_left": 2, "source_id": 1}
-	state["terrain"] = [{"id": "away_from_wind", "kind": "ice_pillar", "pos": Vector2i(6, 6), "rounds_left": 1, "blocks_sight": true}]
-	steps.clear()
-	state = Wind.complete_turn(engine, state, steps)
-	expect.call(steps.size() == 2 and steps[0]["en02_mechanic"] == "wind_push" and steps[1]["en02_mechanic"] == "icefall_expiry", "Uncontacted terrain lifetime counts down after the wind animation snapshot")
 	var definitions: Dictionary = Data.enemies()
 	var fixture_id: String = CONSTRUCT_FIXTURE_ID
 	definitions[fixture_id] = {"construct": true}
-	expect.call(Wind.anchored(state, "enemy", {"type": fixture_id}), "Definition construct=true confers wind immunity without runtime flags")
+	expect.call(not Wind.anchored(state, "enemy", {"type": fixture_id}), "Definition construct=true alone confers no Gust immunity")
 	definitions[fixture_id]["construct"] = false
 	expect.call(not Wind.anchored(state, "enemy", {"type": fixture_id}), "Definition construct=false leaves the enemy wind eligible")
 	definitions.erase(fixture_id)
 	expect.call(IcefallView.PUFF_SECONDS == 0.30, "Frost puff uses approved 0.30 seconds after landing")
-	var board: Control = BoardScript.new()
-	expect.call(board._terrain_tooltip_text({"kind": "ice_pillar", "rounds_left": 2}) == "Ice Pillar\nBlocks movement and sight for 3 enemy turns. A unit forced into it takes 2 damage and shatters it.\n2 turns left", "Pillar tooltip uses exact lifetime and shatter wording")
-	expect.call(not board._should_show_terrain_health_bar({"kind": "ice_pillar", "rounds_left": 2}), "Ice Pillars have no terrain health bar")
-	board.free()
 	for axis: Vector2i in engine.CARDINAL_DIRECTIONS:
 		var heading: Vector2 = WindView.screen_direction(axis)
 		var quadrant: String = ("upper" if heading.y < 0 else "lower") + " " + ("right" if heading.x > 0 else "left")
 		expect.call(WindView.direction_name(axis) == "toward the " + quadrant, "Wind direction words match the isometric screen quadrant for %s" % axis)
-	expect.call(WindView.CHEVRON_HEAD_WIDTH == 14.0 and WindView.CHEVRON_STROKE == 2.0 and WindView.DRIFT_PIXELS_PER_SECOND == 40.0, "Wind chevrons use approved dimensions and drift speed")
-	expect.call(WindView.status_badges({"type": "gale_herald"})[0]["tooltip"] == "Anchored: the wind does not move it.", "Herald Anchored tooltip uses exact approved wording")
-	expect.call(Glossary.definition("icefall") == "Marks 3 tiles across your tile. Next turn they take the shown damage; empty ones become Ice Pillars.", "Icefall icon description uses approved wording")
-	expect.call(Glossary.definition("wind") == "After each of the next 2 enemy turns, Push every unit 1 tile downwind. Anchored units and bosses are immune.", "Wind icon description uses approved wording")
+	expect.call(WindView.CHEVRON_STROKE == 2.0 and WindView.GUST_SPEED == 1.5 and WindView.GUST_LENGTH == 2.6 and is_equal_approx(WindView.GUST_FORECAST_ALPHA, 0.4) and is_equal_approx(WindView.GHOST_TINT.a, 0.36) and is_equal_approx(WindView.GHOST_FORECAST_TINT.a, 0.22), "Wind chip arrow, gust streams and landing ghosts use the approved values")
+	var herald_badges: Array[Dictionary] = WindView.status_badges({"type": "gale_herald"})
+	expect.call(herald_badges.size() == 2 and str(herald_badges[0]["icon"]) == "wind" and herald_badges[0]["tooltip"] == "Calls the wind. Defeat it and the wind stops.", "Herald carries the wind sigil with the approved source tooltip")
+	expect.call(herald_badges.size() == 2 and herald_badges[1]["tooltip"] == "Anchored: the wind does not move it.", "Herald Anchored tooltip uses exact approved wording")
+	expect.call(Glossary.definition("icefall") == "These tiles take the hit on this enemy's next turn.", "Icefall aliases the approved Marked keyword")
+	expect.call(Glossary.definition("wind") == "On its beat, the wind pushes every unit downwind.", "Wind icon description uses approved wording")

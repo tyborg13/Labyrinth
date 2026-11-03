@@ -1,0 +1,68 @@
+test_incremental_submission (test_sb02_movement.Movement)
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/tests/test_sb02_movement.py", line 60, in test_incremental_submission
+    self.assertEqual(result.returncode, 0, result.stdout[-6000:])
+AssertionError: 1 != 0 : 3333333333},"signatures":{"count":120,"total_usec":5857,"usec_per_call":48.8083333333333}},"plan_max_us":7842}
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] texture_source_image (res://scripts/asset_loader.gd:600)
+       [1] build_alpha_polygons (res://scripts/asset_loader.gd:614)
+       [2] draw_body (res://scripts/enemy_mechanics/veil_view.gd:16)
+       [3] _draw_unit_body (res://scripts/combat_board_view.gd:8623)
+       [4] _draw_unit_bodies_for_tile (res://scripts/combat_board_view.gd:8550)
+       [5] _draw_scene_tile_render_layer (res://scripts/combat_board_view.gd:4597)
+       [6] _draw_board_commands (res://scripts/combat_board_view.gd:4389)
+       [7] _draw (res://scripts/combat_board_view.gd:4358)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] texture_source_image (res://scripts/asset_loader.gd:600)
+       [1] build_alpha_polygons (res://scripts/asset_loader.gd:614)
+       [2] draw_body (res://scripts/enemy_mechanics/veil_view.gd:16)
+       [3] _draw_unit_body (res://scripts/combat_board_view.gd:8623)
+       [4] _draw_unit_bodies_for_tile (res://scripts/combat_board_view.gd:8550)
+       [5] _draw_scene_tile_render_layer (res://scripts/combat_board_view.gd:4597)
+       [6] _draw_board_commands (res://scripts/combat_board_view.gd:4389)
+       [7] _draw (res://scripts/combat_board_view.gd:4358)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] texture_source_image (res://scripts/asset_loader.gd:600)
+       [1] build_alpha_polygons (res://scripts/asset_loader.gd:614)
+       [2] draw_body (res://scripts/enemy_mechanics/veil_view.gd:16)
+       [3] _draw_unit_body (res://scripts/combat_board_view.gd:8623)
+       [4] _draw_unit_bodies_for_tile (res://scripts/combat_board_view.gd:8550)
+       [5] _draw_scene_tile_render_layer (res://scripts/combat_board_view.gd:4597)
+       [6] _draw_board_commands (res://scripts/combat_board_view.gd:4389)
+       [7] _draw (res://scripts/combat_board_view.gd:4358)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] texture_source_image (res://scripts/asset_loader.gd:600)
+       [1] build_alpha_polygons (res://scripts/asset_loader.gd:614)
+       [2] draw_body (res://scripts/enemy_mechanics/veil_view.gd:16)
+       [3] _draw_unit_body (res://scripts/combat_board_view.gd:8623)
+       [4] _draw_unit_bodies_for_tile (res://scripts/combat_board_view.gd:8550)
+       [5] _draw_scene_tile_render_layer (res://scripts/combat_board_view.gd:4597)
+       [6] _draw_board_commands (res://scripts/combat_board_view.gd:4389)
+       [7] _draw (res://scripts/combat_board_view.gd:4358)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] texture_source_image (res://scripts/asset_loader.gd:600)
+       [1] build_alpha_polygons (res://scripts/asset_loader.gd:614)
+       [2] draw_body (res://scripts/enemy_mechanics/veil_view.gd:16)
+       [3] _draw_unit_body (res://scripts/combat_board_view.gd:8623)
+       [4] _draw_unit_bodies_for_tile (res://scripts/combat_board_view.gd:8550)
+       [5] _draw_scene_tile_render_layer (res://scripts/combat_board_view.gd:4597)
+       [6] _draw_board_commands (res://scripts/combat_board_view.gd:4389)
+       [7] _draw (res://scripts/combat_board_view.gd:4358)
+COLD_PLAN_CPU {"cap_us":4000,"cases":[{"cold_best_us":2927,"cold_max_us":5358,"cold_samples_us":[3642,3412,4241,5358,2927,2958],"individual_plan_max_us":841,"name":"mixed","warm_max_us":8994,"warm_median_us":497,"warm_samples_us":[633,448,260,594,8994,497,749,861,364,554,392,229,512,396,230,515,397,239]},{"cold_best_us":1101,"cold_max_us":1804,"cold_samples_us":[1486,1101,1147,1804,1525,1537],"individual_plan_max_us":154,"name":"air","warm_max_us":505,"warm_median_us":411,"warm_samples_us":[462,406,147,411,410,145,426,406,145,504,462,171,505,486,175,444,436,164]},{"cold_best_us":939,"cold_max_us":2207,"cold_samples_us":[1290,939,947,973,2207,1989],"individual_plan_max_us":22,"name":"earth","warm_max_us":1893,"warm_median_us":340,"warm_samples_us":[396,353,142,340,330,140,368,339,143,352,340,145,1806,1893,282,396,380,153]},{"cold_best_us":1046,"cold_max_us":5253,"cold_samples_us":[1649,1314,1144,5253,1046,1101],"individual_plan_max_us":79,"name":"fire","warm_max_us":2087,"warm_median_us":430,"warm_samples_us":[2087,636,203,487,430,164,403,384,156,1055,493,165,446,393,155,432,932,276]},{"cold_best_us":983,"cold_max_us":1328,"cold_samples_us":[1328,1159,1259,1017,994,983],"individual_plan_max_us":79,"name":"ice","warm_max_us":1743,"warm_median_us":367,"warm_samples_us":[1057,545,187,439,368,159,1743,574,157,367,371,152,360,360,148,360,368,149]},{"cold_best_us":1106,"cold_max_us":1701,"cold_samples_us":[1298,1133,1106,1119,1701,1375],"individual_plan_max_us":12,"name":"lightning","warm_max_us":15924,"warm_median_us":379,"warm_samples_us":[402,377,170,374,371,170,383,384,172,15924,3780,1225,392,377,172,379,441,203]},{"cold_best_us":1177,"cold_max_us":1366,"cold_samples_us":[1336,1177,1290,1366,1289,1246],"individual_plan_max_us":52,"name":"shadow","warm_max_us":4410,"warm_median_us":454,"warm_samples_us":[454,410,155,514,428,153,508,422,4410,472,462,176,455,754,216,489,445,163]}],"failures":[]}
+ERROR: Movement plan exceeds 4000 us: 7842
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/suites/board_hud_movement_suite.gd:90)
+       [1] cold_cases (res://tests/suites/board_hud_movement_suite.gd:157)
+STATUS MOVEMENT PROBE RESULT: FAIL
+

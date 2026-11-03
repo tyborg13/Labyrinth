@@ -4,11 +4,13 @@ extends SceneTree
 const Rig = preload("res://scripts/maquette_cutout_runtime/rig.gd")
 const Pixels = preload("res://scripts/maquette_cutout_runtime/pixel_presentation.gd")
 const Motion = preload("res://scripts/maquette_cutout_runtime/motion.gd")
+const RenderSettings = preload("render_settings.gd")
 const FPS: float = 60.0
 const PROOF_STEP_PX: float = 96.0
 var rows: Array[Dictionary]
 
 func _initialize() -> void:
+	RenderSettings.apply(root)
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	_run.call_deferred()
 

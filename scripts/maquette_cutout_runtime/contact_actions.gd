@@ -7,12 +7,13 @@ const Floating = preload("res://scripts/floating_combat_text.gd")
 
 static func handles(step: Dictionary, actor: Dictionary) -> bool:
 	var clips: Array = Action.Presentation.integration_for(str(actor.get("type", ""))).get("contact_playback_clips", [])
-	return not bool(step.get("cancelled", false)) and Action.clip_for(step, actor) in clips
+	return not bool(step.get("cancelled", false)) and (Action.clip_for(step, actor) in clips or (str(actor.get("type", "")) == "arc_thrall" and Action.clip_for(step, actor) == "tether"))
 
 static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: Dictionary) -> void:
 	if step.has("move_step"):
 		await scene._animate_move_step(state, step["move_step"])
 		state.merge(step["move_after"].duplicate(true), true)
+	var before_hit: Dictionary = state.duplicate(true) if step.has("en06_after") else {}
 	var type: String = str(actor["type"])
 	var key: String = str(step["actor_key"])
 	var clip: String = Action.clip_for(step, actor)
@@ -22,7 +23,10 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 	var reduced: bool = scene._reduced_motion_enabled()
 	var count: int = 1 if reduced else Action.frames_for(type, clip)
 	var presented_actor: Dictionary = Action.actor_for(state, key)
-	var direction: Vector2i = state["player"]["pos"] - presented_actor.get("pos", actor["pos"])
+	var origin: Vector2i = presented_actor.get("pos", actor["pos"])
+	var target: Vector2i = step.get("to", state["player"]["pos"])
+	if target == origin: target = state["player"]["pos"]
+	var direction: Vector2i = target - origin
 	var clock: Dictionary = {"contact": false}
 	var feedback: Dictionary = scene._enemy_phase_status_presentation(step) if str(step.get("kind", "")) == "block" else {}
 	var texts: Array = feedback.get("floating_texts", scene._floating_texts_for_step(step))
@@ -35,6 +39,8 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 		if phase >= contact:
 			if not clock["contact"]:
 				scene._apply_animation_step(state, step)
+				var cue: String = Action.contact_cue_for(step, actor)
+				if not cue.is_empty(): scene._sfx_router.request(cue)
 				# Existing combat pacing emits the effect/status cue on the first
 				# contact submission. A direct cue here would play it twice.
 				clock["contact"] = true
@@ -43,8 +49,11 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 			if feedback.is_empty(): shown["effect"] = step
 			shown["effect_progress"] = lerpf(Action.Fx.feedback_start_progress(step), 1.0, (phase - contact) / maxf(1.0 - contact, 0.000001))
 			shown["floating_texts"] = Floating.animate_entries(texts, elapsed, reduced)
+		if step.has("en06_after"): shown = scene._death_hold_presentation(before_hit, state, shown)
 		scene._render_board_state(state, shown, true)
 	)
 	feedback.merge({"maquette_explicit_clip": true, type + "_motion": {key: {"clip": clip, "phase": 1.0, "direction": direction}}, "floating_texts": texts}, true)
+	if step.has("en06_after"): feedback = scene._death_hold_presentation(before_hit, state, feedback)
 	await scene._animate_floating_text_presentation(state, feedback, seconds * (1.0 - contact))
+	if step.has("en06_after"): await scene._animate_turn_order_alongside_defeats(before_hit, state)
 	scene._render_board_state(state, {})

@@ -1,0 +1,2209 @@
+{
+  "round": "feedback 2",
+  "units": "source px",
+  "exception": {
+    "margin_px": 3.5,
+    "reason": "r3 crouch foreshortens the rear near thigh; director judges the native rear move frames (rr-35 feedback 2)"
+  },
+  "views": {
+    "front": {
+      "errors": [],
+      "move_leg_paths": [
+        {
+          "clip": "move",
+          "target": "foot_near",
+          "chain": {
+            "first": "thigh_near",
+            "second": "shin_near",
+            "target": "foot_near"
+          },
+          "segment_lengths": [
+            34.09810487769079,
+            42.27257688206386
+          ],
+          "samples": 1014,
+          "allowed_minimum_px": 12.174472004373072,
+          "allowed_maximum_px": 77.89809539494973,
+          "minimum_px": 65.76582160124451,
+          "maximum_px": 78.82010997536595,
+          "minimum_phase": 0.337,
+          "maximum_phase": 0.874
+        },
+        {
+          "clip": "move",
+          "target": "foot_far",
+          "chain": {
+            "first": "thigh_far",
+            "second": "shin_far",
+            "target": "foot_far"
+          },
+          "segment_lengths": [
+            31.84861113533838,
+            19.843425391045773
+          ],
+          "samples": 1014,
+          "allowed_minimum_px": 16.005185744292607,
+          "allowed_maximum_px": 52.72587725691184,
+          "minimum_px": 38.417990739560544,
+          "maximum_px": 55.13426707619546,
+          "minimum_phase": 0.136,
+          "maximum_phase": 0.27
+        }
+      ],
+      "presented_move": {
+        "frames": 51,
+        "target_checks": 102,
+        "errors": [],
+        "rows": [
+          {
+            "frame": 0,
+            "phase": 0.0,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 73.348483283569,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 46.52418725781247,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 1,
+            "phase": 0.02,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 70.49094399436632,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 43.963387641219,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 2,
+            "phase": 0.04,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 72.41194679730938,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 43.76059344548654,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 3,
+            "phase": 0.06,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 76.7975850829616,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 43.02808230169321,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 4,
+            "phase": 0.08,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 78.19402626345568,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 40.920589659098695,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 5,
+            "phase": 0.1,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 75.76846608435376,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 39.32013190914069,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 6,
+            "phase": 0.12,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 74.05089700929327,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 38.544360963606096,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 7,
+            "phase": 0.14,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 73.5318758444027,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 38.42630950901989,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 8,
+            "phase": 0.16,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 73.29791213695066,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 38.820546781961816,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 9,
+            "phase": 0.18,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 72.67971681579218,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 40.049556335993294,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 10,
+            "phase": 0.2,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 71.82253172299161,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 42.84643712388755,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 11,
+            "phase": 0.22,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 71.16841177266816,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 47.3134451154808,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 12,
+            "phase": 0.24,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 70.50007854865389,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 52.022361133196235,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 13,
+            "phase": 0.26,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 69.22013843695689,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.80776600345098,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 14,
+            "phase": 0.28,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 68.0559183555543,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.74313233584604,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 15,
+            "phase": 0.3,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 66.60915521112057,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 51.89164386995105,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 16,
+            "phase": 0.32,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 65.89651914519165,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 49.723352515446834,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 17,
+            "phase": 0.34,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 65.77119608890324,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 48.742025094085825,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 18,
+            "phase": 0.36,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 66.07777895442487,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 48.07418392114831,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 19,
+            "phase": 0.38,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 66.90331804327887,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 47.059097974767155,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 20,
+            "phase": 0.4,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 68.84401415753123,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 45.838465855534764,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 21,
+            "phase": 0.42,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 72.20397298152352,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 44.860188135808926,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 22,
+            "phase": 0.44,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 75.94428268156098,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 43.9115718668369,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 23,
+            "phase": 0.46,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 78.17751675193297,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 42.39192338059808,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 24,
+            "phase": 0.48,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 78.19402626345565,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 41.04799824739207,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 25,
+            "phase": 0.5,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 75.76846608435376,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 39.49034250217624,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 26,
+            "phase": 0.52,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 74.0508970092933,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 38.75632871154228,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 27,
+            "phase": 0.54,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 73.53187584440265,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 38.63517948363267,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 28,
+            "phase": 0.56,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 73.29791213695066,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 38.96264056695543,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 29,
+            "phase": 0.58,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 72.6797168157922,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 40.1059433159692,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 30,
+            "phase": 0.6,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 71.82253172299166,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 42.83908465655223,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 31,
+            "phase": 0.62,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 71.16841177266816,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 47.28290131988955,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 32,
+            "phase": 0.64,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 70.50007854865389,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 51.998899480899325,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 33,
+            "phase": 0.66,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 69.2201384369569,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.800184881664116,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 34,
+            "phase": 0.68,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 68.0559183555543,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.74313233584604,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 35,
+            "phase": 0.7,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 66.60915521112057,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 51.891643869951054,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 36,
+            "phase": 0.72,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 65.89651914519166,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 49.72335251544686,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 37,
+            "phase": 0.74,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 65.85792929863499,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 48.742025094085825,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 38,
+            "phase": 0.76,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 66.3540470859261,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 48.07418392114831,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 39,
+            "phase": 0.78,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 67.3231189528068,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 47.05909797476721,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 40,
+            "phase": 0.8,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 69.24144918560243,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 45.838465855534764,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 41,
+            "phase": 0.82,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 72.39983346966515,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 44.860188135808926,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 42,
+            "phase": 0.84,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 75.86294173776109,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 43.9115718668369,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 43,
+            "phase": 0.86,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 78.26930312691833,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 42.762490539127185,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 44,
+            "phase": 0.88,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 78.68182761925544,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 41.780060690769965,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 45,
+            "phase": 0.9,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 76.70771312549601,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 40.47375850369658,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 46,
+            "phase": 0.92,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 76.12796263402933,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 40.61165936946521,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 47,
+            "phase": 0.94,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 75.59986341332448,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 39.508991057684966,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 48,
+            "phase": 0.96,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 74.7710088739883,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 40.01960790802729,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 49,
+            "phase": 0.98,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 74.00181813575102,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 43.785817632099295,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 50,
+            "phase": 1.0,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 73.34848328356902,
+                "minimum_px": 12.174472004373072,
+                "margin_px": 4.0,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 46.5241872578125,
+                "minimum_px": 16.005185744292607,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "rear": {
+      "errors": [],
+      "move_leg_paths": [
+        {
+          "clip": "move",
+          "target": "foot_near",
+          "chain": {
+            "first": "thigh_near",
+            "second": "shin_near",
+            "target": "foot_near"
+          },
+          "segment_lengths": [
+            9.704905009839093,
+            31.114227955229747
+          ],
+          "samples": 1018,
+          "allowed_minimum_px": 24.909322945390656,
+          "allowed_maximum_px": 41.635515624370214,
+          "minimum_px": 25.09500074271054,
+          "maximum_px": 45.65109501279448,
+          "minimum_reach": {
+            "margin_px": 3.5,
+            "reason": "r3 crouch foreshortens the rear near thigh; director judges the native rear move frames (rr-35 feedback 2)"
+          },
+          "minimum_phase": 0.86,
+          "maximum_phase": 0.732
+        },
+        {
+          "clip": "move",
+          "target": "foot_far",
+          "chain": {
+            "first": "thigh_far",
+            "second": "shin_far",
+            "target": "foot_far"
+          },
+          "segment_lengths": [
+            28.79541738714687,
+            36.73834594126415
+          ],
+          "samples": 1018,
+          "allowed_minimum_px": 11.94292855411728,
+          "allowed_maximum_px": 66.84443859497925,
+          "minimum_px": 54.27955122080281,
+          "maximum_px": 69.55099527798593,
+          "minimum_phase": 0.308,
+          "maximum_phase": 0.923
+        }
+      ],
+      "presented_move": {
+        "frames": 51,
+        "target_checks": 102,
+        "errors": [],
+        "rows": [
+          {
+            "frame": 0,
+            "phase": 0.0,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 36.76955262170047,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 61.518289963229634,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 1,
+            "phase": 0.02,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 32.31981093727063,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 61.436036942423364,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 2,
+            "phase": 0.04,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 27.14982340021758,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 63.669348704657736,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 3,
+            "phase": 0.06,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 25.56673576084663,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 65.31457312879922,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 4,
+            "phase": 0.08,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 25.890246268292046,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 65.49275600504028,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 5,
+            "phase": 0.1,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 25.596392257334777,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 66.06574902523253,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 6,
+            "phase": 0.12,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 26.175907090843715,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 67.34865140831434,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 7,
+            "phase": 0.14,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 28.115086905244723,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 67.50355849729424,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 8,
+            "phase": 0.16,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 30.461120328519286,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 65.27343425950967,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 9,
+            "phase": 0.18,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 32.50653882545155,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 61.54058442398458,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 10,
+            "phase": 0.2,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 34.37185201946916,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 57.84207865473144,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 11,
+            "phase": 0.22,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 36.467721753425046,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 55.60344793983114,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 12,
+            "phase": 0.24,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 38.5609241926115,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.86421364099633,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 13,
+            "phase": 0.26,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 40.071693719036226,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.6142389174507,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 14,
+            "phase": 0.28,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 41.6846328701917,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.88261009927315,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 15,
+            "phase": 0.3,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 43.01539362976547,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.42985251783289,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 16,
+            "phase": 0.32,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 44.98768691798134,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.7098921879266,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 17,
+            "phase": 0.34,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 45.238112829788456,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 56.21839261457712,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 18,
+            "phase": 0.36,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 42.194159260965066,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 58.060895746432415,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 19,
+            "phase": 0.38,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 36.995473570311205,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 59.55788002430849,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 20,
+            "phase": 0.4,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 31.471358939049765,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 60.836287204906874,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 21,
+            "phase": 0.42,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 27.624801903213545,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 62.32815650792395,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 22,
+            "phase": 0.44,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 26.046150615956424,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 63.804489351687906,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 23,
+            "phase": 0.46,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 25.598852925438106,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 64.64396814687532,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 24,
+            "phase": 0.48,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 25.89024626829204,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 65.57243774029843,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 25,
+            "phase": 0.5,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 25.596392257334774,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 66.16719407570473,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 26,
+            "phase": 0.52,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 26.175907090843715,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 67.47018674661422,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 27,
+            "phase": 0.54,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 28.115086905244695,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 67.62267549459384,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 28,
+            "phase": 0.56,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 30.461120328519286,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 65.35804256195107,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 29,
+            "phase": 0.58,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 32.506538825451564,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 61.57729498605319,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 30,
+            "phase": 0.6,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 34.371852019469145,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 57.83663253596406,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 31,
+            "phase": 0.62,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 36.467721753425046,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 55.577460281379444,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 32,
+            "phase": 0.64,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 38.5609241926115,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.84196776007287,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 33,
+            "phase": 0.66,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 40.071693719036226,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.60663092801018,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 34,
+            "phase": 0.68,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 41.6846328701917,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.88261009927315,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 35,
+            "phase": 0.7,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 43.01539362976547,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.42985251783289,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 36,
+            "phase": 0.72,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 44.98768691798134,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 54.70989218792658,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 37,
+            "phase": 0.74,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 45.36412094309466,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 56.218392614577134,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 38,
+            "phase": 0.76,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 42.62550608346072,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 58.06089574643241,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 39,
+            "phase": 0.78,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 37.74935025964342,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 59.5578800243085,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 40,
+            "phase": 0.8,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 32.33150836986279,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 60.836287204906874,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 41,
+            "phase": 0.82,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 28.13275408328268,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 62.32815650792395,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 42,
+            "phase": 0.84,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 25.80801850199249,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 63.80448935168789,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 43,
+            "phase": 0.86,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 25.09500074271054,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 65.01706267259225,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 44,
+            "phase": 0.88,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 25.83694137603371,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 66.31541510085566,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 45,
+            "phase": 0.9,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 26.361835027486936,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 67.17850646640296,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 46,
+            "phase": 0.92,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 28.411675216150023,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 69.41053300369771,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 47,
+            "phase": 0.94,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 30.60063867044381,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 67.12007135830274,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 48,
+            "phase": 0.96,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 32.55288184646341,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 62.271485776964965,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 49,
+            "phase": 0.98,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 34.598916287200474,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 60.17841495112463,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          },
+          {
+            "frame": 50,
+            "phase": 1.0,
+            "checks": [
+              {
+                "target": "foot_near",
+                "distance_px": 36.76955262170047,
+                "minimum_px": 24.909322945390656,
+                "margin_px": 3.5,
+                "ok": true
+              },
+              {
+                "target": "foot_far",
+                "distance_px": 61.518289963229634,
+                "minimum_px": 11.94292855411728,
+                "margin_px": 4.0,
+                "ok": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rear_near_margin_four_mutation": {
+    "required_failure_observed": true,
+    "errors": [
+      "rear/move/foot_near: minimum reach 25.094914 px < 25.409323 px at 0.860219238"
+    ],
+    "move_path": {
+      "clip": "move",
+      "target": "foot_near",
+      "chain": {
+        "first": "thigh_near",
+        "second": "shin_near",
+        "target": "foot_near"
+      },
+      "segment_lengths": [
+        9.704905009839093,
+        31.114227955229747
+      ],
+      "samples": 3343,
+      "allowed_minimum_px": 25.409322945390656,
+      "allowed_maximum_px": 41.635515624370214,
+      "minimum_px": 25.09491438800111,
+      "maximum_px": 45.65109501279448,
+      "minimum_reach": {
+        "margin_px": 4,
+        "reason": "r3 crouch foreshortens the rear near thigh; director judges the native rear move frames (rr-35 feedback 2)"
+      },
+      "minimum_phase": 0.86021923828125,
+      "maximum_phase": 0.732
+    },
+    "reported_frame": {
+      "frame": 43,
+      "phase": 0.86,
+      "checks": [
+        {
+          "target": "foot_near",
+          "distance_px": 25.09500074271054,
+          "minimum_px": 24.909322945390656,
+          "margin_px": 3.5,
+          "ok": true
+        },
+        {
+          "target": "foot_far",
+          "distance_px": 65.01706267259225,
+          "minimum_px": 11.94292855411728,
+          "margin_px": 4.0,
+          "ok": true
+        }
+      ]
+    },
+    "refinement_note": "The failing 4 px control refines the unchanged path more finely than the passing 3.5 px gate."
+  }
+}

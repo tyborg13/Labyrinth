@@ -2,6 +2,7 @@ extends RefCounted
 
 const Data = preload("res://scripts/game_data.gd")
 const List = preload("res://scripts/magic_deck_list.gd")
+const Pile = preload("res://scripts/pile_dialog_view.gd")
 const Overlay = preload("res://scripts/magic_purge_overlay.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Halo = preload("res://scripts/magic_purge_halo.gd")
@@ -99,14 +100,14 @@ static func assert_grid(modal: Control, cards: Array, expect: Callable) -> void:
 	expect.call(panel.get_global_rect().get_center().is_equal_approx(Vector2(960, 540)), "Purge dialog stays centred")
 	var grid: Control = modal.find_child("MagicPurgeRows", true, false)
 	var card_width: float = grid.size.x - 24.0
-	var rows: int = ceili(float(entries.size()) / Overlay.MAX_COLUMNS)
-	expect.call(grid.custom_minimum_size.y == rows * 276.0 + maxi(0, rows - 1) * 20.0 + 24.0, "Purge grid reserves exactly 24px below its card rows")
+	var rows: int = ceili(float(entries.size()) / Overlay.columns_for(entries.size()))
+	expect.call(grid.custom_minimum_size.y == rows * Pile.CARD_SIZE.y + maxi(0, rows - 1) * 20.0 + 24.0, "Purge grid reserves exactly 24px below its card rows")
 	assert_heading(modal, cards.size(), expect)
 	expect.call(grid.get_child_count() == entries.size(), "One real card per sorted identity")
-	var columns: int = mini(entries.size(), Overlay.MAX_COLUMNS)
+	var columns: int = Overlay.columns_for(entries.size())
 	for index: int in range(entries.size()):
 		var cell: Control = grid.get_child(index)
-		expect.call(cell.get("card_id") == entries[index]["card_id"] and cell.size == Vector2(196, 276), "Grid preserves Character ordering and 196x276 cells")
+		expect.call(cell.get("card_id") == entries[index]["card_id"] and cell.size == Pile.CARD_SIZE, "Grid preserves Character ordering and readable cells")
 		var count: int = int(entries[index]["count"])
 		expect.call(int(cell.get_meta("magic_copy_count")) == count and cell.get("widget").card_id == entries[index]["card_id"], "Grid shows the owned card and duplicate count")
 		var layer_count: int = 0
@@ -116,15 +117,15 @@ static func assert_grid(modal: Control, cards: Array, expect: Callable) -> void:
 		BadgeChecks.assert_badge(cell, count, expect)
 		if index % columns > 0:
 			var previous: Control = grid.get_child(index - 1)
-			expect.call(is_equal_approx(cell.position.x - previous.position.x, 212.0), "Grid horizontal gap is exactly 16px")
+			expect.call(is_equal_approx(cell.position.x - previous.position.x, Pile.CARD_SIZE.x + Overlay.CARD_GAP.x), "Grid horizontal gap is exactly 16px")
 		var row_start: int = (index / columns) * columns
 		var row_count: int = mini(columns, entries.size() - row_start)
-		var row_width: float = row_count * 196.0 + (row_count - 1) * 16.0
+		var row_width: float = row_count * Pile.CARD_SIZE.x + (row_count - 1) * 16.0
 		expect.call(row_width <= card_width + FIT_EPSILON, "Every column fits beside the scrollbar and 24px badge padding")
 		var first: Control = grid.get_child(row_start)
 		expect.call(is_equal_approx(first.position.x, (card_width - row_width) * 0.5), "Each partial row is centred before the 24px right badge padding")
 		if index >= columns:
-			expect.call(is_equal_approx(cell.position.y, float(index / columns) * 296.0), "Grid vertical gap is exactly 20px")
+			expect.call(is_equal_approx(cell.position.y, float(index / columns) * (Pile.CARD_SIZE.y + Overlay.CARD_GAP.y)), "Grid vertical gap is exactly 20px")
 	for failure: String in BadgeChecks.viewport_failures(modal): expect.call(false, failure)
 	var scrim: ColorRect = modal.find_child("MagicPurgeBackdrop", true, false)
 	expect.call(scrim.color == Color(0.02, 0.02, 0.02, 0.72) and scrim.get_global_rect() == Rect2(0, 0, 1920, 1080), "Purge has the exact full-screen scrim")

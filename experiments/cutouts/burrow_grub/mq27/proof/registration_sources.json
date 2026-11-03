@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "views": [
+    {
+      "view": "front",
+      "job": "spec/art_identity/jobs/burrow_grub/mq27_front",
+      "expected_raw_sha256": null,
+      "expected_raw_pixel_sha256": "5165ad38055e6edac4d715f68c6eff5827317010c456f3dc6159653117b0b91e",
+      "ok": true,
+      "kind": "approved_raw_steps",
+      "source": "kit.json"
+    },
+    {
+      "view": "rear",
+      "job": "spec/art_identity/jobs/burrow_grub/mq27_rear",
+      "expected_raw_sha256": null,
+      "expected_raw_pixel_sha256": "90d68f4cb060d8add2edcf8a1b17726eb6498015298fcc92da93bfc6104909de",
+      "ok": true,
+      "kind": "approved_raw_steps",
+      "source": "kit.json"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+00:00.453  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/mq16-fresh/native/maquette.blend"
+00:04.561  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/mq16-fresh/rear_solo_16/rear_silhouette.png'
+00:08.353  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/mq16-fresh/rear_solo_16/rear_silhouette.png'
+00:12.129  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/mq16-fresh/rear_solo_16/rear_silhouette.png'
+00:15.605  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-23/spec/art_identity/maquettes/ashen_reaver/proof/mq23/mq16-fresh/rear_solo_16/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+MQ16_BOUNDED_CAPTURE: PASS; rear; tabard,pauldron_near,pauldron_far,falchion

@@ -1,0 +1,630 @@
+{
+  "tharokh": [
+    {
+      "n": 50,
+      "win_rate": 0.72,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 11.0,
+        "p10": 6,
+        "p90": 16
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 18.0,
+        "p10": 6,
+        "p90": 24
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "earth": 50
+      },
+      "beats_fired": 398,
+      "damage_to_enemies": 12,
+      "damage_to_player": 0,
+      "half_health_switches": 45,
+      "lieutenant_kills": 87,
+      "rung": 0,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.72,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 11.0,
+        "p10": 6,
+        "p90": 16
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 18.0,
+        "p10": 6,
+        "p90": 24
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "earth": 50
+      },
+      "beats_fired": 398,
+      "damage_to_enemies": 12,
+      "damage_to_player": 0,
+      "half_health_switches": 45,
+      "lieutenant_kills": 87,
+      "rung": 1,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.66,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 11.0,
+        "p10": 6,
+        "p90": 17
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 20.0,
+        "p10": 7,
+        "p90": 26
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "earth": 50
+      },
+      "beats_fired": 416,
+      "damage_to_enemies": 10,
+      "damage_to_player": 0,
+      "half_health_switches": 45,
+      "lieutenant_kills": 88,
+      "rung": 2,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.58,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 12.0,
+        "p10": 6,
+        "p90": 16
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 20.0,
+        "p10": 6,
+        "p90": 26
+      },
+      "turn_cap_reached": 2,
+      "biomes": {
+        "earth": 50
+      },
+      "beats_fired": 402,
+      "damage_to_enemies": 15,
+      "damage_to_player": 2,
+      "half_health_switches": 45,
+      "lieutenant_kills": 91,
+      "rung": 3,
+      "inside_band": true
+    }
+  ],
+  "vyraketh": [
+    {
+      "n": 50,
+      "win_rate": 0.18,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 22,
+        "p90": 24
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "fire": 50
+      },
+      "beats_fired": 65,
+      "damage_to_enemies": 0,
+      "damage_to_player": 0,
+      "half_health_switches": 36,
+      "lieutenant_kills": 89,
+      "rung": 0,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.18,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 20,
+        "p90": 24
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "fire": 50
+      },
+      "beats_fired": 69,
+      "damage_to_enemies": 0,
+      "damage_to_player": 0,
+      "half_health_switches": 36,
+      "lieutenant_kills": 89,
+      "rung": 1,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.18,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 20,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "fire": 50
+      },
+      "beats_fired": 72,
+      "damage_to_enemies": 0,
+      "damage_to_player": 0,
+      "half_health_switches": 36,
+      "lieutenant_kills": 89,
+      "rung": 2,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.28,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 18,
+        "p90": 24
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "fire": 50
+      },
+      "beats_fired": 66,
+      "damage_to_enemies": 0,
+      "damage_to_player": 0,
+      "half_health_switches": 42,
+      "lieutenant_kills": 88,
+      "rung": 3,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.34,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 5.0,
+        "p10": 4,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 12,
+        "p90": 24
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "fire": 50
+      },
+      "beats_fired": 75,
+      "damage_to_enemies": 0,
+      "damage_to_player": 0,
+      "half_health_switches": 46,
+      "lieutenant_kills": 48,
+      "rung": 4,
+      "inside_band": true
+    }
+  ],
+  "vaeloryx": [
+    {
+      "n": 50,
+      "win_rate": 0.12,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 22,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 50
+      },
+      "beats_fired": 181,
+      "damage_to_enemies": 169,
+      "damage_to_player": 30,
+      "half_health_switches": 31,
+      "lieutenant_kills": 36,
+      "rung": 0,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.08,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 50
+      },
+      "beats_fired": 175,
+      "damage_to_enemies": 164,
+      "damage_to_player": 30,
+      "half_health_switches": 31,
+      "lieutenant_kills": 35,
+      "rung": 1,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.08,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 50
+      },
+      "beats_fired": 175,
+      "damage_to_enemies": 164,
+      "damage_to_player": 30,
+      "half_health_switches": 31,
+      "lieutenant_kills": 35,
+      "rung": 2,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.18,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 20,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 50
+      },
+      "beats_fired": 171,
+      "damage_to_enemies": 180,
+      "damage_to_player": 44,
+      "half_health_switches": 36,
+      "lieutenant_kills": 34,
+      "rung": 3,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.36,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 12,
+        "p90": 24
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 50
+      },
+      "beats_fired": 195,
+      "damage_to_enemies": 188,
+      "damage_to_player": 34,
+      "half_health_switches": 42,
+      "lieutenant_kills": 29,
+      "rung": 4,
+      "inside_band": true
+    }
+  ],
+  "zekarion": [
+    {
+      "n": 50,
+      "win_rate": 0.22,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 15,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "lightning": 50
+      },
+      "beats_fired": 42,
+      "damage_to_enemies": 178,
+      "damage_to_player": 37,
+      "half_health_switches": 29,
+      "lieutenant_kills": 84,
+      "rung": 0,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.2,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 16,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "lightning": 50
+      },
+      "beats_fired": 41,
+      "damage_to_enemies": 173,
+      "damage_to_player": 37,
+      "half_health_switches": 28,
+      "lieutenant_kills": 85,
+      "rung": 1,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.24,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 13,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "lightning": 50
+      },
+      "beats_fired": 39,
+      "damage_to_enemies": 165,
+      "damage_to_player": 37,
+      "half_health_switches": 28,
+      "lieutenant_kills": 82,
+      "rung": 2,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.28,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 14,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "lightning": 50
+      },
+      "beats_fired": 39,
+      "damage_to_enemies": 162,
+      "damage_to_player": 47,
+      "half_health_switches": 28,
+      "lieutenant_kills": 82,
+      "rung": 3,
+      "inside_band": false
+    }
+  ],
+  "noctyrax": [
+    {
+      "n": 50,
+      "win_rate": 0.12,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 8.0,
+        "p10": 6,
+        "p90": 13
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "shadow": 50
+      },
+      "beats_fired": 103,
+      "damage_to_enemies": 4,
+      "damage_to_player": 0,
+      "half_health_switches": 0,
+      "lieutenant_kills": 137,
+      "rung": 0,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.12,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 9.0,
+        "p10": 6,
+        "p90": 13
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "shadow": 50
+      },
+      "beats_fired": 102,
+      "damage_to_enemies": 6,
+      "damage_to_player": 0,
+      "half_health_switches": 0,
+      "lieutenant_kills": 133,
+      "rung": 1,
+      "inside_band": false
+    },
+    {
+      "n": 50,
+      "win_rate": 0.32,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 9.0,
+        "p10": 6,
+        "p90": 13
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 20,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "shadow": 50
+      },
+      "beats_fired": 100,
+      "damage_to_enemies": 6,
+      "damage_to_player": 0,
+      "half_health_switches": 0,
+      "lieutenant_kills": 131,
+      "rung": 2,
+      "inside_band": true
+    }
+  ],
+  "iskaldra": [
+    {
+      "n": 50,
+      "win_rate": 0.36,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 50,
+        "median": 5.0,
+        "p10": 4,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 50,
+        "median": 24.0,
+        "p10": 13,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "ice": 50
+      },
+      "beats_fired": 57,
+      "damage_to_enemies": 217,
+      "damage_to_player": 8,
+      "half_health_switches": 36,
+      "lieutenant_kills": 84,
+      "rung": 0,
+      "inside_band": true
+    }
+  ]
+}

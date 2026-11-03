@@ -455,6 +455,7 @@ def _godot_version() -> str:
     try:
         result = subprocess.run(
             ["godot", "--version"],
+            env=dict(os.environ, LABYRINTH_CEL_LOOK=os.environ.get("LABYRINTH_CEL_LOOK", "off")),
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,

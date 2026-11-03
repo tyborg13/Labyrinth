@@ -1,0 +1,249 @@
+{
+  "defaults": {
+    "matte": [
+      30,
+      30,
+      36,
+      255
+    ],
+    "opaque_underlay": [
+      20,
+      255,
+      80,
+      255
+    ],
+    "transparent_underlay": [
+      255,
+      0,
+      190,
+      255
+    ]
+  },
+  "cells": [
+    {
+      "view": "front",
+      "piece": "loincloth_back",
+      "cell": [
+        0,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "leg_far",
+      "cell": [
+        1,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "foot_far",
+      "cell": [
+        2,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "arm_far",
+      "cell": [
+        3,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "falchion",
+      "cell": [
+        4,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "hand_far",
+      "cell": [
+        5,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "pelvis",
+      "cell": [
+        6,
+        0
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "leg_near",
+      "cell": [
+        0,
+        1
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "foot_near",
+      "cell": [
+        1,
+        1
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "loincloth",
+      "cell": [
+        2,
+        1
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "arm_near",
+      "cell": [
+        3,
+        1
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "hand_near",
+      "cell": [
+        4,
+        1
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "torso",
+      "cell": [
+        5,
+        1
+      ]
+    },
+    {
+      "view": "front",
+      "piece": "head",
+      "cell": [
+        6,
+        1
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "loincloth",
+      "cell": [
+        0,
+        2
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "leg_near",
+      "cell": [
+        1,
+        2
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "foot_near",
+      "cell": [
+        2,
+        2
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "arm_near",
+      "cell": [
+        3,
+        2
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "hand_near",
+      "cell": [
+        4,
+        2
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "pelvis",
+      "cell": [
+        5,
+        2
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "loincloth_back",
+      "cell": [
+        6,
+        2
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "leg_far",
+      "cell": [
+        0,
+        3
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "foot_far",
+      "cell": [
+        1,
+        3
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "arm_far",
+      "cell": [
+        2,
+        3
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "falchion",
+      "cell": [
+        3,
+        3
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "hand_far",
+      "cell": [
+        4,
+        3
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "torso",
+      "cell": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "rear",
+      "piece": "head",
+      "cell": [
+        6,
+        3
+      ]
+    }
+  ],
+  "file": "proof/seam_cpu/feedback2_tuck_references.png"
+}

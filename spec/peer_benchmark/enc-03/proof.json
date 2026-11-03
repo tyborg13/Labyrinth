@@ -1,0 +1,927 @@
+{
+  "task_id": "enc-03",
+  "branch": "codex/enc-03",
+  "source_head": "e3034e24fd8193daf717c691ba8939094927ac51",
+  "risk_tier": "standard",
+  "committed": false,
+  "acceptance_criteria": [
+    {
+      "criterion": "The Slagmaster lobs from 2-6 tiles and braces or scatters only when the hero is adjacent; both lob turns show the lob icon + actual scaled centre damage and the exact callout sentences, with the landing tiles marked from the aiming turn",
+      "status": "AI/intent and round-1 native proof accepted; new shared scrim headless verified; native after inspection pending",
+      "evidence": [
+        "730 focused checks including scaled damage, both cross counts and scrim geometry",
+        "Production fire Warband fixture: intersecting crest/caption fully covered at alpha 0.85",
+        "Shared caption lifecycle in normal and Reduced Motion; existing combat pacing suite pass",
+        "Director accepted prior native aiming/landing proof and measurements"
+      ],
+      "original_criterion": "The Slagmaster lobs from 2-6 tiles and braces or scatters only when the hero is adjacent; both lob turns show the lob icon + 5 and the exact callout sentences, with the landing tiles marked from the aiming turn"
+    }
+  ],
+  "requirements": [
+    {
+      "number": 1,
+      "status": "implemented and headless verified",
+      "evidence": "Only slag_mortar changed in enemy data; EN04 schema/data and fixed-board checks pass; old data mutation fails."
+    },
+    {
+      "number": 2,
+      "status": "intent and two-cross copy accepted by director; scrim headless verified; fresh native after inspection pending",
+      "evidence": "Actual scaled numbers and one/two-cross copy on both turns; badge unchanged; shared action caption scrim uses approved data; real intersecting-overlay regression, opacity/lifecycle and pacing checks pass."
+    },
+    {
+      "number": 3,
+      "status": "complete; accepted by director",
+      "evidence": "226 replays, 6 matched groups; raw reports archived; policy hash exactly matches meas-02."
+    }
+  ],
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "measurement_summary": {
+    "revision": 7,
+    "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+    "chosen_defaults": {
+      "workers": 6,
+      "timeout_seconds": 7200,
+      "cohort": "all applicable rooms in frozen 200-record baseline groups"
+    },
+    "groups": [
+      {
+        "tier": 1,
+        "cohort": "warband",
+        "phase": "before",
+        "n": 34,
+        "win_rate": 0.7941176470588235,
+        "hp_lost": {
+          "n": 34,
+          "median": 14.0,
+          "p10": 5,
+          "p90": 26
+        },
+        "turns": {
+          "n": 34,
+          "median": 6.5,
+          "p10": 5,
+          "p90": 11
+        },
+        "action_mix": {
+          "lob": 104,
+          "lob_mark": 63,
+          "lob_land": 41,
+          "brace": 133,
+          "scatter": 1,
+          "retreat": 135
+        },
+        "turn_caps": 1
+      },
+      {
+        "tier": 1,
+        "cohort": "warband",
+        "phase": "after",
+        "n": 34,
+        "win_rate": 0.7941176470588235,
+        "hp_lost": {
+          "n": 34,
+          "median": 15.0,
+          "p10": 5,
+          "p90": 24
+        },
+        "turns": {
+          "n": 34,
+          "median": 5.0,
+          "p10": 3,
+          "p90": 7
+        },
+        "action_mix": {
+          "lob": 117,
+          "lob_mark": 70,
+          "lob_land": 47,
+          "brace": 3,
+          "scatter": 1,
+          "retreat": 55
+        },
+        "turn_caps": 0
+      },
+      {
+        "tier": 1,
+        "cohort": "standard",
+        "phase": "before",
+        "n": 4,
+        "win_rate": 0.5,
+        "hp_lost": {
+          "n": 4,
+          "median": 24.5,
+          "p10": 7,
+          "p90": 26
+        },
+        "turns": {
+          "n": 4,
+          "median": 6.0,
+          "p10": 5,
+          "p90": 11
+        },
+        "action_mix": {
+          "lob": 7,
+          "lob_mark": 5,
+          "lob_land": 2,
+          "brace": 9,
+          "scatter": 1,
+          "retreat": 3
+        },
+        "turn_caps": 0
+      },
+      {
+        "tier": 1,
+        "cohort": "standard",
+        "phase": "after",
+        "n": 4,
+        "win_rate": 0.5,
+        "hp_lost": {
+          "n": 4,
+          "median": 24.5,
+          "p10": 7,
+          "p90": 26
+        },
+        "turns": {
+          "n": 4,
+          "median": 6.0,
+          "p10": 5,
+          "p90": 9
+        },
+        "action_mix": {
+          "lob": 14,
+          "lob_mark": 6,
+          "lob_land": 8,
+          "brace": 0,
+          "scatter": 1,
+          "retreat": 0
+        },
+        "turn_caps": 0
+      },
+      {
+        "tier": 2,
+        "cohort": "warband",
+        "phase": "before",
+        "n": 29,
+        "win_rate": 0.6206896551724138,
+        "hp_lost": {
+          "n": 29,
+          "median": 14,
+          "p10": 2,
+          "p90": 26
+        },
+        "turns": {
+          "n": 29,
+          "median": 8,
+          "p10": 2,
+          "p90": 14
+        },
+        "action_mix": {
+          "lob": 99,
+          "lob_mark": 62,
+          "lob_land": 37,
+          "brace": 127,
+          "scatter": 0,
+          "retreat": 134
+        },
+        "turn_caps": 0
+      },
+      {
+        "tier": 2,
+        "cohort": "warband",
+        "phase": "after",
+        "n": 29,
+        "win_rate": 0.6206896551724138,
+        "hp_lost": {
+          "n": 29,
+          "median": 18,
+          "p10": 2,
+          "p90": 26
+        },
+        "turns": {
+          "n": 29,
+          "median": 6,
+          "p10": 2,
+          "p90": 8
+        },
+        "action_mix": {
+          "lob": 126,
+          "lob_mark": 72,
+          "lob_land": 54,
+          "brace": 1,
+          "scatter": 0,
+          "retreat": 55
+        },
+        "turn_caps": 0
+      },
+      {
+        "tier": 2,
+        "cohort": "standard",
+        "phase": "before",
+        "n": 5,
+        "win_rate": 0.4,
+        "hp_lost": {
+          "n": 5,
+          "median": 24,
+          "p10": 8,
+          "p90": 26
+        },
+        "turns": {
+          "n": 5,
+          "median": 9,
+          "p10": 4,
+          "p90": 11
+        },
+        "action_mix": {
+          "lob": 18,
+          "lob_mark": 10,
+          "lob_land": 8,
+          "brace": 13,
+          "scatter": 0,
+          "retreat": 7
+        },
+        "turn_caps": 0
+      },
+      {
+        "tier": 2,
+        "cohort": "standard",
+        "phase": "after",
+        "n": 5,
+        "win_rate": 0.4,
+        "hp_lost": {
+          "n": 5,
+          "median": 24,
+          "p10": 12,
+          "p90": 26
+        },
+        "turns": {
+          "n": 5,
+          "median": 10,
+          "p10": 4,
+          "p90": 12
+        },
+        "action_mix": {
+          "lob": 34,
+          "lob_mark": 14,
+          "lob_land": 20,
+          "brace": 0,
+          "scatter": 0,
+          "retreat": 0
+        },
+        "turn_caps": 0
+      },
+      {
+        "tier": 3,
+        "cohort": "warband",
+        "phase": "before",
+        "n": 33,
+        "win_rate": 0.45454545454545453,
+        "hp_lost": {
+          "n": 33,
+          "median": 24,
+          "p10": 8,
+          "p90": 26
+        },
+        "turns": {
+          "n": 33,
+          "median": 4,
+          "p10": 2,
+          "p90": 13
+        },
+        "action_mix": {
+          "lob": 75,
+          "lob_mark": 46,
+          "lob_land": 29,
+          "brace": 137,
+          "scatter": 0,
+          "retreat": 144
+        },
+        "turn_caps": 0
+      },
+      {
+        "tier": 3,
+        "cohort": "warband",
+        "phase": "after",
+        "n": 33,
+        "win_rate": 0.3333333333333333,
+        "hp_lost": {
+          "n": 33,
+          "median": 24,
+          "p10": 9,
+          "p90": 26
+        },
+        "turns": {
+          "n": 33,
+          "median": 3,
+          "p10": 2,
+          "p90": 11
+        },
+        "action_mix": {
+          "lob": 156,
+          "lob_mark": 76,
+          "lob_land": 80,
+          "brace": 1,
+          "scatter": 0,
+          "retreat": 36
+        },
+        "turn_caps": 1
+      },
+      {
+        "tier": 3,
+        "cohort": "standard",
+        "phase": "before",
+        "n": 8,
+        "win_rate": 0.25,
+        "hp_lost": {
+          "n": 8,
+          "median": 25.0,
+          "p10": 20,
+          "p90": 26
+        },
+        "turns": {
+          "n": 8,
+          "median": 5.5,
+          "p10": 3,
+          "p90": 12
+        },
+        "action_mix": {
+          "lob": 27,
+          "lob_mark": 16,
+          "lob_land": 11,
+          "brace": 24,
+          "scatter": 0,
+          "retreat": 10
+        },
+        "turn_caps": 0
+      },
+      {
+        "tier": 3,
+        "cohort": "standard",
+        "phase": "after",
+        "n": 8,
+        "win_rate": 0.25,
+        "hp_lost": {
+          "n": 8,
+          "median": 24.0,
+          "p10": 10,
+          "p90": 26
+        },
+        "turns": {
+          "n": 8,
+          "median": 4.5,
+          "p10": 3,
+          "p90": 30
+        },
+        "action_mix": {
+          "lob": 69,
+          "lob_mark": 24,
+          "lob_land": 45,
+          "brace": 2,
+          "scatter": 1,
+          "retreat": 0
+        },
+        "turn_caps": 1
+      }
+    ],
+    "historical_baseline_check": {
+      "rooms": 113,
+      "different_results": 40,
+      "fields": [
+        "won",
+        "hp_lost",
+        "turns",
+        "decisions",
+        "intent_previews"
+      ]
+    }
+  },
+  "raw_measurements": [
+    {
+      "file": "spec/peer_benchmark/enc-03/measurements/after-t1-standard.json.gz",
+      "sha256": "ed9f6327e5d10f57102049bf920d7bce9390372758f8d14c4aa9e3e599fc1b10",
+      "n": 4
+    },
+    {
+      "file": "spec/peer_benchmark/enc-03/measurements/after-t1-warband.json.gz",
+      "sha256": "3a8accf275e4251528ee5f841a091fe8c52b8cc681e7374fae7c44bead9012fe",
+      "n": 34
+    },
+    {
+      "file": "spec/peer_benchmark/enc-03/measurements/after-t2-standard.json.gz",
+      "sha256": "26092a49b9d0151bd8464ff254fc819198d6616baa60a47ce089fbd0c4184f31",
+      "n": 5
+    },
+    {
+      "file": "spec/peer_benchmark/enc-03/measurements/after-t2-warband.json.gz",
+      "sha256": "1e117efb150eb2d53eb86c64139d5ad2f46161a327fddcc4fc9a11b84b629ccb",
+      "n": 29
+    },
+    {
+      "file": "spec/peer_benchmark/enc-03/measurements/after-t3-standard.json.gz",
+      "sha256": "a7e90af3a1273e0a75812862c2225ecaf901a6ed3c20067d747c9985b1c4e46a",
+      "n": 8
+    },
+    {
+      "file": "spec/peer_benchmark/enc-03/measurements/after-t3-warband.json.gz",
+      "sha256": "234de1729c51fa65f3545c52be8b83531214522fd6baa7f81b8293f51cc7b6a6",
+      "n": 33
+    },
+    {
+      "file": "spec/peer_benchmark/enc-03/measurements/before-t1-standard.json.gz",
+      "sha256": "e102d1d337ac54f49b29dc0fb79f9ebfdef237a0d512fd33a27dda9ac02e9dbf",
+      "n": 4
+    },
+    {
+      "file": "spec/peer_benchmark/enc-03/measurements/before-t1-warband.json.gz",
+      "sha256": "56c242d53b71a1411e9073284296238fefca1b6d70da8fc921eed7b8366d52ae",
+      "n": 34
+    },
+    {
+      "file": "spec/peer_benchmark/enc-03/measurements/before-t2-standard.json.gz",
+      "sha256": "2b6624a08f19f7cab99762282b2ad10998fe96fb108086125fc134b1f2f8e799",
+      "n": 5
+    },
+    {
+      "file": "spec/peer_benchmark/enc-03/measurements/before-t2-warband.json.gz",
+      "sha256": "2008506efa5c26e1ada168dbb30628eb68e7f93bbe3fb56fcfe098bf6d52dc75",
+      "n": 29
+    },
+    {
+      "file": "spec/peer_benchmark/enc-03/measurements/before-t3-standard.json.gz",
+      "sha256": "e0d72defc29569f3053e67d4321a586b6bf5b23a48e133bdb9b0e5b56d943da7",
+      "n": 8
+    },
+    {
+      "file": "spec/peer_benchmark/enc-03/measurements/before-t3-warband.json.gz",
+      "sha256": "7e950f24e3abe52bc7b07e3c48dfa03221eb11a428fe0a1bac73686a74ccdc6c",
+      "n": 33
+    }
+  ],
+  "checks": [
+    {
+      "name": "Focused geometry, AI and intent",
+      "status": "pass",
+      "exit_code": 0,
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/enc03_slag_test.gd",
+      "log": "output/enc-03/feedback-3/slag-focused.log",
+      "result_lines": [
+        "ENC03 SLAG TEST: PASS (730 checks; 0 failures)"
+      ]
+    },
+    {
+      "name": "Live scrim coverage and caption lifecycle",
+      "status": "pass",
+      "exit_code": 0,
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/enc03_fixture_test.gd",
+      "log": "output/enc-03/feedback-3/live-scrim.log",
+      "result_lines": [
+        "ENC03 CAPTION SCRIM: overlap area=596.051 min_alpha=0.85",
+        "ENC03 CAPTION LIFECYCLE: PASS (shared non-lob caption; normal and Reduced Motion)",
+        "ENC03 LOB PROBE: PASS (3 states; 0 failures)"
+      ]
+    },
+    {
+      "name": "Existing combat pacing",
+      "status": "pass",
+      "exit_code": 0,
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/combat_pacing_regression_test.gd",
+      "log": "output/enc-03/feedback-3/pacing-regression.log",
+      "result_lines": [
+        "COMBAT PACING REGRESSION TEST RESULT: PASS"
+      ]
+    },
+    {
+      "name": "UI identity",
+      "status": "pass",
+      "exit_code": 0,
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tests/test_ui_identity_lint.py",
+      "log": "output/enc-03/feedback-3/ui-identity.log",
+      "result_lines": [
+        "Ran 25 tests in 4.082s",
+        "OK"
+      ]
+    }
+  ],
+  "files_changed": [
+    "data/enemies.json",
+    "scripts/action_caption_scrim.gd",
+    "scripts/action_icon_library.gd",
+    "scripts/combat_board_view.gd",
+    "scripts/enemy_intent_compass.gd",
+    "scripts/enemy_mechanics/lob.gd",
+    "scripts/enemy_mechanics/lob_view.gd",
+    "scripts/intent_badges.gd",
+    "scripts/run_scene.gd",
+    "spec/card_balance_heuristic.md",
+    "spec/peer_benchmark/enc-03/feedback-1-proof.json",
+    "spec/peer_benchmark/enc-03/feedback-1.md",
+    "spec/peer_benchmark/enc-03/feedback-2-proof.json",
+    "spec/peer_benchmark/enc-03/feedback-2.md",
+    "spec/peer_benchmark/enc-03/feedback-3-proof.json",
+    "spec/peer_benchmark/enc-03/feedback-3.md",
+    "spec/peer_benchmark/enc-03/handoff.md",
+    "spec/peer_benchmark/enc-03/measurement.md",
+    "spec/peer_benchmark/enc-03/measurements/after-t1-standard.json.gz",
+    "spec/peer_benchmark/enc-03/measurements/after-t1-warband.json.gz",
+    "spec/peer_benchmark/enc-03/measurements/after-t2-standard.json.gz",
+    "spec/peer_benchmark/enc-03/measurements/after-t2-warband.json.gz",
+    "spec/peer_benchmark/enc-03/measurements/after-t3-standard.json.gz",
+    "spec/peer_benchmark/enc-03/measurements/after-t3-warband.json.gz",
+    "spec/peer_benchmark/enc-03/measurements/balance-assumptions.json",
+    "spec/peer_benchmark/enc-03/measurements/before-t1-standard.json.gz",
+    "spec/peer_benchmark/enc-03/measurements/before-t1-warband.json.gz",
+    "spec/peer_benchmark/enc-03/measurements/before-t2-standard.json.gz",
+    "spec/peer_benchmark/enc-03/measurements/before-t2-warband.json.gz",
+    "spec/peer_benchmark/enc-03/measurements/before-t3-standard.json.gz",
+    "spec/peer_benchmark/enc-03/measurements/before-t3-warband.json.gz",
+    "spec/peer_benchmark/enc-03/measurements/report.md",
+    "spec/peer_benchmark/enc-03/measurements/summary.json",
+    "spec/peer_benchmark/enc-03/proof.json",
+    "tests/enc03_fixture_test.gd",
+    "tests/enc03_lob_probe.gd",
+    "tests/enc03_slag_test.gd",
+    "tests/fixtures/enc03_slag_before.json",
+    "tests/headless_test_programs.json",
+    "tests/proof_contracts/enc03_lob_after.json",
+    "tests/proof_contracts/enc03_lob_before.json",
+    "tests/suites/en04_enemies_suite.gd",
+    "tests/suites/enc03_slag_suite.gd",
+    "tests/test_encounter_measurement.py",
+    "tests/windowed_test_allowlist.json",
+    "tools/card_heuristic.py",
+    "tools/enc03_measurement.gd",
+    "tools/enc03_measurement.py",
+    "tools/enc03_measurement_engine.gd",
+    "tools/enc03_proof.py"
+  ],
+  "chosen_defaults": {
+    "measurement_sample": "all applicable rows in frozen 200-record revision-7 tier/cohort groups",
+    "workers": 6,
+    "measurement_timeout_seconds": 7200,
+    "ai_seeds": 32,
+    "proof_max_turns": 12,
+    "proof_max_phase_activations": 100,
+    "settle_frames": 8,
+    "proof_timeout_seconds": 180,
+    "baseline_source": "e3034e24fd8193daf717c691ba8939094927ac51",
+    "evidence_directory": "output/enc-03/feedback-3",
+    "scaled_damage_test_depths": [
+      6,
+      18
+    ],
+    "FALLOFF_STEPS": 8,
+    "SCRIM_TEST_TEXT_SIZE": [
+      661,
+      30
+    ],
+    "CAPTION_TEST_FADE_ALPHA": 0.5
+  },
+  "TODO_DESIGN": [],
+  "open_issues": [
+    "Fresh native after-phase capture and visual inspection remain with the director."
+  ],
+  "notes": [
+    "One concurrent threats-at-rest rerun failed its existing timing budget; the final quiet run passes all 16251 assertions.",
+    "40 of 113 fresh before replays differ from historical baseline outcomes. All table comparisons use fresh matched before/after replays under the current integration.",
+    "Three measured turn caps count as losses. Ordinary subsets have N=4/5/8 per arm.",
+    "Full Python/Godot suites and peer review were not run, as explicitly assigned to the design owner.",
+    "No art, audio, icons or fonts were created or changed.",
+    "Director round-1 native before/after PASS evidence preserved. Feedback-2 lease was held by the director. Feedback-3 native after is assigned to the director; no windowed command run this round."
+  ],
+  "proof_for_design_owner": {
+    "capture_paths": [],
+    "expected_image_names": [
+      "after_pre_battle_1920x1080.png",
+      "after_aiming_1920x1080.png",
+      "after_landing_1920x1080.png"
+    ],
+    "windowed_commands": [
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/enc03_proof.py --phase after --result-manifest output/enc-03/feedback-3/director-after-visual-result.json"
+    ],
+    "inspection_fixture_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/inspection_fixture.py --task-id enc-03 --run-id enc-03-fire-warband --manifest output/enc-03/fire-warband-inspection.json --scenario warband --warband-biome fire --warband-tier 2 --warband-case pre_battle --launch"
+  },
+  "round_0_checks": [
+    {
+      "name": "Slag AI/presentation/measurement counters",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/enc03_slag_test.gd",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/focused-final.log",
+      "result_lines": [
+        "ENC03 SLAG TEST: PASS (663 checks; 0 failures)"
+      ]
+    },
+    {
+      "name": "Old data mutation",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/enc03_slag_test.gd -- --old-data-mutation",
+      "status": "expected failure",
+      "exit_code": 1,
+      "log": "output/enc-03/mutation-old-data-final.log",
+      "result_lines": [
+        "ENC03 SLAG TEST: FAIL (663 checks; 287 failures)"
+      ]
+    },
+    {
+      "name": "EN04 integration",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/en04_enemies_test.gd",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/en04-final.log",
+      "result_lines": [
+        "EN04 ENEMIES TEST RESULT: PASS (420 checks, 0 failures)"
+      ]
+    },
+    {
+      "name": "Intent preview",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/enemy_intent_preview_test.gd",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/intent-preview.log",
+      "result_lines": [
+        "ENEMY INTENT PREVIEW TEST RESULT: PASS"
+      ]
+    },
+    {
+      "name": "Intent continuity",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/enemy_intent_continuity_test.gd",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/intent-continuity.log",
+      "result_lines": [
+        "ENEMY INTENT CONTINUITY TEST RESULT: PASS (1882 checks, 0 failures)"
+      ]
+    },
+    {
+      "name": "Threats at rest and compass, quiet",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/threats_at_rest_test.gd",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/threats-at-rest-quiet.log",
+      "result_lines": [
+        "THREATS AT REST TEST RESULT: PASS (16251 assertions; includes compass suite)"
+      ]
+    },
+    {
+      "name": "Turn clock HUD",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/turn_clock_hud_test.gd",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/turn-clock-hud.log",
+      "result_lines": [
+        "TURN CLOCK HUD TEST RESULT: PASS"
+      ]
+    },
+    {
+      "name": "Encounter analytics",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/encounter_analytics_test.gd",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/encounter-analytics.log",
+      "result_lines": [
+        "ENCOUNTER CALLER METADATA: PASS (UI/headless; combat, Guardian, boss; start/end/rewards)",
+        "ENCOUNTER ANALYTICS: PASS (0 failures)"
+      ]
+    },
+    {
+      "name": "Analytics context equivalence",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/combat_analytics_context_equivalence_test.gd",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/analytics-equivalence.log",
+      "result_lines": [
+        "TEST RESULT: PASS \u2014 44 analytics-context/boundary comparisons (0 failures)"
+      ]
+    },
+    {
+      "name": "Surface analytics",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/surface_analytics_batch_test.gd",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/surface-analytics.log",
+      "result_lines": [
+        "TEST RESULT: PASS surface analytics batch and partial append recovery"
+      ]
+    },
+    {
+      "name": "Warband orders",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/warband_orders_test.gd",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/warband-orders.log",
+      "result_lines": [
+        "WARBAND ORDERS TEST RESULT: PASS (287 checks, 0 failures)"
+      ]
+    },
+    {
+      "name": "Elemental integration",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/element_retrofit_test.gd",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/element-retrofit.log",
+      "result_lines": [
+        "ELEMENT RETROFIT TEST RESULT: PASS (939 checks, 0 failures)"
+      ]
+    },
+    {
+      "name": "Current HUD badges",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/godot_task_runner.py --task-id enc-03 --stream -- godot --headless --path . --script tests/combat_hud_badges_test.gd",
+      "status": "pre-existing baseline failure",
+      "exit_code": 1,
+      "log": "output/enc-03/hud-badges.log",
+      "result_lines": [
+        "ERROR: Intents starts off with its semantic label intact",
+        "ERROR: ON retains semantic text and brightens the plate",
+        "ERROR: Controller focus must expose the complete inspection tooltip",
+        "COMBAT HUD BADGES TEST: FAIL"
+      ]
+    },
+    {
+      "name": "Baseline HUD badges",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/enc03_proof.py --phase before --headless-test tests/combat_hud_badges_test.gd",
+      "status": "same baseline failure confirmed; restored",
+      "exit_code": 1,
+      "log": "output/enc-03/baseline-hud-badges.log",
+      "result_lines": [
+        "ERROR: Intents starts off with its semantic label intact",
+        "ERROR: ON retains semantic text and brightens the plate",
+        "ERROR: Controller focus must expose the complete inspection tooltip",
+        "COMBAT HUD BADGES TEST: FAIL",
+        "ENC03 BEFORE SOURCE RESTORATION: PASS"
+      ]
+    },
+    {
+      "name": "Before fixture/actual baseline HUD",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/enc03_proof.py --phase before --check-only",
+      "status": "headless pass; no captures",
+      "exit_code": 0,
+      "log": "output/enc-03/before-probe-check.log",
+      "result_lines": [
+        "ENC03 LIVE HUD: aiming turn1 depth18 text='Lob Slag 7 / 5  Range 3\u20136' marks=0",
+        "ENC03 LIVE HUD: landing turn2 depth18 text='Lob Slag 7 / 5  Fire' marks=9",
+        "ENC03 LOB PROBE: PASS (3 states; 0 failures)",
+        "ENC03 BEFORE SOURCE RESTORATION: PASS"
+      ]
+    },
+    {
+      "name": "After fixture/actual HUD",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/enc03_proof.py --phase after --check-only",
+      "status": "headless pass; no captures",
+      "exit_code": 0,
+      "log": "output/enc-03/probe-check-final.log",
+      "result_lines": [
+        "ENC03 LIVE HUD: aiming turn1 depth18 text='Lob Slag 5' marks=9",
+        "ENC03 LIVE HUD: landing turn2 depth18 text='Lob Slag 5' marks=9",
+        "ENC03 LOB PROBE: PASS (3 states; 0 failures)"
+      ]
+    },
+    {
+      "name": "Measurement reporting/Python helpers",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 -m unittest discover -s tests -p test_encounter_measurement.py",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/measurement-tool-tests-final.log",
+      "result_lines": [
+        "Ran 18 tests in 1.257s",
+        "OK"
+      ]
+    },
+    {
+      "name": "Card heuristic checks",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 -m unittest discover -s tests -p 'test_card_heuristic*.py'",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/heuristic-tests.log",
+      "result_lines": [
+        "Ran 40 tests in 0.093s",
+        "OK"
+      ]
+    },
+    {
+      "name": "UI identity lint",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tests/test_ui_identity_lint.py",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/ui-identity-final.log",
+      "result_lines": [
+        "Ran 25 tests in 5.152s",
+        "OK"
+      ]
+    },
+    {
+      "name": "UI identity ratchet",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/ui_identity_lint.py check",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/ui-identity-check.log",
+      "result_lines": [
+        "PASS: UI identity lint (1569 sites within baseline + exceptions)"
+      ]
+    },
+    {
+      "name": "Icon identity",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tests/test_icon_identity_policy.py",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/icon-identity.log",
+      "result_lines": [
+        "Ran 8 tests in 0.179s",
+        "OK"
+      ]
+    },
+    {
+      "name": "Python isolation audit",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/run_python_suite.py --shards 4 --audit-only --output-dir output/enc-03/python-audit-final",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/python-audit-final.log",
+      "result_lines": [
+        "ISOLATION AUDIT: 227 modules; /Users/borgerding/workspace/Labyrinth.worktrees/enc-03/output/enc-03/python-audit-final/isolation-audit.md"
+      ]
+    },
+    {
+      "name": "Godot registration audit",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/test_registration_audit.py",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/registration-final.log",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (875 scripts; full suite=513, quarantined=29, windowed probe=333)"
+      ]
+    },
+    {
+      "name": "Corrected Warband measurements",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/enc03_measurement.py --cohort warband",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/measurement-final.log",
+      "result_lines": [
+        "ENC03 GROUP: PASS (after-t1-warband)",
+        "ENC03 GROUP: PASS (after-t2-warband)",
+        "ENC03 GROUP: PASS (before-t1-warband)",
+        "ENC03 GROUP: PASS (before-t2-warband)",
+        "ENC03 GROUP: PASS (after-t3-warband)",
+        "ENC03 GROUP: PASS (before-t3-warband)",
+        "ENC03 REPORT: PASS (226 replays; 6 matched groups); /Users/borgerding/workspace/Labyrinth.worktrees/enc-03/output/enc-03/measurement/report.md"
+      ]
+    },
+    {
+      "name": "Recompute archived report",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/enc03_measurement.py --report-only --output-dir spec/peer_benchmark/enc-03/measurements",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/archived-report-recompute.log",
+      "result_lines": [
+        "ENC03 REPORT: PASS (226 replays; 6 matched groups); /Users/borgerding/workspace/Labyrinth.worktrees/enc-03/spec/peer_benchmark/enc-03/measurements/report.md"
+      ]
+    }
+  ],
+  "feedback_round": 3,
+  "latest_feedback_proof": "spec/peer_benchmark/enc-03/feedback-3-proof.json",
+  "resolved_design_decisions": [
+    {
+      "name": "TODO_DESIGN_scaled_lob_copy",
+      "source": "director feedback 1",
+      "resolution": "Use the actual resolved scaled numbers on every lob surface."
+    },
+    {
+      "name": "TODO_DESIGN_callout_occlusion_treatment",
+      "source": "director feedback 3",
+      "resolution": "Existing soft HUD scrim, exact supplied dimensions/INK_0 alpha/falloff, behind shared caption; visibility/opacity inherited."
+    }
+  ],
+  "measurements_accepted_by_director": true,
+  "baseline_hud_failures": [
+    {
+      "test": "tests/combat_hud_badges_test.gd",
+      "line": 60,
+      "assertion": "Intents starts off with its semantic label intact",
+      "baseline_commit": "e3034e24fd8193daf717c691ba8939094927ac51",
+      "baseline_log": "output/enc-03/baseline-hud-badges.log",
+      "current_round_0_log": "output/enc-03/hud-badges.log"
+    },
+    {
+      "test": "tests/combat_hud_badges_test.gd",
+      "line": 65,
+      "assertion": "ON retains semantic text and brightens the plate",
+      "baseline_commit": "e3034e24fd8193daf717c691ba8939094927ac51",
+      "baseline_log": "output/enc-03/baseline-hud-badges.log",
+      "current_round_0_log": "output/enc-03/hud-badges.log"
+    },
+    {
+      "test": "tests/combat_hud_badges_test.gd",
+      "line": 191,
+      "assertion": "Controller focus must expose the complete inspection tooltip",
+      "baseline_commit": "e3034e24fd8193daf717c691ba8939094927ac51",
+      "baseline_log": "output/enc-03/baseline-hud-badges.log",
+      "current_round_0_log": "output/enc-03/hud-badges.log"
+    }
+  ],
+  "latest_feedback_status": "implemented; focused checks pass; director native after inspection pending",
+  "known_quarantined_tests": [
+    {
+      "path": "tests/combat_hud_badges_test.gd",
+      "category": "needs-design",
+      "reason": "Fixture expects INTENTS [I]/INTENTS ON [I] and the former controller-tooltip contract. These expectations predate the current HUD presentation. Needs the design owner's current UI contract; no copy or layout changed.",
+      "evidence_log": "output/qa-08/quarantine-check/combat_hud_badges_test.gd.log",
+      "follow_up": "design-01"
+    }
+  ]
+}

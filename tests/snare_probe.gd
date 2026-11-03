@@ -11,6 +11,7 @@ const Settings = preload("res://scripts/settings_store.gd")
 const PROOF_SIZE := Vector2i(1920, 1080)
 const PROOF_UI_SCALE: float = 1.0
 const OUTPUT: String = "user://probes/spx05/fire_tier2"
+const PRESSURE_OUTPUT: String = "user://probes/spx06/pressures_tier2"
 const SETTLE_SECONDS: float = 0.25
 const READY_TIMEOUT_SECONDS: float = 20.0
 const CAPTURE_VISION_BONUS: int = Combat.UMBRA_UNLIMITED_RADIUS
@@ -42,14 +43,18 @@ func _run() -> void:
 	canvas.gui_embed_subwindows = true
 	root.add_child(canvas)
 	canvas.notify_mouse_entered()
-	for study: String in ["first_turn", "first_seal", "kept_open", "escape"]: await _case(study)
-	var file := FileAccess.open(OUTPUT.path_join("captures.json"), FileAccess.WRITE)
+	if not OS.get_cmdline_user_args().has("--pressures-only"):
+		for study: String in ["first_turn", "first_seal", "kept_open", "escape"]: await _case(study)
+	for biome: String in ["earth", "fire", "air", "ice", "lightning", "shadow"]: await _pressure_case(biome)
+	var manifest_output: String = PRESSURE_OUTPUT if OS.get_cmdline_user_args().has("--pressures-only") else OUTPUT
+	var file := FileAccess.open(manifest_output.path_join("captures.json"), FileAccess.WRITE)
+	_expect(file != null, "Capture facts manifest is writable")
 	if file != null: file.store_string(JSON.stringify({"size": [1920, 1080], "ui_scale": PROOF_UI_SCALE, "seed": Fixture.FIXTURE_SEED, "capture_vision_bonus": CAPTURE_VISION_BONUS, "captures": captures, "errors": failures}, "\t"))
 	canvas.queue_free()
 	await process_frame
 	for failure: String in failures: push_error(failure)
 	print("Snare native proof: %d captures, %d failures" % [captures.size(), failures.size()])
-	print("Snare captures: " + ProjectSettings.globalize_path(OUTPUT))
+	print("Snare captures: " + ProjectSettings.globalize_path(manifest_output))
 	quit(0 if failures.is_empty() else 1)
 
 func _case(study: String) -> void:
@@ -87,18 +92,50 @@ func _case(study: String) -> void:
 	scene.queue_free()
 	await process_frame
 
-func _capture(study: String, facts: Dictionary) -> void:
+func _capture(study: String, facts: Dictionary, output: String = OUTPUT) -> void:
 	await process_frame
 	await RenderingServer.frame_post_draw
 	var image: Image = canvas.get_texture().get_image()
 	_expect(image.get_size() == PROOF_SIZE, "Capture is exactly 1920x1080")
-	var path: String = OUTPUT.path_join(study + ".png")
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
+	var path: String = output.path_join(study + ".png")
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output))
 	_expect(image.save_png(path) == OK, "Capture writes " + path)
 	var recorded: Dictionary = facts.duplicate(true)
 	recorded.merge({"path": path, "case": study})
 	captures.append(recorded)
 	print("Snare capture: " + ProjectSettings.globalize_path(path))
+
+func _pressure_case(biome: String) -> void:
+	var engine := Run.new()
+	var combat := Combat.new()
+	var state: Dictionary = Fixture.build(engine, combat, engine.create_new_run(Fixture.FIXTURE_SEED, Store.default_data()), {"snare_biome": biome, "snare_tier": 2, "snare_case": "pressure_turn3"})
+	var battle: Dictionary = state["combat_state"]
+	if biome != "shadow": battle["umbra"]["vision_bonus"] = CAPTURE_VISION_BONUS
+	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
+	scene.get_node("BoardUnderlay/CombatBoard").set_script(RenderProof.DrawCheckedBoard)
+	canvas.add_child(scene)
+	await process_frame
+	scene.call("_load_run_state", state)
+	if bool(scene.get("_dialogue_active")): scene.call("_close_dialogue")
+	await _await_units_drawn(scene.get("board_view"), battle, true)
+	await create_timer(SETTLE_SECONDS).timeout
+	var board: Control = scene.get("board_view")
+	var preview: Dictionary = Rules.Pressure.preview(combat, battle)
+	_expect(int(battle["objective"]["player_turns_completed"]) == 2 and combat.is_player_turn(battle), "Pressure capture is on player turn three")
+	_expect(board.presentation.get("snare_pressure_preview", {}) == Rules.Pressure.presentation_projection(preview), "Board shows exact live pressure preview")
+	if biome in ["earth", "fire"]: _expect(not preview["tiles"].is_empty(), "Tile pressure preview is nonempty")
+	elif biome == "air":
+		var panel: Control = scene.get("ui_root").get_node("BattlefieldRuleHud")
+		_expect(panel.visible and (panel.find_child("RuleTitle", true, false) as Label).text == "GUST" and (panel.find_child("RuleSentence", true, false) as Label).text.contains("headwind"), "Room rule panel names Gust and its headwind above the objective")
+	elif biome == "lightning": _expect(str(battle["battlefield_rule"]["rule"]) == "lightning_storm", "Lightning pressure uses the shared storm")
+	elif biome == "shadow":
+		var initial: Dictionary = battle.duplicate(true)
+		initial["snare_pressure"]["radius_loss"] = 0
+		_expect(int(battle["snare_pressure"]["radius_loss"]) == 1 and combat.effective_umbra_radius(battle) == maxi(1, combat.effective_umbra_radius(initial) - 1), "Shadow frame retains the already-shrunk normal section radius")
+		for exit: Dictionary in battle["objective"]["exits"]: _expect(board._board_tile_is_visible_to_player(exit["door_tile"]), "Every exit door is visible beyond sight")
+	await _capture(biome + "_turn3", {"biome": biome, "player_turn": 3, "preview": Rules.Pressure.presentation_projection(preview), "pressure_state": battle["snare_pressure"], "radius": combat.effective_umbra_radius(battle), "exits": battle["objective"]["exits"]}, PRESSURE_OUTPUT)
+	scene.queue_free()
+	await process_frame
 
 func _sealbinder_tooltip(scene: Node, battle: Dictionary, facts: Dictionary) -> void:
 	var board: Control = scene.get("board_view")
@@ -159,11 +196,14 @@ func _strings(values: Array) -> Array[String]:
 func _expect(ok: bool, message: String) -> void:
 	if not ok: failures.append(message)
 
-func _await_units_drawn(board: Node, state: Dictionary) -> void:
+func _await_units_drawn(board: Node, state: Dictionary, visible_only: bool = false) -> void:
 	var deadline: int = Time.get_ticks_msec() + int(READY_TIMEOUT_SECONDS * 1000.0)
 	var errors: Array[String]
+	var readiness_state: Dictionary = state.duplicate(false)
+	if visible_only:
+		readiness_state["enemies"] = (state["enemies"] as Array).filter(func(enemy: Dictionary) -> bool: return Combat.new().is_enemy_visible_to_player(state, enemy))
 	while Time.get_ticks_msec() < deadline:
-		errors = RenderProof.renderer_readiness_errors(board, state)
+		errors = RenderProof.renderer_readiness_errors(board, readiness_state)
 		if errors.is_empty():
 			board.drawn_unit_keys.clear()
 			board.call("_queue_dynamic_redraw")
@@ -173,7 +213,7 @@ func _await_units_drawn(board: Node, state: Dictionary) -> void:
 			var required: Array[String]
 			required.append("player")
 			for enemy: Dictionary in state["enemies"]:
-				if int(enemy["hp"]) > 0: required.append("enemy_%d" % int(enemy["id"]))
+				if int(enemy["hp"]) > 0 and (not visible_only or Combat.new().is_enemy_visible_to_player(state, enemy)): required.append("enemy_%d" % int(enemy["id"]))
 			for key: String in required:
 				if not board.drawn_unit_keys.has(key): errors.append(key + " body was not drawn")
 			if errors.is_empty(): return

@@ -14,7 +14,7 @@ var rows: Array[RichTextLabel]
 var hovered: bool = false
 var _skin := UiSkin.new()
 
-func configure(index: int, definition: Dictionary, lines: Array[String], reason: String, effect_size: int) -> void:
+func configure(index: int, definition: Dictionary, lines: Array[Dictionary], reason: String, effect_size: int) -> void:
 	choice_id = str(definition["id"])
 	choice_label = str(definition["label"])
 	available = reason.is_empty()
@@ -48,8 +48,9 @@ func configure(index: int, definition: Dictionary, lines: Array[String], reason:
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(title)
 	var y: float = 13 + title.get_minimum_size().y
-	for line: String in lines:
-		var row: RichTextLabel = Text.label(line, 472, effect_size, Palette.TEXT_2, false, true)
+	for line: Dictionary in lines:
+		var row: RichTextLabel = Text.label(str(line["text"]), 472, effect_size, Palette.TEXT_2, false, true)
+		row.set_meta("event_preview", line.duplicate(true))
 		content.add_child(row)
 		row.position = Vector2(58, y + 4)
 		y += 4 + Text.height(row)
@@ -60,7 +61,14 @@ func configure(index: int, definition: Dictionary, lines: Array[String], reason:
 		explanation.position = Vector2(58, y + 3)
 		y += 3 + Text.height(explanation)
 		rows.append(explanation)
-	custom_minimum_size = Vector2(548, maxf(78, y + 13))
+	# Boxes keep one minimum height so the list holds its rhythm; a choice with
+	# nothing under its title (most "Leave" choices) centres in that height
+	# instead of leaving an empty band below it.
+	var height: float = maxf(78, y + 13)
+	var inset: float = (height - (y + 13)) * 0.5
+	for child: Node in content.get_children():
+		(child as Control).position.y += inset
+	custom_minimum_size = Vector2(548, height)
 	size = custom_minimum_size
 	plate.modulate.a = 1.0 if available else 0.5
 	set_meta("key_number", index + 1)
@@ -70,7 +78,7 @@ func configure(index: int, definition: Dictionary, lines: Array[String], reason:
 	focus_exited.connect(refresh_emphasis)
 	# The key disc sits above the retained choice material, under the content.
 	content.draw.connect(func() -> void:
-		var center := Vector2(29, 27)
+		var center := Vector2(29, 27 + inset)
 		content.draw_circle(center, 13, Palette.INK_1)
 		content.draw_arc(center, 13, 0, TAU, 40, Palette.GOLD_DIM, 1, true)
 		var font: Font = Typography.ui_font()

@@ -1,0 +1,184 @@
+{
+  "complete": false,
+  "native_windowed_run": false,
+  "full_suite_run": false,
+  "focused_core": {
+    "log": "/private/tmp/labyrinth_codex/rr37-feedback1-focused-core.log",
+    "sha256": "0ccc4c716c1ec2fc4fef9fe26ed75c2dfc31c885288d49b18ff3c695acab6881",
+    "result_lines": [
+      "Ran 14 tests in 167.212s",
+      "OK",
+      "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+      "MAQUETTE PRODUCTION LOGIC: PASS (1634 frames)",
+      "MAQUETTE PRODUCTION LOGIC: PASS (1634 frames)"
+    ]
+  },
+  "production_frame_regression": {
+    "log": "/private/tmp/labyrinth_codex/rr37-feedback1-regression-final.log",
+    "sha256": "d858c3283f1fefc2b968934d644c71c93578bc93bedf927ef9181871bfa3d72e",
+    "result_lines": [
+      "RR37 FRONT PRODUCTION FRAMES: FAIL (512 frames; 59 failures; software raster, native runtime poses)",
+      "RR37 FRONT FAILURE CLIPS: {'death': 59}",
+      "RR37 REAR PRODUCTION FRAMES: PASS (512 frames; 0 failures; software raster, native runtime poses)",
+      "Ran 5 tests in 215.055s",
+      "FAILED (failures=1)",
+      "RR37 REJECTED NATIVE REGRESSION: PASS (6 rejected frames + 1 unchanged rear-idle control; components and joint seams detected)",
+      "RR37 REJECTED PRODUCTION RASTER: PASS (detects 6 components > rest 1)"
+    ]
+  },
+  "reference_sets": {
+    "log": "/private/tmp/labyrinth_codex/rr37-feedback1-references.log",
+    "sha256": "1c1ec73b135b849a535093b3e3020650593a9e4f496a373a44aee47c39aa535a",
+    "result_lines": [
+      "Ran 168 tests in 270.383s",
+      "OK"
+    ]
+  },
+  "art_density_icon": {
+    "log": "/private/tmp/labyrinth_codex/rr37-feedback1-art-density.log",
+    "sha256": "148103707ddfacf092911b0b983ebc3ed3f9e446e90824aa8f6ea29cd55fc335",
+    "result_lines": [
+      "Ran 166 tests in 133.930s",
+      "FAILED (failures=1)"
+    ]
+  },
+  "current_density_rest_binding": {
+    "log": "/private/tmp/labyrinth_codex/rr37-feedback1-density-rest-binding.log",
+    "sha256": "f769dbb26bf2d1b3030368531bc24550ddfa53e166d4a95c17010044d53549aa",
+    "result_lines": [
+      "AssertionError: 1 != 0 : rest rebake needed: assets/units/frostglass_lancer_cutout/humanoid_v2/front/rest.png: rest pixels changed since recorded rebake",
+      "rest rebake needed: assets/units/frostglass_lancer_cutout/humanoid_v2/rear/rest.png: rest pixels changed since recorded rebake",
+      "Ran 1 test in 9.371s",
+      "FAILED (failures=1)"
+    ]
+  },
+  "source_gates": {
+    "log": "/private/tmp/labyrinth_codex/rr37-feedback1-sourcegates.log",
+    "sha256": "5a5d5a1d1a0999f815d768b706b8cf85d9a97aba909b9fab50ff9934735e6ce4",
+    "result_lines": [
+      "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+      "RR37 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+      "RR37 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6"
+    ]
+  },
+  "production_gates": {
+    "log": "/private/tmp/labyrinth_codex/rr37-feedback1-productiongates.log",
+    "sha256": "5a5d5a1d1a0999f815d768b706b8cf85d9a97aba909b9fab50ff9934735e6ce4",
+    "result_lines": [
+      "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+      "RR37 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+      "RR37 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6"
+    ]
+  },
+  "sfx": [
+    {
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback1-sfx0.log",
+      "sha256": "304c70ecee979096e093b7015de4b4ca41e0cf11e3e420a67ca939d1ff7fc878",
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)"
+      ]
+    },
+    {
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback1-sfx1.log",
+      "sha256": "a465277cbfe83b55d93615703446da783ba5281a336c19d6d24e1b0ba1d90e6f",
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)"
+      ]
+    },
+    {
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback1-sfx2.log",
+      "sha256": "68f80b05e327bfb364ecf3b7998202d2664142fd5d9f0e800f1f43b287f0723e",
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (1688 observations, 0 failures)"
+      ]
+    }
+  ],
+  "registration_audit": {
+    "log": "/private/tmp/labyrinth_codex/rr37-feedback1-audit.log",
+    "sha256": "2b1a7adb25e1c29054be6051a329e30b280c01af8e708ba178f7711401f174ba",
+    "result_lines": [
+      "TEST REGISTRATION AUDIT: PASS (814 scripts; full suite=461, quarantined=29, windowed probe=324)"
+    ]
+  },
+  "native_probe_load_only": {
+    "log": "/private/tmp/labyrinth_codex/rr37-feedback1-production-probe-load.log",
+    "sha256": "9fd9d11424189919bb1ffcd8a55d96978db33ea5c473dea126d180612a3e18ba",
+    "result_lines": [
+      "RR37 NATIVE PROBE LOAD: PASS"
+    ]
+  },
+  "shadow_records": {
+    "log": "/private/tmp/labyrinth_codex/rr37-feedback1-shadow.log",
+    "sha256": "ada451ec2762dbf69f44bb23d2529d5e8068c62afdcad300766d33797149e938",
+    "result_lines": [
+      "RR37 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+    ]
+  },
+  "action_capacity": {
+    "log": "/private/tmp/labyrinth_codex/rr37-feedback1-capacity.log",
+    "sha256": "9915bf37098343f7191838eb4f3ae2dc332bfe4298fac85b34894ab4d2d3d2ca",
+    "result_lines": [
+      "RR37 ACTION CAPACITY: PASS ([-267, -255, 534, 279]; zero canvas-edge pixels; CPU construction)"
+    ]
+  },
+  "preservation": {
+    "log": "/private/tmp/labyrinth_codex/rr37-feedback1-preservation.log",
+    "sha256": "239fb0dcb0aec9ffed02350c3e2cbc77a85a26264662320bd7c7556f6e22d27a",
+    "result_lines": [
+      "RR37 PRESERVATION: PASS (5554 protected files; other rigs byte-identical)"
+    ]
+  },
+  "open_issues": {
+    "released_spear_component_policy": {
+      "clip": "death",
+      "release_at": 0.3,
+      "first_failed_frame": 37,
+      "last_failed_frame": 95,
+      "failed_frames": 59,
+      "components": 2,
+      "rest_components": 1,
+      "policy": "strict; unchanged; director clarification pending"
+    },
+    "native_rest_rebake": [
+      "front",
+      "rear"
+    ],
+    "native_acceptance": "all seven stages require director windowed rerun"
+  },
+  "TODO_DESIGN": {},
+  "chosen_debug_defaults": {
+    "retained_native_poses": 7,
+    "empty_fixture_px": 8,
+    "empty_fixture_mutation_yx": [
+      3,
+      3
+    ],
+    "source_samples_xy": {
+      "boot": [
+        77,
+        224
+      ],
+      "belt": [
+        110,
+        115
+      ]
+    },
+    "continuation_pass_guard": 16,
+    "raster_coverage_margin_px": 1
+  },
+  "derived_material_minimum": {
+    "rule": "ceil(treated visible-rest outline cutoff) + 1 encoded RGB rounding unit",
+    "front": 5,
+    "rear": 1
+  },
+  "files_manifest": "FILES_CHANGED.txt",
+  "windowed_commands": [
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh density",
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh rest",
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh native",
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh sheets",
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh idle",
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh production",
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh review"
+  ]
+}

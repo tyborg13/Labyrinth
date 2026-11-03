@@ -1,0 +1,221 @@
+{
+  "status": "complete_uncommitted",
+  "source_head": "649164b7bd0db2b2157dff6ee99a38b42637331d",
+  "branch": "codex/meas-05",
+  "risk_tier": "standard",
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "default_policy_unchanged": true,
+  "first_seed": 1,
+  "runs_per_group": 200,
+  "composition_rooms": 3600,
+  "baseline_damage_replays": 1200,
+  "experimental_runs": 4200,
+  "distinct_combat_runs": 5400,
+  "source_origin_verification_replays": 178,
+  "source_repair": {
+    "replayed_runs": 178,
+    "baseline_replays": 45,
+    "changed_intent_labels": 159,
+    "outcomes_hit_amounts_and_timing_unchanged": true,
+    "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
+  },
+  "max_godot_workers": 4,
+  "acceptance": {
+    "1": "18 element/tier composition groups, 200 first eligible seeds each; enemy count and spawn HP median/P10/P90; per-type room presence and instance count.",
+    "2": "Shadow and earth, tiers 1\u20133, dark on, 200 each; type/intent HP shares, HP per enemy activation and per-type activation, each hit-rank median turn and lethal median with N; named top three sources. Delayed Fire/Retaliate retain creation/grant intent; Bleed uses applied stack provenance.",
+    "3": "A\u2013F plus G, 200 paired seeds per tier; G selected from the 49.3% tier-1 Skitter Strike concentration before experiment collection. All dial identities/tuning from the brief. Temporary table override restored after each F layout; no gameplay/data/policy edits.",
+    "4": "Three inline tables, target centres and empirical control ranges, one short band-membership paragraph, no recommendations. No group reaches its comparison band."
+  },
+  "checks": [
+    {
+      "result": "SHADOW DIAL OVERRIDE TEST: PASS (865 checks; 0 failures)",
+      "log": "/private/tmp/labyrinth_codex/meas-05/override_test_origin.log"
+    },
+    {
+      "result": "SHADOW DIAL UID SETUP: PASS (3 new script sidecars)",
+      "log": "/private/tmp/labyrinth_codex/meas-05/uids.log"
+    },
+    {
+      "result": "SHADOW SOURCE PROVENANCE: PASS (178 replays; 159 corrected labels; all outcomes/hit amounts/timing identical)",
+      "log": "/private/tmp/labyrinth_codex/meas-05/source_repair.log"
+    },
+    {
+      "result": "SHADOW DIAL REPORT: PASS (3600 composition rooms; 1200 damage replays; 4800 paired shadow outcomes)",
+      "log": "/private/tmp/labyrinth_codex/meas-05/report.log"
+    },
+    {
+      "result": "DEFAULT BASELINE PARITY: PASS (1200 fights; all shared meas-04 fields identical)",
+      "log": "/private/tmp/labyrinth_codex/meas-05/report.log"
+    },
+    {
+      "result": "Ran 19 tests in 0.005s\n\nOK",
+      "log": "/private/tmp/labyrinth_codex/meas-05/helper_tests_final.log"
+    },
+    {
+      "result": "FINAL OBSERVER PARITY: PASS (tier 2 shadow and earth seed 1; entire results and hit records unchanged)",
+      "captures": [
+        "/private/tmp/labyrinth_codex/meas-05/final_smoke_shadow.json",
+        "/private/tmp/labyrinth_codex/meas-05/final_smoke_earth.json"
+      ]
+    },
+    {
+      "result": "SHADOW SIDECAR INVENTORY: PASS (3 new scripts and 3 stable UIDs; combined repository inventory valid)",
+      "evidence": "Existing tests/test_godot_sidecars.py guard called on tracked inventory plus the six new source/sidecar paths; observed tool output."
+    },
+    {
+      "result": "ELIGIBLE SEED CATALOG: PASS (3600 rooms; every seed, coordinate and entrance matches meas-04)"
+    },
+    {
+      "result": "FULL ATTRIBUTION DIFF: PASS (5400 records; only 159 delayed intent labels changed)"
+    },
+    {
+      "result": "MEASUREMENT INPUT HASHES: PASS (all gameplay/data/measurement GDScript sources unchanged since final replays)"
+    },
+    {
+      "result": "FINAL COVERAGE: PASS (18 composition, 6 damage, 24 paired-outcome groups; 200 records each; no unknown source buckets)"
+    },
+    {
+      "result": "DEFAULT POLICY SHA256: PASS (unchanged; matches revision7/baseline.json)"
+    },
+    {
+      "result": "TRACKED GAMEPLAY / DATA / POLICY: PASS (no tracked changes; every new file within owned scope)"
+    },
+    {
+      "result": "INLINE TABLES: PASS (three tables in report.md and result.md)"
+    },
+    {
+      "result": "PYTHON SYNTAX: PASS (3 new measurement modules)"
+    }
+  ],
+  "files_changed": [
+    "tools/encounter_shadow_dials.gd",
+    "tools/encounter_shadow_damage_engine.gd",
+    "tools/encounter_shadow_dial_run.gd",
+    "tools/encounter_shadow_dial_measurement.py",
+    "tools/encounter_shadow_dial_report.py",
+    "tools/encounter_shadow_source_repair.py",
+    "tools/encounter_shadow_dials.gd.uid",
+    "tools/encounter_shadow_damage_engine.gd.uid",
+    "tools/encounter_shadow_dial_run.gd.uid",
+    "spec/peer_benchmark/encounter_redesign/measurements/shadow_dials_2026-11/"
+  ],
+  "source_sha256": {
+    "tools/encounter_shadow_dials.gd": "fbb30272e8b91c9b8133539015ed58342b8d032a3cf3da59eccbf76014f564d1",
+    "tools/encounter_shadow_damage_engine.gd": "426a0c984e5f70696df7f6721d13dc3d69dd2030542bd639d6c2607fd02934f1",
+    "tools/encounter_shadow_dial_run.gd": "47e509b6688715893b42560e7c144d0a93eb10ca5e06ad6f792ff202fd3d618b",
+    "tools/encounter_shadow_dial_measurement.py": "2711a2e6582535b6511ad262e949c22834ce98edfb4b6baff3999dbe1f71f8b8",
+    "tools/encounter_shadow_dial_report.py": "1da8293559f2e9f42bec72d84e0d8f4de6927e998da388f4a13ac464b7f649f5",
+    "tools/encounter_shadow_source_repair.py": "fc1c35aeefaa4edecaa0583bccf4cc6defaa72fe8e512a7f8f740e541dead98a",
+    "tools/encounter_shadow_dials.gd.uid": "0ab7decb6f3e85f6533b8aeacb4828cf869a82817271cd8b9fa49322ea79639d",
+    "tools/encounter_shadow_damage_engine.gd.uid": "daaecdb607cc32d4f7db631b75f8944d38f8d1459c485f5cddcb9f3eac8c60d6",
+    "tools/encounter_shadow_dial_run.gd.uid": "7bffe86570f36a70523771990c003c7ccae2588d1ae6a1ac76eda935f1905737"
+  },
+  "artifact_sha256": {
+    "A-t1-shadow.json.gz": "175813a7fe59d88751a8b8f97cf6240f2e023cb0cca0d3e557607fb9eda3fc04",
+    "A-t2-shadow.json.gz": "a2116ede53bfe006a7cb248da393b6f23d4890fcbae96120d69123ac814f73ed",
+    "A-t3-shadow.json.gz": "7d803d8cc38bd00116186a0e6bbbe50b8b436eb54938965e858b6facc7e23eee",
+    "B-t1-shadow.json.gz": "b71f229416b0ec5901cc6ba1e5657441695cd8ae050e9e895f3c7b8950f84aa0",
+    "B-t2-shadow.json.gz": "8ae53d56b0d91ebddce08664d74260aa5269486bc3c3f1342ef38b68feaf7ff2",
+    "B-t3-shadow.json.gz": "1822fdc917008b77f4262588890a27989515cc5c4ea40977384045004c74e12e",
+    "C-t1-shadow.json.gz": "76d121da9f593d2b2ce3e9efcd2321ed8cb066d91507272128573a90a1a4fe05",
+    "C-t2-shadow.json.gz": "07cf7ee41b91c10c576ca30d5c34b5ac2e9c263c5da0df33e73a336212a26ccd",
+    "C-t3-shadow.json.gz": "fe421dff8b68103e1633a6f243f6085953c0cad10a5110aafcee939ab1b626be",
+    "D-t1-shadow.json.gz": "8c4f89985fa03e514214ca67069da3bcda364d92de7a39dd5107f976e6fc5742",
+    "D-t2-shadow.json.gz": "fb4208bb558bc6920a7609e3fc800f563b4270144ca8ba162d308c3b99b9304d",
+    "D-t3-shadow.json.gz": "f20898b247f53db68fd128219649e861116628e2954452aa9a6c167a628fff34",
+    "E-t1-shadow.json.gz": "8f96f3fb2fc81fa3c9277b8785c528dbe449215bf8918cb5574ca616e28b6dd7",
+    "E-t2-shadow.json.gz": "d68bbc426b6948cfab0f5e786ac52ebb8e19bfb641ed986fd5631e378b4b00c5",
+    "E-t3-shadow.json.gz": "73db38ddf4d4f86caa9a9b6af1bf469f68f8b3e6de22da537bd49d221770a164",
+    "F-t1-shadow.json.gz": "f8e86e2680aa03a508732d413141c0a021d4e50641d4cc8e44242420da0b69d4",
+    "F-t2-shadow.json.gz": "f1d2ae022ee7574109c223fcdc3232a43faae6db7afdd600dde4e97d141f5093",
+    "F-t3-shadow.json.gz": "a071dcf374e4091badab68af7ad90a41d722dade602b9c561eaea40331a2de2c",
+    "G-t1-shadow.json.gz": "42ed4006b9d284d3cfc5cf9e1e0802270ba505633e1d7d7bbea3deb88d24f2fe",
+    "G-t2-shadow.json.gz": "5bc1a9ef3bea1c2c622b7994c30c9aa6645e8d90991684eaafb06cb98e2b27a2",
+    "G-t3-shadow.json.gz": "0aa717edd3c5f48d48472cdd319b2343c8493376e8adb3b1802e53c5cb5090ca",
+    "baseline-inputs.json.gz": "945e9cb8dd33eaea48fbf0672db21459186debd778d525f6fde65effe1d85d36",
+    "baseline-t1-earth.json.gz": "362c894a46767d2273454f86995c9dd18af3f425d4bf5e35f15aa42260d65519",
+    "baseline-t1-shadow.json.gz": "6f2c1489a65228f742b0c797be7f87800378c7f44420841edb03aeeb6237e630",
+    "baseline-t2-earth.json.gz": "e2fe0c310596c9f37d23459e6df25b122da248d3e773560afc97a2cb748343e8",
+    "baseline-t2-shadow.json.gz": "50aafab565113d27b8124d0112d59eb7dce874f3d6471cfd163eb4cd41ae3b3b",
+    "baseline-t3-earth.json.gz": "41c959367482f85ea1134477b3a36ffece45dcaa6b7a13323f67072196a189b9",
+    "baseline-t3-shadow.json.gz": "ddecbda5d56944d86217bf3dac3b90057069f261b4a1a01f8655e4fab55a133d",
+    "catalog.json.gz": "b3397908f32823a2037732563761ce7bf6d282d8b4d1a362690d36647c2f5a98",
+    "dials-inputs.json.gz": "c79a88700e8a0b16639dae123e722f89149284b04273fa66afd5443240fa29bb",
+    "legacy-results.json.gz": "ed9cf5684487ee91dfc6b6b908521261fce9d889053754ad01be97587d4eaad9",
+    "report.md": "fbd339c69f7acf54545f1e21867f40ea60876c3700213ff1187faa0656d98dd0",
+    "selection.json": "608e573dd4b62c9d1405501c463c2ef7a1e18962cd1da1556368ddd2fc2499d5",
+    "source-repair-inputs.json.gz": "b2c023c2dcdfb312220078c2a6b975178c5b2b7fda1103e91a119254d3beffa6",
+    "source-repair.json": "2c1226eaaeb28478a7929c4519e5c375dfb9492b1beabcb2bb65efd59b661856",
+    "summary.json": "4994d98577e1b027de877c01af39b3063384baa44ef24f75f73bdc85f8665d7b"
+  },
+  "chosen_defaults": {
+    "runs_per_batch": 10,
+    "workers": 4,
+    "measurement_timeout_seconds": 7200,
+    "bootstrap_import_timeout_seconds": 1800,
+    "rounding": "ceil for 75% HP and two-thirds intent damage",
+    "frequency_order": "descending spawn instances; lexical ID ties",
+    "G_order": "greatest per-tier intent HP share, then total damage, lexical identity; explicit include-g for near-half concentration",
+    "metadata_total_abs_tolerance": 1e-08,
+    "bleed_attribution": "proportional to applied stack contributions",
+    "provenance_version": "source_origin_v1",
+    "synthetic_fixtures": {
+      "seeds": [
+        1,
+        19,
+        42
+      ],
+      "actor_id": 99,
+      "spawn_tile": [
+        1,
+        1
+      ],
+      "attack_damage": [
+        1,
+        7
+      ],
+      "incoming_damage": 3,
+      "support_amount": 4,
+      "source_share_fixture": [
+        49,
+        30,
+        21
+      ],
+      "fixture_files": [
+        "/private/tmp/labyrinth_codex/meas-05/override_test.gd",
+        "/private/tmp/labyrinth_codex/meas-05/test_dial_helpers.py"
+      ]
+    }
+  },
+  "todo_design": [],
+  "open_issues": [],
+  "new_permanent_guards": false,
+  "new_permanent_test_modules": false,
+  "full_suites_run": false,
+  "peer_review_run": false,
+  "windowed_runs": 0,
+  "git_writes_attempted": false,
+  "inspection_fixture": "Not applicable: offline headless measurements only; no player-facing changes. No windowed proof command required.",
+  "execution_notes": [
+    "Headless asset bootstrap exited 0. Known macOS CA-certificate noErr startup messages appeared; successful headless runs exited zero.",
+    "Initial catalog-coordinate comparison used native integer dictionaries against JSON floats; changed to Vector2i numeric comparisons before collecting combat data.",
+    "Initial smoke exposed the measurement-adapter primary_only_shock interface; added the no-card-override false implementation before measurement collection.",
+    "Section biome differs from room element. Attack overrides were scoped by sampled biome before any dial ran. Two full smoke records remained identical.",
+    "The G example was initially treated as a strict 50% cutoff; full-data review found 49.3% (almost four times the next intent), so the authorized G was included before experiment collection.",
+    "Report-only zip(strict=True) was incompatible with local Python; replaced by explicit length checks and zip.",
+    "Initial final report assembly rejected Godot rounding of derived source-total evidence (2321.333333333333 vs 2321.33333333333); actual dial parameters stay exact, evidence uses 1e-8 absolute tolerance.",
+    "Delayed source audit found Fire/live-intent and Retaliate/live-intent labels. Source-only code was enhanced after the experimental pool ended; 178 affected rows were replayed with every core result and hit amount/timing identical. Legacy results retained; complete 5400-record diff changes only 159 intent labels.",
+    "Process inventory ps was denied (zsh:1: operation not permitted: ps). Initial stopped runners were verified with signal 0; no Git write was attempted.",
+    "Source/override tests are temporary under /private/tmp; no permanent tests or resource-registry changes. All measurements and replay verification used at most four Godot workers."
+  ],
+  "proof_for_design_owner": {
+    "windowed_commands": [],
+    "reason": "Headless-only measurement task. Reproduction and report commands are in report.md.",
+    "focused_commands": [
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-05 && python3 tools/godot_task_runner.py --task-id meas-05 --stream -- godot --headless --path . --script /private/tmp/labyrinth_codex/meas-05/override_test.gd",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/meas-05 && PYTHONDONTWRITEBYTECODE=1 python3 /private/tmp/labyrinth_codex/meas-05/test_dial_helpers.py"
+    ],
+    "data_directory": "/Users/borgerding/workspace/Labyrinth.worktrees/meas-05/spec/peer_benchmark/encounter_redesign/measurements/shadow_dials_2026-11",
+    "result": "/private/tmp/labyrinth_codex/meas-05/result.md"
+  }
+}

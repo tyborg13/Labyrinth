@@ -11,11 +11,15 @@ const DEFINITIONS := {
 }
 
 static func for_boss(boss_id: String) -> Dictionary:
-	return Dictionary(DEFINITIONS.get(boss_id, {})).duplicate(true)
+	var definition: Dictionary = Dictionary(DEFINITIONS.get(boss_id, {})).duplicate(true)
+	if not definition.is_empty():
+		var enemy: Dictionary = preload("res://scripts/game_data.gd").enemy_def(str(definition["id"]))
+		if enemy.has("guardian_initial_helpers"): definition["helpers"]=enemy["guardian_initial_helpers"].duplicate()
+	return definition
 
 static func for_guardian(guardian_id: String) -> Dictionary:
-	for value: Dictionary in DEFINITIONS.values():
-		if str(value["id"]) == guardian_id: return value.duplicate(true)
+	for boss_id: String in DEFINITIONS:
+		if str(DEFINITIONS[boss_id]["id"]) == guardian_id: return for_boss(boss_id)
 	return {}
 
 static func enemy_types(boss_id: String) -> Array:
@@ -33,6 +37,7 @@ static func configure_layout(layout: Dictionary) -> void:
 	if definition.is_empty(): return
 	layout["guardian_id"] = definition["id"]
 	layout["name"] = definition["arena"]
+	layout["battlefield_rule"] = preload("res://scripts/battlefield_rules/dispatcher.gd").instance_for(str(definition["id"]), int(layout["enemies"][0]["id"]))
 	var grid: Array = layout["grid"]
 	for y: int in range(1,8):
 		for x: int in range(1,8): grid[y][x] = "stone"
@@ -88,14 +93,10 @@ static func stage_loot(layout: Dictionary) -> void:
 # surfaces, statuses and ordinary summon rewards.
 static func inspection_summary(enemy: Dictionary) -> String:
 	var enemy_type: String = str(enemy.get("type",""))
-	if not for_guardian(enemy_type).is_empty():
-		if enemy_type=="last_lamplighter": return "Replaces its fallen companion. Snuff adds a temporary Shade, up to two Shades total."
-		return "Replaces one missing helper on its next declared turn. Up to two helpers alive."
 	if not bool(enemy.get("guardian_helper",false)): return ""
-	match enemy_type:
-		"lightning_wisp": return "The Cantor replaces it after defeat. One Wisp at a time."
-		"wick_shade": return "Disappears after Last Procession." if enemy.has("outage_owner") else "Replaced after defeat. Stays through Last Procession."
-	return "The Guardian replaces it after defeat."
+	if enemy_type == "wick_shade":
+		return "Disappears after Last Procession." if enemy.has("outage_owner") else "Stays through Last Procession."
+	return ""
 
 static func intent_notes(intent: Dictionary) -> String:
 	var notes: Array[String] = []
@@ -106,7 +107,8 @@ static func intent_notes(intent: Dictionary) -> String:
 		if action.has("surface") and str(action.get("guardian_shape","")) in ["line","broken_line","sweep"] and str(action.get("type","")) in ["melee","ranged","aoe"]:
 			notes.append("%s remains even if the strike misses." % str(action["surface"]).capitalize())
 		if bool(action.get("snuff_brazier",false)):
-			notes.append("Braziers relight after Last Procession.")
+			if preload("res://scripts/enemy_mechanics/snuff.gd").handles(action): notes.append(preload("res://scripts/enemy_mechanics/snuff.gd").INTENT_NOTE)
+			else: notes.append("Braziers relight after Last Procession.")
 		if str(action.get("guardian_kind",""))=="crag_outcrop":
 			if str(action.get("type",""))=="raise_terrain": notes.append("Up to two outcrops; each fuels Groundsplit.")
 			elif str(action.get("type",""))=="terrain_burst": notes.append("Overlapping bursts hit once.")

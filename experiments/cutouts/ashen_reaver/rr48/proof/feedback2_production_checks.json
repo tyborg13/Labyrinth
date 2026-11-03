@@ -1,0 +1,34 @@
+{
+  "source_supply": {
+    "ok": true,
+    "errors": [],
+    "texel_checks": 14587,
+    "cap_texels": 2030,
+    "scope": "source",
+    "native_pixels": false
+  },
+  "production_supply": {
+    "ok": true,
+    "errors": [],
+    "texel_checks": 14587,
+    "cap_texels": 2030,
+    "scope": "production",
+    "native_pixels": false
+  },
+  "production_grip": {
+    "ok": true,
+    "errors": [],
+    "checks": 710,
+    "native_pixels": false
+  },
+  "production_floor": {
+    "ok": true,
+    "errors": [],
+    "checks": 144,
+    "final_angle_deg": {
+      "front": -90.0000017075473,
+      "rear": 90.0000017075474
+    },
+    "native_pixels": false
+  }
+}

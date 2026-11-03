@@ -306,3 +306,94 @@
   re-aims on the Stormcaller's own turn; the director redesigns the Warband markers (command zone, captain mark, +1)
   with a mockup in the inbox before building; followers spawn spread in small groups at varied distances with gaps to
   the captain. Then a new playable build.
+
+## 2026-10-22 owner note: Petrify card text
+"It adds a keyword for it that has its own icon that explains the effect, but then it also explains the effect in words... we have to choose one or the other, not both." Director decision: keep Petrify as a keyword (it is a real status the relic spreads and the turn order shows); card face = Petrify icon + range 3; the 5 Block becomes part of the keyword on every source. Unit fix-07.
+
+## 2026-10-22 owner note: Skybolt power
+"Is the power level of skybreak [Skybolt] not obscene, even for a legendary? ... an infinite range shock seems pretty bonkers. We may need to give it a drawback if we want it to have that kind of upside. Let's throw evaluating that into our queue." Queued as bal-01 (director evaluation, options to the inbox).
+
+## 2026-10-23 warband-markers-v2: NEEDS CHANGES
+"The ghosts work, I think, but we need some clearer indicator of the wind effect and direction, as well as its source
+... the particle effect wind gusts that we have for decoration don't flow in the same direction as the actual
+mechanical indicator gusts ... maybe we just disable them for now and bring them back later." Director decisions
+(wind-01, director-implemented, Codex reviews only):
+- Air rooms' decorative gusts off behind one flag (`AIR_DECORATIVE_GUSTS_ENABLED`): the drifting ambient wisps (one
+  random left/right drift per room) and the gust-curl floor overlays (randomly flipped). Restore later, reworked to
+  follow the wind.
+- The wind is drawn as paired streams (main + shorter companion, the wind icon's motif) with the Dive flight's width
+  profile, entering at the upwind board edge and leaving at the downwind edge; called-but-not-blown wind at 0.4 alpha
+  vs 0.62.
+- The push shows a wave of streams crossing the board with the slide.
+- Source: the Gale Herald/Stormcaller gets the wind sigil badge ("Calls the wind. Defeat it and the wind stops.") and a
+  three-arm whirl at its feet. Streams do not start at the source: its wind often blows toward it.
+- The chip names the source ("The Stormcaller's wind · until it falls", "<Name>'s wind · N rounds", "Headwind · toward
+  the entry") and docks above the objective (or the play meter); it was anchored to the hidden turn-order panel.
+- The Snare headwind blows toward the entry, so it enters from the far side (the reply said "the entrance"; corrected
+  in the mockup item). Mockup posted as inbox `wind-v3`.
+
+## 2026-10-23 element rules: owner direction, two corrections, APPROVED (revision 3)
+- Owner direction: "each element have a core mechanic that is reused but remixed across every special encounter... not
+  have a bunch of new keywords, custom rules, etc." Wind is the exemplar.
+- Correction 1: revision 1 named primitives ("Fire ground is a primitive, not a rule"). Revision 2 turned each element
+  into a beat like the Gust.
+- Correction 2: no one-off rules ("anti-design"). Specifically: drop "Ice and stone don't catch" (placing ground
+  replaces ground); rename Hard Frost to Frostbite and the Strike to Lightning Storm; reach via Chain, never "touching";
+  Eclipse makes no sense (the hero is always lit; it restated the Umbra). Each rule gets an in-game name, icon and one
+  sentence shown above the objective.
+- APPROVED revision 3 (2026-10-23 20:56): "Let's try this as described and we can iterate once I see and feel it in
+  person." The six beats (Gust, Wildfire, Frostbite, Lightning Storm, Upheaval, Shadowstep), fights varying only by
+  dials, the Break meter and the "wielder immune" rule dropped, and ordinary enemies on the same pieces.
+  Pages: `encounter_redesign/element_rules_v{1,2,3}.html` (v3 approved).
+
+## 2026-10-27 gaoler-rig: NEEDS CHANGES (rr-42 Gaoler on rig v2)
+- Owner: "His arms don't move naturally while he walks, one wiggles the other is still." Director-confirmed: the
+  `move` gait swings only `hand_near` (3 px); the chain arm is held still and only the chain sways 3°.
+- "The way he's holding the chain is super unnatural, like someone holding a lantern out in front of them, not like
+  you'd hold a chain that you are going to swing." The pose is in the approved mq3 paintings (far arm raised and
+  outstretched at shoulder height); a rotated cutout can't lower it without tearing ([[cutout-joint-budget]]), so the
+  chain arm is repainted in both views: hanging low at his side, fist at the hip, a short slack loop in the fist, the
+  hook at shin height.
+- "I feel like the hook should point the other way." In both views the hook's point curls back toward his body; the
+  repaint mirrors it so the point curls away from his body (the way he faces).
+- "The non chain arm bends the wrong way during attack and hit, like he's got no bones." Director-confirmed in the
+  review clip (press wind-up): the near arm is almost straight at rest, so the two-bone solve's bend side is ambiguous
+  and the forearm folds backward (hyperextension) whenever the fist nears the shoulder. Fix: a declared elbow bend side
+  per arm and view, plus a gate that fails on any frame where an elbow bends backward, run over every rig.
+- "Death animation is perfect, love dropping the chain, no notes." Keep its choreography; only the drop height changes
+  with the lowered fist.
+- Reply posted and the thread resolved. Work: director repaint (image edit, staged/rr-44) → still posted to the inbox
+  for a quick look → rr-44 rig unit.
+
+## 2026-10-27 inbox verdicts (playtest-13 fixes)
+- APPROVED: heirloom-screen-built, pt13-boss-preview, pt13-torches, pt13-dial-graftwright.
+- lancer-rig-v2 APPROVED. "There's some perspective issues where parts of the spear handle show through that
+  shouldn't in both front and rear view." This is logged as low priority in `backlog_art.md` #1.
+- pt13-badges NEEDS CHANGES: "flip to either bottom right or bottom left depending on what is going to cover less".
+  Built in pt14-01: rest-silhouette coverage, the hero weighted ×2, a 15% margin.
+- pt13-mirror NEEDS CHANGES, on the evidence: "These pictures are completely busted. The overlay tiles aren't lining
+  up with the actual floor tiles. There's also stuff overrunning. Our evidence needs to be as game-like as possible."
+  - The probe forced a proof-only camera and packed four Mirrors around the hero.
+  - New standing rule: owner evidence comes from real game flow.
+  - pt14-02 builds `tests/real_fight_capture_probe.gd` and root-causes the probe's offset. The Mirror evidence will be
+    redone from real fights.
+- New inbox item `gaoler-pose`: the repainted chain arm still, posted for a look before rigging.
+
+## 2026-10-27 prop-lighting-spike (lit-01): SHELVED
+- Owner (chat): "It's so subtle I can barely see it. Maybe we just stick with our custom shadows and lighting for
+  now."
+- The game keeps its custom CombatArtTreatment lighting and contact shadows. lit-01 stays unmerged on
+  `codex/lit-01` (49ef9f92a) for reference: the Sprite Fusion normal-map port, prop shading and torch-cast prop
+  shadows, all behind `LABYRINTH_PROP_LIGHTING`. Don't propose normal maps on enemies unless the owner raises it
+  again.
+
+## 2026-10-27 playtest 15: the fire Warband (the Slagmaster)
+- "The enemy composition mix felt pretty reasonable."
+- The Slagmaster "spent way too many turns just running away and blocking instead of tossing slag". Diagnosis: Lob needs
+  range 3–6, Brace also moves away 2, and the captain's keep_distance adds more retreat. Fix in **enc-03**: Lob range
+  2–6 at weight 4; Brace (block only) and Scatter only when the hero is adjacent.
+- The intent "/4 ... range 3 to 6" isn't clear. Fix in **enc-03**: the lob icon plus centre damage, a plain callout
+  sentence, and landing tiles marked from the aiming turn.
+- A foot drawn under the floor (draw order), slow movement against the other enemies, and a slow death. Fix in
+  **rr-46**: rig-v2 move and death timing match the older enemies at every combat speed; draw-order sweep and check.
+- Owner: "Directionally, I think it's largely right ... we need to keep making this really, really high level."

@@ -3,8 +3,10 @@ class_name RunEngine
 
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const EventRules = preload("res://scripts/event_rules.gd")
+const RecentEvents = preload("res://scripts/recent_event_store.gd")
 const SnareRules = preload("res://scripts/snare_room_rules.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
+const LastLightRules = preload("res://scripts/last_light_rules.gd")
 const OmenRules = preload("res://scripts/omen_rules.gd")
 const GraftwrightRules = preload("res://scripts/graftwright_rules.gd")
 
@@ -149,6 +151,7 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 	var run_state: Dictionary = {
 		"seed": seed,
 		"seen_events": [],
+		"event_memory": RecentEvents.load_recent_events(),
 		"omens": initial_omens,
 		"run_index": int(normalized_progression.get("run_counter", 0)),
 		RUN_CONTENT_SCHEMA_KEY: RUN_CONTENT_SCHEMA,
@@ -323,11 +326,13 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = migrate_renamed_content_ids(run_state) if run_content_migration_required(run_state) else run_state.duplicate(true)
 	if next_state.is_empty():
 		return next_state
+	if not next_state.has("event_memory"): next_state["event_memory"] = []
 	# Older section saves start with no picks. Do not add fields to legacy runs:
 	# their complete serialized state remains compatible byte for byte.
 	if SectionMapGraph.modern(next_state) and not next_state.has("encounter_history"):
 		next_state["encounter_history"] = []
 	next_state = migrate_combat_units(next_state)
+	preload("res://scripts/retired_mirror_save_migration.gd").migrate(next_state)
 	next_state = SurfaceSaveMigration.migrate_run(next_state, _combat_engine)
 	next_state = _repair_legacy_merchant_rooms(next_state)
 	next_state[RUN_CONTENT_SCHEMA_KEY] = RUN_CONTENT_SCHEMA
@@ -1307,8 +1312,11 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	var snare_context: Dictionary = preload("res://scripts/snare_room_rules.gd").escape_context(combat_state)
 	if bool(room.get("special_goal_met", false)) and str(Specials.definition(str(room.get("special_type", ""))).get("bonus", {}).get("kind", "")) == "embers_per_open_door":
 		earned_embers += int(snare_context.get("doors_open_at_escape", 0)) * int(Specials.definition(str(room["special_type"]))["bonus"]["amount"])
+	var hoard_embers: int = preload("res://scripts/hoarder_room_rules.gd").hoard_embers(room, combat_state) if bool(room.get("special_goal_met", false)) and preload("res://scripts/hoarder_room_rules.gd").bonus_kind(room) == "hoard_embers" else 0
+	earned_embers += hoard_embers
 	var total_embers: int = earned_embers + ember_bonus
 	next_state = add_held_embers(next_state, total_embers)
+	var dawn_healed: int = _apply_last_light_dawn_heal(next_state, room, combat_state)
 	if str(room.get("type", "")) == "boss":
 		var boss_id: String = str(room.get("boss_id", combat_state.get("boss_id", "")))
 		var milestone_id: String = "%s:dragon:%s" % [run_result_id(next_state), room_key]
@@ -1366,10 +1374,25 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 		"board_state": resolved_combat_state.duplicate(true),
 		"intro_pending": true
 	}
+	if LastLightRules.is_room(room) and bool(room.get("special_goal_met", false)): next_state["pending_reward"]["healed_amount"] = dawn_healed
 	next_state["mode"] = "reward"
 	if not missed_equipment.is_empty():
 		next_state["notice"] = ESCAPE_MISSED_EQUIPMENT_NOTICE if not pending_escape.is_empty() else MISSED_EQUIPMENT_NOTICE
+	if hoard_embers > 0:
+		var hoard_line: String = preload("res://scripts/hoarder_room_rules.gd").reward_line(hoard_embers)
+		next_state["pending_reward"]["special_bonus_line"] = hoard_line
+		next_state["notice"] = hoard_line if str(next_state.get("notice", "")).is_empty() else str(next_state["notice"]) + "\n" + hoard_line
 	return next_state
+
+# Last Light's bonus: Health per brazier lit at dawn, capped by the catalog and
+# by max Health. Paid once, inside the completed-room guard of finish_combat.
+func _apply_last_light_dawn_heal(run_state: Dictionary, room: Dictionary, combat_state: Dictionary) -> int:
+	if not bool(room.get("special_goal_met", false)): return 0
+	var amount: int = LastLightRules.dawn_heal(room, combat_state)
+	if amount <= 0: return 0
+	var before: int = int(run_state.get("player_hp", 1))
+	run_state["player_hp"] = mini(maxi(1, int(run_state.get("player_max_hp", before))), before + amount)
+	return int(run_state["player_hp"]) - before
 
 func _pending_escape_for_combat_victory(combat_state: Dictionary, outcome: String) -> Dictionary:
 	if outcome != "victory":

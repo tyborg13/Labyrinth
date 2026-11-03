@@ -1,0 +1,27 @@
+{
+  "baseline": "3551d1292",
+  "changed": [
+    {
+      "context": "scavenger_offer",
+      "before": {
+        "text_px": {
+          "footer": null,
+          "rules": 14.0159997940063,
+          "token_number": 14.0159997940063
+        },
+        "icon_px": 17.5199997425079
+      },
+      "after": {
+        "text_px": {
+          "footer": null,
+          "rules": 11.2727270126343,
+          "token_number": 11.2727270126343
+        },
+        "icon_px": 14.0909087657928
+      }
+    }
+  ],
+  "unchanged_context_count": 31,
+  "scavenger_original_sha256": "1a5fd49ed06eb34ed6b1ccc7ef597baebfc6ad05923949c9f240301309e0165f",
+  "original_script_exact": true
+}

@@ -1,0 +1,20 @@
+extends SceneTree
+
+# Debug-only search for a positive rectangle that the native polygon path rejects.
+const FIXTURE_ORIGINS: Array = [Vector2(300, 200), Vector2(600, 300), Vector2(900, 400), Vector2(1200, 600), Vector2(1500, 700)]
+const FIXTURE_WIDTHS: Array = [0.01001, 0.011, 0.015, 0.02, 0.03, 0.05, 0.1]
+const FIXTURE_HEIGHTS: Array = [0.35, 1.0, 3.0, 4.0, 5.0, 10.0]
+
+func _initialize() -> void:
+	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	for origin: Vector2 in FIXTURE_ORIGINS:
+		for width: float in FIXTURE_WIDTHS:
+			for height: float in FIXTURE_HEIGHTS:
+				var rect := Rect2(origin, Vector2(width, height))
+				var points := PackedVector2Array([rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)])
+				if Geometry2D.triangulate_polygon(points).is_empty():
+					print("QA23 QUAD FIXTURE: " + JSON.stringify({"rect": str(rect), "rect_b64": Marshalls.raw_to_base64(var_to_bytes(rect)), "points": str(points), "quad_b64": Marshalls.raw_to_base64(var_to_bytes(points)), "width": width, "height": height}))
+					quit(0)
+					return
+	print("QA23 QUAD FIXTURE: no failure in search matrix")
+	quit(1)

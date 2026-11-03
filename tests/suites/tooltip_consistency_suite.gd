@@ -13,6 +13,9 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunScene = preload("res://scenes/run_scene.tscn")
+const Glossary = preload("res://scripts/glossary.gd")
+const Grimoire = preload("res://scripts/grimoire_library.gd")
+const TooltipStack = preload("res://scripts/card_focus_tooltip_stack.gd")
 
 
 static func run(expect: Callable) -> void:
@@ -23,7 +26,46 @@ static func run(expect: Callable) -> void:
 	_test_icon_tooltip_panel(expect)
 	_test_inline_description_tooltip(expect)
 	_test_card_tooltip_entries(expect)
+	_test_tooltip_entry_modifier_merging(expect)
+	_test_tooltip_entry_base_identity(expect)
 	_test_real_cards_preserve_repeated_icon_semantics(expect)
+	_test_petrify_keyword(expect)
+
+
+static func _test_petrify_keyword(expect: Callable) -> void:
+	var card: Dictionary = GameData.card_def("petrify")
+	var rows: Array = ActionIcons.rows_for_card(card)
+	var tokens: Array = []
+	for row: Array in rows:
+		tokens.append_array(row)
+	expect.call(tokens.size() == 2, "Petrify card rows contain exactly two tokens")
+	if tokens.size() == 2:
+		expect.call(tokens[0].get("icon") == "petrify" and tokens[1].get("icon") == "range" and int(tokens[1].get("value", 0)) == 3, "Petrify card rows are the keyword icon followed by range 3")
+	for token: Dictionary in tokens:
+		expect.call(token.get("kind") != "text", "Petrify card rows contain no text tokens")
+	var expected_tip: String = "Petrify\nSkips its next turn and gains 5 Block."
+	var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(rows)
+	var owner := Control.new()
+	var stack := TooltipStack.new()
+	var root: Window = (Engine.get_main_loop() as SceneTree).root
+	root.add_child(owner)
+	root.add_child(stack)
+	stack.show_for(owner, entries)
+	var petrify_entries: int = 0
+	for entry: Dictionary in stack._entries:
+		if str(entry.get("icon", "")) == "petrify":
+			petrify_entries += 1
+			expect.call("%s\n%s" % [entry.get("title", ""), entry.get("description", "")] == expected_tip, "Petrify focus stack uses the exact complete keyword tooltip")
+	expect.call(petrify_entries == 1, "Petrify focus stack explains Petrify exactly once")
+	expect.call(stack.entry_count() == 2, "Petrify focus stack contains Petrify and Range without automatic Time or a second Block explanation")
+	stack.free()
+	owner.free()
+	expect.call(not (card["actions"][0] as Dictionary).has("block"), "Petrify card delegates Block to the keyword")
+	expect.call(card.get("description") == "Petrify an enemy within range 3 (not a dragon). It skips its next turn and gains 5 Block.", "Petrify card uses the decided description")
+	expect.call(Glossary.definition("petrify") == "Skips its next turn and gains 5 Block.", "Petrify glossary uses the complete fixed keyword definition")
+	var body: Array = (Grimoire.entry_map()["combat:petrify"] as Dictionary).get("body", []) as Array
+	expect.call(body.slice(0, 2) == ["A Petrified enemy skips its next turn. The skipped turn still costs its normal Time on the Turn Clock, so it does not come back sooner.", "Petrify also gives the enemy 5 Block, which lasts through your next turn. It is not Freeze: there is no damage multiplier and no Chill interaction. Dragons cannot be Petrified."], "Petrify grimoire keeps its first paragraph and the decided second paragraph")
+	expect.call(body.has("Skips its next turn, still paying its Time, and gains 5 Block through your next turn. Dragons are immune."), "Petrify Grimoire retains the former full glossary rules")
 
 
 static func _test_shared_tooltip_controls(expect: Callable) -> void:
@@ -159,23 +201,67 @@ static func _test_card_tooltip_entries(expect: Callable) -> void:
 	for entry: Dictionary in entries:
 		keys.append(str(entry.get("icon", "")))
 		expect.call(entry.get("texture", null) is Texture2D, "Every card tooltip entry should carry its matching icon texture")
-	expect.call(keys == ["time", "time", "ranged", "ranged", "aoe", "range"], "Card tooltip entries should preserve reading order, keep distinct same-icon meanings, deduplicate identical semantics, map area patterns, and ignore text-only tokens")
+	expect.call(keys == ["time", "time", "ranged", "aoe", "range"], "Card tooltip entries should preserve reading order, keep distinct same-icon meanings, deduplicate identical semantics, map area patterns, and ignore text-only tokens")
 	expect.call(entries[1]["title"] == "Turns" and entries[1]["description"] == ActionIcons.description("turns"), "A repeated Time icon should retain its duration-specific explanation")
-	expect.call(str(entries[3].get("description", "")).contains("Modified by") and str(entries[3].get("description", "")).contains("Stormstring Bow"), "Modified tokens should retain their modifier explanation")
+	expect.call(str(entries[2].get("description", "")).contains("Modified by") and str(entries[2].get("description", "")).contains("Stormstring Bow"), "The single Ranged entry should retain its modifier explanation")
+
+
+static func _test_tooltip_entry_modifier_merging(expect: Callable) -> void:
+	var plain: Dictionary = ActionIcons.token_for("stagger", 4)
+	var empowered: Dictionary = ActionIcons.token_for("stagger", 4, "bonus", "", [{"source": "Empower", "amount": 4}], 0)
+	var relic: Dictionary = ActionIcons.token_for("stagger", 5, "bonus", "", [{"source": "Relic", "amount": 1, "detail": "Fixture relic"}], 4)
+	var expected_tooltip: String = "%s\nModified by:\nEmpower +4" % ActionIcons.tooltip("stagger")
+	for ordered_tokens: Array in [[plain, empowered], [empowered, plain]]:
+		# A later unrelated entry proves the merged identity keeps its first slot.
+		var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows([
+			[ordered_tokens[0], ActionIcons.token_for("range", 1)], [ordered_tokens[1]],
+		])
+		expect.call(entries.size() == 2 and entries[0]["icon"] == "stagger" and entries[1]["icon"] == "range", "Plain/modified keywords should share one entry at the first occurrence in either order")
+		expect.call(entries[0]["tooltip"] == expected_tooltip, "A modified keyword should win over a plain occurrence in either order")
+		expect.call(entries[0]["semantic_key"] == "stagger\u001f%s" % ActionIcons.tooltip("stagger"), "Modifier text should not be part of the entry's semantic identity")
+		expect.call(entries[0]["title"] == ActionIcons.label("stagger") and entries[0]["description"] == "%s\nModified by:\nEmpower +4" % ActionIcons.description("stagger"), "Merged title and description should be rebuilt from the final tooltip")
+	for ordered_tokens: Array in [[empowered, relic, empowered, relic], [relic, empowered, relic, empowered]]:
+		var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows([ordered_tokens])
+		var expected_lines: String = "Empower +4\nRelic +1  Fixture relic" if ordered_tokens[0] == empowered else "Relic +1  Fixture relic\nEmpower +4"
+		expect.call(entries.size() == 1, "Different modifiers of the same keyword should share one entry")
+		expect.call(entries[0]["tooltip"] == "%s\nModified by:\n%s" % [ActionIcons.tooltip("stagger"), expected_lines], "Merged modifier lines should retain reading order, exact wording and spacing, and appear once each")
+	var repeated: Dictionary = ActionIcons.token_for("stagger", 4, "bonus", "", [{"source": "Empower", "amount": 4}, {"source": "Empower", "amount": 4}], 0)
+	var repeated_entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows([[repeated, repeated]])
+	expect.call(repeated_entries.size() == 1 and repeated_entries[0]["tooltip"] == expected_tooltip, "Identical modifier lines within and across tokens should appear once")
+	expect.call(ActionIcons.token_tooltip(plain) == ActionIcons.tooltip("stagger") and ActionIcons.token_tooltip(empowered) == expected_tooltip, "Building a stack should preserve single-token native tooltip text")
+	expect.call(ActionIcons.token_tooltip(repeated).count("Empower +4") == 2, "Native tooltip modifier lines should remain untouched even when the stack merges them")
+
+
+static func _test_tooltip_entry_base_identity(expect: Callable) -> void:
+	var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows([
+		[ActionIcons.duration_token(2), ActionIcons.token_for("time", 4)],
+		[ActionIcons.duration_token(3), ActionIcons.token_for("time", 5)],
+	])
+	expect.call(entries.size() == 2, "The same icon with different base text (Time versus Turns) should stay two entries")
+	expect.call(entries.size() == 2 and entries[0]["tooltip"] == ActionIcons.tooltip("turns") and entries[1]["tooltip"] == ActionIcons.tooltip("time"), "Unmodified identities should retain exactly their base text in first-occurrence order")
+	expect.call(entries.size() == 2 and entries[0]["semantic_key"] != entries[1]["semantic_key"], "Time and Turns should have distinct semantic keys")
+	var condition: Dictionary = ActionIcons.state_condition_token("light")
+	var modified_condition: Dictionary = condition.duplicate(true)
+	modified_condition["modifiers"] = [{"source": "Relic", "amount": 1}]
+	var condition_entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows([[condition, modified_condition]])
+	expect.call(condition_entries.size() == 1 and condition_entries[0]["tooltip"] == "%s\nModified by:\nRelic +1" % ActionIcons.token_tooltip(condition, true), "Keyword surface conditions should deduplicate by their modifier-free token tooltip")
+	# An icon without a texture is skipped before it registers, so repeats stay skipped and later entries still land.
+	var missing: Dictionary = {"kind": "icon", "icon": "fix06_missing_icon", "tooltip": "Missing icon"}
+	var skipped_entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows([[missing, missing, ActionIcons.token_for("stagger", 4)]])
+	expect.call(skipped_entries.size() == 1 and skipped_entries[0]["icon"] == "stagger", "Textureless icons should be skipped without registering an identity")
 
 
 static func _test_real_cards_preserve_repeated_icon_semantics(expect: Callable) -> void:
 	var lantern: Dictionary = GameData.card_def("lantern_shot")
 	var lantern_entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(
-		ActionIcons.rows_for_card(lantern),
-		["time"]
+		ActionIcons.rows_for_card(lantern)
 	)
 	var lantern_time_descriptions: Array[String] = []
 	for entry: Dictionary in lantern_entries:
 		if str(entry.get("icon", "")) == "time":
 			lantern_time_descriptions.append(str(entry.get("description", "")))
-	expect.call(lantern_time_descriptions.size() == 2, "Lantern Shot should keep card-cost Time and light-duration Turns as separate tooltips")
-	expect.call(lantern_time_descriptions.has(ActionIcons.description("time")), "Lantern Shot should retain the card-cost Time and Wait explanation")
+	expect.call(lantern_time_descriptions.size() == 1, "Lantern Shot should keep only the light-duration Turns panel")
+	expect.call(not lantern_time_descriptions.has(ActionIcons.description("time")), "Lantern Shot should omit the automatic card-cost Time panel")
 	expect.call(lantern_time_descriptions.has(ActionIcons.description("turns")), "Lantern Shot should retain the light-duration Turns explanation")
 
 	var stormstring: Dictionary = GameData.card_def("stormstring_shot")

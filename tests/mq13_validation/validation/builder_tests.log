@@ -1,0 +1,31 @@
+..BLENDER_BRIDGE_STARTED: long
+.......................F..................................BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+.BUILD_STAGE: append anatomy
+...BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+MQ07_REVIEW_MUTATION_REJECTED: procedural_chain
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+MQ07_REVIEW_MUTATION_REJECTED: repose
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+.......
+======================================================================
+FAIL: test_all_four_canonical_specs_match_source_recipes (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/blender/test_round3.py", line 167, in test_all_four_canonical_specs_match_source_recipes
+    self.assertEqual(digest(compiled),provenance['spec_hash'])
+AssertionError: '6980bba282bfc22df04341ce013dca7a6f33656eb41c8e8fa272077d3277d3c6' != '83a7327e73df81d660ba5f57c2651510644b337cdd32c977e5621f06bbaa8b76'
+- 6980bba282bfc22df04341ce013dca7a6f33656eb41c8e8fa272077d3277d3c6
++ 83a7327e73df81d660ba5f57c2651510644b337cdd32c977e5621f06bbaa8b76
+
+
+----------------------------------------------------------------------
+Ran 71 tests in 1.885s
+
+FAILED (failures=1)
+MQ07_REVIEW_MUTATION_REJECTED: append_tucks
+MQ07_REVIEW_MUTATION_REJECTED: socket_contract
+MQ07_REVIEW_MUTATION_REJECTED: foot_exception

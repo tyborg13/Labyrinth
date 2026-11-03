@@ -1,0 +1,121 @@
+{
+  "character_id": "frostglass_lancer",
+  "rig": "humanoid_v2",
+  "proof_geometry": {
+    "canvas_size": 640,
+    "source_offset": 192
+  },
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {},
+  "direction_clips": [
+    "move",
+    "lunge",
+    "jab",
+    "pin",
+    "guard"
+  ],
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the protagonist's cut-out bob: the upper body drops 2 px and returns as one rigid piece; the spear arm and the planted spear stay still (as the Seer's staff); cloak, loin panel and boots still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.85,
+      "intents": [],
+      "note": "the protagonist's walk: both legs step, six steps per tile, near foot leading; the free arm swings 3 px; the spear is lifted 3 px off the floor and tipped back 4 degrees while carried; a 3 degree lean; the cloak trails 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 6,
+        "lane_narrowing": 0.7,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.5,
+          "down": 3.0,
+          "passing": 0.8,
+          "up": 0.4
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "hand_near",
+            "px": 3
+          }
+        },
+        "max_fit_px": 6
+      },
+      "release_at": {}
+    },
+    "lunge": {
+      "seconds": 1.1,
+      "contact": 0.48,
+      "intents": [
+        "glass_lunge:aoe"
+      ],
+      "note": "draws the spear back and up on a planted stance, then drives the body through a long thrust: the spear swings from upright to nearly level along the struck line (contact), the hips dip 2 px, the free fist pulls back as a counterweight; holds the thrust, then recovers",
+      "release_at": {}
+    },
+    "jab": {
+      "seconds": 0.6,
+      "contact": 0.45,
+      "intents": [
+        "spear_advance:melee"
+      ],
+      "note": "a short, quick poke at the end of the advance: the spear tips down to 60 degrees and pokes 12 px forward (contact), then snaps back upright",
+      "release_at": {}
+    },
+    "cast": {
+      "seconds": 0.95,
+      "contact": 0.55,
+      "intents": [
+        "spear_cast:ranged"
+      ],
+      "note": "raises the spear high and tips it back, then snaps the point down at the target to loose the shard (contact); the free hand lifts with the raise",
+      "release_at": {}
+    },
+    "pin": {
+      "seconds": 1.2,
+      "contact": 0.65,
+      "intents": [
+        "frost_pin:ranged"
+      ],
+      "note": "levels the spear at the target and holds it dead still (aim), then a sharp release with a 2 px recoil (contact)",
+      "release_at": {}
+    },
+    "guard": {
+      "seconds": 0.9,
+      "contact": 0.3,
+      "intents": [
+        "refract_guard:block"
+      ],
+      "note": "settles into a crouch behind the upright spear, the free fist raised to guard and the cloak drawn forward; holds; then eases back",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, the spear tips back 3 degrees, cloak flicks 2 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.6,
+      "terminal": true,
+      "intents": [],
+      "note": "staggers back, the spear slips from the grip at 0.3 and topples forward about its foot; the knees buckle into a kneel (hips drop 16 px) and the torso folds forward 20 degrees, hood bowed; the cloak settles; terminal pose held, then the existing fade",
+      "release_at": {
+        "spear": 0.3
+      }
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

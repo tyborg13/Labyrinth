@@ -1,0 +1,1 @@
+Subject: an enormous sleeping beast filling a dungeon passage, seen as a huge dark mound of hide with slow ribs and one vast closed eye, too big to take in whole. On the stone floor in the foreground an open leather purse spills glowing orange embers. Mood: breath held, tempting, huge.

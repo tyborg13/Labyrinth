@@ -1,0 +1,7 @@
+{
+  "native_pixels": false,
+  "sweep_samples_sha256": "f2075ceff42f7859a7dc12f75baf55355a76533e770c0f4653b04dfcde55a5db",
+  "current_samples_sha256": "f2075ceff42f7859a7dc12f75baf55355a76533e770c0f4653b04dfcde55a5db",
+  "poses_equal": true,
+  "note": "Final source sweep uses the current full pose log."
+}

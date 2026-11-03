@@ -1,0 +1,35 @@
+{
+  "native_pixels": false,
+  "views": {
+    "front": {
+      "low": [
+        -266.5,
+        -255.0
+      ],
+      "high": [
+        128.5,
+        24.0
+      ],
+      "canvas_edge_pixels": 0
+    },
+    "rear": {
+      "low": [
+        -96.5,
+        -223.5
+      ],
+      "high": [
+        249.5,
+        23.5
+      ],
+      "canvas_edge_pixels": 0
+    }
+  },
+  "rect": [
+    -267,
+    -255,
+    534,
+    279
+  ],
+  "full_samples_sha256": "be4ff57bf2d20cd043b31bb739352b1e6857f00cc5e3669dec92ca9363e34d4e",
+  "note": "CPU construction envelope; native owner proof remains required"
+}

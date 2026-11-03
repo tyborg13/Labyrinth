@@ -1,0 +1,211 @@
+test_rest_and_density_evidence_reseal_to_identical_bytes (tests.test_rr41_feedback3.WalkingTests) ... Running task-local command:
+  task: rr-39
+  run: rr-39-1793277670268047000-83427
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793277670268047000-83427
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793277670268047000-83427/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-q2sv5a61/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+ok
+test_real_rest_reseal_rejects_unapproved_pose_and_binding_changes (tests.test_rr41_feedback3.WalkingTests) ... Running task-local command:
+  task: rr-39
+  run: rr-39-1793277679153189000-83490
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793277679153189000-83490
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793277679153189000-83490/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-38hle0hu/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+Running task-local command:
+  task: rr-39
+  run: rr-39-1793277696923596000-83589
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793277696923596000-83589
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793277696923596000-83589/godot.log --headless --path /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/int07-rr41-rest-mutations-b9ons5us/project --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-9kh9xn10/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-39
+  run: rr-39-1793277661051185000-83411
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793277661051185000-83411
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793277661051185000-83411/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-icq06pqz/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REST/DENSITY RESEAL: PASS (complete historical pose digest recovered; both rest images, zero mismatches and density bindings unchanged)
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REST/DENSITY RESEAL: PASS (complete historical pose digest recovered; both rest images, zero mismatches and density bindings unchanged)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-39
+  run: rr-39-1793277687577386000-83561
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793277687577386000-83561
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793277687577386000-83561/godot.log --headless --path /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/int07-rr41-rest-mutations-b9ons5us/project --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-kogl2r74/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REAL RESEAL MUTATION: PASS (runtime_byte rejected)
+Running task-local command:
+  task: rr-39
+  run: rr-39-1793277715750144000-83635
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793277715750144000-83635
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793277715750144000-83635/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-k2xxfa__/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-39
+  run: rr-39-1793277704969108000-83624
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793277704969108000-83624
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793277704969108000-83624/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-_89v50ab/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REAL RESEAL MUTATION: PASS (unknown_binding rejected)
+Running task-local command:
+  task: rr-39
+  run: rr-39-1793277735809521000-83751
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793277735809521000-83751
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793277735809521000-83751/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-xipa3cbl/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-39
+  run: rr-39-1793277725458912000-83719
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793277725458912000-83719
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793277725458912000-83719/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-kyb4bpsw/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REAL RESEAL MUTATION: PASS (bone_transform rejected)
+Running task-local command:
+  task: rr-39
+  run: rr-39-1793277755025253000-83861
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793277755025253000-83861
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793277755025253000-83861/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --rest-only --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-rest-reseal-5fzadygx/rest_poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR37 BONE SAMPLES: PASS (2 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-39
+  run: rr-39-1793277744938097000-83837
+  HOME: /private/tmp/labyrinth-godot-home/rr-39-1793277744938097000-83837
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-39-1793277744938097000-83837/godot.log --headless --path . --script tests/rr37/samples.gd -- --production --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr41-feedback3-poses-ckyrbkd5/poses.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)
+
+RR39 DENSITY PARTITION: PASS (0 changed production texels outside footprint; 0 inside; 0 underlay)
+RR39 FRONT REST: source=0px production-assembly=0px (not native capture)
+RR39 REAR REST: source=0px production-assembly=0px (not native capture)
+RR37 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+RR41 REST EQUIVALENCE: PASS (front=0px rear=0px; native rest records preserved)
+RR41 REAL RESEAL MUTATION: PASS (forged_after_hash rejected)
+ok
+test_extra_fix18_binding_fails_before_normalization (tests.test_rr41_feedback3.ForgedManifestTests) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 102.220s
+
+OK

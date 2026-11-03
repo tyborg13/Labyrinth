@@ -1,0 +1,140 @@
+{
+  "character_id": "chainbound_gaoler",
+  "rig": "humanoid_v2",
+  "proof_geometry": {
+    "canvas_size": 640,
+    "source_offset": 192
+  },
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {},
+  "direction_clips": [
+    "reel",
+    "pin",
+    "press",
+    "guard"
+  ],
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the protagonist's cut-out bob: the upper body drops 2 px and returns as one rigid piece; the lowered chain arm with its hanging chain follows a beat later as one rigid group (the Thrall's pre-computed lag curve on upper_far); the chain hangs plumb and never swings; the coat tails, tabard, legs and boots stay still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.85,
+      "intents": [],
+      "note": "a heavy jailer's plod on the protagonist's model: both legs step, six steps per tile, near foot leading, a short 4 px lift on the stocky legs; a 3 degree forward lean; both arms swing from the shoulder like pendulums, opposite their same-side legs, the forearm trailing (the Mimic's model, owner 2026-10-20 and 2026-10-27: 'one wiggles the other is still'); the chain arm swings less; the hook trails the fist (held_follow); the coat tails trail 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 4,
+        "lane_narrowing": 0.5,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.5,
+          "down": 3.0,
+          "passing": 0.8,
+          "up": 0.4
+        },
+        "arm_swing": {
+          "model": "shoulder_pendulum",
+          "_doc": "Director rr-44 (owner: 'His arms don't move naturally while he walks, one wiggles the other is still'). As rr-29: the upper arm rotates about the shoulder toward the facing and away from it, opposite the same-side leg; the forearm follows with a lag and bends more on the backswing; the hand is rigid with the forearm. A heavy plod: a little less than the Mimic, and less on the chain arm.",
+          "phase": "opposite_same_side_leg",
+          "near": {
+            "upper_deg": 14,
+            "forearm_lag_s": 0.08,
+            "forearm_bend_deg": {
+              "forward": 3,
+              "back": 10
+            }
+          },
+          "far": {
+            "upper_deg": 10,
+            "forearm_lag_s": 0.08,
+            "forearm_bend_deg": {
+              "forward": 2,
+              "back": 7
+            }
+          },
+          "envelope": {
+            "ramp_fraction": 0.12,
+            "ease": "smoothstep"
+          }
+        },
+        "max_fit_px": 6
+      },
+      "held_follow": {
+        "_doc": "The hook trails the swinging fist: chain.angle_deg(t) = deg_per_px x (the grip's displacement along the facing, in source px, from its rest position, at t - lag_s; 0 before the clip starts). The fist swinging forward tips the hook back. Generated like the gait tracks; no other chain key in move.",
+        "item": "chain",
+        "grip": "hand_far",
+        "deg_per_px": -0.6,
+        "lag_s": 0.06,
+        "reference_frame": "body"
+      },
+      "release_at": {}
+    },
+    "reel": {
+      "seconds": 1.1,
+      "contact": 0.5,
+      "intents": [
+        "chain_reel:pull"
+      ],
+      "note": "from the low hold: winds the chain back with the fist drawn back past the hip (the hook swings behind), then swings the arm forward and up and casts the hook out at the target (the chain swings forward to nearly level at waist height, contact), then heaves it back to the hip with a lean back and a dropped hip (the pull); the free fist counter-balances; the chain falls back to hang",
+      "release_at": {}
+    },
+    "pin": {
+      "seconds": 0.8,
+      "contact": 0.5,
+      "intents": [
+        "manacle_pin:ranged"
+      ],
+      "note": "a short whip from the low hold: the chain flicks back, then snaps the hook forward at the target's feet (contact), held a beat, then hangs again",
+      "release_at": {}
+    },
+    "press": {
+      "seconds": 0.85,
+      "contact": 0.5,
+      "intents": [
+        "cudgel_press:melee"
+      ],
+      "note": "after the step in (the move clip), a hammer blow with the free fist: wound up high and back with a lean back, then slammed forward and down into the target (contact) with the body behind it and the hips dropped; held, then recovered; the hanging chain swings back with the lunge; the free arm's elbow flexes toward the facing through the wind-up and the slam (elbow_policy), never backward",
+      "budget_note": "rr-38 feedback 1: these are director targets; if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp",
+      "release_at": {}
+    },
+    "guard": {
+      "seconds": 0.9,
+      "contact": 0.3,
+      "intents": [
+        "iron_guard:block"
+      ],
+      "note": "after the step in, hunkers down: the hips drop, the body hunches forward, the chain fist comes up to the belly so the chain hangs across the front of his legs, and the free fist comes up to the belly; holds; then eases back",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, the helm nods back 4 degrees; both hands carry the knockback a beat late (the arms hang loose and catch up), so the elbows only flex; the hanging chain swings forward 5 degrees as the body is knocked back, then settles; the coat tails flick 2 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.6,
+      "terminal": true,
+      "intents": [],
+      "note": "staggers back; the chain slips from the grip at 0.3, drops straight to the floor under the fist and tips forward to lie along it; the body slumps forward over planted feet (hips sink 6 px, torso folds 24 degrees, helm bowed 16 degrees), no kneel: the heavy coat cannot bend that far at the knee without tearing (rr-42 decision); the lowered chain arm hangs limp as the body folds (unchanged choreography; the drop is shorter from the hip); the coat tails and tabard settle; terminal pose held, then the existing fade",
+      "budget_note": "rr-42 feedback 1: slump replaces the kneel (director decision); hand_far.lift_px -36 remains a target clamped to the measured joint budget",
+      "release_at": {
+        "chain": 0.3
+      }
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

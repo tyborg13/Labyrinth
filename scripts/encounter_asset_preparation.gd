@@ -87,6 +87,7 @@ static func prepare_opening_hand_for(scene: Node, combat_state: Dictionary, gene
 	var tree: SceneTree = scene.get_tree()
 	var renderer_jobs: Array[Dictionary] = scene.board_view.begin_unit_renderer_preparation(combat_state)
 	var hand: Array = (combat_state.get("deck", {}) as Dictionary).get("hand", [])
+	preload("res://scripts/run_card_pool_lifetime.gd").prepare_hand(scene, hand)
 	var card_size: Vector2 = scene._hand_card_size(hand.size(), false)
 	var copies: Dictionary = {}
 	for card_id: String in hand:

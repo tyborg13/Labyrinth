@@ -1,0 +1,44 @@
+{
+  "status": "incomplete_runner_timeout",
+  "full_invocations": 1,
+  "runner_exit_code": 1,
+  "official_summary_emitted": false,
+  "completed_module_logs": 234,
+  "expected_modules": 236,
+  "missing_completed_modules": [
+    "test_rr35_production",
+    "test_rr45_lancer"
+  ],
+  "completed_structured_shard_reports": 2,
+  "tests_in_completed_shard_reports": 1200,
+  "failures_in_completed_shard_reports": 2,
+  "errors_in_completed_shard_reports": 0,
+  "skips_in_completed_shard_reports": 65,
+  "observed_test_failure_events": [
+    "FAIL: test_godot_sidecars.GodotSidecarRepositoryTests.test_tracked_sources_have_sidecars_and_sidecars_have_sources",
+    "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+    "ERROR: 1 resources still in use at exit (run with --verbose for details).",
+    "FAIL: test_mq24_maquette.ProofTests.test_native_delivery_meets_ratified_image_contract",
+    "FAIL: test_sb02_movement.Movement.test_incremental_submission"
+  ],
+  "runner_result_lines": [
+    "SHARD 3 COMPLETE: 626 tests; 1579.850s",
+    "SHARD 4 COMPLETE: 574 tests; 1758.608s",
+    "RuntimeError: Shard 2 timed out after 2400s",
+    "PermissionError: [Errno 1] Operation not permitted"
+  ],
+  "note": "No aggregate Ran/OK/FAILED line exists. Partial shard counts are not a completed full-suite result. No retry or runner edit was made.",
+  "observed_unittest_failure_events": [
+    "FAIL: test_godot_sidecars.GodotSidecarRepositoryTests.test_tracked_sources_have_sidecars_and_sidecars_have_sources",
+    "FAIL: test_mq24_maquette.ProofTests.test_native_delivery_meets_ratified_image_contract",
+    "FAIL: test_sb02_movement.Movement.test_incremental_submission"
+  ],
+  "engine_error_log_events": [
+    "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+    "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+  ],
+  "completed_shard_failure_ids": [
+    "test_native_delivery_meets_ratified_image_contract (test_mq24_maquette.ProofTests)",
+    "test_incremental_submission (test_sb02_movement.Movement)"
+  ]
+}

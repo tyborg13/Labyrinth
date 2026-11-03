@@ -1,0 +1,141 @@
+{
+  "rows": [
+    {
+      "metric": "rear.height",
+      "value": 227,
+      "band": null,
+      "status": "INFO"
+    },
+    {
+      "metric": "rear.width",
+      "value": 159,
+      "band": null,
+      "status": "INFO"
+    },
+    {
+      "metric": "rear.height_drawn",
+      "value": 227.0,
+      "band": [
+        226,
+        255
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.symmetry",
+      "value": 0.7137578998541565,
+      "band": [
+        null,
+        0.86
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.thin_abs",
+      "value": 0.005533943345570114,
+      "band": [
+        null,
+        0.06
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.thin_rel",
+      "value": 0.07435209029642209,
+      "band": [
+        null,
+        0.12
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.feature_px",
+      "value": 5.501545086757465,
+      "band": [
+        4.4,
+        null
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.regions",
+      "value": 603,
+      "band": null,
+      "status": "INFO"
+    },
+    {
+      "metric": "rear.chroma",
+      "value": 0.12949255533674758,
+      "band": [
+        null,
+        0.2
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.value",
+      "value": 0.23073612834537136,
+      "band": [
+        0.12,
+        0.4
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.edge_light_share",
+      "value": 0.0,
+      "band": [
+        null,
+        0.06
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.orphan_share",
+      "value": 0.1583474878088872,
+      "band": null,
+      "status": "INFO"
+    },
+    {
+      "metric": "rear.run_length",
+      "value": 1.8232767232767233,
+      "band": null,
+      "status": "INFO"
+    },
+    {
+      "metric": "rear.art_scale",
+      "value": 1.0,
+      "band": [
+        0.75,
+        1.2
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear.fit_scale",
+      "value": 1.0,
+      "band": null,
+      "status": "INFO"
+    },
+    {
+      "metric": "rear_consistency.chroma_delta",
+      "value": 0.006822991973786954,
+      "band": [
+        0,
+        0.03
+      ],
+      "status": "PASS"
+    },
+    {
+      "metric": "rear_consistency.value_delta",
+      "value": 0.017374465827681623,
+      "band": [
+        0,
+        0.03
+      ],
+      "status": "PASS"
+    }
+  ],
+  "processed_sha256": "85845e1e0c66ab760afd6671390dfab71f5a20c7e62c3e8b1420b74250c7e8b7",
+  "sheet_sha256": "14fbb17da86a12e39c1402c767ae84b02fa9d5cf158e7b6e68238f732453bbc2"
+}

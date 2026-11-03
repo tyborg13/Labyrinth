@@ -1,0 +1,18 @@
+{
+  "approved_revision": "c78b9f7f68cc52880a6e74d805983a698999c1b6",
+  "files": {
+    "stable_paint.gd": {
+      "source": "scripts/maquette_cutout_runtime/stable_paint.gd",
+      "sha256": "06abd3523e15c73ea1d957cbfced52217ebde111792c82a1815f0f569bd8196d"
+    },
+    "stable_skin.gd": {
+      "source": "scripts/maquette_cutout_runtime/stable_skin.gd",
+      "sha256": "81c2970dd401601a7a70c7fe0b3838e359eb152aa91e3ce8c0a3e6c102748b1a"
+    },
+    "motion.gd": {
+      "source": "scripts/maquette_cutout_runtime/motion.gd",
+      "function": "point",
+      "sha256": "68d5169068b52e37488e1ba4e13f9d533440d91c5bde753bc51e973f64b76d35"
+    }
+  }
+}

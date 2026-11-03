@@ -1,0 +1,178 @@
+# Round 0 inventory (committed by the design owner at 0055e4b99)
+ M assets/generated/unit_shadow_cache.res
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/front.json
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/front/covered_cape_far.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/front/covered_torso.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/front/hidden_cape_far.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/front/hidden_foot_far.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/front/hidden_torso.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/front/rest.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/rear.json
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/rear/cape_far.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/rear/cape_near.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/rear/hidden_cape_far.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/rear/hidden_cape_near.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/rear/rest.png
+ M assets/units/frostglass_lancer_cutout/integration.json
+ M experiments/cutouts/frostglass_lancer/rr37/checks/front/covered_cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/checks/front/covered_torso.png
+ M experiments/cutouts/frostglass_lancer/rr37/checks/front/hidden_cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/checks/front/hidden_foot_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/checks/front/hidden_torso.png
+ M experiments/cutouts/frostglass_lancer/rr37/checks/rear/cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/checks/rear/cape_near.png
+ M experiments/cutouts/frostglass_lancer/rr37/checks/rear/hidden_cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/checks/rear/hidden_cape_near.png
+ M experiments/cutouts/frostglass_lancer/rr37/clip_continuations.json
+ M experiments/cutouts/frostglass_lancer/rr37/layouts/front.json
+ M experiments/cutouts/frostglass_lancer/rr37/layouts/rear.json
+ M experiments/cutouts/frostglass_lancer/rr37/material_contract.json
+ M experiments/cutouts/frostglass_lancer/rr37/pieces/front/covered_cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/pieces/front/covered_torso.png
+ M experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_foot_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/pieces/front/hidden_torso.png
+ M experiments/cutouts/frostglass_lancer/rr37/pieces/rear/cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/pieces/rear/cape_near.png
+ M experiments/cutouts/frostglass_lancer/rr37/pieces/rear/hidden_cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/pieces/rear/hidden_cape_near.png
+ M experiments/cutouts/frostglass_lancer/rr37/proof/build.json
+ M experiments/cutouts/frostglass_lancer/rr37/proof/cpu_poses.json
+ M experiments/cutouts/frostglass_lancer/rr37/proof/production_binding.json
+ M experiments/cutouts/frostglass_lancer/rr37/proof/samples.json
+ M experiments/cutouts/frostglass_lancer/rr37/tucks/front_torso.png
+ M experiments/cutouts/frostglass_lancer/rr37/uncovered/donor_front_covered_cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/uncovered/donor_front_hidden_cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/uncovered/donor_front_hidden_foot_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/uncovered/donor_front_hidden_torso.png
+ M experiments/cutouts/frostglass_lancer/rr37/uncovered/donor_rear_cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/uncovered/donor_rear_cape_near.png
+ M experiments/cutouts/frostglass_lancer/rr37/uncovered/donor_rear_hidden_cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37/uncovered/donor_rear_hidden_cape_near.png
+ M experiments/cutouts/frostglass_lancer/rr37/uncovered/front_cape_far.png
+ M experiments/cutouts/frostglass_lancer/rr37_build.py
+ M experiments/cutouts/frostglass_lancer/rr37_density.py
+ M experiments/cutouts/frostglass_lancer/rr37_feedback3_fixture.py
+ M experiments/cutouts/frostglass_lancer/rr37_materials.py
+ M experiments/cutouts/frostglass_lancer/rr37_native_checks.py
+ M experiments/cutouts/frostglass_lancer/rr37_production.py
+ M experiments/cutouts/frostglass_lancer/rr37_proof.sh
+ M experiments/cutouts/frostglass_lancer/rr37_surfaces.py
+ M experiments/cutouts/frostglass_lancer/rr37_uncovered.py
+ M scripts/combat_board_view.gd
+ M scripts/enemy_strike_points.gd
+ M scripts/maquette_cutout_runtime/strike_points.gd
+ M scripts/run_scene.gd
+ M spec/assets/board_pixel_density/outputs.json
+ M spec/assets/board_pixel_density/registry.json
+ M spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/front/covered_cape_far.png
+ M spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/front/covered_torso.png
+ M spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/front/hidden_cape_far.png
+ M spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/front/hidden_foot_far.png
+ M spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/front/hidden_torso.png
+ M spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/rear/cape_far.png
+ M spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/rear/cape_near.png
+ M spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/rear/hidden_cape_far.png
+ M spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/rear/hidden_cape_near.png
+ M tests/rr37/production_capture.gd
+ M tests/rr37/runtime_checks.gd
+ M tests/rr37/sidecars.gd
+ M tests/suites/frostglass_lancer_cutout_suite.gd
+ M tests/test_rr37_feedback3.py
+ M tests/test_rr37_lancer.py
+?? assets/units/frostglass_lancer_cutout/humanoid_v2/front/covered_foot_far.png
+?? assets/units/frostglass_lancer_cutout/humanoid_v2/front/covered_foot_far.png.import
+?? experiments/cutouts/frostglass_lancer/rr37/checks/front/covered_foot_far.png
+?? experiments/cutouts/frostglass_lancer/rr37/checks/front/covered_foot_far.png.import
+?? experiments/cutouts/frostglass_lancer/rr37/pieces/front/covered_foot_far.png
+?? experiments/cutouts/frostglass_lancer/rr37/pieces/front/covered_foot_far.png.import
+?? experiments/cutouts/frostglass_lancer/rr37/proof/rr39_verification.json
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/donor_front_covered_foot_far.png
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/donor_front_covered_foot_far.png.import
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/front_foot_far.png
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/front_foot_far.png.import
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_covered_cape_far.png
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_covered_cape_far.png.import
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_covered_foot_far.png
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_covered_foot_far.png.import
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_covered_torso.png
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_covered_torso.png.import
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_hidden_cape_far.png
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_hidden_cape_far.png.import
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_hidden_foot_far.png
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_hidden_foot_far.png.import
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_hidden_torso.png
+?? experiments/cutouts/frostglass_lancer/rr37/uncovered/painted_front_hidden_torso.png.import
+?? experiments/cutouts/frostglass_lancer/rr39_CHANGED_FILES.txt
+?? experiments/cutouts/frostglass_lancer/rr39_HANDOFF.md
+?? experiments/cutouts/frostglass_lancer/rr39_density_partitions.patch
+?? experiments/cutouts/frostglass_lancer/rr39_fixture.py
+?? experiments/cutouts/frostglass_lancer/rr39_fixture/
+?? experiments/cutouts/frostglass_lancer/rr39_underlay.py
+?? scripts/maquette_cutout_runtime/effect_sockets.gd
+?? scripts/maquette_cutout_runtime/effect_sockets.gd.uid
+?? scripts/maquette_cutout_runtime/posed_points.gd
+?? scripts/maquette_cutout_runtime/posed_points.gd.uid
+?? spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/front/covered_foot_far.png
+?? spec/assets/board_pixel_density/sources/assets/units/frostglass_lancer_cutout/humanoid_v2/front/covered_foot_far.png.import
+?? tests/rr37/renderer_sockets.gd
+?? tests/rr37/renderer_sockets.gd.uid
+?? tests/test_rr39_lancer.py
+?? tests/test_rr39_proof_rerun.py
+?? tools/humanoid_cutout/uncovered_surfaces.py
+
+# Feedback 1 uncommitted inventory
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/front/covered_cape_far.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/front/covered_torso.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/front/hidden_cape_far.png
+ M assets/units/frostglass_lancer_cutout/humanoid_v2/front/hidden_torso.png
+ M assets/units/frostglass_lancer_cutout/integration.json
+ M experiments/cutouts/frostglass_lancer/rr37/proof/cpu_poses.json
+ M experiments/cutouts/frostglass_lancer/rr37/proof/production_binding.json
+ M experiments/cutouts/frostglass_lancer/rr37/proof/samples.json
+ M experiments/cutouts/frostglass_lancer/rr37_density.py
+ M experiments/cutouts/frostglass_lancer/rr37_frames.py
+ M experiments/cutouts/frostglass_lancer/rr39_CHANGED_FILES.txt
+ M experiments/cutouts/frostglass_lancer/rr39_HANDOFF.md
+ M spec/assets/board_pixel_density/outputs.json
+ M spec/assets/board_pixel_density/registry.json
+ M tests/rr37/samples.gd
+ M tests/test_rr37_feedback1.py
+ M tests/test_rr39_lancer.py
+ M tools/process_board_density.py
+?? experiments/cutouts/frostglass_lancer/rr37/proof/density_partition.json
+?? experiments/cutouts/frostglass_lancer/rr37/proof/rest_equivalence.json
+?? experiments/cutouts/frostglass_lancer/rr37/proof/rr39_feedback1_verification.json
+?? experiments/cutouts/frostglass_lancer/rr39_density.py
+?? tests/test_rr39_density_partitions.py
+?? tools/humanoid_cutout/density_partitions.py
+
+# Feedback 2 uncommitted inventory (base 7768b7172)
+ M experiments/cutouts/frostglass_lancer/rr37/proof/cpu_poses.json
+ M experiments/cutouts/frostglass_lancer/rr37/proof/density_partition.json
+ M experiments/cutouts/frostglass_lancer/rr37/proof/rest_equivalence.json
+ M experiments/cutouts/frostglass_lancer/rr37/proof/samples.json
+ M experiments/cutouts/frostglass_lancer/rr37_uncovered.py
+ M experiments/cutouts/frostglass_lancer/rr39_HANDOFF.md
+ M experiments/cutouts/frostglass_lancer/rr39_density.py
+ M tests/test_rr39_density_partitions.py
+ M tests/test_rr39_lancer.py
+ M tools/humanoid_cutout/cpu_pose.py
+?? experiments/cutouts/frostglass_lancer/rr37/proof/rr39_feedback2_verification.json
+?? experiments/cutouts/frostglass_lancer/rr37/proof/rr39_native_ties.json
+?? experiments/cutouts/frostglass_lancer/rr39_tie_fixture.py
+?? experiments/cutouts/frostglass_lancer/rr39_tie_fixture/
+?? tests/test_rr39_native_ties.py
+?? tools/humanoid_cutout/native_mesh.py
+?? tools/humanoid_cutout/uncovered_ties.py
+
+# Feedback 3 uncommitted inventory (base 179866762)
+# Pre-existing deletion: rr37/proof/native_gates.json (untouched)
+ D experiments/cutouts/frostglass_lancer/rr37/proof/native_gates.json
+ M experiments/cutouts/frostglass_lancer/rr39_HANDOFF.md
+ M experiments/cutouts/frostglass_lancer/rr39_tie_fixture.py
+ M tests/test_rr39_native_ties.py
+?? experiments/cutouts/frostglass_lancer/rr37/proof/rr39_feedback3_verification.json
+?? experiments/cutouts/frostglass_lancer/rr39_tie_fixture/empty_painted_certificate.png
+?? tests/test_rr39_clean_checkout.py
+?? tests/test_rr39_retained_bindings.py

@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "trigger_format": "Repository-relative fnmatch globs; * and ** may match slashes. Changes include both sides of renames. Default always runs. Every resource-table module has exactly one input group.",
+  "groups": {
+    "default": {
+      "modules": [
+        "test_approved_content_manifest",
+        "test_card_heuristic_illusions_terrain",
+        "test_card_heuristic_keywords",
+        "test_card_heuristic_maneuver",
+        "test_card_heuristic_progression_context",
+        "test_card_heuristic_surfaces",
+        "test_card_heuristic_wave4_surfaces",
+        "test_card_panel_text",
+        "test_element_rule_contract",
+        "test_godot_sidecars",
+        "test_godot_task_runner",
+        "test_icon_identity_policy",
+        "test_program_suite_runner",
+        "test_python_suite_runner",
+        "test_python_suite_runner_feedback",
+        "test_relic_pt13_01",
+        "test_runner_cancellation",
+        "test_short_card_tooltips",
+        "test_text_budget"
+      ],
+      "triggers": []
+    },
+    "rig": {
+      "modules": [
+        "test_art_identity_gate",
+        "test_cutout_workflow",
+        "test_maquette_bleed",
+        "test_maquette_blender",
+        "test_maquette_builder_wiring",
+        "test_maquette_closed_loft",
+        "test_maquette_geometry",
+        "test_maquette_hidden_material",
+        "test_maquette_joint_seams",
+        "test_recolour_lab",
+        "test_rr48_reaver"
+      ],
+      "triggers": [],
+      "on_demand": true
+    },
+    "tools": {
+      "modules": [
+        "test_capture_director",
+        "test_capture_production",
+        "test_demo_clips",
+        "test_demo_recording",
+        "test_dragon_rule_measurement",
+        "test_encounter_measurement",
+        "test_guardian_rules_measurement",
+        "test_inspection_fixture",
+        "test_labyrinth_queue_board",
+        "test_labyrinth_task_queue",
+        "test_output_gdignore",
+        "test_pace_round_capture",
+        "test_parallel_task",
+        "test_performance_pass",
+        "test_sb02_movement",
+        "test_section_transition_clip",
+        "test_skybolt_measurement",
+        "test_steam_performance_stats_schema",
+        "test_visual_probe_runner"
+      ],
+      "triggers": [],
+      "on_demand": true
+    },
+    "sound": {
+      "modules": [
+        "test_classical_soundtrack_pipeline",
+        "test_sfx_lab"
+      ],
+      "triggers": [],
+      "on_demand": true
+    },
+    "timing": {
+      "modules": [
+        "test_combat_feel_measurements",
+        "test_rr49_submission"
+      ],
+      "triggers": [],
+      "on_demand": true
+    },
+    "ui": {
+      "modules": [
+        "test_ui_identity_lint"
+      ],
+      "triggers": [],
+      "on_demand": true
+    }
+  }
+}

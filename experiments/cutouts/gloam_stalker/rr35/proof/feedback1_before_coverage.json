@@ -1,0 +1,130 @@
+{
+  "front": {
+    "ok": false,
+    "frames": 353,
+    "failures": [
+      {
+        "clip": "move",
+        "frame": 13,
+        "pockets": [],
+        "metrics": {
+          "stray_components": 1,
+          "floating_components": 1
+        }
+      },
+      {
+        "clip": "move",
+        "frame": 14,
+        "pockets": [],
+        "metrics": {
+          "stray_components": 1,
+          "floating_components": 1
+        }
+      },
+      {
+        "clip": "move",
+        "frame": 15,
+        "pockets": [],
+        "metrics": {
+          "stray_components": 1,
+          "floating_components": 1
+        }
+      },
+      {
+        "clip": "move",
+        "frame": 16,
+        "pockets": [],
+        "metrics": {
+          "stray_components": 1,
+          "floating_components": 1
+        }
+      },
+      {
+        "clip": "move",
+        "frame": 17,
+        "pockets": [],
+        "metrics": {
+          "stray_components": 1,
+          "floating_components": 1
+        }
+      },
+      {
+        "clip": "move",
+        "frame": 34,
+        "pockets": [],
+        "metrics": {
+          "stray_components": 1,
+          "floating_components": 1
+        }
+      },
+      {
+        "clip": "move",
+        "frame": 35,
+        "pockets": [],
+        "metrics": {
+          "stray_components": 1,
+          "floating_components": 1
+        }
+      },
+      {
+        "clip": "move",
+        "frame": 36,
+        "pockets": [],
+        "metrics": {
+          "stray_components": 1,
+          "floating_components": 1
+        }
+      },
+      {
+        "clip": "slash",
+        "frame": 16,
+        "pockets": [
+          {
+            "bbox": [
+              178,
+              214,
+              180,
+              215
+            ],
+            "pixel_count": 2,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": true
+          }
+        ],
+        "metrics": {}
+      }
+    ],
+    "native_pixels": false,
+    "samples_sha256": "90beab564b9c95f11a85944e0cf41e15080b0dab444f7a82481ab9e37f21a7b2",
+    "rest_components": 1,
+    "maximum_components": 2
+  },
+  "rear": {
+    "ok": false,
+    "frames": 353,
+    "failures": [
+      {
+        "clip": "slash",
+        "frame": 44,
+        "pockets": [
+          {
+            "bbox": [
+              213,
+              252,
+              214,
+              254
+            ],
+            "pixel_count": 2,
+            "painted_or_tuck_pixels": 0,
+            "joint_tear": true
+          }
+        ],
+        "metrics": {}
+      }
+    ],
+    "native_pixels": false,
+    "samples_sha256": "90beab564b9c95f11a85944e0cf41e15080b0dab444f7a82481ab9e37f21a7b2",
+    "rest_components": 1,
+    "maximum_components": 1
+  }
+}

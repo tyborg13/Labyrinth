@@ -1,0 +1,814 @@
+{
+  "source_head": "5c099f24b39841012673d71134c2126ce68e7917",
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "groups": [
+    {
+      "tier": 1,
+      "biome": "fire",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.66,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 16.0,
+        "p10": 0,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "fire": 200
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "earth",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.835,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 9.0,
+        "p10": 0,
+        "p90": 24
+      },
+      "turn_cap_reached": 10,
+      "biomes": {
+        "earth": 200
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "ice",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.775,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 9
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 9.0,
+        "p10": 0,
+        "p90": 24
+      },
+      "turn_cap_reached": 10,
+      "biomes": {
+        "ice": 200
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "air",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.835,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 8.5,
+        "p10": 0,
+        "p90": 24
+      },
+      "turn_cap_reached": 4,
+      "biomes": {
+        "air": 200
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "lightning",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.705,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 9
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 13.0,
+        "p10": 0,
+        "p90": 26
+      },
+      "turn_cap_reached": 10,
+      "biomes": {
+        "lightning": 200
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "shadow",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.185,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 16.0,
+        "p90": 26
+      },
+      "turn_cap_reached": 10,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "tier": 1,
+      "biome": "shadow",
+      "room_dark": "off",
+      "n": 200,
+      "win_rate": 0.265,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 14.0,
+        "p90": 26
+      },
+      "turn_cap_reached": 6,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "fire",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.41,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 8.0
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 8.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "fire": 200
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "earth",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.48,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 6.0,
+        "p10": 4.0,
+        "p90": 10.0
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 20.5,
+        "p10": 5.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 17,
+      "biomes": {
+        "earth": 200
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "ice",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.465,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 6.0,
+        "p10": 3.0,
+        "p90": 11.0
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 4.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 8,
+      "biomes": {
+        "ice": 200
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "air",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.5,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 6.0,
+        "p10": 3.0,
+        "p90": 9.0
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 4.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "air": 200
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "lightning",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.4,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3.0,
+        "p90": 9.0
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 5.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "lightning": 200
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "shadow",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.0,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 3.0,
+        "p10": 3.0,
+        "p90": 5.0
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24.0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "tier": 2,
+      "biome": "shadow",
+      "room_dark": "off",
+      "n": 200,
+      "win_rate": 0.025,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3.0,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24.0,
+        "p90": 26
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "fire",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.27,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 10
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 16,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "fire": 200
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "earth",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.285,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 7.0,
+        "p10": 3,
+        "p90": 14
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 7,
+        "p90": 26
+      },
+      "turn_cap_reached": 13,
+      "biomes": {
+        "earth": 200
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "ice",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.37,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 7.0,
+        "p10": 3,
+        "p90": 15
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 7,
+        "p90": 26
+      },
+      "turn_cap_reached": 8,
+      "biomes": {
+        "ice": 200
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "air",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.33,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 7.0,
+        "p10": 3,
+        "p90": 12
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 10,
+        "p90": 26
+      },
+      "turn_cap_reached": 2,
+      "biomes": {
+        "air": 200
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "lightning",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.205,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 11
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 15,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "lightning": 200
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "shadow",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.015,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24.0,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "shadow": 200
+      }
+    },
+    {
+      "tier": 3,
+      "biome": "shadow",
+      "room_dark": "off",
+      "n": 200,
+      "win_rate": 0.015,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 24,
+        "p90": 26
+      },
+      "turn_cap_reached": 2,
+      "biomes": {
+        "shadow": 200
+      }
+    }
+  ],
+  "enemy_cuts": [
+    {
+      "tier": 1,
+      "room_dark": "on",
+      "held": "Mimic present",
+      "n": 20,
+      "win_rate": 0.1,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 1,
+      "room_dark": "on",
+      "held": "Stalker present",
+      "n": 45,
+      "win_rate": 0.3333333333333333,
+      "median_hp_lost": 24
+    },
+    {
+      "tier": 1,
+      "room_dark": "on",
+      "held": "Other type present",
+      "n": 200,
+      "win_rate": 0.185,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 1,
+      "room_dark": "off",
+      "held": "Mimic present",
+      "n": 20,
+      "win_rate": 0.2,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 1,
+      "room_dark": "off",
+      "held": "Stalker present",
+      "n": 45,
+      "win_rate": 0.4,
+      "median_hp_lost": 24
+    },
+    {
+      "tier": 1,
+      "room_dark": "off",
+      "held": "Other type present",
+      "n": 200,
+      "win_rate": 0.265,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 2,
+      "room_dark": "on",
+      "held": "Mimic present",
+      "n": 22,
+      "win_rate": 0.0,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 2,
+      "room_dark": "on",
+      "held": "Stalker present",
+      "n": 74,
+      "win_rate": 0.0,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 2,
+      "room_dark": "on",
+      "held": "Other type present",
+      "n": 200,
+      "win_rate": 0.0,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 2,
+      "room_dark": "off",
+      "held": "Mimic present",
+      "n": 22,
+      "win_rate": 0.0,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 2,
+      "room_dark": "off",
+      "held": "Stalker present",
+      "n": 74,
+      "win_rate": 0.013513513513513514,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 2,
+      "room_dark": "off",
+      "held": "Other type present",
+      "n": 200,
+      "win_rate": 0.025,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 3,
+      "room_dark": "on",
+      "held": "Mimic present",
+      "n": 39,
+      "win_rate": 0.0,
+      "median_hp_lost": 24
+    },
+    {
+      "tier": 3,
+      "room_dark": "on",
+      "held": "Stalker present",
+      "n": 80,
+      "win_rate": 0.025,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 3,
+      "room_dark": "on",
+      "held": "Other type present",
+      "n": 200,
+      "win_rate": 0.015,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 3,
+      "room_dark": "off",
+      "held": "Mimic present",
+      "n": 39,
+      "win_rate": 0.0,
+      "median_hp_lost": 24
+    },
+    {
+      "tier": 3,
+      "room_dark": "off",
+      "held": "Stalker present",
+      "n": 80,
+      "win_rate": 0.025,
+      "median_hp_lost": 24.0
+    },
+    {
+      "tier": 3,
+      "room_dark": "off",
+      "held": "Other type present",
+      "n": 200,
+      "win_rate": 0.015,
+      "median_hp_lost": 24.0
+    }
+  ],
+  "audit": [
+    {
+      "seed": 1,
+      "turn_ends": 4,
+      "ends_with_playable_cards": 3,
+      "unseen_target_turns": 0,
+      "unseen_target_turns_with_approach": 0,
+      "unseen_target_pass_ends": 0,
+      "turns_with_any_visibility_blocked_action": 1,
+      "partial_sight_approaches": 0,
+      "hidden_collisions": 0,
+      "ending": "death"
+    },
+    {
+      "seed": 2,
+      "turn_ends": 6,
+      "ends_with_playable_cards": 2,
+      "unseen_target_turns": 0,
+      "unseen_target_turns_with_approach": 0,
+      "unseen_target_pass_ends": 0,
+      "turns_with_any_visibility_blocked_action": 1,
+      "partial_sight_approaches": 0,
+      "hidden_collisions": 0,
+      "ending": "death"
+    },
+    {
+      "seed": 3,
+      "turn_ends": 3,
+      "ends_with_playable_cards": 1,
+      "unseen_target_turns": 0,
+      "unseen_target_turns_with_approach": 0,
+      "unseen_target_pass_ends": 0,
+      "turns_with_any_visibility_blocked_action": 0,
+      "partial_sight_approaches": 0,
+      "hidden_collisions": 0,
+      "ending": "death"
+    },
+    {
+      "seed": 4,
+      "turn_ends": 5,
+      "ends_with_playable_cards": 3,
+      "unseen_target_turns": 0,
+      "unseen_target_turns_with_approach": 0,
+      "unseen_target_pass_ends": 0,
+      "turns_with_any_visibility_blocked_action": 0,
+      "partial_sight_approaches": 0,
+      "hidden_collisions": 0,
+      "ending": "death"
+    },
+    {
+      "seed": 5,
+      "turn_ends": 3,
+      "ends_with_playable_cards": 2,
+      "unseen_target_turns": 0,
+      "unseen_target_turns_with_approach": 0,
+      "unseen_target_pass_ends": 0,
+      "turns_with_any_visibility_blocked_action": 0,
+      "partial_sight_approaches": 0,
+      "hidden_collisions": 0,
+      "ending": "death"
+    },
+    {
+      "seed": 6,
+      "turn_ends": 3,
+      "ends_with_playable_cards": 3,
+      "unseen_target_turns": 0,
+      "unseen_target_turns_with_approach": 0,
+      "unseen_target_pass_ends": 0,
+      "turns_with_any_visibility_blocked_action": 0,
+      "partial_sight_approaches": 0,
+      "hidden_collisions": 0,
+      "ending": "death"
+    },
+    {
+      "seed": 7,
+      "turn_ends": 2,
+      "ends_with_playable_cards": 1,
+      "unseen_target_turns": 0,
+      "unseen_target_turns_with_approach": 0,
+      "unseen_target_pass_ends": 0,
+      "turns_with_any_visibility_blocked_action": 0,
+      "partial_sight_approaches": 0,
+      "hidden_collisions": 0,
+      "ending": "death"
+    },
+    {
+      "seed": 8,
+      "turn_ends": 4,
+      "ends_with_playable_cards": 2,
+      "unseen_target_turns": 0,
+      "unseen_target_turns_with_approach": 0,
+      "unseen_target_pass_ends": 0,
+      "turns_with_any_visibility_blocked_action": 1,
+      "partial_sight_approaches": 0,
+      "hidden_collisions": 0,
+      "ending": "death"
+    },
+    {
+      "seed": 9,
+      "turn_ends": 4,
+      "ends_with_playable_cards": 2,
+      "unseen_target_turns": 0,
+      "unseen_target_turns_with_approach": 0,
+      "unseen_target_pass_ends": 0,
+      "turns_with_any_visibility_blocked_action": 0,
+      "partial_sight_approaches": 0,
+      "hidden_collisions": 0,
+      "ending": "death"
+    },
+    {
+      "seed": 10,
+      "turn_ends": 3,
+      "ends_with_playable_cards": 1,
+      "unseen_target_turns": 1,
+      "unseen_target_turns_with_approach": 0,
+      "unseen_target_pass_ends": 0,
+      "turns_with_any_visibility_blocked_action": 2,
+      "partial_sight_approaches": 0,
+      "hidden_collisions": 0,
+      "ending": "death"
+    }
+  ],
+  "audit_totals": {
+    "turn_ends": 37,
+    "ends_with_playable_cards": 20,
+    "unseen_target_turns": 1,
+    "unseen_target_turns_with_approach": 0,
+    "unseen_target_pass_ends": 0,
+    "turns_with_any_visibility_blocked_action": 5,
+    "partial_sight_approaches": 0,
+    "hidden_collisions": 0
+  },
+  "controls": [
+    {
+      "tier": 3,
+      "biome": "lightning",
+      "room_dark": "on",
+      "n": 200,
+      "win_rate": 0.205,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 11
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 15,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "lightning": 200
+      }
+    }
+  ]
+}

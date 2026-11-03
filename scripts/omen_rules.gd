@@ -5,6 +5,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const EFFECT_TYPES: Array = ["start_block", "start_stoneskin", "start_expose", "start_vision_turns", "first_turn_card_plays", "first_turn_movement", "start_on_fire", "umbra_stage_delta", "ember_drop_percent", "extra_enemies"]
+const START_APPLIED_KEY: String = "omen_start_applied_ids"
 
 static func active(state: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
@@ -54,33 +55,63 @@ static func amount(state: Dictionary, type: String) -> int:
 		if str(effect.get("type", "")) == type: total += int(effect.get("amount", 0))
 	return total
 
-static func start_combat(engine: RefCounted, state: Dictionary, snapshot: Dictionary) -> Dictionary:
+static func start_combat(engine: RefCounted, state: Dictionary, snapshot: Dictionary, extra_enemies_added: int = 0) -> Dictionary:
 	if active(snapshot).is_empty(): return state
 	state["omens"] = snapshot.get("omens", []).duplicate(true)
+	state.erase(START_APPLIED_KEY)
+	var entries: Array[Dictionary] = active(state)
+	var applied: Dictionary = {}
 	var player: Dictionary = state["player"]
-	for effect: Dictionary in effects(state):
+	for entry: Dictionary in entries:
+		var effect: Dictionary = GameData.omen_def(str(entry["id"]))["effect"]
 		var value: int = int(effect.get("amount", 0))
+		var changed: bool = false
 		match str(effect["type"]):
-			"start_block": player["block"] = int(player.get("block", 0)) + value
-			"start_stoneskin": player["stoneskin"] = int(player.get("stoneskin", 0)) + value
-			"start_expose": player["expose"] = int(player.get("expose", 0)) + value
-			"start_vision_turns": state = engine._apply_umbra_vision(state, {"amount": int(effect["radius"]), "duration": value})
+			"start_block", "start_stoneskin", "start_expose":
+				var field: String = str(effect["type"]).trim_prefix("start_")
+				player[field] = int(player.get(field, 0)) + value
+				changed = value != 0
+			"start_vision_turns":
+				var old_vision: Array = [state["umbra"].get("vision_bonus", 0), state["umbra"].get("vision_bonus_activations", 0)]
+				state = engine._apply_umbra_vision(state, {"amount": int(effect["radius"]), "duration": value})
+				changed = old_vision != [state["umbra"].get("vision_bonus", 0), state["umbra"].get("vision_bonus_activations", 0)]
 			"first_turn_card_plays", "first_turn_movement": pass
 			"start_on_fire":
+				var old_surface: Dictionary = Surfaces.surface_at(state, player["pos"]).duplicate(true)
 				if Surfaces.can_place(state, player["pos"]): Surfaces.place(state, player["pos"], "fire")
+				changed = old_surface != Surfaces.surface_at(state, player["pos"])
 			"umbra_stage_delta":
 				var umbra: Dictionary = state["umbra"]
 				var stages: Array = engine.UMBRA_STAGE_ORDER
+				var old_stage: String = str(umbra["stage"])
 				umbra["stage"] = stages[clampi(stages.find(str(umbra["stage"])) + value, 0, stages.size() - 2)]
+				changed = old_stage != str(umbra["stage"])
+			"extra_enemies": changed = value > 0 and extra_enemies_added > 0
+		if changed: applied[str(entry["id"])] = true
 	var plays: int = amount(state, "first_turn_card_plays")
 	if plays != 0:
 		var base_plays: int = int(state["cards_per_turn"])
+		var old_bonus: int = int(state.get("card_play_bonus_this_turn", 0))
 		state["card_play_bonus_this_turn"] = maxi(1, base_plays + int(state.get("card_play_bonus_this_turn", 0)) + plays) - base_plays
+		if old_bonus != int(state["card_play_bonus_this_turn"]): _mark_type(entries, "first_turn_card_plays", applied)
 	var movement: int = amount(state, "first_turn_movement")
 	if movement != 0:
+		var old_capacity: int = int(state["player_movement_capacity"])
+		var old_remaining: int = int(state["player_movement_remaining"])
 		state["player_movement_capacity"] = maxi(0, int(state["player_movement_capacity"]) + movement)
 		state["player_movement_remaining"] = state["player_movement_capacity"]
+		if old_capacity != int(state["player_movement_capacity"]) or old_remaining != int(state["player_movement_remaining"]): _mark_type(entries, "first_turn_movement", applied)
+	var ids: Array[String]
+	for entry: Dictionary in entries:
+		if applied.has(str(entry["id"])): ids.append(str(entry["id"]))
+	# Additive presentation receipt. No receipt for no-op or drop-time effects.
+	if not ids.is_empty(): state[START_APPLIED_KEY] = ids
 	return state
+
+static func _mark_type(entries: Array[Dictionary], type: String, applied: Dictionary) -> void:
+	for entry: Dictionary in entries:
+		var effect: Dictionary = GameData.omen_def(str(entry["id"]))["effect"]
+		if str(effect["type"]) == type and int(effect.get("amount", 0)) != 0: applied[str(entry["id"])] = true
 
 static func first_movement(state: Dictionary) -> int:
 	if int(state.get("turn", 1)) != 1 or (state.get("omens", []) as Array).is_empty(): return 0

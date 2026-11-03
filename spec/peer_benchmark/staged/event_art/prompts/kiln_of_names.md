@@ -1,0 +1,1 @@
+Subject: a towering brick kiln as tall as a chapel, its open door roaring with fire, unattended. Long shelves on either side hold rows of small clay figures with human faces. Mood: industrial, ritual, personal.

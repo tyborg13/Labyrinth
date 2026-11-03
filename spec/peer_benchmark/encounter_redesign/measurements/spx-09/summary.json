@@ -1,0 +1,270 @@
+{
+  "runs": 150,
+  "seed": 1,
+  "workers": 2,
+  "head": "28e738838b4928fc21873a02c27835b54489c18a",
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "groups": [
+    {
+      "cohort": "ember_hoarder",
+      "tier": 1,
+      "file": "bot-t1-ember_hoarder.json.gz",
+      "sha256": "632c73c1dcb58381924e62802498069d32dc49e344fbd38ad14ea3c397905787",
+      "summary": {
+        "n": 150,
+        "win_rate": 0.8933333333333333,
+        "turns": {
+          "n": 150,
+          "median": 5.0,
+          "p10": 3,
+          "p90": 5
+        },
+        "hp_lost": {
+          "n": 150,
+          "median": 12.0,
+          "p10": 5,
+          "p90": 24
+        },
+        "turn_caps": 0,
+        "objective": [
+          "kill_leader"
+        ],
+        "catch_rate": 0.05333333333333334,
+        "escape_rate": 0.84,
+        "caught_turn": {
+          "n": 8,
+          "median": 3.5,
+          "p10": 2,
+          "p90": 5
+        },
+        "win_rate_after_escape": 1.0
+      }
+    },
+    {
+      "cohort": "warband",
+      "tier": 1,
+      "file": "bot-t1-warband.json.gz",
+      "sha256": "39ad7f640f7595ef9c66e561790f9b45b7e724cd24ce87635c57641e9d64037b",
+      "summary": {
+        "n": 150,
+        "win_rate": 0.7666666666666667,
+        "turns": {
+          "n": 150,
+          "median": 7.0,
+          "p10": 4,
+          "p90": 30
+        },
+        "hp_lost": {
+          "n": 150,
+          "median": 10.0,
+          "p10": 1,
+          "p90": 24
+        },
+        "turn_caps": 16,
+        "objective": [
+          "kill_leader"
+        ]
+      }
+    },
+    {
+      "cohort": "umbral_snare",
+      "tier": 1,
+      "file": "bot-t1-umbral_snare.json.gz",
+      "sha256": "847b89ff2396b7a04c87a2d42f78afdf6135a4b09ca7f6a76642b4467f8b5bb5",
+      "summary": {
+        "n": 150,
+        "win_rate": 0.8266666666666667,
+        "turns": {
+          "n": 150,
+          "median": 3.0,
+          "p10": 1,
+          "p90": 4
+        },
+        "hp_lost": {
+          "n": 150,
+          "median": 2.5,
+          "p10": 0,
+          "p90": 24
+        },
+        "turn_caps": 0,
+        "objective": [
+          "reach_exit"
+        ]
+      }
+    },
+    {
+      "cohort": "ember_hoarder",
+      "tier": 2,
+      "file": "bot-t2-ember_hoarder.json.gz",
+      "sha256": "5268bdfd4908b36202a2484a2321f1e14a6929e9c15e12ad5ef3ea56bb253dcc",
+      "summary": {
+        "n": 150,
+        "win_rate": 0.92,
+        "turns": {
+          "n": 150,
+          "median": 4.0,
+          "p10": 4,
+          "p90": 4
+        },
+        "hp_lost": {
+          "n": 150,
+          "median": 11.0,
+          "p10": 4,
+          "p90": 23
+        },
+        "turn_caps": 0,
+        "objective": [
+          "kill_leader"
+        ],
+        "catch_rate": 0.06666666666666667,
+        "escape_rate": 0.8866666666666667,
+        "caught_turn": {
+          "n": 10,
+          "median": 3.0,
+          "p10": 2,
+          "p90": 4
+        },
+        "win_rate_after_escape": 0.9699248120300752
+      }
+    },
+    {
+      "cohort": "warband",
+      "tier": 2,
+      "file": "bot-t2-warband.json.gz",
+      "sha256": "53141a65ddbd1ca52803882fc95fed4a060dc33e13ada302a53b3d431e2356b6",
+      "summary": {
+        "n": 150,
+        "win_rate": 0.6133333333333333,
+        "turns": {
+          "n": 150,
+          "median": 9.0,
+          "p10": 4,
+          "p90": 30
+        },
+        "hp_lost": {
+          "n": 150,
+          "median": 10.0,
+          "p10": 0,
+          "p90": 24
+        },
+        "turn_caps": 33,
+        "objective": [
+          "kill_leader"
+        ]
+      }
+    },
+    {
+      "cohort": "umbral_snare",
+      "tier": 2,
+      "file": "bot-t2-umbral_snare.json.gz",
+      "sha256": "edf3af276f04baa7d45ae25d6cd29d17450ef56eb43d5baf91cc12d324f56558",
+      "summary": {
+        "n": 150,
+        "win_rate": 0.7866666666666666,
+        "turns": {
+          "n": 150,
+          "median": 3.0,
+          "p10": 2,
+          "p90": 5
+        },
+        "hp_lost": {
+          "n": 150,
+          "median": 4.0,
+          "p10": 0,
+          "p90": 24
+        },
+        "turn_caps": 0,
+        "objective": [
+          "reach_exit"
+        ]
+      }
+    },
+    {
+      "cohort": "ember_hoarder",
+      "tier": 3,
+      "file": "bot-t3-ember_hoarder.json.gz",
+      "sha256": "12b1c3746e89f41ac9defb4b007215e94a8b081d11e8e67dd7a64a8a9a069df4",
+      "summary": {
+        "n": 150,
+        "win_rate": 0.9066666666666666,
+        "turns": {
+          "n": 150,
+          "median": 4.0,
+          "p10": 3,
+          "p90": 4
+        },
+        "hp_lost": {
+          "n": 150,
+          "median": 12.0,
+          "p10": 4,
+          "p90": 24
+        },
+        "turn_caps": 0,
+        "objective": [
+          "kill_leader"
+        ],
+        "catch_rate": 0.05333333333333334,
+        "escape_rate": 0.8666666666666667,
+        "caught_turn": {
+          "n": 8,
+          "median": 3.5,
+          "p10": 2,
+          "p90": 4
+        },
+        "win_rate_after_escape": 0.9846153846153847
+      }
+    },
+    {
+      "cohort": "warband",
+      "tier": 3,
+      "file": "bot-t3-warband.json.gz",
+      "sha256": "50fd0839d72722f64f753c51e0195f6b42778faca087475ccdb6b1d27a6c4f9a",
+      "summary": {
+        "n": 150,
+        "win_rate": 0.44666666666666666,
+        "turns": {
+          "n": 150,
+          "median": 9.0,
+          "p10": 3,
+          "p90": 30
+        },
+        "hp_lost": {
+          "n": 150,
+          "median": 22.0,
+          "p10": 6,
+          "p90": 26
+        },
+        "turn_caps": 16,
+        "objective": [
+          "kill_leader"
+        ]
+      }
+    },
+    {
+      "cohort": "umbral_snare",
+      "tier": 3,
+      "file": "bot-t3-umbral_snare.json.gz",
+      "sha256": "35243cfbf947d128b90b7f5e3c68e0891e14e46c35e02980acd62477ea167386",
+      "summary": {
+        "n": 150,
+        "win_rate": 0.8066666666666666,
+        "turns": {
+          "n": 150,
+          "median": 3.0,
+          "p10": 2,
+          "p90": 5
+        },
+        "hp_lost": {
+          "n": 150,
+          "median": 4.0,
+          "p10": 0,
+          "p90": 24
+        },
+        "turn_caps": 1,
+        "objective": [
+          "reach_exit"
+        ]
+      }
+    }
+  ]
+}

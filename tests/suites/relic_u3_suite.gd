@@ -79,7 +79,7 @@ static func _test_recoil_mover_and_blocker(combat: Combat, expect: Callable) -> 
 	resumed = combat._apply_action_keywords_to_player(resumed, action, Vector2i(8, 4))
 	expect.call(int(resumed["player"]["hp"]) == 38 and int(resumed["player"]["block"]) == 3, "Recoil grants Block once on each new collision after resume")
 
-	var threat: Dictionary = {"projected_attack_action": action, "projected_attack_tiles": [Vector2i(9, 4)], "projected_target_key": "player", "projected_destination": Vector2i(8, 4)}
+	var threat: Dictionary = {"projected_attack_action": action, "projected_attack": [Vector2i(9, 4)], "projected_target_key": "player", "projected_destination": Vector2i(8, 4)}
 	var projection: Dictionary = combat.projected_player_force(state, 1, threat)
 	expect.call(int((projection.get("collision", {}) as Dictionary).get("damage", 0)) == 3, "Recoil enemy intent cue uses real reduced collision damage")
 	state = fixture(combat, ["recoil_plates"], [enemy(1, Vector2i(3, 4))])

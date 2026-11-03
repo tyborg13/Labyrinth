@@ -2,7 +2,7 @@
   "rig": "humanoid_v2",
   "units": "source_px",
   "creature": "glacial_mirror",
-  "director_sha256": "31f78bfc141976e1998fbacdffa4ae2b3d6945c4545f8bdffaa774c895643aa2",
+  "director_sha256": "4290020099a82204969fe2eb0348988349d1c24a25bbcba37389c3655085d3a5",
   "projection": {
     "front": {
       "forward": [
@@ -28,7 +28,7 @@
       "release_at": {}
     },
     "move": {
-      "seconds": 0.9,
+      "seconds": 0.5,
       "intents": [
         "advance:move_toward"
       ],

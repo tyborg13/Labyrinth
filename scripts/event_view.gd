@@ -13,6 +13,10 @@ const Gilding = preload("res://scripts/ui_gilded_frame.gd")
 const Rule = preload("res://scripts/ui_gilded_rule.gd")
 const Router = preload("res://scripts/input_router.gd")
 const Sounds = preload("res://scripts/run_sfx_library.gd")
+const Hover = preload("res://scripts/event_hover_preview.gd")
+const Health = preload("res://scripts/event_health_strip.gd")
+const Beats = preload("res://scripts/event_result_beats.gd")
+const Separation = preload("res://scripts/event_reward_separation.gd")
 
 signal choice_requested(choice_id: String)
 signal interaction_changed
@@ -47,6 +51,9 @@ void fragment() {
 const ART_SHADER: String = """
 shader_type canvas_item;
 uniform float zoom = 1.0;
+uniform float saturation = 1.0;
+uniform float brightness = 1.0;
+uniform float preview_brightness = 1.0;
 uniform vec2 rect_size = vec2(1062.0,728.0);
 varying vec2 mask_uv;
 varying vec4 painting_tint;
@@ -57,7 +64,8 @@ void fragment() {
  vec4 paint = texture(TEXTURE,(UV-0.5)/zoom+0.5);
  float mask = clamp((1.0-mask_uv.x)/0.18,0.0,1.0)
   * clamp(mask_uv.y/0.07,0.0,1.0) * clamp((1.0-mask_uv.y)/0.10,0.0,1.0);
- COLOR = vec4(paint.rgb,paint.a*mask) * painting_tint;
+ vec3 rgb = mix(vec3(dot(paint.rgb,vec3(0.2126,0.7152,0.0722))),paint.rgb,saturation);
+ COLOR = vec4(rgb * brightness * preview_brightness,paint.a*mask) * painting_tint;
 }
 """
 
@@ -76,6 +84,17 @@ var fit_errors: Array[String]
 var _canvas: Control
 var _scrim: ColorRect
 var _skin := UiSkin.new()
+var _preview_cache: Dictionary = {}
+var _preview_event_key: Array = []
+var hover_preview: Control
+var health: Control
+var result_beats: Control
+var preview_brightness: float = 1.0
+var _building_column: bool = false
+var _pointer_choice: int = -1
+var _focus_preview_index: int = -1
+var _result_receipt: Array = []
+
 var _signature: int = 0
 var _focused_index: int = 0
 var _old_column: Control
@@ -142,12 +161,19 @@ func _build() -> void:
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.material = _shader(ART_SHADER)
 	content.add_child(art)
+	hover_preview = Hover.new()
+	hover_preview.view = self
+	content.add_child(hover_preview)
 	column = Control.new()
 	column.name = "EventRightColumn"
 	column.position = COLUMN_ORIGIN
 	column.size = Vector2(548, COLUMN_BOTTOM - COLUMN_ORIGIN.y)
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(column)
+	health = Health.new()
+	health.position = COLUMN_ORIGIN + Vector2(COLUMN_WIDTH - Health.WIDTH, 0)
+	health.panel_bounds = Rect2(-health.position, PANEL_RECT.size)
+	content.add_child(health)
 	_layout_canvas()
 
 func _layout_canvas() -> void:
@@ -158,16 +184,32 @@ func _layout_canvas() -> void:
 
 func present(state: Dictionary, motion_reduced: bool = false, sound: Callable = Callable()) -> void:
 	_build()
-	var signature: int = hash([state.get("event_state", {}), state.get("player_hp"), state.get("player_max_hp"), state.get("held_embers"), state.get("unbanked_embers"), state.get("equipped_equipment"), state.get("item_inventory"), state.get("equipped_items"), state.get("attuned_magic_cards"), state.get("rooms")])
+	var event_key: Array = [state.get("seed", 0), state.get("current_room", Vector2i.ZERO), Events.current_id(state)]
+	var signature: int = hash([event_key, state.get("event_state", {}), state.get("player_hp"), state.get("player_max_hp"), state.get("held_embers"), state.get("unbanked_embers"), state.get("equipped_equipment"), state.get("item_inventory"), state.get("equipped_items"), state.get("attuned_magic_cards"), state.get("rooms")])
 	set_reduced_motion(motion_reduced)
 	if visible and not _closing and signature == _signature:
 		release_request()
 		return
 	release_request()
+	var preview_changed: bool = signature != _signature
 	_signature = signature
 	_sound = sound
 	var already_open: bool = visible and not _closing
+	# Transfer the hover tone before clearing its widgets. The receipt starts
+	# after this refresh, and may play Health before its first centre reward.
+	var result_outcomes: Array = state.get("event_state", {}).get("outcomes", [])
+	hover_preview.preserve_painting = already_open and not reduced_motion and page == "choices" and event_key == _preview_event_key and str(state.get("event_state", {}).get("page", "")) == "result" and result_outcomes.any(func(outcome: Dictionary) -> bool: return Beats.is_centre_beat(str(outcome.get("type", ""))))
+	if hover_preview.preserve_painting: set_preview_brightness(Separation.PAINTING_BRIGHTNESS)
+	if not already_open or event_key != _preview_event_key or preview_changed:
+		hover_preview.clear()
+		_preview_cache.clear()
+		_preview_event_key = event_key
+		if str(state.get("event_state", {}).get("page", "choices")) == "choices":
+			for choice: Dictionary in Data.event_def(Events.current_id(state)).get("choices", []):
+				_preview_cache[str(choice["id"])] = Events.preview_lines(state, Events.current_id(state), str(choice["id"]))
 	run_state = state.duplicate(true)
+	hover_preview.conceal(true)
+	if result_beats != null: finish_result_beats()
 	_closing = false
 	show()
 	move_to_front()
@@ -185,10 +227,11 @@ func present(state: Dictionary, motion_reduced: bool = false, sound: Callable = 
 		_busy = true
 		column.modulate.a = 0
 		_stagger_outcomes()
-		_transition = create_tween().set_parallel(true)
-		_transition.tween_property(_old_column, "modulate:a", 0.0, 0.18)
-		_transition.tween_property(column, "modulate:a", 1.0, 0.18)
-		_transition.chain().tween_callback(func() -> void: _busy = false; _clear_old_column())
+		_transition = create_tween()
+		_transition.tween_property(_old_column, "modulate:a", 0.0, 0.08)
+		_transition.tween_callback(_clear_old_column)
+		_transition.tween_property(column, "modulate:a", 1.0, 0.14)
+		_transition.tween_callback(func() -> void: _busy = false; hover_preview.show_pending())
 	else:
 		if _transition != null: _transition.kill()
 		_rebuild()
@@ -196,8 +239,12 @@ func present(state: Dictionary, motion_reduced: bool = false, sound: Callable = 
 		_open_animation()
 
 func _rebuild() -> void:
+	_building_column = true
+	_pointer_choice = -1
+	_focus_preview_index = -1
 	page = str(run_state.get("event_state", {}).get("page", "choices"))
-	art.texture = Assets.load_texture(Events.art_path(Events.current_id(run_state)))
+	var painting: String = Events.art_path(Events.current_id(run_state))
+	art.texture = Assets.load_texture(painting) if FileAccess.file_exists(painting) or ResourceLoader.exists(painting) else null
 	body_size = 22
 	effect_size = 19
 	_build_column()
@@ -208,10 +255,17 @@ func _rebuild() -> void:
 		effect_size = 18
 		_build_column()
 	fit_errors.clear()
+	health.set_health(float(run_state.get("player_hp", 0)), float(run_state.get("player_max_hp", 1)))
 	if _content_bottom > COLUMN_BOTTOM:
 		fit_errors.append("%s/%s content ends at %.1f > %.1f" % [Events.current_id(run_state), page, _content_bottom, COLUMN_BOTTOM])
 	focus_initial()
+	_building_column = false
 	interaction_changed.emit()
+
+func cached_preview_lines(choice_id: String) -> Array[Dictionary]:
+	var lines: Array[Dictionary]
+	lines.assign(_preview_cache.get(choice_id, []))
+	return lines.duplicate(true)
 
 func _build_column() -> void:
 	for child: Node in column.get_children():
@@ -293,13 +347,25 @@ func _build_column() -> void:
 		for choice_def: Dictionary in definition.get("choices", []):
 			var button := Choice.new()
 			column.add_child(button)
-			button.configure(index, choice_def, Events.choice_effect_lines(run_state, Events.current_id(run_state), str(choice_def["id"])), Events.choice_block_reason(run_state, Events.current_id(run_state), str(choice_def["id"])), effect_size)
+			button.configure(index, choice_def, cached_preview_lines(str(choice_def["id"])), Events.choice_block_reason(run_state, Events.current_id(run_state), str(choice_def["id"])), effect_size)
 			button.position.y = y
 			y += button.size.y + CHOICE_GAP
 			button.pressed.connect(activate_choice.bind(index, true))
 			button.focus_entered.connect(func() -> void:
 				_focused_index = choices.find(button)
+				if not _building_column:
+					_pointer_choice = -1
+					_focus_preview_index = _focused_index
+					preview_choice(_focused_index)
 				interaction_changed.emit())
+			button.focus_exited.connect(_preview_focus_left)
+			button.mouse_entered.connect(func() -> void:
+				_pointer_choice = choices.find(button)
+				preview_choice(_pointer_choice))
+			button.mouse_exited.connect(func() -> void:
+				_pointer_choice = -1
+				if _focus_preview_index >= 0: preview_choice(_focus_preview_index)
+				else: hover_preview.conceal())
 			choices.append(button)
 			index += 1
 		for focus_index: int in range(choices.size()):
@@ -344,7 +410,8 @@ func activate_choice(index: int, pointer: bool = false) -> void:
 	choice_requested.emit(choices[index].choice_id)
 
 func activate_continue() -> void:
-	if _busy or _request_pending or _closing or page != "result": return
+	if _request_pending or _closing or page != "result": return
+	finish_result_beats()
 	_request_pending = true
 	_play(Sounds.MENU_CLOSE_ID)
 	choice_requested.emit("continue")
@@ -358,7 +425,9 @@ func restore_choice_focus() -> void:
 
 func handle_input(event: InputEvent) -> bool:
 	if not visible: return false
-	if (event is InputEventKey and event.keycode == KEY_ESCAPE) or event.is_action(Router.ACTION_MENU): return false
+	if (event is InputEventKey and event.keycode == KEY_ESCAPE) or event.is_action(Router.ACTION_MENU):
+		if event.is_pressed() and not event.is_echo(): finish_result_beats()
+		return false
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null: router.call("record_input_activity", event)
 	if event is InputEventJoypadMotion:
@@ -368,6 +437,8 @@ func handle_input(event: InputEvent) -> bool:
 			_stick_direction = direction
 		return true
 	if not event.is_pressed() or event.is_echo(): return not (event is InputEventMouse or event is InputEventScreenTouch or event is InputEventScreenDrag)
+	if page == "result" and result_beats != null:
+		finish_result_beats()
 	if event is InputEventKey and not (event.alt_pressed or event.ctrl_pressed or event.meta_pressed):
 		if event.keycode >= KEY_1 and event.keycode <= KEY_3: activate_choice(event.keycode - KEY_1); return true
 		if event.keycode == KEY_UP: move_focus(-1); return true
@@ -401,7 +472,7 @@ func _open_animation() -> void:
 	_opening = create_tween().set_parallel(true)
 	_opening.tween_property(_scrim, "modulate:a", 1.0, 0.18)
 	_opening.tween_method(_panel_progress, 0.0, 1.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_opening.chain().tween_callback(func() -> void: _busy = false)
+	_opening.chain().tween_callback(func() -> void: _busy = false; hover_preview.show_pending())
 
 func _panel_progress(value: float) -> void:
 	panel.modulate.a = value
@@ -424,6 +495,63 @@ func set_reduced_motion(enabled: bool) -> void:
 	if _zoom != null: _zoom.kill()
 	panel.position = PANEL_RECT.position
 	_set_zoom(1.0)
+	if result_beats != null: finish_result_beats()
+	if hover_preview != null:
+		hover_preview.preserve_painting = false
+		var index: int = _pointer_choice if _pointer_choice >= 0 else focused_choice_index()
+		if not hover_preview.current_line.is_empty(): hover_preview.conceal(true); hover_preview.show_choice(index)
+
+func preview_choice(index: int) -> void:
+	if _building_column or _closing: return
+	hover_preview.show_choice(index)
+
+func _preview_focus_left() -> void:
+	if not _building_column:
+		_focus_preview_index = -1
+		_settle_preview_focus.call_deferred()
+
+func _settle_preview_focus() -> void:
+	if _building_column or page != "choices": return
+	var index: int = _pointer_choice if _pointer_choice >= 0 else _focus_preview_index
+	if index < 0: hover_preview.conceal()
+	else: preview_choice(index)
+
+func set_preview_brightness(value: float) -> void:
+	preview_brightness = value
+	(art.material as ShaderMaterial).set_shader_parameter("preview_brightness", value)
+	var strength: float = clampf(inverse_lerp(1.0, Separation.PAINTING_BRIGHTNESS, value), 0, 1)
+	set_painting_tone(lerpf(1.0, Separation.PAINTING_SATURATION, strength), 1.0)
+
+func set_painting_tone(saturation: float, brightness: float) -> void:
+	(art.material as ShaderMaterial).set_shader_parameter("saturation", saturation)
+	(art.material as ShaderMaterial).set_shader_parameter("brightness", brightness)
+
+func painting_center() -> Vector2:
+	return PANEL_RECT.position + ART_RECT.get_center()
+
+func play_result_beats(before: Dictionary, destinations: Dictionary, cue: Callable) -> void:
+	finish_result_beats()
+	if page != "result" or str(before.get("event_state", {}).get("page", "")) != "choices": return
+	# An unchanged/stale request has no new committed result to present.
+	if Events.current_id(before) != Events.current_id(run_state): return
+	var receipt: Array = [before.get("seed"), before.get("current_room"), run_state.get("event_state")]
+	if receipt == _result_receipt: return
+	_result_receipt = receipt.duplicate(true)
+	result_beats = Beats.new()
+	result_beats.view = self
+	result_beats.before = before.duplicate(true)
+	result_beats.after = run_state.duplicate(true)
+	result_beats.destinations = destinations
+	result_beats.cue = cue
+	result_beats.reduced = reduced_motion
+	var active: Control = result_beats
+	active.finished.connect(func() -> void:
+		if result_beats == active: result_beats = null)
+	_canvas.add_child(active)
+
+func finish_result_beats() -> void:
+	if is_instance_valid(result_beats): result_beats.finish()
+	result_beats = null
 
 func _set_zoom(value: float) -> void:
 	(art.material as ShaderMaterial).set_shader_parameter("zoom", value)
@@ -437,6 +565,8 @@ func _stagger_outcomes() -> void:
 func dismiss() -> void:
 	if not visible or _closing: return
 	release_request()
+	hover_preview.clear()
+	finish_result_beats()
 	_closing = true
 	_busy = true
 	if _opening != null: _opening.kill()

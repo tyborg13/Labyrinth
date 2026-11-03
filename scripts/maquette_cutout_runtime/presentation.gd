@@ -3,8 +3,9 @@ extends RefCounted
 const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const CREATURES := {"bile_bloomer": "shale_bloomer", "lightning_wisp": "lightning_wisp",
 	"hoarfrost_seer": "hoarfrost_seer", "arc_thrall": "arc_thrall",
-	"burrow_grub": "burrow_grub", "ember_tick": "ember_tick", "storm_capacitor": "storm_capacitor", "glacial_mirror": "glacial_mirror",
-	"slag_mortar": "slag_mortar", "briar_weaver": "briar_weaver", "hollow_mimic": "hollow_mimic"}
+	"burrow_grub": "burrow_grub", "ember_tick": "ember_tick", "ember_hoarder": "ember_tick", "storm_capacitor": "storm_capacitor", "glacial_mirror": "glacial_mirror",
+	"slag_mortar": "slag_mortar", "briar_weaver": "briar_weaver", "hollow_mimic": "hollow_mimic", "gale_herald": "gale_herald",
+	"chainbound_gaoler": "chainbound_gaoler", "gloam_stalker": "gloam_stalker", "frostglass_lancer": "frostglass_lancer", "ashen_reaver": "ashen_reaver", "last_lamplighter": "last_lamplighter", "storm_cantor": "storm_cantor"}
 static var _integration_cache: Dictionary = {}
 
 static func asset_directory(type: String) -> String:
@@ -55,12 +56,12 @@ static func sync(board: Control, type: String, renderers: Dictionary) -> void:
 		var unit: Dictionary = actors[key]
 		var renderer: Node = renderers.get(key)
 		if not is_instance_valid(renderer):
-			renderer = renderer_script(type).new()
+			renderer = board._take_prepared_unit_renderer(type, int(unit.get("id", -1)), renderer_script(type))
 			renderer.name = "MaquetteCutout_%d" % int(unit.get("id", -1))
 			if str(integration_for(type).get("idle_phase_seed", "")) == "slot":
 				# Preserve LiveActor's slot phase distribution on the board as well.
 				renderer.seed_idle_phase(float(actors.keys().find(key)) / float(maxi(1, actors.size())))
-			board.add_child(renderer)
+			if renderer.get_parent() == null: board.add_child(renderer)
 			renderers[key] = renderer
 		var motion: Dictionary = (motions.get(key, {}) as Dictionary).duplicate(false)
 		# A move owns its travel direction through phase 1. Only a subsequent
@@ -69,7 +70,6 @@ static func sync(board: Control, type: String, renderers: Dictionary) -> void:
 		motion["screen_pixel_scale"] = board.source_pixel_scale_for_type(type)
 		var shown: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
 		renderer.present(motion, bool(presentation.get("reduced_motion", false)), shown and not bool(unit.get("death_animation", false)))
-		preload("pixel_presentation.gd").align_on_board(board, unit, key, presentation)
 	for key: String in renderers.keys():
 		if not actors.has(key):
 			var renderer: Node = renderers[key]

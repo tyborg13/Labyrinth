@@ -1,0 +1,60 @@
+{
+  "K": 4,
+  "drawn_size": [
+    255,
+    255
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/frostglass_lancer/mq14_front/kit.json",
+    "pixel_sha256": "76a82c443b835caf9d333b8cbfc5f97ed48818d2fcd8a3f8a56bd0c5764fc39e"
+  },
+  "metrics": {
+    "chroma": 0.13649018426065293,
+    "edge_light_share": 0.10784313725490197,
+    "feature_px": 5.399532579462533,
+    "height": 227,
+    "height_drawn": 227.0,
+    "orphan_share": 0.17473015177250562,
+    "regions": 626,
+    "run_length": 1.798128078817734,
+    "symmetry": 0.7137578998541565,
+    "thin_abs": 0.005533943345570114,
+    "thin_rel": 0.07435209029642209,
+    "value": 0.2361184160738976,
+    "width": 159
+  },
+  "pixel_sha256": "25616a2d7bec71a133b4bd92cb9748c5e0305e2ad1be128c6581fa54af43f8d8",
+  "placement": [
+    0,
+    0
+  ],
+  "processing": "lancer_rear_v2_registered_native",
+  "raw_pixel_sha256": "25616a2d7bec71a133b4bd92cb9748c5e0305e2ad1be128c6581fa54af43f8d8",
+  "raw_steps": [
+    {
+      "inputs": {
+        "front": {
+          "path": "refs/palette_front.png",
+          "sha256": "25d01561a84c0e9b9030fca6a777a43a9213d8a47fecb2c27cb35c73860bb465"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "d3fd34f585647d96daf1f43f71c83396e032cd9f56bbaeac88c42269b718872d"
+        },
+        "recipe": {
+          "path": "refs/recolour_rear.py",
+          "sha256": "03c5398c89b5ffc843b57f11029c5064ea58fa86f46233df87eb9df409c2a2a4"
+        }
+      },
+      "kind": "lancer_rear_v2",
+      "output_raw_pixel_sha256": "25616a2d7bec71a133b4bd92cb9748c5e0305e2ad1be128c6581fa54af43f8d8",
+      "parameters": {}
+    }
+  ],
+  "shift": [
+    0,
+    0
+  ]
+}

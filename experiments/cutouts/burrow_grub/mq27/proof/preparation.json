@@ -1,0 +1,48 @@
+{
+  "input_ok": true,
+  "feature_declarations_ok": true,
+  "production_ready": false,
+  "features": [
+    {
+      "feature": "maw_tooth_ring",
+      "view": "front",
+      "owner": "head",
+      "seed_pixels": 2169,
+      "mask_pixels": 2376,
+      "connected_pixel_counts": [
+        [
+          61,
+          2376
+        ]
+      ],
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "fb15190b6dd82a9b3957e2cee06c5bf1906e1143edbb0e044885a4029212f7ee",
+      "outline_crop": "proof/features/front_maw_tooth_ring_outline.png"
+    },
+    {
+      "feature": "maw_tooth_ring",
+      "view": "rear",
+      "owner": "head",
+      "seed_pixels": 0,
+      "mask_pixels": 0,
+      "connected_pixel_counts": [],
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+      "outline_crop": null
+    }
+  ],
+  "TODO_DESIGN": [],
+  "unrun_gates": [
+    "rig rest identity",
+    "signed bone motion",
+    "connected parts",
+    "hidden material and dark slabs",
+    "seam underlays",
+    "shimmer",
+    "native exact-tie agreement",
+    "production progression",
+    "motion mutations"
+  ]
+}

@@ -5,8 +5,17 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 
 var _failed: bool = false
+const HUD_TAIL_FRAMES: int = 30
+const HUD_TURN_TIMEOUT_MS: int = 25000
+const HUD_FIXTURE_SIZE := Vector2i(1920, 1080)
+const HUD_SETTLE_FRAMES: int = 8
+const HUD_MIN_OPACITY: float = 0.999
+const HUD_WIDE_FIXTURE_SIZE := Vector2i(2560, 1080)
+const HUD_REVIEW_UI_SCALE: float = 1.25
+const HUD_RECT_TOLERANCE: float = 0.01
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -17,6 +26,12 @@ func _initialize() -> void:
 	ProgressionStore.clear_saved_run()
 	await _run_opening_hand_entry_regression()
 	await _run_transition_regression()
+	await _run_resting_pointer_regression()
+	await _run_turn_start_hud_regression()
+	await _run_turn_start_hud_regression(true)
+	await _run_hud_new_combat_regression()
+	await _run_hud_shrinking_fan_regression()
+	await _run_hud_handoff_resize_regression()
 	if _failed:
 		print("CARD DRAW HAND FLOW TEST RESULT: FAIL")
 		quit(1)
@@ -408,6 +423,403 @@ func _load_combat_fixture(instance: Node) -> Dictionary:
 	await process_frame
 	await process_frame
 	return combat_state
+
+# pol-43: a resting pointer owns hover across a deselect and a turn-start relayout.
+func _run_resting_pointer_regression() -> void:
+	var instance: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	root.add_child(instance)
+	await process_frame
+	await process_frame
+	var source: Dictionary = await _load_combat_fixture(instance)
+	var hand_box: Control = instance.get("hand_box") as Control
+	instance.call("_ensure_sfx_bank")
+	var ticks: Array[int] = [0]
+	(instance.get("_sfx_bank") as Object).connect("cue_requested", func(cue_id: String, _result: String) -> void:
+		if cue_id == "card.hover": ticks[0] += 1)
+
+	# Deselect with the pointer still on the card: selected pose straight to hover pose, no tick.
+	await _park_pointer(instance, _hand_card_center(instance, 0))
+	_expect(int(instance.get("_hovered_card_index")) == 0, "A parked pointer should hover the card under it")
+	await instance.call("_on_card_pressed", 0)
+	_expect(int(instance.get("_selected_card_index")) == 0, "Shadow Step should select for targeting")
+	await process_frame
+	var ticks_before_deselect: int = ticks[0]
+	await instance.call("_on_card_pressed", 0)
+	_expect(int(instance.get("_selected_card_index")) == -1, "A second click on a targeted card should deselect it")
+	_expect(
+		int(instance.get("_hovered_card_index")) == 0
+		and int(hand_box.call("emphasized_index")) == 0
+		and is_equal_approx(float(hand_box.call("emphasis_strength")), 1.0)
+		and is_equal_approx(float(hand_box.get("_emphasis_scale")), HandFanContainer.DEFAULT_EMPHASIS_SCALE),
+		"A deselected card under the resting pointer should go straight to its hover pose"
+	)
+	_expect(ticks[0] == ticks_before_deselect, "Returning the same card to hover should not tick")
+
+	# Turn start: the hand is rebuilt and unlocked under a resting pointer.
+	var pointer: Vector2 = _hand_card_center(instance, 2)
+	await _park_pointer(instance, pointer)
+	instance.set("_hovered_card_index", -1)
+	instance.call("_set_hand_emphasized_index", -1, false)
+	instance.set("_animation_lock", true)
+	instance.call("_refresh_animation_lock_ui")
+	await process_frame
+	var dealt: Dictionary = source.duplicate(true)
+	dealt["deck"]["hand"] = ["shadow_step", "brace", "quick_stab", "patch_up", "lantern_shot"]
+	dealt["deck"]["draw"] = []
+	instance.set("_combat_state", dealt)
+	(instance.get("_run_state") as Dictionary)["combat_state"] = dealt
+	instance.call("_mark_combat_preview_state_changed")
+	var ticks_before_deal: int = ticks[0]
+	instance.call("_refresh_ui", false, true, true)
+	_expect(int(instance.get("_hovered_card_index")) == -1 and int(hand_box.call("emphasized_index")) == -1, "No card may take hover from the half-built layout")
+	# The cleared hover's neighbours are still easing back (pol-39), so the dealt
+	# hand lands while sliding. Nothing lifts until it rests; its rested layout,
+	# before anything lifts, decides the card under the pointer.
+	_expect(bool(hand_box.call("is_sliding")), "The dealt hand should land while the hand is still easing")
+	var rest_under: Array = [-2]
+	hand_box.connect("slide_finished", func() -> void: rest_under[0] = _hand_card_under_point(instance, pointer), CONNECT_ONE_SHOT)
+	var waited: int = 0
+	var slide_clean: bool = true
+	await process_frame
+	while bool(hand_box.call("is_sliding")) and waited < 600:
+		var sliding_hover: int = int(instance.get("_hovered_card_index"))
+		var sliding_lift: int = int(hand_box.call("emphasized_index"))
+		if slide_clean and (sliding_hover != -1 or sliding_lift != -1 or ticks[0] != ticks_before_deal):
+			slide_clean = false
+			_expect(false, "While the dealt hand slides nothing may hover, lift or tick (frame %d: hover %d, lifted %d)" % [waited + 1, sliding_hover, sliding_lift])
+		await process_frame
+		waited += 1
+	_expect(not bool(hand_box.call("is_sliding")), "The dealt hand should come to rest")
+	var under: int = int(rest_under[0])
+	_expect(under >= 0, "The resting pointer should be over a card of the rested hand")
+	# The first frame after the rest: the card under the pointer has taken hover and begun to lift.
+	var hovered: int = int(instance.get("_hovered_card_index"))
+	var native: int = _native_hand_index(instance)
+	var lifted: int = int(hand_box.call("emphasized_index"))
+	_expect(hovered == under and native == under and lifted == under, "The frame after the slide rests: hover %d (native %d, lifted %d) should be the card under the pointer %d" % [hovered, native, lifted, under])
+	_expect(ticks[0] - ticks_before_deal == 1, "The rest should tick once for the card under the pointer, not %d times" % (ticks[0] - ticks_before_deal))
+	# It keeps hover through its whole lift, with no further tick.
+	waited = 0
+	while lifted == under and float(hand_box.call("emphasis_strength")) < 1.0 and waited < 600:
+		await process_frame
+		waited += 1
+		hovered = int(instance.get("_hovered_card_index"))
+		lifted = int(hand_box.call("emphasized_index"))
+		_expect(hovered == under and lifted == under, "During its lift: hover %d (lifted %d) should stay on the card under the pointer %d" % [hovered, lifted, under])
+		if hovered != under: break
+	_expect(ticks[0] - ticks_before_deal == 1, "The deal should tick once for the card under the pointer, not %d times" % (ticks[0] - ticks_before_deal))
+	instance.queue_free()
+	await process_frame
+
+func _park_pointer(instance: Node, point: Vector2) -> void:
+	# Headless roots are tiny and stretched; Input takes screen coordinates.
+	var motion := InputEventMouseMotion.new()
+	motion.position = instance.get_viewport().get_screen_transform() * point
+	motion.global_position = motion.position
+	Input.parse_input_event(motion)
+	Input.flush_buffered_events()
+	await process_frame
+	await process_frame
+
+# hud-01: exercise the real enemy hand-off, staged deal and authoritative landing.
+# Sample the whole pass, including 30 frames after the last proxy has landed.
+func _run_turn_start_hud_regression(exhausted: bool = false) -> void:
+	root.content_scale_size = HUD_FIXTURE_SIZE
+	root.content_scale_factor = 1.0
+	root.size = HUD_FIXTURE_SIZE
+	var instance: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	root.add_child(instance)
+	await process_frame
+	await process_frame
+	instance.call("_close_dialogue")
+	var state: Dictionary = await _load_combat_fixture(instance)
+	state["hand_size"] = 3
+	state["draw_per_turn"] = 2
+	state["objective"] = {"type": "kill_all"}
+	if exhausted:
+		state["cards_played_this_turn"] = state["cards_per_turn"]
+		# A short pile presents real fatigue before the deal: hold the old home
+		# until the surviving incoming card actually launches.
+		state["deck"]["draw"] = ["patch_up"]
+	instance.set("_combat_state", state)
+	(instance.get("_run_state") as Dictionary)["combat_state"] = state.duplicate(true)
+	instance.call("_refresh_ui")
+	for _frame: int in range(HUD_SETTLE_FRAMES): await process_frame
+	await _park_pointer(instance, _hand_card_center(instance, 2))
+	var controls: Dictionary = {
+		"pass": instance.find_child("PassPreviewChip", true, false),
+		"card_plays": instance.get("_play_meter"),
+		"movement": instance.get("_movement_meter"),
+		"objective": instance.get("_combat_objective_hud"),
+	}
+	var rows: Array[Dictionary]
+	var target_rects: Dictionary = {}
+	var previous_rects: Dictionary = {}
+	var hidden: Dictionary = {}
+	var moved: Dictionary = {}
+	var moved_before_deal: Dictionary = {}
+	var saw_deal: bool = false
+	var landing_frame: int = -1
+	var tail: int = 0
+	var deadline: int = Time.get_ticks_msec() + HUD_TURN_TIMEOUT_MS
+	instance.call("_on_pass_turn_pressed")
+	while Time.get_ticks_msec() < deadline:
+		await process_frame
+		# Headless has no renderer to release production's post-draw barriers.
+		if DisplayServer.get_name() == "headless": RenderingServer.frame_post_draw.emit()
+		var proxies: Array = instance.get("_draw_hand_transition_proxies") as Array
+		var dealing: bool = false
+		for proxy: Control in proxies:
+			var tween: Tween = proxy.get_meta("active_card_proxy_tween", null) as Tween
+			if tween != null and tween.is_valid() and tween.is_running(): dealing = true
+		if not proxies.is_empty() and not saw_deal:
+			saw_deal = true
+			# The production Pass widget can be rebuilt during refresh; resolve it per frame.
+			controls["pass"] = instance.find_child("PassPreviewChip", true, false)
+			for key: String in controls:
+				target_rects[key] = (controls[key] as Control).get_global_rect()
+		if saw_deal and not dealing and landing_frame < 0: landing_frame = rows.size()
+		controls["pass"] = instance.find_child("PassPreviewChip", true, false)
+		var row: Dictionary = {"frame": rows.size(), "dealing": dealing, "landing_frame": landing_frame, "locked": instance.get("_animation_lock"), "controls": {}}
+		for key: String in controls:
+			var control: Control = controls[key] as Control
+			var rect: Rect2 = control.get_global_rect() if control != null else Rect2()
+			var shown: bool = control != null and control.is_visible_in_tree()
+			var alpha: float = _hud_effective_alpha(control)
+			# Selection/hover clearing belongs to the Pass input itself. Start the
+			# retained hand-off comparison at its first submitted scene frame.
+			if rows.is_empty(): previous_rects[key] = rect
+			row["controls"][key] = {"visible": shown, "alpha": alpha, "rect": [rect.position.x, rect.position.y, rect.size.x, rect.size.y]}
+			if not shown or alpha < HUD_MIN_OPACITY or not rect.has_area(): hidden[key] = true
+			if saw_deal and not rect.is_equal_approx(target_rects[key]): moved[key] = true
+			if not saw_deal and not rect.is_equal_approx(previous_rects[key]): moved_before_deal[key] = true
+		rows.append(row)
+		if landing_frame >= 0:
+			tail += 1
+			if tail > HUD_TAIL_FRAMES and not bool(instance.get("_animation_lock")): break
+	var trace_path: String = "user://card_draw_hand_flow_test/turn_start_hud_frames%s.jsonl" % ("_exhausted" if exhausted else "")
+	var trace := FileAccess.open(trace_path, FileAccess.WRITE)
+	if trace != null:
+		for row: Dictionary in rows: trace.store_line(JSON.stringify(row))
+		trace.close()
+	print("TURN START HUD TRACE: %s frames=%d landing=%d hidden=%s moved=%s" % [ProjectSettings.globalize_path(trace_path), rows.size(), landing_frame, str(hidden.keys()), str(moved.keys())])
+	_expect(saw_deal and landing_frame >= 0 and tail > HUD_TAIL_FRAMES, "HUD regression must observe a real turn deal and 30 post-landing frames")
+	_expect(not bool(instance.get("_animation_lock")) and int((instance.get("_combat_state") as Dictionary).get("turn", 1)) == 2, "HUD regression must complete a real enemy phase and next player activation")
+	_expect(hidden.is_empty(), "Turn-start HUD must remain visible at full opacity every frame: %s" % str(hidden.keys()))
+	_expect(moved.is_empty(), "Turn-start HUD must occupy its deal-start rect through landing and pointer hover: %s" % str(moved.keys()))
+	_expect(moved_before_deal.is_empty(), "Turn-start HUD must retain its previous home until the deal begins: %s" % str(moved_before_deal.keys()))
+	if saw_deal:
+		var old_pass_rect: Array = rows[0]["controls"]["pass"]["rect"]
+		_expect(not is_equal_approx((target_rects["pass"] as Rect2).position.x, float(old_pass_rect[0])), "A wider new hand must move Pass to its new destination when the deal begins")
+		var live_envelope: Rect2 = instance.call("_combat_hand_resting_visual_bounds")
+		var dock_envelope: Rect2 = instance.call("_combat_dock_hand_bounds")
+		# The director-approved reservation includes every remaining hand size and
+		# future controller focus. Both axes stay fixed in the frame trace above.
+		_expect(dock_envelope.position.x <= live_envelope.position.x and dock_envelope.end.x >= live_envelope.end.x, "The deal-start dock must reserve the final fan and every wider smaller/controller-focused fan")
+	var pass_button: Button = controls["pass"] as Button
+	_expect(pass_button != null and not pass_button.disabled and pass_button.focus_mode == Control.FOCUS_ALL, "Pass keeps its live click target and keyboard/gamepad focus after the deal")
+	if pass_button != null:
+		pass_button.grab_focus()
+		_expect(pass_button.has_focus(), "The real Pass button must accept keyboard/gamepad focus at its new home")
+		await _park_pointer(instance, pass_button.get_global_rect().get_center())
+		var owner: Control = instance.get_viewport().gui_get_hovered_control()
+		_expect(owner == pass_button or (owner != null and pass_button.is_ancestor_of(owner)), "Native pointer hit testing must use Pass's painted destination")
+		pass_button.release_focus()
+	# pol-37 also applies when this deal exceeds the original opening-hand floor.
+	await _hud_review_play(instance, 1) # Fixture's targetless Brace, including confirmation.
+	for _frame: int in range(HUD_SETTLE_FRAMES): await process_frame
+	for key: String in controls:
+		var control: Control = instance.find_child("PassPreviewChip", true, false) as Control if key == "pass" else controls[key] as Control
+		_expect(control != null and control.is_visible_in_tree() and control.get_global_rect().is_equal_approx(target_rects[key]), "Playing a dealt card must preserve %s's home" % key)
+	instance.queue_free()
+	await process_frame
+
+func _hud_effective_alpha(control: CanvasItem) -> float:
+	if control == null: return 0.0
+	var alpha: float = control.self_modulate.a
+	var ancestor: Node = control
+	while ancestor != null:
+		if ancestor is CanvasItem: alpha *= (ancestor as CanvasItem).modulate.a
+		ancestor = ancestor.get_parent()
+	return alpha
+
+# Director feedback: reuse one RunScene across encounters, including its real
+# opening presentation. A preceding large fan cannot survive the room boundary.
+func _run_hud_new_combat_regression() -> void:
+	var scene: Node = await _hud_review_scene()
+	var state: Dictionary = _hud_review_hand(scene, 10)
+	var helper: RefCounted = scene.get("_combat_hud_layout")
+	helper.call("begin_deal", scene)
+	var run: Dictionary = scene.get("_run_state")
+	run["mode"] = "room"
+	run["combat_state"] = {}
+	scene.call("_sync_combat_state_from_run")
+	scene.call("_refresh_ui")
+	var cleared: bool = int(helper.get("_dealt_count")) == 0
+	state["room_coord"] = Vector2i(5, 1)
+	state["deck"]["hand"] = _hud_review_cards(5)
+	run["mode"] = "combat"
+	run["combat_state"] = state
+	scene.set("_combat_state", state)
+	scene.call("_present_opening_hand_after_combat_entry")
+	var deadline: int = Time.get_ticks_msec() + HUD_TURN_TIMEOUT_MS
+	while (scene.get("_draw_hand_transition_proxies") as Array).is_empty() and Time.get_ticks_msec() < deadline:
+		await process_frame
+		if DisplayServer.get_name() == "headless": RenderingServer.frame_post_draw.emit()
+	var opening_rect: Rect2 = (scene.find_child("PassPreviewChip", true, false) as Control).get_global_rect()
+	var count_at_launch: int = int(helper.get("_dealt_count"))
+	while bool(scene.get("_animation_lock")) and Time.get_ticks_msec() < deadline:
+		await process_frame
+		if DisplayServer.get_name() == "headless": RenderingServer.frame_post_draw.emit()
+	for _frame: int in range(HUD_SETTLE_FRAMES): await process_frame
+	var settled_rect: Rect2 = (scene.find_child("PassPreviewChip", true, false) as Control).get_global_rect()
+	_expect(cleared, "HUD NEW COMBAT: ending combat must clear the preceding encounter's held layout")
+	_expect(count_at_launch == 5, "HUD NEW COMBAT: the opening deal must own the new five-card hand before launch (got %d)" % count_at_launch)
+	_expect(not bool(scene.get("_animation_lock")) and opening_rect.is_equal_approx(settled_rect), "HUD NEW COMBAT: opening Pass placement must survive input unlock")
+	print("HUD REVIEW NEW COMBAT: cleared=%s launch_count=%d stable=%s" % [cleared, count_at_launch, opening_rect.is_equal_approx(settled_rect)])
+	scene.queue_free()
+	await process_frame
+
+func _run_hud_shrinking_fan_regression() -> void:
+	var scene: Node = await _hud_review_scene()
+	_hud_review_hand(scene, 8)
+	for _frame: int in range(HUD_SETTLE_FRAMES): await process_frame
+	var helper: RefCounted = scene.get("_combat_hud_layout")
+	helper.call("begin_deal", scene)
+	var held: Rect2 = scene.call("_combat_dock_hand_bounds")
+	var homes: Dictionary = _hud_review_rects(scene)
+	await _hud_review_play(scene, 0)
+	for _frame: int in range(HUD_SETTLE_FRAMES): await process_frame
+	_expect(((scene.get("_combat_state") as Dictionary)["deck"]["hand"] as Array).size() == 7, "HUD SHRINKING FAN: the real Brace play must shrink eight cards to seven")
+	var widest: float = 0.0
+	var stable: bool = true
+	var router: Node = root.get_node("InputRouter")
+	for controller: bool in [false, true]:
+		router.call("set_forced_state_for_test", "controller" if controller else "pointer", "xbox")
+		scene.set("_controller_hand_focused", controller)
+		for count: int in range(1, 9):
+			_hud_review_hand(scene, count)
+			for _frame: int in range(HUD_SETTLE_FRAMES): await process_frame
+			widest = maxf(widest, (scene.call("_combat_hand_resting_visual_bounds") as Rect2).size.x)
+			stable = stable and _hud_review_rects_match(homes, _hud_review_rects(scene))
+	_expect(held.size.x + HUD_RECT_TOLERANCE >= widest, "HUD SHRINKING FAN: deal-start envelope must cover every smaller desktop/controller-focused fan (held %.2f, widest %.2f)" % [held.size.x, widest])
+	_expect(stable, "HUD SHRINKING FAN: plays and controller focus must never move Pass, counters or Objective")
+	# A mid-turn draw exceeding the original deal is the one allowed new home.
+	var before: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
+	var after: Dictionary = before.duplicate(true)
+	after["deck"]["hand"] = _hud_review_cards(9)
+	var transition: Dictionary = scene.call("_draw_hand_transition_between_states", before, after)
+	scene.set("_combat_state", after)
+	(scene.get("_run_state") as Dictionary)["combat_state"] = after
+	scene.set("_animation_lock", true)
+	var completion: Dictionary = {"done": false}
+	scene.call("_animate_draw_cards_fx_and_complete", transition["draw_entries"], Rect2(), 0, transition, completion)
+	_expect(int(helper.get("_dealt_count")) == 9, "HUD SHRINKING FAN: an above-cap mid-turn draw must recompute placement when that draw launches")
+	var deadline: int = Time.get_ticks_msec() + HUD_TURN_TIMEOUT_MS
+	while not bool(completion["done"]) and Time.get_ticks_msec() < deadline: await process_frame
+	scene.set("_animation_lock", false)
+	router.call("set_forced_state_for_test", "pointer", "xbox")
+	print("HUD REVIEW SHRINKING FAN: held=%.2f widest=%.2f stable=%s draw_cap=%d" % [held.size.x, widest, stable, int(helper.get("_dealt_count"))])
+	scene.queue_free()
+	await process_frame
+
+func _run_hud_handoff_resize_regression() -> void:
+	var scene: Node = await _hud_review_scene()
+	root.content_scale_size = HUD_WIDE_FIXTURE_SIZE
+	root.size = HUD_WIDE_FIXTURE_SIZE
+	_hud_review_hand(scene, 8)
+	for _frame: int in range(HUD_SETTLE_FRAMES): await process_frame
+	(scene.get("_combat_hud_layout") as RefCounted).call("begin_deal", scene)
+	scene.call("_on_pass_turn_pressed")
+	await process_frame
+	root.content_scale_size = HUD_FIXTURE_SIZE
+	root.size = HUD_FIXTURE_SIZE
+	var contained: bool = true
+	for scale: float in [1.0, HUD_REVIEW_UI_SCALE]:
+		root.content_scale_factor = scale
+		for _frame: int in range(HUD_SETTLE_FRAMES):
+			await process_frame
+			if DisplayServer.get_name() == "headless": RenderingServer.frame_post_draw.emit()
+			var viewport: Rect2 = scene.get_viewport_rect()
+			for rect: Rect2 in _hud_review_rects(scene).values(): contained = contained and viewport.grow(HUD_RECT_TOLERANCE).encloses(rect)
+	_expect(contained, "HUD HANDOFF RESIZE: every HUD rect must fit immediately after resize/UI-scale changes while the enemy hand-off holds layout")
+	var deadline: int = Time.get_ticks_msec() + HUD_TURN_TIMEOUT_MS
+	while bool(scene.get("_animation_lock")) and Time.get_ticks_msec() < deadline:
+		await process_frame
+		if DisplayServer.get_name() == "headless": RenderingServer.frame_post_draw.emit()
+	print("HUD REVIEW HANDOFF RESIZE: contained=%s" % contained)
+	scene.queue_free()
+	await process_frame
+	root.content_scale_factor = 1.0
+	root.content_scale_size = HUD_FIXTURE_SIZE
+	root.size = HUD_FIXTURE_SIZE
+
+func _hud_review_scene() -> Node:
+	root.content_scale_factor = 1.0
+	root.content_scale_size = HUD_FIXTURE_SIZE
+	root.size = HUD_FIXTURE_SIZE
+	var scene: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	root.add_child(scene)
+	await process_frame
+	await process_frame
+	scene.call("_close_dialogue")
+	await _load_combat_fixture(scene)
+	return scene
+
+func _hud_review_play(scene: Node, index: int) -> void:
+	var boundary: Callable = func() -> void: RenderingServer.frame_post_draw.emit()
+	if DisplayServer.get_name() == "headless": process_frame.connect(boundary)
+	await scene.call("_on_card_pressed", index)
+	await scene.call("_on_confirm_card_play_pressed")
+	if process_frame.is_connected(boundary): process_frame.disconnect(boundary)
+
+func _hud_review_hand(scene: Node, count: int) -> Dictionary:
+	var state: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
+	state["deck"]["hand"] = _hud_review_cards(count)
+	scene.set("_combat_state", state)
+	(scene.get("_run_state") as Dictionary)["combat_state"] = state
+	scene.call("_mark_combat_preview_state_changed")
+	scene.call("_refresh_ui")
+	return state
+
+func _hud_review_cards(count: int) -> Array[String]:
+	var cards: Array[String]
+	for _index: int in range(count): cards.append("brace")
+	return cards
+
+func _hud_review_rects(scene: Node) -> Dictionary:
+	var result: Dictionary = {}
+	for field: String in ["_pass_preview_overlay", "_play_meter", "_movement_meter", "_combat_objective_hud"]:
+		result[field] = (scene.get(field) as Control).get_global_rect()
+	return result
+
+func _hud_review_rects_match(before: Dictionary, after: Dictionary) -> bool:
+	for field: String in before:
+		if not (before[field] as Rect2).is_equal_approx(after[field]): return false
+	return true
+
+func _hand_card_center(instance: Node, index: int) -> Vector2:
+	var card: Control = instance.call("_hand_card_control", index) as Control
+	return card.get_global_transform_with_canvas() * (card.size * 0.5) if card != null else Vector2.ZERO
+
+func _native_hand_index(instance: Node) -> int:
+	var hovered: Control = instance.get_viewport().gui_get_hovered_control()
+	var hand_box: Control = instance.get("hand_box") as Control
+	for index: int in range(hand_box.get_child_count()):
+		var card: Control = instance.call("_hand_card_control", index) as Control
+		if hovered != null and card != null and (card == hovered or card.is_ancestor_of(hovered)):
+			return index
+	return -1
+
+func _hand_card_under_point(instance: Node, point: Vector2) -> int:
+	# Later siblings take the pointer where cards overlap.
+	var hand_box: Control = instance.get("hand_box") as Control
+	var under: int = -1
+	for index: int in range(hand_box.get_child_count()):
+		var card: Control = instance.call("_hand_card_control", index) as Control
+		if card != null and card.is_visible_in_tree() and Rect2(Vector2.ZERO, card.size).has_point(card.get_global_transform_with_canvas().affine_inverse() * point):
+			under = index
+	return under
 
 func _proxy_centers(instance: Node, proxies: Array) -> Array[Vector2]:
 	var centers: Array[Vector2]

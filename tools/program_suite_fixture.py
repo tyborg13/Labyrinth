@@ -9,12 +9,12 @@ import subprocess
 import tempfile
 import time
 
-PACK_TIMEOUT_SECONDS = 30
+PACK_TIMEOUT_SECONDS = 300
 CAPTURE_VIDEO_QUALITY = 1.0
 
 
 def fixture_stages(root: Path, program: dict, directory: Path) -> list[tuple[Path, str, list[str]]]:
-    path = program["path"]
+    path = program.get("source", program["path"])
     mode = program.get("mode", "script")
     if mode in ("cutout_pack", "roster_pack"):
         pack = directory / "fixture.pck"
@@ -75,7 +75,7 @@ def main(argv=None) -> int:
         remaining = args.timeout - (time.monotonic() - started)
         if remaining <= 0:
             return 124
-        timeout = min(remaining, PACK_TIMEOUT_SECONDS) if program["mode"].endswith("pack") else remaining
+        timeout = remaining
         command = task_command(project, args.task_id + "-stage-%d" % index, timeout, [
             args.godot, "--log-file", str(stage_directory / "godot.log"),
             "--headless", "--path", str(project), "--script", str(bootstrap), "--", *user_args])

@@ -1,0 +1,185 @@
+{
+  "version": 1,
+  "look": {
+    "kuwahara_radius": 4,
+    "value_blur": 3.4,
+    "materials": 8,
+    "colour_weight": 0.4,
+    "shadow_step": 0.55,
+    "detail_contrast": 0.24,
+    "ink_value": 0.09,
+    "key_light": 0.8,
+    "key_light_direction": [
+      -0.55,
+      -0.62,
+      0.56
+    ],
+    "glow": {
+      "core_value": 0.62,
+      "core_saturation": 0.55,
+      "halo_value": 0.4,
+      "halo_saturation": 0.45
+    },
+    "highlight": {
+      "percentile": 90,
+      "min_value": 0.42,
+      "min_rise": 0.12,
+      "lift": 0.15
+    }
+  },
+  "touch_ups": {
+    "protagonist/front": {
+      "note": "the hero's face: eyes and mask edge kept as painted; rest-canvas px [cx, cy, rx, ry]",
+      "ellipses": [
+        [
+          130,
+          63,
+          15,
+          10
+        ]
+      ]
+    },
+    "assets/units/protagonist_cutout/front/head.png": {
+      "note": "the hero's face on the board head piece (cropped canvas; it sits at (93, 9) in the rest): the same eyes-and-mask oval in head.png px",
+      "ellipses": [
+        [
+          37,
+          54,
+          15,
+          10
+        ]
+      ]
+    },
+    "assets/art/portraits/player_reaver.png": {
+      "note": "the hero's turn-order portrait: eyes and skin band kept as painted (the filter tinted them with the cloak's teal)",
+      "ellipses": [
+        [
+          68,
+          60,
+          22,
+          9
+        ]
+      ]
+    },
+    "assets/units/tharokh_cutout/front/head.png": {
+      "note": "Tharokh's eye and snout on the board head piece, kept as painted; head.png px [cx, cy, rx, ry]",
+      "ellipses": [
+        [
+          26,
+          96,
+          17,
+          20
+        ]
+      ]
+    },
+    "assets/units/noctyrax_cutout/front/head.png": {
+      "note": "Noctyrax's violet eye and snout on the board head piece, kept as painted",
+      "ellipses": [
+        [
+          22,
+          82,
+          12,
+          16
+        ]
+      ]
+    },
+    "assets/units/zekarion_cutout/front/head.png": {
+      "note": "Zekarion's gold eye and snout on the board head piece, kept as painted",
+      "ellipses": [
+        [
+          27,
+          76,
+          15,
+          13
+        ]
+      ]
+    }
+  },
+  "look_overrides": {
+    "note": "Per character facing (same keys as touch_ups): settings merged over 'look' for every texture of that facing. Director decisions.",
+    "crawler/front": {
+      "note": "owner: a grey splotch across the Tunnel Crawler. Its single-colour body took the highlight tone; no highlight tone, softer shadow.",
+      "highlight": {
+        "percentile": 90,
+        "min_value": 0.42,
+        "min_rise": 1.0,
+        "lift": 0.15
+      },
+      "shadow_step": 0.7
+    },
+    "crawler/rear": {
+      "note": "as crawler/front",
+      "highlight": {
+        "percentile": 90,
+        "min_value": 0.42,
+        "min_rise": 1.0,
+        "lift": 0.15
+      },
+      "shadow_step": 0.7
+    },
+    "tunnel_crawler/front": {
+      "note": "the Tunnel Crawler turn-order portrait, as crawler/front",
+      "highlight": {
+        "percentile": 90,
+        "min_value": 0.42,
+        "min_rise": 1.0,
+        "lift": 0.15
+      },
+      "shadow_step": 0.7
+    },
+    "tharokh/front": {
+      "note": "owner (playtest 18): Tharokh lost his whole face; its low-contrast scales merged into one tone.",
+      "kuwahara_radius": 2,
+      "value_blur": 1.2,
+      "materials": 12,
+      "colour_weight": 0.9,
+      "shadow_step": 0.7,
+      "detail_contrast": 0.4
+    },
+    "tharokh/rear": {
+      "note": "owner (playtest 18): Tharokh lost his whole face; its low-contrast scales merged into one tone.",
+      "kuwahara_radius": 2,
+      "value_blur": 1.2,
+      "materials": 12,
+      "colour_weight": 0.9,
+      "shadow_step": 0.7,
+      "detail_contrast": 0.4
+    },
+    "noctyrax/front": {
+      "note": "same fault as Tharokh: the dark head merged and the violet eye went.",
+      "kuwahara_radius": 2,
+      "value_blur": 1.2,
+      "materials": 12,
+      "colour_weight": 0.9,
+      "shadow_step": 0.7,
+      "detail_contrast": 0.4
+    },
+    "noctyrax/rear": {
+      "note": "same fault as Tharokh: the dark head merged and the violet eye went.",
+      "kuwahara_radius": 2,
+      "value_blur": 1.2,
+      "materials": 12,
+      "colour_weight": 0.9,
+      "shadow_step": 0.7,
+      "detail_contrast": 0.4
+    },
+    "zekarion/front": {
+      "note": "same fault as Tharokh: the gold horns went lavender and the head merged.",
+      "kuwahara_radius": 2,
+      "value_blur": 1.2,
+      "materials": 12,
+      "colour_weight": 0.9,
+      "shadow_step": 0.7,
+      "detail_contrast": 0.4
+    },
+    "zekarion/rear": {
+      "note": "same fault as Tharokh: the gold horns went lavender and the head merged.",
+      "kuwahara_radius": 2,
+      "value_blur": 1.2,
+      "materials": 12,
+      "colour_weight": 0.9,
+      "shadow_step": 0.7,
+      "detail_contrast": 0.4
+    }
+  }
+}

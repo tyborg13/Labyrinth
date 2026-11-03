@@ -1,0 +1,37 @@
+Running task-local command:
+  task: pt13-03
+  run: pt13-03-1793058652468098000-38462
+  HOME: /private/tmp/labyrinth-godot-home/pt13-03-1793058652468098000-38462
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-03-1793058652468098000-38462/godot.log --headless --path . --script tests/card_legibility_test.gd -- --regressions-only
+  timeout: 60s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+CARD LEGIBILITY CONTEXT: {"context":"card_tooltip","exemption":"","floor_failure_count":0,"icon_px":21.5039992332458,"overflow_count":0,"shrunk_count":0,"text_px":{"footer":null,"rules":14.3359994888306,"token_number":14.3359994888306}}
+CARD LEGIBILITY CONTEXT: {"context":"equipment_tooltip","exemption":"","floor_failure_count":3,"icon_px":17.2800006866455,"overflow_count":0,"shrunk_count":0,"text_px":{"footer":null,"rules":11.5200004577637,"token_number":11.5200004577637}}
+CARD LEGIBILITY CONTEXT: {"context":"purge_confirmation","exemption":"","floor_failure_count":0,"icon_px":24.0,"overflow_count":0,"shrunk_count":0,"text_px":{"footer":null,"rules":16.0,"token_number":16.0}}
+CARD LEGIBILITY EQUIPMENT BOUNDS: splintered_shield (396.0, 355.0) (46 two-card items)
+CARD LEGIBILITY TEST RESULT: FAIL (3 definitions, 3 contexts, 9 samples, 210 checks, 4 failures)
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: equipment_tooltip/iron_wheel/base: ["rules 12.240 < 14", "token_number 12.240 < 14"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:112)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:153)
+ERROR: equipment_tooltip/thorn_crown_pact/base: ["rules 11.520 < 14", "token_number 11.520 < 14"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:112)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:153)
+ERROR: equipment_tooltip/headlong/base: ["rules 11.520 < 14", "token_number 11.520 < 14"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:112)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:153)
+ERROR: Equipment and card tooltip sizes match
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:112)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:153)

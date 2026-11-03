@@ -29,5 +29,5 @@ static func can_defer_unrevealed_selection(engine: RefCounted, state: Dictionary
 		var spawn: Variant = definition.get("death_spawn", {})
 		if not spawn is Dictionary or not spawn.is_empty() or not str(definition.get("death_surface", "")).is_empty(): return false
 		for action: Dictionary in enemy.get("intent", {}).get("actions", []):
-			if str(action.get("type", "")) not in ["move_toward", "move_away", "melee", "ranged", "aoe", "push", "pull", "block", "heal", "gain_charge", "chain_discharge", "call_wind", "tether_beam", "dive_line", "surface"]: return false
+			if str(action.get("type", "")) not in ["move_toward", "move_away", "melee", "ranged", "aoe", "push", "pull", "block", "heal", "gain_charge", "chain_discharge", "call_wind", "surface"]: return false
 	return true

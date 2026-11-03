@@ -1,0 +1,50 @@
+Running task-local command:
+  task: pt13-03
+  run: pt13-03-1793081853049845000-33202
+  HOME: /private/tmp/labyrinth-godot-home/pt13-03-1793081853049845000-33202
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-03-1793081853049845000-33202/godot.log --headless --path . --script tests/card_legibility_test.gd -- --regressions-only
+  timeout: 150s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+LIVE AUDIT: combat fixture mode=combat
+LIVE AUDIT OPEN: card_tooltip
+CARD LEGIBILITY CONTEXT: {"context":"card_tooltip","exemption":"","floor_failure_count":2,"icon_px":21.5039992332458,"overflow_count":0,"sample_failure_count":2,"samples":3,"shrunk_count":1,"text_px":{"footer":null,"rules":13.4399995207787,"token_number":12.5439995527267}}
+LIVE AUDIT OPEN: equipment_tooltip
+CARD LEGIBILITY CONTEXT: {"context":"equipment_tooltip","exemption":"","floor_failure_count":2,"icon_px":21.5039992332458,"overflow_count":0,"sample_failure_count":2,"samples":3,"shrunk_count":1,"text_px":{"footer":null,"rules":13.4399995207787,"token_number":12.5439995527267}}
+LIVE AUDIT OPEN: purge_confirmation
+CARD LEGIBILITY CONTEXT: {"context":"purge_confirmation","exemption":"","floor_failure_count":1,"icon_px":24.0,"overflow_count":0,"sample_failure_count":1,"samples":3,"shrunk_count":1,"text_px":{"footer":null,"rules":15.0,"token_number":14.0}}
+CARD LEGIBILITY EQUIPMENT BOUNDS: splintered_shield (482.0, 417.0) (46 two-card items)
+CARD LEGIBILITY TEST RESULT: FAIL (3 definitions, 3 contexts, 9 samples, 236 checks, 5 failures)
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: card_tooltip/thorn_crown_pact/base: ["rules 13.440 < 14", "token_number 13.440 < 14", "rules text shrunk"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:169)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:210)
+ERROR: card_tooltip/headlong/base: ["token_number 12.544 < 14"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:169)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:210)
+ERROR: equipment_tooltip/thorn_crown_pact/base: ["rules 13.440 < 14", "token_number 13.440 < 14", "rules text shrunk"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:169)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:210)
+ERROR: equipment_tooltip/headlong/base: ["token_number 12.544 < 14"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:169)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:210)
+ERROR: purge_confirmation/thorn_crown_pact/base: ["rules text shrunk"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:169)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:210)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

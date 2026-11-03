@@ -1,5 +1,7 @@
 extends RefCounted
 
+const CardDisplay = preload("res://scripts/card_display_overrides.gd")
+
 # Shared run/Chronicle presentation. The caller owns rules and progression;
 # the builder needs only definitions and equipment state, never a RunScene.
 const GameData = preload("res://scripts/game_data.gd")
@@ -11,12 +13,13 @@ const Surface = preload("res://scripts/ui_component_surface.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const CARD_BASE_SIZE := Vector2(250, 352)
 const CARD_TOOLTIP_SIZE := Vector2(224, 224 * 352.0 / 250.0)
-const EQUIPMENT_TOOLTIP_CARD_SIZE := Vector2(180, 180 * 352.0 / 250.0)
+const EQUIPMENT_TOOLTIP_CARD_SIZE := Vector2(224, 224 * 352.0 / 250.0)
 
 var definitions: Dictionary = {}
 var definition_resolver: Callable
 var state: Dictionary = {}
 var equipment_locked: bool = false
+var use_run_display: bool = false
 
 func card_definition(id: String) -> Dictionary:
 	return definition_resolver.call(id) if definition_resolver.is_valid() else definitions.get(id, GameData.card_def(id))
@@ -115,6 +118,8 @@ func card_preview(card_id: String, card_size: Vector2, interactive: bool = false
 	widget.focus_mode = Control.FOCUS_NONE
 	widget.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
 	widget.configure(card_id, false, false, true, false, interactive, true, card_definition(card_id))
+	if use_run_display:
+		CardDisplay.bind(widget, state)
 	var factor: float = minf(card_size.x / CARD_BASE_SIZE.x, card_size.y / CARD_BASE_SIZE.y)
 	var slot := Control.new()
 	slot.custom_minimum_size = CARD_BASE_SIZE * factor
@@ -144,3 +149,12 @@ static func text_tooltip(text: String, relic_id: String = "") -> Control:
 static func relic_tooltip(id: String) -> Control:
 	var relic: Dictionary = GameData.relic_def(id)
 	return text_tooltip("%s\n%s" % [relic.get("name", id), relic.get("description", "")], id)
+
+# Granted cards wrap inside the existing Grimoire detail-page width.
+static func granted_card_row() -> HFlowContainer:
+	var row := HFlowContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.add_theme_constant_override("h_separation", 10)
+	row.add_theme_constant_override("v_separation", 10)
+	return row

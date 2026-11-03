@@ -9,7 +9,7 @@ const Store = preload("res://scripts/progression_store.gd")
 const Parallel = preload("res://scripts/parallel_runtime.gd")
 const Bramble = preload("res://scripts/enemy_mechanics/bramble.gd")
 const BrambleView = preload("res://scripts/enemy_mechanics/bramble_view.gd")
-const Lob = preload("res://scripts/enemy_mechanics/lob.gd")
+const Lob = preload("res://scripts/enemy_mechanics/marked_strike.gd")
 const LobView = preload("res://scripts/enemy_mechanics/lob_view.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
@@ -22,7 +22,7 @@ const CASE_COUNT: int = 9
 const PROOF_WEAVER_ALLY := Vector2i(6, 2)
 const PROOF_MORTAR_LEFT_ALLY := Vector2i(4, 5)
 const PROOF_MORTAR_RIGHT_ALLY := Vector2i(6, 5)
-const BRAMBLE_CAPTURE_NAMES := ["02_thornwall_mid_rise", "03_thornwall_grown", "04_bramble_push_collision", "08_bramble_mid_sink"]
+const THORNWALL_CAPTURE_NAMES := ["02_thornwall_marked", "03_thornwall_grown", "04_outcrop_push_collision", "08_outcrops_persist"]
 var _engine: RefCounted = Combat.new()
 var _failed: bool = false
 var _canvas: SubViewport
@@ -37,7 +37,7 @@ func _initialize() -> void:
 		return
 	if OS.get_cmdline_user_args().has("--check-only"):
 		var cases: Array[Dictionary] = _cases()
-		var expected: int = BRAMBLE_CAPTURE_NAMES.size() if args.has("--bramble-only") else CASE_COUNT
+		var expected: int = THORNWALL_CAPTURE_NAMES.size() if args.has("--thornwall-only") else CASE_COUNT
 		if cases.size() != expected: _failed = true
 		print("EN04 ENEMIES PROBE CONTRACT: %s (%d states, 1920x1080, UI scale 100%%)" % ["FAIL" if _failed else "PASS", cases.size()])
 		quit(1 if _failed else 0)
@@ -78,11 +78,13 @@ func _cases() -> Array[Dictionary]:
 	var grow: Dictionary = weaver["enemies"][0]["intent"]["actions"][0]
 	var grown: Dictionary = _engine._resolve_enemy_action(weaver.duplicate(true), 0, grow)
 	var grow_step: Dictionary = Bramble.animation_step(_engine, weaver, grown, 0, grow)
-	result.append({"name": "02_thornwall_mid_rise", "state": grown.duplicate(true), "presentation": BrambleView.presentation_for_step(grow_step, MID_TRANSITION_PROGRESS)})
+	result.append({"name": "02_thornwall_marked", "state": grown.duplicate(true), "presentation": {}})
+	grown = _engine.prepare_next_player_turn(grown)
+	grown = Bramble.begin_turn(_engine, grown, 0)
 	result.append({"name": "03_thornwall_grown", "state": grown.duplicate(true), "presentation": {}})
 	var collided: Dictionary = _engine._force_move_actor(grown.duplicate(true), "player", -1, Vector2i.UP, 1, {}, true)
 	var markers: Array[Dictionary] = _engine._surface_events_since(grown, collided)
-	result.append({"name": "04_bramble_push_collision", "state": collided, "presentation": {"collision_markers": markers}})
+	result.append({"name": "04_outcrop_push_collision", "state": collided, "presentation": {"collision_markers": markers}})
 	var mortar: Dictionary = Suite.fixture(_engine, "slag_mortar")
 	mortar["enemies"].append(Suite.enemy(2, PROOF_MORTAR_LEFT_ALLY))
 	mortar["enemies"].append(Suite.enemy(3, PROOF_MORTAR_RIGHT_ALLY))
@@ -94,15 +96,12 @@ func _cases() -> Array[Dictionary]:
 	var land_step: Dictionary = Lob.animation_step(_engine, mortar, landed, 0, land)
 	result.append({"name": "06_slag_mid_arc", "state": mortar.duplicate(true), "presentation": {"effect": land_step, "effect_progress": MID_ARC_PROGRESS}})
 	result.append({"name": "07_after_landing_fire", "state": landed, "presentation": {}})
-	grown["terrain"][0]["rounds_left"] = 1
-	var expiry_steps: Array[Dictionary]
-	Bramble.end_turn(grown, expiry_steps)
-	result.append({"name": "08_bramble_mid_sink", "state": grown, "presentation": BrambleView.presentation_for_step(expiry_steps[0], MID_TRANSITION_PROGRESS)})
+	result.append({"name": "08_outcrops_persist", "state": grown, "presentation": {}})
 	result.append({"name": "09_slag_reduced_motion", "state": mortar, "presentation": {"effect": land_step, "effect_progress": MID_ARC_PROGRESS, "reduced_motion": true}})
-	if OS.get_cmdline_user_args().has("--bramble-only"):
+	if OS.get_cmdline_user_args().has("--thornwall-only"):
 		var selected: Array[Dictionary]
 		for case: Dictionary in result:
-			if BRAMBLE_CAPTURE_NAMES.has(str(case["name"])): selected.append(case)
+			if THORNWALL_CAPTURE_NAMES.has(str(case["name"])): selected.append(case)
 		return selected
 	return result
 

@@ -1,0 +1,15 @@
+{
+  "task": "rr-38",
+  "round": "feedback2",
+  "risk": "standard",
+  "acceptance": [
+    "Row-wise rear trouser seam continuation uses only own painted interior texels; all-frame joint-hole gate stays strict.",
+    "Triage all round1 CPU findings and texture flags against hash-checked native evidence; retain stale/unmatched limitations without labeling them CPU artefacts.",
+    "Include every owned Godot UID sidecar in handoff.",
+    "Focused tests only; provide all seven director windowed commands at1920x1080/100%."
+  ],
+  "scope": "Gaoler pieces, proof, source/production derived density records and focused tests; generic changes only if necessary and optional.",
+  "inspection": "Director native judgment at2\u20134x; worker has no window-server access.",
+  "publication": "Design owner; leave all changes uncommitted.",
+  "preflight": "Existing owner-prepared task contract/preflight retained; branch codex/rr-38 clean at2542b120d before this round."
+}

@@ -75,11 +75,16 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 		var direction: Dictionary = direction_for_delta(delta)
 		facing = direction["facing"]
 		mirrored = bool(direction["mirrored"])
+	if str(motion.get("clip", "idle")) == "roar":
+		facing = "front"
 	var previous_clip: String = clip
 	var requested: String = str(motion.get("clip","idle"))
 	phase = float(motion.get("phase",0.0))
 	travel_per_cycle = float(motion.get("travel_per_cycle",0.0))
-	if requested == "walk":
+	if requested == "roar":
+		clip = "roar"
+		phase = clampf(phase, 0.0, 1.0)
+	elif requested == "walk":
 		clip = "walk"
 		phase = fposmod(phase,1.0)
 	elif requested == "attack" and phase < 1.0:
@@ -106,9 +111,9 @@ func _process(delta: float) -> void:
 func _apply_pose() -> void:
 	if rigs.is_empty():
 		return
-	var shown_clip: String = "death" if clip == "death" else "rest" if reduced_motion else clip
-	var shown_phase: float = 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase
-	var signature: Array = [facing,mirrored,shown_clip,shown_phase,travel_per_cycle]
+	var shown_clip: String = "death" if clip == "death" else "rest" if reduced_motion and clip != "roar" else clip
+	var shown_phase: float = 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion and clip != "roar" else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase
+	var signature: Array = [facing,mirrored,shown_clip,shown_phase,travel_per_cycle,reduced_motion]
 	if signature == _pose_signature:
 		return
 	_pose_signature = signature
@@ -118,7 +123,9 @@ func _apply_pose() -> void:
 		if rig.visible:
 			rig.position = Vector2(383,128) if mirrored else SOURCE_OFFSET
 			rig.scale = Vector2(-1,1) if mirrored else Vector2.ONE
-			if shown_clip == "walk":
+			if shown_clip == "roar":
+				rig.call("_apply_sampled_pose", Motion.sample_pose("roar", shown_phase, rig.get("layout"), facing, 0.0, reduced_motion), true)
+			elif shown_clip == "walk":
 				rig.call("apply_walk_pose",shown_phase,travel_per_cycle)
 			else:
 				ReactionPlayback.apply_pose(rig, shown_clip, shown_phase, reduced_motion)
@@ -139,7 +146,7 @@ func texture() -> Texture2D:
 
 func snapshot() -> Dictionary:
 	return {"art":"iskaldra_cutout_v01","facing":facing,"mirrored":mirrored,
-		"clip":"death" if clip == "death" else "rest" if reduced_motion else clip,
-		"phase":1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
+		"clip":"death" if clip == "death" else "rest" if reduced_motion and clip != "roar" else clip,
+		"phase":1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion and clip != "roar" else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
 		"travel_per_cycle":travel_per_cycle,
 		"active":active,"rig_count":rigs.size(),"texture_id":texture().get_instance_id() if texture() != null else 0}

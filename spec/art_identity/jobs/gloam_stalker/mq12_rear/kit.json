@@ -1,0 +1,50 @@
+{
+ "K": 4,
+ "anatomy": "biped",
+ "id": "gloam_stalker",
+ "job_id": "mq12-gloam-rear-r2",
+ "kind": "creature",
+ "kit_kind": "maquette",
+ "kit_version": "594e010768e90c2bfcde9678d05468318a08f9776923e730c81d46699920402d",
+ "method": "edit of the approved r1 rear to the mq-12 rear maquette (the far shoulder lower on screen, level in 3D); palette matched to mq12_front; output resized to 1024 (Lanczos) where needed",
+ "peers": [
+  "glacial_mirror_rear",
+  "hero_rear"
+ ],
+ "prompt_path": "prompt.md",
+ "prompt_sha256": "2ada441bd2e7cbe6ac29059d87f763a44475a2c22ebfa53c57e5328b7392ae60",
+ "prompt_source": "spec/art_identity/maquettes/gloam_stalker/prompt_rear_r2.md",
+ "refs": [
+  {
+   "canon_id": "gloam_stalker_rear_r1_approved_raw",
+   "file": "refs/01_approved_rear_r1.png",
+   "role": "identity",
+   "pixel_sha256": "1ee1e808f7a4dff7445f976b82bf847c0d4ffefdcf42fb9c4a3c75d6f27c5fa9"
+  },
+  {
+   "canon_id": "maquette_rear_parts_mq12",
+   "file": "refs/02_maquette_rear_parts_mq12.png",
+   "role": "maquette_parts",
+   "pixel_sha256": "03b31568233a7d2bc47d925cd69b5069c4599c84cc7443ddc9d5f687bac8d13b"
+  },
+  {
+   "canon_id": "maquette_rear_clay_mq12",
+   "file": "refs/03_maquette_rear_clay_mq12.png",
+   "role": "maquette_clay",
+   "pixel_sha256": "cb9f9d69b6075e53491a98dcff1d9244af8e879bffc0019ebe95643a57b7583a"
+  },
+  {
+   "canon_id": "gloam_stalker_front_r2_raw",
+   "file": "refs/04_approved_front_r2.png",
+   "role": "identity",
+   "pixel_sha256": "8a1371550ebb127f790db27a0a5020bb4fbc1f4f3a99074dad983e26d9f88f94"
+  }
+ ],
+ "size_class": "medium",
+ "target_h": 215,
+ "view": "creature_rear",
+ "match_reference": {
+  "job_path": "spec/art_identity/jobs/gloam_stalker/mq12_front/kit.json",
+  "pixel_sha256": "924fad62a68cd6616a444c3f442fb9e135e1be82ee7bc9e05f9ecc9ba342f07e"
+ }
+}

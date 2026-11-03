@@ -1,5 +1,25 @@
 # Hoarfrost Seer — en-02 implementation
 
+## mrk-01 — current keyword and implementation
+
+Icefall is a move name; its glossary/grimoire keyword is **Marked**: “these
+tiles take the hit on this enemy's next turn.” Old Icefall/action names are
+lookup aliases. Marking tooltip: “Marks 3 tiles across yours. Next turn they
+take the hit and turn to Ice.” Landing tooltip: “Marked tiles take the hit
+and turn to Ice.” Captain tooltips also retain their Order line. The existing damage and range rows, Icefall
+painting, held markers, effects, sound and timing remain unchanged.
+
+The shared `scripts/enemy_mechanics/marked_strike.gd` replaces duplicated
+marking/planning; repository callers use it directly. Saved action names stay unchanged. Data
+keeps the existing perpendicular-three shape, range 5 and damage 5; passable
+floor without standing terrain, sight bypass and Ice surface are explicit
+rather than implicit. Current landings create Ice ground, without pillars.
+The Rime Oracle's element rule and existing order behavior are unchanged.
+Permanent checks: `tests/mrk01_marked_test.gd` and `tests/en02_enemies_test.gd`.
+The shared `tests/mrk01_marked_probe.gd` captures all three enemies and Marked's
+approved `assets/art/icons/marked.png` in the grimoire at 1920×1080/100% UI scale.
+
+
 Binding design: `../peer_benchmark/enemy_roster_v1.md`, the en-02 brief supplied
 in the implementation task, and protected
 `../peer_benchmark/staged/enemies/wave_e1.json`. `briefs/en-common.md` and
@@ -32,7 +52,7 @@ Lancer and Acolyte. Standard band. The director adds encounter groups after merg
 3. Rime Bolt and Withdraw reuse existing ranged/Chilled and move-away/Block
    actions with the protected staged values (3 at range 4; move 2 + Block 4).
 
-The focused helpers are `scripts/enemy_mechanics/icefall.gd` and
+The focused helpers are `scripts/enemy_mechanics/marked_strike.gd` and
 `icefall_view.gd`. Marks reuse Meteorfall's wash, ring and front-edge medallion
 geometry, with approved `#9cc8e6` tint and `icefall.png`. Landing uses existing
 ice VFX for a 0.18-second fall followed by a 0.30-second frost puff. The pillar uses

@@ -44,7 +44,7 @@ static func hero_fill_alpha(seconds: float, reduced_motion: bool) -> float:
 static func needs_pulse(presentation: Dictionary, threats: Dictionary) -> bool:
 	return not bool(presentation.get("reduced_motion", false)) and threats.has((presentation.get("threats_at_rest", {}) as Dictionary).get("hero_tile", Vector2i(-1, -1)))
 
-static func draw_tile(board: Control, tile: Vector2i, polygon: PackedVector2Array, threats: Dictionary, hero_tile: Vector2i, reduced_motion: bool) -> void:
+static func draw_tile(board: Control, tile: Vector2i, polygon: PackedVector2Array, threats: Dictionary, hero_tile: Vector2i, reduced_motion: bool, draw_tags: Variant = null) -> void:
 	if not threats.has(tile) or not bool(board.call("_board_tile_is_visible_to_player", tile)):
 		return
 	var alpha: float = float(threats[tile])
@@ -61,7 +61,7 @@ static func draw_tile(board: Control, tile: Vector2i, polygon: PackedVector2Arra
 	board.draw_colored_polygon(inner, Color(Palette.DANGER, fill * alpha))
 	inner.append(inner[0])
 	board.draw_polyline(inner, Color(Palette.DANGER, OUTLINE_ALPHA * alpha), OUTLINE_WIDTH, true)
-	for tag: Dictionary in zone_tags((board.get("presentation") as Dictionary).get("threats_at_rest", {}).get("threats", [])):
+	for tag: Dictionary in zone_tags((board.get("presentation") as Dictionary).get("threats_at_rest", {}).get("threats", [])) if draw_tags == null else draw_tags:
 		if tag["tile"] == tile: draw_zone_tag(board, tag, center)
 
 static func draw_zone_tag(board: Control, tag: Dictionary, center: Vector2) -> void:

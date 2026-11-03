@@ -7,7 +7,7 @@ func _grimoire_entries() -> Array[String]:
 	var result: Array[String]
 	result.assign([
 		"enemy:zekarion", "combat:worldspines", "combat:cinder_marks",
-		"combat:hollow_gale", "combat:crystal_armor", "enemy:tharokh",
-		"enemy:vyraketh", "enemy:vaeloryx", "enemy:iskaldra"
+		"combat:hollow_gale", "enemy:tharokh",
+		"enemy:vyraketh", "enemy:vaeloryx", "enemy:iskaldra", "enemy:noctyrax"
 	])
 	return result

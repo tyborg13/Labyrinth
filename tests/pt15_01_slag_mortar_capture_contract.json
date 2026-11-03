@@ -1,0 +1,20 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "slag-mortar-fire.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1300, 700], "min_luma_range": 8, "min_luma_stdev": 2}]
+    },
+    {"pattern": "slag-mortar-fire_enemy_1_3x.png"},
+    {"pattern": "slag-mortar-fire_enemy_2_3x.png"}
+  ],
+  "frame_size_policy": {
+    "matches": "window_logical_size",
+    "minimum_size": [1920, 1080],
+    "ui_scale": 1.0,
+    "capture_source": "root_viewport"
+  }
+}

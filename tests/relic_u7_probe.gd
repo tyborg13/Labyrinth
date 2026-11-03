@@ -31,21 +31,32 @@ func _run() -> void:
 	canvas.add_child(scene)
 	await process_frame
 	var state: Dictionary = _fixture(["black_sun_dial"])
-	state["combat_state"]["relic_stored_surfaces"] = ["fire", "ice"]
+	var engine := Combat.new()
+	var combat: Dictionary = state["combat_state"]
+	Surface.place(combat, Vector2i(2, 3), "electrified")
+	Surface.place(combat, Vector2i(3, 3), "electrified")
+	var expend: Dictionary = Data.card_def_for_progression("grounding", combat)["actions"][0]
+	combat = engine.apply_player_action(combat, expend, Vector2i(2, 3))
+	combat["deck"]["hand"] = ["grounding"]
+	combat = engine.finish_player_card(combat, 0)
+	combat["deck"]["hand"] = ["pale_spark", "grounding", "brace"]
+	state["combat_state"] = combat
 	await _load(state)
 	await scene.call("_on_card_pressed", 0)
 	_aim_at_target(Vector2i(4, 3))
 	await _settle()
-	expect(scene.find_child("RelicStoredSurface_0", true, false) != null and scene.find_child("RelicStoredSurface_1", true, false) != null, "Dial's two stored pips appear in the actual relic bar")
-	var first_pip: Control = scene.find_child("RelicStoredSurface_0", true, false) as Control
-	var second_pip: Control = scene.find_child("RelicStoredSurface_1", true, false) as Control
-	expect(first_pip.size == Vector2(16, 16) and second_pip.size == Vector2(16, 16) and second_pip.position.x - first_pip.position.x == 16.0, "Dial pips use exactly 16x16 and storage order along the badge bottom")
-	expect((first_pip.get_parent().get_parent() as Control).tooltip_text.ends_with("Stored: Fire, Ice"), "Dial tooltip lists stored elements in order")
-	var attack: Dictionary = Data.card_def_for_progression("pale_spark", state["combat_state"])["actions"][0]
-	var source_before: Dictionary = state["combat_state"].duplicate(true)
-	var options: Array = scene.call("_action_step_damage_options", state["combat_state"], [attack, attack], [])
-	expect(int(options[0]["final_damage"]) == 7 and int(options[1]["final_damage"]) == 3 and state["combat_state"] == source_before, "Sequential card damage display releases Dial once without mutating source state")
+	var counter: Label = scene.find_child("RelicDialDamage", true, false) as Label
+	expect(counter != null and counter.text == "6", "Dial's counter shows +6 pending damage in the actual relic tray")
+	expect((counter.get_parent() as Control).tooltip_text == "Black Sun Dial\nEach ground tile you @kw(surface_consume|Expend) gives your next attack +3 damage (up to +9).", "Dial tooltip uses the new one-sentence text")
+	var attack: Dictionary = Data.card_def_for_progression("pale_spark", combat)["actions"][0]
+	var source_before: Dictionary = combat.duplicate(true)
+	var options: Array = scene.call("_action_step_damage_options", combat, [attack, attack], [])
+	expect(int(options[0]["final_damage"]) == 9 and int(options[1]["final_damage"]) == 3 and combat == source_before, "Sequential card preview spends Dial once without mutating source state")
 	await _capture("black_sun_dial")
+	state["combat_state"] = engine.apply_player_action(combat, attack, Vector2i(4, 3))
+	await _load(state)
+	expect(scene.find_child("RelicDialDamage", true, false) == null, "Dial counter clears after its attack")
+	await _capture("black_sun_dial_spent")
 	state = _fixture(["fivefold_knot"])
 	state["combat_state"]["relic_element_knots"] = ["fire", "ice", "air"]
 	await _load(state)

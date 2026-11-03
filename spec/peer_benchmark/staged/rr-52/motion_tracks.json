@@ -1,0 +1,1303 @@
+{
+ "_doc": "Director motion data (rr-52), humanoid rig v2 for the Last Lamplighter on the mq-24/mq-25 maquette and the owner-approved take-three paintings (inbox lamplighter-paint-3, APPROVED 2026-10-29). Same binding semantics as rr-38/rr-44/rr-48 (held item, angle_deg, release_at, drop, held_follow) and the rig spec. lantern.angle_deg rotates the lantern about its ring in the fist, in the facing plane: positive swings it forward (toward his facing), negative back; 0 is the painted rest (hanging straight below the fist).",
+ "last_lamplighter": {
+  "rig": "humanoid_v2",
+  "units": "source_px",
+  "maquette": "spec/art_identity/maquettes/last_lamplighter/mq24/delivery (mq-25 accepted delivery; joints_px)",
+  "art": {
+   "front": "spec/art_identity/jobs/last_lamplighter/mq24_front",
+   "rear": "spec/art_identity/jobs/last_lamplighter/mq24_rear",
+   "registration_note": "Register joints on the paintings themselves, guided by the maquette's part map; never by bounding-box mapping of maquette joints (rr-48)."
+  },
+  "pieces_note": "Maquette labels: the far hand (his RIGHT) is the free clawed iron hand; the near hand (his LEFT) is the closed fist through the lantern's ring. head = the hood with the white cross-slit mask (front) / the hood's back (rear), rigid; torso with the violet mantle (its ragged points over the upper arms), the chest, the birdcage on its short chain and the scarf fused in (rigid; the mantle points sit over the shoulder joints, so no mantle pixel may belong to an arm: the arms swing beneath them, as the Reaver's pauldrons); pelvis with the belt and the hanging keys fused in; robe = the long shredded front robe as a skinned cloth chain on pelvis (robe_mid, robe_tip; at most 3 px follow-through); robe_back = the back robe (rear view; its hem also shows between the legs in the front) as a skinned cloth chain (robe_back_mid, robe_back_tip); per arm a skinned root limb over upper and fore with a rigid hand (the claw keeps its four separate fingers and thumb as one rigid piece); lantern = the ring, the short chain and the hexagonal lantern with its candle as one rigid held item in hand_near, pivot at the ring in the fist; per leg a skinned root leg (thigh plate, knee cop, greave) and a rigid sabaton.",
+  "elbow_policy": {
+   "_doc": "As rr-44 (owner 2026-10-27): a real elbow only flexes; the forearm folds from the upper arm's line toward the side the figure faces. The two-bone solve always takes this side and never infers it from a near-straight rest. 'max_hyperextension_deg' is the gate.",
+   "bend": "flex_toward_facing",
+   "views": [
+    "front",
+    "rear"
+   ],
+   "sides": [
+    "near",
+    "far"
+   ],
+   "max_hyperextension_deg": 2
+  },
+  "underlays": "Director body underlays (as rr-48): the approved paintings repainted without the arms below the mantle, the claw, the lantern with its ring and chain, with the robe sides, belt and legs painted in behind them. Each hidden receiver layer carries its receiver's whole underlay domain (rr-48 feedback 3); exact RGBA; natural negative space is judged against the underlay.",
+  "clips": {
+   "idle": {
+    "seconds": 0.84,
+    "loop": true,
+    "intents": [],
+    "note": "the protagonist's cut-out bob: the upper body drops 2 px and returns as one rigid piece (the free claw rides with it, the rr-48 ruling); the lantern arm follows a beat later as one rigid group with the lantern (the same lag curve as the Reaver's sword arm), and the lantern sways 2 degrees on its ring; the robe, legs and feet stay still",
+    "keys": {
+     "torso.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -2
+      ],
+      [
+       0.55,
+       -2
+      ],
+      [
+       0.91,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "upper_near.lift_px": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.05,
+       0.38
+      ],
+      [
+       0.1,
+       1.17
+      ],
+      [
+       0.15,
+       1.47
+      ],
+      [
+       0.2,
+       0.83
+      ],
+      [
+       0.25,
+       0.15
+      ],
+      [
+       0.3,
+       0.0
+      ],
+      [
+       0.35,
+       0.0
+      ],
+      [
+       0.4,
+       0.0
+      ],
+      [
+       0.45,
+       0.0
+      ],
+      [
+       0.5,
+       0.0
+      ],
+      [
+       0.55,
+       0.0
+      ],
+      [
+       0.6,
+       -0.11
+      ],
+      [
+       0.65,
+       -0.25
+      ],
+      [
+       0.7,
+       -0.31
+      ],
+      [
+       0.75,
+       -0.3
+      ],
+      [
+       0.8,
+       -0.24
+      ],
+      [
+       0.85,
+       -0.15
+      ],
+      [
+       0.9,
+       -0.04
+      ],
+      [
+       0.95,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "lantern.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       2
+      ],
+      [
+       0.55,
+       0
+      ],
+      [
+       0.8,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "move": {
+    "seconds": 0.85,
+    "intents": [],
+    "note": "a stooped, steady procession on the protagonist's walk model: both legs step, six steps per tile, near foot leading, a low 3 px lift (a heavy, dragging tread); 3 degrees more forward lean on top of the painted stoop; both arms swing from the shoulder opposite their same-side legs, the free claw more and the lantern arm less; the lantern trails the fist and swings on its ring (held_follow in the body frame, as the Gaoler's chain); the robe trails 2 px",
+    "gait": {
+     "model": "protagonist_walk",
+     "steps_per_tile": 6,
+     "lead": "near",
+     "stance_fraction": 0.6,
+     "lift_px": 3,
+     "lane_narrowing": 0.6,
+     "leg_scale_max": 1.22,
+     "settle_px": {
+      "contact": 1.5,
+      "down": 3.0,
+      "passing": 0.8,
+      "up": 0.4
+     },
+     "arm_swing": {
+      "model": "shoulder_pendulum",
+      "_doc": "As rr-44/rr-48: the upper arm rotates about the shoulder, opposite the same-side leg; the forearm lags and bends more on the backswing; the hand is rigid with the forearm. The lantern arm (near) swings less so the lantern stays steady; the free claw (far) swings more.",
+      "phase": "opposite_same_side_leg",
+      "near": {
+       "upper_deg": 6,
+       "forearm_lag_s": 0.08,
+       "forearm_bend_deg": {
+        "forward": 2,
+        "back": 5
+       }
+      },
+      "far": {
+       "upper_deg": 12,
+       "forearm_lag_s": 0.08,
+       "forearm_bend_deg": {
+        "forward": 3,
+        "back": 10
+       }
+      },
+      "envelope": {
+       "ramp_fraction": 0.12,
+       "ease": "smoothstep"
+      }
+     },
+     "max_fit_px": 6
+    },
+    "held_follow": {
+     "item": "lantern",
+     "grip": "hand_near",
+     "reference_frame": "body",
+     "deg_per_px": 0.6,
+     "lag_s": 0.1,
+     "limit_deg": 25,
+     "_doc": "rr-44/rr-48 body-frame follow: root travel never tilts the lantern; it returns to its painted rest at the end of every move"
+    },
+    "keys": {
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.12,
+       3
+      ],
+      [
+       0.88,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "robe_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       -2
+      ],
+      [
+       0.9,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "robe_back_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       -2
+      ],
+      [
+       0.9,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "snuff": {
+    "seconds": 0.9,
+    "contact": 0.5,
+    "intents": [
+     "snuff:summon_minions"
+    ],
+    "note": "Snuff: he lifts the lantern to his chest and bows his masked head over it, as if blowing out the candle (contact: the brazier is snuffed and the Wick Shade rises here); his free claw lifts and spreads at his side, conjuring; then he straightens and lowers the lantern. No arm crosses the body.",
+    "keys": {
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       14
+      ],
+      [
+       0.6,
+       14
+      ],
+      [
+       0.85,
+       5
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       4
+      ],
+      [
+       0.6,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "lantern.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -6
+      ],
+      [
+       0.55,
+       0
+      ],
+      [
+       0.8,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.4,
+       6
+      ],
+      [
+       0.6,
+       6
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.4,
+       10
+      ],
+      [
+       0.6,
+       10
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.4,
+       6
+      ],
+      [
+       0.6,
+       6
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.4,
+       4
+      ],
+      [
+       0.6,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "robe_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       1
+      ],
+      [
+       0.8,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "robe_back_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       1
+      ],
+      [
+       0.8,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    },
+    "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3)."
+   },
+   "mourning_hook": {
+    "seconds": 0.9,
+    "contact": 0.42,
+    "intents": [
+     "mourning_hook:ranged"
+    ],
+    "note": "Mourning Hook, after the step in (the move clip): he draws his free claw back, then flings it forward and hooks the air (contact: the line hits and the pull starts here; the hook itself is the game's VFX), then wrenches the claw back toward his chest as the target is dragged in, leaning into the fling and back with the yank; the lantern swings against the motion",
+    "keys": {
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       -4
+      ],
+      [
+       0.42,
+       16
+      ],
+      [
+       0.55,
+       14
+      ],
+      [
+       0.75,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       4
+      ],
+      [
+       0.42,
+       6
+      ],
+      [
+       0.75,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       -3
+      ],
+      [
+       0.42,
+       7
+      ],
+      [
+       0.6,
+       5
+      ],
+      [
+       0.75,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.42,
+       3
+      ],
+      [
+       0.75,
+       -1
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.42,
+       4
+      ],
+      [
+       0.75,
+       -1
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.42,
+       -3
+      ],
+      [
+       0.75,
+       1
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "lantern.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.42,
+       -8
+      ],
+      [
+       0.6,
+       5
+      ],
+      [
+       0.8,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "robe_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       2
+      ],
+      [
+       0.8,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "robe_back_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       2
+      ],
+      [
+       0.8,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    },
+    "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3)."
+   },
+   "last_procession": {
+    "seconds": 1.1,
+    "contact": 0.5,
+    "intents": [
+     "last_procession:melee"
+    ],
+    "note": "Last Procession, after the step in: he swings the lantern like a censer. Wind-up: the lantern arm draws back and up beside him and the lantern swings back on its ring (0.3); then an overhand arc down and forward onto the target (contact: the hit lands here), the lantern swinging past on its ring and settling; he leans into it, the free claw counterbalancing behind",
+    "keys": {
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -8
+      ],
+      [
+       0.5,
+       14
+      ],
+      [
+       0.65,
+       10
+      ],
+      [
+       0.85,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       16
+      ],
+      [
+       0.5,
+       4
+      ],
+      [
+       0.65,
+       -2
+      ],
+      [
+       0.85,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "lantern.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       30
+      ],
+      [
+       0.5,
+       -20
+      ],
+      [
+       0.65,
+       -35
+      ],
+      [
+       0.8,
+       10
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -4
+      ],
+      [
+       0.5,
+       9
+      ],
+      [
+       0.65,
+       9
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       5
+      ],
+      [
+       0.65,
+       5
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       -2
+      ],
+      [
+       0.7,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -2
+      ],
+      [
+       0.5,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       3
+      ],
+      [
+       0.5,
+       -4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "robe_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       3
+      ],
+      [
+       0.8,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "robe_back_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       3
+      ],
+      [
+       0.8,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    },
+    "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3)."
+   },
+   "hit": {
+    "seconds": 0.5,
+    "intents": [],
+    "note": "spec hit, as the Reaver's: torso knocked 3 px back and 1 px down with a 3 degree lean back, the hood nods back 4 degrees; both hands carry the knockback a beat late, so the elbows only flex; the lantern kicks back 10 degrees on its ring and settles; the robe trails",
+    "keys": {
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.2,
+       -4
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "lantern.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.22,
+       10
+      ],
+      [
+       0.45,
+       -4
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.35,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.35,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "robe_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       2
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "robe_back_tip.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       2
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "death": {
+    "seconds": 1.6,
+    "terminal": true,
+    "intents": [],
+    "note": "he staggers back; the lantern slips from his fist at 0.35, drops straight to the floor under it and tips over onto its side toward his facing (the Gaoler's chain drop and the Reaver's falchion: the owner loved the weapon falling); the body slumps forward over planted feet like the Reaver (hips sink 6 px, torso folds 24 degrees, hood bows 18); the claw and the empty fist hang",
+    "keys": {
+     "lantern.release_at": 0.35,
+     "lantern.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       0
+      ],
+      [
+       0.55,
+       0
+      ],
+      [
+       0.75,
+       70
+      ],
+      [
+       0.9,
+       90
+      ],
+      [
+       1,
+       90
+      ]
+     ],
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       0
+      ],
+      [
+       0.7,
+       -4
+      ],
+      [
+       0.95,
+       -6
+      ],
+      [
+       1,
+       -6
+      ]
+     ],
+     "pelvis.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.7,
+       1
+      ],
+      [
+       0.95,
+       2
+      ],
+      [
+       1,
+       2
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       -3
+      ],
+      [
+       0.7,
+       12
+      ],
+      [
+       0.95,
+       24
+      ],
+      [
+       1,
+       24
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       -1
+      ],
+      [
+       0.7,
+       5
+      ],
+      [
+       0.95,
+       8
+      ],
+      [
+       1,
+       8
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -4
+      ],
+      [
+       0.7,
+       11
+      ],
+      [
+       0.95,
+       18
+      ],
+      [
+       1,
+       18
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.4,
+       0
+      ],
+      [
+       0.75,
+       -5
+      ],
+      [
+       1,
+       -6
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -2
+      ],
+      [
+       1,
+       -6
+      ]
+     ],
+     "robe_tip.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.7,
+       -2
+      ],
+      [
+       1,
+       -3
+      ]
+     ],
+     "robe_back_tip.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.7,
+       -2
+      ],
+      [
+       1,
+       -3
+      ]
+     ],
+     "lantern.drop": {
+      "start": 0.35,
+      "land": 0.5,
+      "ease": "in",
+      "to": "floor_line",
+      "pivot_after_land": "floor_contact",
+      "note": "as rr-48: translate straight down from release until the lantern's lowest texel touches the unit's floor line (per facing), then pivot about the floor contact in the keyed direction (positive = toward his facing) until a second point of its painted silhouette touches the floor; never reverse; bound 95 degrees (rr-48 feedback 2)"
+     }
+    },
+    "budget_note": "slump instead of a kneel, as the Reaver. Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1), never below 60% of the approved excursion (100% for the walk arms) (rr-48 feedback 3)."
+   }
+  }
+ }
+}

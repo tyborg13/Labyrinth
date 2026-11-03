@@ -1,0 +1,939 @@
+{
+  "task": "pt13-02",
+  "renderer": "headless geometry only",
+  "fixture_states": 150,
+  "additional_regressions": 5,
+  "max_distance_px": 17.9535274505615,
+  "fixtures": [
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "owner_sprite_regression",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "terrain_health_bar",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "fading_health_bar",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "external_boss_health_frame",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "owner expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "owner expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "rest_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "rest_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "rest_crowded_props expanded=false",
+      "max_distance": 4.593017578125
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "rest_crowded_props expanded=true",
+      "max_distance": 4.593017578125
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "wave_E2 expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "wave_E2 expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 8,
+      "fallbacks": 2,
+      "fixture": "mixed_stress expanded=false",
+      "max_distance": 6.21875
+    },
+    {
+      "chips": 8,
+      "fallbacks": 2,
+      "fixture": "mixed_stress expanded=true",
+      "max_distance": 6.21875
+    },
+    {
+      "chips": 11,
+      "fallbacks": 6,
+      "fixture": "movement_stress_11 expanded=false",
+      "max_distance": 13.0352783203125
+    },
+    {
+      "chips": 11,
+      "fallbacks": 6,
+      "fixture": "movement_stress_11 expanded=true",
+      "max_distance": 13.0352783203125
+    },
+    {
+      "chips": 3,
+      "fallbacks": 2,
+      "fixture": "boss_crowded expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 2,
+      "fixture": "boss_crowded expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 2,
+      "fixture": "dragon_crowded expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 2,
+      "fixture": "dragon_crowded expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_air_1_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_air_1_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_air_1_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_air_1_crowd expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_air_2_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_air_2_open expanded=true",
+      "max_distance": 3.0517578125e-05
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_air_2_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_air_2_crowd expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_air_3_open expanded=false",
+      "max_distance": 15.970458984375
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_air_3_open expanded=true",
+      "max_distance": 15.970458984375
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_air_3_crowd expanded=false",
+      "max_distance": 17.1478271484375
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_air_3_crowd expanded=true",
+      "max_distance": 17.9535274505615
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_air_first_turn expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_air_first_turn expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 1,
+      "fixture": "snare_air_first_seal expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 1,
+      "fixture": "snare_air_first_seal expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 1,
+      "fixture": "snare_air_kept_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 1,
+      "fixture": "snare_air_kept_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_air_escape expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_air_escape expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 1,
+      "fixture": "snare_air_pressure_turn3 expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 1,
+      "fixture": "snare_air_pressure_turn3 expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_earth_1_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_earth_1_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_earth_1_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_earth_1_crowd expanded=true",
+      "max_distance": 11.970458984375
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_earth_2_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_earth_2_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_earth_2_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_earth_2_crowd expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_earth_3_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_earth_3_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_earth_3_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_earth_3_crowd expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_earth_first_turn expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_earth_first_turn expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_earth_first_seal expanded=false",
+      "max_distance": 11.218017578125
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_earth_first_seal expanded=true",
+      "max_distance": 11.218017578125
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_earth_kept_open expanded=false",
+      "max_distance": 11.218017578125
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_earth_kept_open expanded=true",
+      "max_distance": 11.218017578125
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_earth_escape expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_earth_escape expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_earth_pressure_turn3 expanded=false",
+      "max_distance": 11.218017578125
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_earth_pressure_turn3 expanded=true",
+      "max_distance": 11.218017578125
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_fire_1_open expanded=false",
+      "max_distance": 4.6826171875
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_fire_1_open expanded=true",
+      "max_distance": 4.6826171875
+    },
+    {
+      "chips": 4,
+      "fallbacks": 1,
+      "fixture": "warband_fire_1_crowd expanded=false",
+      "max_distance": 10.3175659179688
+    },
+    {
+      "chips": 4,
+      "fallbacks": 1,
+      "fixture": "warband_fire_1_crowd expanded=true",
+      "max_distance": 10.3175659179688
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_fire_2_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_fire_2_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_fire_2_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_fire_2_crowd expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_fire_3_open expanded=false",
+      "max_distance": 4.6826171875
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_fire_3_open expanded=true",
+      "max_distance": 4.6826171875
+    },
+    {
+      "chips": 6,
+      "fallbacks": 3,
+      "fixture": "warband_fire_3_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 6,
+      "fallbacks": 3,
+      "fixture": "warband_fire_3_crowd expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_fire_first_turn expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_fire_first_turn expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_fire_first_seal expanded=false",
+      "max_distance": 4.6826171875
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_fire_first_seal expanded=true",
+      "max_distance": 4.6826171875
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_fire_kept_open expanded=false",
+      "max_distance": 4.6826171875
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_fire_kept_open expanded=true",
+      "max_distance": 4.6826171875
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_fire_escape expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_fire_escape expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_fire_pressure_turn3 expanded=false",
+      "max_distance": 4.6826171875
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_fire_pressure_turn3 expanded=true",
+      "max_distance": 4.6826171875
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_ice_1_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_ice_1_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_ice_1_crowd expanded=false",
+      "max_distance": 7.948486328125
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_ice_1_crowd expanded=true",
+      "max_distance": 7.948486328125
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_ice_2_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_ice_2_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_ice_2_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_ice_2_crowd expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_ice_3_open expanded=false",
+      "max_distance": 7.051513671875
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_ice_3_open expanded=true",
+      "max_distance": 7.051513671875
+    },
+    {
+      "chips": 6,
+      "fallbacks": 1,
+      "fixture": "warband_ice_3_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 6,
+      "fallbacks": 1,
+      "fixture": "warband_ice_3_crowd expanded=true",
+      "max_distance": 15.2753610610962
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "snare_ice_first_turn expanded=false",
+      "max_distance": 7.05157470703125
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "snare_ice_first_turn expanded=true",
+      "max_distance": 7.05157470703125
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "snare_ice_first_seal expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "snare_ice_first_seal expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "snare_ice_kept_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "snare_ice_kept_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "snare_ice_escape expanded=false",
+      "max_distance": 7.05157470703125
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "snare_ice_escape expanded=true",
+      "max_distance": 7.05157470703125
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "snare_ice_pressure_turn3 expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "snare_ice_pressure_turn3 expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_1_open expanded=false",
+      "max_distance": 15.970458984375
+    },
+    {
+      "chips": 4,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_1_open expanded=true",
+      "max_distance": 15.970458984375
+    },
+    {
+      "chips": 4,
+      "fallbacks": 1,
+      "fixture": "warband_lightning_1_crowd expanded=false",
+      "max_distance": 15.970458984375
+    },
+    {
+      "chips": 4,
+      "fallbacks": 1,
+      "fixture": "warband_lightning_1_crowd expanded=true",
+      "max_distance": 15.970458984375
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_2_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_2_open expanded=true",
+      "max_distance": 11.000732421875
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_2_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_2_crowd expanded=true",
+      "max_distance": 15.970458984375
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_3_open expanded=false",
+      "max_distance": 15.970458984375
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_3_open expanded=true",
+      "max_distance": 15.970458984375
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_3_crowd expanded=false",
+      "max_distance": 15.970458984375
+    },
+    {
+      "chips": 6,
+      "fallbacks": 0,
+      "fixture": "warband_lightning_3_crowd expanded=true",
+      "max_distance": 15.970458984375
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_first_turn expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_first_turn expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_first_seal expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_first_seal expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_kept_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_kept_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_escape expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_escape expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_pressure_turn3 expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 3,
+      "fallbacks": 0,
+      "fixture": "snare_lightning_pressure_turn3 expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_1_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_1_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_1_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_1_crowd expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_2_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_2_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_2_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_2_crowd expanded=true",
+      "max_distance": 5.218994140625
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_3_open expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_3_open expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_3_crowd expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 0,
+      "fixture": "warband_shadow_3_crowd expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 0,
+      "fallbacks": 0,
+      "fixture": "snare_shadow_first_turn expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 0,
+      "fallbacks": 0,
+      "fixture": "snare_shadow_first_turn expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 2,
+      "fallbacks": 1,
+      "fixture": "snare_shadow_first_seal expanded=false",
+      "max_distance": 8.12322998046875
+    },
+    {
+      "chips": 2,
+      "fallbacks": 1,
+      "fixture": "snare_shadow_first_seal expanded=true",
+      "max_distance": 8.12322998046875
+    },
+    {
+      "chips": 2,
+      "fallbacks": 1,
+      "fixture": "snare_shadow_kept_open expanded=false",
+      "max_distance": 8.12322998046875
+    },
+    {
+      "chips": 2,
+      "fallbacks": 1,
+      "fixture": "snare_shadow_kept_open expanded=true",
+      "max_distance": 8.12322998046875
+    },
+    {
+      "chips": 0,
+      "fallbacks": 0,
+      "fixture": "snare_shadow_escape expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 0,
+      "fallbacks": 0,
+      "fixture": "snare_shadow_escape expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 2,
+      "fallbacks": 1,
+      "fixture": "snare_shadow_pressure_turn3 expanded=false",
+      "max_distance": 8.12322998046875
+    },
+    {
+      "chips": 2,
+      "fallbacks": 1,
+      "fixture": "snare_shadow_pressure_turn3 expanded=true",
+      "max_distance": 8.12322998046875
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_air_2_midfight expanded=false",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 5,
+      "fallbacks": 0,
+      "fixture": "warband_air_2_midfight expanded=true",
+      "max_distance": 0.0
+    },
+    {
+      "chips": 1,
+      "fallbacks": 1,
+      "fixture": "owner_hand_zoom1_4",
+      "max_distance": 0.0
+    }
+  ]
+}

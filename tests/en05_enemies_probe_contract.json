@@ -107,7 +107,7 @@
       ]
     },
     {
-      "pattern": "*07_dive_rest_two_units_on_path.png",
+      "pattern": "*07_dive_rest_shared_plan.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -124,7 +124,7 @@
       ]
     },
     {
-      "pattern": "*08_dive_mid_flight.png",
+      "pattern": "*08_dive_hover_shared_path.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -141,7 +141,7 @@
       ]
     },
     {
-      "pattern": "*09_after_dive.png",
+      "pattern": "*09_after_shared_dive.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -158,7 +158,7 @@
       ]
     },
     {
-      "pattern": "*10_dive_blocked_landing_rest.png",
+      "pattern": "*10_dive_immobilized_hover.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -166,7 +166,7 @@
       ]
     },
     {
-      "pattern": "*11_after_blocked_dive.png",
+      "pattern": "*11_after_immobilized_dive.png",
       "width": 1920,
       "height": 1080,
       "regions": [

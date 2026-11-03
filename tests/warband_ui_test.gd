@@ -70,7 +70,7 @@ func _run() -> void:
 	concealed["enemies"][1]["burrowed"] = true
 	concealed["enemies"][1]["veiled"] = true
 	var fleeing: Dictionary = WarbandView.flee_display_state(before, concealed)
-	_expect(not fleeing["enemies"][1]["burrowed"] and not fleeing["enemies"][1]["veiled"] and concealed["enemies"][1]["burrowed"] and concealed["enemies"][1]["veiled"], "Concealed followers expose their fleeing bodies without changing committed mechanics")
+	_expect(not fleeing["enemies"][1]["burrowed"] and not fleeing["enemies"][1].has("veiled") and concealed["enemies"][1]["burrowed"] and concealed["enemies"][1]["veiled"], "Concealed followers expose their fleeing bodies without changing committed mechanics")
 	var reduced := ReducedScene.new()
 	await WarbandView.animate_break(reduced, before, after, {})
 	_expect(reduced.banner == after["objective"]["break_line"] and not reduced.rendered, "Reduced motion skips the entire escape run and retains the announcement")

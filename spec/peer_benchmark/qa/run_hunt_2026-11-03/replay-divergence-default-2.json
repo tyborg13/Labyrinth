@@ -1,0 +1,86 @@
+{
+  "campaign": "default",
+  "seed": 2,
+  "script": "run_hunt_census.gd",
+  "matching_semantic_prefix": 562,
+  "first_divergence": 563,
+  "original": {
+    "context": {
+      "decision": 563,
+      "mode": "campfire",
+      "room": "(5, 7)",
+      "room_kind": "campfire",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(8, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(5, 7)",
+        "depth": 7,
+        "element": "none",
+        "map_lane": 4,
+        "map_outline": true,
+        "map_step": 10,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 1,
+        "type": "campfire",
+        "visited": true
+      },
+      "section": 1,
+      "seed": 2
+    },
+    "decision": 563,
+    "kind": "ui",
+    "path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@39792/MagicPurgePanel/@VBoxContainer@39793/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_waning_pulse",
+    "signal": "pressed",
+    "text": ""
+  },
+  "replay": {
+    "args": [
+      "(8, 0)"
+    ],
+    "context": {
+      "decision": 563,
+      "mode": "room",
+      "room": "(5, 7)",
+      "room_kind": "campfire",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(8, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(5, 7)",
+        "depth": 7,
+        "element": "none",
+        "map_lane": 4,
+        "map_outline": true,
+        "map_step": 10,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 1,
+        "type": "campfire",
+        "visited": true
+      },
+      "section": 1,
+      "seed": 2
+    },
+    "decision": 563,
+    "kind": "map_room",
+    "method": "_on_large_map_room_selected"
+  },
+  "normalization": "Anonymous node instance IDs are excluded; no input fields are otherwise changed",
+  "conclusion": "Replay ended with Embrace in section 2; original section-5 growth flag not reached. Read-only census timings do not guarantee the same UI offer timing."
+}

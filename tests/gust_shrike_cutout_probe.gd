@@ -78,17 +78,22 @@ func _run() -> void:
 	await _scene.record_action(_stage, func() -> void: await _scene._animate_actor_along_path(state, "enemy_1", path, {}))
 	for intent: String in ["dive", "talon_rake", "hover"]:
 		state = Fixtures.shrike()
+		if intent == "dive": state = preload("res://tests/suites/sta01_mechanics_suite.gd").state("gust_shrike", "dive")
 		if intent == "talon_rake": state["enemies"][0]["pos"] = TEST_MELEE_ORIGIN
 		state["enemies"][0]["intent"] = _intent(intent)
 		await _install(state)
 		_stage = intent
 		var engine := Combat.new()
-		# Movement is proved separately; use the actual requested resolved verb.
-		var action: Dictionary = state["enemies"][0]["intent"]["actions"][-1]
 		var context: Dictionary = engine.enemy_intent_plan(state, 0)
-		var after: Dictionary = engine._resolve_enemy_action(state.duplicate(true), 0, action, null, {}, engine._dictionary_values([]), context)
-		var step: Dictionary = engine._enemy_action_step(state, after, 0, action, context)
-		await _scene.record_action(_stage, func() -> void: await _scene._animate_enemy_phase_steps(state.duplicate(true), [step]))
+		var after: Dictionary = state.duplicate(true)
+		var steps: Array[Dictionary]
+		var actions: Array = state["enemies"][0]["intent"]["actions"]
+		for index: int in range(actions.size()):
+			context["action_index"] = index
+			var before: Dictionary = after
+			after = engine._resolve_enemy_action(before.duplicate(true), 0, actions[index], null, {}, engine._dictionary_values([]), context)
+			steps.append(engine._enemy_action_step(before, after, 0, actions[index], context))
+		await _scene.record_action(_stage, func() -> void: await _scene._animate_enemy_phase_steps(state.duplicate(true), steps))
 		if intent == "dive":
 			_expect(after["player"]["hp"] < state["player"]["hp"], "Dive applies its existing damage once")
 	for lethal: bool in [false, true]:

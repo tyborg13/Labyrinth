@@ -1,0 +1,8 @@
+00:00.289  blend            | Read blend: "/private/tmp/labyrinth_codex/mq-14/final_delivery/cold/maquette.blend"
+00:03.215  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_preview/rear_parts.png'
+00:09.367  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_preview/rear_clay.png'
+00:11.890  render           | Saved: '/private/tmp/labyrinth_codex/mq-14/final_delivery/capture_jobs/rear_preview/rear_silhouette.png'
+MQ12_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=rear; solos=None
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit

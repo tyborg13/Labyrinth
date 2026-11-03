@@ -1,0 +1,536 @@
+{
+	"actual": {
+		"1": {
+			"combat": "aecb4cc33a895c66a9f9bcac2cfc502277c437bc701e03ed01f364fee0ec3469",
+			"map": "413b808b2689fe76a3193296d5a1d07c21717e365f6605fcb901dab3f9ea2ed5",
+			"rooms": "a246f1c9eb7adb100c2a3fd0be04764f6e20235d8b927ef1220aad61c10bdcbc",
+			"save_roundtrip": "9e4c7bea31c44bd9e2bea647619959632258d64ac2472c075ecace0f4d68bd03"
+		},
+		"19": {
+			"combat": "c2adea0f6ed7dae571cd72f6a77dbc1e5528e165c7937bd4e54e6be2edcf891a",
+			"map": "ad7ae46debe6e2723aad5d3cfe541cddc7a011e83bc8e2127d8dfc7f85770a17",
+			"rooms": "7878fd528dd78e67f4ef0dc0667765957965e36efeb1edf0235a2d3803e1a5d7",
+			"save_roundtrip": "a6882289d0a18fcb2e0e733d75ad6e7e0c85923d83155222659d7603d65c034d"
+		},
+		"421": {
+			"combat": "f16b0aee81bab38216214d313fa80d44a5bd5badf302ee493e6c601924aa262e",
+			"map": "0e1e1ac991e9f8412b433f04382db333673277865b9b5e439b93263f509de0bf",
+			"rooms": "aed535a3ac3679de2e8f306814d7b37d43facf1e942e7ae1722cb27a2b944199",
+			"save_roundtrip": "27a3a661ce75ab0770fe18b3581ceab6e6e1873b252a69188d38511d783ca11f"
+		}
+	},
+	"exact_match": true,
+	"expected": {
+		"1": {
+			"combat": "aecb4cc33a895c66a9f9bcac2cfc502277c437bc701e03ed01f364fee0ec3469",
+			"map": "413b808b2689fe76a3193296d5a1d07c21717e365f6605fcb901dab3f9ea2ed5",
+			"rooms": "a246f1c9eb7adb100c2a3fd0be04764f6e20235d8b927ef1220aad61c10bdcbc",
+			"save_roundtrip": "9e4c7bea31c44bd9e2bea647619959632258d64ac2472c075ecace0f4d68bd03"
+		},
+		"19": {
+			"combat": "c2adea0f6ed7dae571cd72f6a77dbc1e5528e165c7937bd4e54e6be2edcf891a",
+			"map": "ad7ae46debe6e2723aad5d3cfe541cddc7a011e83bc8e2127d8dfc7f85770a17",
+			"rooms": "7878fd528dd78e67f4ef0dc0667765957965e36efeb1edf0235a2d3803e1a5d7",
+			"save_roundtrip": "a6882289d0a18fcb2e0e733d75ad6e7e0c85923d83155222659d7603d65c034d"
+		},
+		"421": {
+			"combat": "f16b0aee81bab38216214d313fa80d44a5bd5badf302ee493e6c601924aa262e",
+			"map": "0e1e1ac991e9f8412b433f04382db333673277865b9b5e439b93263f509de0bf",
+			"rooms": "aed535a3ac3679de2e8f306814d7b37d43facf1e942e7ae1722cb27a2b944199",
+			"save_roundtrip": "27a3a661ce75ab0770fe18b3581ceab6e6e1873b252a69188d38511d783ca11f"
+		}
+	},
+	"frozen_fixture_sha256": "13dfdc9e8a9d74538c961133b5e0cb092c615d0481c19dc06499d1676b29d95d",
+	"guardian_rooms": 0,
+	"legacy_wind_announcements_normalized": 6,
+	"repinned": false,
+	"room_count": 54,
+	"rooms": [
+		{
+			"coord": {
+				"x": 1,
+				"y": 0
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 2,
+				"y": 1
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 3,
+				"y": 3
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 5,
+				"y": -4
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 6,
+				"y": -4
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 7,
+				"y": -4
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 9,
+				"y": -8
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 10,
+				"y": -8
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 11,
+				"y": -8
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 13,
+				"y": -12
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 14,
+				"y": -9
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 15,
+				"y": -14
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 17,
+				"y": -16
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 18,
+				"y": -15
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 19,
+				"y": -15
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 21,
+				"y": -20
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 22,
+				"y": -18
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 23,
+				"y": -21
+			},
+			"guardian_id": "",
+			"seed": 1,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": -1,
+				"y": 1
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 2,
+				"y": 2
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 3,
+				"y": 2
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 5,
+				"y": -4
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 6,
+				"y": -1
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 7,
+				"y": -4
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 9,
+				"y": -8
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 10,
+				"y": -4
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 11,
+				"y": -4
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 13,
+				"y": -5
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 14,
+				"y": -10
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 15,
+				"y": -12
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 17,
+				"y": -11
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 18,
+				"y": -11
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 19,
+				"y": -11
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 21,
+				"y": -20
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 22,
+				"y": -20
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 23,
+				"y": -16
+			},
+			"guardian_id": "",
+			"seed": 19,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 1,
+				"y": 0
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 1,
+				"y": 2
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 3,
+				"y": 0
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 5,
+				"y": -4
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 6,
+				"y": -4
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 7,
+				"y": -5
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 9,
+				"y": -8
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 10,
+				"y": -7
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 11,
+				"y": -8
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 13,
+				"y": -8
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 14,
+				"y": -13
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 15,
+				"y": -12
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 17,
+				"y": -16
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 18,
+				"y": -15
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 19,
+				"y": -17
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 21,
+				"y": -20
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 22,
+				"y": -18
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		},
+		{
+			"coord": {
+				"x": 23,
+				"y": -17
+			},
+			"guardian_id": "",
+			"seed": 421,
+			"type": "combat"
+		}
+	]
+}

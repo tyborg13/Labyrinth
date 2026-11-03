@@ -456,5 +456,8 @@ static func _assert_tag_identity(row: Control, word: String, icon_key: String, e
 static func _full_source_canvas(texture: Texture2D, type: String) -> bool:
 	if texture == null or texture.get_size() != Vector2(255, 255): return false
 	if MaquettePresentation.handles(type):
-		return texture is AtlasTexture and (texture as AtlasTexture).region == Rect2(128, 128, 255, 255) and (texture as AtlasTexture).atlas is ViewportTexture
+		var renderer: Node = MaquettePresentation.renderer_script(type).new()
+		var geometry: Dictionary = renderer.canvas_geometry()
+		renderer.free()
+		return texture is AtlasTexture and (texture as AtlasTexture).region == Rect2(geometry["offset"], Vector2(255, 255)) and (texture as AtlasTexture).atlas is ViewportTexture and (texture as AtlasTexture).atlas.get_size() == Vector2(geometry["size"])
 	return not texture is AtlasTexture

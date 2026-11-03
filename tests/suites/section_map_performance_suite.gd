@@ -4,6 +4,7 @@ const Graph = preload("res://scripts/section_map_graph.gd")
 const Benchmark = preload("res://tools/section_map_performance.gd")
 const Regression = preload("res://tests/suites/section_map_regression_suite.gd")
 const REJECTION_TIMEOUT_SECONDS: int = 10
+const PARTIAL_TYPE_NODE_BUDGET: int = 1
 
 static func run(expect: Callable) -> void:
 	_test_seed_fixtures(expect)
@@ -93,6 +94,24 @@ static func _test_memo_and_cutoff(expect: Callable) -> void:
 	expect.call(search["failed"].has(Graph._type_signature_v5([])), "Proved failed partial assignment enters the canonical memo")
 	expect.call(not Graph._solve_types_v5(layout, [], 10, 5, search) and int(search.get("memo_hits", 0)) == 1, "Repeated failed state uses the memo")
 	expect.call(Graph._type_signature_v5([["event", "mystery"]]) == Graph._type_signature_v5([["mystery", "event"]]), "Memo keys ignore candidate preference order")
+	# A known legal fallback supplies a completion witness. Leave its service
+	# rooms ambiguous so propagation succeeds but the root still has to branch.
+	layout = Graph._fallback_layout(10, 5)
+	layout["positions"] = {}
+	layout["solver_nodes"] = 0
+	var domains: Array = []
+	for cell: Vector2i in layout["order"]:
+		layout["positions"][cell] = domains.size()
+		var type: String = layout["nodes"][cell]["type"]
+		domains.append(["event", "mystery"] if type in ["event", "mystery"] else [type])
+	var root_signature: String = Graph._type_signature_v5(domains)
+	var witness: Dictionary = layout.duplicate(true)
+	var witness_search: Dictionary = {"remaining": Graph.V5_TYPE_NODE_BUDGET, "failed": {}}
+	expect.call(Graph._solve_types_v5(witness, domains.duplicate(true), 10, 5, witness_search), "Partial cutoff fixture has a legal completion")
+	search = {"remaining": PARTIAL_TYPE_NODE_BUDGET, "failed": {}}
+	expect.call(not Graph._solve_types_v5(layout, domains, 10, 5, search), "One-node budget cuts off a satisfiable partial assignment")
+	expect.call(search.get("exhausted", false) and layout["solver_nodes"] == PARTIAL_TYPE_NODE_BUDGET, "Partial assignment spends exactly one solver node and reports exhaustion")
+	expect.call(not search["failed"].has(root_signature), "A child cutoff never memoises the satisfiable root as failed")
 
 # Revision 7 sections are webs, not walks: rebuild the layout from the rooms' links.
 static func _web_layout(state: Dictionary, index: int, count: int) -> Dictionary:

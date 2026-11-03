@@ -1,0 +1,194 @@
+{
+  "unit": "mq-22",
+  "status": "implemented_focused_proof_passed_inherited_full_suite_failure",
+  "uncommitted": true,
+  "base_head": "8eb6d3ef3",
+  "risk_tier": "standard",
+  "requirements": {
+    "1": {
+      "passed": true,
+      "proof": "mq17_verify.log; historical Git blobs and unit-range edit regression; numbered-unit inventory exclusion"
+    },
+    "2": {
+      "passed": true,
+      "proof": "mq19_verify.log; protected_director_files=2; original delivery inventory unchanged"
+    },
+    "3": {
+      "passed": true,
+      "proof": "mutations.log; live face components/boundary minima/root-connected rows; 113 orphans ignored in half-ribbon case"
+    },
+    "4": {
+      "passed": true,
+      "proof": "mq19_verify.log; 260 independently measured live cloth rows; supplied tolerances retained; all requested mutations caught"
+    }
+  },
+  "observed_result_lines": {
+    "focused": [
+      "Ran 73 tests in 178.965s",
+      "OK"
+    ],
+    "final_additions": [
+      "Ran 2 tests in 5.834s",
+      "OK"
+    ],
+    "art_identity": [
+      "Ran 111 tests in 97.996s",
+      "OK"
+    ],
+    "mq17_verify": [
+      "MQ17_HASH_BOUND_DELIVERY: PASS",
+      "MQ17_COMMIT_CURATION: PASS; bytes=5989144; files=213"
+    ],
+    "mq19_verify": [
+      "MQ19_COMMIT_CURATION: PASS; files=173; protected_director_files=2",
+      "MQ19_CURATED_BUNDLE: PASS; bytes=4460334; files=83",
+      "MQ19_ARCHIVE_REPRODUCTION: PASS; inputs=204; exact_spec=true",
+      "MQ19_REGENERATION_BINDING: PASS; clays=2/2; part_maps=2/2",
+      "MQ19_LIVE_GEOMETRY_GUARDS: PASS; strips=9; cloth_rows=260",
+      "MQ19_HASH_BOUND_DELIVERY: PASS"
+    ],
+    "mutations": [
+      "MQ22_MUTATION: remove_lower_half_ribbon caught; guard=strip_lengths",
+      "MQ22_MUTATION: remove_whole_ribbon caught; guard=nine_actual_strips",
+      "MQ22_MUTATION: detach_lower_half_ribbon caught; guard=continuous_shared_strip_roots",
+      "MQ22_MUTATION: balloon_interior_020H caught; guard=standoff_profile",
+      "MQ22_MUTATION: stretch_interior_width caught; guard=width_profile",
+      "MQ22_MUTATION: inflate_interior_folds caught; guard=fold_amplitude_growth",
+      "MQ22_MUTATIONS: PASS"
+    ]
+  },
+  "python_isolation_audit": {
+    "passed": true,
+    "modules": 234,
+    "path": "/private/tmp/labyrinth_codex/mq-22/python-audit/isolation-audit.md"
+  },
+  "full_python_suite": {
+    "status": "failed_inherited_base_sidecars",
+    "command": "python3 -B tools/run_python_suite.py --shards 4 --output-dir /private/tmp/labyrinth_codex/mq-22/python-suite",
+    "log": "/private/tmp/labyrinth_codex/mq-22/python-suite.log",
+    "existing_headless_fixtures_observed": true,
+    "run_count": 1,
+    "exit_code": 1,
+    "tests": 2274,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 66,
+    "import_guard_violations": 0,
+    "observed_result_lines": [
+      "Ran 2274 tests in 2107.840s",
+      "FAILED (failures=1, skipped=66)",
+      "PYTHON SUITE WALL: 2107.840s"
+    ],
+    "shard_tests": [
+      927,
+      209,
+      596,
+      542
+    ],
+    "unit_cases": {
+      "test_mq17_maquette": 47,
+      "test_mq19_maquette": 27
+    },
+    "unit_failures": 0,
+    "unit_errors": 0,
+    "failure_details": [
+      [
+        "test_tracked_sources_have_sidecars_and_sidecars_have_sources (test_godot_sidecars.GodotSidecarRepositoryTests)",
+        "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/mq-22/tests/test_godot_sidecars.py\", line 92, in test_tracked_sources_have_sidecars_and_sidecars_have_sources\n    assert_sidecars_versioned(git_files(ROOT), root=ROOT)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/mq-22/tests/test_godot_sidecars.py\", line 87, in assert_sidecars_versioned\n    raise AssertionError(\"\\n\\n\".join(problems + [REPAIR_HINT]))\nAssertionError: Missing tracked Godot sidecars (14):\nspec/art_identity/jobs/storm_cantor/mq19_front/processed.png.import\nspec/art_identity/jobs/storm_cantor/mq19_front/raw.png.import\nspec/art_identity/jobs/storm_cantor/mq19_front/refs/01_maquette_front_parts.png.import\nspec/art_identity/jobs/storm_cantor/mq19_front/refs/02_maquette_front_clay.png.import\nspec/art_identity/jobs/storm_cantor/mq19_front/refs/03_cantor_materials.png.import\nspec/art_identity/jobs/storm_cantor/mq19_front/refs/04_hoarfrost_seer_front.png.import\nspec/art_identity/jobs/storm_cantor/mq19_front/refs/05_hero_front.png.import\nspec/art_identity/jobs/storm_cantor/mq19_front/sheet.png.import\nspec/art_identity/jobs/storm_cantor/mq19_rear/front_match.png.import\nspec/art_identity/jobs/storm_cantor/mq19_rear/refs/01_maquette_rear_parts.png.import\nspec/art_identity/jobs/storm_cantor/mq19_rear/refs/02_maquette_rear_clay.png.import\nspec/art_identity/jobs/storm_cantor/mq19_rear/refs/03_approved_front.png.import\nspec/art_identity/jobs/storm_cantor/mq19_rear/refs/04_hoarfrost_seer_rear.png.import\nspec/art_identity/jobs/storm_cantor/mq19_rear/refs/05_hero_rear.png.import\n\nRun godot --headless --import (through tools/godot_task_runner.py), commit the .import/.uid sidecars with their sources, and remove stale sidecars.\n"
+      ]
+    ]
+  },
+  "preservation": "mq22_preservation.json",
+  "mutations": "mq22_mutations.json",
+  "todo_design": [],
+  "chosen_defaults": {
+    "mutation_fixtures": {
+      "interior_displacement_over_H": 0.2,
+      "fold_delta_over_H": 0.008,
+      "width_scale": 1.08,
+      "row_index_fraction": 0.5
+    },
+    "orphan_position_m": [
+      999.0,
+      999.0,
+      -999.0
+    ],
+    "minimum_segment_squared_length_m2": 1e-30,
+    "surface_fit_residual_over_H": 1e-06,
+    "inherited_construction_measurement_settings": "cloak_acceptance.json; unchanged existing support blend/envelope definition"
+  },
+  "not_applicable": [
+    "Blender regeneration",
+    "new renders",
+    "unit-specific Godot proof",
+    "windowed probes",
+    "inspection fixture"
+  ],
+  "review_low_skipped": "solve_iterations retained to preserve generator/production-input bytes",
+  "limitations": [
+    "The singular t=0 anatomical seam uses an opened first-two-row limiting profile plus its separate approved attachment check.",
+    "The discarded clean native manifest/raw images remain historical Git-sealed receipt evidence; canonical comparisons are recomputed from the retained delivery. No fresh native run was performed."
+  ],
+  "open_issues": [
+    {
+      "id": "inherited_missing_godot_sidecars",
+      "failure": "test_godot_sidecars.GodotSidecarRepositoryTests.test_tracked_sources_have_sidecars_and_sidecars_have_sources",
+      "message": "Missing tracked Godot sidecars (14)",
+      "reproduced_at_unit_base": "8eb6d3ef3",
+      "local_master_guard": "PASS",
+      "missing_paths": [
+        "spec/art_identity/jobs/storm_cantor/mq19_front/processed.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_front/raw.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_front/refs/01_maquette_front_parts.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_front/refs/02_maquette_front_clay.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_front/refs/03_cantor_materials.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_front/refs/04_hoarfrost_seer_front.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_front/refs/05_hero_front.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_front/sheet.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_rear/front_match.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_rear/refs/01_maquette_rear_parts.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_rear/refs/02_maquette_rear_clay.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_rear/refs/03_approved_front.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_rear/refs/04_hoarfrost_seer_rear.png.import",
+        "spec/art_identity/jobs/storm_cantor/mq19_rear/refs/05_hero_rear.png.import"
+      ],
+      "reason_unchanged": "These paths are under the explicitly protected storm_cantor jobs tree; no engine import or protected-tree edit is authorized."
+    }
+  ],
+  "compiled_spec_hash": "f32626af7e3e98ec5aaf5dc319118d4a9549f34c6cc5df6d5a0543638094ff5b",
+  "protection_checks_passed": true,
+  "cloth_profile_measurements": {
+    "row_count": 260,
+    "report": "/private/tmp/labyrinth_codex/mq-22/baseline.json",
+    "maximum_absolute_errors": {
+      "standoff_over_H": 1.8200566727216705e-06,
+      "amplitude_over_H": 1.8429378162432286e-10,
+      "width_scale": 1.8183420279038742e-05
+    },
+    "tolerances": {
+      "standoff_over_H": 0.005,
+      "amplitude_over_H": 0.004,
+      "relative_width": 0.02
+    }
+  },
+  "files_changed": [
+    "spec/art_identity/maquettes/storm_cantor/mq19/COMMIT_MANIFEST.txt",
+    "spec/art_identity/maquettes/storm_cantor/mq19/README.md",
+    "spec/art_identity/maquettes/storm_cantor/mq19/checks.py",
+    "spec/art_identity/maquettes/storm_cantor/mq19/cloak_acceptance.json",
+    "spec/art_identity/maquettes/storm_cantor/mq19/director_files.json",
+    "spec/art_identity/maquettes/storm_cantor/mq19/drape_checks.py",
+    "spec/art_identity/maquettes/storm_cantor/mq19/live_ribbons.py",
+    "spec/art_identity/maquettes/storm_cantor/mq19/mq22_mutations.json",
+    "spec/art_identity/maquettes/storm_cantor/mq19/mq22_preservation.json",
+    "spec/art_identity/maquettes/storm_cantor/mq19/mq22_results.json",
+    "spec/art_identity/maquettes/storm_cantor/mq19/mutation_probe.py",
+    "spec/art_identity/maquettes/storm_cantor/mq19/profile_checks.py",
+    "spec/art_identity/maquettes/storm_cantor/mq19/proof.py",
+    "spec/art_identity/maquettes/storm_cantor/mq19/verification.py",
+    "spec/art_identity/maquettes/storm_cantor/proof.py",
+    "tests/test_mq17_maquette.py",
+    "tests/test_mq19_maquette.py"
+  ],
+  "diff_check_passed": true
+}

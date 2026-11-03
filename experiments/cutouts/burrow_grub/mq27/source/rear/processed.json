@@ -1,0 +1,83 @@
+{
+  "K": 4,
+  "drawn_size": [
+    212,
+    147
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.18226650778758235,
+    "edge_light_share": 0.0,
+    "feature_px": 7.7404988586424555,
+    "height": 147,
+    "height_drawn": 147.0,
+    "orphan_share": 0.03264015075038697,
+    "regions": 248,
+    "run_length": 3.510276399716513,
+    "symmetry": 0.2879666011787819,
+    "thin_abs": 0.004441752473248517,
+    "thin_rel": 0.008143212867622318,
+    "value": 0.22026474586604275,
+    "width": 212
+  },
+  "pixel_sha256": "4f7c41e7f248fd11fd140237e01529fa37bb9128ec30e25584b868d83d9e0aa7",
+  "placement": [
+    22,
+    99
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/burrow_grub/mq27_front/kit.json",
+        "pixel_sha256": "95a0f98fecbab3521e8da61b5e10a411b809a0bbea9ea52554899aa7d04f9d2a"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "109b9d3ef0e6c9a0412da1415748962cfe51561eba5cf5c0be59a2c588264c1b",
+      "protected_body_share": {
+        "front": 0.054345385133617786,
+        "rear": 0.10007402920788748
+      },
+      "reference_pixel_sha256": "95a0f98fecbab3521e8da61b5e10a411b809a0bbea9ea52554899aa7d04f9d2a",
+      "step": "palette_match"
+    }
+  ],
+  "raw_pixel_sha256": "90d68f4cb060d8add2edcf8a1b17726eb6498015298fcc92da93bfc6104909de",
+  "raw_steps": [
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone.json",
+          "sha256": "18554fd43374002b97ad995ae939fac464c10f888c1cc484b552359bb6e159a9"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "f25101ee262e222df2ce1622d8013b279c71a27f64fc0c1d8fdec996dddab8d0"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_pixel_sha256": "90d68f4cb060d8add2edcf8a1b17726eb6498015298fcc92da93bfc6104909de",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "shift": [
+    0,
+    0
+  ]
+}

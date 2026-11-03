@@ -1,0 +1,20 @@
+{
+  "front": {
+    "ok": true,
+    "frames": 353,
+    "failures": [],
+    "native_pixels": false,
+    "samples_sha256": "ef6f978d2c9a69e1cba837c8b69c2a3ff811f08fb11d70ef0adf7c3faa962ec8",
+    "rest_components": 1,
+    "maximum_components": 1
+  },
+  "rear": {
+    "ok": true,
+    "frames": 353,
+    "failures": [],
+    "native_pixels": false,
+    "samples_sha256": "ef6f978d2c9a69e1cba837c8b69c2a3ff811f08fb11d70ef0adf7c3faa962ec8",
+    "rest_components": 1,
+    "maximum_components": 1
+  }
+}

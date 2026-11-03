@@ -1,0 +1,303 @@
+{
+  "clamps": [
+    {
+      "view": "front",
+      "clip": "press",
+      "bone": "hand_near",
+      "count": 40,
+      "max_clamp_px": 16.126791951606577
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "bone": "hand_near",
+      "count": 121,
+      "max_clamp_px": 5.994828413053497
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "bone": "hand_near",
+      "count": 30,
+      "max_clamp_px": 2.2256348785828166
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "bone": "hand_near",
+      "count": 121,
+      "max_clamp_px": 5.986001893913553
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "bone": "hand_far",
+      "count": 10,
+      "max_clamp_px": 0.8254655958901722
+    }
+  ],
+  "presentation_angle_clamps": [
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 24,
+      "phase": 0.48,
+      "requested_deg": -6.692,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 25,
+      "phase": 0.5,
+      "requested_deg": -7.0,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 26,
+      "phase": 0.52,
+      "requested_deg": -7.0,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 27,
+      "phase": 0.54,
+      "requested_deg": -7.0,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 28,
+      "phase": 0.56,
+      "requested_deg": -7.0,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 29,
+      "phase": 0.58,
+      "requested_deg": -7.0,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 30,
+      "phase": 0.6,
+      "requested_deg": -7.0,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 31,
+      "phase": 0.62,
+      "requested_deg": -7.0,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 32,
+      "phase": 0.64,
+      "requested_deg": -7.0,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 33,
+      "phase": 0.66,
+      "requested_deg": -6.983183673469387,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 34,
+      "phase": 0.68,
+      "requested_deg": -6.854530612244898,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 35,
+      "phase": 0.7,
+      "requested_deg": -6.612244897959185,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 36,
+      "phase": 0.72,
+      "requested_deg": -6.272000000000001,
+      "presented_deg": -5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 24,
+      "phase": 0.48,
+      "requested_deg": 6.692,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 25,
+      "phase": 0.5,
+      "requested_deg": 7.0,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 26,
+      "phase": 0.52,
+      "requested_deg": 7.0,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 27,
+      "phase": 0.54,
+      "requested_deg": 7.0,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 28,
+      "phase": 0.56,
+      "requested_deg": 7.0,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 29,
+      "phase": 0.58,
+      "requested_deg": 7.0,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 30,
+      "phase": 0.6,
+      "requested_deg": 7.0,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 31,
+      "phase": 0.62,
+      "requested_deg": 7.0,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 32,
+      "phase": 0.64,
+      "requested_deg": 7.0,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 33,
+      "phase": 0.66,
+      "requested_deg": 6.983183673469387,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 34,
+      "phase": 0.68,
+      "requested_deg": 6.854530612244898,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 35,
+      "phase": 0.7,
+      "requested_deg": 6.612244897959185,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 36,
+      "phase": 0.72,
+      "requested_deg": 6.272000000000001,
+      "presented_deg": 5.999999940167509,
+      "limit_deg": 7,
+      "reason": "existing rotation grid within director limit"
+    }
+  ],
+  "full_receipt": "feedback1_motion.json",
+  "full_receipt_sha256": "3983324a6c885fd7907d510db104608d2a75ebf66acc6172ba8ecc4ef532f900"
+}

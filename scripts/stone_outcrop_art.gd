@@ -9,23 +9,23 @@ const VIEW := Vector3(1.0,1.4,1.0)
 static var _texture: Texture2D
 static var _stones: Dictionary = {}
 
-static func draw(c: CanvasItem, center: Vector2, width: float, seed: int, rise: float, opacity: float) -> void:
+static func draw(c: CanvasItem, center: Vector2, width: float, seed: int, rise: float, opacity: float, command_sink: Callable = Callable()) -> void:
 	_prepare_texture()
-	c.draw_set_transform(center)
+	_emit(c, command_sink, ["transform", center])
 	var stones: Array[Dictionary]
 	# Unequal heights and leaning crowns avoid a row of matching stone posts.
 	stones.append({"p":Vector2(-.18,-.04),"w":.19,"h":.34,"seed":seed+19})
 	stones.append({"p":Vector2(.16,-.045),"w":.17,"h":.51,"seed":seed+31})
 	stones.append({"p":Vector2(-.015,.045),"w":.25,"h":.60,"seed":seed+7})
 	for stone: Dictionary in stones:
-		_draw_stone(c,stone["p"]*width,float(stone["w"])*width,float(stone["h"])*width,stone["seed"],rise,opacity)
+		_draw_stone(c,stone["p"]*width,float(stone["w"])*width,float(stone["h"])*width,stone["seed"],rise,opacity,command_sink)
 	# Embedded chips and dark contact pockets break up the clean floor seam.
 	for i: int in range(8):
 		var a: float = float(i)*2.39996
 		var r: float = .26+Fx._hash(seed+i*19)*.11
 		var at := Vector2(cos(a)*r,sin(a)*r*.40+.04)*width
-		_draw_stone(c,at,width*(.025+Fx._hash(seed+i*37)*.025),width*.035,seed+i*67,1.0,opacity)
-	c.draw_set_transform(Vector2.ZERO)
+		_draw_stone(c,at,width*(.025+Fx._hash(seed+i*37)*.025),width*.035,seed+i*67,1.0,opacity,command_sink)
+	_emit(c, command_sink, ["transform", Vector2.ZERO])
 
 static func _geometry(seed: int) -> Array:
 	if _stones.has(seed): return _stones[seed]
@@ -61,7 +61,7 @@ static func _geometry(seed: int) -> Array:
 static func _project(point: Vector3, wide: float, tall: float, rise: float) -> Vector2:
 	return Vector2((point.x-point.z)*wide*.72,(point.x+point.z)*wide*.34-point.y*tall*rise)
 
-static func _draw_stone(c: CanvasItem, at: Vector2, wide: float, tall: float, seed: int, rise: float, opacity: float) -> void:
+static func _draw_stone(c: CanvasItem, at: Vector2, wide: float, tall: float, seed: int, rise: float, opacity: float, command_sink: Callable = Callable()) -> void:
 	var base: Color = Color("88877c").lerp(Color("a2967f"),Fx._hash(seed+193)*.60)
 	var face_index: int = 0
 	for face: PackedVector3Array in _geometry(seed):
@@ -82,7 +82,7 @@ static func _draw_stone(c: CanvasItem, at: Vector2, wide: float, tall: float, se
 			tint.a=opacity
 			colors.append(tint)
 			uv.append(Vector2(vertex.x*.26+vertex.z*.19,vertex.y*.63+vertex.z*.13)+Vector2(.31,.14))
-		c.draw_polygon(points,colors,uv,_texture)
+		_emit(c, command_sink, ["polygon", points, colors, uv, _texture])
 		if wide<10.0: continue
 		# Small rough fissures have a recessed dark seam and a worn lower lip.
 		if face_index%5==0:
@@ -90,11 +90,23 @@ static func _draw_stone(c: CanvasItem, at: Vector2, wide: float, tall: float, se
 			var q: Vector2 = points[0].lerp(points[2],.73)
 			var kink: Vector2 = p.lerp(q,.54)+Vector2(wide*.035,wide*.018)
 			var crack := PackedVector2Array([p,kink,q])
-			c.draw_polyline(crack,Color(.13,.12,.095,.60*opacity),maxf(.65,wide*.030),false)
-			c.draw_line(kink+Vector2(0,1),q+Vector2(0,1),Color(.59,.56,.47,.33*opacity),maxf(.6,wide*.018),false)
+			_emit(c, command_sink, ["polyline", crack, Color(.13,.12,.095,.60*opacity), maxf(.65,wide*.030), false])
+			_emit(c, command_sink, ["line", kink+Vector2(0,1), q+Vector2(0,1), Color(.59,.56,.47,.33*opacity), maxf(.6,wide*.018), false])
 		# Sparse chipped highlights follow actual facet edges rather than an outline.
 		if face_index%7==0 and light>.62:
-			c.draw_line(points[0].lerp(points[2],.24),points[0].lerp(points[2],.62),Color(.68,.65,.56,.34*opacity),maxf(.6,wide*.025),false)
+			_emit(c, command_sink, ["line", points[0].lerp(points[2],.24), points[0].lerp(points[2],.62), Color(.68,.65,.56,.34*opacity), maxf(.6,wide*.025), false])
+
+# Optional ordered command sink lets the existing tile canvas retain this exact
+# paint. Geometry, grain, colours and painter order above are unchanged.
+static func _emit(canvas: CanvasItem, sink: Callable, command: Array) -> void:
+	if sink.is_valid():
+		sink.call(command)
+		return
+	match str(command[0]):
+		"transform": canvas.draw_set_transform(command[1])
+		"polygon": canvas.draw_polygon(command[1], command[2], command[3], command[4])
+		"polyline": canvas.draw_polyline(command[1], command[2], command[3], command[4])
+		"line": canvas.draw_line(command[1], command[2], command[3], command[4], command[5])
 
 static func _prepare_texture() -> void:
 	if _texture!=null: return

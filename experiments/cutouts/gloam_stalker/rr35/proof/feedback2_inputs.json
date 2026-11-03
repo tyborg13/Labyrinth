@@ -1,0 +1,17 @@
+{
+  "director_supplied_copy": "feedback2_director_supplied_motion.json",
+  "director_supplied_sha256": "278cfc6d5922c439f08a971ab14020f235e34697f3aedc115452d96e68908bee",
+  "final_staged_sha256": "278cfc6d5922c439f08a971ab14020f235e34697f3aedc115452d96e68908bee",
+  "protected_data_edited_by_worker": false,
+  "slash_minimum_source_px": {
+    "front": 16,
+    "rear": 18
+  },
+  "minimum_reach_exception": {
+    "leg": "leg_near",
+    "view": "rear",
+    "margin_px": 3.5,
+    "reason": "r3 crouch foreshortens the rear near thigh; director judges the native rear move frames (rr-35 feedback 2)"
+  },
+  "imports_byte_identical": true
+}

@@ -1,0 +1,40 @@
+{
+  "head": "a9bb898ed3e3e4d8d6772c67701e2d7b34b1aebf",
+  "round0_commit": "9a8855088",
+  "integration_repair_merge": "a9bb898ed",
+  "revision": 7,
+  "policy_version": 2,
+  "deck_tier": 3,
+  "first_seed": 1,
+  "runs_per_rung": 50,
+  "workers_per_wave": [
+    5,
+    5,
+    4,
+    2
+  ],
+  "baseline_reports": "../after/ (accepted Round 0; bosses/helpers/policy unchanged by integration)",
+  "data_snapshots": [
+    "wave-1-enemies.json",
+    "wave-2-enemies.json",
+    "wave-3-enemies.json",
+    "wave-4-enemies.json"
+  ],
+  "sha256": {
+    "data/enemies.json": "2a8bd2949bf8bbcfa3f131ccc50c27f2af15d4bc815357fed7fe3ae26f7ef1ac",
+    "data/grimoire.json": "65e6bc57a8b2f018e3223bfb2ed88ab01a3d5ba51ab5c2b4af675175a4c2f2a7",
+    "data/battlefield_rules.json": "05204f60e192dea20eab76424c92741bab97e14233ad4a1b4e5cd3b4eb463445",
+    "tools/encounter_bot.gd": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+    "scripts/battlefield_rules/bot_policy.gd": "71affbd6893ac94304169aae393be9e4865f13247ded42d7416f46ade04f836b",
+    "scripts/combat_engine.gd": "4d42a9b2d89a0de8a8b6307dfd3bb1e7e69cf11ed2825eef4a7cb9fb1be23be4",
+    "scripts/room_generator.gd": "cf0cfc0c42f3f5938bb63b41ffa29abcf852fab46e90372401883b386a640fab",
+    "tools/dragon_rule_measurement.py": "01709e35dbc5019c54e8451b25d7529876ba436fbb7634155dd509b456e9f1c0",
+    "tools/dragon_rule_measurement.gd": "c404bff1401de9fce81f5f63651e61f912ab85ae1f1949f7311458749c315954",
+    "tools/dragon_rule_measurement_engine.gd": "72485c8d5b42cee9b4faf42a9b711bd5038db9342043ed93cf999aaccdd1c96f",
+    "tools/card_heuristic.py": "1d06b9be6b85febb27f7d2c5dd2bca25159fc56c8e1a2fd429cab5b88fcf01a5",
+    "spec/card_balance_heuristic.md": "34cb81cb397a86d5fd055ddca9be01d78ca9d5222e519c867a496fb77ba5339b",
+    "tests/fixtures/bos02_feedback1_grimoire.json": "82afc3a7da5440fcc78fc4e403a2fb7c8a0bc7e6e0cf2dbff61a6acd022726c9",
+    "tests/fixtures/bos02_feedback1_tuning.json": "182b6170a0e9a1be21e8010938c77a3dc180c635570401d598c21f16333bd88f",
+    "tests/suites/dragon_feedback1_suite.gd": "d07943575cb37891c7b70a7ad1b14cc2f3d2ecf86f0104debe31a7b440b22053"
+  }
+}

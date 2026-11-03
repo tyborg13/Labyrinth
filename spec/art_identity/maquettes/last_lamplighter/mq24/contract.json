@@ -1,0 +1,298 @@
+{
+  "authority": "mq-25 director ratification and feedback 1\u20132; geometry construction inputs remain frozen.",
+  "baseline": {
+    "path": "../mq20/measurements.json.xz",
+    "sha256": "4f0377f6367bb1adf9eacf379906b2b39e8305a3de0042dc189d31655c324c4b",
+    "limb_lengths_m": {
+      "upper_plate_near": 0.2851995232152354,
+      "fore_plate_near": 0.34959941555415963,
+      "thigh_plate_near": 0.45478537332296465,
+      "shin_plate_near": 0.45478537332296465,
+      "upper_plate_far": 0.32631578947368417,
+      "fore_plate_far": 0.39999999999999997,
+      "thigh_plate_far": 0.45090202905590143,
+      "shin_plate_far": 0.4509020290559014
+    }
+  },
+  "preserve": [
+    "stoop",
+    "head pitch",
+    "legs",
+    "stance",
+    "lantern including ring, chain, clearance and candle",
+    "shredded robe, strands, holes and notches",
+    "mask and cross slit",
+    "hood",
+    "birdcage",
+    "belt and keys",
+    "iron limbs",
+    "shoulder rule",
+    "true turn",
+    "wrist positions"
+  ],
+  "shoulders": {
+    "forbidden_objects": [
+      "pauldron_near",
+      "pauldron_far"
+    ],
+    "hood_top_exclusion_over_H": 0.05,
+    "mantle_drop_over_H": 0.07,
+    "hem_points_per_side": [
+      3,
+      4
+    ],
+    "hem_point_length_over_H": [
+      0.02,
+      0.04
+    ],
+    "rig_owner": "torso",
+    "label": "torso",
+    "material": "violet mantle",
+    "silhouette": "rounded over both arms; no square masses or rises beside hood",
+    "hem_lengths_over_H": {
+      "near": [
+        0.04,
+        0.02,
+        0.035,
+        0.025
+      ],
+      "far": [
+        0.035,
+        0.02,
+        0.04
+      ]
+    }
+  },
+  "far_hand": {
+    "palm_length_over_H": 0.035,
+    "palm_width_over_H": 0.03,
+    "fingers": 4,
+    "segments": 3,
+    "length_over_H": 0.09,
+    "base_thickness_over_H": 0.012,
+    "tip_radius_over_H": 0,
+    "knuckle_degrees": 35,
+    "fan_degrees": 12,
+    "minimum_front_tip_gap_over_H": 0.015,
+    "thumb_segments": 2,
+    "thumb_length_over_H": 0.055,
+    "thumb_inward_degrees": 40,
+    "rig_part": "hand_far",
+    "label_colour": [
+      0.92,
+      0.62,
+      1.0
+    ],
+    "thumb_knuckle_degrees": 20
+  },
+  "near_hand": {
+    "fingers": 4,
+    "segments": 3,
+    "knuckle_degrees": [
+      85,
+      95
+    ],
+    "thumb_wraps_front": true,
+    "knuckle_row_on_top": true,
+    "ring_upper_arc_hidden": true,
+    "ring_lower_half_visible": true,
+    "maximum_unintended_penetration_over_H": 0.005,
+    "rig_part": "hand_near",
+    "label_colour": [
+      0.75,
+      0.82,
+      1.0
+    ],
+    "maximum_wrist_roll_degrees": 20,
+    "thumb_joint_max_degrees": 60,
+    "thumb_contact_clearance_over_H": [
+      0.001,
+      0.004
+    ],
+    "maximum_fingertip_palm_distance_over_H": 0.014,
+    "fingertip_distance_scope": "Nearest point on actual blunt distal cap to actual palm surface.",
+    "wire_distance_scope": "Nearest actual wire triangle to any near finger, thumb or palm triangle.",
+    "containment": "Diagnostic only: signed crossings of every closed finger disk, plus nearest wire/hand distance.",
+    "wire_clearance": "Reported only; zero at contact is permitted."
+  },
+  "limb_ratio": {
+    "target": 1.0,
+    "tolerance": 0.002
+  },
+  "measurement": {
+    "sweep_samples": 12,
+    "limb_ring_samples": 24,
+    "limb_stations_per_lame": 6,
+    "mantle_rows": 7,
+    "mantle_columns": 49,
+    "position_tolerance_over_H": 1e-06,
+    "angle_tolerance_degrees": 0.1,
+    "metric_tolerance_over_H": 0.0001,
+    "ray_epsilon": 1e-09,
+    "ring_visibility_fraction": 1.0
+  },
+  "mutations": [
+    "plate_readded",
+    "two_fingers_fused",
+    "finger_shortened_20_percent",
+    "curl_zero",
+    "ring_outside_fist",
+    "arm_scaled_2_percent"
+  ],
+  "feedback1_rules": {
+    "authority": "mq-24 brief and director feedback 1\u20133. Feedback 3 replaces fist contact/closure gates; accepted fan, thumb and mantle preserved.",
+    "mantle": {
+      "standoff_over_H": 0.008,
+      "drop_over_H": 0.07,
+      "transition_arc_over_H": 0.04,
+      "tongue_root_width_over_H": 0.025,
+      "near_lengths_over_H": [
+        0.04,
+        0.02,
+        0.035,
+        0.025
+      ],
+      "far_lengths_over_H": [
+        0.035,
+        0.02,
+        0.04
+      ],
+      "spacing": "even along over-arm hem arc, front to back",
+      "profile": "tapered triangle-like tongue, rounded tip",
+      "preserve": "mq20 topology, neckline and torso-facing hem"
+    },
+    "far_hand": {
+      "palm_dimensions_over_H": [
+        0.012,
+        0.03,
+        0.035
+      ],
+      "palm_centre_along_forearm_over_H": 0.0175,
+      "palm_faces": "body backward",
+      "roots": "evenly spaced over full distal width",
+      "finger_length_over_H": 0.09,
+      "segment_proportions": [
+        0.45,
+        0.33,
+        0.22
+      ],
+      "fan_degrees": [
+        -18,
+        -6,
+        6,
+        18
+      ],
+      "curl_degrees": [
+        35,
+        35,
+        35
+      ],
+      "radii_over_H": [
+        0.006,
+        0.0052,
+        0.0042,
+        0.0
+      ],
+      "thumb_segment_lengths_over_H": [
+        0.03,
+        0.025
+      ],
+      "thumb_root_from_wrist_end_over_H": 0.008,
+      "thumb_inward_degrees": 40,
+      "thumb_curl_degrees": [
+        20,
+        20
+      ],
+      "thumb_radii_over_H": [
+        0.0055,
+        0.004,
+        0.0
+      ],
+      "fan_step_degrees": 12,
+      "fan_search": {
+        "first_whole_degree": 9,
+        "last_whole_degree": 14,
+        "selection": "smallest front-view gap >= 0.015 H"
+      }
+    },
+    "near_hand": {
+      "palm_dimensions_over_H": [
+        0.012,
+        0.03,
+        0.035
+      ],
+      "palm_centre_along_forearm_over_H": 0.0175,
+      "palm_faces": "fixed ring",
+      "finger_length_over_H": 0.075,
+      "segment_proportions": [
+        0.45,
+        0.33,
+        0.22
+      ],
+      "finger_spacing_over_H": 0.0075,
+      "curl_degrees": [
+        90,
+        90,
+        90
+      ],
+      "radii_over_H": [
+        0.0055,
+        0.005,
+        0.0045,
+        0.003
+      ],
+      "thumb_length_over_H": 0.045,
+      "thumb_root_from_wrist_end_over_H": 0.008,
+      "thumb_radii_over_H": [
+        0.0055,
+        0.0045,
+        0.003
+      ],
+      "thumb_clearance_over_H": [
+        0.001,
+        0.004
+      ],
+      "maximum_palm_offset_adjustment_over_H": 0.01,
+      "ring": "mq20 ring and chain geometry/position fixed",
+      "maximum_wrist_roll_degrees": 20,
+      "closure": "palm bridge and three 90-degree segments form a closed finger loop; upper ring bar passes through every loop",
+      "thumb_target": "nearest finger middle segment (director finger 2)",
+      "thumb_joint_max_degrees": 60,
+      "wire_clearance_window_over_H": [
+        0.001,
+        0.012
+      ],
+      "maximum_fingertip_palm_distance_over_H": 0.012,
+      "preferred_pose": {
+        "palm_offset_adjustment_over_H": -0.01,
+        "wrist_roll_degrees": -3.8
+      }
+    }
+  },
+  "feedback2_fan_search": {
+    "first_whole_degree": 9,
+    "last_whole_degree": 14,
+    "minimum_gap_over_H": 0.015,
+    "selected_step_degrees": 12
+  },
+  "round1_preservation": {
+    "path": "round1_preservation.json",
+    "sha256": "f28e19d98bcc51a11ebf97299c692da256721f1d65d00c0b84a71d0165e2f1cb"
+  },
+  "native_capture_requirements": {
+    "front_ring_top_bar_in_fist_silhouette": true,
+    "front_lower_ring_visible_below_fist": true,
+    "front_chain_visible_below_fist": true,
+    "front_ring_chain_below_fist_every_occupied_column": true
+  },
+  "native_capture_policy": {
+    "size_px": 1088,
+    "maximum_top_bar_above_fist_px": 8,
+    "below_fist": "Director feedback 2: every occupied lower-grip-ring/held-chain/lantern-cap-ring capture column has visible assembly pixels below that column's lowest hand pixel.",
+    "hanging_assembly_piece_ids": [
+      "grip_ring",
+      "held_chain",
+      "lantern_cap_ring"
+    ]
+  }
+}

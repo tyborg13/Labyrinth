@@ -1,0 +1,234 @@
+{
+  "views": {
+    "front": {
+      "hidden_loincloth_back": {
+        "logical": "loincloth_back",
+        "bone": "pelvis",
+        "underlay_pixels": 9,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_front_hidden_loincloth_back_domain.png"
+      },
+      "hidden_leg_far": {
+        "logical": "leg_far",
+        "bone": "thigh_far",
+        "underlay_pixels": 1710,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_front_hidden_leg_far_domain.png"
+      },
+      "hidden_foot_far": {
+        "logical": "foot_far",
+        "bone": "foot_far",
+        "underlay_pixels": 1070,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_front_hidden_foot_far_domain.png"
+      },
+      "hidden_arm_far": {
+        "logical": "arm_far",
+        "bone": "upper_far",
+        "underlay_pixels": 0,
+        "cap_pixels": 179,
+        "mask": "ownership/feedback2_front_hidden_arm_far_domain.png"
+      },
+      "hidden_falchion": {
+        "logical": "falchion",
+        "bone": "falchion",
+        "underlay_pixels": 0,
+        "cap_pixels": 93,
+        "mask": "ownership/feedback2_front_hidden_falchion_domain.png"
+      },
+      "hidden_hand_far": {
+        "logical": "hand_far",
+        "bone": "hand_far",
+        "underlay_pixels": 0,
+        "cap_pixels": 166,
+        "mask": "ownership/feedback2_front_hidden_hand_far_domain.png"
+      },
+      "hidden_pelvis": {
+        "logical": "pelvis",
+        "bone": "pelvis",
+        "underlay_pixels": 2181,
+        "cap_pixels": 7,
+        "mask": "ownership/feedback2_front_hidden_pelvis_domain.png"
+      },
+      "hidden_leg_near": {
+        "logical": "leg_near",
+        "bone": "thigh_near",
+        "underlay_pixels": 2787,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_front_hidden_leg_near_domain.png"
+      },
+      "hidden_foot_near": {
+        "logical": "foot_near",
+        "bone": "foot_near",
+        "underlay_pixels": 1534,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_front_hidden_foot_near_domain.png"
+      },
+      "hidden_loincloth": {
+        "logical": "loincloth",
+        "bone": "pelvis",
+        "underlay_pixels": 121,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_front_hidden_loincloth_domain.png"
+      },
+      "hidden_arm_near": {
+        "logical": "arm_near",
+        "bone": "upper_near",
+        "underlay_pixels": 68,
+        "cap_pixels": 139,
+        "mask": "ownership/feedback2_front_hidden_arm_near_domain.png"
+      },
+      "hidden_hand_near": {
+        "logical": "hand_near",
+        "bone": "hand_near",
+        "underlay_pixels": 43,
+        "cap_pixels": 46,
+        "mask": "ownership/feedback2_front_hidden_hand_near_domain.png"
+      },
+      "hidden_torso": {
+        "logical": "torso",
+        "bone": "torso",
+        "underlay_pixels": 5177,
+        "cap_pixels": 266,
+        "mask": "ownership/feedback2_front_hidden_torso_domain.png"
+      },
+      "hidden_head": {
+        "logical": "head",
+        "bone": "head",
+        "underlay_pixels": 2438,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_front_hidden_head_domain.png"
+      },
+      "cap_arm_near": {
+        "logical": "arm_near",
+        "bone": "fore_near",
+        "underlay_pixels": 0,
+        "cap_pixels": 184,
+        "mask": "ownership/feedback2_front_cap_arm_near_domain.png"
+      },
+      "cap_arm_far": {
+        "logical": "arm_far",
+        "bone": "fore_far",
+        "underlay_pixels": 0,
+        "cap_pixels": 174,
+        "mask": "ownership/feedback2_front_cap_arm_far_domain.png"
+      }
+    },
+    "rear": {
+      "hidden_loincloth": {
+        "logical": "loincloth",
+        "bone": "pelvis",
+        "underlay_pixels": 59,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_rear_hidden_loincloth_domain.png"
+      },
+      "hidden_leg_near": {
+        "logical": "leg_near",
+        "bone": "thigh_near",
+        "underlay_pixels": 1337,
+        "cap_pixels": 1,
+        "mask": "ownership/feedback2_rear_hidden_leg_near_domain.png"
+      },
+      "hidden_foot_near": {
+        "logical": "foot_near",
+        "bone": "foot_near",
+        "underlay_pixels": 894,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_rear_hidden_foot_near_domain.png"
+      },
+      "hidden_arm_near": {
+        "logical": "arm_near",
+        "bone": "upper_near",
+        "underlay_pixels": 163,
+        "cap_pixels": 34,
+        "mask": "ownership/feedback2_rear_hidden_arm_near_domain.png"
+      },
+      "hidden_hand_near": {
+        "logical": "hand_near",
+        "bone": "hand_near",
+        "underlay_pixels": 2,
+        "cap_pixels": 37,
+        "mask": "ownership/feedback2_rear_hidden_hand_near_domain.png"
+      },
+      "hidden_pelvis": {
+        "logical": "pelvis",
+        "bone": "pelvis",
+        "underlay_pixels": 1794,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_rear_hidden_pelvis_domain.png"
+      },
+      "hidden_loincloth_back": {
+        "logical": "loincloth_back",
+        "bone": "pelvis",
+        "underlay_pixels": 130,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_rear_hidden_loincloth_back_domain.png"
+      },
+      "hidden_leg_far": {
+        "logical": "leg_far",
+        "bone": "thigh_far",
+        "underlay_pixels": 2849,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_rear_hidden_leg_far_domain.png"
+      },
+      "hidden_foot_far": {
+        "logical": "foot_far",
+        "bone": "foot_far",
+        "underlay_pixels": 943,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_rear_hidden_foot_far_domain.png"
+      },
+      "hidden_arm_far": {
+        "logical": "arm_far",
+        "bone": "upper_far",
+        "underlay_pixels": 149,
+        "cap_pixels": 109,
+        "mask": "ownership/feedback2_rear_hidden_arm_far_domain.png"
+      },
+      "hidden_falchion": {
+        "logical": "falchion",
+        "bone": "falchion",
+        "underlay_pixels": 0,
+        "cap_pixels": 107,
+        "mask": "ownership/feedback2_rear_hidden_falchion_domain.png"
+      },
+      "hidden_hand_far": {
+        "logical": "hand_far",
+        "bone": "hand_far",
+        "underlay_pixels": 0,
+        "cap_pixels": 171,
+        "mask": "ownership/feedback2_rear_hidden_hand_far_domain.png"
+      },
+      "hidden_torso": {
+        "logical": "torso",
+        "bone": "torso",
+        "underlay_pixels": 5070,
+        "cap_pixels": 105,
+        "mask": "ownership/feedback2_rear_hidden_torso_domain.png"
+      },
+      "hidden_head": {
+        "logical": "head",
+        "bone": "head",
+        "underlay_pixels": 2842,
+        "cap_pixels": 0,
+        "mask": "ownership/feedback2_rear_hidden_head_domain.png"
+      },
+      "cap_arm_near": {
+        "logical": "arm_near",
+        "bone": "fore_near",
+        "underlay_pixels": 0,
+        "cap_pixels": 92,
+        "mask": "ownership/feedback2_rear_cap_arm_near_domain.png"
+      },
+      "cap_arm_far": {
+        "logical": "arm_far",
+        "bone": "fore_far",
+        "underlay_pixels": 0,
+        "cap_pixels": 120,
+        "mask": "ownership/feedback2_rear_cap_arm_far_domain.png"
+      }
+    }
+  },
+  "rule": "exact underlay in vacated footprint and own tuck; exact approved interior cap in own tuck; rigid elbow band uses existing 3 px tuck depth",
+  "native_pixels": false
+}

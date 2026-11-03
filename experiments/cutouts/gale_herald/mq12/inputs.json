@@ -1,0 +1,8 @@
+{
+  "front_job": "spec/art_identity/jobs/gale_herald/mq12_front",
+  "rear_job": "spec/art_identity/jobs/gale_herald/mq12_rear",
+  "front_delivery": "spec/art_identity/maquettes/gale_herald/delivery",
+  "rear_delivery": "spec/art_identity/maquettes/gale_herald/delivery",
+  "fused_occlusion": true,
+  "design_placeholders": {}
+}

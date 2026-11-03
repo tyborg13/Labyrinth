@@ -1,0 +1,15 @@
+{
+  "front_job": "spec/art_identity/jobs/chainbound_gaoler/mq3_front_v5",
+  "rear_job": "spec/art_identity/jobs/chainbound_gaoler/mq3_rear_v4",
+  "front_delivery": "spec/art_identity/maquettes/chainbound_gaoler/delivery",
+  "rear_delivery": "spec/art_identity/maquettes/chainbound_gaoler/delivery",
+  "fused_occlusion": true,
+  "intentionally_empty": {
+    "rear": {
+      "tabard": "front-only tabard; covered by coat in approved rear",
+      "arm_near": "Director feedback 1: fully under the cowl in every clip; remain unpainted.",
+      "hand_near": "Director feedback 1: fully under the cowl in every clip; remain unpainted."
+    }
+  },
+  "design_placeholders": {}
+}

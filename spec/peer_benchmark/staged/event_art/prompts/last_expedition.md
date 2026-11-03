@@ -1,0 +1,1 @@
+Subject: an armoured adventurer slumped dying against a dungeon wall, helmet off and face in shadow, a fine sword and shield resting beside them, a dying torch on the ground, blood dark on the stone. The figure is not the hero; they wear different, finer gear. Mood: quiet, sad, a moral weight.

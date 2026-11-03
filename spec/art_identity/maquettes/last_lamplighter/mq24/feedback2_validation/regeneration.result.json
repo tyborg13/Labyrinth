@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "-m",
+    "spec.art_identity.maquettes.last_lamplighter.mq24.proof",
+    "regenerate",
+    "--out",
+    "spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-feedback2-clean-regeneration",
+    "--capture",
+    "spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-feedback2-accepted/capture"
+  ],
+  "exit_code": 0
+}

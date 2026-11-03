@@ -1,0 +1,16 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-f9349f8cbbad447aa5576319881726dd
+BLENDER_BRIDGE_STARTED: mq03-f9349f8cbbad447aa5576319881726dd
+00:00.290  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/mq13/cold/maquette.blend"
+00:04.040  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/mq13/capture_jobs/rear_2/rear_parts.png'
+00:06.134  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/mq13/capture_jobs/rear_2/rear_silhouette.png'
+00:08.225  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/mq13/capture_jobs/rear_2/rear_silhouette.png'
+00:10.323  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/mq13/capture_jobs/rear_2/rear_silhouette.png'
+00:12.542  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/mq13/capture_jobs/rear_2/rear_silhouette.png'
+00:14.651  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/mq13/capture_jobs/rear_2/rear_silhouette.png'
+00:17.062  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-13/spec/art_identity/maquettes/gloam_stalker/proof/mq13/capture_jobs/rear_2/rear_silhouette.png'
+MQ12_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=rear; solos=['thigh_near', 'shin_near', 'foot_near', 'thigh_far', 'shin_far']
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=17.9; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-f9349f8cbbad447aa5576319881726dd.log

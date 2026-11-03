@@ -320,6 +320,7 @@ static func _crown_seal(tree: SceneTree, expect: Callable, fixtures: Script) -> 
 	scene.call("_mark_combat_preview_state_changed")
 	scene.call("_refresh_ui")
 	scene.call("_on_card_hover_started", 0)
+	await preload("res://tests/helpers/presentation_test_clock.gd").rendered_frames(tree, preload("res://scripts/run_scene.gd").HAND_HOVER_REST_RENDERED_FRAMES)
 	var seal: Button = _seal(scene)
 	expect.call(seal.visible and not bool(seal.get("charged")) and seal.tooltip_text == "Empower: +3 Time · repeat this card's first action\nClick the seal or press E", "Crown's real seal offers its granted Empower and exact cost/bonus tooltip")
 	await _key(scene)

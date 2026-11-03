@@ -4,14 +4,11 @@ extends RefCounted
 const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const Guardian = preload("res://scripts/guardian_cutout/renderer.gd")
 const Dragon = preload("res://scripts/dragon_presentation.gd")
-const FrostglassAction = preload("res://scripts/frostglass_lancer_cutout/action.gd")
 const IskaldraAction = preload("res://scripts/iskaldra_cutout/action.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
 const MODELS: Dictionary = {
 	"harrier": preload("res://scripts/harrier_cutout/renderer.gd"),
-	"frostglass_lancer": preload("res://scripts/frostglass_lancer_cutout/renderer.gd"),
 	"warden": preload("res://scripts/stone_warden_cutout/renderer.gd"),
-	"chainbound_gaoler": preload("res://scripts/chainbound_gaoler_cutout/renderer.gd"),
 	"crawler": preload("res://scripts/crawler_cutout/renderer.gd"),
 	"noctyrax": preload("res://scripts/noctyrax_cutout/renderer.gd"),
 	"zekarion": preload("res://scripts/zekarion_cutout/renderer.gd"),
@@ -32,10 +29,10 @@ const REGISTRY: Dictionary = {
 	"burrow_grub": {"kind":"arc", "window":Vector2(0.33,0.56)},
 	"ember_tick": {"kind":"arc", "window":Vector2(0.33,0.56)},
 	"harrier": {"kind":"streak", "bone":"weapon_r", "landmark":"weapon_tip", "inner_bone":"weapon_r", "window":Vector2(0.34,0.60), "length":74.0},
-	"frostglass_lancer": {"kind":"streak", "bone":"lance", "landmark":"weapon_tip", "inner_bone":"lance", "window":Vector2(0.315,0.60), "length":74.0},
+	"frostglass_lancer": {"kind":"streak", "bone":"spear", "landmark":"strike_points.spear", "inner_bone":"spear", "window":Vector2(0.315,0.60), "length":74.0},
 	"warden": {"kind":"sweep", "bone":"weapon_r", "landmark":"mace_head", "inner_bone":"weapon_r", "window":Vector2(0.3696,0.66), "reach":0.50},
 	# Cudgel Press is a punch; the hanging chain barely moves during this clip.
-	"chainbound_gaoler": {"kind":"streak", "bone":"hand_fist", "inner_bone":"fore_fist", "window":Vector2(0.30,0.56), "length":48.0},
+	"chainbound_gaoler": {"kind":"streak", "bone":"hand_near", "landmark":"strike_points.hand_near", "inner_bone":"fore_near", "window":Vector2(0.30,0.56), "length":48.0},
 	"crawler": {"kind":"rake", "bone":"claw_near", "landmark":"contacts.claw_near", "inner_bone":"fore_near", "window":Vector2(0.378,0.66)},
 	"noctyrax": {"kind":"rake", "bone":"claw_fore_near", "point":[Vector2(107,205),Vector2(228,208)], "inner_bone":"lower_fore_near", "window":Vector2(0.336,0.66)},
 	"zekarion": {"kind":"rake", "bone":"claw_near", "landmark":"strike", "inner_bone":"lower_near", "window":Vector2(0.3696,0.66)},
@@ -46,9 +43,9 @@ const REGISTRY: Dictionary = {
 	"acolyte": {"kind":"arc", "window":Vector2(0.33,0.56)},
 	# Guardian contact is authored .46, mapped to effect .42. The drive starts
 	# at authored .31, i.e. .31/.46*.42; end .57 maps to .538148 effect time.
-	"ashen_reaver": {"kind":"sweep", "bone":"blade", "point":[Vector2(8,220),Vector2(236,226)], "inner_bone":"blade", "window":Vector2(0.283043,0.538148), "reason":"The broad cleaver rotates through an overhead cut."},
+	"ashen_reaver": {"kind":"sweep", "bone":"falchion", "point":[Vector2(34.0,211.0),Vector2(209.5,209.0)], "inner_bone":"falchion", "window":Vector2(0.283043,0.538148), "reason":"The broad cleaver rotates through an overhead cut."},
 	"bell_tender": {"kind":"streak", "bone":"spear", "point":[Vector2(52,15),Vector2(207,15)], "inner_bone":"spear", "window":Vector2(0.283043,0.538148), "length":74.0, "reason":"Both hands drive one rigid forked spear."},
-	"storm_cantor": {"kind":"streak", "bone":"spear", "point":[Vector2(52,13),Vector2(191,13)], "inner_bone":"spear", "window":Vector2(0.283043,0.538148), "length":74.0, "reason":"The near hand drives the spear point."},
+	"storm_cantor": {"kind":"streak", "bone":"staff", "point":[Vector2(65.5,6.5),Vector2(183.5,16.5)], "inner_bone":"staff", "window":Vector2(0.283043,0.538148), "length":74.0, "reason":"The far hand drives the rigid staff fork through Broken Rhythm contact."},
 	"craghide": {"kind":"rake", "bone":"foot_fore_near", "landmark":"foot_contacts.foot_fore_near", "inner_bone":"knee_fore_near", "window":Vector2(0.283043,0.538148), "reason":"Its raised forepaw has several broad painted claws."},
 	"rimejaw": {"kind":"rake", "bone":"foot_fore_near", "landmark":"foot_contacts.foot_fore_near", "inner_bone":"knee_fore_near", "window":Vector2(0.283043,0.538148), "reason":"The authored strike lifts and rakes the near foreclaw."},
 	"rime_whelp": {"kind":"rake", "bone":"foot_fore_near", "landmark":"foot_contacts.foot_fore_near", "inner_bone":"knee_fore_near", "window":Vector2(0.283043,0.538148), "reason":"The small dragon shares the raised foreclaw strike."},
@@ -56,7 +53,7 @@ const REGISTRY: Dictionary = {
 	"gallows_roc": {"kind":"rake", "bone":"feathers_near", "offset":Vector2(0,35), "inner_bone":"wing_elbow_near", "window":Vector2(0.283043,0.538148), "reason":"The articulated near wing sweeps its feather tips; the feet stay planted."},
 	"roc_fledgling": {"kind":"rake", "bone":"feathers_near", "offset":Vector2(0,30), "inner_bone":"wing_elbow_near", "window":Vector2(0.283043,0.538148), "reason":"Its smaller articulated wing repeats the feather-tip stroke."},
 	"wick_shade": {"kind":"rake", "bone":"hand_near", "point":[Vector2(46,177),Vector2(57,187)], "inner_bone":"elbow_near", "window":Vector2(0.283043,0.538148), "reason":"The empty near hand has long claw-like fingers and reaches to strike."},
-	"last_lamplighter": {"kind":"sweep", "bone":"lantern", "point":[Vector2(176,207),Vector2(68,197)], "inner_bone":"lantern", "window":Vector2(0.283043,0.538148), "reason":"The hanging lantern rotates through the near-hand strike."},
+	"last_lamplighter": {"kind":"sweep", "bone":"lantern", "landmark":"strike_points.lantern", "inner_bone":"lantern", "window":Vector2(0.283043,0.538148), "reason":"The hanging lantern rotates through the near-hand strike."},
 	"ash_hound": {"kind":"sweep", "bone":"head", "point":[Vector2(40,178),Vector2(214,150)], "inner_bone":"head", "window":Vector2(0.283043,0.538148), "reach":0.40, "reason":"The authored attack drives the jaw; its paws remain planted."},
 	"rime_spitter": {"kind":"sweep", "bone":"head", "point":[Vector2(43,155),Vector2(216,144)], "inner_bone":"head", "window":Vector2(0.283043,0.538148), "reach":0.40, "reason":"The rigid snout lunges to contact; the throat sac belongs to casting."}}
 
@@ -71,6 +68,8 @@ static func settings(enemy_type: String, effect: Dictionary) -> Dictionary:
 	# windup must not disguise that stationary displayed contact/follow-through.
 	if enemy_type == "ashen_reaver" and kind == "aoe": result["contact_hold_arc"] = true
 	result["actions"] = ["melee", "aoe"] if enemy_type in ["frostglass_lancer", "warden"] or Guardian.handles(enemy_type) else ["melee"]
+	var declared: Array = preload("res://scripts/maquette_cutout_runtime/presentation.gd").integration_for(enemy_type).get("strike_actions", [])
+	if not declared.is_empty(): result["actions"] = declared
 	return result
 
 static func contact(effect: Dictionary) -> float:
@@ -89,13 +88,9 @@ static func action_pose(enemy_type: String, effect: Dictionary, actor: Dictionar
 	if Guardian.handles(enemy_type):
 		var motion: Dictionary = Guardian.action_motion(effect, actor, progress, contact)
 		return {"clip":"strike", "phase":motion["phase"]}
-	if enemy_type == "frostglass_lancer":
-		var motion: Dictionary = FrostglassAction.motion_for_effect(effect, "thrust", progress, contact)
-		return {"clip":"thrust", "phase":motion["phase"]}
 	if enemy_type == "iskaldra":
 		var motion: Dictionary = IskaldraAction.motion_for_effect(effect, actor, progress, effect.get("to", Vector2i.ZERO))
 		return {"clip":"talon", "phase":motion["phase"]}
-	if enemy_type == "chainbound_gaoler": return {"clip":"strike", "phase":progress}
 	var model: Script = MODELS[enemy_type]
 	var clip: String = "attack"
 	match enemy_type:
@@ -105,6 +100,8 @@ static func action_pose(enemy_type: String, effect: Dictionary, actor: Dictionar
 	return {"clip":clip, "phase":model.attack_pose_phase(progress, contact)}
 
 static func samples(renderer: Node, actor: Dictionary, effect: Dictionary, delta: Vector2i, settings_value: Dictionary, contact: float) -> Array[Dictionary]:
+	if renderer.has_method("strike_samples"):
+		return renderer.strike_samples(actor, effect, delta, settings_value, contact)
 	var result: Array[Dictionary]
 	var enemy_type: String = str(actor["type"])
 	var orientation: Dictionary = Facing.direction_for_delta(delta)
@@ -144,8 +141,9 @@ static func bind_point(layout: Dictionary, settings_value: Dictionary, view: Str
 	var bind: Vector2 = _point(layout["joints"][settings_value["bone"]]["position"])
 	var point: Vector2 = bind + (settings_value.get("offset", Vector2.ZERO) as Vector2)
 	if settings_value.has("landmark"):
-		var value: Variant = layout["landmarks"]
-		for key: String in str(settings_value["landmark"]).split("."): value = value[key]
+		var keys: PackedStringArray = str(settings_value["landmark"]).split(".")
+		var value: Variant = layout if layout.has(keys[0]) else layout["landmarks"]
+		for key: String in keys: value = value[key]
 		point = _point(value)
 	elif settings_value.has("point"):
 		point = settings_value["point"][0 if view == "front" else 1]

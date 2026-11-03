@@ -1,5 +1,6 @@
 extends RefCounted
 
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
@@ -18,6 +19,18 @@ const EXPECTED_PATHS: Dictionary = {
 	"ice": "res://assets/audio/sfx/elemental/ice_attack.wav"
 }
 
+class CueRecorder extends "res://scripts/sfx_cue_router.gd":
+	var cues: Array[String] = []
+	func request(cue_id: String, _opts: Dictionary = {}) -> void: cues.append(cue_id)
+
+static func _step_cues(step: Dictionary, unit: Dictionary, changes: Dictionary) -> Array[String]:
+	var recorder := CueRecorder.new()
+	var after: Dictionary = unit.duplicate()
+	after.merge(changes, true)
+	recorder.begin_enemy_action({"enemies": [unit]}, step, unit)
+	recorder.presentation({"enemies": [after]}, {})
+	return recorder.cues
+
 static func run(expect: Callable) -> void:
 	var router := preload("res://scripts/sfx_cue_router.gd").new()
 	expect.call(router.impact_cue({"type": "melee", "damage": 5}, {}, "training_sword") == "hit.blade.light", "Light weapon contact should request the blade cue")
@@ -26,6 +39,17 @@ static func run(expect: Callable) -> void:
 	expect.call(router.impact_cue({"type": "melee", "element": "fire"}) == "spell.fire", "Elemental contact should replace the physical impact")
 	expect.call(router.impact_cue({"type": "melee"}, {}, "training_sword", {"freeze": 1}, 3) == "status.shatter", "A frozen target should receive only the shatter impact")
 	expect.call(router.impact_cue({"type": "melee"}, {}, "training_sword", {}, 0, 3) == "hit.blocked", "Fully absorbed contact should receive only the blocked impact")
+	var attacker: Dictionary = {"id": 1, "type": "crawler", "hp": 14, "block": 2}
+	expect.call(_step_cues({"kind": "status_damage", "label": "Retaliate", "action_type": "retaliate"}, attacker, {"hp": 11, "block": 0}) == ["hit.pierce", "block.break"], "Retaliate that breaks Block should sound its own contact on the attacker")
+	expect.call(_step_cues({"kind": "status_damage", "label": "Retaliate", "action_type": "retaliate"}, attacker, {"block": 1}) == ["hit.blocked"], "Retaliate absorbed by Block should sound blocked")
+	expect.call(_step_cues({"kind": "status_damage", "label": "Glass Double", "action_type": "illusion_retort"}, attacker, {"hp": 11}) == ["hit.arcane"], "An illusion retort should sound its own contact on the attacker")
+	expect.call(_step_cues({"kind": "status_damage", "label": "Bleed"}, attacker, {"hp": 11}) == ["status.bleed"], "A Bleed tick keeps its own sound and gains no contact")
+	var fire_entry: Dictionary = {"kind": "surface_damage", "surface": "fire", "actor_kind": "enemy", "id": 1, "trigger": "entry", "sequence": 5}
+	expect.call(_step_cues({"kind": "move", "surface_events": [fire_entry]}, attacker, {"hp": 12}) == ["surface.fire"], "An enemy walking onto Fire should hear the ground burn, not its own claws")
+	var hero_walk := CueRecorder.new()
+	hero_walk.begin_player_action({"player": {"hp": 24}, "surface_event_sequence": 4}, {"type": "move"})
+	hero_walk.presentation({"player": {"hp": 22}, "surface_event_sequence": 5, "surface_events": [fire_entry.merged({"actor_kind": "player", "id": -1}, true)]}, {})
+	expect.call(hero_walk.cues == ["surface.fire"], "The hero walking onto Fire should hear the ground burn, not a spell impact")
 	for legacy_id: String in AttackSfxLibrary.CUE_ALIASES:
 		expect.call(not str(AttackSfxLibrary.CUE_ALIASES[legacy_id]).is_empty(), "Legacy attack ids should retain a cue-bank alias")
 	for element_id: String in EXPECTED_PATHS:
@@ -109,6 +133,11 @@ static func run(expect: Callable) -> void:
 	expect.call(distinct_traps.size() == 2, "A simultaneous same-element trap chain should not layer duplicate copies of one sound")
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _run_live_scoped(scope, tree, expect)
+	)
+
+static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	expect.call(run_scene != null, "Run scene should load for live card-draw sound coverage")
 	if run_scene == null:
@@ -281,8 +310,10 @@ static func _test_reward_flip_sequence(instance: Node, tree: SceneTree, expect: 
 	for index: int in range(3):
 		slots.append(_reward_flip_slot(host, index))
 	var generation_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
-	var reveal_started: int = Time.get_ticks_msec()
-	await PostCombatRewardSequence.play_reward_reveal(
+	var reveal_clock := preload("res://tests/helpers/presentation_tween_driver.gd").new()
+	tree.root.add_child(reveal_clock)
+	var observed_sequence: Script = preload("res://tests/helpers/presentation_tween_driver.gd").sequence_script(PostCombatRewardSequence)
+	await observed_sequence.play_reward_reveal(
 		host,
 		banner,
 		title,
@@ -291,7 +322,8 @@ static func _test_reward_flip_sequence(instance: Node, tree: SceneTree, expect: 
 		false,
 		Callable(instance, "_play_reward_card_flip_sfx")
 	)
-	expect.call(Time.get_ticks_msec() - reveal_started < 1250, "Three reward cards should become readable together without a serialized flip queue")
+	expect.call(reveal_clock.completed_seconds * 1000.0 < 1250 and reveal_clock.completed_seconds > 0.0, "Three reward cards should become readable together without a serialized flip queue")
+	reveal_clock.queue_free()
 	for slot: Control in slots:
 		expect.call((slot.find_child("CardWidget", true, false) as Control).visible, "Every reward face must be visible before reveal completes")
 	var players: Array = instance.get("_sfx_players") as Array

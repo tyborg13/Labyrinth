@@ -1,0 +1,14 @@
+test_barrel_chest_has_an_eighty_percent_minimum (tests.test_mq15_maquette.MassGuardTests) ... FAIL
+
+======================================================================
+FAIL: test_barrel_chest_has_an_eighty_percent_minimum (tests.test_mq15_maquette.MassGuardTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_maquette.py", line 320, in test_barrel_chest_has_an_eighty_percent_minimum
+    self.assertFalse(chest_passed(79,100,.8))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

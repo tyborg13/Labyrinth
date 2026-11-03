@@ -1,0 +1,29 @@
+{
+  "files": {
+    "case.tar.gz": "f0796e4b4645056b01a3aec9cd107f943bf40fea6b9b610db52c08da3a0e74f9",
+    "cpu_measurements.json.gz": "686b6cc68ab19559f0bba3ed7d7ef49cafb1c53b452c94ec4eca49faf26ea472",
+    "front_death_010_native_4x.webp": "18a89ebf31125c4fb58ddc8d15a9cd72463a2e0a1e548aa462e0a8f7a6daf1ab",
+    "front_death_011_native_4x.webp": "651e7de84a506bb899276e9d1d555ae0cfceb800aff5b825698124e3408a7eeb",
+    "front_death_012_native_4x.webp": "867f4e6b3a7ec8b30a2a855e55835ecd6f990faa90fbf023f6e0be3d9d39c493",
+    "front_death_013_native_4x.webp": "db43e3cd8a86119fc349a0e3ad36fa068e83c6404aa97d0fb933376702b92d35",
+    "front_death_016_native_4x.webp": "fd79fffdccb723014251c5dd94c5483ca9a958b4ec1b9bb4ba3650ca5d49f4a1",
+    "front_death_017_native_4x.webp": "7242fe2128b2ae0f88c8543bf73bb35997b8bedd9149f0b0c239a123b7b2733c",
+    "front_death_018_native_4x.webp": "cdaac5bd6076050a3d3640582791d4acde63476467649035fde8fedbc4ce7227",
+    "front_death_019_native_4x.webp": "e73336f749fa49d0acba3c718b6b873aa9fd868e995436e986ae62161c4c4ed2",
+    "front_death_020_native_4x.webp": "0668610884a04424ac704717b3d5e0bf1f70de97b9d0ba6fcd425fdfc442db6c",
+    "front_death_021_native_4x.webp": "0668610884a04424ac704717b3d5e0bf1f70de97b9d0ba6fcd425fdfc442db6c",
+    "front_death_022_native_4x.webp": "1b02d0f74df9d9aa22fea89bc58c29964d4285d8f3b401f4206c3d67ad6ff1ef",
+    "front_death_031_native_4x.webp": "031093ba28a353154e41d5ca1d4fc55840e584ce2f9ff8929a0e9c0365233e6a",
+    "front_press_013_native_4x.webp": "9acfd826e09500d387ec1c7b5781f7e05ead33f18a01cdb64f1e5bef9203a76e",
+    "front_press_014_native_4x.webp": "4eaa8e48673f297154dcb145be1d573ad9415da328b16a8f8765606247ceda9f",
+    "front_press_015_native_4x.webp": "125e9eda82336b6ce2d86747a9c19cd9e6670d3a342716fca0d4fc7849c959f4",
+    "poses.json.gz": "22b1b92e4cf03856a1c7878975bcf886b72bae080e4d24a8f23254443c56f900",
+    "rear_death_010_native_4x.webp": "c69c0505963f6c9abea9dca057a19c29ef9910f4be70678a2e430285c41649b7",
+    "rear_death_031_native_4x.webp": "257567fc4cb5aaba4bf19cdd700e3f8f4939919494a5a72fe0111e686abc8b5b",
+    "truth.json": "34036acc20ac2d3d031da69314fa0b571be95831c87f7afe26ce82d711f3df50",
+    "witnesses.json": "6200771496c59c6176c79c46f996c006a0943a84c0d7ab5b43ed4ecd93de926d"
+  },
+  "native_pixels": true,
+  "raw_native_report_errors": 2683,
+  "native_frame_kind_signatures": 1336
+}

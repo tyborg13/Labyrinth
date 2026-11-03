@@ -78,5 +78,5 @@ static func dragon_fan_effect() -> Dictionary:
 	return {"kind": "aoe", "action_type": "aoe", "enemy_type": "vyraketh", "intent_id": "cinderfall", "element": "fire", "from": SOURCE, "to": TARGET, "tiles": tiles, "center": TARGET}
 
 static func line_sample(kind: String) -> Dictionary:
-	var effect: Dictionary = {"kind": "chain" if kind == "chain" else "ranged", "action_type": "tether_beam" if kind == "tether" else "chain", "element": "lightning", "from": SOURCE, "to": TARGET}
+	var effect: Dictionary = {"kind": "chain" if kind == "chain" else "ranged", "action_type": "ranged" if kind == "lightning" else "chain", "element": "lightning", "from": SOURCE, "to": TARGET}
 	return {"state": combat_state(), "presentation": {"effect": effect, "effect_progress": 0.52, "ambient_time_seconds": 0.37}}

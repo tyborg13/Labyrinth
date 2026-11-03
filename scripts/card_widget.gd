@@ -5,6 +5,7 @@ signal activated
 signal empower_hover_changed(hovered: bool)
 signal empower_toggled
 signal drag_started
+signal display_overrides_changed
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
@@ -64,6 +65,10 @@ const CARD_FRAME_RARE_PATH: String = "res://assets/art/ui/card_frame_rarity_rare
 const CARD_FRAME_EPIC_PATH: String = "res://assets/art/ui/card_frame_rarity_epic.png"
 const CARD_FRAME_LEGENDARY_PATH: String = "res://assets/art/ui/card_frame_rarity_legendary.png"
 const BASE_CARD_SIZE: Vector2 = Vector2(250.0, 352.0)
+# Reading views share this floor; transient/thumbnail views opt in explicitly.
+# Round the width up so the 0.875 floor occupies at least 219 screen pixels.
+const MIN_READABLE_CARD_SCALE: float = 0.875
+const MIN_READABLE_CARD_SIZE := Vector2(ceilf(BASE_CARD_SIZE.x * MIN_READABLE_CARD_SCALE), ceilf(BASE_CARD_SIZE.x * MIN_READABLE_CARD_SCALE) * BASE_CARD_SIZE.y / BASE_CARD_SIZE.x)
 const CARD_FRAME_MARGIN: float = 34.0
 const COMPACT_CARD_WIDTH: float = 190.0
 const CARD_VERTICAL_CHROME: float = 82.0
@@ -73,6 +78,9 @@ const DETAILS_MIN_HEIGHT: float = 92.0
 const DETAILS_MAX_HEIGHT: float = 142.0
 const SUMMARY_VERTICAL_PADDING: float = 10.0
 const SUMMARY_COMFORT_INSET: float = 6.0
+const SUMMARY_EDGE_INSET_PX: float = 2.0
+const SUMMARY_MIN_ITEM_GAP: int = 4
+const SUMMARY_TRANSFORM_EPSILON: float = 0.001
 const RULES_FACE_MAX_ICON: float = 24.0
 const RULES_FACE_ART_RELIEF: float = 18.0
 const RULES_TEXT_INSET: float = 10.0
@@ -243,6 +251,7 @@ class TimeCostBadge:
 	extends Control
 
 	const UiTypographyScript = preload("res://scripts/ui_typography.gd")
+	const Palette = preload("res://scripts/ui_palette.gd")
 	const CLOCK_HOVER_SECONDS_PER_SECOND: float = 24.0
 	const MotionSettings = preload("res://scripts/settings_store.gd")
 	const AssetLoaderScript = preload("res://scripts/asset_loader.gd")
@@ -257,6 +266,8 @@ class TimeCostBadge:
 	static var _watch_missing: bool = false
 
 	var value: int = 0
+	# Below zero while something makes this card cheaper than its own cost, above while something raises it.
+	var _cost_shift: int = 0
 	var _clock_seconds: float = 0.0
 	var _hovered: bool = false
 
@@ -271,8 +282,9 @@ class TimeCostBadge:
 	func _refresh_processing() -> void:
 		set_process(_hovered and is_visible_in_tree() and not MotionSettings.applied_reduced_motion_enabled())
 
-	func setup(next_value: int, next_tooltip: String) -> void:
+	func setup(next_value: int, next_tooltip: String, own_cost: int = -1) -> void:
 		value = maxi(0, next_value)
+		_cost_shift = signi(value - own_cost) if own_cost > 0 else 0
 		_clock_seconds = float(posmod(value, 12)) * 3600.0 + float(posmod(value * 5, 60)) * 60.0 + float(posmod(value * 11, 60))
 		tooltip_text = next_tooltip
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -301,12 +313,9 @@ class TimeCostBadge:
 		var font: Font = UiTypographyScript.ui_font()
 		if font == null:
 			return
-		var font_size: int = UiTypographyScript.scaled_size(self, 21 if size.x <= 42.0 else 24)
+		var font_size: int = value_font_size()
 		var text: String = str(value)
 		var text_size: Vector2 = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size)
-		while font_size > 12 and text_size.x > size.x * 0.58:
-			font_size -= 1
-			text_size = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size)
 		var baseline: Vector2 = Vector2(center.x - text_size.x * 0.5, center.y + (font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5)
 		var outline_color: Color = Color("120804")
 		outline_color.a = 0.96
@@ -323,7 +332,20 @@ class TimeCostBadge:
 		draw_string(font, baseline + Vector2(0.0, 1.6), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color(0.0, 0.0, 0.0, 0.55))
 		for offset_var: Variant in outline_offsets:
 			draw_string(font, baseline + (offset_var as Vector2), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, outline_color)
-		draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color("fff1c8"))
+		draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color("fff1c8") if _cost_shift == 0 else _shift_color())
+
+	func _shift_color() -> Color:
+		return Palette.ALLY.lightened(0.18) if _cost_shift < 0 else Palette.EMBER.lightened(0.14)
+
+	func value_font_size() -> int:
+		var font_size: int = UiTypographyScript.scaled_size(self, 21 if size.x <= 42.0 else 24)
+		var font: Font = UiTypographyScript.ui_font()
+		if font == null:
+			return font_size
+		var minimum: int = UiTypographyScript.scaled_size(self, get_parent().call("_rules_text_font_size")) if get_parent() != null and get_parent().has_method("_rules_text_font_size") else UiTypographyScript.SIZE_CAPTION
+		while font_size > minimum and font.get_string_size(str(value), HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size).x > size.x * 0.58:
+			font_size -= 1
+		return font_size
 
 	# The case, bezel, markers and enamel dial are one painted brass pocket watch
 	# (tools/process_card_time_watch.py); only the hands, crystal and cost are
@@ -351,6 +373,12 @@ class TimeCostBadge:
 		for ring: int in range(4):
 			var t: float = float(ring) / 3.0
 			draw_circle(center, dial_radius * lerpf(0.50, 0.30, t), Color(0.05, 0.02, 0.015, lerpf(0.10, 0.34, t)))
+		# A changed cost lights the enamel behind its numeral, so it reads at hand size.
+		if _cost_shift != 0:
+			var glow: Color = _shift_color()
+			for ring: int in range(4):
+				glow.a = lerpf(0.05, 0.13, float(ring) / 3.0)
+				draw_circle(center, dial_radius * lerpf(0.92, 0.50, float(ring) / 3.0), glow)
 		# Domed crystal: a soft sheen across the upper-left of the glass.
 		draw_arc(center, dial_radius * 0.80, -PI * 0.96, -PI * 0.60, 18, Color(1.0, 0.96, 0.86, 0.20), maxf(1.0, dial_radius * 0.11), true)
 		draw_arc(center, dial_radius * 0.80, -PI * 0.90, -PI * 0.68, 12, Color(1.0, 0.98, 0.92, 0.22), maxf(0.6, dial_radius * 0.04), true)
@@ -663,6 +691,8 @@ var _ready_wave_progress: float = 0.0
 var _ready_wave_active: bool = false
 var _ready_wave_glow: PanelContainer
 var _summary_icon_box: VBoxContainer
+var _summary_fit_inset: float = -1.0
+var _summary_scale_refit_queued: bool = false
 var _role_emblem: DebossedRoleEmblem
 var _empower_seal: Button
 var _empower_rim: Control
@@ -681,6 +711,7 @@ var _rarity_gem_glow: RarityGemGlow
 
 func _ready() -> void:
 	set_process(false)
+	set_notify_transform(true)
 	focus_mode = Control.FOCUS_NONE
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	set_meta("cursor_feedback_context", "action_drag")
@@ -729,6 +760,10 @@ func _ready() -> void:
 	_queue_title_refit()
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSFORM_CHANGED and is_node_ready() and _summary_icon_box != null and _summary_icon_box.visible:
+		if not is_equal_approx(_summary_fit_inset, _summary_screen_inset()) and not _summary_scale_refit_queued:
+			_summary_scale_refit_queued = true
+			call_deferred("_refit_summary_for_scale")
 	if what == NOTIFICATION_VISIBILITY_CHANGED and is_node_ready():
 		if not is_visible_in_tree():
 			_local_hovered = false
@@ -831,6 +866,13 @@ func configure(
 	if is_node_ready():
 		_apply_configuration()
 
+## Replace only the definition when run modifiers change under a retained view.
+func set_card_definition(definition: Dictionary) -> void:
+	if _card_override == definition: return
+	_card_override = definition.duplicate(true)
+	if is_node_ready(): _apply_configuration()
+	display_overrides_changed.emit()
+
 func set_interaction_state(
 	selected: bool,
 	dimmed: bool,
@@ -884,6 +926,7 @@ func set_display_overrides(summary_bbcode: String = "", modifier_lines: Array = 
 		# complete card presentation after every combat-state transition.
 		var card: Dictionary = _display_card_def()
 		_refresh_summary_display(card)
+	display_overrides_changed.emit()
 
 func set_hover_pose(next_lift: float, next_scale: float) -> void:
 	_hover_lift = clampf(next_lift, -40.0, 0.0)
@@ -1297,6 +1340,7 @@ func _ensure_summary_icon_box() -> void:
 	_summary_icon_box.name = "IconSummary"
 	_summary_icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_summary_icon_box.add_theme_constant_override("separation", 5)
+	_summary_icon_box.sort_children.connect(_center_precise_summary_groups)
 	details_vbox.add_child(_summary_icon_box)
 	details_vbox.move_child(_summary_icon_box, desc_label.get_index() + 1)
 
@@ -1425,7 +1469,9 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	if tempo_surcharge > 0: detail += "\n%s: +%d" % [str(GameData.relic_def(str(card.get("_tempo_time_surcharge_relic", ""))).get("name", "Relic")), tempo_surcharge]
 	if item_surcharge > 0: detail += "\n%s: +%d" % [str(GameData.relic_def(str(card.get("_item_time_surcharge_relic", ""))).get("name", "Relic")), item_surcharge]
 	if total_surcharge > tempo_surcharge + item_surcharge: detail += "\nEmpower: +%d" % (total_surcharge - tempo_surcharge - item_surcharge)
-	_time_badge.setup(time_cost, detail)
+	# A card's own cost, before anything passing lowers it. Upgrades change the card itself, so they stay plain.
+	var own_cost: int = maxi(printed_cost, maxi(int(card.get("_time_discount_base", 0)), int(card.get("_time_reserve_base", 0))))
+	_time_badge.setup(time_cost, detail, own_cost)
 	_position_time_badge()
 
 func _position_time_badge() -> void:
@@ -1445,6 +1491,9 @@ func _position_time_badge() -> void:
 	_position_empower_seal()
 
 func _refresh_summary_display(card: Dictionary) -> void:
+	# Reconfiguration of a pooled card returns the art loan before measuring the
+	# next face. The result must not depend on which card used this widget first.
+	_update_layout_metrics()
 	var rows: Array = _summary_rows.duplicate(true)
 	if rows.is_empty() and _summary_bbcode.is_empty():
 		rows = ActionIcons.rows_for_card(card)
@@ -1458,6 +1507,7 @@ func _refresh_summary_display(card: Dictionary) -> void:
 			InlineIconText.apply_to(desc_label, rules_text)
 		else:
 			desc_label.text = rules_text
+		_lend_art_height_to_rules(_rules_text_height(rules_text))
 		if _summary_icon_box != null:
 			_summary_icon_box.visible = false
 			_clear_children(_summary_icon_box)
@@ -1480,6 +1530,7 @@ func _rebuild_summary_icon_rows(rows: Array) -> void:
 	if _summary_icon_box == null:
 		return
 	_clear_children(_summary_icon_box)
+	_summary_fit_inset = _summary_screen_inset()
 	var row_groups: Array = []
 	var rendered_rows: Array = []
 	for row_var: Variant in rows:
@@ -1500,12 +1551,16 @@ func _rebuild_summary_icon_rows(rows: Array) -> void:
 	var icon_size: float = float(metrics.get("icon_size", _summary_icon_size()))
 	var label_size: int = int(metrics.get("label_size", 15))
 	var row_gap: int = int(metrics.get("row_gap", 6))
+	_lend_art_height_to_rules(_summary_height_estimate(rendered_rows, icon_size, label_size, row_gap, row_groups) + _scaled_card_value(SUMMARY_VERTICAL_PADDING, 4.0))
 	for group_var: Variant in row_groups:
 		if typeof(group_var) != TYPE_DICTIONARY:
 			continue
 		var group: Dictionary = group_var
 		var segments: Array = group.get("segments", [])
 		_add_summary_action_group(_summary_icon_box, segments, icon_size, label_size, row_gap)
+	if _summary_icon_box.has_meta("summary_wrapped"):
+		_lend_art_height_to_rules(_summary_icon_box.get_minimum_size().y + _scaled_card_value(SUMMARY_VERTICAL_PADDING, 4.0))
+		_summary_icon_box.remove_meta("summary_wrapped")
 
 func _add_summary_action_group(parent: Node, segments: Array, icon_size: float, label_size: int, row_gap: int) -> void:
 	if segments.is_empty():
@@ -1541,7 +1596,7 @@ func _add_summary_segment(parent: Node, segment: Array, icon_size: float, label_
 		continuation_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		continuation_label.tooltip_text = "Continues the action above."
 		continuation_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		UiTypography.set_label_size(continuation_label, maxi(_scaled_card_font_size(11, 8), label_size - 2))
+		UiTypography.set_label_size(continuation_label, maxi(_summary_min_label_size(), label_size - 2))
 		continuation_label.add_theme_color_override("font_color", Color("8b5d35"))
 		continuation_label.add_theme_color_override("font_outline_color", Color("f8f1dd"))
 		continuation_label.add_theme_constant_override("outline_size", 1)
@@ -1552,7 +1607,117 @@ func _add_summary_segment(parent: Node, segment: Array, icon_size: float, label_
 			continue
 		_add_token_to_summary_row(row, token_var as Dictionary, icon_size, label_size, conditional)
 	if row.get_child_count() > 0:
-		parent.add_child(row)
+		_fit_summary_segment(parent, row)
+	else:
+		row.free()
+
+# Keep the established fitter and every already-fitting face unchanged. Only
+# its overflowing fallback rows tighten, then wrap whole existing item nodes.
+# The fit belongs to this face's actual screen scale, including its hand pose.
+func _fit_summary_segment(parent: Node, row: HBoxContainer) -> void:
+	# Containers resolve their child minima only after entering the tree.
+	parent.add_child(row)
+	# BoxContainer centres on whole local pixels; round the inset upward so
+	# snapping cannot consume part of the required two screen pixels.
+	var width_limit: float = _summary_parchment_width() - 2.0 * _summary_screen_inset()
+	var gap: int = row.get_theme_constant("separation")
+	var row_width: float = row.get_combined_minimum_size().x
+	if row_width <= width_limit:
+		return
+	# A continuation cue belongs to the next item. Preserve their authored gap
+	# inside an indivisible unit; only gaps BETWEEN units may tighten.
+	if row.get_child_count() >= 2 and row.get_child(0).has_meta("summary_continuation_glyph"):
+		var glyph: Control = row.get_child(0)
+		var item: Control = row.get_child(1)
+		var unit := HBoxContainer.new()
+		unit.name = "SummaryContinuationItem"
+		unit.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		unit.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		unit.add_theme_constant_override("separation", gap)
+		unit.custom_minimum_size = Vector2(glyph.get_combined_minimum_size().x + float(gap) + item.get_combined_minimum_size().x, maxf(glyph.get_combined_minimum_size().y, item.get_combined_minimum_size().y))
+		unit.set_meta("summary_continuation_unit", true)
+		row.add_child(unit)
+		glyph.reparent(unit, false)
+		item.reparent(unit, false)
+		row.move_child(unit, 0)
+	if row_width > width_limit and gap < SUMMARY_MIN_ITEM_GAP:
+		# Legacy continuation rows can start below the new fitting floor. Keep
+		# those unchanged when they fit; repaired rows use at least four pixels.
+		row_width += float((SUMMARY_MIN_ITEM_GAP - gap) * (row.get_child_count() - 1))
+		gap = SUMMARY_MIN_ITEM_GAP
+		row.add_theme_constant_override("separation", gap)
+	while row_width > width_limit and gap > SUMMARY_MIN_ITEM_GAP:
+		gap -= 1
+		# Theme invalidation is deferred; account for the gap change directly
+		# rather than querying BoxContainer's stale cached minimum in this loop.
+		row_width -= float(row.get_child_count() - 1)
+		row.add_theme_constant_override("separation", gap)
+	if row_width <= width_limit or row.get_child_count() < 2:
+		# A 171px atomic caption fits the actual 171.43px budget at deck scale,
+		# although integer container centering leaves one edge short. Centre that
+		# indivisible unit geometrically, preserving its glyph, text and spacing.
+		if row_width > width_limit and row_width <= _summary_unrounded_width():
+			_mark_summary_precise_center(row)
+		return
+	# Fill the first line in source order; keep each icon/value/condition item
+	# intact. This adds no continuation wording or glyphs to the authored row.
+	var items: Array[Node] = row.get_children()
+	var first_width: float = 0.0
+	var split: int = 0
+	for item: Control in items:
+		var next_width: float = first_width + (float(gap) if split > 0 else 0.0) + ceilf(item.get_combined_minimum_size().x)
+		if split > 0 and next_width > width_limit:
+			break
+		first_width = next_width
+		split += 1
+	if split == items.size():
+		return
+	var second := HBoxContainer.new()
+	second.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	second.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	second.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	second.alignment = BoxContainer.ALIGNMENT_CENTER
+	second.add_theme_constant_override("separation", gap)
+	second.set_meta("summary_action_continuation", false)
+	row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	parent.add_child(second)
+	for index: int in range(split, items.size()):
+		items[index].reparent(second)
+	_summary_icon_box.set_meta("summary_wrapped", true)
+	for line: HBoxContainer in [row, second]:
+		if line.get_combined_minimum_size().x > width_limit and line.get_combined_minimum_size().x <= _summary_unrounded_width():
+			_mark_summary_precise_center(line)
+
+func _summary_screen_inset() -> float:
+	var screen_scale: float = get_global_transform_with_canvas().get_scale().abs().x if is_inside_tree() else 1.0
+	return ceilf(SUMMARY_EDGE_INSET_PX / maxf(screen_scale, SUMMARY_TRANSFORM_EPSILON))
+
+func _summary_unrounded_width() -> float:
+	var screen_scale: float = get_global_transform_with_canvas().get_scale().abs().x
+	return _summary_parchment_width() - 2.0 * SUMMARY_EDGE_INSET_PX / maxf(screen_scale, SUMMARY_TRANSFORM_EPSILON)
+
+func _refit_summary_for_scale() -> void:
+	_summary_scale_refit_queued = false
+	if is_node_ready() and not card_id.is_empty() and not is_equal_approx(_summary_fit_inset, _summary_screen_inset()):
+		_refresh_summary_display(_display_card_def())
+
+func _mark_summary_precise_center(row: HBoxContainer) -> void:
+	row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var group: Control = row
+	while group.get_parent() != _summary_icon_box:
+		group = group.get_parent() as Control
+	group.set_meta("summary_precise_center", true)
+	if group is Container and not group.sort_children.is_connected(_center_precise_summary_groups):
+		group.sort_children.connect(_center_precise_summary_groups)
+
+func _center_precise_summary_groups() -> void:
+	for group: Control in _summary_icon_box.get_children():
+		if not group.has_meta("summary_precise_center"): continue
+		group.position.x = (_summary_icon_box.size.x - group.size.x) * 0.5
+		if group.has_meta("summary_action_group"):
+			for row: Control in group.get_children():
+				if row.size_flags_horizontal == Control.SIZE_SHRINK_CENTER:
+					row.position.x = (group.size.x - row.size.x) * 0.5
 
 func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size: float, label_size: int, conditional: bool = false) -> void:
 	var tooltip: String = ActionIcons.token_tooltip(token)
@@ -1693,7 +1858,7 @@ func _add_token_modifier_marker(token_group: Control, tooltip: String, label_siz
 	marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	marker.tooltip_text = tooltip
 	marker.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(marker, maxi(_scaled_card_font_size(10, 7), label_size - 1))
+	UiTypography.set_label_size(marker, maxi(_summary_min_label_size(), label_size - 1))
 	marker.add_theme_color_override("font_color", Color(DAMAGE_BONUS_COLOR))
 	marker.add_theme_color_override("font_outline_color", _token_outline_color(conditional))
 	marker.add_theme_constant_override("outline_size", 2)
@@ -1717,7 +1882,9 @@ func _summary_layout_metrics(rendered_rows: Array, row_groups: Array = []) -> Di
 	var width: float = _card_visual_width()
 	var compact: bool = width <= COMPACT_CARD_WIDTH
 	var details_height: float = details_panel.custom_minimum_size.y if details_panel.custom_minimum_size.y > 0.0 else desc_label.custom_minimum_size.y
-	var available_height: float = maxf(_scaled_card_value(56.0, 28.0), details_height - _scaled_card_value(SUMMARY_VERTICAL_PADDING, 4.0))
+	# Spend the existing art allowance before reducing summary icons. Rules and
+	# numeric type keep the context's rules size even when a row cannot fit.
+	var available_height: float = maxf(_scaled_card_value(56.0, 28.0), details_height + _available_art_relief() - _scaled_card_value(SUMMARY_VERTICAL_PADDING, 4.0))
 	var available_width: float = _summary_available_width()
 	# Sparse cards earn bold, scan-level icons; dense cards still step down to fit.
 	var base_candidates: Array = [42.0, 40.0, 38.0, 36.0, 34.0, 32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [46.0, 44.0, 42.0, 40.0, 38.0, 36.0, 34.0, 32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
@@ -1771,11 +1938,25 @@ func _summary_row_gap(icon_size: float, row_count: int) -> int:
 	return maxi(1, gap)
 
 func _summary_min_label_size() -> int:
-	return _scaled_card_font_size(13, 8)
+	return _rules_text_font_size()
+
+func _available_art_relief() -> float:
+	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	var minimum: float = _scaled_card_value(68.0 if width <= COMPACT_CARD_WIDTH else ART_MIN_HEIGHT, 36.0)
+	return maxf(0.0, art_frame.custom_minimum_size.y - minimum)
+
+func _lend_art_height_to_rules(required_height: float) -> void:
+	var relief: float = minf(_available_art_relief(), maxf(0.0, required_height - details_panel.custom_minimum_size.y))
+	if relief <= 0.0:
+		return
+	art_frame.custom_minimum_size.y -= relief
+	details_panel.custom_minimum_size.y += relief
+	desc_label.custom_minimum_size.y = details_panel.custom_minimum_size.y
+	_summary_icon_box.custom_minimum_size.y = details_panel.custom_minimum_size.y
 
 func _summary_available_width() -> float:
 	# The frame occupies both edges. Keep glyphs and their outline on parchment.
-	return maxf(_scaled_card_value(52.0, 28.0), _card_visual_width() - 2.0 * _scaled_card_value(CARD_FRAME_MARGIN, 14.0) - 6.0)
+	return _summary_parchment_width()
 
 func _summary_parchment_width() -> float:
 	# The same frame-border limit in this widget's own (unscaled) layout units.
@@ -1832,7 +2013,7 @@ func _summary_width_estimate(rendered_rows: Array, icon_size: float, label_size:
 
 func _summary_action_group_width_estimate(segments: Array, icon_size: float, label_size: int, row_gap: int, conditional: bool = false) -> float:
 	var widest_content: float = 0.0
-	var continuation_label_size: int = maxi(_scaled_card_font_size(11, 8), label_size - 2)
+	var continuation_label_size: int = maxi(_summary_min_label_size(), label_size - 2)
 	var continuation_gap: int = maxi(1, row_gap - 1)
 	for segment_index: int in range(segments.size()):
 		var segment_var: Variant = segments[segment_index]
@@ -1890,7 +2071,7 @@ func _summary_token_layout(token: Dictionary, icon_size: float, label_size: int)
 	var marker_size := Vector2.ZERO
 	var marker_position := Vector2.ZERO
 	if ActionIcons.token_is_modified(token):
-		var marker_label_size: int = maxi(_scaled_card_font_size(10, 7), label_size - 1)
+		var marker_label_size: int = maxi(_summary_min_label_size(), label_size - 1)
 		marker_size = Vector2(_summary_text_width("+", marker_label_size) + 2.0, _summary_text_height(marker_label_size) + 2.0)
 		marker_position = Vector2(maxf(0.0, icon_box.x - marker_size.x * 0.72), 0.0)
 	var composite_size := Vector2(
@@ -1929,11 +2110,9 @@ func _card_visual_width() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
 	if width <= 0.0:
 		width = COMPACT_CARD_WIDTH
-	var scale_x: float = absf(scale.x)
-	if is_inside_tree():
-		scale_x = absf(get_global_transform().get_scale().x)
-	if scale_x > 0.0 and scale_x < 0.98:
-		return width * scale_x
+	# All summary measurements are local units. CardScaleFrame (and hand pose)
+	# scales the finished composition once; applying it here shrank dense rows a
+	# second time, especially the Sabatons' long scaling-condition suffixes.
 	return width
 
 func _summary_token_segments(tokens: Array) -> Array:
@@ -1999,6 +2178,9 @@ func _token_outline_color(conditional: bool) -> Color:
 
 func _display_card_def() -> Dictionary:
 	return _card_override.duplicate(true) if not _card_override.is_empty() else GameData.card_def(card_id)
+
+func display_summary_rows() -> Array:
+	return _summary_rows.duplicate(true) if not _summary_rows.is_empty() else ActionIcons.rows_for_card(_display_card_def())
 
 func _base_title_size() -> int:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x

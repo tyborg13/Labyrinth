@@ -1,0 +1,13 @@
+test_each_gloved_grip_guard_rejects_its_failure (tests.test_mq15_cloth.ClothTests) ... 
+======================================================================
+FAIL: test_each_gloved_grip_guard_rejects_its_failure (tests.test_mq15_cloth.ClothTests) (guard='correct_hand_ownership')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_cloth.py", line 76, in test_each_gloved_grip_guard_rejects_its_failure
+    self.assertFalse(geometry.grip_observation(s,p,frame)['passed'])
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.268s
+
+FAILED (failures=1)

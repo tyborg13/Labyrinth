@@ -1,0 +1,13 @@
+Running task-local command:
+  task: pt13-08
+  run: pt13-08-1793087395304143000-56129
+  HOME: /private/tmp/labyrinth-godot-home/pt13-08-1793087395304143000-56129
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-08-1793087395304143000-56129/godot.log --headless --path . --script tests/card_legibility_test.gd -- --reading-layouts
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+CARD READING LAYOUT RESULT: PASS (352 checks, 0 failures)

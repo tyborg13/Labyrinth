@@ -1,0 +1,46 @@
+Running task-local command:
+  task: pt13-03
+  run: pt13-03-1793070408575083000-80623
+  HOME: /private/tmp/labyrinth-godot-home/pt13-03-1793070408575083000-80623
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-03-1793070408575083000-80623/godot.log --headless --path . --script tests/card_legibility_test.gd
+  timeout: 600s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+CARD LEGIBILITY CONTEXT: {"context":"hand_1_rest","exemption":"hand at rest; hover/focus shows it at 17 px","floor_failure_count":228,"icon_px":16.6400003433228,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":13.3120002746582,"token_number":13.3120002746582}}
+CARD LEGIBILITY CONTEXT: {"context":"hand_1_focused","exemption":"","floor_failure_count":0,"icon_px":21.2992000579834,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":17.0393600463867,"token_number":17.0393600463867}}
+CARD LEGIBILITY CONTEXT: {"context":"hand_1_hovered","exemption":"","floor_failure_count":0,"icon_px":21.2992000579834,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":17.0393600463867,"token_number":17.0393600463867}}
+CARD LEGIBILITY CONTEXT: {"context":"hand_1_targeting","exemption":"","floor_failure_count":0,"icon_px":18.4870409965515,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.7896327972412,"token_number":14.7896327972412}}
+CARD LEGIBILITY CONTEXT: {"context":"hand_7_rest","exemption":"hand at rest; hover/focus shows it at 17 px","floor_failure_count":228,"icon_px":16.6400003433228,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":13.3120002746582,"token_number":13.3120002746582}}
+CARD LEGIBILITY CONTEXT: {"context":"hand_7_focused","exemption":"","floor_failure_count":0,"icon_px":21.2992000579834,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":17.0393600463867,"token_number":17.0393600463867}}
+CARD LEGIBILITY CONTEXT: {"context":"hand_7_hovered","exemption":"","floor_failure_count":0,"icon_px":21.2992000579834,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":17.0393600463867,"token_number":17.0393600463867}}
+CARD LEGIBILITY CONTEXT: {"context":"hand_7_targeting","exemption":"","floor_failure_count":0,"icon_px":18.4870409965515,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.7896327972412,"token_number":14.7896327972412}}
+CARD LEGIBILITY CONTEXT: {"context":"hand_controller_focused","exemption":"","floor_failure_count":0,"icon_px":24.3711996078491,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":19.4969596862793,"token_number":19.4969596862793}}
+CARD LEGIBILITY CONTEXT: {"context":"reward_offers","exemption":"","floor_failure_count":0,"icon_px":23.3599996566772,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":18.6879997253418,"token_number":18.6879997253418}}
+CARD LEGIBILITY CONTEXT: {"context":"boon_spells","exemption":"","floor_failure_count":0,"icon_px":23.3599996566772,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":18.6879997253418,"token_number":18.6879997253418}}
+CARD LEGIBILITY CONTEXT: {"context":"scavenger_offer","exemption":"shop shelf; hover/focus shows scavenger_detail at 16 px","floor_failure_count":523,"icon_px":14.0909087657928,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":11.2727270126343,"token_number":11.2727270126343}}
+CARD LEGIBILITY CONTEXT: {"context":"scavenger_sell","exemption":"thumbnail; scavenger_detail shows it at 16 px","floor_failure_count":2334,"icon_px":7.95454561710358,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":6.36363649368286,"token_number":6.36363649368286}}
+CARD LEGIBILITY CONTEXT: {"context":"scavenger_receipt","exemption":"thumbnail; scavenger_detail shows it at 16 px","floor_failure_count":2334,"icon_px":5.51136374473572,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":4.40909099578857,"token_number":4.40909099578857}}
+CARD LEGIBILITY CONTEXT: {"context":"scavenger_detail","exemption":"","floor_failure_count":0,"icon_px":20.0,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":16.0,"token_number":16.0}}
+CARD LEGIBILITY CONTEXT: {"context":"deck_view","exemption":"","floor_failure_count":0,"icon_px":17.5199997425079,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.0159997940063,"token_number":14.0159997940063}}
+CARD LEGIBILITY CONTEXT: {"context":"grimoire","exemption":"","floor_failure_count":0,"icon_px":19.1999995708466,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":15.3599996566772,"token_number":15.3599996566772}}
+CARD LEGIBILITY CONTEXT: {"context":"grimoire_equipment","exemption":"","floor_failure_count":0,"icon_px":17.5199997425079,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.0159997940063,"token_number":14.0159997940063}}
+CARD LEGIBILITY CONTEXT: {"context":"card_tooltip","exemption":"","floor_failure_count":0,"icon_px":17.9199993610382,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.3359994888306,"token_number":14.3359994888306}}
+CARD LEGIBILITY CONTEXT: {"context":"chronicle_card","exemption":"","floor_failure_count":0,"icon_px":17.9199993610382,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.3359994888306,"token_number":14.3359994888306}}
+CARD LEGIBILITY CONTEXT: {"context":"equipment_tooltip","exemption":"","floor_failure_count":0,"icon_px":17.9199993610382,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.3359994888306,"token_number":14.3359994888306}}
+CARD LEGIBILITY CONTEXT: {"context":"chronicle_equipment","exemption":"","floor_failure_count":0,"icon_px":17.9199993610382,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.3359994888306,"token_number":14.3359994888306}}
+CARD LEGIBILITY CONTEXT: {"context":"graftwright","exemption":"","floor_failure_count":0,"icon_px":17.5199997425079,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.0159997940063,"token_number":14.0159997940063}}
+CARD LEGIBILITY CONTEXT: {"context":"graftwright_inspection","exemption":"","floor_failure_count":0,"icon_px":null,"overflow_count":0,"shrunk_count":0,"text_px":{"footer":null,"rules":16.0,"token_number":null}}
+CARD LEGIBILITY CONTEXT: {"context":"campfire","exemption":"","floor_failure_count":0,"icon_px":17.5199997425079,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.0159997940063,"token_number":14.0159997940063}}
+CARD LEGIBILITY CONTEXT: {"context":"purge_picker","exemption":"","floor_failure_count":0,"icon_px":17.5199997425079,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.0159997940063,"token_number":14.0159997940063}}
+CARD LEGIBILITY CONTEXT: {"context":"pile_dialog","exemption":"","floor_failure_count":0,"icon_px":17.5199997425079,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.0159997940063,"token_number":14.0159997940063}}
+CARD LEGIBILITY CONTEXT: {"context":"purge_confirmation","exemption":"","floor_failure_count":0,"icon_px":20.0,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":16.0,"token_number":16.0}}
+CARD LEGIBILITY CONTEXT: {"context":"upgrade_preview","exemption":"","floor_failure_count":0,"icon_px":17.5199997425079,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.0159997940063,"token_number":14.0159997940063}}
+CARD LEGIBILITY CONTEXT: {"context":"card_drag_proxy","exemption":"transient while dragging","floor_failure_count":706,"icon_px":13.9776003360748,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":11.1820802688599,"token_number":11.1820802688599}}
+CARD LEGIBILITY CONTEXT: {"context":"card_fx_staged","exemption":"","floor_failure_count":0,"icon_px":17.9712009429932,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":14.3769607543945,"token_number":14.3769607543945}}
+CARD LEGIBILITY CONTEXT: {"context":"card_fx_staged_reduced_motion","exemption":"transient play effect","floor_failure_count":228,"icon_px":16.9728004932404,"overflow_count":4,"shrunk_count":0,"text_px":{"footer":null,"rules":13.5782403945923,"token_number":13.5782403945923}}
+CARD LEGIBILITY EQUIPMENT BOUNDS: splintered_shield (482.0, 417.0) (46 two-card items)
+CARD LEGIBILITY TEST RESULT: PASS (2334 definitions, 32 contexts, 74688 samples, 74890 checks, 0 failures)

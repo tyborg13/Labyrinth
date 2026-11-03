@@ -1,0 +1,148 @@
+{
+  "full_suite_result": "TEST RESULT: FAIL (12 failure(s))",
+  "runtime_line": "FULL SUITE RUNTIME: 901.712 seconds (budget 900 seconds)",
+  "concurrent_checks": [
+    "full Python suite",
+    "2-worker CPU exposure sweep",
+    "native exact-pixel check"
+  ],
+  "program_failures": [
+    {
+      "name": "retained_character_inventory_equivalence_test",
+      "returncode": 124,
+      "seconds": 180.336,
+      "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/168-retained_character_inventory_equivalence_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/168/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "perf/transition_failure_case",
+      "returncode": 124,
+      "seconds": 109.593,
+      "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/194-perf-transition_failure_case.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/194/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_14_test",
+      "returncode": 124,
+      "seconds": 38.629,
+      "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/210-fix_14_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/210/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_12_arrival_test",
+      "returncode": 124,
+      "seconds": 34.691,
+      "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/212-fix_12_arrival_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/212/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_12_reactions_0_test",
+      "returncode": 124,
+      "seconds": 26.495,
+      "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/213-fix_12_reactions_0_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/213/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_12_reactions_1_test",
+      "returncode": 124,
+      "seconds": 17.17,
+      "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/214-fix_12_reactions_1_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/214/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_12_cascades_test",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/215-fix_12_cascades_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/215/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_12_feedback_test",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/216-fix_12_feedback_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/216/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_12_bleed_test",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/217-fix_12_bleed_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/217/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "short_card_tooltips_test",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/218-short_card_tooltips_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/218/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "rr38/runtime_checks",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/219-rr38-runtime_checks.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793043477837596000-25319/Library/Application Support/Escape the Umbra Parallel rr-42-1793043477837596000-25319/program-suites.logs/219/godot.log",
+      "reason": "full suite budget exhausted"
+    }
+  ],
+  "limits_changed": false,
+  "isolated_rerun_pending": false,
+  "report_sha256": "83fb310d192895451475efedd77e86887d053768e7bbe7638440da057a18a21f",
+  "isolated_rerun": {
+    "exit_code": 1,
+    "passed_programs": 219,
+    "program_failures": [
+      {
+        "name": "perf/transition_failure_case",
+        "returncode": 124,
+        "seconds": 180.243,
+        "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793048410275244000-64591/Library/Application Support/Escape the Umbra Parallel rr-42-1793048410275244000-64591/program-suites.logs/194-perf-transition_failure_case.log",
+        "timed_out": true,
+        "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793048410275244000-64591/Library/Application Support/Escape the Umbra Parallel rr-42-1793048410275244000-64591/program-suites.logs/194/godot.log",
+        "reason": ""
+      }
+    ],
+    "runtime_line": "FULL SUITE RUNTIME: 822.731 seconds (budget 900 seconds)",
+    "result_line": "TEST RESULT: FAIL (1 failure(s))",
+    "log_sha256": "70a5d9acb374ec1bea93159f46afbc005d07ee12dce50d00ba5acb71723f26da",
+    "retained_inventory": {
+      "name": "retained_character_inventory_equivalence_test",
+      "returncode": 0,
+      "seconds": 114.548,
+      "log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793048410275244000-64591/Library/Application Support/Escape the Umbra Parallel rr-42-1793048410275244000-64591/program-suites.logs/168-retained_character_inventory_equivalence_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-42-1793048410275244000-64591/Library/Application Support/Escape the Umbra Parallel rr-42-1793048410275244000-64591/program-suites.logs/168/godot.log",
+      "reason": ""
+    },
+    "focused_transition_recheck_pending": false,
+    "focused_transition_recheck": {
+      "exit_code": 0,
+      "timeout_seconds": 180,
+      "result_line": "PERF03 TRANSITION DIFFERENTIAL RESULT: PASS",
+      "comparisons": 7,
+      "log_sha256": "ed51912318ef5857624d4480b74fc53fd43437a234f39a2e23bacd4655c8d45f"
+    }
+  }
+}

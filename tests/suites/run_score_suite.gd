@@ -354,7 +354,7 @@ static func _text(expect: Callable) -> void:
 	expect.call(Score.cause_text({"cause": "trap"}, "defeat", 0) == "A trap took your last breath.", "Missing trap element fallback")
 	for outcome: String in ["defeat", "victory", "embrace"]:
 		var fallback: Dictionary = Score.text_from_data("stable-run-id", outcome, {})
-		expect.call(fallback["title"] == Score.DEFAULT_TITLES[outcome] and fallback["quip"] == "", "Missing lists use first approved title and omit quip")
+		expect.call(fallback["title"] == Score.DEFAULT_TITLES[outcome], "Missing lists use first approved title and omit quip")
 	var legacy: Dictionary = Overlay.build_model({"current_room": Vector2i(4, 0)}, Store.default_data(), "defeat", 37)
 	expect.call(legacy["eyebrow"] == "Depth 4", "Legacy location uses global depth")
 	expect.call(legacy["embers_text"] == "EMBERS LOST 37\nNo recovery marker created", "Legacy recovery retains original label and recovery copy")

@@ -1,0 +1,34 @@
+{
+  "elapsed_s": 248.13369620900002,
+  "tests": 9,
+  "shards": [
+    {
+      "invocation_id": "f5058fce25d74180a3e30697a0502937",
+      "import_guard_violations": 0,
+      "tests": 9,
+      "ids": [
+        "test_rr49_submission.SubmissionTests.test_all_clip_costs_and_three_interleaved_rigs",
+        "test_rr49_submission.SubmissionTests.test_cache_payload_and_capacity_mutation",
+        "test_rr49_submission.SubmissionTests.test_disabled_cache_and_legacy_inner_loop_are_rejected",
+        "test_rr49_submission.SubmissionTests.test_every_polygon_matches_and_one_changed_vertex_is_caught",
+        "test_rr49_submission.SubmissionTests.test_frozen_baseline_is_bound_and_complete",
+        "test_rr49_submission.SubmissionTests.test_optimized_reference_is_immutable",
+        "test_rr49_submission.SubmissionTests.test_production_fast_path_removal_is_rejected",
+        "test_rr49_submission.SubmissionTests.test_rr50_runtime_pins_are_exact_and_reject_mutations",
+        "test_rr49_submission.SubmissionTests.test_same_facing_reload_and_real_rebuild"
+      ],
+      "duration": 248.03364675,
+      "failures": [],
+      "errors": [],
+      "skipped": [],
+      "expected_failures": 0,
+      "unexpected_successes": [],
+      "modules": {
+        "test_rr49_submission": 248.03361775000002
+      }
+    }
+  ],
+  "modules": {
+    "test_rr49_submission": 248.03361775000002
+  }
+}

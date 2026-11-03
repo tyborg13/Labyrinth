@@ -87,9 +87,11 @@ def stage(folder, source, pack_pngs=False):
             pixel_hashes[name] = hashlib.sha256(Image.open(source / name).convert('RGBA').tobytes()).hexdigest()
     for name in ('joints_px.json', 'build_report.json', 'capture_checks.json', 'facing_report.json',
                  'ownership_validation.json', 'solo_coverage.json', 'cloak_side.json', 'fit_report.json', 'fit_overlay.png',
-                 'capture_frame.json'):
+                 'capture_frame.json') + tuple(spec.get('delivery_reports', [])):
         if (source / name).exists():
             shutil.copyfile(source / name, output / name)
+    if spec.get('articulated_pose'):
+        shutil.copyfile(source / 'articulated_pose_checks.json', output / 'articulated_pose_checks.json')
     write(output / 'native_capture_manifest.json', manifest)
     write_manifest(output, digest(spec), 'full', list(manifest['images']))
     for name in ('recipe_proof.json', 'exact_native_replay.json'):

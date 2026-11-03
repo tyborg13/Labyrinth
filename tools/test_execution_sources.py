@@ -5,10 +5,6 @@ import ast
 from pathlib import Path
 
 PARTITIONED_PROGRAMS = {
-    "tests/forced_movement_query_equivalence_test.gd": tuple(
-        "tests/suites/forced_movement_query_%s_program.gd" % fixture
-        for fixture in ("open", "dense", "heart", "surface_ready", "blocked")
-    ),
     "tests/section_map_v5_test.gd": (
         "tests/suites/section_map_v5_program.gd",
         "tests/suites/section_map_legacy_hashes_0_program.gd",
@@ -27,10 +23,8 @@ def program_paths(path: str) -> tuple[str, ...]:
     return PARTITIONED_PROGRAMS.get(path, (path,))
 
 
-PYTHON_PROGRAMS = {"tests/maquette_cutout/capture_storage_test.gd": "tests/test_native_frames.py",
-                   "tests/maquette_cutout/production_crop_plan_test.gd": "tests/test_production_crop_plan.py",
-                   "tests/program_suite_runner_test.gd": "tests/test_program_suite_runner.py",
-                   "tests/maquette_cutout/reference_mask_test.gd": "tests/test_maquette_native_alpha.py"}
+PYTHON_PROGRAMS = {"tests/program_suite_runner_test.gd": "tests/test_program_suite_runner.py",
+                   "tests/helpers/approved_content_smoke.gd": "tests/test_approved_content_manifest.py"}
 
 
 def python_program_coverage(root: Path) -> dict[str, str]:

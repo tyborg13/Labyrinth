@@ -1,0 +1,10 @@
+{
+  "native_pixels": false,
+  "unresolved_design_questions": [],
+  "resolutions": {
+    "death_floor_knee_resolution": "Director feedback 1 drops the kneel. Use the protected forward slump: hip drop 6 px, torso lean 24 degrees and forward 8 px, helm bow 16 degrees. Hip and torso floors remain 3 px / 12 degrees.",
+    "detached_original_coat_boot_paint": "Re-own by rest contact or clear an isolated speck under 6 px / a fragment with no rest contact. Every source fragment and UV is in partition.json and feedback1_receipts.json.",
+    "painted_exposure_authority": "Exact front underlay RGBA or clear for every exposed hidden source UV, including outside the original footprints. See rr42_feedback1_repairs.json."
+  },
+  "remaining_acceptance": "Director windowed renderer proof and judgment at 2–4x."
+}

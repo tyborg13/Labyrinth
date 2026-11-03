@@ -1,0 +1,81 @@
+{
+  "status": "verified_peer_signed_off",
+  "uncommitted": true,
+  "base_head": "50480d42cb0d0ff9f3cc0825dab5e49ce74b9231",
+  "spec_hash": "f32626af7e3e98ec5aaf5dc319118d4a9549f34c6cc5df6d5a0543638094ff5b",
+  "source_inventory_sha256": "38b84a28670241da4ef51d18f3bd0d77e3a696ca74145bd2e77ba43ed4d06e0c",
+  "source_count": 204,
+  "native_build_passed": true,
+  "native_audit_passed": true,
+  "native_checks": {
+    "pose_values": true,
+    "feet_planted": true,
+    "staff_butt_outward_of_far_foot": true,
+    "far_elbow_not_forward": true,
+    "forearm_forward": true,
+    "shoulder_rule": true,
+    "level_shoulders": true,
+    "true_turn": true,
+    "facing": true,
+    "design_resolved": true,
+    "cloak": true,
+    "tabard": true,
+    "front_far_exposure": true,
+    "r3_shapes_preserved": true,
+    "cloak_occlusion": true,
+    "native_mesh_binding": true,
+    "native_endpoints": true,
+    "native_build": true,
+    "native_mutations": true,
+    "restored_native_geometry": true
+  },
+  "shoulder_error_px": 13.94747918783306,
+  "shoulder_limit_px": 15,
+  "coverage_domain": "world_shoulder_plane",
+  "rear_coverage": 0.9786297691418342,
+  "projected_line_report_only": 0.8803976120095056,
+  "far_exposure_over_H": 0.028891712649013593,
+  "strip_width_scale": 1.284090735507476,
+  "clamped_strips": [
+    2
+  ],
+  "tests": {
+    "mq19": {
+      "count": 23,
+      "passed": true
+    },
+    "art_identity": {
+      "count": 111,
+      "passed": true
+    },
+    "archive_focused": {
+      "count": 2,
+      "passed": true
+    }
+  },
+  "clean_regeneration": {
+    "passed": true,
+    "clays": 2,
+    "part_maps": 2,
+    "cache_reused": false,
+    "saved_model_reused": false
+  },
+  "curated_delivery": {
+    "path": "feedback3_delivery",
+    "bytes": 4460334,
+    "budget_bytes": 6000000,
+    "all_file_hashes_verified": true,
+    "exact_manifest_verified": true,
+    "archive_reconstruction_verified": true
+  },
+  "inspection": "Native contact sheet and2x crops; no game integration so playable fixture not applicable",
+  "peer_signoff": {
+    "verdict": "SIGNOFF",
+    "reviewer": "feedback3_review",
+    "report": "feedback3_peer_review.md",
+    "source_inventory_sha256": "38b84a28670241da4ef51d18f3bd0d77e3a696ca74145bd2e77ba43ed4d06e0c",
+    "spec_hash": "f32626af7e3e98ec5aaf5dc319118d4a9549f34c6cc5df6d5a0543638094ff5b",
+    "bundle_manifest_sha256": "0269af47097f05bb1b39f3d86e58fa56a5e8f14b23201a4080eeea7011d9a99e",
+    "bundle_manifest_path": "feedback3_delivery/bundle_sha256.json"
+  }
+}

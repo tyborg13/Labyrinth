@@ -1,0 +1,7 @@
+{
+  "note": "flu-01 Flurry retirement supersedes the historical UX-04 glossary entry and Crown of Surplus exclusion copy. Keep the protected staged records unchanged.",
+  "retired_glossary_ids": ["flurry"],
+  "relic_descriptions": {
+    "crown_of_surplus": "Cards without @kw(empower) gain one: pay 3 @term(time) to repeat the card's first action. @kw(rite|Rites) and @kw(item|Items) are excluded."
+  }
+}

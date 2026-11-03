@@ -1,0 +1,92 @@
+{
+  "task": "mq-20",
+  "revision": "feedback1",
+  "status": "Uncommitted director handoff; authorized clearance sweep exhausted and literal robe layout off-wrap.",
+  "clearance_report": "feedback1_clearance.json",
+  "selected_fist_outward_over_L": null,
+  "production_pose_retained_over_L": 0.3,
+  "bridge_jobs_submitted": 0,
+  "fresh_native_captures": [],
+  "fresh_regeneration_run": false,
+  "delivery_curated": false,
+  "full_suites_run": false,
+  "checks": [
+    {
+      "command": "python3 -B -m unittest tests.test_mq20_maquette -v",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 26 tests in 20.814s",
+        "OK"
+      ],
+      "log": "mq20-feedback1-focused-final.log.gz",
+      "log_sha256": "a144b23110c8db16713c1475f6bda83f103345f03ee3ed37e2cc2c0834a4cda2",
+      "uncompressed_bytes": 2972
+    },
+    {
+      "command": "python3 -B -m unittest tests.test_mq18_maquette tests.test_maquette_rear_turn -q",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 53 tests in 40.867s",
+        "OK"
+      ],
+      "log": "mq20-feedback1-baseline.log.gz",
+      "log_sha256": "c5237f8ddff51e8c09f3366574c032ff19b6c2023f377f73c1386c7f30c48c0e",
+      "uncompressed_bytes": 34837
+    },
+    {
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 111 tests in 61.644s",
+        "OK"
+      ],
+      "log": "mq20-feedback1-art-identity.log.gz",
+      "log_sha256": "efe576feb17322e6a7b0a8c61a1e60cd7fd1fdfd6c1a3a3bda08422cb650467d",
+      "uncompressed_bytes": 2462
+    },
+    {
+      "command": "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq20.clearance_sweep",
+      "exit_code": 1,
+      "result_lines": [
+        "MQ20_CLEARANCE_STEP: fist=0.30 L; gap=0.000000000000 H; FAIL",
+        "MQ20_CLEARANCE_STEP: fist=0.32 L; gap=0.000000000000 H; FAIL",
+        "MQ20_CLEARANCE_STEP: fist=0.34 L; gap=0.000000000000 H; FAIL",
+        "MQ20_CLEARANCE_STEP: fist=0.36 L; gap=0.000000000000 H; FAIL",
+        "MQ20_CLEARANCE_STEP: fist=0.38 L; gap=0.000000000000 H; FAIL",
+        "MQ20_CLEARANCE_STEP: fist=0.40 L; gap=0.000000000000 H; FAIL",
+        "MQ20_CLEARANCE_STEP: fist=0.42 L; gap=0.001063767589 H; FAIL",
+        "MQ20_CLEARANCE_STEP: fist=0.44 L; gap=0.006971019634 H; FAIL",
+        "MQ20_CLEARANCE_SWEEP: FAIL; director stop condition reached"
+      ],
+      "log": "mq20-feedback1-clearance.log.gz",
+      "log_sha256": "2fed73d13a3b8c14bf9cd5c3915386abe03c01771e2101a1b6481cda381ca833",
+      "uncompressed_bytes": 548
+    }
+  ],
+  "mq18_baseline_failures_reproduced": false,
+  "shared_builder_changes": false,
+  "foreign_figure_changes": false,
+  "peer_review": "Not a completed native delivery; director stop condition reached before commit/review.",
+  "git_operations": "Director owns contract, preflight and commit per feedback 1c; worker changes left uncommitted.",
+  "source_sha256": {
+    "__init__.py": "20b68ce830837a4a17cd10ea7b8a0110c3034ca7ab72f28d2f27f76ab4c72309",
+    "acceptance.py": "1671bbc4a91443edc5790f6e86f008b8bcf4b336582c8054b8144b91d8b44897",
+    "chosen_defaults.json": "83cb1bc19f0fba453c1b916832d898fb2d9a7f036f49f42dbb2539a9fc57e2db",
+    "clearance_sweep.py": "92a6ca604addd9a212d48bd2fe61b69aa38d5cd9d34e37d9d4c4b2d90a6d010e",
+    "design_details.json": "84e432290871e9bad47770785169a9fc547f9c885a06135c7e0e7fc03e44349b",
+    "design_feedback1.py": "6a3775c567e508089928430282e493a5b47ed7bdbd4a7bd302341337758f0820",
+    "directives.json": "ac3d6cefff8bcc4d506b8bc0ab2829366c2fc0c47e56992c986d9d96559ad018",
+    "feedback1_clearance.json": "f7602fb7954f353e08e0e5a33276c0065672a5fc3f0b85c62b2dd1da9c022c57",
+    "geometry.py": "ea8f0da3a50e9d5fbda2f17e650d3b5d42ac53b1b773af18fea820fa2fd5c16f",
+    "lantern.py": "0c09a07bac0f4cd05c5fb37d4997ecf041e15b27566738ecdf92d9f2b1ac5941",
+    "measure.py": "653ecf3ae48f5865e54593832722ea2c8cda053f13f1f34eaa0873b90de37265",
+    "native_probe.py": "1a66ad03b63f1517a79268b4ecaaf75d8e53aa65e752c903601787c8176efa7e",
+    "pauldrons.py": "e9e23469c482ac79a9b6f9c13238ebf611847a45bd547f6f1c58988ecb1d31aa",
+    "pose.py": "87b44719906f5a510c088dddf39cb0b7b17b3d5d2cef83f3e275416822aa1194",
+    "proof.py": "909073c28a1ea58d0794e50235ee5b06e3c64e338b850e5a588d5727d23ffba7",
+    "recipe.py": "c4b417b5fa9aa52768a76a3402960c4f03491dd9f7bf6a43d9af0295c5288821",
+    "regeneration.py": "658e0e4a7a28d53c5899a6988e524417927d72d571a94c7cf4989e41dc6c8ea9",
+    "robe.py": "93f3acfa9ff48f41da03395a2a314839ae5b6523d2e88cf19daddc818dc79f27",
+    "surface_checks.py": "ee3daa09adc1d3df7e8065f9b1cdcc92c28f57a1bd092db5d7da1ae3f8fadeba"
+  }
+}

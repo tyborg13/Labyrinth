@@ -1,0 +1,88 @@
+{
+  "baseline_passed": true,
+  "passed": true,
+  "mutations": [
+    {
+      "mutation": "remove_lower_half_ribbon",
+      "result": "caught",
+      "required_guard": "strip_lengths",
+      "failed_checks": [
+        "strip_lengths",
+        "flat_lower_ribbons"
+      ],
+      "measured_strip_count": 9,
+      "ignored_orphan_vertices": 113
+    },
+    {
+      "mutation": "remove_whole_ribbon",
+      "result": "caught",
+      "required_guard": "nine_actual_strips",
+      "failed_checks": [
+        "nine_actual_strips",
+        "strip_widths",
+        "strip_lengths",
+        "near_longest_tip",
+        "flat_lower_ribbons",
+        "continuous_shared_strip_roots"
+      ],
+      "measured_strip_count": 8,
+      "ignored_orphan_vertices": 211
+    },
+    {
+      "mutation": "detach_lower_half_ribbon",
+      "result": "caught",
+      "required_guard": "continuous_shared_strip_roots",
+      "failed_checks": [
+        "three_actual_holes",
+        "strip_lengths",
+        "flat_lower_ribbons",
+        "continuous_shared_strip_roots"
+      ],
+      "measured_strip_count": 9,
+      "ignored_orphan_vertices": 14
+    },
+    {
+      "mutation": "balloon_interior_020H",
+      "result": "caught",
+      "required_guard": "standoff_profile",
+      "failed_checks": [
+        "standoff_profile",
+        "width_profile",
+        "cloth_row_surface_fit"
+      ],
+      "measured_strip_count": 9,
+      "ignored_orphan_vertices": 0
+    },
+    {
+      "mutation": "stretch_interior_width",
+      "result": "caught",
+      "required_guard": "width_profile",
+      "failed_checks": [
+        "width_profile",
+        "cloth_row_surface_fit"
+      ],
+      "measured_strip_count": 9,
+      "ignored_orphan_vertices": 0
+    },
+    {
+      "mutation": "inflate_interior_folds",
+      "result": "caught",
+      "required_guard": "fold_amplitude_growth",
+      "failed_checks": [
+        "elliptical_tears",
+        "fold_amplitude_growth",
+        "standoff_profile",
+        "width_profile"
+      ],
+      "measured_strip_count": 9,
+      "ignored_orphan_vertices": 0
+    }
+  ],
+  "geometry_modified_on_disk": false,
+  "fixture_defaults": {
+    "interior_displacement_over_H": 0.2,
+    "fold_delta_over_H": 0.008,
+    "width_scale": 1.08,
+    "row_index_fraction": 0.5
+  }
+}

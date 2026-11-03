@@ -1,0 +1,1 @@
+Subject: a stone hearth burning warmly in vast empty darkness, ringed by seated dark shapes that have become ash-grey statues, all facing the fire with their hands out. One gap is left in the ring. Mood: comforting and deeply wrong.

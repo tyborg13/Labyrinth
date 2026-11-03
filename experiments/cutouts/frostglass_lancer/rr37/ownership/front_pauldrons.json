@@ -1,0 +1,13 @@
+{
+  "owner": "torso",
+  "bone": "torso",
+  "file": "ownership/front_pauldrons.png",
+  "sha256": "762e82ab10b314f02a70d9242e37d6313aa3dcce45066d3f8c619a3d58005f70",
+  "pixels": 1288,
+  "transfers": {
+    "head": 49,
+    "torso": 1066,
+    "arm_near": 91,
+    "arm_far": 82
+  }
+}

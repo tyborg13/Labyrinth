@@ -1,5 +1,7 @@
 extends RefCounted
 
+const TileGlow = preload("res://scripts/tile_glow.gd")
+
 const Rules = preload("res://scripts/enemy_mechanics/burrow.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
@@ -58,13 +60,10 @@ static func draw_body(view: Control, unit: Dictionary) -> bool:
 		view.draw_circle(spot, rng.randf_range(1.0, 1.5), Color(MOUND_DARK if index < 4 else EARTH, alpha))
 	return true
 
-static func draw_mark(view: Control, tile: Vector2i) -> void:
-	for mark: Dictionary in marks(view.combat_state):
+static func draw_mark(view: Control, tile: Vector2i, draw_marks: Variant = null) -> void:
+	for mark: Dictionary in marks(view.combat_state) if draw_marks == null else draw_marks:
 		if mark["tile"] != tile: continue
-		var wash: Color = EARTH
-		wash.a = 0.20
-		view.draw_colored_polygon(view._tile_polygon(tile), wash)
-		view._draw_tile_ring(tile, EARTH, 3.2, 0.80)
+		TileGlow.draw_wash(view, view._tile_polygon(tile), EARTH, 0.20)
 
 static func draw_badges(view: Control) -> void:
 	for mark: Dictionary in marks(view.combat_state):
@@ -80,8 +79,10 @@ static func draw_badges(view: Control) -> void:
 		var texture: Texture2D = Icons.icon_texture(ERUPT_ICON)
 		if texture != null: view.draw_texture_rect(texture, rect, false)
 		var amount: int = int(mark["damage"])
-		view._register_tooltip(rect, Icons.tooltip("erupt") + "\n%d damage.%s" % [amount,
-			"\nYou are standing on it." if tile == view.combat_state.get("player", {}).get("pos") else ""])
+		var tooltip: String = Icons.tooltip("erupt") + "\n%d damage.%s" % [amount,
+			"\nYou are standing on it." if tile == view.combat_state.get("player", {}).get("pos") else ""]
+		if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(rect, tooltip, tile)
+		else: view._register_tooltip(rect, tooltip)
 		var font: Font = view.get_theme_default_font()
 		if font != null:
 			var size: int = int(round(clampf(icon_size * 0.50, 14.0, 20.0)))
@@ -95,7 +96,7 @@ static func erupt_damage(enemy: Dictionary) -> int:
 static func badges(unit: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	if bool(unit.get("burrowed", false)):
-		result.append({"icon": BURROW_ICON, "count": 0, "icon_tint": Color.WHITE, "fill": EARTH, "border": EARTH,
+		result.append({"status_class": "trait", "icon": BURROW_ICON, "count": 0, "icon_tint": Color.WHITE, "fill": EARTH, "border": EARTH,
 			"tooltip": Icons.tooltip("burrow")})
 	return result
 
@@ -130,7 +131,10 @@ static func animate(scene: Node, state: Dictionary, step: Dictionary) -> void:
 	var before: Dictionary = state.duplicate(true)
 	state.clear()
 	state.merge(after.duplicate(true), true)
-	scene._render_board_state(state, {})
+	var impact: Dictionary = {}
+	if str(step["kind"]) == "erupt" and scene.get("_hero_facing").enabled:
+		impact["impact_actor_keys"] = step.get("impact_actor_keys", [])
+	scene._render_board_state(state, impact)
 	if str(step["kind"]) == "erupt":
 		var dust: Dictionary = {"actor_key": step["actor_key"], "tile": step["to"], "started_msec": Time.get_ticks_msec() - int(RISE_SECONDS * 1000.0)}
 		await scene._animate_surface_change(before, state, {"en01_erupt_dust": dust} if not bool(scene._reduced_motion_enabled()) else {})

@@ -86,6 +86,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--dry-run", action="store_true", help="Print commands without running Godot.")
     parser.add_argument("--biome", default="", help="Force a presentation biome for inspection; never saved.")
+    parser.add_argument("--hero-facing", choices=("persist", "snap"), default="persist")
     return parser
 
 
@@ -95,6 +96,7 @@ def main(argv: list[str] | None = None) -> int:
     args, fixture_args = parser.parse_known_args(raw_args)
     if args.biome:
         fixture_args.extend(["--biome", args.biome])
+    fixture_args.extend(["--hero-facing", args.hero_facing])
     project = Path(args.project).expanduser().resolve()
     task_id = slugify(args.task_id or infer_task_id(project))
     run_id = slugify(args.run_id or f"{task_id}-inspection")
@@ -156,8 +158,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.allow_steam:
         direct_launch_command.append("--allow-steam")
     direct_launch_command.extend(["--", args.godot, "--path", "."])
+    direct_launch_command.extend(["--", "--hero-facing", args.hero_facing])
     if args.biome:
-        direct_launch_command.extend(["--", "--biome", args.biome])
+        direct_launch_command.extend(["--biome", args.biome])
     manifest_path = Path(args.manifest).expanduser().resolve() if args.manifest else (
         Path("/private/tmp/labyrinth-inspection-manifests") / (run_id + ".json")
     )
@@ -206,11 +209,12 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     sys.stdout.flush()
-    result = subprocess.run(generator_command, cwd=str(project))
+    source_env = dict(os.environ, LABYRINTH_CEL_LOOK="off")
+    result = subprocess.run(generator_command, cwd=str(project), env=source_env)
     if result.returncode != 0:
         return result.returncode
     if args.verify:
-        result = subprocess.run(verifier_command, cwd=str(project))
+        result = subprocess.run(verifier_command, cwd=str(project), env=source_env)
         if result.returncode != 0:
             return result.returncode
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -243,7 +247,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     print("Inspection fixture manifest: %s" % manifest_path)
     if args.launch:
-        return subprocess.run(direct_launch_command, cwd=str(project)).returncode
+        result = subprocess.run([sys.executable, "tools/cel_look.py", "build", "--if-stale"], cwd=str(project))
+        if result.returncode != 0:
+            return result.returncode
+        play_env = os.environ.copy()
+        play_env.setdefault("LABYRINTH_CEL_LOOK", "all")
+        return subprocess.run(direct_launch_command, cwd=str(project), env=play_env).returncode
     return 0
 
 

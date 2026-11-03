@@ -1,0 +1,541 @@
+{
+  "_doc": "Hand-written expectations for tt-01. Topic ownership and encounter outcomes are independent of GrimoireLibrary/discovery output. New terms and defaults follow the director; trigger examples follow authored card/enemy rules and the independent review probe. Do not regenerate from the implementation being tested.",
+  "owners": {
+    "reflect": "keyword:reflect",
+    "dive": "keyword:dive",
+    "flying": "keyword:flying",
+    "lob": "keyword:lob",
+    "charge": "keyword:charge",
+    "mirror": "keyword:mirror",
+    "icefall": "keyword:icefall",
+    "wind": "keyword:wind",
+    "veil": "keyword:veil",
+    "burrow": "keyword:burrow",
+    "erupt": "keyword:erupt",
+    "burst": "keyword:burst",
+    "surface": "keyword:surface",
+    "surface_fire": "keyword:surface_fire",
+    "surface_ice": "keyword:surface_ice",
+    "surface_electrified": "keyword:surface_electrified",
+    "chilled": "keyword:chilled",
+    "detonate": "keyword:detonate",
+    "surface_consume": "keyword:surface_consume",
+    "surface_relocate": "keyword:surface_relocate",
+    "melee": "keyword:melee",
+    "ranged": "keyword:ranged",
+    "pierce": "keyword:pierce",
+    "move": "keyword:move",
+    "blink": "keyword:blink",
+    "range": "keyword:range",
+    "block": "keyword:block",
+    "stoneskin": "keyword:stoneskin",
+    "heal": "keyword:heal",
+    "draw": "keyword:draw",
+    "card_play": "keyword:card_play",
+    "flurry": "keyword:flurry",
+    "follow_up": "keyword:follow_up",
+    "empower": "keyword:empower",
+    "stagger": "keyword:stagger",
+    "time": "keyword:time",
+    "illusion": "keyword:illusion",
+    "illuminate": "keyword:illuminate",
+    "vision": "keyword:vision",
+    "truesight": "keyword:truesight",
+    "dispel_umbra": "keyword:dispel_umbra",
+    "eclipse": "keyword:eclipse",
+    "bleed": "keyword:bleed",
+    "expose": "keyword:expose",
+    "sunder": "keyword:sunder",
+    "exhaust": "keyword:exhaust",
+    "consume": "keyword:consume",
+    "retaliate": "keyword:retaliate",
+    "quicken": "keyword:quicken",
+    "rite": "keyword:rite",
+    "next_attack": "keyword:next_attack",
+    "swap": "combat:swap",
+    "petrify": "combat:petrify",
+    "skate": "keyword:skate",
+    "anchored": "combat:stances",
+    "fireproof": "keyword:fireproof",
+    "surface_convert": "keyword:surface_convert",
+    "discharge": "keyword:discharge",
+    "all_enemies": "combat:sweeping_strikes",
+    "illusion_swap": "keyword:illusion_swap",
+    "shatter_illusion": "keyword:shatter_illusion",
+    "freeze": "keyword:freeze",
+    "chain": "keyword:chain",
+    "push": "keyword:push",
+    "pull": "keyword:pull",
+    "collision": "keyword:collision",
+    "health": "keyword:health",
+    "health_cost": "keyword:health_cost",
+    "aoe": "keyword:aoe",
+    "lightning_strikes": "combat:lightning_strikes",
+    "summon_minions": "combat:summons",
+    "raise_terrain": "combat:outcrops",
+    "terrain_burst": "keyword:terrain_burst",
+    "cinder_marks": "combat:cinder_marks",
+    "detonate_cinders": "keyword:detonate_cinders",
+    "gale_force": "combat:hollow_gale",
+    "frost_armor": "combat:crystal_armor",
+    "guard_ally": "keyword:guard_ally",
+    "heal_ally": "keyword:heal_ally",
+    "umbra_eclipse": "combat:boss_eclipse",
+    "radiance": "keyword:radiance",
+    "ember": "keyword:ember",
+    "run": "basic:run",
+    "map_rooms": "basic:map",
+    "loadout": "basic:loadout",
+    "rewards": "basic:rewards",
+    "relics": "basic:relics",
+    "combat_board": "combat:board",
+    "turn_clock": "combat:turn_clock",
+    "health_defense": "combat:health_defense",
+    "defiance": "combat:defiance",
+    "targeting": "combat:targeting",
+    "fatigue": "combat:fatigue",
+    "traps": "combat:traps",
+    "umbra": "combat:umbra",
+    "worldspines": "combat:worldspines",
+    "element_fire": "keyword:element_fire",
+    "element_ice": "keyword:element_ice",
+    "element_lightning": "keyword:element_lightning",
+    "element_air": "keyword:element_air",
+    "element_earth": "keyword:element_earth",
+    "skill_point": "keyword:skill_point",
+    "moltshard": "keyword:moltshard",
+    "wait": "keyword:wait",
+    "turns": "keyword:turns",
+    "movement": "keyword:movement",
+    "item": "keyword:item",
+    "outcrop": "keyword:outcrop"
+  },
+  "new_terms": [
+    "reflect",
+    "dive",
+    "flying",
+    "lob",
+    "charge",
+    "mirror",
+    "icefall",
+    "wind",
+    "veil",
+    "burrow",
+    "erupt",
+    "burst",
+    "range",
+    "time",
+    "eclipse",
+    "skate",
+    "fireproof",
+    "surface_convert",
+    "discharge",
+    "illusion_swap",
+    "shatter_illusion",
+    "health",
+    "terrain_burst",
+    "detonate_cinders",
+    "guard_ally",
+    "heal_ally",
+    "ember",
+    "element_fire",
+    "element_ice",
+    "element_lightning",
+    "element_air",
+    "element_earth",
+    "skill_point",
+    "moltshard",
+    "wait",
+    "turns",
+    "movement",
+    "item",
+    "outcrop"
+  ],
+  "general_defaults": [
+    "range",
+    "time",
+    "turns",
+    "movement",
+    "health",
+    "wait",
+    "item",
+    "ember"
+  ],
+  "fallback_defaults": [
+    "skill_point",
+    "moltshard"
+  ],
+  "triggers": {
+    "reflect": "glacial_mirror",
+    "dive": "gust_shrike",
+    "flying": "gust_shrike",
+    "lob": "slag_mortar",
+    "charge": "storm_capacitor",
+    "mirror": "hollow_mimic",
+    "icefall": "hoarfrost_seer",
+    "wind": "gale_herald",
+    "veil": "gloam_stalker",
+    "burrow": "burrow_grub",
+    "erupt": "burrow_grub",
+    "burst": "ember_tick",
+    "eclipse": "eclipse",
+    "skate": "skate",
+    "fireproof": "cinder_trail",
+    "surface_convert": "frost_circuit",
+    "discharge": "discharge",
+    "illusion_swap": "empty_husk",
+    "shatter_illusion": "shattered_reflection",
+    "terrain_burst": "rockburst",
+    "detonate_cinders": "vyraketh",
+    "guard_ally": "warden",
+    "heal_ally": "grave_surgeon",
+    "element_fire": "guiding_flare",
+    "element_ice": "prism_sight",
+    "element_lightning": "storm_beacon",
+    "element_air": "dawnstep",
+    "element_earth": "glowstone_ward",
+    "outcrop": "geode"
+  },
+  "encounters": {
+    "unrelated_card": {
+      "run": {
+        "deck_cards": [
+          "quick_stab"
+        ]
+      },
+      "unlocks": []
+    },
+    "unrelated_enemy": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "crawler"
+          }
+        ]
+      },
+      "unlocks": []
+    },
+    "fringe": {
+      "combat": {
+        "umbra": {
+          "stage": "fringe"
+        }
+      },
+      "unlocks": []
+    },
+    "clear": {
+      "combat": {
+        "umbra": {
+          "stage": "clear"
+        }
+      },
+      "unlocks": []
+    },
+    "glacial_mirror": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "glacial_mirror"
+          }
+        ]
+      },
+      "unlocks": [
+        "reflect",
+        "guard_ally"
+      ]
+    },
+    "gust_shrike": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "gust_shrike"
+          }
+        ]
+      },
+      "unlocks": [
+        "dive",
+        "flying"
+      ]
+    },
+    "slag_mortar": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "slag_mortar"
+          }
+        ]
+      },
+      "unlocks": [
+        "lob"
+      ]
+    },
+    "storm_capacitor": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "storm_capacitor"
+          }
+        ]
+      },
+      "unlocks": [
+        "charge"
+      ]
+    },
+    "hollow_mimic": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "hollow_mimic"
+          }
+        ]
+      },
+      "unlocks": [
+        "mirror"
+      ]
+    },
+    "hoarfrost_seer": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "hoarfrost_seer"
+          }
+        ]
+      },
+      "unlocks": [
+        "icefall"
+      ]
+    },
+    "gale_herald": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "gale_herald"
+          }
+        ]
+      },
+      "unlocks": [
+        "wind"
+      ]
+    },
+    "gloam_stalker": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "gloam_stalker"
+          }
+        ]
+      },
+      "unlocks": [
+        "veil"
+      ]
+    },
+    "burrow_grub": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "burrow_grub"
+          }
+        ]
+      },
+      "unlocks": [
+        "burrow",
+        "erupt"
+      ]
+    },
+    "ember_tick": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "ember_tick"
+          }
+        ]
+      },
+      "unlocks": [
+        "burst"
+      ]
+    },
+    "vyraketh": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "vyraketh"
+          }
+        ]
+      },
+      "unlocks": [
+        "detonate_cinders"
+      ]
+    },
+    "warden": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "warden"
+          }
+        ]
+      },
+      "unlocks": [
+        "guard_ally"
+      ]
+    },
+    "grave_surgeon": {
+      "combat": {
+        "enemies": [
+          {
+            "type": "grave_surgeon"
+          }
+        ]
+      },
+      "unlocks": [
+        "heal_ally",
+        "guard_ally"
+      ]
+    },
+    "skate": {
+      "run": {
+        "deck_cards": [
+          "skate"
+        ]
+      },
+      "unlocks": [
+        "skate",
+        "element_ice"
+      ]
+    },
+    "cinder_trail": {
+      "run": {
+        "deck_cards": [
+          "cinder_trail"
+        ]
+      },
+      "unlocks": [
+        "fireproof",
+        "element_fire"
+      ]
+    },
+    "frost_circuit": {
+      "run": {
+        "deck_cards": [
+          "frost_circuit"
+        ]
+      },
+      "unlocks": [
+        "surface_convert",
+        "element_ice"
+      ]
+    },
+    "discharge": {
+      "run": {
+        "deck_cards": [
+          "discharge"
+        ]
+      },
+      "unlocks": [
+        "discharge",
+        "element_lightning"
+      ]
+    },
+    "empty_husk": {
+      "run": {
+        "deck_cards": [
+          "empty_husk"
+        ]
+      },
+      "unlocks": [
+        "illusion_swap"
+      ]
+    },
+    "shattered_reflection": {
+      "run": {
+        "deck_cards": [
+          "shattered_reflection"
+        ]
+      },
+      "unlocks": [
+        "shatter_illusion"
+      ]
+    },
+    "rockburst": {
+      "run": {
+        "deck_cards": [
+          "rockburst"
+        ]
+      },
+      "unlocks": [
+        "terrain_burst",
+        "element_earth"
+      ]
+    },
+    "guiding_flare": {
+      "run": {
+        "deck_cards": [
+          "guiding_flare"
+        ]
+      },
+      "unlocks": [
+        "element_fire"
+      ]
+    },
+    "prism_sight": {
+      "run": {
+        "deck_cards": [
+          "prism_sight"
+        ]
+      },
+      "unlocks": [
+        "element_ice"
+      ]
+    },
+    "storm_beacon": {
+      "run": {
+        "deck_cards": [
+          "storm_beacon"
+        ]
+      },
+      "unlocks": [
+        "element_lightning"
+      ]
+    },
+    "dawnstep": {
+      "run": {
+        "deck_cards": [
+          "dawnstep"
+        ]
+      },
+      "unlocks": [
+        "element_air"
+      ]
+    },
+    "glowstone_ward": {
+      "run": {
+        "deck_cards": [
+          "glowstone_ward"
+        ]
+      },
+      "unlocks": [
+        "element_earth"
+      ]
+    },
+    "geode": {
+      "run": {
+        "deck_cards": [
+          "geode"
+        ]
+      },
+      "unlocks": [
+        "outcrop",
+        "element_earth"
+      ]
+    },
+    "eclipse": {
+      "combat": {
+        "umbra": {
+          "stage": "eclipse"
+        }
+      },
+      "unlocks": [
+        "eclipse"
+      ]
+    }
+  }
+}

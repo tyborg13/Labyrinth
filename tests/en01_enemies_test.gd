@@ -31,12 +31,17 @@ func _smoke_draw_branches() -> void:
 	var ticks: Dictionary = Suite.fixture(["ember_tick", "ember_tick"])
 	ticks["enemies"][0]["kindled_bonus"] = 2
 	board.set("_hover_tile", ticks["enemies"][0]["pos"])
-	board.set_combat_state(ticks)
+	board.set_combat_state(ticks, [], [], Vector2i(-1, -1), "", "", {}, {}, {"kindle_pop": {"actor_key": "enemy_1", "elapsed": 0.125}})
 	var render_tick: Dictionary = board._visible_units().filter(func(unit: Dictionary) -> bool: return str(unit.get("key", "")) == "enemy_1")[0]
 	_expect(int(render_tick.get("kindled_bonus", 0)) == 2, "Resolved Kindle reaches the glow renderer")
 	for _frame: int in range(3): await process_frame
 	var after: Dictionary = engine._damage_enemy(ticks.duplicate(true), 0, 6)
-	board.set_combat_state(after, [], [], Vector2i(-1, -1), "", "", {}, {}, {"en01_burst": after["death_burst_events"][0], "en01_burst_progress": 0.5})
+	var effects: Dictionary = {"en01_burst": after["death_burst_events"][0]}
+	preload("res://scripts/enemy_mechanics/burst_fx.gd").decorate(effects, 0.06)
+	board.set_combat_state(after, [], [], Vector2i(-1, -1), "", "", {}, {}, effects)
+	for _frame: int in range(3): await process_frame
+	effects["reduced_motion"] = true
+	board.set_combat_state(after, [], [], Vector2i(-1, -1), "", "", {}, {}, effects)
 	for _frame: int in range(3): await process_frame
 	board.queue_free()
 	await process_frame

@@ -1,0 +1,290 @@
+{
+  "task": "rr-45",
+  "branch": "codex/rr-45",
+  "committed": false,
+  "status": "final Python suite complete; director native proof pending",
+  "native_renderer_proof": false,
+  "TODO_DESIGN": {},
+  "checks": {
+    "focused": {
+      "command": "LABYRINTH_TASK_ID=rr-45 python3 -m unittest tests.test_rr37_lancer tests.test_rr43_lancer tests.test_rr45_lancer",
+      "exit_code": 0,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/focused.log",
+      "sha256": "f9866ff40c63ef8e6aefd577dc76ff1c5d8ab064fcd88d2aafa328e2074f500e",
+      "result_lines": [
+        "RR43 DIRECTOR REPLAY: PASS (raw, recipe, prompt and processed bytes exact)",
+        "RR43 RIGID SPEAR: PASS (every front frame; shaft line through grip; hand occlusion only)",
+        "RR43 PRESERVATION: PASS (front/rest, rr-41 lining and motion protected; exact wood transfer)",
+        "RR43 GRIP REGISTRATION: PASS (painted grip required; retired shaft-tail backing absent)",
+        "RR43 REAR FRINGE MUTATION: PASS (shaft outline cannot ride cloak/boot)",
+        "RR43 SPEAR MUTATIONS: PASS (literal lower-shaft split with identical rest art, split transform/bone, erased shaft all rejected)",
+        "Ran 26 tests in 188.210s",
+        "OK",
+        "RR45 ALL FRAMES: PASS (1024 presented frames + 2 rests; 0 depth violations)",
+        "RR45 NATIVE NEGATIVE CONTROLS: PASS (10 real frame/piece failures; rest controls clean; stale proof rejected)",
+        "RR45 OLD DRAW ORDER MUTATION: PASS (front and rear rejected)",
+        "RR45 RIGID CONTINUITY: PASS (source/production routing; rr-43 all-frame gate unchanged)"
+      ]
+    },
+    "preservation_guards": {
+      "command": "LABYRINTH_TASK_ID=rr-45 python3 -m unittest tests.test_rr43_outline tests.test_rr45_lancer.LancerShaftDepthTests.test_frozen_layouts_allow_only_the_authorized_spear_depth",
+      "exit_code": 0,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/preservation_guards.log",
+      "sha256": "12d944b040a5869a3522634fcba2fdbf974afca73323c9dcaabcf7dea81866ff",
+      "result_lines": [
+        "Ran 6 tests in 29.020s",
+        "OK",
+        "RR43 OUTLINE PARTITION: PASS (both scopes; alpha/geometry/recipes exact; no inner-edge or hidden-fill repaint)",
+        "RR43 INNER-EDGE MUTATION: PASS (a cut boundary cannot become a new outline)"
+      ]
+    },
+    "reseal_followup": {
+      "command": "LABYRINTH_TASK_ID=rr-45 python3 -m unittest tests.test_rr41_feedback3.WalkingTests.test_rest_and_density_evidence_reseal_to_identical_bytes tests.test_rr39_proof_rerun tests.test_rr45_lancer",
+      "exit_code": 0,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/reseal_followup.log",
+      "sha256": "1c27f46cbaada25fa104083e791caa08eb3a042b442918934a4d46d0c892d92f",
+      "result_lines": [
+        "RR41 REST/DENSITY RESEAL: PASS (fresh poses byte-identical after pinned fix-18 source bindings; density evidence unchanged)",
+        "Ran 9 tests in 51.115s",
+        "OK",
+        "RR45 ALL FRAMES: PASS (1024 presented frames + 2 rests; 0 depth violations)",
+        "RR45 NATIVE NEGATIVE CONTROLS: PASS (10 real frame/piece failures; rest controls clean; stale proof rejected)",
+        "RR45 OLD DRAW ORDER MUTATION: PASS (front and rear rejected)",
+        "RR45 RIGID CONTINUITY: PASS (source/production routing; rr-43 all-frame gate unchanged)"
+      ]
+    },
+    "source_gates": {
+      "command": "PYTHONPATH=tools LABYRINTH_TASK_ID=rr-45 python3 experiments/cutouts/frostglass_lancer/rr37_gates.py",
+      "exit_code": 0,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/source_gates.log",
+      "sha256": "5a5d5a1d1a0999f815d768b706b8cf85d9a97aba909b9fab50ff9934735e6ce4",
+      "result_lines": [
+        "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+        "RR37 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+        "RR37 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6"
+      ]
+    },
+    "production_gates": {
+      "command": "PYTHONPATH=tools LABYRINTH_TASK_ID=rr-45 python3 experiments/cutouts/frostglass_lancer/rr37_gates.py --case experiments/cutouts/frostglass_lancer/rr37/proof/production_case",
+      "exit_code": 0,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/production_gates.log",
+      "sha256": "5a5d5a1d1a0999f815d768b706b8cf85d9a97aba909b9fab50ff9934735e6ce4",
+      "result_lines": [
+        "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+        "RR37 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+        "RR37 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6"
+      ]
+    },
+    "cpu_defects": {
+      "command": "PYTHONPATH=tools python3 experiments/cutouts/frostglass_lancer/rr37_native_checks.py",
+      "exit_code": 0,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/cpu_defects.log",
+      "sha256": "fda410ea8877e4eb9912c68098e352e87561125206b15aa068c0943fe8361fa8",
+      "result_lines": [
+        "RR37 D1: PASS (54 frames; native=False; defects=0)",
+        "RR37 D2: PASS (54 frames; native=False; defects=0)",
+        "RR37 D3: PASS (54 frames; native=False; defects=0)",
+        "RR37 D4: PASS (54 frames; native=False; defects=0)",
+        "RR37 D5: PASS (54 frames; native=False; defects=0)"
+      ]
+    },
+    "gameplay_geometry": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-45 --stream -- godot --headless --path . --script tests/frostglass_lancer_cutout_gameplay_probe.gd -- --logic-only --output /private/tmp/labyrinth_codex/rr45-gameplay-logic",
+      "exit_code": 0,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/gameplay_geometry.log",
+      "sha256": "7474b2168aa32f8a3964480bcb9e41ada41782d92cc8785df09e4feb320b8034",
+      "result_lines": [
+        "V2 BOARD SPRITE GEOMETRY: {\"cases\":88,\"errors\":[],\"native\":false,\"orientation_mutations_rejected\":0,\"placement_mutations_rejected\":0}",
+        "FROSTGLASS GAMEPLAY PROBE: PASS"
+      ]
+    },
+    "crystal": {
+      "command": "python3 /private/tmp/labyrinth_codex/rr45_crystal_probe.py",
+      "exit_code": 0,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/crystal.log",
+      "sha256": "72354d12b43830650352dbddca2b0109bc2cba1fe84ddceb2823f050020735b4",
+      "result_lines": [
+        "RR45 CRYSTAL VISIBILITY: PASS 1024 frames; 0 losses"
+      ]
+    },
+    "rest_reseal": {
+      "command": "LABYRINTH_TASK_ID=rr-45 PYTHONPATH=tools python3 experiments/cutouts/frostglass_lancer/rr41_density.py --seal-rests",
+      "exit_code": 0,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/rest_reseal.log",
+      "sha256": "fea9d931a60b50c6aa737685b31cbf3e511ab518627f5ee1cf40ce9617dbdf17",
+      "result_lines": [
+        "RR41 DIRECTOR PARTITION: PASS (2498 painted; 1529 air; cape_far=2498 cape_near=0; outside source=398px production=403px)",
+        "RR41 NATIVE DENSITY EDGES: 5 raw-source restorations outside leg footprint",
+        "RECORDED-RESTS 2 file(s)",
+        "RR41 PRODUCTION REST SEAL: PASS (front=0px rear=0px; native-equivalent CPU; windowed proof pending)"
+      ]
+    },
+    "full_godot": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-45 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+      "exit_code": 1,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/full_godot.log",
+      "sha256": "6616a1e9e29ce23c31d0d66c3810e3175ede452e7e2d169d0839d24e7b4d66e2",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (871 scripts; full suite=510, quarantined=29, windowed probe=332)",
+        "MAIN BODY RUNTIME: 303.586 seconds",
+        "MAIN BODY ASSERTIONS: 495687",
+        "FULL SUITE RUNTIME: 826.846 seconds (budget 900 seconds)",
+        "TEST RESULT: FAIL (4 failure(s))"
+      ],
+      "programs_completed": 232,
+      "failed_programs": [
+        {
+          "name": "special_encounter_test",
+          "returncode": 1,
+          "seconds": 67.851,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-45-1793136938875335000-2329/Library/Application Support/Escape the Umbra Parallel rr-45-1793136938875335000-2329/program-suites.logs/181-special_encounter_test.log",
+          "timed_out": false,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-45-1793136938875335000-2329/Library/Application Support/Escape the Umbra Parallel rr-45-1793136938875335000-2329/program-suites.logs/181/godot.log",
+          "reason": "",
+          "retained_log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/final-godot-special_encounter_test.log"
+        },
+        {
+          "name": "enemy_no_action_test",
+          "returncode": 124,
+          "seconds": 180.233,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-45-1793136938875335000-2329/Library/Application Support/Escape the Umbra Parallel rr-45-1793136938875335000-2329/program-suites.logs/211-enemy_no_action_test.log",
+          "timed_out": true,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-45-1793136938875335000-2329/Library/Application Support/Escape the Umbra Parallel rr-45-1793136938875335000-2329/program-suites.logs/211/godot.log",
+          "reason": "",
+          "retained_log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/final-godot-enemy_no_action_test.log"
+        },
+        {
+          "name": "fix_11_test",
+          "returncode": 1,
+          "seconds": 18.04,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-45-1793136938875335000-2329/Library/Application Support/Escape the Umbra Parallel rr-45-1793136938875335000-2329/program-suites.logs/212-fix_11_test.log",
+          "timed_out": false,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-45-1793136938875335000-2329/Library/Application Support/Escape the Umbra Parallel rr-45-1793136938875335000-2329/program-suites.logs/212/godot.log",
+          "reason": "",
+          "retained_log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/final-godot-fix_11_test.log"
+        },
+        {
+          "name": "fix_11_probe",
+          "returncode": 1,
+          "seconds": 5.079,
+          "log_path": "/private/tmp/labyrinth-godot-home/rr-45-1793136938875335000-2329/Library/Application Support/Escape the Umbra Parallel rr-45-1793136938875335000-2329/program-suites.logs/213-fix_11_probe.log",
+          "timed_out": false,
+          "engine_log_path": "/private/tmp/labyrinth-godot-home/rr-45-1793136938875335000-2329/Library/Application Support/Escape the Umbra Parallel rr-45-1793136938875335000-2329/program-suites.logs/213/godot.log",
+          "reason": "",
+          "retained_log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/final-godot-fix_11_probe.log"
+        }
+      ]
+    },
+    "initial_full_python": {
+      "command": "LABYRINTH_TASK_ID=rr-45 python3 tools/run_python_suite.py --shards 4 --output-dir /private/tmp/labyrinth_codex/rr45-python-final",
+      "exit_code": 1,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/initial_full_python.log",
+      "sha256": "0338754357f5fe684368c7c35d5819d2e6ab7569d6ad1d8cc4c13acb521cae1d",
+      "result_lines": [
+        "Ran 2117 tests in 2082.409s",
+        "FAILED (failures=2, errors=1, skipped=66)",
+        "PYTHON SUITE WALL: 2082.409s; results: /private/tmp/labyrinth_codex/rr45-python-final"
+      ]
+    },
+    "full_python": {
+      "command": "LABYRINTH_TASK_ID=rr-45 python3 tools/run_python_suite.py --shards 4 --output-dir /private/tmp/labyrinth_codex/rr45-python-verified",
+      "exit_code": 1,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/full_python.log",
+      "sha256": "274fb565f4da8b1225055f3f1f69213d5b475946b7ee33cdf9a1088211836b09",
+      "result_lines": [
+        "Ran 2118 tests in 2251.061s",
+        "FAILED (failures=1, skipped=66)",
+        "PYTHON SUITE WALL: 2251.061s; results: /private/tmp/labyrinth_codex/rr45-python-verified"
+      ],
+      "tests": 2118,
+      "failures": [
+        [
+          "test_incremental_submission (test_sb02_movement.Movement)",
+          "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/rr-45/tests/test_sb02_movement.py\", line 60, in test_incremental_submission\n    self.assertEqual(result.returncode, 0, result.stdout[-6000:])\nAssertionError: 1 != 0 : .591666666666667},\"signatures\":{\"count\":120,\"total_usec\":742,\"usec_per_call\":6.18333333333333}},\"plan_max_us\":7335}\nERROR: Parameter \"t\" is null.\n   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)\n   GDScript backtrace (most recent call first):\n       [0] texture_source_image (res://scripts/asset_loader.gd:600)\n       [1] build_alpha_polygons (res://scripts/asset_loader.gd:614)\n       [2] draw_body (res://scripts/enemy_mechanics/veil_view.gd:16)\n       [3] _draw_unit_body (res://scripts/combat_board_view.gd:8618)\n       [4] _draw_unit_bodies_for_tile (res://scripts/combat_board_view.gd:8545)\n       [5] _draw_scene_tile_render_layer (res://scripts/combat_board_view.gd:4592)\n       [6] _draw_board_commands (res://scripts/combat_board_view.gd:4385)\n       [7] _draw (res://scripts/combat_board_view.gd:4354)\nERROR: Parameter \"t\" is null.\n   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)\n   GDScript backtrace (most recent call first):\n       [0] texture_source_image (res://scripts/asset_loader.gd:600)\n       [1] build_alpha_polygons (res://scripts/asset_loader.gd:614)\n       [2] draw_body (res://scripts/enemy_mechanics/veil_view.gd:16)\n       [3] _draw_unit_body (res://scripts/combat_board_view.gd:8618)\n       [4] _draw_unit_bodies_for_tile (res://scripts/combat_board_view.gd:8545)\n       [5] _draw_scene_tile_render_layer (res://scripts/combat_board_view.gd:4592)\n       [6] _draw_board_commands (res://scripts/combat_board_view.gd:4385)\n       [7] _draw (res://scripts/combat_board_view.gd:4354)\nERROR: Parameter \"t\" is null.\n   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)\n   GDScript backtrace (most recent call first):\n       [0] texture_source_image (res://scripts/asset_loader.gd:600)\n       [1] build_alpha_polygons (res://scripts/asset_loader.gd:614)\n       [2] draw_body (res://scripts/enemy_mechanics/veil_view.gd:16)\n       [3] _draw_unit_body (res://scripts/combat_board_view.gd:8618)\n       [4] _draw_unit_bodies_for_tile (res://scripts/combat_board_view.gd:8545)\n       [5] _draw_scene_tile_render_layer (res://scripts/combat_board_view.gd:4592)\n       [6] _draw_board_commands (res://scripts/combat_board_view.gd:4385)\n       [7] _draw (res://scripts/combat_board_view.gd:4354)\nERROR: Parameter \"t\" is null.\n   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)\n   GDScript backtrace (most recent call first):\n       [0] texture_source_image (res://scripts/asset_loader.gd:600)\n       [1] build_alpha_polygons (res://scripts/asset_loader.gd:614)\n       [2] draw_body (res://scripts/enemy_mechanics/veil_view.gd:16)\n       [3] _draw_unit_body (res://scripts/combat_board_view.gd:8618)\n       [4] _draw_unit_bodies_for_tile (res://scripts/combat_board_view.gd:8545)\n       [5] _draw_scene_tile_render_layer (res://scripts/combat_board_view.gd:4592)\n       [6] _draw_board_commands (res://scripts/combat_board_view.gd:4385)\n       [7] _draw (res://scripts/combat_board_view.gd:4354)\nERROR: Parameter \"t\" is null.\n   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)\n   GDScript backtrace (most recent call first):\n       [0] texture_source_image (res://scripts/asset_loader.gd:600)\n       [1] build_alpha_polygons (res://scripts/asset_loader.gd:614)\n       [2] draw_body (res://scripts/enemy_mechanics/veil_view.gd:16)\n       [3] _draw_unit_body (res://scripts/combat_board_view.gd:8618)\n       [4] _draw_unit_bodies_for_tile (res://scripts/combat_board_view.gd:8545)\n       [5] _draw_scene_tile_render_layer (res://scripts/combat_board_view.gd:4592)\n       [6] _draw_board_commands (res://scripts/combat_board_view.gd:4385)\n       [7] _draw (res://scripts/combat_board_view.gd:4354)\nCOLD_PLAN_CPU {\"cap_us\":4000,\"cases\":[{\"cold_best_us\":3749,\"cold_max_us\":4821,\"cold_samples_us\":[4282,3760,3749,3951,4251,4821],\"individual_plan_max_us\":466,\"name\":\"mixed\",\"warm_max_us\":982,\"warm_median_us\":625,\"warm_samples_us\":[744,651,375,660,488,272,956,625,307,659,499,275,759,789,353,982,553,291]},{\"cold_best_us\":1790,\"cold_max_us\":3291,\"cold_samples_us\":[3291,2210,1810,2482,2407,1790],\"individual_plan_max_us\":151,\"name\":\"air\",\"warm_max_us\":942,\"warm_median_us\":607,\"warm_samples_us\":[738,618,260,672,822,413,664,942,368,865,563,186,553,607,237,511,760,458]},{\"cold_best_us\":1225,\"cold_max_us\":1905,\"cold_samples_us\":[1459,1848,1283,1225,1905,1396],\"individual_plan_max_us\":14,\"name\":\"earth\",\"warm_max_us\":1054,\"warm_median_us\":546,\"warm_samples_us\":[743,589,342,1021,881,265,1054,616,213,559,412,327,546,466,188,685,533,208]},{\"cold_best_us\":1160,\"cold_max_us\":2235,\"cold_samples_us\":[1734,1802,2235,1207,1786,1160],\"individual_plan_max_us\":238,\"name\":\"fire\",\"warm_max_us\":743,\"warm_median_us\":487,\"warm_samples_us\":[743,680,216,570,487,213,610,717,220,415,409,246,539,435,176,611,695,219]},{\"cold_best_us\":1313,\"cold_max_us\":2265,\"cold_samples_us\":[1786,1383,1313,1712,2265,1422],\"individual_plan_max_us\":65,\"name\":\"ice\",\"warm_max_us\":925,\"warm_median_us\":563,\"warm_samples_us\":[684,759,197,760,925,273,563,685,350,604,554,198,661,533,203,474,701,407]},{\"cold_best_us\":1505,\"cold_max_us\":2338,\"cold_samples_us\":[1505,2338,2000,1663,1609,2081],\"individual_plan_max_us\":17,\"name\":\"lightning\",\"warm_max_us\":831,\"warm_median_us\":454,\"warm_samples_us\":[689,451,172,683,603,274,743,831,370,454,429,181,585,439,184,642,657,362]},{\"cold_best_us\":1276,\"cold_max_us\":2649,\"cold_samples_us\":[2649,2168,1276,2057,2109,2553],\"individual_plan_max_us\":76,\"name\":\"shadow\",\"warm_max_us\":1469,\"warm_median_us\":717,\"warm_samples_us\":[770,733,218,838,1469,235,469,480,484,637,938,277,717,818,224,1235,763,295]}],\"failures\":[]}\nERROR: Movement plan exceeds 4000 us: 7335\n   at: push_error (core/variant/variant_utility.cpp:1024)\n   GDScript backtrace (most recent call first):\n       [0] run (res://tests/suites/board_hud_movement_suite.gd:90)\n       [1] cold_cases (res://tests/suites/board_hud_movement_suite.gd:157)\nSTATUS MOVEMENT PROBE RESULT: FAIL\n\n"
+        ]
+      ],
+      "errors": [],
+      "skipped": 66
+    },
+    "movement_isolated": {
+      "command": "LABYRINTH_TASK_ID=rr-45 python3 tests/rr35/run_reference_tests.py tests.test_sb02_movement.Movement.test_incremental_submission",
+      "exit_code": 0,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/movement_isolated.log",
+      "sha256": "a1b506edcfb0b8ae137f221fa99bef7325340b40b0ff573dc9ea2945604f3c2b",
+      "result_lines": [
+        "Ran 1 test in 17.802s",
+        "OK"
+      ]
+    },
+    "preservation_final": {
+      "command": "PYTHONPATH=tools python3 experiments/cutouts/frostglass_lancer/rr37_preservation.py",
+      "exit_code": 0,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/preservation_final.log",
+      "sha256": "76dcf20fd15e95b8402a31f68a67ba0fdb4a4d3abb951155c804798863e91d17",
+      "result_lines": [
+        "RR37 PRESERVATION: PASS (5698 protected files; other rigs byte-identical)"
+      ]
+    },
+    "resource_audit": {
+      "command": "python3 tools/run_python_suite.py --shards 4 --audit-only --output-dir /private/tmp/labyrinth_codex/rr45-audit-final",
+      "exit_code": 0,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/resource_audit.log",
+      "sha256": "085e7223687025d5d214f8ced6a42d680c83fd06fcdf59b16c81acc71b2161b2",
+      "result_lines": [
+        "ISOLATION AUDIT: 228 modules; /private/tmp/labyrinth_codex/rr45-audit-final/isolation-audit.md"
+      ]
+    },
+    "initial_full_godot": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-45 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+      "exit_code": 124,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/initial_full_godot.log",
+      "sha256": "2988e1eefdab2c25eb9fa923312a8299466bc312915e7f5a153d7453116c1ad9",
+      "result_lines": [
+        "MAIN BODY RUNTIME: 419.022 seconds",
+        "MAIN BODY ASSERTIONS: 495687",
+        "error: command timed out after 900 seconds."
+      ]
+    },
+    "initial_gameplay": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-45 --stream -- godot --headless --path . --script tests/frostglass_lancer_cutout_gameplay_probe.gd -- --output /private/tmp/labyrinth_codex/rr45-gameplay",
+      "exit_code": 124,
+      "log": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/rr45_final/initial_gameplay.log",
+      "sha256": "96f5cb62d01cd1845a455608205ca375171088480d6b48c8237f0c277b82823f",
+      "result_lines": [
+        "error: command timed out after 300 seconds."
+      ]
+    }
+  },
+  "findings": {
+    "current_baseline": 813,
+    "after": 0,
+    "presented_frames": 1024,
+    "rests": 2,
+    "historical_native_findings": 10
+  },
+  "initial_full_python_findings": "Two rr-43 preservation assertions and the rr-41 stale rest seal; repaired with exact authorized-depth normalization and current zero-pixel rest reseal.",
+  "open_issues": [
+    "Fresh windowed native/sheets/review proof requires the design owner.",
+    "Full Godot: unchanged SPX import-cache, enemy_no_action GameData, fix_11_test and fix_11_probe failures.",
+    "Full Python: one unchanged movement-plan timing failure (7335 us against 4000 us) under suite load; identical isolated test passed in 17.802s. Assertions untouched."
+  ],
+  "base_commit": "64c6a6d267a985954998846c5663ba1f4ba7dea6",
+  "task_contract_acceptance": {
+    "depth_check_all_views_clips_rests": "headless PASS; fresh native pending design owner",
+    "rigid_continuity": "PASS; rr-43 gate retained",
+    "other_rig_preservation": "PASS; 5698 protected files",
+    "native_check": "implemented; 10 retained native negatives rejected; fresh success pending"
+  },
+  "unchanged_failure_sources": true,
+  "current_code_sha256": {
+    "experiments/cutouts/frostglass_lancer/rr45_depth.py": "f52d1dc591cb67b2b4e9f72641cfaf74b3bea9b3d507992766e16d91d1ee85f1",
+    "experiments/cutouts/frostglass_lancer/rr45_occlusion.py": "1609683e6c4fefc89bbaaca3f6991b2a2c3dde3720358b50ef6faea9bfa32482",
+    "experiments/cutouts/frostglass_lancer/rr45_preservation.py": "9c35f4b2f9f601dc739d35e3ee35ac127bdd08c3ad5321ff93861dfd166ce37f",
+    "experiments/cutouts/frostglass_lancer/rr37_ownership.py": "2d1324ef4ed743c9a472724e98e94cd1572a924abb5c617261135e9baa4d54b8",
+    "experiments/cutouts/frostglass_lancer/rr37_gates.py": "6511ff2cfa5161c6424f87fb0a07293d0a320dbc54c41c998cc4f6ac2531dfeb",
+    "experiments/cutouts/frostglass_lancer/rr43_outline.py": "aa27e6f41921af6253268c0ec38ade54af2cdb2c21c162657d8863453c73dc6e",
+    "experiments/cutouts/frostglass_lancer/rr37_proof.sh": "7a2aacd082666e81d52164085c31561d4affc1b4e70c02fc0c69b18a7516d330",
+    "tests/test_rr45_lancer.py": "e8f666ca950c19dc76e03a7191feda7c04a9f7eb6a778205c4d08979646e2df1",
+    "tests/rr37/native_capture.gd": "bfe700d51a540bdf9c8ca0e9f345ae48b953b22a92041845938d6514ac40f5d3"
+  }
+}

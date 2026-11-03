@@ -3,6 +3,7 @@ extends SceneTree
 const GameData = preload("res://scripts/game_data.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
+const Flurry = preload("res://tests/fixtures/dormant_flurry_cards.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -1442,15 +1443,16 @@ func _measure_umbra_stage_matrix(instance: Node) -> Dictionary:
 	return results
 
 func _measure_flurry_scaling(instance: Node) -> Dictionary:
+	Flurry.install()
 	_install_stress_combat(instance, "specialists")
 	var results: Dictionary = {}
-	var cinder_index: int = _hand_index(instance, "cinder_fusillade")
+	var cinder_index: int = _hand_index(instance, Flurry.RANGED_ID)
 	if cinder_index < 0:
 		var flurry_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 		var flurry_hand: Array = (flurry_state.get("deck", {}) as Dictionary).get("hand", []) as Array
-		flurry_hand[flurry_hand.size() - 1] = "cinder_fusillade"
+		flurry_hand[flurry_hand.size() - 1] = Flurry.RANGED_ID
 		instance.set("_combat_state", flurry_state)
-		cinder_index = _hand_index(instance, "cinder_fusillade")
+		cinder_index = _hand_index(instance, Flurry.RANGED_ID)
 	_expect(cinder_index >= 0, "Flurry scaling must retain its actual card in the capped hand")
 	for repeat_count: int in [1, 4, 10, 20]:
 		var state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
@@ -1460,16 +1462,16 @@ func _measure_flurry_scaling(instance: Node) -> Dictionary:
 		state["card_play_bonus_this_turn"] = 0
 		instance.set("_combat_state", state)
 		instance.call("_mark_combat_preview_state_changed")
-		var actions: Array = _combat.card_play_actions("cinder_fusillade", state)
+		var actions: Array = _combat.card_play_actions(Flurry.RANGED_ID, state)
 		var prepared_state: Dictionary = _combat.prepare_player_card(state, cinder_index, "play")
 		var shortcut_preview_started: int = Time.get_ticks_usec()
 		var shortcut_preview: Dictionary = instance.call(
-			"_card_preview_from_state", "cinder_fusillade", prepared_state, actions, 0, false, true, true
+			"_card_preview_from_state", Flurry.RANGED_ID, prepared_state, actions, 0, false, true, true
 		) as Dictionary
 		var shortcut_preview_ms: float = float(Time.get_ticks_usec() - shortcut_preview_started) / 1000.0
 		var reference_preview_started: int = Time.get_ticks_usec()
 		var reference_preview: Dictionary = instance.call(
-			"_card_preview_from_state", "cinder_fusillade", prepared_state, actions, 0, false, true, false
+			"_card_preview_from_state", Flurry.RANGED_ID, prepared_state, actions, 0, false, true, false
 		) as Dictionary
 		var reference_preview_ms: float = float(Time.get_ticks_usec() - reference_preview_started) / 1000.0
 		_expect(shortcut_preview == reference_preview, "Flurry skip-suffix preview shortcut must match the full target walk at %d repeats" % repeat_count)
@@ -1486,6 +1488,7 @@ func _measure_flurry_scaling(instance: Node) -> Dictionary:
 			"shortcut_preview_ms": shortcut_preview_ms,
 			"reference_preview_ms": reference_preview_ms,
 		}
+	Flurry.remove()
 	return results
 
 func _timed_call(target: Object, method_name: String, arguments: Array = []) -> float:

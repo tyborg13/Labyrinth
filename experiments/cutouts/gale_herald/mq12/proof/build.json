@@ -1,0 +1,605 @@
+{
+  "front_rest_mismatch_pixels": 0,
+  "rest_mismatch_pixels": 0,
+  "transparent_rgb_normalizations": 1,
+  "tucks": [
+    {
+      "piece": "head",
+      "minimum_px": 3,
+      "cover": [
+        "torso"
+      ],
+      "required_mask": "tucks/front_head.png",
+      "required_pixels": 222,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "torso",
+      "minimum_px": 3,
+      "cover": [
+        "arm_far",
+        "arm_near",
+        "cape_far",
+        "cape_near",
+        "head",
+        "pelvis"
+      ],
+      "required_mask": "tucks/front_torso.png",
+      "required_pixels": 873,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "pelvis",
+      "minimum_px": 3,
+      "cover": [
+        "leg_far",
+        "leg_near",
+        "tabard",
+        "torso"
+      ],
+      "required_mask": "tucks/front_pelvis.png",
+      "required_pixels": 594,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "tabard",
+      "minimum_px": 3,
+      "cover": [
+        "leg_far",
+        "leg_near",
+        "pelvis"
+      ],
+      "required_mask": "tucks/front_tabard.png",
+      "required_pixels": 553,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "cape_near",
+      "minimum_px": 3,
+      "cover": [
+        "torso"
+      ],
+      "required_mask": "tucks/front_cape_near.png",
+      "required_pixels": 42,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "cape_far",
+      "minimum_px": 3,
+      "cover": [
+        "torso"
+      ],
+      "required_mask": "tucks/front_cape_far.png",
+      "required_pixels": 90,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "horn",
+      "minimum_px": 3,
+      "cover": [
+        "hand_far"
+      ],
+      "required_mask": "tucks/front_horn.png",
+      "required_pixels": 161,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "arm_near",
+      "minimum_px": 3,
+      "cover": [
+        "hand_near",
+        "torso"
+      ],
+      "required_mask": "tucks/front_arm_near.png",
+      "required_pixels": 187,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "hand_near",
+      "minimum_px": 3,
+      "cover": [
+        "arm_near"
+      ],
+      "required_mask": "tucks/front_hand_near.png",
+      "required_pixels": 97,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "leg_near",
+      "minimum_px": 3,
+      "cover": [
+        "foot_near",
+        "pelvis",
+        "tabard"
+      ],
+      "required_mask": "tucks/front_leg_near.png",
+      "required_pixels": 275,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "foot_near",
+      "minimum_px": 3,
+      "cover": [
+        "leg_near"
+      ],
+      "required_mask": "tucks/front_foot_near.png",
+      "required_pixels": 115,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "arm_far",
+      "minimum_px": 3,
+      "cover": [
+        "hand_far",
+        "torso"
+      ],
+      "required_mask": "tucks/front_arm_far.png",
+      "required_pixels": 226,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "hand_far",
+      "minimum_px": 3,
+      "cover": [
+        "arm_far",
+        "horn"
+      ],
+      "required_mask": "tucks/front_hand_far.png",
+      "required_pixels": 302,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "leg_far",
+      "minimum_px": 3,
+      "cover": [
+        "foot_far",
+        "pelvis",
+        "tabard"
+      ],
+      "required_mask": "tucks/front_leg_far.png",
+      "required_pixels": 371,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "foot_far",
+      "minimum_px": 3,
+      "cover": [
+        "leg_far"
+      ],
+      "required_mask": "tucks/front_foot_far.png",
+      "required_pixels": 131,
+      "missing_pixels": 0
+    }
+  ],
+  "delivery": {
+    "joints_px.json": "801be681f836647b8dbe0e975ffb6ef6a34c862c9b266cd48646c9d9cfd7f43a",
+    "front_parts.png": "21f486863fd3f6876c447a374a57e90653d4446ce1cf47723ea2902c9c9099aa",
+    "front_solo_head.png": "0b9d79d5083218594ddeb28ef4884ad2d4b3ec6171834d352e8c8a68e436db24",
+    "front_solo_belt.png": "e35cc93ee3cd150d41a658adc64e38d8c1af47776a0d7be75ad80a307401e2e8",
+    "front_solo_torso.png": "1104766824ca85794a2d36bd1cae0fd57fe309b3df8a0d01ffe2874a0bdfbbb8",
+    "front_solo_tabard.png": "24a53b2803783bcfeb1dbda38189005b1e0bf7f17dd3d3e6985d22b81bee0120",
+    "front_solo_cape_near.png": "c970268235d66932fb51b4cb307a4a0d69a0ae9e53e025aa8974238b9cb49a26",
+    "front_solo_cape_far.png": "f5bec890876da01e567fed362e2ff6061301bc3f6599ba873df83b48f4f20030",
+    "front_solo_horn.png": "57cb9782724c82b3d1f4f5c82faa9b0aa765464cd8b73d212c6331e4094b96e0",
+    "front_solo_upper_near.png": "5bdf9dd489672f2dca62c025291b6107670be08efbec3c4d570dfd80b901cca5",
+    "front_solo_fore_near.png": "ffb14814c799cf9849be02a0e13181d14a3ad0c38614e82ebe3b187ed4c54fe5",
+    "front_solo_hand_near.png": "243951942615486ea0896870fa83b8ec1e1f89c4633ee52f766ea9b6456e06d5",
+    "front_solo_thigh_near.png": "ff6f484f31ef521f7c408f164e0c0ceea1689ccc3dd4ce8bc9ded72797850065",
+    "front_solo_shin_near.png": "bad8cd480fdd530711de2319423bd0b52aeec67a4c9c8639579de54e840cb2cf",
+    "front_solo_foot_near.png": "8e2c0ff1b4f8edc810ace8b56cc0bfab7a32c245c9ba3804aba04cc15c295f11",
+    "front_solo_upper_far.png": "9c6a01b522d70a5804cf440681395ddaa72230d8c0f95aa0ee797b2f2e1723d0",
+    "front_solo_fore_far.png": "5d6f752977cfbcc85f42dc59c65b71aa7d2dd43069dccaada699c1566cb50fd6",
+    "front_solo_hand_far.png": "1207970c599987bf75b804d21dd16f2189f99f163464c44447ede08723794ef8",
+    "front_solo_thigh_far.png": "ab3979d3ed8c0e051afdce82a94a73c38d41fb378820b0cd23f91541687a68e9",
+    "front_solo_shin_far.png": "77ee6b1425d57021790db1136a4b79b233043d76b2d950ead9a55f8468b85016",
+    "front_solo_foot_far.png": "9a2b29b262ac86c39084cc89254e3e14816ffe4000e7b3bcda9318b96cafbfa3"
+  },
+  "source_ownership": "experiments/cutouts/gale_herald/mq12/front_baseline/layouts/front.json",
+  "source_ownership_sha256": "f1ff79c6565a1658ed063c04c0d4f868466d9a6fdbafa60b391ace7a2526574e",
+  "ownership_policy": "native banner-root planes separate the rigid shoulder wrap; native torso label is the pelvis and belt is fused into torso",
+  "views": {
+    "front": {
+      "front_rest_mismatch_pixels": 0,
+      "rest_mismatch_pixels": 0,
+      "transparent_rgb_normalizations": 1,
+      "tucks": [
+        {
+          "piece": "head",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/front_head.png",
+          "required_pixels": 222,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "torso",
+          "minimum_px": 3,
+          "cover": [
+            "arm_far",
+            "arm_near",
+            "cape_far",
+            "cape_near",
+            "head",
+            "pelvis"
+          ],
+          "required_mask": "tucks/front_torso.png",
+          "required_pixels": 873,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "pelvis",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far",
+            "leg_near",
+            "tabard",
+            "torso"
+          ],
+          "required_mask": "tucks/front_pelvis.png",
+          "required_pixels": 594,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "tabard",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far",
+            "leg_near",
+            "pelvis"
+          ],
+          "required_mask": "tucks/front_tabard.png",
+          "required_pixels": 553,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "cape_near",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/front_cape_near.png",
+          "required_pixels": 42,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "cape_far",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/front_cape_far.png",
+          "required_pixels": 90,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "horn",
+          "minimum_px": 3,
+          "cover": [
+            "hand_far"
+          ],
+          "required_mask": "tucks/front_horn.png",
+          "required_pixels": 161,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "arm_near",
+          "minimum_px": 3,
+          "cover": [
+            "hand_near",
+            "torso"
+          ],
+          "required_mask": "tucks/front_arm_near.png",
+          "required_pixels": 187,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "hand_near",
+          "minimum_px": 3,
+          "cover": [
+            "arm_near"
+          ],
+          "required_mask": "tucks/front_hand_near.png",
+          "required_pixels": 97,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "leg_near",
+          "minimum_px": 3,
+          "cover": [
+            "foot_near",
+            "pelvis",
+            "tabard"
+          ],
+          "required_mask": "tucks/front_leg_near.png",
+          "required_pixels": 275,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "foot_near",
+          "minimum_px": 3,
+          "cover": [
+            "leg_near"
+          ],
+          "required_mask": "tucks/front_foot_near.png",
+          "required_pixels": 115,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "arm_far",
+          "minimum_px": 3,
+          "cover": [
+            "hand_far",
+            "torso"
+          ],
+          "required_mask": "tucks/front_arm_far.png",
+          "required_pixels": 226,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "hand_far",
+          "minimum_px": 3,
+          "cover": [
+            "arm_far",
+            "horn"
+          ],
+          "required_mask": "tucks/front_hand_far.png",
+          "required_pixels": 302,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "leg_far",
+          "minimum_px": 3,
+          "cover": [
+            "foot_far",
+            "pelvis",
+            "tabard"
+          ],
+          "required_mask": "tucks/front_leg_far.png",
+          "required_pixels": 371,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "foot_far",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far"
+          ],
+          "required_mask": "tucks/front_foot_far.png",
+          "required_pixels": 131,
+          "missing_pixels": 0
+        }
+      ],
+      "delivery": {
+        "joints_px.json": "801be681f836647b8dbe0e975ffb6ef6a34c862c9b266cd48646c9d9cfd7f43a",
+        "front_parts.png": "21f486863fd3f6876c447a374a57e90653d4446ce1cf47723ea2902c9c9099aa",
+        "front_solo_head.png": "0b9d79d5083218594ddeb28ef4884ad2d4b3ec6171834d352e8c8a68e436db24",
+        "front_solo_belt.png": "e35cc93ee3cd150d41a658adc64e38d8c1af47776a0d7be75ad80a307401e2e8",
+        "front_solo_torso.png": "1104766824ca85794a2d36bd1cae0fd57fe309b3df8a0d01ffe2874a0bdfbbb8",
+        "front_solo_tabard.png": "24a53b2803783bcfeb1dbda38189005b1e0bf7f17dd3d3e6985d22b81bee0120",
+        "front_solo_cape_near.png": "c970268235d66932fb51b4cb307a4a0d69a0ae9e53e025aa8974238b9cb49a26",
+        "front_solo_cape_far.png": "f5bec890876da01e567fed362e2ff6061301bc3f6599ba873df83b48f4f20030",
+        "front_solo_horn.png": "57cb9782724c82b3d1f4f5c82faa9b0aa765464cd8b73d212c6331e4094b96e0",
+        "front_solo_upper_near.png": "5bdf9dd489672f2dca62c025291b6107670be08efbec3c4d570dfd80b901cca5",
+        "front_solo_fore_near.png": "ffb14814c799cf9849be02a0e13181d14a3ad0c38614e82ebe3b187ed4c54fe5",
+        "front_solo_hand_near.png": "243951942615486ea0896870fa83b8ec1e1f89c4633ee52f766ea9b6456e06d5",
+        "front_solo_thigh_near.png": "ff6f484f31ef521f7c408f164e0c0ceea1689ccc3dd4ce8bc9ded72797850065",
+        "front_solo_shin_near.png": "bad8cd480fdd530711de2319423bd0b52aeec67a4c9c8639579de54e840cb2cf",
+        "front_solo_foot_near.png": "8e2c0ff1b4f8edc810ace8b56cc0bfab7a32c245c9ba3804aba04cc15c295f11",
+        "front_solo_upper_far.png": "9c6a01b522d70a5804cf440681395ddaa72230d8c0f95aa0ee797b2f2e1723d0",
+        "front_solo_fore_far.png": "5d6f752977cfbcc85f42dc59c65b71aa7d2dd43069dccaada699c1566cb50fd6",
+        "front_solo_hand_far.png": "1207970c599987bf75b804d21dd16f2189f99f163464c44447ede08723794ef8",
+        "front_solo_thigh_far.png": "ab3979d3ed8c0e051afdce82a94a73c38d41fb378820b0cd23f91541687a68e9",
+        "front_solo_shin_far.png": "77ee6b1425d57021790db1136a4b79b233043d76b2d950ead9a55f8468b85016",
+        "front_solo_foot_far.png": "9a2b29b262ac86c39084cc89254e3e14816ffe4000e7b3bcda9318b96cafbfa3"
+      },
+      "source_ownership": "experiments/cutouts/gale_herald/mq12/front_baseline/layouts/front.json",
+      "source_ownership_sha256": "f1ff79c6565a1658ed063c04c0d4f868466d9a6fdbafa60b391ace7a2526574e",
+      "ownership_policy": "native banner-root planes separate the rigid shoulder wrap; native torso label is the pelvis and belt is fused into torso"
+    },
+    "rear": {
+      "front_rest_mismatch_pixels": 0,
+      "rest_mismatch_pixels": 0,
+      "transparent_rgb_normalizations": 0,
+      "tucks": [
+        {
+          "piece": "head",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/rear_head.png",
+          "required_pixels": 144,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "torso",
+          "minimum_px": 3,
+          "cover": [
+            "arm_far",
+            "arm_near",
+            "cape_far",
+            "cape_near",
+            "head",
+            "pelvis"
+          ],
+          "required_mask": "tucks/rear_torso.png",
+          "required_pixels": 855,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "pelvis",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far",
+            "leg_near",
+            "tabard",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_pelvis.png",
+          "required_pixels": 185,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "tabard",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far",
+            "leg_near",
+            "pelvis"
+          ],
+          "required_mask": "tucks/rear_tabard.png",
+          "required_pixels": 400,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "cape_near",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/rear_cape_near.png",
+          "required_pixels": 322,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "cape_far",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/rear_cape_far.png",
+          "required_pixels": 140,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "horn",
+          "minimum_px": 3,
+          "cover": [
+            "hand_far"
+          ],
+          "required_mask": "tucks/rear_horn.png",
+          "required_pixels": 61,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "arm_near",
+          "minimum_px": 3,
+          "cover": [
+            "hand_near",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_arm_near.png",
+          "required_pixels": 81,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "hand_near",
+          "minimum_px": 3,
+          "cover": [
+            "arm_near"
+          ],
+          "required_mask": "tucks/rear_hand_near.png",
+          "required_pixels": 55,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "leg_near",
+          "minimum_px": 3,
+          "cover": [
+            "foot_near",
+            "pelvis",
+            "tabard"
+          ],
+          "required_mask": "tucks/rear_leg_near.png",
+          "required_pixels": 227,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "foot_near",
+          "minimum_px": 3,
+          "cover": [
+            "leg_near"
+          ],
+          "required_mask": "tucks/rear_foot_near.png",
+          "required_pixels": 110,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "arm_far",
+          "minimum_px": 3,
+          "cover": [
+            "hand_far",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_arm_far.png",
+          "required_pixels": 47,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "hand_far",
+          "minimum_px": 3,
+          "cover": [
+            "arm_far",
+            "horn"
+          ],
+          "required_mask": "tucks/rear_hand_far.png",
+          "required_pixels": 92,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "leg_far",
+          "minimum_px": 3,
+          "cover": [
+            "foot_far",
+            "pelvis",
+            "tabard"
+          ],
+          "required_mask": "tucks/rear_leg_far.png",
+          "required_pixels": 358,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "foot_far",
+          "minimum_px": 3,
+          "cover": [
+            "leg_far"
+          ],
+          "required_mask": "tucks/rear_foot_far.png",
+          "required_pixels": 121,
+          "missing_pixels": 0
+        }
+      ],
+      "delivery": {
+        "joints_px.json": "801be681f836647b8dbe0e975ffb6ef6a34c862c9b266cd48646c9d9cfd7f43a",
+        "rear_parts.png": "bd244414c51d519b81768e4b33614116bea4e6f030f2296f8383af84ed17ba2e",
+        "rear_solo_head.png": "b3cab135eabea7de3894f402672b4425590ca0a203cb5869aaa22412ebb4686a",
+        "rear_solo_belt.png": "2d0ddbfb8e58ba7100e5a05feb751bbe103c1fa0208b3b6a6e1246887c406233",
+        "rear_solo_torso.png": "bc23316e0bd3ce37108bf7254b1f425d5e52e751101ce64c57b778280e05f01d",
+        "rear_solo_tabard.png": "b130c2c7b8f271083fde03b6c254eb42d1221b5a8b04d627b48d477330610646",
+        "rear_solo_cape_near.png": "e52dce5cb138f0c591d762973899c774811d1db0c2379df17cc4d0c09f3b7ff2",
+        "rear_solo_cape_far.png": "7cd1809a23e74aa1dbba65973665451ee0d362cb18638f886856c4e7f65816e7",
+        "rear_solo_horn.png": "bfc3e7afc4f2bfc94157bbc7dd7bdd32dec76b7468dc3f38a54ae093c8f1b37c",
+        "rear_solo_upper_near.png": "8c50ce82779dd3bcf4078dc0bf333ccb96b15c3faf70072a91cbc15320bf4ecd",
+        "rear_solo_fore_near.png": "d9e6b4a3924e425d461f3f81916d0a4f994ff2e03443b75620099cab7aef7e5a",
+        "rear_solo_hand_near.png": "f0917ef337540b6cbc6a49decd56d15e83a75b00b10d9e9ffb41f8c7eaba5a02",
+        "rear_solo_thigh_near.png": "e905ee215120a770dccd6b243d43e96975030587686a0a871027c2ff9c3b0050",
+        "rear_solo_shin_near.png": "ba1e41af03be0f1c8f810d4eee47d4e3ecd31f27e51739b01c73fe03c3f76039",
+        "rear_solo_foot_near.png": "afa16a5e80c06596c29dcb5279fdd18b74ab56fb1e1e508ecfc98f42138e7381",
+        "rear_solo_upper_far.png": "5bf4db9107b93983982e50ad39d38ffab494eb0b5e6ce54963997112ad902c8b",
+        "rear_solo_fore_far.png": "9b26e040d5f9b4dcfcabe4418b47be767b95d257d5db18d4618a72a196cebe72",
+        "rear_solo_hand_far.png": "dbb722b29f49b32f31a32264c9558922382e3457586839a7831896cb0d87c794",
+        "rear_solo_thigh_far.png": "8c3e0631b4fa757d21896362d49d12ff2a1840ba964f19eb7a7f49ac5406c7d0",
+        "rear_solo_shin_far.png": "741fc37ee390a043a9def692eb38bb80748190ae104b6de7fa6b17122ea70def",
+        "rear_solo_foot_far.png": "22af4686f37d9b7615440d775093c8be77111221c319e63df7ab5a262b53b8f1"
+      },
+      "source_ownership": "experiments/cutouts/gale_herald/mq12/rear_baseline/layouts/rear.json",
+      "source_ownership_sha256": "e54370f6ff3d05dda995d7785d9130167695341b27750f7b33668264bff3954d",
+      "ownership_policy": "native banner-root planes separate the rigid shoulder wrap; native torso label is the pelvis and belt is fused into torso"
+    }
+  },
+  "director_sha256": "3a55e2f5fab1ca0b348624fe83611806e7c77a59aa3ef7ee73d01462431739fe",
+  "production_promoted": true,
+  "native_proof": "pending director windowed captures"
+}

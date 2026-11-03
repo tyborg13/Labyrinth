@@ -1,0 +1,113 @@
+bos-02 feedback 2 — final-round verification
+
+Initial diagnostic full runs were interrupted after finding five dragon cutout Health checks pinned to pre-director values and the remaining surface-review Overload-4 expectation. Only those approved expected numbers were corrected; initiative, rewards, identity and all other assertions remain intact. A dormant Tharokh gameplay probe natural-Health assertion was updated to 72 too; its debug fixtures are unchanged.
+Initial diagnostic logs: /private/tmp/bos-02-feedback2-{godot,python}-full.log
+Initial runs exit 130 (intentional cancellation before final reruns). Their results are not claimed as full-suite passes.
+
+Final runs use separate *-final output directories/logs and begin after the last source change.
+
+Golden audit (headless): exit 0.
+ENC04 GOLDEN AUDIT: legacy_matches_frozen=false current_matches_frozen=true
+BOS02 F2 GOLDEN: PASS (54 rooms/108 snapshots; 0 dragon rooms; frozen golden unchanged)
+  /private/tmp/bos-02-feedback2-golden.log
+  golden-audit.json
+
+Measurements: two new ENCOUNTER BOT: PASS (50 runs, revision 7, tier 3, boss / ) cohorts.
+Rungs 3/4/5: 28% / 26% / 24%; retain rung 5 as the last authorized rung.
+BOS02 F2 MATCHED SAMPLES: PASS (100 new fights; rungs 4/5; final definition equals measured input)
+  /private/tmp/bos-02-feedback-2/rung-{4,5}/zekarion.log
+  measurement.md / measurement.json / rungs/
+
+Full Godot final: exit 124.
+MAIN BODY RUNTIME: 741.956 seconds
+MAIN BODY ASSERTIONS: 495806
+error: command timed out after 900 seconds.
+252 child rows: 154 exit 0; 2 assertion failures; 3 local timeouts; 93 parent-interrupted rows.
+Main final failure list was not emitted; assertion count is not a main-body PASS.
+Full-run failures: threats_at_rest_test (5% layout performance guard); card_display_performance_test (five 2 ms peak-budget failures).
+Full-run child timeouts: suites/sfx_sync_0_program; suites/sfx_sync_1_program; suites/full_scene_controls_program.
+  /private/tmp/bos-02-feedback2-godot-final.log
+  godot-program-results.json / godot-full-summary.json / godot-failure-evidence.json
+
+STANDALONE COMPLETE: 29 programs; 0 nonzero
+All 24 affected bos-02 programs and all five failed/timed-out full-suite children pass separately.
+  /private/tmp/bos-02-feedback2-standalone.log
+  /private/tmp/bos-02-feedback2-standalone/*.log
+  standalone-results.json records exact commands, result lines and log paths.
+
+Selected exact standalone result lines:
+Dragon boss suite passed.
+Dragon committed patterns passed.
+TEST RESULT: PASS Dragon exchange presentation []
+Dragon feedback mechanics passed.
+DRAGON PRESSURE MECHANICS TEST: PASS (402 checks)
+DRAGON SPIRE ROUTES TEST: PASS (4 checks)
+DRAGON WALLET ACK TEST: PASS (108 checks)
+BATTLEFIELD RULES TEST RESULT: PASS (597 checks, 0 failures)
+BOSS LIVE PULSE REDRAW: PASS (live 4 -> 10; reduced 11 -> 11)
+BOSS REDUCED MOTION MEAN: PASS (amber 0.641; lethal 0.763)
+BOSS HEALTH PREVIEW TEST: PASS (0 failures)
+TURN CLOCK HUD TEST RESULT: PASS
+TURN CLOCK WAIT TEST RESULT: PASS
+TEST RESULT: PASS
+TEST RESULT: PASS — 44 analytics-context/boundary comparisons (0 failures)
+ENCOUNTER CALLER METADATA: PASS (UI/headless; combat, Guardian, boss; start/end/rewards)
+ENCOUNTER ANALYTICS: PASS (0 failures)
+TEST RESULT: PASS surface analytics batch and partial append recovery
+GRIMOIRE SEARCH TEST RESULT: PASS
+GRIMOIRE ROW RETENTION RESULT: {"cases":50,"differences":0,"errors":[],"orphan_nodes":0,"reused_rows":371}
+TT01 GRIMOIRE DISCOVERY: PASS (39 entries; 10 default, 29 discovered; 31 independent encounters)
+SHORT CARD TOOLTIPS TEST RESULT: PASS (845 checks, 0 failures)
+ENCOUNTER RUN SAVE: PASS (3 seeds; ProgressionStore; complete state equality)
+ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)
+ENCOUNTER SMALL SWEEP: PASS (revision 5; 84 rooms; seeds 1..15)
+ENCOUNTER SMALL SWEEP: PASS (revision 6; 120 rooms; seeds 1..25)
+ENCOUNTER SMALL SWEEP: PASS (revision 7; 120 rooms; seeds 1..21)
+SKYBOLT OVERRIDES: PASS (60 checks; 0 failures)
+ENCOUNTER BOT DETERMINISM: PASS (3 explicit objective fixtures, repeated seeded rooms)
+ENCOUNTER MEASUREMENT: PASS (2671 checks; 0 failures)
+BOS02 PROBE CONTRACT: PASS (13 states; 1920x1080; UI scale 100%)
+TEST RESULT: PASS
+THREATS AT REST TEST RESULT: PASS (16952 assertions; includes compass suite)
+SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)
+SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)
+TEST RESULT: PASS
+CARD DISPLAY CACHE PERFORMANCE RESULT: PASS (0 failures)
+
+Program registry/mutation guards: Ran 28 tests in 20.719s; OK.
+RUNNER MUTATION REJECTED: all 200 supplemental mode changes (including Bile Bloomer to script)
+  /private/tmp/bos-02-feedback2-program-registry.log
+Text budget: Ran 6 tests in 0.060s; OK.
+  /private/tmp/bos-02-feedback2-text-budget-final.log
+TEST REGISTRATION AUDIT: PASS (900 scripts; full suite=538, quarantined=29, windowed probe=333)
+  /private/tmp/bos-02-feedback2-registration-final.log
+ISOLATION AUDIT: 234 modules
+  /private/tmp/bos-02-feedback2-audit.log
+BOS02 F2 HEURISTIC: PASS (309 full score rows and coefficients unchanged)
+BOS02 F2 SCOPE: PASS (only Zekarion HP/bolt and approved Gale copy; base helpers, other five dragons, six rules, policy, Grimoire and frozen golden unchanged)
+BOS02 F2 ASSERTION SCOPE: PASS (five old HP guards matched pre-tuning data; all other cutout assertions unchanged)
+
+BOS02 UID FILES: PASS (5 engine-generated sidecars present; proposed committed inventory passes; actual guard requires director staging)
+  /private/tmp/bos-02-feedback2-uids.log
+  sidecar-validation.json
+No Git index changes were attempted. The actual tracked-inventory guard cannot see the five untracked UID files until the director stages them; it is not claimed as passing.
+
+Windowed proof: not attempted (no window server). README.md lists exact director commands and expected capture paths.
+
+Full Python final: exit 1; all four shards completed, 234 modules, zero import-guard violations.
+Ran 2250 tests in 2112.712s
+FAILED (failures=1, skipped=66)
+PYTHON SUITE WALL: 2112.712s; results: /private/tmp/bos-02-feedback2-python-final
+Failure list (one):
+  test_tracked_sources_have_sidecars_and_sidecars_have_sources (test_godot_sidecars.GodotSidecarRepositoryTests)
+  Missing tracked Godot sidecars (5); all five are generated and left untracked for the director-owned commit.
+  python-suite-results.json contains the complete traceback and skip list.
+  /private/tmp/bos-02-feedback2-python-final.log
+  /private/tmp/bos-02-feedback2-python-final/shard-{1,2,3,4}-result.json
+Nonfatal environment warning: Cannot update the untracked Git timing cache (Operation not permitted); the suite completed.
+The actual Python full suite is not claimed as passing. No test assertions or Git-index state were changed to bypass the sidecar guard.
+
+BOS02 F2 FINAL SOURCE: PASS (20 source files unchanged through final suites; 5 UID sidecars frozen; HEAD and branch unchanged)
+BOS02 F2 FINAL VALIDATION: PASS (20 scoped source files; 5 generated sidecars; complete manifest; no unrelated worktree changes; 100 matched fights; 29 standalone passes)
+git diff --check: exit 0.
+All changes remain uncommitted on codex/bos-02. No peer review, publication or windowed execution was performed.

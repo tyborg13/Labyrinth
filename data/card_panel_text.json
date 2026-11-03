@@ -1,0 +1,529 @@
+{
+  "shatter": {
+    "title": "Shatter",
+    "text": "If the target was Frozen, deal {n} to each enemy next to it.",
+    "legacy": "Shatter\nIf the target was Frozen before the hit, deal {n} to each other enemy next to it (not tripled).",
+    "term": "shatter"
+  },
+  "shock_all_hits": {
+    "title": "Shock",
+    "text": "Every enemy this hits is Shocked.",
+    "legacy": "Shock\nEvery enemy this hits is Shocked, including Chain and conducted hits.",
+    "term": "shock"
+  },
+  "title_sentence_push_any": {
+    "title": "Push",
+    "text": "Push the target {n} tiles in any open direction.",
+    "legacy": "Push {n} in any open direction.",
+    "term": "push"
+  },
+  "range_ice": {
+    "title": "Range",
+    "text": "Choose an Ice tile within this range and line of sight.",
+    "legacy": "Range\nChoose a {ground} tile within this range and line of sight.",
+    "term": "range"
+  },
+  "meteorfall": {
+    "title": "Cinder Marks",
+    "text": "At your next turn, the marked tiles take the damage, you included, and turn to Fire.",
+    "legacy": "Meteorfall\nMarks the shown tiles. At the start of your next turn, before you draw, each marked tile takes the damage (anyone there, including you){ending}.",
+    "term": "cinder_marks"
+  },
+  "swap_illusion": {
+    "title": "Swap Illusion",
+    "text": null,
+    "legacy": "Swap Illusion\nSwap places with one of your illusions{range}. Both of you trigger the ground and traps where you land.",
+    "term": "illusion_swap"
+  },
+  "illusion_block": {
+    "title": "Block",
+    "text": "Your illusion takes all your Block as extra Health.",
+    "legacy": "The illusion gains all your Block as extra health. You lose that Block.",
+    "term": "block"
+  },
+  "shatter_illusion": {
+    "title": "Shatter Illusion",
+    "text": null,
+    "legacy": "Shatter Illusion\nDestroy one of your illusions within range. It counts as destroyed for illusion effects.",
+    "term": "shatter_illusion"
+  },
+  "terrain_burst_own": {
+    "title": "Terrain Burst",
+    "text": "Destroy an adjacent outcrop or Worldspine you raised.",
+    "legacy": "Destroy an adjacent Outcrop or Worldspine you raised.",
+    "term": "terrain_burst"
+  },
+  "terrain_burst_any": {
+    "title": "Terrain Burst",
+    "text": "Destroy an outcrop, crate or other terrain in range and sight.",
+    "legacy": "Destroy an outcrop, crate or other terrain within range and sight.",
+    "term": "terrain_burst"
+  },
+  "title_sentence_range_illusion": {
+    "title": "Range",
+    "text": "Destroy an illusion within this range.",
+    "legacy": "Range to the illusion you destroy.",
+    "term": "range"
+  },
+  "title_sentence_range_terrain": {
+    "title": "Range",
+    "text": "Destroy terrain within this range.",
+    "legacy": "Range to the terrain you destroy.",
+    "term": "range"
+  },
+  "title_sentence_light": {
+    "title": "Light",
+    "text": "Creates Light of this radius.",
+    "legacy": "Light radius in tiles.",
+    "term": "illuminate"
+  },
+  "title_sentence_light_self": {
+    "title": "Light",
+    "text": "Creates Light of this radius around you.",
+    "legacy": "Light radius in tiles, centered on you.",
+    "term": "illuminate"
+  },
+  "range_light": {
+    "title": "Range",
+    "text": "Place the Light within this range.",
+    "legacy": "Light placement range.",
+    "term": "range"
+  },
+  "raise_outcrop": {
+    "title": "Raise Terrain",
+    "text": "Raises an outcrop with this much Health that blocks movement and sight.",
+    "legacy": "Raises an outcrop with this much health on empty floor. It blocks movement and sight and leaves Rubble when destroyed.",
+    "term": "raise_terrain"
+  },
+  "raise_keg": {
+    "title": "Raise Terrain",
+    "text": "Places a powder keg with this much Health that blocks movement, not sight.",
+    "legacy": "Places a powder keg with this much health on empty floor. It blocks movement, not sight.",
+    "term": "raise_terrain"
+  },
+  "raise_worldspine": {
+    "title": "Raise Terrain",
+    "text": "Raises a Worldspine with this much Health on each empty tile around the target.",
+    "legacy": "Raises a Worldspine with this much health on each empty tile around the target. Spires block movement, not sight, and leave Rubble when destroyed.",
+    "term": "raise_terrain"
+  },
+  "range_outcrop": {
+    "title": "Range",
+    "text": "Place the outcrop within this range.",
+    "legacy": "Outcrop placement range.",
+    "term": "range"
+  },
+  "keg_detonate": {
+    "title": "Detonate",
+    "text": "When destroyed, the keg deals {n} to everything on and next to it.",
+    "legacy": "When the keg is destroyed by anything, it deals {n} to its tile and each tile next to it: you, illusions, enemies and terrain. Kegs set each other off.",
+    "term": "detonate"
+  },
+  "worldspine_burst": {
+    "title": "Terrain Burst",
+    "text": "Each turn, enemies next to your Worldspines take {n}.",
+    "legacy": "At the start of each of your turns, each enemy next to at least one of your Worldspines takes {n}.",
+    "term": "terrain_burst"
+  },
+  "quicken": {
+    "title": "Quicken",
+    "text": "Your next card this turn costs {n} less Time.",
+    "legacy": "Quicken {n}\nYour next card this turn costs {n} less Time (minimum 1).",
+    "term": "quicken"
+  },
+  "swap": {
+    "title": "Swap",
+    "text": null,
+    "legacy": "Swap\nSwap places with a one-tile enemy or one of your illusions. Both arrive normally; nothing collides.",
+    "term": "swap"
+  },
+  "block_to_stoneskin": {
+    "title": "Block",
+    "text": "Turn all your Block into Stoneskin.",
+    "legacy": "Turn all your Block into Stoneskin.",
+    "term": "block"
+  },
+  "crystal_mantle": {
+    "title": "Crystal Mantle",
+    "text": null,
+    "legacy": "Crystal Mantle\nEach direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and health costs bypass it.",
+    "term": "frost_armor"
+  },
+  "petrify": {
+    "title": "Petrify",
+    "text": "Skips its next turn and gains {n} Block.",
+    "legacy": "Petrify\nThe enemy turns to stone: it skips its next turn (the skipped turn still costs its Time) and gains {n} Block, which lasts through your next turn. Dragons are immune.",
+    "term": "petrify"
+  },
+  "light_trail": {
+    "title": "Light",
+    "text": "Creates Light of this radius on each tile you enter.",
+    "legacy": "Creates Light on each tile you enter. Radius in tiles.",
+    "term": "illuminate"
+  },
+  "range_illusion": {
+    "title": "Range",
+    "text": "Place the illusion within this range.",
+    "legacy": "Illusion placement range.",
+    "term": "range"
+  },
+  "expose": {
+    "title": "Expose",
+    "text": null,
+    "legacy": "The chosen enemy is Exposed {n}.",
+    "term": "expose"
+  },
+  "retaliate_illusion": {
+    "title": "Retaliate",
+    "text": "Enemies that damage this illusion take {n}{suffix} damage{suffix2}.",
+    "legacy": "Enemies that damage this illusion take {n}{suffix} damage{suffix2}. Once per enemy attack.",
+    "term": "retaliate"
+  },
+  "retaliate_illusion_reflect": {
+    "title": "Retaliate",
+    "text": "Enemies that damage this illusion take that much damage too.",
+    "legacy": "Reflect\nEnemies that damage this illusion take that much damage too. Once per enemy attack.",
+    "term": "retaliate"
+  },
+  "aoe_facing": {
+    "title": "Area Attack",
+    "text": "Hits the red tiles, aimed at the adjacent tile you choose.",
+    "legacy": "Area pattern\nRed tiles are hit relative to you, facing the adjacent tile you choose.",
+    "term": "aoe"
+  },
+  "aoe_plain": {
+    "title": "Area Attack",
+    "text": null,
+    "legacy": "Area pattern\nRed tiles are hit{relative}.",
+    "term": "aoe"
+  },
+  "light_target": {
+    "title": "Light",
+    "text": "Creates Light of this radius at the target.",
+    "legacy": "Creates Light at the target. Radius in tiles.",
+    "term": "illuminate"
+  },
+  "light_land": {
+    "title": "Light",
+    "text": "Creates Light of this radius where you land.",
+    "legacy": "Creates Light where you land. Radius in tiles.",
+    "term": "illuminate"
+  },
+  "if_in_light": {
+    "title": "If in Light",
+    "text": "This bonus applies if the target stands in Light.",
+    "legacy": "If Target in Light\nApplies if the target stands in Light.",
+    "term": "if_in_light"
+  },
+  "if_frozen": {
+    "title": "If Frozen",
+    "text": "This bonus applies if the target is Frozen.",
+    "legacy": "If Target Frozen\nApplies if the target is Frozen before the hit.",
+    "term": "if_frozen"
+  },
+  "if_half_health": {
+    "title": "If at Half Health",
+    "text": "This bonus applies if the target is at or below half Health.",
+    "legacy": "If Target at Half Health\nApplies if the target is at or below half health before the hit.",
+    "term": "if_half_health"
+  },
+  "only_fire": {
+    "title": "Fire",
+    "text": "Only enemies standing on Fire are hit.",
+    "legacy": "Each Enemy on Fire\nHits every enemy you can see that stands on Fire. There is no target to choose.",
+    "term": "surface_fire"
+  },
+  "only_chilled": {
+    "title": "Chilled",
+    "text": "Only Chilled enemies are hit.",
+    "legacy": "Each Chilled Enemy\nHits every Chilled enemy you can see. There is no target to choose.",
+    "term": "chilled"
+  },
+  "only_light": {
+    "title": "Light",
+    "text": "Only enemies standing in Light are hit.",
+    "legacy": "Each Enemy in Light\nHits every enemy you can see that stands in Light. There is no target to choose.",
+    "term": "illuminate"
+  },
+  "only_electrified": {
+    "title": "Electrified",
+    "text": "Only enemies standing on Electrified ground are hit.",
+    "legacy": "Each Enemy on Electrified\nHits every enemy you can see that stands on Electrified ground. There is no target to choose.",
+    "term": "surface_electrified"
+  },
+  "skate": {
+    "title": "Skate",
+    "text": null,
+    "legacy": "Skate\nThis turn, moving onto Ice costs no movement and Ice doesn't Chill you.",
+    "term": "skate"
+  },
+  "fireproof": {
+    "title": "Fireproof",
+    "text": null,
+    "legacy": "Fireproof\nFire doesn't damage you this turn.",
+    "term": "fireproof"
+  },
+  "immobilize_turn": {
+    "title": "Immobilize",
+    "text": "You can't Move, Blink or Swap for the rest of this turn.",
+    "legacy": "Immobilize\nYou can't Move, Blink or Swap for the rest of this turn.",
+    "term": "immobilize"
+  },
+  "anchored_turn": {
+    "title": "Anchored",
+    "text": "Until your next turn, you can't be pushed or pulled.",
+    "legacy": "Anchored\nUntil your next turn, you can't be pushed or pulled.",
+    "term": "anchored"
+  },
+  "stoneskin_scaling": {
+    "title": "Stoneskin",
+    "text": "Deals 1 more for each Stoneskin you have, up to {n} more.",
+    "legacy": "Deals {d} more damage for each {detail} (maximum {n} more).",
+    "term": "stoneskin"
+  },
+  "move_scaling": {
+    "title": "Move",
+    "text": "Deals 1 more for each tile you moved this turn, up to {n} more.",
+    "legacy": "Deals {d} more damage for each {detail} (maximum {n} more).",
+    "term": "move"
+  },
+  "cleanse": {
+    "title": "Cleanse",
+    "text": "Remove {statuses} from yourself.",
+    "legacy": "Cleanse\nRemove {old_statuses} from yourself.",
+    "term": "cleanse"
+  },
+  "title_sentence_pull_area": {
+    "title": "Pull",
+    "text": "Pulls each enemy within {r} of the chosen tile {n} tiles toward it.",
+    "legacy": "{verb} Each moves along its own straight line; stopped lines collide.",
+    "term": "pull"
+  },
+  "title_sentence_push_area_target": {
+    "title": "Push",
+    "text": "Pushes each enemy within {r} of the chosen tile {n} tiles away from it.",
+    "legacy": "{verb} Each moves along its own straight line; stopped lines collide.",
+    "term": "push"
+  },
+  "title_sentence_push_area": {
+    "title": "Push",
+    "text": "Pushes each enemy within {r} of you {n} tiles away.",
+    "legacy": "{verb} Each moves along its own straight line; stopped lines collide.",
+    "term": "push"
+  },
+  "expend_after_hit": {
+    "title": "Expend",
+    "text": "Removes the {ground} {where}.",
+    "legacy": "Expend\nRemoves the {ground} {where} after the hit.",
+    "term": "surface_consume"
+  },
+  "expend_beneath_you": {
+    "title": "Expend",
+    "text": "Removes the Fire beneath you.",
+    "legacy": "Remove {old_ground} beneath you.",
+    "term": "surface_consume"
+  },
+  "ice_to_electrified": {
+    "title": "Ice",
+    "text": "The chosen Ice and all Ice connected to it become Electrified.",
+    "legacy": "{legacy}",
+    "term": "surface_ice"
+  },
+  "follow_up": {
+    "title": "Follow-up",
+    "text": null,
+    "legacy": "Follow-up{active}\nGains this bonus if you already played a card this turn.",
+    "term": "follow_up"
+  },
+  "empower": {
+    "title": "Empower",
+    "text": null,
+    "legacy": "Empower{active}\nOptional: pay the extra cost while playing this card for the bonus.",
+    "term": "empower"
+  },
+  "next_attack_move": {
+    "title": "Next Attack",
+    "text": "Your next attack this turn deals 1 more per tile you moved, up to {n} more.",
+    "legacy": "{legacy}",
+    "term": "next_attack"
+  },
+  "next_attack_pierce": {
+    "title": "Next Attack",
+    "text": "Your next attack this turn deals {n} more and Pierces.",
+    "legacy": "{legacy}",
+    "term": "next_attack"
+  },
+  "next_attack_chain": {
+    "title": "Next Attack",
+    "text": "Your next Lightning attack this turn gains Chain {n}.",
+    "legacy": "{legacy}",
+    "term": "next_attack"
+  },
+  "next_attack_damage": {
+    "title": "Next Attack",
+    "text": "Your next attack this turn deals {n} more.",
+    "legacy": "{legacy}",
+    "term": "next_attack"
+  },
+  "unchanged_applies_only_to_hits_carried_by_a_conductive_connection": {
+    "text": "Applies only to hits carried by a conductive connection.",
+    "legacy": "Applies only to hits carried by a conductive connection."
+  },
+  "unchanged_while_this_illusion_lives_your_ranged_attacks_may_fire_from_its_tile": {
+    "text": "While this illusion lives, your ranged attacks may fire from its tile.",
+    "legacy": "While this illusion lives, your ranged attacks may fire from its tile."
+  },
+  "unchanged_enemies_that_damage_this_illusion_are_shocked": {
+    "text": "Enemies that damage this illusion are Shocked.",
+    "legacy": "Enemies that damage this illusion are Shocked."
+  },
+  "unchanged_each_empty_tile_next_to_the_illusion": {
+    "text": "Each empty tile next to the illusion.",
+    "legacy": "Each empty tile next to the illusion."
+  },
+  "unchanged_the_illusion_appears_on_the_free_tile_next_to_the_chosen_enemy_that_is_nearest_you": {
+    "text": "The illusion appears on the free tile next to the chosen enemy that is nearest you.",
+    "legacy": "The illusion appears on the free tile next to the chosen enemy that is nearest you."
+  },
+  "unchanged_choose_an_enemy_within_this_range": {
+    "text": "Choose an enemy within this range.",
+    "legacy": "Choose an enemy within this range."
+  },
+  "unchanged_creates_one_illusion_on_each_empty_tile_next_to_you_up_to_four": {
+    "text": "Creates one illusion on each empty tile next to you (up to four).",
+    "legacy": "Creates one illusion on each empty tile next to you (up to four)."
+  },
+  "unchanged_applies_if_no_enemy_is_next_to_you_after_the_blink": {
+    "text": "Applies if no enemy is next to you after the Blink.",
+    "legacy": "Applies if no enemy is next to you after the Blink."
+  },
+  "unchanged_leaves_an_illusion_with_this_much_health_where_you_stood": {
+    "text": "Leaves an illusion with this much Health where you stood.",
+    "legacy": "Leaves an illusion with this much health where you stood."
+  },
+  "unchanged_the_destination_must_be_next_to_an_enemy_outcrop_or_crate": {
+    "text": "The destination must be next to an enemy, outcrop or crate.",
+    "legacy": "The destination must be next to an enemy, outcrop or crate."
+  },
+  "unchanged_the_destination_must_be_in_light": {
+    "text": "The destination must be in Light.",
+    "legacy": "The destination must be in Light."
+  },
+  "unchanged_gain_this_much_block_for_each_tile_you_move": {
+    "text": "Gain this much Block for each tile you move.",
+    "legacy": "Gain this much Block for each tile you move."
+  },
+  "unchanged_move_along_one_clear_straight_line": {
+    "text": "Move along one clear straight line.",
+    "legacy": "Move along one clear straight line."
+  },
+  "unchanged_choose_a_tile_within_this_range": {
+    "text": "Choose a tile within this range.",
+    "legacy": "Choose a tile within this range."
+  },
+  "unchanged_expends_this_ground_on_the_chosen_tile_first": {
+    "text": "Expends this ground on the chosen tile first.",
+    "legacy": "Expends this ground on the chosen tile first."
+  },
+  "unchanged_places_ground_on_the_nearest_affected_tiles_beginning_at_the_dragon": {
+    "text": "Places ground on the nearest affected tiles, beginning at the dragon.",
+    "legacy": "Places ground on the nearest affected tiles, beginning at the dragon."
+  },
+  "unchanged_raises_an_outcrop_with_this_much_hp_at_an_empty_ground_target": {
+    "text": "Raises an outcrop with this much HP at an empty ground target.",
+    "legacy": "Raises an outcrop with this much HP at an empty ground target."
+  },
+  "unchanged_hits_each_enemy_on_the_four_tiles_next_to_the_destroyed_terrain": {
+    "text": "Hits each enemy on the four tiles next to the destroyed terrain.",
+    "legacy": "Hits each enemy on the four tiles next to the destroyed terrain."
+  },
+  "unchanged_hits_each_enemy_on_the_four_tiles_next_to_the_destroyed_illusion": {
+    "text": "Hits each enemy on the four tiles next to the destroyed illusion.",
+    "legacy": "Hits each enemy on the four tiles next to the destroyed illusion."
+  },
+  "unchanged_any_of_your_illusions_on_the_board": {
+    "text": "Any of your illusions on the board.",
+    "legacy": "Any of your illusions on the board."
+  },
+  "unchanged_swap_range": {
+    "text": "Swap range.",
+    "legacy": "Swap range."
+  },
+  "unchanged_you_take_no_damage_from_this_detonate": {
+    "text": "You take no damage from this Detonate.",
+    "legacy": "You take no damage from this Detonate."
+  },
+  "unchanged_each_other_enemy_next_to_the_target": {
+    "text": "Each other enemy next to the target.",
+    "legacy": "Each other enemy next to the target."
+  },
+  "unchanged_empower_repeat_this_card_s_first_action": {
+    "text": "Empower: repeat this card's first action.",
+    "legacy": "Empower: repeat this card's first action."
+  },
+  "unchanged_empower_cost_exhaust_this_card": {
+    "text": "Empower cost: Exhaust this card.",
+    "legacy": "Empower cost: Exhaust this card."
+  },
+  "retaliate_melee_damage_riders": {
+    "title": "Retaliate",
+    "text": "Until your next turn, enemies that hit you in melee take {n} and suffer {riders}.",
+    "legacy": "Retaliate\nUntil your next turn, enemies that hit you in melee take {n} and suffer {riders}.",
+    "term": "retaliate"
+  },
+  "retaliate_melee_damage": {
+    "title": "Retaliate",
+    "text": "Until your next turn, enemies that hit you in melee take {n}.",
+    "legacy": "Retaliate\nUntil your next turn, enemies that hit you in melee take {n}.",
+    "term": "retaliate"
+  },
+  "retaliate_melee_riders": {
+    "title": "Retaliate",
+    "text": "Until your next turn, enemies that hit you in melee suffer {riders}.",
+    "legacy": "Retaliate\nUntil your next turn, enemies that hit you in melee suffer {riders}.",
+    "term": "retaliate"
+  },
+  "next_attack_element": {
+    "title": "",
+    "text": "Only a {element} attack uses this bonus.",
+    "legacy": "Only a {element} attack uses this bonus."
+  },
+  "empower_health": {
+    "title": "",
+    "text": "Empower cost: lose {n} Health after the card resolves.",
+    "legacy": "Empower cost: pay {n} health after the card resolves."
+  },
+  "empower_time": {
+    "title": "",
+    "text": "Empower cost: {n} more Time.",
+    "legacy": "Empower cost: {n} more Time."
+  },
+  "range_electrified": {
+    "text": "Choose an Electrified tile within this range and line of sight.",
+    "legacy": "Range\nChoose an Electrified tile within this range and line of sight."
+  },
+  "range_meteor": {
+    "text": "Mark tiles within this range and line of sight.",
+    "legacy": "Range\nMark tiles within this range and line of sight."
+  },
+  "range_all": {
+    "text": "Only enemies within this distance of you.",
+    "legacy": "Range\nOnly enemies within this distance of you."
+  },
+  "range_unlimited": {
+    "text": "Any enemy you can see, ignoring range and line of sight.",
+    "legacy": "Range\nAny enemy you can see, ignoring range and line of sight."
+  },
+  "range_ignore_los": {
+    "text": "Ignores line of sight: any enemy you can see within this range.",
+    "legacy": "Range\nIgnores line of sight: any enemy you can see within this range."
+  },
+  "illusion_nearby": {
+    "text": "Also hits each other enemy next to one of your illusions, once each.",
+    "legacy": "Also hits each other enemy next to one of your illusions, once each."
+  },
+  "item_once_per_combat": {
+    "text": "Usable once per combat; it returns next combat.",
+    "legacy": "Once per combat. This item returns at the next combat."
+  }
+}

@@ -574,6 +574,24 @@
                     -1,
                     1
                   ]
+                },
+                "minimum_reach": {
+                  "type": "object",
+                  "required": [
+                    "margin_px",
+                    "reason"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "margin_px": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "Optional director-owned minimum-reach gate margin for this leg/view. Omission keeps the legacy 4 source px. The reason is retained in diagnostics; runtime IK is unchanged."
                 }
               }
             },
@@ -590,6 +608,24 @@
                     -1,
                     1
                   ]
+                },
+                "minimum_reach": {
+                  "type": "object",
+                  "required": [
+                    "margin_px",
+                    "reason"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "margin_px": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "Optional director-owned minimum-reach gate margin for this leg/view. Omission keeps the legacy 4 source px. The reason is retained in diagnostics; runtime IK is unchanged."
                 }
               }
             }
@@ -612,6 +648,24 @@
                     -1,
                     1
                   ]
+                },
+                "minimum_reach": {
+                  "type": "object",
+                  "required": [
+                    "margin_px",
+                    "reason"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "margin_px": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "Optional director-owned minimum-reach gate margin for this leg/view. Omission keeps the legacy 4 source px. The reason is retained in diagnostics; runtime IK is unchanged."
                 }
               }
             },
@@ -628,6 +682,24 @@
                     -1,
                     1
                   ]
+                },
+                "minimum_reach": {
+                  "type": "object",
+                  "required": [
+                    "margin_px",
+                    "reason"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "margin_px": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "Optional director-owned minimum-reach gate margin for this leg/view. Omission keeps the legacy 4 source px. The reason is retained in diagnostics; runtime IK is unchanged."
                 }
               }
             }
@@ -646,6 +718,115 @@
           "type": "number",
           "minimum": 0,
           "maximum": 180
+        },
+        "crouched_stance_deg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 180,
+          "description": "Optional walk-apex policy: when the stance bend strictly exceeds this angle, require a swing-apex bend of at least 15 degrees instead of exceeding the stance. Omission preserves the ordinary comparison."
+        },
+        "by_view": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "front": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "near": {
+                  "type": "object",
+                  "required": [
+                    "near_straight_deg",
+                    "crouched_stance_deg"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "near_straight_deg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 180
+                    },
+                    "crouched_stance_deg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 180,
+                      "description": "Optional walk-apex policy: when the stance bend strictly exceeds this angle, require a swing-apex bend of at least 15 degrees instead of exceeding the stance. Omission preserves the ordinary comparison."
+                    }
+                  }
+                },
+                "far": {
+                  "type": "object",
+                  "required": [
+                    "near_straight_deg",
+                    "crouched_stance_deg"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "near_straight_deg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 180
+                    },
+                    "crouched_stance_deg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 180,
+                      "description": "Optional walk-apex policy: when the stance bend strictly exceeds this angle, require a swing-apex bend of at least 15 degrees instead of exceeding the stance. Omission preserves the ordinary comparison."
+                    }
+                  }
+                }
+              }
+            },
+            "rear": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "near": {
+                  "type": "object",
+                  "required": [
+                    "near_straight_deg",
+                    "crouched_stance_deg"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "near_straight_deg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 180
+                    },
+                    "crouched_stance_deg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 180,
+                      "description": "Optional walk-apex policy: when the stance bend strictly exceeds this angle, require a swing-apex bend of at least 15 degrees instead of exceeding the stance. Omission preserves the ordinary comparison."
+                    }
+                  }
+                },
+                "far": {
+                  "type": "object",
+                  "required": [
+                    "near_straight_deg",
+                    "crouched_stance_deg"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "near_straight_deg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 180
+                    },
+                    "crouched_stance_deg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 180,
+                      "description": "Optional walk-apex policy: when the stance bend strictly exceeds this angle, require a swing-apex bend of at least 15 degrees instead of exceeding the stance. Omission preserves the ordinary comparison."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "Optional per-view/per-leg stance thresholds measured from the maquette. Walk apex uses the opposite (stance) leg; undeclared cases retain the global policy."
         }
       },
       "additionalProperties": false,
@@ -735,6 +916,30 @@
     },
     "channel_aliases": {
       "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "held_item_release_exemptions": {
+      "type": "array",
+      "description": "Director-declared held-item/clip identities. Timing comes only from motion release_at (including view overrides). After release, at most one extra component is allowed, exactly the complete single 8-connected item with no foreign paint. Omitted keeps strict rest provenance.",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": ["item", "clip"],
+        "properties": {
+          "item": {"type": "string"},
+          "clip": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "intentionally_empty": {
+      "type": "object",
+      "description": "Director-declared fully covered source pieces. Values retain the reason; runtime paint stays empty.",
       "additionalProperties": {
         "type": "object",
         "additionalProperties": {

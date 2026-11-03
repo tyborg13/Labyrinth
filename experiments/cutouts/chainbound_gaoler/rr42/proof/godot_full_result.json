@@ -1,0 +1,31 @@
+{
+  "complete": true,
+  "failures": [
+    {
+      "name": "special_encounter_test",
+      "returncode": 1,
+      "seconds": 60.241,
+      "timed_out": false
+    },
+    {
+      "name": "enemy_no_action_test",
+      "returncode": 124,
+      "seconds": 180.18,
+      "timed_out": true
+    },
+    {
+      "name": "fix_11_test",
+      "returncode": 1,
+      "seconds": 17.702,
+      "timed_out": false
+    },
+    {
+      "name": "fix_11_probe",
+      "returncode": 1,
+      "seconds": 4.459,
+      "timed_out": false
+    }
+  ],
+  "main_body_assertions": 495565,
+  "full_suite_runtime_seconds": 754.426
+}

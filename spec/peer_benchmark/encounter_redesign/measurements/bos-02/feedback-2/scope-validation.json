@@ -1,0 +1,24 @@
+{
+  "result": "BOS02 F2 SCOPE: PASS (only Zekarion HP/bolt and approved Gale copy; base helpers, other five dragons, six rules, policy, Grimoire and frozen golden unchanged)",
+  "zekarion": {
+    "max_hp": 50,
+    "tempest_breath_ranged_damage": 3,
+    "lightning_storm_damage": 5,
+    "chain": 1,
+    "half_health_chain": 2
+  },
+  "unchanged_sha256": {
+    "data/battlefield_rules.json": "05204f60e192dea20eab76424c92741bab97e14233ad4a1b4e5cd3b4eb463445",
+    "data/grimoire.json": "65e6bc57a8b2f018e3223bfb2ed88ab01a3d5ba51ab5c2b4af675175a4c2f2a7",
+    "tools/encounter_bot.gd": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+    "tests/fixtures/encounter_measurement_golden.json": "13dfdc9e8a9d74538c961133b5e0cb092c615d0481c19dc06499d1676b29d95d",
+    "tests/fixtures/bos02_feedback1_grimoire.json": "82afc3a7da5440fcc78fc4e403a2fb7c8a0bc7e6e0cf2dbff61a6acd022726c9"
+  },
+  "cutout_assertions_only_change_approved_hp": true,
+  "pre_tuning_health_reference": "a9bb898ed",
+  "all_other_cutout_assertions_preserved": true,
+  "selected_definition_equals_measured_input": true,
+  "new_matched_fights": 100,
+  "selected_rung": 5,
+  "final_win_rate": 0.24
+}

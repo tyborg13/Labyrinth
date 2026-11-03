@@ -1,0 +1,6116 @@
+[
+  {
+    "module": "test_arc_thrall_maquette_r2",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      124,
+      182,
+      182,
+      184,
+      186,
+      189
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_arc_thrall_proof_validation",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      37,
+      39,
+      40,
+      42,
+      46,
+      47,
+      50,
+      81,
+      89,
+      91,
+      109,
+      122,
+      126,
+      131,
+      133,
+      143,
+      146
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_art_identity_gate",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      106,
+      109,
+      112,
+      115,
+      120,
+      121,
+      138,
+      155,
+      176,
+      181,
+      191,
+      201,
+      203,
+      219,
+      271,
+      461,
+      464,
+      477,
+      493,
+      504,
+      513,
+      514,
+      523,
+      545,
+      556,
+      573,
+      574,
+      585,
+      587,
+      591,
+      602,
+      603,
+      612,
+      626,
+      627,
+      636,
+      641,
+      645,
+      659,
+      671,
+      674,
+      676,
+      677,
+      679,
+      686,
+      690,
+      696,
+      704,
+      706,
+      717,
+      726,
+      727,
+      728,
+      733,
+      748,
+      750,
+      753,
+      754,
+      759,
+      770,
+      771,
+      779,
+      788,
+      789,
+      790,
+      792,
+      794,
+      798,
+      801,
+      802,
+      808,
+      815,
+      816,
+      829,
+      830,
+      836,
+      840,
+      842,
+      867,
+      879,
+      885,
+      897,
+      900,
+      911,
+      916,
+      928,
+      929,
+      932,
+      943,
+      952,
+      959,
+      961,
+      972,
+      981,
+      985,
+      992,
+      1013,
+      1020,
+      1030,
+      1038,
+      1041,
+      1047,
+      1055,
+      1065,
+      1077,
+      1080,
+      1084,
+      1090,
+      1093,
+      1098,
+      1106,
+      1121,
+      1122,
+      1152,
+      1172,
+      1179,
+      1184,
+      1185,
+      1223,
+      1226,
+      1247,
+      1250,
+      1295,
+      1311,
+      1313,
+      1324,
+      1338,
+      1345,
+      1346,
+      1348,
+      1354,
+      1361,
+      1406,
+      1409,
+      1431,
+      1434,
+      1438,
+      1440,
+      1450,
+      1465,
+      1479,
+      1480,
+      1504,
+      1507,
+      1517,
+      1532,
+      1536,
+      1538,
+      1545,
+      1546,
+      1548,
+      1555,
+      1559,
+      1560,
+      1562,
+      1564,
+      1586,
+      1692,
+      1693,
+      1708,
+      1709,
+      1723,
+      1724,
+      1738,
+      1739,
+      1754,
+      1755,
+      1779,
+      1780,
+      1790,
+      1791,
+      1795,
+      1803,
+      1806,
+      1808,
+      1816,
+      1818,
+      1819,
+      1820,
+      1821,
+      1822,
+      1823,
+      1834,
+      1835,
+      1859,
+      1860,
+      1861,
+      1869,
+      1870,
+      1878,
+      1879,
+      1883,
+      1901,
+      1912,
+      1914,
+      1917,
+      1918,
+      1919,
+      1920,
+      1922,
+      1941,
+      1949,
+      1954,
+      1964,
+      1976,
+      1980,
+      1988,
+      1989,
+      1998,
+      2001,
+      2004,
+      2007,
+      2008,
+      2018,
+      2019,
+      2040,
+      2044,
+      2045,
+      2052,
+      2053,
+      2063,
+      2067,
+      2068,
+      2073,
+      2084,
+      2085,
+      2089,
+      2090,
+      2104,
+      2108,
+      2109,
+      2127,
+      2132,
+      2135,
+      2137,
+      2138,
+      2146,
+      2149,
+      2171,
+      2191
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_biome_light_idle",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_board_pixel_density",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      77,
+      138,
+      138,
+      215,
+      216,
+      218,
+      219,
+      282,
+      282,
+      305,
+      305,
+      387,
+      416,
+      416,
+      468,
+      470,
+      519,
+      570,
+      636,
+      639,
+      640,
+      641,
+      646,
+      664,
+      666,
+      682,
+      685,
+      694,
+      697,
+      850,
+      866,
+      870,
+      870,
+      881,
+      889,
+      894,
+      904,
+      910,
+      935,
+      936,
+      938,
+      939,
+      1007,
+      1008,
+      1009,
+      1014,
+      1027,
+      1028,
+      1029,
+      1030,
+      1035,
+      1055
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_boot_splash",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      103,
+      111,
+      113,
+      114,
+      116
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_button_system_inventory",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_capture_director",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      23,
+      24,
+      42,
+      43,
+      45,
+      48,
+      66,
+      67,
+      69,
+      71,
+      72,
+      73,
+      75,
+      77,
+      84,
+      87,
+      88,
+      116,
+      140,
+      147,
+      151,
+      153,
+      156,
+      166,
+      169,
+      172,
+      174,
+      184,
+      187,
+      188,
+      193,
+      204,
+      218,
+      220,
+      221,
+      229,
+      257,
+      264,
+      264,
+      266,
+      267,
+      270,
+      284,
+      285,
+      286,
+      287,
+      290,
+      295,
+      296,
+      297,
+      299,
+      301,
+      316,
+      326,
+      326,
+      348,
+      350,
+      361,
+      361,
+      368
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_capture_production",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      18,
+      19,
+      28,
+      36,
+      44,
+      44,
+      54,
+      54,
+      61,
+      64,
+      64,
+      66,
+      73,
+      73,
+      80,
+      80,
+      83,
+      88,
+      88,
+      90,
+      95,
+      95,
+      97,
+      103,
+      105,
+      107,
+      118,
+      119,
+      122,
+      128,
+      130,
+      133,
+      139,
+      142,
+      143,
+      150,
+      152,
+      152,
+      154,
+      155,
+      161,
+      190,
+      210
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_card_completion_stall",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "synthetic"
+    ],
+    "write_call_lines": [
+      115
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_card_heuristic_illusions_terrain",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_card_heuristic_keywords",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_card_heuristic_maneuver",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_card_heuristic_progression_context",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_card_heuristic_surfaces",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_card_heuristic_wave4_surfaces",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_card_legibility",
+    "resources": [
+      "card-legibility-proof"
+    ],
+    "written_paths": [
+      "tests/pt13_03/feedback2/captures/before/ (plan-only measurements.json written through symlinked tests/)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "pt13-08"
+    ],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_card_panel_text",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_card_time_watch_asset",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_chopin_death_music",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      77,
+      96,
+      97,
+      105,
+      108,
+      109
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_classical_soundtrack_pipeline",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      209,
+      217,
+      218,
+      225,
+      231
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_combat_feel_measurements",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      24,
+      28,
+      30,
+      32,
+      34,
+      40,
+      55,
+      57,
+      63,
+      66,
+      67
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_cutout_workflow",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      33,
+      37,
+      52,
+      54,
+      80,
+      81,
+      84,
+      86,
+      91,
+      96,
+      99,
+      108,
+      110,
+      114,
+      117,
+      118,
+      130,
+      166,
+      172,
+      175,
+      180,
+      186,
+      187,
+      197,
+      209,
+      211,
+      212,
+      222,
+      223,
+      224,
+      225,
+      227,
+      230,
+      238,
+      240,
+      241,
+      242,
+      245,
+      255,
+      261,
+      269
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_demo_clips",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "demo-01"
+    ],
+    "write_call_lines": [
+      26,
+      64,
+      65,
+      67,
+      69,
+      77,
+      86,
+      91,
+      105,
+      105,
+      108,
+      477,
+      485,
+      487,
+      504,
+      537,
+      542,
+      543,
+      544,
+      546
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_demo_recording",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_demo_clips"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "demo-01"
+    ],
+    "write_call_lines": [
+      31,
+      32,
+      36,
+      51,
+      52,
+      77,
+      78,
+      79,
+      86,
+      88,
+      90,
+      91,
+      92,
+      99,
+      130,
+      131,
+      141,
+      213,
+      229,
+      231,
+      238,
+      248,
+      250,
+      251,
+      252,
+      272,
+      300,
+      300,
+      408,
+      419,
+      420,
+      436,
+      472,
+      472,
+      518,
+      618,
+      619,
+      620,
+      621,
+      636,
+      638,
+      639,
+      642,
+      666,
+      682,
+      685
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_dragon_rule_measurement",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      48,
+      51,
+      58
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_element_rule_contract",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_empower_sfx",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_en05_assets",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      40,
+      55,
+      60,
+      68
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_encounter_measurement",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      54,
+      56,
+      57,
+      65,
+      66,
+      67,
+      69,
+      71,
+      72,
+      77,
+      109,
+      124,
+      213,
+      309
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_engine_cache_proof",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_fix18_draw_origin",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "fix-18"
+    ],
+    "write_call_lines": [
+      24,
+      27,
+      30,
+      42,
+      46,
+      47,
+      78,
+      88,
+      94,
+      94,
+      136,
+      136,
+      144,
+      165,
+      171
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_fix_11_labels",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_gait01",
+    "resources": [
+      "mirror",
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/glacial_mirror/; assets/units/glacial_mirror_cutout/",
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      106,
+      156,
+      299
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_gear_visual_assets",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_glacial_mirror_regeneration",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      24,
+      37,
+      38,
+      54,
+      55,
+      59,
+      74,
+      77,
+      78,
+      86,
+      94,
+      97,
+      111,
+      113,
+      117,
+      129,
+      130,
+      132,
+      133,
+      141
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_glacial_mirror_registration",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      44,
+      82,
+      97
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_glacial_mirror_shoulder",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      167,
+      175,
+      175,
+      218
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_godot_sidecars",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_godot_task_runner",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "qa-01",
+      "runner-test"
+    ],
+    "write_call_lines": [
+      167,
+      180
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_guardian_rules_measurement",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      35,
+      60
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_gust_shrike_cutout",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "qa-06"
+    ],
+    "write_call_lines": [
+      42,
+      43,
+      45,
+      47,
+      49,
+      82,
+      92,
+      92,
+      112,
+      132,
+      132,
+      218
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_hero_facing_tools",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "hf-01"
+    ],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_icon_identity_policy",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_inspection_fixture",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "banked-skill-fixture-test",
+      "deep-map-fixture-test",
+      "fixture-test",
+      "skill-fixture-test",
+      "steam-fixture-test",
+      "trap-fixture-test"
+    ],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_int04_preservation",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [
+      "test_arc_thrall_maquette_r2",
+      "test_glacial_mirror_shoulder",
+      "test_maquette_rear_turn",
+      "test_mq09_maquettes",
+      "test_rr21_cutout",
+      "test_rr24_feedback2",
+      "test_rr24_thrall"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      64,
+      65,
+      66,
+      68,
+      72,
+      74,
+      77,
+      79,
+      83,
+      85,
+      106,
+      107,
+      118,
+      122,
+      142,
+      144,
+      146,
+      154,
+      164,
+      166,
+      168,
+      171,
+      177,
+      179,
+      182,
+      187,
+      197,
+      198,
+      200,
+      202,
+      208,
+      210,
+      213,
+      225,
+      227,
+      244,
+      261,
+      270,
+      271,
+      284,
+      294,
+      295,
+      298,
+      305,
+      309,
+      331,
+      333,
+      339,
+      340,
+      342,
+      367,
+      373,
+      375,
+      377,
+      380,
+      382,
+      383,
+      384,
+      386
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_int05_preservation",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [
+      "test_rr14_seer_identity"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      21,
+      34,
+      35,
+      36,
+      39,
+      47,
+      48,
+      68,
+      73,
+      77,
+      82,
+      86,
+      95,
+      95,
+      97,
+      103,
+      103,
+      124,
+      131,
+      132
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_int07_preservation",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "int-07"
+    ],
+    "write_call_lines": [
+      32,
+      36,
+      45,
+      96,
+      98,
+      100
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_item_card_art_quality",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      87,
+      106
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_labyrinth_font_family",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_labyrinth_queue_board",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      24,
+      68,
+      69,
+      111,
+      112
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_labyrinth_task_queue",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      36,
+      109,
+      127,
+      166
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_main_menu_steam_branding",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_main_menu_umbra_assets",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_bleed",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      42,
+      47,
+      48,
+      49,
+      65,
+      109,
+      112,
+      115,
+      116
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_blender",
+    "resources": [
+      "blender-native"
+    ],
+    "written_paths": [
+      "/private/tmp/labyrinth_codex/mq-03/native_tests/ (optional native proof; unique child fixtures)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [
+      "/private/tmp/labyrinth_codex/mq-03/native_tests",
+      "/private/tmp/labyrinth_codex/mq-03/test"
+    ],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      176,
+      177,
+      184,
+      185,
+      285,
+      293,
+      294,
+      298,
+      311,
+      323
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_maquette_builder_wiring",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      89
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_certificates",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      28,
+      29,
+      34,
+      51,
+      53,
+      73,
+      76,
+      85,
+      90,
+      101,
+      114,
+      115,
+      123,
+      139,
+      140
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_closed_loft",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_cutout",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-02"
+    ],
+    "write_call_lines": [
+      168,
+      201,
+      204,
+      207,
+      313,
+      319,
+      321,
+      323,
+      348,
+      354,
+      355,
+      362,
+      363,
+      368,
+      369,
+      370,
+      401,
+      420,
+      421,
+      428,
+      442,
+      443,
+      528,
+      530,
+      531,
+      533,
+      539,
+      542,
+      545,
+      546,
+      551,
+      584,
+      585,
+      588,
+      590,
+      599,
+      602,
+      607,
+      635,
+      636,
+      671,
+      671,
+      705,
+      709,
+      711,
+      730,
+      758,
+      768,
+      930,
+      932,
+      948,
+      948,
+      951,
+      964,
+      965,
+      967,
+      978,
+      979,
+      980,
+      985,
+      987,
+      988,
+      989,
+      1005,
+      1045,
+      1051,
+      1052,
+      1054,
+      1055,
+      1056,
+      1059,
+      1060,
+      1061,
+      1062,
+      1063,
+      1065,
+      1080,
+      1081,
+      1084,
+      1085,
+      1087,
+      1089,
+      1106,
+      1107,
+      1109,
+      1112,
+      1114,
+      1133,
+      1137,
+      1139,
+      1142,
+      1144,
+      1157,
+      1158,
+      1161,
+      1162,
+      1163,
+      1164
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_maquette_geometry",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      141,
+      186,
+      187,
+      191,
+      194,
+      244,
+      244
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_hidden_material",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      85,
+      86,
+      91,
+      92,
+      93,
+      94,
+      95,
+      159,
+      164,
+      165,
+      171,
+      172,
+      174,
+      175,
+      176,
+      177,
+      182,
+      184,
+      186,
+      191,
+      195,
+      203,
+      205
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_joint_seams",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      55,
+      58,
+      59,
+      66,
+      70,
+      115,
+      167,
+      171,
+      173,
+      189,
+      191,
+      195,
+      204,
+      208,
+      209,
+      281,
+      286,
+      288,
+      311,
+      319,
+      339,
+      341,
+      361,
+      391,
+      396,
+      421,
+      422,
+      427,
+      434,
+      438
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_native_alpha",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-05"
+    ],
+    "write_call_lines": [
+      32,
+      65,
+      69
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_native_raster",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      32,
+      32,
+      162,
+      163
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_native_ties",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_native_raster"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_owner_proof",
+    "resources": [
+      "bloomer",
+      "rr05-output"
+    ],
+    "written_paths": [
+      "experiments/cutouts/shale_bloomer/",
+      "output/rr-05/ (owner-proof shell mkdir, even with inert command stubs)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      27,
+      29,
+      31,
+      64
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_maquette_pixel_polish",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-05"
+    ],
+    "write_call_lines": [
+      42,
+      43,
+      44,
+      47,
+      52,
+      53,
+      56,
+      58,
+      59,
+      77,
+      78,
+      81,
+      82,
+      94,
+      96,
+      98,
+      101,
+      125,
+      146,
+      147,
+      148,
+      162,
+      167,
+      170,
+      173,
+      292,
+      302,
+      305
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_rear_turn",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      35,
+      164,
+      187,
+      192,
+      196,
+      201,
+      234,
+      256,
+      265,
+      310,
+      374,
+      377,
+      378,
+      379,
+      381,
+      382,
+      389,
+      432,
+      436,
+      441,
+      453,
+      454,
+      460,
+      462,
+      475,
+      481,
+      486
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_regressions",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      36,
+      128,
+      129,
+      135,
+      137,
+      150,
+      151,
+      154,
+      177,
+      182,
+      201,
+      205
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_maquette_silhouette",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      30,
+      45,
+      48,
+      53,
+      56,
+      79,
+      81,
+      85,
+      91,
+      112,
+      144
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq09_forms",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq09_maquettes",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      64,
+      102,
+      105,
+      212,
+      213,
+      218
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq11_accessories",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      319,
+      320,
+      351,
+      478,
+      479,
+      482,
+      484,
+      485,
+      492
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq11_crack_visibility",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq11_freshness",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn",
+      "test_mq11_accessories"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      27,
+      41,
+      43,
+      47,
+      51,
+      57,
+      58,
+      80,
+      81,
+      120,
+      147,
+      160,
+      172,
+      175,
+      195,
+      198
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq11_guard_mutations",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      39
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq11_validation",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn",
+      "test_mq11_accessories"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq12_motion",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      64
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq12_preservation",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      26,
+      80,
+      81,
+      94,
+      95
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq12_shoulders",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn",
+      "test_mq12_preservation"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      47,
+      48,
+      70,
+      149,
+      152
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq12_successor",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn",
+      "test_mq12_preservation"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      87,
+      91,
+      106,
+      165,
+      175,
+      200
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq13_delivery",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      31,
+      48,
+      69,
+      76,
+      79,
+      82
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq13_evidence",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      103,
+      105
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq13_pose",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq13_saved_body",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      39,
+      45,
+      47,
+      95,
+      98,
+      139,
+      146,
+      150
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq14_builder",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq14_lancer",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      32,
+      36,
+      103,
+      121,
+      137,
+      146,
+      156,
+      164,
+      173
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq15_cloth",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn",
+      "test_mq15_native_geometry"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq15_maquette",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      121,
+      127,
+      162,
+      182,
+      183
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq15_native_geometry",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq15_pose_fit",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq16_maquette",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [
+      "/private/tmp/outside.json"
+    ],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      91,
+      92,
+      268,
+      273,
+      284,
+      295,
+      303,
+      328
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq16_proof_guards",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      47,
+      48,
+      54,
+      54,
+      89,
+      90,
+      91,
+      111
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq17_maquette",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      63,
+      70,
+      72,
+      73,
+      76,
+      78,
+      344,
+      344,
+      355,
+      376,
+      380,
+      385,
+      390,
+      394,
+      399,
+      402,
+      491,
+      492,
+      503,
+      504,
+      507,
+      519,
+      528,
+      536,
+      539
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq18_maquette",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      122,
+      124,
+      134,
+      138,
+      148,
+      158,
+      164,
+      165,
+      174,
+      178,
+      191,
+      212,
+      230,
+      232,
+      236,
+      238,
+      276,
+      276,
+      278,
+      284,
+      285,
+      290,
+      295,
+      304,
+      304,
+      312,
+      319
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq19_maquette",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      230,
+      234
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq20_maquette",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      181,
+      196,
+      199,
+      201,
+      212,
+      218,
+      223,
+      224,
+      232,
+      234,
+      235,
+      244,
+      248,
+      437,
+      438
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq21_delivery",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      26,
+      26,
+      32,
+      39,
+      45,
+      45,
+      48,
+      52,
+      97,
+      98,
+      99,
+      103,
+      108,
+      111,
+      112,
+      121,
+      123,
+      139,
+      140,
+      141,
+      141,
+      146,
+      189,
+      190,
+      192,
+      193,
+      203,
+      204,
+      207,
+      210,
+      216,
+      218,
+      219,
+      237,
+      239,
+      245,
+      252,
+      260,
+      263,
+      273,
+      275,
+      277,
+      289,
+      290,
+      291,
+      292,
+      309,
+      309,
+      318,
+      318,
+      335,
+      336,
+      337,
+      342,
+      343,
+      348,
+      349,
+      350,
+      352,
+      358,
+      367
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq21_maquette",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_mq24_maquette",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      263,
+      264,
+      327,
+      368,
+      368,
+      381,
+      394,
+      402,
+      404,
+      407,
+      407
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_native_frames",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      39,
+      56,
+      61,
+      63,
+      66,
+      81,
+      89,
+      112,
+      132,
+      132,
+      143,
+      149,
+      161,
+      162,
+      164,
+      165,
+      196,
+      213,
+      214,
+      220,
+      230,
+      231,
+      241
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_native_review_readers",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_cutout"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      24,
+      30,
+      33,
+      35,
+      36,
+      38,
+      60,
+      60,
+      66,
+      81,
+      117,
+      128,
+      131,
+      154,
+      164,
+      166,
+      167,
+      171,
+      172,
+      184
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_old_castle_full_arrangement",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_old_castle_main_menu_arrangement",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_original_soundtrack_assets",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_output_gdignore",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      27,
+      28,
+      33,
+      43,
+      51,
+      73,
+      82,
+      100,
+      101,
+      112,
+      119
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_pace_round_capture",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "pace-02"
+    ],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_parallel_task",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "prepared"
+    ],
+    "write_call_lines": [
+      29,
+      82,
+      99,
+      113,
+      117,
+      141,
+      145,
+      149,
+      171,
+      188,
+      193,
+      208
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_performance_pass",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "proof"
+    ],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_player_ui_scrollbars",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_process_biome_art",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      24,
+      102
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_process_event_art",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      26,
+      41,
+      42,
+      52,
+      55
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_production_crop_plan",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      61,
+      62,
+      65,
+      66,
+      69
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_program_suite_runner",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "qa-07",
+      "runner-test",
+      "runtime-paths"
+    ],
+    "write_call_lines": [
+      196,
+      316,
+      318,
+      346,
+      555,
+      611,
+      612,
+      613,
+      614,
+      616,
+      652,
+      652
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_proof_render_inputs",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "qa-15"
+    ],
+    "write_call_lines": [
+      26,
+      32,
+      55,
+      58,
+      61,
+      69,
+      129,
+      129,
+      132,
+      133,
+      135
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_proof_runtime_paths",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      50,
+      51,
+      68,
+      122
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_pt14_01_coverage",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "pt14-04"
+    ],
+    "write_call_lines": [
+      39,
+      41,
+      46,
+      65,
+      111,
+      111,
+      113
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_pt14_04_coverage",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "pt14-04"
+    ],
+    "write_call_lines": [
+      46,
+      48,
+      62,
+      74,
+      75,
+      76,
+      87,
+      97,
+      98,
+      99,
+      103,
+      110,
+      113,
+      114,
+      115,
+      117,
+      156,
+      161,
+      162,
+      163,
+      176,
+      181,
+      199,
+      202,
+      220,
+      220,
+      240,
+      265,
+      266,
+      267,
+      267
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_pt15_01_owner_feet",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "pt15-01"
+    ],
+    "write_call_lines": [
+      21,
+      26,
+      37,
+      39,
+      52,
+      106,
+      127,
+      127,
+      130,
+      163,
+      163,
+      166,
+      180
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_python_suite_runner",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      28,
+      30,
+      37,
+      51,
+      56,
+      67,
+      69,
+      72,
+      73,
+      80,
+      81,
+      82,
+      83,
+      90,
+      112,
+      142,
+      179,
+      183,
+      185,
+      187,
+      232,
+      233,
+      236,
+      245,
+      246
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_python_suite_runner_feedback",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "perf-06-timeout-fixture"
+    ],
+    "write_call_lines": [
+      32,
+      36,
+      37,
+      37,
+      41,
+      42,
+      57,
+      57,
+      57,
+      81,
+      128,
+      187,
+      189,
+      197,
+      197,
+      222,
+      247
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_recolour_lab",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      70,
+      84,
+      95,
+      125,
+      126,
+      144,
+      145,
+      148,
+      149,
+      159,
+      160,
+      161,
+      167,
+      170,
+      171,
+      196,
+      197,
+      200,
+      201,
+      232,
+      237
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_relic_pt13_01",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      10
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_rr07_delivery",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      39,
+      40,
+      47,
+      52,
+      54,
+      63,
+      67,
+      74,
+      75,
+      76,
+      97,
+      151,
+      167,
+      168,
+      169,
+      171,
+      173
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr07_production",
+    "resources": [
+      "seer",
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/",
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr10_bone_evidence",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr10_feedback",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      33,
+      38,
+      43,
+      57,
+      61,
+      69,
+      69,
+      70,
+      71,
+      74,
+      76,
+      84,
+      85
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr10_humanoid",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      151,
+      153,
+      155,
+      158,
+      160,
+      211,
+      228,
+      229
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr10_layout_parity",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr10_native_exceptions",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      77
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr10_occluded_foot",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      35,
+      36,
+      72,
+      102,
+      104,
+      110,
+      118,
+      120
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr10_rear",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      61,
+      85,
+      90
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr10_reveal_fills",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      30,
+      45,
+      52
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr10_rope",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      33,
+      39,
+      41,
+      51,
+      52,
+      53,
+      60,
+      104,
+      105,
+      107,
+      114,
+      125
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr10_silhouette_gates",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      116,
+      117
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr10_tucks",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr11_humanoid",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      93,
+      95
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr12_delivery",
+    "resources": [
+      "grub"
+    ],
+    "written_paths": [
+      "experiments/cutouts/burrow_grub/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      38,
+      39,
+      46,
+      51,
+      53,
+      62,
+      66,
+      73,
+      74,
+      75,
+      96,
+      149,
+      165,
+      166,
+      167,
+      169,
+      171
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr12_production",
+    "resources": [
+      "grub"
+    ],
+    "written_paths": [
+      "experiments/cutouts/burrow_grub/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr12_stray",
+    "resources": [
+      "grub"
+    ],
+    "written_paths": [
+      "experiments/cutouts/burrow_grub/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr13_continuations",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      54
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr14_anatomy",
+    "resources": [
+      "thrall",
+      "tmp:/private/tmp/labyrinth_codex/rr-14/feedback1"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/",
+      "/private/tmp/labyrinth_codex/rr-14/feedback1"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [
+      "/private/tmp/labyrinth_codex/rr-14/feedback1"
+    ],
+    "isolated_godot_tasks": [
+      "rr-14"
+    ],
+    "write_call_lines": [
+      24,
+      31,
+      95,
+      126
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr14_bone_guards",
+    "resources": [
+      "thrall",
+      "tmp:/private/tmp/labyrinth_codex/rr-14/feedback1"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/",
+      "/private/tmp/labyrinth_codex/rr-14/feedback1"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [
+      "/private/tmp/labyrinth_codex/rr-14/feedback1"
+    ],
+    "isolated_godot_tasks": [
+      "rr-14"
+    ],
+    "write_call_lines": [
+      26
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr14_continuation_domains",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr14_foundations",
+    "resources": [
+      "thrall",
+      "tmp:/private/tmp/labyrinth_codex/rr-14"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/",
+      "/private/tmp/labyrinth_codex/rr-14"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [
+      "/private/tmp/labyrinth_codex/rr-14"
+    ],
+    "isolated_godot_tasks": [
+      "rr-14"
+    ],
+    "write_call_lines": [
+      50,
+      68,
+      94,
+      94,
+      95,
+      96,
+      97,
+      97,
+      114,
+      115,
+      119,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      148,
+      149
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr14_seer_identity",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr15_action_direction",
+    "resources": [
+      "thrall",
+      "tmp:/private/tmp/labyrinth_codex/rr-15"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/",
+      "/private/tmp/labyrinth_codex/rr-15"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [
+      "/private/tmp/labyrinth_codex/rr-15"
+    ],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      32,
+      120,
+      128
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr15_native_cleanup",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      42,
+      47,
+      64,
+      78,
+      106,
+      109
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr15_reach",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr15_shoulder",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      30,
+      31,
+      52
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr15_view_keys",
+    "resources": [
+      "thrall",
+      "tmp:/private/tmp/labyrinth_codex/rr-15"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/",
+      "/private/tmp/labyrinth_codex/rr-15"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [
+      "/private/tmp/labyrinth_codex/rr-15"
+    ],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      27,
+      35,
+      100
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr16_feedback1",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      119,
+      122,
+      136,
+      139
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr16_review_fixes",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      46,
+      49
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr17_cutout",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      59,
+      63
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr17_feedback",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [
+      "/private/tmp/"
+    ],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      55,
+      106
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr17_integration",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr17_production",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      65,
+      113,
+      131
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr18_air_policy",
+    "resources": [
+      "mirror"
+    ],
+    "written_paths": [
+      "experiments/cutouts/glacial_mirror/; assets/units/glacial_mirror_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      36,
+      47,
+      88,
+      99,
+      101,
+      110,
+      123
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr18_humanoid",
+    "resources": [
+      "mirror"
+    ],
+    "written_paths": [
+      "experiments/cutouts/glacial_mirror/; assets/units/glacial_mirror_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      80,
+      135,
+      142,
+      143,
+      164,
+      222,
+      224,
+      225,
+      230,
+      234,
+      236,
+      243,
+      246,
+      248,
+      267,
+      268,
+      273,
+      281
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr18_materials",
+    "resources": [
+      "mirror"
+    ],
+    "written_paths": [
+      "experiments/cutouts/glacial_mirror/; assets/units/glacial_mirror_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      95,
+      98,
+      99,
+      104,
+      105
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr19_overlap",
+    "resources": [
+      "capacitor"
+    ],
+    "written_paths": [
+      "assets/units/storm_capacitor_cutout/ (rr17 production mutation); experiments/cutouts/storm_capacitor/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      60,
+      144,
+      144
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr20_cutout",
+    "resources": [
+      "mimic"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hollow_mimic/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-20"
+    ],
+    "write_call_lines": [
+      96,
+      98,
+      107
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr20_feedback2",
+    "resources": [
+      "mimic"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hollow_mimic/"
+    ],
+    "imports": [
+      "test_rr18_humanoid"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      62,
+      64,
+      65,
+      67,
+      69
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr20_production",
+    "resources": [
+      "mimic"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hollow_mimic/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-20"
+    ],
+    "write_call_lines": [
+      27,
+      38
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr20_residue",
+    "resources": [
+      "mimic"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hollow_mimic/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      46,
+      48,
+      91,
+      93,
+      106
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr20_rest_space",
+    "resources": [
+      "mimic"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hollow_mimic/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      32,
+      35,
+      75,
+      76,
+      117
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr21_cutout",
+    "resources": [
+      "weaver"
+    ],
+    "written_paths": [
+      "experiments/cutouts/briar_weaver/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-21"
+    ],
+    "write_call_lines": [
+      147
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr21_production",
+    "resources": [
+      "weaver"
+    ],
+    "written_paths": [
+      "experiments/cutouts/briar_weaver/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      38
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr21_residue",
+    "resources": [
+      "weaver"
+    ],
+    "written_paths": [
+      "experiments/cutouts/briar_weaver/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      66,
+      69,
+      71,
+      81,
+      83,
+      84,
+      88
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr21_review",
+    "resources": [
+      "weaver"
+    ],
+    "written_paths": [
+      "experiments/cutouts/briar_weaver/"
+    ],
+    "imports": [
+      "test_rr21_cutout",
+      "test_rr21_walk"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      36,
+      91,
+      92,
+      93,
+      103,
+      105,
+      112,
+      152,
+      155,
+      169
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr21_walk",
+    "resources": [
+      "weaver"
+    ],
+    "written_paths": [
+      "experiments/cutouts/briar_weaver/"
+    ],
+    "imports": [
+      "test_rr21_cutout"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      38,
+      41,
+      43,
+      45,
+      49,
+      55
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr22_humanoid",
+    "resources": [
+      "mortar"
+    ],
+    "written_paths": [
+      "experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      117,
+      148,
+      150,
+      152,
+      157,
+      159,
+      162,
+      198,
+      220,
+      235,
+      241,
+      243
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr22_source_space",
+    "resources": [
+      "mortar"
+    ],
+    "written_paths": [
+      "experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      52,
+      55,
+      124,
+      127,
+      131,
+      193,
+      196,
+      199
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr23_owner_fixes",
+    "resources": [
+      "mirror"
+    ],
+    "written_paths": [
+      "experiments/cutouts/glacial_mirror/; assets/units/glacial_mirror_cutout/"
+    ],
+    "imports": [
+      "test_rr18_humanoid"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      92,
+      94,
+      98,
+      99
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr24_feedback2",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [
+      "test_rr24_thrall"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-24"
+    ],
+    "write_call_lines": [
+      51,
+      62,
+      68,
+      146,
+      147
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr24_policies",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      34,
+      48
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr24_thrall",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      42,
+      43,
+      123
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr25_mortar_finish",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      35
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_rr26_consolidation",
+    "resources": [
+      "mimic"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hollow_mimic/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      37,
+      39,
+      44,
+      44
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr26_fragments",
+    "resources": [
+      "mimic",
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hollow_mimic/",
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr26_hem_attachments",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr27_thrall",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      91,
+      141
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr28_continuations",
+    "resources": [
+      "shrike"
+    ],
+    "written_paths": [
+      "experiments/cutouts/gust_shrike/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      85,
+      118,
+      156
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr28_shadow",
+    "resources": [
+      "shrike"
+    ],
+    "written_paths": [
+      "experiments/cutouts/gust_shrike/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr29_historical_ranges",
+    "resources": [
+      "mimic"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hollow_mimic/"
+    ],
+    "imports": [
+      "test_rr20_cutout",
+      "test_rr28_continuations"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      41,
+      41,
+      45,
+      46,
+      49,
+      52,
+      54,
+      67,
+      69,
+      83,
+      86,
+      88,
+      98,
+      99,
+      100,
+      107,
+      116,
+      123,
+      125
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr29_mimic",
+    "resources": [
+      "mimic"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hollow_mimic/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-29"
+    ],
+    "write_call_lines": [
+      60,
+      61,
+      155,
+      162
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr30_joint_surfaces",
+    "resources": [
+      "mortar"
+    ],
+    "written_paths": [
+      "experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/)"
+    ],
+    "imports": [
+      "test_rr37_lancer"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      65,
+      78,
+      89,
+      92,
+      93
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr30_mortar",
+    "resources": [
+      "mortar"
+    ],
+    "written_paths": [
+      "experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr30_proof",
+    "resources": [
+      "mortar"
+    ],
+    "written_paths": [
+      "experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-30"
+    ],
+    "write_call_lines": [
+      53,
+      53,
+      54,
+      55,
+      70
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr30_stretch",
+    "resources": [
+      "mortar"
+    ],
+    "written_paths": [
+      "experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      108
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr31_calibration",
+    "resources": [
+      "mortar"
+    ],
+    "written_paths": [
+      "experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr31_finish_seams",
+    "resources": [
+      "mortar"
+    ],
+    "written_paths": [
+      "experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/)"
+    ],
+    "imports": [
+      "test_rr30_mortar"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      51
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr31_images",
+    "resources": [
+      "mortar"
+    ],
+    "written_paths": [
+      "experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      92,
+      124
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr31_storage",
+    "resources": [
+      "mortar"
+    ],
+    "written_paths": [
+      "experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      32,
+      46,
+      48,
+      62,
+      78
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr32_herald",
+    "resources": [
+      "herald"
+    ],
+    "written_paths": [
+      "experiments/cutouts/gale_herald/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      72,
+      179,
+      186,
+      187,
+      214,
+      279,
+      283,
+      286,
+      306,
+      386
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr32_production",
+    "resources": [
+      "herald"
+    ],
+    "written_paths": [
+      "experiments/cutouts/gale_herald/"
+    ],
+    "imports": [
+      "test_rr32_herald"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      27,
+      28
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr34_layering",
+    "resources": [
+      "herald"
+    ],
+    "written_paths": [
+      "experiments/cutouts/gale_herald/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr35_cutout",
+    "resources": [
+      "gloam"
+    ],
+    "written_paths": [
+      "experiments/cutouts/gloam_stalker/"
+    ],
+    "imports": [
+      "test_rr26_consolidation"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      193,
+      301,
+      302,
+      305,
+      315,
+      387,
+      392
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr35_native_defects",
+    "resources": [
+      "gloam"
+    ],
+    "written_paths": [
+      "experiments/cutouts/gloam_stalker/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      79,
+      84,
+      85
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr35_production",
+    "resources": [
+      "gloam"
+    ],
+    "written_paths": [
+      "experiments/cutouts/gloam_stalker/"
+    ],
+    "imports": [
+      "test_rr26_consolidation",
+      "test_rr35_cutout"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      27
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr37_feedback1",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [
+      "test_rr37_lancer"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      78,
+      79,
+      110,
+      147
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr37_feedback2",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [
+      "test_rr37_lancer"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      99,
+      100,
+      103,
+      106,
+      110,
+      114,
+      125,
+      126
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr37_feedback3",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [
+      "test_rr37_lancer"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      201
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr37_lancer",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      158
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr37_production",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [
+      "test_rr37_lancer"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr38_feedback1",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [
+      "test_rr38_gaoler"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      82,
+      105,
+      145,
+      145,
+      145,
+      146,
+      147,
+      149,
+      154
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr38_feedback2",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [
+      "test_rr38_gaoler"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      51,
+      95,
+      105,
+      128
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr38_feedback3",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [
+      "test_rr38_gaoler"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      73,
+      75
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr38_gaoler",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr39_clean_checkout",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      57,
+      58
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr39_density_partitions",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      39,
+      58,
+      61,
+      64,
+      76,
+      92,
+      116,
+      118
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr39_lancer",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [
+      "test_rr37_lancer"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr39_native_ties",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [
+      "test_rr37_lancer"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      181
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr39_proof_rerun",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      32,
+      32
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr39_retained_bindings",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [
+      "test_rr37_lancer"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr40_feedback",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      18,
+      19,
+      21,
+      26,
+      27,
+      28,
+      32
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr41_feedback1",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [
+      "test_rr37_lancer"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr41_feedback2",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [
+      "test_rr37_lancer"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      42
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr41_feedback3",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [
+      "test_rr37_lancer",
+      "test_rr41_feedback1",
+      "test_rr41_feedback2"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      106,
+      108,
+      110,
+      114,
+      220,
+      261,
+      265,
+      266,
+      288,
+      288,
+      293,
+      293,
+      293,
+      297,
+      297
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr41_lancer",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [
+      "test_rr37_lancer"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      38
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr42_feedback2",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      27,
+      34,
+      43,
+      72,
+      107,
+      108,
+      114,
+      117,
+      118,
+      119,
+      120,
+      135,
+      135,
+      136,
+      137,
+      140,
+      141,
+      142,
+      143
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr42_feedback3",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [
+      "test_rr42_gaoler"
+    ],
+    "declared_imports": [
+      "test_rr42_gaoler"
+    ],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      32,
+      33
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr42_gaoler",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [
+      "test_rr38_gaoler"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      73,
+      74,
+      74,
+      84,
+      87,
+      91,
+      92,
+      117,
+      141,
+      152,
+      156,
+      161,
+      169,
+      219,
+      223,
+      224,
+      226,
+      228
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr43_lancer",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      48,
+      55,
+      59,
+      61,
+      111,
+      112,
+      115,
+      123,
+      125,
+      130,
+      131,
+      134,
+      137,
+      159,
+      166,
+      167,
+      170
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr43_outline",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      25,
+      42,
+      47,
+      49,
+      54
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr44_feedback1",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_maquette_rear_turn",
+      "test_rr44_motion"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      41,
+      42,
+      43,
+      132,
+      138,
+      138,
+      143,
+      181,
+      207
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_rr44_feedback1_calibration",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      51,
+      52
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_rr44_feedback2",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [
+      "test_rr44_motion"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      43,
+      47,
+      53,
+      54,
+      57,
+      120,
+      153,
+      156,
+      156,
+      162,
+      175,
+      178,
+      178,
+      184,
+      203,
+      206,
+      206,
+      212,
+      327,
+      342
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr44_gaoler",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      34,
+      41,
+      43,
+      45,
+      50,
+      57,
+      103,
+      104
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_rr44_motion",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      80,
+      82,
+      85,
+      97,
+      117,
+      127,
+      128
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_rr45_lancer",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_rr37_lancer"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      108
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_rr46_playback",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-46"
+    ],
+    "write_call_lines": [
+      61,
+      76,
+      81,
+      90,
+      90,
+      137,
+      142,
+      147,
+      147,
+      151,
+      201,
+      203,
+      205,
+      215,
+      218,
+      221,
+      224,
+      225,
+      238,
+      242,
+      243,
+      247,
+      264,
+      264,
+      269,
+      270
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_rr46_preserve_arc_thrall",
+    "resources": [
+      "thrall"
+    ],
+    "written_paths": [
+      "experiments/cutouts/arc_thrall/; assets/units/arc_thrall_cutout/; /private/tmp/labyrinth_codex/rr-14/; /private/tmp/labyrinth_codex/rr-15/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr46_preserve_briar_weaver",
+    "resources": [
+      "weaver"
+    ],
+    "written_paths": [
+      "experiments/cutouts/briar_weaver/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr46_preserve_chainbound_gaoler",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr46_preserve_frostglass_lancer",
+    "resources": [
+      "lancer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/frostglass_lancer/; assets/units/frostglass_lancer_cutout/humanoid_v2/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr46_preserve_gale_herald",
+    "resources": [
+      "herald"
+    ],
+    "written_paths": [
+      "experiments/cutouts/gale_herald/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr46_preserve_glacial_mirror",
+    "resources": [
+      "mirror"
+    ],
+    "written_paths": [
+      "experiments/cutouts/glacial_mirror/; assets/units/glacial_mirror_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr46_preserve_gloam_stalker",
+    "resources": [
+      "gloam"
+    ],
+    "written_paths": [
+      "experiments/cutouts/gloam_stalker/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr46_preserve_hoarfrost_seer",
+    "resources": [
+      "seer"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hoarfrost_seer/; assets/units/hoarfrost_seer_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr46_preserve_hollow_mimic",
+    "resources": [
+      "mimic"
+    ],
+    "written_paths": [
+      "experiments/cutouts/hollow_mimic/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr46_preserve_slag_mortar",
+    "resources": [
+      "mortar"
+    ],
+    "written_paths": [
+      "experiments/cutouts/slag_mortar/ (proof/seams.json, joint_cleanup/, proof/logs/)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr47_depth",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-47"
+    ],
+    "write_call_lines": [
+      62,
+      69,
+      78,
+      80,
+      82,
+      84,
+      105,
+      109,
+      112
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_rr47_feedback1",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-47"
+    ],
+    "write_call_lines": [
+      43,
+      120,
+      153
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_rr47_feedback2",
+    "resources": [],
+    "written_paths": [],
+    "imports": [
+      "test_rr47_depth"
+    ],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      24,
+      88,
+      96,
+      117,
+      128
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_rr49_native",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-49"
+    ],
+    "write_call_lines": [
+      51,
+      52,
+      63,
+      64
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_rr49_submission",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-50"
+    ],
+    "write_call_lines": [
+      29,
+      32,
+      68,
+      69,
+      73,
+      76,
+      80,
+      114,
+      188,
+      188
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_runner_cancellation",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      162,
+      275
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_sb02_movement",
+    "resources": [
+      "sb02-proof"
+    ],
+    "written_paths": [
+      "/private/tmp/sb02-proof/ (standalone matched-proof entry point)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [
+      "/private/tmp/sb02-proof"
+    ],
+    "isolated_godot_tasks": [
+      "sb-02"
+    ],
+    "write_call_lines": [
+      23,
+      33,
+      33,
+      35,
+      35,
+      37,
+      42,
+      50
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_section_transition_clip",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [
+      "/private/tmp/flow-01-clip-command-test",
+      "/private/tmp/flow-01-clip-test"
+    ],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_semantic_maquette_motion",
+    "resources": [
+      "bloomer",
+      "wisp"
+    ],
+    "written_paths": [
+      "experiments/cutouts/shale_bloomer/",
+      "experiments/cutouts/lightning_wisp/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-05"
+    ],
+    "write_call_lines": [
+      30,
+      33,
+      48,
+      80,
+      87,
+      97,
+      108,
+      117,
+      126,
+      126
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_sfx_lab",
+    "resources": [
+      "sfx-proof"
+    ],
+    "written_paths": [
+      "Caller-supplied sfx --proof-out directory (disabled during discovery)"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      116,
+      131,
+      139,
+      141,
+      240,
+      241,
+      242,
+      243,
+      244,
+      248,
+      249,
+      250,
+      253,
+      254,
+      255,
+      272,
+      282,
+      396,
+      430,
+      431,
+      432,
+      433,
+      434,
+      435,
+      438,
+      539,
+      568,
+      569,
+      570,
+      575,
+      613,
+      624,
+      682,
+      698,
+      709,
+      710,
+      715,
+      716,
+      724,
+      729,
+      746,
+      748,
+      760,
+      780,
+      788,
+      791,
+      794,
+      800,
+      820,
+      823,
+      846,
+      847,
+      849,
+      850,
+      853,
+      855,
+      860,
+      874,
+      891,
+      1007,
+      1013,
+      1014,
+      1030,
+      1033,
+      1045,
+      1046,
+      1054,
+      1088,
+      1092,
+      1099,
+      1101,
+      1111,
+      1112,
+      1113
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  },
+  {
+    "module": "test_short_card_tooltips",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_skybolt_measurement",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "meas-03"
+    ],
+    "write_call_lines": [
+      101,
+      110,
+      119,
+      139
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_special_encounter_assets",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_steam_performance_stats_schema",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_test_registration_audit",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      19,
+      23,
+      24,
+      33,
+      37,
+      41,
+      49,
+      53,
+      59,
+      65,
+      74,
+      79,
+      89,
+      100,
+      107,
+      116,
+      119,
+      123,
+      128,
+      134,
+      154,
+      155,
+      190,
+      194,
+      195,
+      199,
+      205,
+      206,
+      207,
+      209,
+      209,
+      213,
+      214,
+      215,
+      216,
+      217,
+      221,
+      230,
+      232,
+      232,
+      233,
+      237,
+      241,
+      242,
+      243,
+      246,
+      250,
+      254,
+      260,
+      262,
+      264,
+      264,
+      268,
+      272,
+      273,
+      274,
+      280,
+      287,
+      288,
+      289,
+      290,
+      292,
+      293,
+      297,
+      301,
+      302,
+      304,
+      306,
+      310,
+      314,
+      318,
+      322,
+      331,
+      335,
+      342,
+      353,
+      355,
+      358,
+      362,
+      363,
+      368,
+      371,
+      374,
+      378,
+      393,
+      406
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_text_budget",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_transition_differential",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_ui_identity_lint",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      45,
+      47,
+      102,
+      103,
+      149,
+      151,
+      160,
+      164,
+      167,
+      168,
+      194,
+      195,
+      196,
+      204,
+      213,
+      215,
+      218,
+      219,
+      221,
+      224,
+      246,
+      250,
+      258,
+      260,
+      261,
+      274,
+      275,
+      276,
+      277
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_visual_pass_4_assets",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      29,
+      30,
+      34,
+      64,
+      93,
+      105
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  },
+  {
+    "module": "test_visual_probe_runner",
+    "resources": [],
+    "written_paths": [],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [],
+    "write_call_lines": [
+      39,
+      52,
+      262,
+      280,
+      295
+    ],
+    "isolation": "explicit temporary-only/read-only declaration; runner HOME unique per invocation"
+  }
+]

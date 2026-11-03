@@ -1,7 +1,7 @@
 # Local Analytics
 
 `chronicle_opened` is an additive, local-only event emitted once on opening the
-Chronicle from the main menu. Its payload is `{records, runs}`: the current
+Chronicle from the main menu or the run-end screen. Its payload is `{records, runs}`: the current
 visible record count (at most 50) and the uncapped Chronicle lifetime run total.
 It uses the ordinary append-only JSONL writer and session/install metadata; it
 does not rewrite existing history or emit on record selection. Probe-only opens
@@ -28,6 +28,42 @@ Each event includes a stable `install_id`, per-launch `session_id`, monotonic
 `sequence`, `run_id`, and `combat_id` when available. Emitters that can be
 replayed after a crash may also provide a top-level `idempotency_key`; writing
 an already-recorded non-empty key succeeds without appending a second line.
+
+During a run scene, event records (including timestamp, sequence and context)
+are still built at their existing logical boundaries. Their owned records are
+queued to an ordered main-thread FIFO. JSON serialization and append/flush run
+on a later frame, with at most one automatic disk operation per frame (one
+checkpoint or one analytics batch). Events queued for the same file share the
+pending batch. Before 0.5 seconds, rule-resolution and card-commit frames are
+excluded; animation-only frames can drain the queue. At 0.5 seconds the cap wins:
+the next frame services overdue work even during resolution or a reserved
+post-draw continuation. Ready writers are ordered by time since their last
+service, so failed checkpoints cannot starve analytics. No save or analytics worker threads
+are used. A later event cannot overtake an earlier batch.
+Pending idempotency keys are reserved immediately for deduplication; durable receipt checks exclude those reservations. Reading events or using the
+synchronous store API flushes pending writes first. Replay-safe outbox and cursor
+acknowledgments wait for completed checkpoint and analytics writes; queue
+acceptance alone never acknowledges an outbox. Failed writes remain queued and
+retry on the next eligible frame and each barrier; a failed barrier returns failure.
+A newer checkpoint may replace unattempted snapshots, and only a successful
+newer write retires failed predecessors. Append failures invalidate in-memory
+surface/map replay cursors, retaining idempotent retry. Run end, new run, Continue,
+save-and-quit, window close and scene exit synchronously flush the queues;
+`has_saved_run()` and load are checkpoint barriers. Before a session's first
+append and after a failed append, an unterminated tail receives a newline.
+Complete prefix bytes are preserved, malformed partial lines are ignored on read,
+and completed records from a retried batch are deduplicated by their existing event
+IDs or idempotency keys. Explicit storage-namespace changes retain failed batches in their original namespace; returning to it resumes retry, and lifecycle barriers attempt every namespace. A hard process termination can lose a pending tail;
+completed JSONL history remains append-only.
+
+A failed flush preserves the original transition policy, rather than adding a
+new dialog or blocking a transition that previously proceeded. Failed committed
+checkpoints report their original boundary error once; explicit Save is a
+synchronous boundary and reports its actual result. Exit, Save & Quit and Continue
+can proceed with the preceding durable checkpoint, as in the pre-perf03 path.
+New-run failure retains the existing recovery notice. Explicit run clearing still
+deletes the ended/abandoned run after a failed checkpoint attempt and cancels its
+queued writes, preventing later resurrection.
 
 Run and combat events also include the current character progression snapshot in
 their context when available:
@@ -110,6 +146,7 @@ retains complete JSONL rows and trims an interrupted final line before resuming.
 - `card_played`
 - `player_moved`
 - `player_move_undone`
+- `player_turn_started`
 - `player_turn_ended`
 - `enemy_action_resolved`
 - `enemy_status_tick`
@@ -170,6 +207,27 @@ the sum of emitted base and feat rows. Durable ledger replay preserves both
 score and unlock idempotency. See [Umbra Depths](depths.md) for progression,
 save compatibility and proof.
 
+## Summon Card Plays (sum-01)
+
+`player_turn_started` is emitted at the existing enemy-phase analytics boundary
+when the resolver hands control to the next hero activation. Its integer
+`summon_card_plays` is the pending summon bonus consumed at that start, before
+Frozen or other restrictions forfeit plays. It excludes relic plays and is zero
+for starts without a summon bonus. The initial combat activation has no preceding
+enemy phase and does not emit this event.
+
+`enemy_action_resolved` adds boolean `granted_card_play` on summon actions. It is
+true only when that move brought at least one enemy onto the board and banked
+exactly one play. Blocked/capped moves record false. With bos-03 all remaining
+`summon_minions` are authored, including Call the Spark and Snuff, and pay on
+arrival. Automatic Guardian replacements and their `summon_origin` distinction
+are retired; Continue removes old injected actions before gameplay resumes.
+Historical JSONL records retain their original values. Death spawns and Survive
+waves never bank summon plays. Multiple
+qualifying moves stack without a cap in saved `pending_summon_card_plays`; the
+next start consumes that field alongside, but separately from, relic plays.
+Existing local-first append-only JSONL delivery remains unchanged.
+
 ## Player activation ends
 
 `player_turn_ended` records one committed hero activation end. `end_reason` is
@@ -213,7 +271,7 @@ remains acquisition history, including copies later purged.
 Consumable item loadout state is included as `equipped_items` and
 `item_inventory`.
 
-Chain attack presentation uses an opt-in resolver trace of hit order and intermediate snapshots. The trace is returned separately from combat state; it is not saved or logged. Damage, keyword resolution, card payment and analytics event boundaries remain the ordinary atomic action. The UI reveals each committed target outcome as its bolt arrives.
+Chain attack presentation uses an opt-in resolver trace of hit order and intermediate snapshots. The trace is returned separately from combat state; it is not saved or logged. Its `from`/`to` endpoints are the nearest footprint tiles for each hop, shared with preview and the resolved route; the hit actor remains identified by ID even when the endpoint is not its anchor. Damage, keyword resolution, card payment and analytics event boundaries remain the ordinary atomic action. The UI reveals each committed target outcome as its bolt arrives.
 
 Card selection, cancellation and optional aim adjustments remain speculative.
 The one-decision card flow commits and emits `card_played` exactly once after
@@ -265,11 +323,12 @@ movement, and surface creation/consumption payoffs during the resolved transitio
 - card play economy during resolution: plays spent, remaining plays before/after,
   net remaining-play delta, total play capacity gained, kill-granted plays, and
   card-action-granted plays
-- Flurry identification via `flurry` plus the snapped repeat/spend count in
+- Dormant Flurry identification (flu-01; no shipped cards use it) via `flurry` plus the snapped repeat/spend count in
   `flurry_plays_spent`; the resolved action list contains every printed action
   for every repeat so realized utility, damage, and target selection remain
   observable. Initiative fields record the single top-level time payment rather
-  than multiplying it by `flurry_plays_spent`.
+  than multiplying it by `flurry_plays_spent`. Keep both additive fields; shipped
+  cards report `false` and `0`.
 - initiative timing: printed `card_time`, player turn time spent before/after
   the play, and the current `player_base_initiative`
 - card keywords (additive, `spec/card_keywords.md`): `follow_up_active` (the
@@ -373,9 +432,102 @@ When immediate range/line-of-sight filtering leaves no useful intent, the
 ordinary authored fallback remains selected (for example, Briar Weaver's Lash
 after Thornwall when no ally needs healing). Its printed Time still applies.
 Resolved fallback actions keep the existing `enemy_action_resolved` actor,
-`intent_id`, and realized-outcome fields; an unreachable shot emits no fabricated
-hit or action event, matching the existing no-op action policy.
-Intent selection and cancelled badges do not add events or rewrite history.
+`intent_id`, and realized-outcome fields. Unresolved attacks and status-prevented
+activations also use `enemy_action_resolved`, with additive `no_action_reason`:
+`no_partner`, `not_aligned`, `out_of_range`, `no_line_of_sight`, `no_target`, `shocked`, `frozen`, `petrified`,
+or `immobilized`. The field is empty for ordinary resolved actions. A reason
+records the resolver's failed attempt or activation restriction, with empty loss
+arrays; it never fabricates a hit. Immobilized is recorded only when a planned
+move was prevented, including turns that still attack. Shocked can accompany a
+resolved move; the move event retains its ordinary empty reason. Start-of-turn
+status ticks remain available in `enemy_status_tick`. Presentation callouts do
+not add events or rewrite history.
+Arc Thrall's Arc Bolt emits ordinary movement and ranged
+`enemy_action_resolved` events with `intent_id: "arc_bolt"`. Its Electrified
+placement uses existing surface events. Retired IDs migrate only in Arc Thrall
+intents and playback entries whose actor resolves to an Arc Thrall in the owning
+combat or continuation snapshot. Unrelated save data and historical append-only
+analytics stay unchanged.
+Legacy reason values remain schema-compatible even though the retired mechanic
+no longer emits them.
+Hollow Mimic uses the same event boundary for its embedded approach move and
+copied action. Arrival losses and triggered traps belong to the move; the copied
+action records only post-move losses, and none when its live footprint is empty
+or the action was prevented. Both retain the acting Mimic's identity and context.
+Mimic captures transient intermediate board snapshots at the action
+and each reaction boundary. Each reaction owns realized losses for all victims,
+including collision collateral from Retaliate Push. Their reaction surface
+events and `enemy_status_tick` payloads add `target_losses`, `enemy_losses`, and
+`terrain_losses`; snapshots are presentation-only and are never serialized in
+surface events. Event sequence preserves reaction resolution order. When the
+per-victim arrays are present, use them for realized losses instead of adding
+them to the legacy attacker-only scalar loss fields.
+After those reactions, Mimic captures each deferred surface-death
+hook and each FIFO death burst as an owning step, with its own intermediate
+board and realized loss arrays. The copied-action payload excludes these
+cascade losses. `enemy_status_tick` adds `trigger: "deferred_death"`,
+`action_type: "surface_death"` or `"death_burst"`, the source `actor_key` and
+`tile`, and additive `cascade` metadata (`action_type`, source enemy `id`,
+`tile`; bursts also include `tiles` and authored `damage`). These rows carry
+`target_losses`, `enemy_losses`, and `terrain_losses`; aggregate those arrays
+alongside arrival, action and reaction events for whole-turn totals. The new trace
+snapshots and engine-local capture cursor never enter saves or analytics.
+Each Bleed payment in these traced turns owns its immediate board and realized
+losses: the move payment precedes movement, and the attack payment follows all
+arrival/cascade/resumed-movement steps immediately before the attack. The
+attack's loss baseline is after that payment. Lethal Bleed emits its defeat
+on that payment and suppresses the actor's subsequent move or attack. These
+remain ordinary `enemy_status_tick` Bleed events (`trigger: "action"` and the
+charged `action_type`), with the trace-only loss arrays above; transient
+payment markers and snapshots are not serialized. When Bleed needs an ordered
+boundary, the movement is emitted as the same ordered top-level legs used for
+arrival cascades.
+Trace capture also starts before Mimic's approach.
+If an arrival triggers a synchronous death cascade, the trace splits the walk
+at that tile: arrival-owned losses remain on `move`, the burst owns its own
+losses, then movement resumes from the captured board. These ordered top-level
+steps precede the action and use the ordinary movement analytics event.
+A resumed burst fragment has `cascade_continuation: true`; it applies only its
+remaining board/losses and never restarts that source's ring or cue. A
+surface-only continuation is bookkeeping, with no extra feedback beat.
+All traced owners use the same immediate capture function, before death hooks
+flush: arrival effects, move/attack/retreat Bleed, activation-start Fire, the
+action and each Retaliate/reflection. The flush seals the current owner before
+it drains deaths; each resulting surface-death/burst retains its own losses,
+board and source. Payment/activation cascades are inserted directly after that
+charge, before later movement or attack, even when the cascade ends combat.
+Activation Fire retains its existing status event with traced
+`action_type: "activation_fire"`. The transient charge/owner markers and board
+snapshots are never serialized. Mimic's copied hits use the shared illusion
+reflection hook as well as Retaliate; their reactions follow the copied action.
+Traced snapshots retain the complete serialized combat state, including actor
+rosters, status counters, charges and board-only death hooks such as Ooze splits.
+A split seals its newborn roster before arrival effects. Each newborn contact
+has a `spawn_arrival` owning status step, including its realized losses and any
+lethal landing; the birth snapshot is the baseline for whole-turn lifetime
+loss totals. Untraced shared snapshots retain their legacy field list.
+Only the scoped resolver fields `damage_context`, `_surface_damage_batch`,
+`_surface_pending_deaths`, `_death_burst_queue` and `_death_burst_running` are
+deferred until the enclosing scopes finish. The legacy `death_burst_events`
+journal is applied after explicit traced burst feedback to prevent replay. A
+per-enemy `death_burst_resolved` FIFO guard is likewise deferred to turn cleanup.
+A silent terminal state application (or the existing final intent refresh) then
+matches the resolved turn with no deferred fields. Activation Fire retains its
+pre-consumption boundary; a following skipped-action snapshot owns consumed
+Freeze/Petrify counters. These state applications add no combat analytics rows,
+damage, revival, burst effect or sound. Full-state equality is checked against
+an independent ordered resolver journal and actual presented state using exact
+Variant types and values (including container element declarations). Owning
+steps match resolver owner events one to one in execution order, including
+Fire before status consumption and an action before its reactions. The journal
+is recorded at raw resolver boundaries, without reading presentation traces or
+returned step arrays. Only no-op child scopes and uninterrupted unpaid movement
+coalesce; raw interval records remain available. Journal metadata, transient
+snapshots and `trace_state_after` never enter saved state or append-only analytics.
+The additive cascade and loss fields on `enemy_status_tick` are attached only
+to traced steps (`reaction_after`). Untraced status rows retain the exact
+legacy schema and values. Existing append-only death/surface records and
+untraced mechanics' presentation payloads retain their meaning.
 Group support actions include additive `support_targets` entries with each
 recipient's actor key, display name, tile, and realized amount; this lets Warden
 Bulwark record every protected ally without splitting one intent into misleading
@@ -868,8 +1020,8 @@ Guardian `enemy_action_resolved` records add `guardian_mechanic`, `declared_tile
 and `resolved_tiles`; broken cover can shrink a previously declared quake or
 blocked lane. They also add `interrupted`; interrupted Guardian status steps
 remain in this event stream instead of disappearing with their cancelled attack.
-Conduction resolution tiles include the entire affected network. Replacement
-summons use the same Guardian helper event on every successful return. Reinforcement creation, brazier outages/restoration, outcrop creation
+Conduction resolution tiles include the entire affected network. Authored Guardian
+summons use the same Guardian helper event on every successful return. Helper creation, brazier outages/restoration, outcrop creation
 and Illusion relocation use the existing append-only `surface_event` stream and
 its combat/sequence idempotency keys. Illusion movement consumes shared Move but is not counted as `player_moved`.
 Its payload records Illusion id/path, movement spent, and source relic.
@@ -948,7 +1100,10 @@ Worldroot automatic origin selection is part of the same card commit: the chosen
 an area force moved). The append-only `surface_event` stream adds `force_area`
 (`center`, `radius`, `force`, `amount`, `expose`, `consumed`, per-enemy `from`/`to`),
 `swap` (`from`, `to`, `other_kind`, `other_key`), `petrified` (`enemy_id`,
-`block`), `statuses_cleansed` (`statuses`), `mantle_gained` (`amount`, `layers`),
+`block`, `source`; relic-spread Petrify identifies `source.relic_id` with
+`source_kind: relic`; `block` is 5 for a newly Petrified enemy and 0 for
+reapplication while already Petrified), `statuses_cleansed`
+(`statuses`), `mantle_gained` (`amount`, `layers`),
 and `crystal_mantle_broken` with `actor_kind: player`. Area-force and Squall
 collisions use the existing `force_collision` event. Existing fields keep their
 meaning.
@@ -1024,9 +1179,29 @@ Player-raised kegs and Worldspines use the existing `terrain_created` event with
 
 The existing append-only `surface_event` stream gains a `source` dictionary on
 `surface_removed`, copied from the active damage context. This distinguishes
-hero consumption from enemy or trap consumption for stored-ground relics;
+hero consumption from enemy or trap consumption for Expend relics;
 replacement and transport do not count as spending ground. Placement and death
 spreads continue to use the ordinary surface-created/replaced events.
+
+Black Sun Dial retains the existing `surface_event` / `surface_removed` trigger
+records (there was no separate Dial trigger event on the pt13-01 base). Player
+removals whose source is tagged `surface_consume: true` gain additive
+`damage_added`: 3 per tile, or 0 when the pending next-attack bonus is already
+capped at 9. The tag comes from the removing card/relic's Expend wording or
+keyword panel, independently of the removal reason. Relic-driven removals add
+`source.removal_relic_id`, overriding the triggering card's Expend tag with the
+removing relic's identity. Original source fields, sequence and removal reason
+are preserved; the commit flush remains local-first and append-only. Untagged
+sources grant nothing, including ordinary detonation and clearing. Its bonus
+uses ordinary next-attack preview and `next_attack_bonus_used` reporting.
+
+Trap sources retain additive `causal_source_kind: trap` through nested collisions
+and relic removals even when their current `source_kind` becomes
+`force_collision`. Both direct and trap-caused removals are excluded from Dial
+fuel. Collection runs after ordinary actions and after each shared echo resolver
+(for preview, animation and commit). The combat state's
+`relic_dial_surface_sequence` cursor prevents overlapping collectors, repeated
+previews or resumed states from crediting an already handled removal twice.
 
 Independent `player_moved` payloads gain `light_refunds`, the number of movement
 points returned by hero-created Light during that request. `spent` remains the
@@ -1103,6 +1278,22 @@ Forecast copies and presentation append no external analytics.
 
 ## Event card rewards
 
+evt-02 hover previews, result beats and combat omen name popups are presentation
+of the existing `EventRules.preview_lines`/`preview_choice` outcomes. They do not
+resolve effects, add events, or write saves. Choice ownership and the existing
+map-event receipt are committed before beats start; skipping, explicit saving,
+loading a result page, or reduced motion cannot grant anything again. The
+ordinary `map_event_resolved`, `omen_gained`, `omen_expired` and `reward_choice`
+payloads and local-first append-only writer are unchanged.
+
+evt-02 feedback 1 records `omen_start_applied_ids` in newly created combat
+snapshots solely for presentation. The resolver records only actual stat,
+Vision, surface or Umbra changes; generated layouts report actual extra enemies
+added, including no receipt for bosses, Guardians, specials or a full board.
+Clamped/no-op and drop-time effects do not announce at fight start. This additive
+receipt adds no analytics event or payload field and changes no omen numbers.
+Old combat snapshots without it remain readable and do not fabricate a firing.
+
 Event card claims and skips retain the ordinary `reward_choice` payload and add
 `reward_kind: "event"` plus the pending reward's `event_id`. `choice_kind` remains
 `card` for a claim and `heal_skip` for a skip. Combat rewards use `reward_kind:
@@ -1111,7 +1302,7 @@ append-only JSONL files are never rewritten.
 
 EN06 Charge (`gain_charge`) is an ordinary `enemy_action_resolved` event rather
 than an `enemy_status_tick`; its status-shaped animation does not make it a
-turn-start status decrement. Discharge and Mirror use the existing ranged/area
+turn-start status decrement. Discharge and Echo use the existing ranged/area
 classification. Event types, local JSONL storage and source attribution stay
 unchanged; no new enemy-mechanic analytics event is introduced.
 
@@ -1142,6 +1333,9 @@ A run persists its opening offer before the first deliberate conversation:
 - `heirloom_left`: `{item, none}`. Empty `item` and `none: true` mean Leave
   nothing, which retains the existing progression heirloom. The selected base
   equipment id replaces the old heirloom; no graft or upgrade data is stored.
+  Equipped starter ids are never offered or accepted. With no eligible piece,
+  the prompt is skipped, `heirloom_end` records `{"item": "", "done": true}`,
+  and this event additionally records `skipped_no_eligible: true`.
 
 Receipts travel in `opening_boon_events` with the committed run. The scene emits
 only after saving the gameplay boundary, and replays receipts on resume using
@@ -1181,3 +1375,155 @@ These derive from the saved combat objective through
 freezes the winning moment. No event is renamed, schema version changes, prior
 record is rewritten or network dependency is introduced. Both paths retain the
 local-first append-only JSONL writer and the existing special/variant context.
+
+## Last Light (spx-08)
+
+Both UI and headless console append `braziers_lit_at_dawn` and `brazier_snuffs`
+to the existing `combat_ended.payload`, through `CombatEngine.last_light_context`.
+`braziers_lit_at_dawn` counts lit braziers in the final state of a victory (dawn)
+and is 0 on any other outcome or outside Last Light; `brazier_snuffs` counts the
+Wick Shades' successful Snuffs this fight (saved as `objective.brazier_snuffs`),
+0 outside Last Light. The special type and variant already ride in every event's
+encounter context. Each Snuff also records a `surface_event` with
+`kind: "brazier_snuffed"` (`brazier_id`, `tile`, `source`), and a room-enabled
+relight records `kind: "brazier_relit"` (`brazier_id`, `tile`, `trigger`,
+`source`); Noctyrax's relight keeps `dragon_light_restored`. A Last Light victory's
+`reward_offered.payload.healed_amount` is the dawn heal actually applied. No event
+is renamed, no schema version changes and the local-first append-only JSONL writer
+is unchanged.
+
+## Umbral Snare pressures (spx-06)
+
+Both UI and console add `combat_ended.payload.snare_pressure`: the variant's
+pressure id, or an empty string outside a Snare. Each pressure application emits
+one `snare_pressure` event with exactly `{id, player_turn, tiles}` per completed
+pressure boundary, including a beat with no affected tiles. The existing pressure
+IDs remain stable save/analytics identifiers; they no longer select bespoke
+combat effects. The authoritative shared effect emits `battlefield_rule_fired`.
+Initial sealing-door Ice uses player turn `0`. Committed beat tiles are retained
+on room-sourced instances as `last_beat_tiles`, grouped by the shared outcome
+projection; legacy pressure telemetry flattens those groups. Headwind and Umbra
+keep empty legacy `tiles` arrays. Umbra rings still shrink on their authored
+cadence alongside Shadowstep. No pressure resolves after a completed escape or
+repeats at the same saved player-turn boundary. Arc Bolt leaves Electrified ground,
+which the room's Lightning Storm strikes on its beat.
+
+Pressure records share the saved surface-event sequence and bounded pending
+stream. The UI's existing checkpoint/outbox flush writes the new event type;
+the console flushes the same records at its committed action/turn/transition
+boundaries. `snare_pressure|<combat_id>|<surface_sequence>` is the stable
+idempotency key, so repeated flushes and resumed checkpoints cannot duplicate a
+change. Existing surface events retain their names and payloads. No schema
+version, existing field, append-only writer or network behavior changes.
+
+For Snare end-turn forecasts, activation-end preparation runs on an owned trial
+snapshot. Trial surface/skill events are never flushed. Only committed pressure
+changes enter the saved event stream, after the escape/preparation guards.
+Pressure presentation projects drawn tiles, displacement paths and collision
+markers; it never carries resolver `analytics` data into render memo results.
+
+## Battlefield rules (el-01)
+
+`battlefield_rule_fired` is an additive local-first event, once per committed beat.
+Its payload is `{rule, source_kind, source_type, beat_index, affected_units,
+tiles_changed, damage_to_player, damage_to_enemies, half_health_switched}`. `source_kind` is `enemy`
+or `room`; `source_type` is the enemy type or empty for a room. `beat_index` is
+one-based within the instance. `affected_units` counts distinct units moved,
+damaged, given a status, or losing defense. `tiles_changed` counts distinct tiles
+with ground/terrain creation, replacement or removal. Damage totals are actual
+Health lost, after defense, separated by team (illusions are not enemies).
+The existing saved surface-event sequence and combat id form its retry-safe key
+`battlefield_rule_fired|<combat_id>|<sequence>`. The ordinary committed surface
+flush emits it to the append-only JSONL stream. Forecasts resolve on private
+copies and never emit analytics. No historical event or schema is rewritten.
+
+bos-04 records `laid_player_activation` in each new ground layer's existing source
+record (and its ordinary placement event source), using the saved `turn` index.
+A beat still emits its scheduled `battlefield_rule_fired` event when all fuel is
+fresh, with zero affected units/tiles/damage. Fuel becomes eligible after a later
+player activation begins; entry hazards and other ground effects are unchanged.
+The forecast uses the same boundary, including every ground relay and connected
+conductor used by rule-beat lightning. Ordinary attacks still conduct through
+fresh ground immediately. Upheaval stores its warning's source and lay
+index in `marks_source` and retains fresh marks across an early beat. Old saves
+without these additive timestamps keep their previously announced eligibility;
+replacement ground receives a new timestamp. Existing JSONL events remain
+append-only, and no analytics event type or historical payload is rewritten.
+
+bos-01 adds `half_health_switched` as a boolean on every committed `battlefield_rule_fired`:
+true after this instance's declared half-Health switch has fired, false otherwise. Legacy pending beat records
+without the field serialize it as false. Internal saved surface events omit the default false value,
+preserving existing combat/save roundtrips; the JSONL adapter always includes the boolean.
+Historical JSONL records are not rewritten.
+
+Once per declared enemy-source threshold, `battlefield_rule_switched` carries exactly
+`{rule, source_type, beat_index}`. Here `beat_index` counts beats already fired at the accepted-action boundary (zero is
+valid before the first beat), while fired events remain one-based. The resolved source must be alive with
+`hp * 2 <= max_hp`, after defense and the complete committed action. Its saved instance latch prevents a repeated switch after another hit,
+reinstallation or Continue. Its retry key is `battlefield_rule_switched|<combat_id>|<sequence>`, using the same
+saved surface-event sequence and local-first append-only stream as beats. UI and console both flush the additive
+event. Forecasts and card previews emit no committed event. The source-name banner is presentation metadata on
+the internal surface event, not an additional field in the analytics payload; Continue does not replay it.
+
+The el-02 Warband and Snare instances use this same event and source lifetime.
+Enemy intent names and Time remain unchanged. Ordinary Thornwall uses Upheaval's
+terrain/displacement primitive, Icefall leaves Ice, and Thrall lines use Lightning
+Strikes with Electrified ground; their existing primitive events and actor
+ownership remain the source of hit, ground and terrain analytics. Legacy save
+loading removes Bramble/Ice Pillar terrain without rewriting event history.
+
+## Guardian battlefield rules (bos-03)
+
+Each Guardian installs its enemy-owned instance from `data/battlefield_rules.json`.
+Its beats use the existing `battlefield_rule_fired` event and damage-by-team fields;
+no second analytics path or schema is introduced. `guardian_helper_summoned` is now
+limited to arrivals from Call the Spark and Snuff. The display-only renames Rime Bite
+and Crag Heave retain intent ids `frostbite` and `upheaval` in saves and analytics.
+Lay the Choir's full tile budget is recorded through the existing Guardian surface
+action's declared and resolved tiles. It adds six fresh tiles when legal connected
+ground is available; exhausted ground may yield fewer. Forecast and playback use
+the same committed footprint, including extensions after the connector reaches
+its target. No event fields or historical records are rewritten.
+
+## Ember Hoarder (spx-09)
+
+Both UI and headless console add two fields to the existing
+`combat_ended.payload`: `hoarder_result` (`"caught"`, `"escaped"`, or `""` while
+it is still at large or outside a Hoarder room) and `hoarder_caught_turn` (the
+hero turn of the catch, 0 otherwise). They derive from the saved objective
+through `HoarderRoomRules.analytics`. The special type is the existing
+`special_type` context dimension (`ember_hoarder`). No event is renamed, no
+schema version changes, no prior record is rewritten, and the local-first
+append-only JSONL writer is unchanged.
+
+## sta-01 ordinary enemy pieces (2026-10-30)
+
+Existing historical records remain unchanged. New Gust Shrike Dive activations
+emit ordinary `enemy_action_resolved` Move and AoE steps; `intent_id: dive`
+preserves grouping. The shared AoE step carries `committed_shape: swept_path`,
+Air and actual affected tiles; forced movement uses existing collision events.
+Fade/Ambush retain enemy-action event boundaries, identity and damage. Veiled
+is no longer a status, and no new status-tick event is emitted. No analytics
+schema change, event deletion, save-history rewrite or intrinsic card bonus.
+Legacy Veiled/Dive save conversion visits only enemies and their intents in the
+live `combat_state` and `pending_combat_checkpoints[].state`. Analytics, history
+and continuation metadata remain unchanged even when they contain retired keys.
+
+### Enemy Retaliate (mim-01)
+
+The existing `retaliate_triggered` surface event also represents enemy-owned
+Retaliate. Additive `actor_kind: enemy` and `target_kind: player` identify this
+direction; `enemy_id` is the retaliating defender, `actor_key` is the struck
+hero (`player`), and `source` carries `actor_id`, `enemy_type`, `intent_id`,
+`source_kind: retaliate`, `player_card: false`, `causal_owner: enemy`. Existing
+amount, actual HP/Block/Stoneskin losses and attack type retain their meaning.
+Hero-owned Retaliate payloads remain compatible. Echo's ranged hit and status
+gain use ordinary enemy action events. Preview copies never append external
+analytics; local-first JSONL remains append-only.
+
+Mim-01 feedback 1: adjacent hero Detonate uses the same per-defender
+`retaliate_triggered` event after the blast. A fatal reaction ends remaining
+card actions through shared action legality, so no post-defeat heal/action
+event is emitted. Preview and playback use the same gate; Defiance survival
+continues normally. Save content migration touches only active/resumable combat
+snapshots and leaves embedded analytics/history as well as external JSONL intact.

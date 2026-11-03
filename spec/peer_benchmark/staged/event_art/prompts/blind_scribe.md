@@ -1,0 +1,1 @@
+Subject: a very old blind scribe with bandaged eyes hunched at a sloped writing desk, writing in a huge nearly full book with a dry quill, surrounded by towers of stacked books, one candle. His head is turned slightly toward the viewer. Mood: knowing, tender, a little frightening.

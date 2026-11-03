@@ -1,0 +1,10 @@
+{
+  "runtime_and_pose_inputs_unchanged": true,
+  "bound_files": 557,
+  "source_policy": "exact director input inside; prior treated production outside",
+  "focused_result": [
+    "Ran 53 tests in 101.503s",
+    "OK"
+  ],
+  "full_python_rerun_after_fix": false
+}

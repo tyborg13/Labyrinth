@@ -1,0 +1,4 @@
+{
+  "floor_direction": "first_contact_within_limit",
+  "basis": "Director feedback 1 defines the keyed -80 degrees as a limit. The signed path has no second contact within 80 degrees; apply the initial brief closest-intent rule to the unique feasible support path. Protected motion bytes remain unchanged."
+}

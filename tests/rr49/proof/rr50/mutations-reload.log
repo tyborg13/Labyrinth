@@ -1,0 +1,19 @@
+test_production_fast_path_removal_is_rejected (tests.test_rr49_submission.SubmissionTests) ... RR50 FAST-PATH MUTATION: PASS (reviewer production patch rejected; [{"fallback_median_us": 5882, "fast_median_us": 5929, "minimum_speedup": 1.6, "ok": false, "samples": 1071, "speedup": 0.992072862202732, "view": "front"}, {"fallback_median_us": 5107, "fast_median_us": 5102, "minimum_speedup": 1.6, "ok": false, "samples": 1071, "speedup": 1.00098000784006, "view": "rear"}])
+ok
+test_disabled_cache_and_legacy_inner_loop_are_rejected (tests.test_rr49_submission.SubmissionTests) ... FAIL
+test_same_facing_reload_and_real_rebuild (tests.test_rr49_submission.SubmissionTests) ... ok
+test_frozen_baseline_is_bound_and_complete (tests.test_rr49_submission.SubmissionTests) ... ok
+
+======================================================================
+FAIL: test_disabled_cache_and_legacy_inner_loop_are_rejected (tests.test_rr49_submission.SubmissionTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tests/test_rr49_submission.py", line 203, in test_disabled_cache_and_legacy_inner_loop_are_rejected
+    self.assertFalse(result['ok'], option)
+AssertionError: True is not false : --legacy-submission
+
+----------------------------------------------------------------------
+Ran 4 tests in 36.742s
+
+FAILED (failures=1)
+RR49 RELOAD: PASS (5 helpers; identical front/rear buffers; legacy double-load mutation caught)

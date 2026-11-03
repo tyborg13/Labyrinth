@@ -1,5 +1,6 @@
 extends RefCounted
-## Snare-only layout and saved combat state. No variant pressure is read here.
+## Snare-only layout and saved combat state.
+const Pressure = preload("res://scripts/snare_pressure_rules.gd")
 const Library = preload("res://scripts/special_encounter_library.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const MIN_EXIT_PATH_TILES: int = 5
@@ -189,7 +190,8 @@ static func escape_context(state: Dictionary) -> Dictionary:
 # Removal by sealing is silent and earns no death effects. Keep its silhouette
 # in the visual snapshot; omit it only from the board's audio snapshot.
 static func sound_snapshot(state: Dictionary, shown: Dictionary) -> Dictionary:
-	if not active(state): return {"state": state, "shown": shown}
+	# The Ember Hoarder slips away with this same silent dissolve (spx-09).
+	if not active(state) and not preload("res://scripts/hoarder_room_rules.gd").active(state): return {"state": state, "shown": shown}
 	var silent: Dictionary = state.duplicate(false)
 	var enemies: Array[Dictionary]
 	for enemy: Dictionary in state.get("enemies", []):
@@ -205,12 +207,21 @@ static func sound_snapshot(state: Dictionary, shown: Dictionary) -> Dictionary:
 
 # In initiative combat a round runs from player completion to the next player
 # preparation. The saved pending bit keeps preview, resume and batch idempotent.
-static func start_round(engine: RefCounted, state: Dictionary) -> void:
-	if not active(state) or engine.combat_outcome(state) != "": return
+# Bookkeeping precedes the shared beat, so even a lethal headwind records
+# the completed player turn and its legacy pressure event before combat ends.
+static func begin_round(engine: RefCounted, state: Dictionary) -> bool:
+	if not active(state) or engine.combat_outcome(state) != "": return false
 	var objective: Dictionary = state["objective"]
-	if bool(objective.get("enemy_round_pending", false)): return
+	if bool(objective.get("enemy_round_pending", false)): return false
 	objective["enemy_round_pending"] = true
 	objective["player_turns_completed"] = int(objective.get("player_turns_completed", 0)) + 1
+	return true
+
+static func start_round(engine: RefCounted, state: Dictionary, rule_dispatched: bool = false, prepared: bool = false) -> void:
+	if not prepared and not begin_round(engine, state): return
+	var objective: Dictionary = state["objective"]
+	Pressure.resolve(engine, state, int(objective["player_turns_completed"]), rule_dispatched)
+	if engine.combat_outcome(state) != "": return
 	var rules: Dictionary = Library.definition("umbral_snare")
 	var variant: Dictionary = rules["variants"][objective["special_variant"]]
 	if int(variant.get("start_hunters", 0)) > 0 or int(objective["hunters_spawned"]) >= int(rules["hunters_max"]): return
@@ -233,7 +244,10 @@ static func start_round(engine: RefCounted, state: Dictionary) -> void:
 		break
 
 static func resolve_phase(engine: RefCounted, state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = state.duplicate(true)
+	# The console/batch API may enter directly from the player's turn. It must
+	# cross the same preparation boundary as initiative completion, once only.
+	var needs_preparation: bool = engine.is_player_turn(state) and not bool(state["objective"].get("enemy_round_pending", false))
+	var next_state: Dictionary = engine.finish_player_activation(state) if needs_preparation else state.duplicate(true)
 	var steps: Array[Dictionary]
 	start_round(engine, next_state)
 	for index: int in range(next_state["enemies"].size()):

@@ -1,0 +1,153 @@
+{
+  "ok": true,
+  "native_pixels": true,
+  "retained": true,
+  "fixture_sha256": "3d0b1241dad17952f9f91e5996fa58b5b9bdeec853fc1048a893d8123123f2cf",
+  "frames": [
+    {
+      "clip": "death",
+      "frame": 65,
+      "part": "head",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 6,
+      "native_sha256": "c0365ef94a0098838ffdd91d651c1f4b0cf33cc042160c07089f79989328492d"
+    },
+    {
+      "clip": "death",
+      "frame": 66,
+      "part": "head",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 6,
+      "native_sha256": "c0365ef94a0098838ffdd91d651c1f4b0cf33cc042160c07089f79989328492d"
+    },
+    {
+      "clip": "death",
+      "frame": 67,
+      "part": "head",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 6,
+      "native_sha256": "c0365ef94a0098838ffdd91d651c1f4b0cf33cc042160c07089f79989328492d"
+    },
+    {
+      "clip": "death",
+      "frame": 68,
+      "part": "head",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 6,
+      "native_sha256": "c0365ef94a0098838ffdd91d651c1f4b0cf33cc042160c07089f79989328492d"
+    },
+    {
+      "clip": "death",
+      "frame": 69,
+      "part": "head",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 6,
+      "native_sha256": "c0365ef94a0098838ffdd91d651c1f4b0cf33cc042160c07089f79989328492d"
+    },
+    {
+      "clip": "death",
+      "frame": 70,
+      "part": "head",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 6,
+      "native_sha256": "24ffa37584a9bceaa4609870337bc07e59f0eea5281fde67603b2501624efdef"
+    },
+    {
+      "clip": "death",
+      "frame": 86,
+      "part": "chain",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 0,
+      "native_sha256": "4faf663b7508157653d224a9bbce15e79965b8bfa65e08cd87274591ca40d1f5"
+    },
+    {
+      "clip": "death",
+      "frame": 94,
+      "part": "coat_near",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 0,
+      "native_sha256": "bec96af733c3372b5fda585a004688ad652eb22f2ce62f2bd70e0a1b33a0a74c"
+    },
+    {
+      "clip": "death",
+      "frame": 95,
+      "part": "coat_near",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 0,
+      "native_sha256": "bec96af733c3372b5fda585a004688ad652eb22f2ce62f2bd70e0a1b33a0a74c"
+    },
+    {
+      "clip": "death",
+      "frame": 95,
+      "part": "hidden_coat_near",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 0,
+      "native_sha256": "b791fe503da960abafb9ef719a1c75f9d95ce17fde2e85927f96b9a73ec0fa72"
+    },
+    {
+      "clip": "reel",
+      "frame": 41,
+      "part": "arm_near",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 1,
+      "native_sha256": "0720c289c6d2e130cf6c1fc533567081ca587178bbeb980c503174002b16b726"
+    },
+    {
+      "clip": "press",
+      "frame": 1,
+      "part": "arm_near",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 1,
+      "native_sha256": "188bc90e8729445327d5c5cb1e9b2ce9746d436690ce58c416d7d7f2a511c28d"
+    },
+    {
+      "clip": "guard",
+      "frame": 7,
+      "part": "hidden_arm_far",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 1,
+      "native_sha256": "6381bbe70ea52b9daf0367829492e80eb198d0b7c3d395f6a80c3261ee56424f"
+    },
+    {
+      "clip": "guard",
+      "frame": 51,
+      "part": "arm_near",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 1,
+      "native_sha256": "188bc90e8729445327d5c5cb1e9b2ce9746d436690ce58c416d7d7f2a511c28d"
+    },
+    {
+      "clip": "death",
+      "frame": 45,
+      "part": "hidden_arm_far",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 1,
+      "native_sha256": "a134a830b6cc5820810496efd540b6d17be0e46a60566868b1970f7eb6a6d88d"
+    },
+    {
+      "clip": "death",
+      "frame": 50,
+      "part": "arm_near",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 1,
+      "native_sha256": "5a1e5da27b1c311638bbbc7aa9bf5689c93f75b9de73cd723f2b317406909f15"
+    },
+    {
+      "clip": "death",
+      "frame": 51,
+      "part": "arm_near",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 1,
+      "native_sha256": "8e18ff2bd862785bd3fad5ffb6f0c88f044372656cbe6d06c9c5a68dbfaa1ede"
+    },
+    {
+      "clip": "death",
+      "frame": 52,
+      "part": "arm_near",
+      "unexplained_pixels": 0,
+      "default_pixel_differences": 1,
+      "native_sha256": "2c995e7ea369cde14ca9cd58bff5e1d26ef8340b5ae612219654a37fb6f2dd30"
+    }
+  ],
+  "rule": "exact source RGBA or real adjacent nearest-UV texel; no pixel-count allowance"
+}

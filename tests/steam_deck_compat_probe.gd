@@ -192,12 +192,12 @@ func _capture_run_surfaces() -> void:
 	_assert_board_cursor_center(instance)
 	var equipment_tile := Vector2i(4, 3)
 	var equipment_trigger: String = str(controller_board.call("controller_tooltip_for_tile", equipment_tile))
-	_require(equipment_trigger.begins_with("equipment:"), "Board equipment should expose its rich tooltip trigger to pointer and controller inspection")
+	_require(str((controller_board.call("tile_tooltip_detail", equipment_trigger) as Dictionary)["loot_key"]).begins_with("equipment:"), "Board equipment should expose its rich tooltip trigger to pointer and controller inspection")
 	var equipment_loot: Dictionary = ((instance.get("_combat_state") as Dictionary).get("loot", []) as Array)[0] as Dictionary
 	var equipment_texture: Texture2D = controller_board.call("_loot_texture", equipment_loot) as Texture2D
 	var equipment_rect: Rect2 = controller_board.call("_loot_rect_for_tile", equipment_tile, equipment_texture, equipment_loot) as Rect2
 	_require(
-		str(controller_board.call("_get_tooltip", equipment_rect.get_center())).begins_with("equipment:"),
+		str((controller_board.call("tile_tooltip_detail", controller_board.call("_get_tooltip", equipment_rect.get_center())) as Dictionary)["loot_key"]).begins_with("equipment:"),
 		"Pointer hover over the live equipment pickup rect should expose its tooltip without requiring a retained-layer redraw"
 	)
 	var equipment_candidate: Dictionary = instance.call("_controller_candidate_for_tile", equipment_tile) as Dictionary

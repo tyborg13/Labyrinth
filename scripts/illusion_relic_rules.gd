@@ -268,7 +268,11 @@ static func finish_echoes(engine: RefCounted, state: Dictionary, trace: Dictiona
 		spent[id] = true
 		var before: Dictionary = state.duplicate(true) if trace.has("echoes") else {}
 		var attack_trace: Dictionary = {"chain_hits": []} if trace.has("echoes") else {}
+		var surface_sequence: int = int(state.get("surface_event_sequence", 0))
 		state = resolve_echo(engine, state, choice, attack_trace)
+		# The shared resolver serves hover, animation and card-end commit.
+		# Echoes can Expend ground after the ordinary action collector ran.
+		state = preload("res://scripts/surface_variety_relic_rules.gd").collect_removals(state, surface_sequence, engine._relic_effects(state))
 		if trace.has("echoes"):
 			(trace["echoes"] as Array).append({"before": before, "state": state.duplicate(true), "choice": choice, "chain_hits": attack_trace["chain_hits"]})
 	state.erase(PENDING)

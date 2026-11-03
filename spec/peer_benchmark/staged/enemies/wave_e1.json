@@ -200,6 +200,7 @@
  },
  "gale_herald": {
   "name": "Gale Herald",
+  "anchored": true,
   "ai_profile": {
    "role": "controller",
    "preferred_range": 3,

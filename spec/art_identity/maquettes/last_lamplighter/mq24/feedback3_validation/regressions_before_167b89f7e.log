@@ -1,0 +1,29 @@
+F
+======================================================================
+FAIL: test_complete_far_hand_reversed_about_forearm_fails (tests.test_mq24_maquette.SourceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/tests/test_mq24_maquette.py", line 181, in test_complete_far_hand_reversed_about_forearm_fails
+    self.assertFalse(result['passed'])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_wholly_occluded_assembly_columns_fail_native_gate (tests.test_mq24_maquette.ProofTests) (columns=[722])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/tests/test_mq24_maquette.py", line 332, in test_wholly_occluded_assembly_columns_fail_native_gate
+    self.assertFalse(report['passed'])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_wholly_occluded_assembly_columns_fail_native_gate (tests.test_mq24_maquette.ProofTests) (columns=[722, 723, 724])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/tests/test_mq24_maquette.py", line 332, in test_wholly_occluded_assembly_columns_fail_native_gate
+    self.assertFalse(report['passed'])
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 2 tests in 5.113s
+
+FAILED (failures=3)

@@ -346,7 +346,7 @@ static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader:
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_WORD_ELLIPSIS
 	caption.enemy_name = name_label
 	caption.add_child(name_label)
-	var threat_tags: Array = ThreatTags.build(str(enemy.get("type", "")))
+	var threat_tags: Array = ThreatTags.build(str(enemy.get("type", "")), enemy)
 	var summary: String = ThreatTags.summary(threat_tags)
 	var tags: Control = build_move_tags(host, threat_tags)
 	caption.add_child(tags)
@@ -430,9 +430,7 @@ static func build_kit(host: Node, future_state: Dictionary = {}) -> Control:
 	kit.add_child(build_health(host, future_state))
 	kit.add_child(_gear_row(host, future_state))
 	var state: Dictionary = host.get("_run_state") if future_state.is_empty() else future_state
-	var attuned: Array = state.get("attuned_magic_cards", []) as Array
-	kit.add_child(loadout_header("MAGIC IN DECK", "%d spells" % attuned.size()))
-	kit.add_child(card_grid(host, attuned, "attuned", "PreBattleAttunedRow"))
+	# Every owned spell is already in the deck, so the kit lists each card once.
 	var deck: Array = state.get("deck_cards", []) as Array
 	kit.add_child(loadout_header("ACTIVE DECK", "%d cards" % deck.size()))
 	var scroll := ScrollContainer.new()
@@ -496,11 +494,10 @@ static func card_grid(host: Node, ids: Array, source_kind: String, node_name: St
 # the original constructor; unchanged idle cards avoid native theme/layout work.
 # Keep no detached pool, and reset scroll only when the original kit rebuilt.
 static func _refresh_kit(host: Node, kit: Control, state: Dictionary, previous: Dictionary, current: Dictionary) -> bool:
-	if kit == null or kit.get_child_count() != 7 or not _kit_idle(kit): return false
+	if kit == null or kit.get_child_count() != 5 or not _kit_idle(kit): return false
 	var gear: HBoxContainer = kit.get_child(2) as HBoxContainer
-	var attuned: HFlowContainer = kit.get_child(4) as HFlowContainer
-	var scroll: ScrollContainer = kit.get_child(6) as ScrollContainer
-	if gear == null or attuned == null or scroll == null or gear.get_child_count() != 2 or scroll.get_child_count() != 1: return false
+	var scroll: ScrollContainer = kit.get_child(4) as ScrollContainer
+	if gear == null or scroll == null or gear.get_child_count() != 2 or scroll.get_child_count() != 1: return false
 	var deck: HFlowContainer = scroll.get_child(0) as HFlowContainer
 	if deck == null: return false
 	var health_fields: Array[String]
@@ -512,13 +509,9 @@ static func _refresh_kit(host: Node, kit: Control, state: Dictionary, previous: 
 	if previous.get("equipped_equipment") != current.get("equipped_equipment") or previous.get("equipment") != current.get("equipment"):
 		# This small socket row retains its original slot order and constructor.
 		_replace_component(host, kit, 2, _gear_row(host, state))
-	var attuned_ids: Array = state.get("attuned_magic_cards", []) as Array
 	var deck_ids: Array = state.get("deck_cards", []) as Array
-	if previous.get("attuned_magic_cards") != current.get("attuned_magic_cards"):
-		_replace_component(host, kit, 3, loadout_header("MAGIC IN DECK", "%d spells" % attuned_ids.size()))
 	if previous.get("deck_cards") != current.get("deck_cards"):
-		_replace_component(host, kit, 5, loadout_header("ACTIVE DECK", "%d cards" % deck_ids.size()))
-	_refresh_card_grid(host, attuned, attuned_ids, "attuned")
+		_replace_component(host, kit, 3, loadout_header("ACTIVE DECK", "%d cards" % deck_ids.size()))
 	_refresh_card_grid(host, deck, deck_ids, "deck")
 	scroll.set_meta("deck_entry_count", deck_ids.size())
 	scroll.set_meta("deck_group_count", host.call("_pre_battle_card_groups", deck_ids).size())
@@ -563,7 +556,7 @@ static func _refresh_card_grid(host: Node, grid: HFlowContainer, ids: Array, sou
 	# lookup when retained groups reorder. Only the displaced name owner needs
 	# reinsertion; every other unchanged card keeps its final native parent.
 	if not retained.is_empty():
-		var authored_name: String = "PreBattleAttunedBadge" if source_kind == "attuned" else "PreBattleDeckBadge"
+		var authored_name: String = "PreBattleDeckBadge"
 		var named: Node = grid.get_node_or_null(NodePath(authored_name))
 		if named != retained[0]:
 			var displaced_index: int = named.get_index() if named != null else -1
@@ -576,7 +569,7 @@ static func _refresh_card_grid(host: Node, grid: HFlowContainer, ids: Array, sou
 static func _card_strip(host: Node, group: Dictionary, source_kind: String) -> Control:
 	var strip := Controls.Strip.new()
 	strip.host = host
-	strip.name = "PreBattleAttunedBadge" if source_kind == "attuned" else "PreBattleDeckBadge"
+	strip.name = "PreBattleDeckBadge"
 	strip.source_kind = source_kind
 	var id: String = str(group["card_id"])
 	var definition: Dictionary = GameData.card_def(id)
@@ -587,7 +580,7 @@ static func _card_strip(host: Node, group: Dictionary, source_kind: String) -> C
 	strip.set_meta("display_name", str(definition.get("name", id)))
 	strip.tooltip_text = "card:%s" % id
 	# Reserve scrollbar width so both columns remain stable when scrolling.
-	strip.custom_minimum_size.x = Typography.scaled_value(host, 190.0)
+	strip.custom_minimum_size.x = Typography.scaled_value(host, Controls.CardStrip.LIST_WIDTH)
 	strip.set_meta("presentation_input", _card_strip_input(host, group, source_kind))
 	return strip
 
@@ -629,12 +622,6 @@ static func build_health(host: Node, future_state: Dictionary = {}) -> Control:
 	bar.max_value = maxf(1.0, float(state.get("player_max_hp", 0)))
 	bar.value = float(state.get("player_hp", 0))
 	bar.show_percentage = false
-	var background := StyleBoxFlat.new()
-	background.bg_color = Palette.INK_3
-	background.set_corner_radius_all(2)
-	bar.add_theme_stylebox_override("background", background)
-	var fill := background.duplicate() as StyleBoxFlat
-	fill.bg_color = Palette.ALLY
-	bar.add_theme_stylebox_override("fill", fill)
+	Surface.style_kit_health_bar(bar)
 	stack.add_child(bar)
 	return row

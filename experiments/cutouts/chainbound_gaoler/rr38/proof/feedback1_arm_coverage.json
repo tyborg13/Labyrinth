@@ -1,0 +1,136 @@
+{
+  "native_pixels": false,
+  "frames": [
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 0,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {}
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 15,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {}
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 25,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {}
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 33,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {}
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 50,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {}
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 0,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {}
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 15,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {}
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 25,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {}
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 33,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {}
+    },
+    {
+      "view": "rear",
+      "clip": "press",
+      "frame": 50,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {}
+    }
+  ],
+  "note": "Near-arm-only full vacated footprint; representative preparation/contact/hold/recovery samples. Full all-frame sweep remains independent."
+}

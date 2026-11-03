@@ -1,0 +1,115 @@
+{
+  "task_id": "enc-03",
+  "feedback_round": 2,
+  "status": "partial; cross-count copy verified, occlusion design choice pending",
+  "committed": false,
+  "requirements": [
+    {
+      "number": 1,
+      "status": "draw-order diagnosis differs from supplied interpretation; visible treatment pending",
+      "observed": "Caption layer 1 is above retained board HUD/effects layer 0. Existing text draws over the crest; its transparent background leaves the crest visible.",
+      "regression": "The real aiming fixture has intersecting caption and crest screen rectangles. Existing correct canvas-order assertion passes; no failing pre-fix draw-order claim is made."
+    },
+    {
+      "number": 2,
+      "status": "implemented and focused checks pass",
+      "evidence": "717 checks, one/two crosses on both turns, scaled damage, full/token/tile tooltip and callout copy; badge unchanged."
+    }
+  ],
+  "TODO_DESIGN_callout_occlusion_treatment": "Director must choose: clear the caption rectangle of board overlays, or use an existing approved opaque UI surface behind the caption. Async clarification pending.",
+  "checks": [
+    {
+      "name": "copy and scaled values",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/feedback-2/copy-focused.log",
+      "result_lines": [
+        "ENC03 SLAG TEST: PASS (717 checks; 0 failures)"
+      ]
+    },
+    {
+      "name": "EN04",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/feedback-2/en04.log",
+      "result_lines": [
+        "EN04 ENEMIES TEST RESULT: PASS (420 checks, 0 failures)"
+      ]
+    },
+    {
+      "name": "Warband orders",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/feedback-2/warband-orders.log",
+      "result_lines": [
+        "WARBAND ORDERS TEST RESULT: PASS (287 checks, 0 failures)"
+      ]
+    },
+    {
+      "name": "live overlap and copy",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/feedback-2/probe-after-headless.log",
+      "result_lines": [
+        "ENC03 DRAW ORDER: { \"banner_rect\": [P: (629.5, 82.0), S: (661.0, 30.0)], \"banner_z\": 0, \"hud_z\": 0, \"banner_canvas\": \"RID(158913789956)\", \"hud_canvas\": \"RID(141733920771)\", \"ui_layer\": 1, \"board_layer\": 0, \"crest_rect\": [P: (1241.366, 89.18613), S: (34.0, 34.0)], \"overlap\": true }",
+        "ENC03 LIVE HUD: aiming turn1 depth18 text='Lob Slag 7' marks=9",
+        "ENC03 DRAW ORDER: { \"banner_rect\": [P: (737.0, 82.0), S: (446.0, 30.0)], \"banner_z\": 0, \"hud_z\": 0, \"banner_canvas\": \"RID(158913789956)\", \"hud_canvas\": \"RID(141733920771)\", \"ui_layer\": 1, \"board_layer\": 0, \"crest_rect\": [P: (1241.366, 348.0525), S: (34.0, 34.0)], \"overlap\": false }",
+        "ENC03 LIVE HUD: landing turn2 depth18 text='Lob Slag 7' marks=9",
+        "ENC03 LOB PROBE: PASS (3 states; 0 failures)"
+      ]
+    },
+    {
+      "name": "UI identity",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/feedback-2/ui-identity.log",
+      "result_lines": [
+        "Ran 25 tests in 5.119s",
+        "OK"
+      ]
+    },
+    {
+      "name": "Python proof helpers",
+      "status": "pass",
+      "exit_code": 0,
+      "log": "output/enc-03/feedback-2/python-focused.log",
+      "result_lines": [
+        "Ran 18 tests in 1.596s",
+        "OK"
+      ]
+    }
+  ],
+  "native_after_attempt": {
+    "exit_code": 1,
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/enc-03 && python3 tools/enc03_proof.py --phase after --result-manifest output/enc-03/feedback-2/after-visual-result.json",
+    "error": "error: Timed out waiting 30.0 seconds for GUI render lease /private/tmp/labyrinth-gui-render.lock",
+    "log": "output/enc-03/feedback-2/after-windowed.log",
+    "retried": false,
+    "capture_paths": []
+  },
+  "known_quarantined_test": {
+    "path": "tests/combat_hud_badges_test.gd",
+    "category": "needs-design",
+    "reason": "Fixture expects INTENTS [I]/INTENTS ON [I] and the former controller-tooltip contract. These expectations predate the current HUD presentation. Needs the design owner's current UI contract; no copy or layout changed.",
+    "evidence_log": "output/qa-08/quarantine-check/combat_hud_badges_test.gd.log",
+    "follow_up": "design-01"
+  },
+  "accepted_measurements_changed": false,
+  "chosen_defaults": {
+    "inspection_crop_rect": [
+      1130,
+      75,
+      160,
+      50
+    ],
+    "inspection_crop_preview_size": [
+      960,
+      300
+    ],
+    "result_manifest": "output/enc-03/feedback-2/after-visual-result.json"
+  },
+  "open_issues": [
+    "Callout occlusion treatment awaits the director; no production layering change has been made.",
+    "Native after phase blocked by the existing GUI render lease."
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "checks": {
+    "fresh_and_replay_raw_hashes": true,
+    "joint_endpoints": true,
+    "native_geometry": true
+  },
+  "spec_hash": "a418639631060cb67fc4db8a90485f787bed35cf3a3e06843e5788be3f1281ac",
+  "cache_revision": 8,
+  "raw_hashes_identical": true,
+  "mesh_count": 38,
+  "joint_errors": {
+    "pelvis": 1.251858293976378e-07,
+    "torso": 2.403447418185902e-07,
+    "head": 1.332800502747149e-07,
+    "shoulder_near": 2.7028258364226004e-07,
+    "elbow_near": 2.1542358837725164e-07,
+    "hand_near": 8.560065398421926e-08,
+    "hip_near": 3.1834213167486426e-06,
+    "knee_near": 5.479723485703283e-07,
+    "ankle_near": 2.988602387924728e-07,
+    "shoulder_far": 3.488272401904948e-07,
+    "elbow_far": 1.7120130796843852e-07,
+    "hand_far": 7.300048299977713e-08,
+    "hip_far": 1.6702599846365516e-06,
+    "knee_far": 3.6446973111137775e-07,
+    "ankle_far": 2.407356265396403e-07
+  },
+  "combined_mesh_hashes": {
+    "cold": "ec4a2efbf6c66995ebd1f7d728ec4b0bf06723803549e7a4cfe761fe44b0f4d0",
+    "replay": "ec4a2efbf6c66995ebd1f7d728ec4b0bf06723803549e7a4cfe761fe44b0f4d0",
+    "independent_cold": "ec4a2efbf6c66995ebd1f7d728ec4b0bf06723803549e7a4cfe761fe44b0f4d0"
+  },
+  "delivery_binding": {
+    "spec_hash": "a418639631060cb67fc4db8a90485f787bed35cf3a3e06843e5788be3f1281ac",
+    "cold_mesh_hash": "ec4a2efbf6c66995ebd1f7d728ec4b0bf06723803549e7a4cfe761fe44b0f4d0",
+    "report_sha256": {
+      "build_report.json": "bd33258fbb18b9bf94f342e491b9dbda6b74197d19a2cac73bbc6ea55488eed0",
+      "capture_checks.json": "e3c4aa77e9a6148871fae298000883e9777b8a5a139855cd2be778e0fc1f9791",
+      "facing_report.json": "5fcbd4c9633ae1ccbd95736f9816a1e663084360bc1cc3b78bc8905ac2aaa12e",
+      "ownership_validation.json": "90421ed7df4d9f8f5cf3294d11301b2e1a4038e54ee67af2d5d1844b61f1b9fc",
+      "solo_coverage.json": "c05b83fb7ab5485ceae592372982ecfda9c180501512fcc17392db250b1543d4",
+      "native_probe.json": "f2ed20710b1de0f7bd525cfeed3a958bb40ecbfa1461a9dee572f12478b6a817",
+      "mq15_acceptance.json": "b75ff880916f3d97cacfca351b44e462b920172c2d1919a76fce32bcfac18849",
+      "capture_manifest.json": "6b6eeb04078829b2ab32a8fef18034327c29444d230e11873dece6dd89bdc9d5"
+    },
+    "exact_native_replay_sha256": "f6e0be667cf6fd8094daf6de2f2f6080e08844e71af944ab40c5493cf7d8a3b4"
+  }
+}

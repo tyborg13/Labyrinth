@@ -170,9 +170,16 @@ static func draw_rect(canvas: CanvasItem, texture: Texture2D, rect: Rect2, tint:
 			return
 		rect = Rect2(rect.position + (clipped.position - source_rect.position) / source_rect.size * rect.size, clipped.size / source_rect.size * rect.size)
 		source_rect = Rect2(atlas.region.position + clipped.position - atlas.margin.position, clipped.size)
+		# A slice clipped to a sliver (an Umbra edge) can't be triangulated; nothing visible is lost.
+		if not rect.is_finite() or rect.size.x < 0.01 or rect.size.y < 0.01:
+			return
 	var tex_size: Vector2 = sampled.get_size()
 	var uv := Rect2(source_rect.position / tex_size, source_rect.size / tex_size)
 	var points := PackedVector2Array([rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)])
+	# Float triangulation can reject a positive-area Umbra slice at board coordinates.
+	# The canvas already omits that quad; avoid submitting the rejected polygon.
+	if Geometry2D.triangulate_polygon(points).is_empty():
+		return
 	var uvs := PackedVector2Array([uv.position, Vector2(uv.end.x, uv.position.y), uv.end, Vector2(uv.position.x, uv.end.y)])
 	draw_polygon(canvas, points, PackedColorArray([tint]), uvs, sampled, profile)
 

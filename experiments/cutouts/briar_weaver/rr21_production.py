@@ -45,9 +45,12 @@ def errors(report, data):
             if any(r['ally_hp'] != 1 for r in before): result.append('mend: recipient healed before contact')
             if not contacts or contacts[0]['ally_hp'] != 5: result.append('mend: real 4 HP heal missing at contact')
         if clip == 'thornwall':
-            if any(r['terrain_count'] != 0 for r in rows if r['snapshot']['phase'] < contact):
-                result.append('thornwall: bramble appeared before contact')
-            if not contacts or contacts[0]['terrain_count'] != 3: result.append('thornwall: existing three brambles missing at contact')
+            if any(r.get('upheaval_marks') for r in rows if r['snapshot']['phase'] < contact):
+                result.append('thornwall: Upheaval marks appeared before contact')
+            if not contacts or len(contacts[0].get('upheaval_marks', [])) != 3:
+                result.append('thornwall: three Upheaval marks missing at contact')
+            if any(r['terrain_count'] != 0 for r in rows):
+                result.append('thornwall: Outcrops raised before the next Weaver turn')
     return sorted(set(result))
 
 

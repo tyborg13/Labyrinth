@@ -3,6 +3,7 @@ class_name SurfaceRelicRules
 
 const GameData = preload("res://scripts/game_data.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
+const Expend = preload("res://scripts/surface_expend_rules.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const INVALID: Vector2i = Vector2i(-999999, -999999)
 const CROSS: Array = [Vector2i.ZERO, Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]
@@ -27,6 +28,10 @@ static func effect(state: Dictionary, effect_type: String) -> Dictionary:
 
 static func has_effect(state: Dictionary, effect_type: String) -> bool:
 	return not effect(state, effect_type).is_empty()
+
+static func removal_source(state: Dictionary, effect_type: String) -> Dictionary:
+	var entry: Dictionary = effect(state, effect_type)
+	return Expend.relic_source(state.get("damage_context", {}), entry, GameData.relic_def(str(entry.get("relic_id", ""))))
 
 static func mode_enabled(action: Dictionary, mode: String) -> bool:
 	return (action.get("_surface_relic_modes", []) as Array).has(mode) or str(action.get("_surface_relic_mode", "")) == mode
@@ -163,9 +168,9 @@ static func before_action(_engine: RefCounted, state: Dictionary, action: Dictio
 		state["player"] = player
 	if mode_enabled(action, "redirect"):
 		for tile: Vector2i in Surface.footprint_tiles(unit):
-			Surface.remove(state, tile, "rubble", "relic_redirect")
+			Surface.remove(state, tile, "rubble", "relic_redirect", removal_source(state, "rubble_redirect"))
 	if mode_enabled(action, "remote"):
-		Surface.remove(state, action.get("_origin_tile", INVALID), "rubble", "relic_attack_origin")
+		Surface.remove(state, action.get("_origin_tile", INVALID), "rubble", "relic_attack_origin", removal_source(state, "rubble_attack_origin"))
 	state["_surface_relic_context"] = context
 	return state
 
@@ -222,7 +227,7 @@ static func _transport(state: Dictionary, context: Dictionary) -> void:
 	# Remove all origins first: overlapping large footprints must not erase a
 	# surface that was already moved by an earlier iteration.
 	for entry: Dictionary in moved:
-		Surface.remove(state, entry["from"], "elemental", "relic_transport")
+		Surface.remove(state, entry["from"], "elemental", "relic_transport", removal_source(state, "transport_surface"))
 	for entry: Dictionary in moved:
 		Surface.place(state, entry["to"], str(entry["surface"]), _source("transport_surface"))
 

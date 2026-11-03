@@ -5,43 +5,43 @@
     "joint_endpoints": true,
     "native_geometry": true
   },
-  "spec_hash": "a48fa580594c7cf006d28de22b81b2442a1a16045c06ad47deffe2d9c0a64b5e",
-  "cache_revision": 8,
+  "spec_hash": "37ff2f890f47158e0d03652f8aa0bce3abce49dcda313be0e720b5888f92dcae",
   "raw_hashes_identical": true,
   "mesh_count": 18,
   "joint_errors": {
     "pelvis": 6.999185021242475e-08,
-    "torso": 1.2310379476739693e-07,
-    "head": 7.450580596923828e-09,
-    "shoulder_near": 2.1696418193818683e-07,
-    "elbow_near": 1.228781230931777e-07,
-    "hand_near": 1.769414855098414e-07,
-    "hip_near": 4.438545429233374e-06,
-    "knee_near": 3.749056346836425e-07,
-    "ankle_near": 1.2401636318651815e-07,
-    "shoulder_far": 1.9082797281243946e-07,
-    "elbow_far": 1.1920928955078125e-07,
-    "hand_far": 1.0323827311807139e-07,
-    "hip_far": 1.7546235945172944e-06,
-    "knee_far": 5.954203866054471e-07,
-    "ankle_far": 2.443972150513042e-07
+    "torso": 1.4057727354849284e-07,
+    "head": 6.664001874625056e-08,
+    "shoulder_near": 1.2013700229374393e-07,
+    "elbow_near": 1.2644054553268208e-07,
+    "hand_near": 7.300048299977713e-08,
+    "hip_near": 3.6820344163122155e-06,
+    "knee_near": 5.155457226039825e-07,
+    "ankle_near": 1.0675930671750289e-06,
+    "shoulder_far": 1.341104507446289e-07,
+    "elbow_far": 1.999200562387517e-07,
+    "hand_far": 1.341104507446289e-07,
+    "hip_far": 4.77999893794818e-07,
+    "knee_far": 6.722162217696375e-07,
+    "ankle_far": 5.820997054763022e-07
   },
   "combined_mesh_hashes": {
-    "cold": "a040545a5d7ac20784fa5cc5f224180424f56848c4dac3aa76fa27c6bc9c7dbb",
-    "replay": "a040545a5d7ac20784fa5cc5f224180424f56848c4dac3aa76fa27c6bc9c7dbb",
-    "independent_cold": "a040545a5d7ac20784fa5cc5f224180424f56848c4dac3aa76fa27c6bc9c7dbb"
+    "cold": "1e311a282c7bd71755065bfe5aab1285c397e9e36ac7f32843231ba4a960d9ba",
+    "replay": "1e311a282c7bd71755065bfe5aab1285c397e9e36ac7f32843231ba4a960d9ba",
+    "independent_cold": "1e311a282c7bd71755065bfe5aab1285c397e9e36ac7f32843231ba4a960d9ba"
   },
   "delivery_binding": {
-    "spec_hash": "a48fa580594c7cf006d28de22b81b2442a1a16045c06ad47deffe2d9c0a64b5e",
-    "cold_mesh_hash": "a040545a5d7ac20784fa5cc5f224180424f56848c4dac3aa76fa27c6bc9c7dbb",
+    "spec_hash": "37ff2f890f47158e0d03652f8aa0bce3abce49dcda313be0e720b5888f92dcae",
+    "cold_mesh_hash": "1e311a282c7bd71755065bfe5aab1285c397e9e36ac7f32843231ba4a960d9ba",
     "report_sha256": {
-      "build_report.json": "467fd9745b7235ce98727a067a2ce21fa864e280266798a554447f1eab690664",
-      "capture_checks.json": "6efaaf70aed5ecc39aaebcbfd9e658103d8c3bfadd21347b9ebd603cb170074d",
-      "facing_report.json": "f1a88e2848a7a0e93bdda61f8681a68652bda9edcf368ff5ed641505386fc074",
-      "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
-      "solo_coverage.json": "93cb732b1dec20c05c4fdca43561d535924c09917632e29638a2a4352f11730c",
-      "capture_manifest.json": "c7090c8b8c67760675d4862c3e7067deba6d986395541f7e0b7d1f81d7dee390"
+      "build_report.json": "28ac7a54445b7a16d60eed68ff9353dfbd57e2eb0388e06c2304b4ffa8a8b335",
+      "capture_checks.json": "9466a7b3e18d8e085848bd0fa9df4ad023a1fda19b67c96717ca8004134c0806",
+      "facing_report.json": "35bae4191de26fdfaad2d49629f3be9938da62e7c23e41ea4d2f0d2e21751852",
+      "ownership_validation.json": "90421ed7df4d9f8f5cf3294d11301b2e1a4038e54ee67af2d5d1844b61f1b9fc",
+      "solo_coverage.json": "fe2299308a1cc4f9f8b5af20d3402b6c5ba20a261f178a49c41f881285cf8ada",
+      "articulated_pose_checks.json": "fbadc0aa7ec231f23c6dc93e6f17af874bb8c9aaa96cd772b78487bdc4d01bd8",
+      "capture_manifest.json": "41c6c0e3a54318844882f3232a2a66dcfdd5a59ced100172af3b66d4c3835bcb"
     },
-    "exact_native_replay_sha256": "869a39418a94370a0105e3b311b0c1594758d46a976d16777ab25c60ec107bc7"
+    "exact_native_replay_sha256": "6fba4b33775c2f578ca1a5eb2194ae936845681d33df92d92c7ad2a1eec35e2a"
   }
 }

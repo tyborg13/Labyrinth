@@ -1,0 +1,7121 @@
+[
+  {
+    "card": "quick_stab",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "quick_stab",
+    "glossary_key": "",
+    "icon": "follow_up",
+    "text": "Gains this bonus if you already played a card this turn.",
+    "title": "Follow-up"
+  },
+  {
+    "card": "guarded_step",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "guarded_step",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "guarded_step",
+    "glossary_key": "",
+    "icon": "card_play",
+    "text": "Playing a card spends one. Refills each turn; kills give one more.",
+    "title": "Card Play"
+  },
+  {
+    "card": "shadow_step",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "shadow_step",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "bone_dart",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "bone_dart",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "pale_spark",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "pale_spark",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "dull_bolt",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "dull_bolt",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "waning_pulse",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "waning_pulse",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "waning_pulse",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "sidestep_slash",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "sidestep_slash",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "whirlwind_slash",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "whirlwind_slash",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "patch_up",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "patch_up",
+    "glossary_key": "",
+    "icon": "heal",
+    "text": "Restore that much Health.",
+    "title": "Heal"
+  },
+  {
+    "card": "patch_up",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "bloody_lunge",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "bloody_lunge",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "bloody_lunge",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "bloody_lunge",
+    "glossary_key": "",
+    "icon": "health_cost",
+    "text": "Empower cost: pay 1 health after the card resolves.",
+    "title": "Health Cost"
+  },
+  {
+    "card": "brace",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "lantern_shot",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "lantern_shot",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "lantern_shot",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "Creates Light at the target. Radius in tiles.",
+    "title": "Light"
+  },
+  {
+    "card": "lantern_shot",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "lantern_shot",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "guiding_flare",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "guiding_flare",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "guiding_flare",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground in the affected area.",
+    "title": "Fire"
+  },
+  {
+    "card": "guiding_flare",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "Creates Light at the target. Radius in tiles.",
+    "title": "Light"
+  },
+  {
+    "card": "guiding_flare",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "dawnstep",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "dawnstep",
+    "glossary_key": "",
+    "icon": "vision",
+    "text": "See that many tiles farther for the shown turns.",
+    "title": "Vision"
+  },
+  {
+    "card": "dawnstep",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "prism_sight",
+    "glossary_key": "",
+    "icon": "truesight",
+    "text": "Every enemy counts as visible for the shown turns.",
+    "title": "Truesight"
+  },
+  {
+    "card": "prism_sight",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "prism_sight",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "storm_beacon",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "storm_beacon",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "storm_beacon",
+    "glossary_key": "",
+    "icon": "chain",
+    "text": "Jumps to new targets within that many tiles of each hit.",
+    "title": "Chain"
+  },
+  {
+    "card": "storm_beacon",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.\nLeaves this ground in the affected area.",
+    "title": "Electrified"
+  },
+  {
+    "card": "storm_beacon",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "Creates Light at the target. Radius in tiles.",
+    "title": "Light"
+  },
+  {
+    "card": "storm_beacon",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "glowstone_ward",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "glowstone_ward",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "",
+    "title": "Light radius in tiles."
+  },
+  {
+    "card": "glowstone_ward",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Light placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "glowstone_ward",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "daybreak",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "daybreak",
+    "glossary_key": "",
+    "icon": "dispel_umbra",
+    "text": "Lower the Umbra by that many stages this combat.",
+    "title": "Dispel Umbra"
+  },
+  {
+    "card": "daybreak",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "daybreak",
+    "glossary_key": "",
+    "icon": "card_play",
+    "text": "Playing a card spends one. Refills each turn; kills give one more.",
+    "title": "Card Play"
+  },
+  {
+    "card": "iron_wheel",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "iron_wheel",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "iron_wheel",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Deals 1 more damage for each tile you moved this turn (maximum 5 more).",
+    "title": "Move"
+  },
+  {
+    "card": "ricochet_knife",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "ricochet_knife",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "ricochet_knife",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "needle_flurry",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "needle_flurry",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you, facing the adjacent tile you choose.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "warded_advance",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "warded_advance",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "threaded_path",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "threaded_path",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "Creates Light where you land. Radius in tiles.",
+    "title": "Light"
+  },
+  {
+    "card": "threaded_path",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "threaded_path",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "rallying_breath",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "rallying_breath",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "battle_rhythm",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "battle_rhythm",
+    "glossary_key": "",
+    "icon": "retaliate",
+    "text": "Until your next turn, enemies that hit you in melee take 3.",
+    "title": "Retaliate"
+  },
+  {
+    "card": "battle_rhythm",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "reprise",
+    "glossary_key": "",
+    "icon": "health_cost",
+    "text": "Lose that much Health; Block can't prevent it.",
+    "title": "Health Cost"
+  },
+  {
+    "card": "reprise",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "reprise",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "blood_price",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "blood_price",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "blood_price",
+    "glossary_key": "",
+    "icon": "health_cost",
+    "text": "Empower cost: pay 2 health after the card resolves.",
+    "title": "Health Cost"
+  },
+  {
+    "card": "blood_price",
+    "glossary_key": "",
+    "icon": "pierce",
+    "text": "Ignores Block and Stoneskin.",
+    "title": "Pierce"
+  },
+  {
+    "card": "trapdoor",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "trapdoor",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "trapdoor",
+    "glossary_key": "",
+    "icon": "vision",
+    "text": "See that many tiles farther for the shown turns.",
+    "title": "Vision"
+  },
+  {
+    "card": "trapdoor",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "bodkin_arrow",
+    "glossary_key": "",
+    "icon": "pierce",
+    "text": "Ignores Block and Stoneskin.",
+    "title": "Pierce"
+  },
+  {
+    "card": "bodkin_arrow",
+    "glossary_key": "",
+    "icon": "follow_up",
+    "text": "Gains this bonus if you already played a card this turn.",
+    "title": "Follow-up"
+  },
+  {
+    "card": "hamstring_shot",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "hamstring_shot",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "hamstring_shot",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "hamstring_slice",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "hamstring_slice",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "hamstring_slice",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "ember_rain",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "ember_rain",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "ember_rain",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "ember_rain",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "Creates Light at the target. Radius in tiles.",
+    "title": "Light"
+  },
+  {
+    "card": "ember_rain",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "shadow_gate",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "shadow_gate",
+    "glossary_key": "",
+    "icon": "next_attack",
+    "text": "Your next attack this turn deals 3 more.",
+    "title": "Next Attack"
+  },
+  {
+    "card": "cyclone_seal",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "cyclone_seal",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Choose a tile within this range.",
+    "title": "Range"
+  },
+  {
+    "card": "cyclone_seal",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "",
+    "title": "Pull each enemy within 3 of the chosen tile 3 toward it. Each moves along its own straight line; stopped lines collide."
+  },
+  {
+    "card": "cyclone_seal",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "cyclone_seal",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "last_light",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "last_light",
+    "glossary_key": "",
+    "icon": "heal",
+    "text": "Restore that much Health.",
+    "title": "Heal"
+  },
+  {
+    "card": "last_light",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "grave_sprint",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "grave_sprint",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "grave_sprint",
+    "glossary_key": "",
+    "icon": "heal",
+    "text": "Restore that much Health.",
+    "title": "Heal"
+  },
+  {
+    "card": "firebrand_volley",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "firebrand_volley",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "firebrand_volley",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground in the affected area.",
+    "title": "Fire"
+  },
+  {
+    "card": "cinder_bloom",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "cinder_bloom",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "cinder_bloom",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "cinder_bloom",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground in the affected area.",
+    "title": "Fire"
+  },
+  {
+    "card": "cinder_bloom",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "cinder_bloom",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Empower cost: Exhaust this card.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "hearth_rush",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "hearth_rush",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "hearth_rush",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground in the affected area.",
+    "title": "Fire"
+  },
+  {
+    "card": "cinderline_tempo",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "cinderline_tempo",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "cinderline_tempo",
+    "glossary_key": "",
+    "icon": "detonate",
+    "text": "Blow up the chosen ground, hitting everyone on and next to it, you included.",
+    "title": "Detonate"
+  },
+  {
+    "card": "inferno_ritual",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "inferno_ritual",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "inferno_ritual",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "inferno_ritual",
+    "glossary_key": "",
+    "icon": "detonate",
+    "text": "Blow up the chosen ground, hitting everyone on and next to it, you included.",
+    "title": "Detonate"
+  },
+  {
+    "card": "molten_reach",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "molten_reach",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "molten_reach",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "molten_reach",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground in the affected area.",
+    "title": "Fire"
+  },
+  {
+    "card": "wildfire_halo",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "wildfire_halo",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "wildfire_halo",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "wildfire_halo",
+    "glossary_key": "",
+    "icon": "detonate",
+    "text": "Blow up the chosen ground, hitting everyone on and next to it, you included.",
+    "title": "Detonate"
+  },
+  {
+    "card": "frostbolt",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "frostbolt",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "frostbolt",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.\nLeaves this ground in the affected area.",
+    "title": "Ice"
+  },
+  {
+    "card": "icebound_chains",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "icebound_chains",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "icebound_chains",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "icebound_chains",
+    "glossary_key": "",
+    "icon": "truesight",
+    "text": "Every enemy counts as visible for the shown turns.",
+    "title": "Truesight"
+  },
+  {
+    "card": "rime_shard",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "rime_shard",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "rime_shard",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "rime_shard",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.\nLeaves this ground in the affected area.",
+    "title": "Ice"
+  },
+  {
+    "card": "cold_grasp",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "cold_grasp",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "icicle_lance",
+    "glossary_key": "",
+    "icon": "pierce",
+    "text": "Ignores Block and Stoneskin.",
+    "title": "Pierce"
+  },
+  {
+    "card": "icicle_lance",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "hush_of_winter",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "hush_of_winter",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "hush_of_winter",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "shatterline",
+    "glossary_key": "",
+    "icon": "pierce",
+    "text": "Ignores Block and Stoneskin.",
+    "title": "Pierce"
+  },
+  {
+    "card": "shatterline",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "shatterline",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "shatterline",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "shatterline",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "Empower cost: 2 more Time.",
+    "title": "Time"
+  },
+  {
+    "card": "glacier_pin",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "glacier_pin",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "glacier_pin",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "glacier_pin",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "glacier_pin",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.\nLeaves this ground in the affected area.",
+    "title": "Ice"
+  },
+  {
+    "card": "white_silence",
+    "glossary_key": "",
+    "icon": "chilled",
+    "text": "Each Chilled Enemy\nHits every Chilled enemy you can see. There is no target to choose.",
+    "title": "Chilled"
+  },
+  {
+    "card": "white_silence",
+    "glossary_key": "",
+    "icon": "all_enemies",
+    "text": "Hits every visible enemy that qualifies; no target needed.",
+    "title": "Sweeping Strike"
+  },
+  {
+    "card": "spark_dart",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "spark_dart",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "spark_dart",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.\nLeaves this ground in the affected area.",
+    "title": "Electrified"
+  },
+  {
+    "card": "spark_dart",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "Creates Light at the target. Radius in tiles.",
+    "title": "Light"
+  },
+  {
+    "card": "spark_dart",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "chain_bolt",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "chain_bolt",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "chain_bolt",
+    "glossary_key": "",
+    "icon": "chain",
+    "text": "Jumps to new targets within that many tiles of each hit.",
+    "title": "Chain"
+  },
+  {
+    "card": "chain_bolt",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "chain_bolt",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "Empower cost: 2 more Time.",
+    "title": "Time"
+  },
+  {
+    "card": "spark_focus",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.",
+    "title": "Electrified"
+  },
+  {
+    "card": "spark_focus",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "spark_focus",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "spark_focus",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "spark_focus",
+    "glossary_key": "",
+    "icon": "vision",
+    "text": "See that many tiles farther for the shown turns.",
+    "title": "Vision"
+  },
+  {
+    "card": "spark_focus",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "static_lash",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "static_lash",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "static_lash",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.",
+    "title": "Electrified"
+  },
+  {
+    "card": "static_lash",
+    "glossary_key": "",
+    "icon": "shock",
+    "text": "On its next turn, it can only Move or Blink.",
+    "title": "Shock"
+  },
+  {
+    "card": "storm_relay",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "storm_relay",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "storm_relay",
+    "glossary_key": "",
+    "icon": "chain",
+    "text": "Jumps to new targets within that many tiles of each hit.",
+    "title": "Chain"
+  },
+  {
+    "card": "storm_relay",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.",
+    "title": "Electrified"
+  },
+  {
+    "card": "storm_relay",
+    "glossary_key": "",
+    "icon": "shock",
+    "text": "On its next turn, it can only Move or Blink.",
+    "title": "Shock"
+  },
+  {
+    "card": "volt_surge",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "volt_surge",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "volt_surge",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "volt_surge",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.\nLeaves this ground in the affected area.",
+    "title": "Electrified"
+  },
+  {
+    "card": "thunderline",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "thunderline",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "thunderline",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "thunderline",
+    "glossary_key": "",
+    "icon": "chain",
+    "text": "Jumps to new targets within that many tiles of each hit.",
+    "title": "Chain"
+  },
+  {
+    "card": "thunderline",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.",
+    "title": "Electrified"
+  },
+  {
+    "card": "thunderline",
+    "glossary_key": "",
+    "icon": "shock",
+    "text": "On its next turn, it can only Move or Blink.",
+    "title": "Shock"
+  },
+  {
+    "card": "gust_step",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "gust_step",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "gust_step",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "gust_step",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "Move the target that many tiles straight closer; if blocked, Collision.",
+    "title": "Pull"
+  },
+  {
+    "card": "slipstream_cut",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "slipstream_cut",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "slipstream_cut",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "updraft",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "updraft",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "updraft",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "vacuum_line",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "vacuum_line",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "vacuum_line",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "Move the target that many tiles straight closer; if blocked, Collision.",
+    "title": "Pull"
+  },
+  {
+    "card": "vacuum_line",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "squall_shot",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "squall_shot",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "squall_shot",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "squall_shot",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "skybreak_current",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "skybreak_current",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "skybreak_current",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "venom_claw",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "venom_claw",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground in the affected area.",
+    "title": "Rubble"
+  },
+  {
+    "card": "stone_plate",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "stone_plate",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "quarry_step",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "quarry_step",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "quarry_step",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground in the affected area.",
+    "title": "Rubble"
+  },
+  {
+    "card": "thorn_skewer",
+    "glossary_key": "",
+    "icon": "pierce",
+    "text": "Ignores Block and Stoneskin.",
+    "title": "Pierce"
+  },
+  {
+    "card": "thorn_skewer",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.",
+    "title": "Rubble"
+  },
+  {
+    "card": "root_snare",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "root_snare",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "root_snare",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "root_snare",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground in the affected area.",
+    "title": "Rubble"
+  },
+  {
+    "card": "basalt_guard",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "basalt_guard",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Illusion placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "basalt_guard",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground in the affected area.",
+    "title": "Rubble"
+  },
+  {
+    "card": "basalt_guard",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "basalt_guard",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "grave_mortar",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "grave_mortar",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "grave_mortar",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground in the affected area.",
+    "title": "Rubble"
+  },
+  {
+    "card": "spike_mantle",
+    "glossary_key": "",
+    "icon": "pierce",
+    "text": "Ignores Block and Stoneskin.",
+    "title": "Pierce"
+  },
+  {
+    "card": "spike_mantle",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "spike_mantle",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.",
+    "title": "Rubble"
+  },
+  {
+    "card": "spike_mantle",
+    "glossary_key": "",
+    "icon": "surface_consume",
+    "text": "Remove the shown ground to power this effect.",
+    "title": "Expend"
+  },
+  {
+    "card": "spike_mantle",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "tectonic_maul",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "tectonic_maul",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "tectonic_maul",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "tectonic_maul",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground in the affected area.",
+    "title": "Rubble"
+  },
+  {
+    "card": "tectonic_maul",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "tectonic_maul",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.",
+    "title": "Rubble"
+  },
+  {
+    "card": "cleaver_hook",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "cleaver_hook",
+    "glossary_key": "",
+    "icon": "sunder",
+    "text": "Strips that much Block, then Stoneskin, before damage.",
+    "title": "Sunder"
+  },
+  {
+    "card": "riposte_lunge",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "riposte_lunge",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "riposte_lunge",
+    "glossary_key": "",
+    "icon": "retaliate",
+    "text": "Until your next turn, enemies that hit you in melee take 4.",
+    "title": "Retaliate"
+  },
+  {
+    "card": "grave_cleave",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "grave_cleave",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you, facing the adjacent tile you choose.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "grave_cleave",
+    "glossary_key": "",
+    "icon": "expose",
+    "text": "Its next damaging hit takes that much more damage.",
+    "title": "Expose"
+  },
+  {
+    "card": "kite_bash",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "kite_bash",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "kite_bash",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "chain_catch",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "chain_catch",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "chain_catch",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "Move the target that many tiles straight closer; if blocked, Collision.",
+    "title": "Pull"
+  },
+  {
+    "card": "chain_catch",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "mirror_feint",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "mirror_feint",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Choose an enemy within this range.",
+    "title": "Range"
+  },
+  {
+    "card": "mirror_feint",
+    "glossary_key": "",
+    "icon": "expose",
+    "text": "The chosen enemy is Exposed 3.",
+    "title": "Expose"
+  },
+  {
+    "card": "leather_roll",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "leather_roll",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "glassbone_guard",
+    "glossary_key": "",
+    "icon": "health_cost",
+    "text": "Lose that much Health; Block can't prevent it.",
+    "title": "Health Cost"
+  },
+  {
+    "card": "glassbone_guard",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "glassbone_guard",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "undertaker_stand",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "undertaker_stand",
+    "glossary_key": "",
+    "icon": "retaliate",
+    "text": "Until your next turn, enemies that hit you in melee take 5.",
+    "title": "Retaliate"
+  },
+  {
+    "card": "dust_skip",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "dust_skip",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "spur_vault",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "spur_vault",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "spur_vault",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "gravewind_step",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "gravewind_step",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "ember_tithe",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "ember_tithe",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "ember_tithe",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "ember_tithe",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground in the affected area.",
+    "title": "Fire"
+  },
+  {
+    "card": "ember_tithe",
+    "glossary_key": "",
+    "icon": "heal",
+    "text": "Restore that much Health.",
+    "title": "Heal"
+  },
+  {
+    "card": "clockwork_mark",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "clockwork_mark",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "clockwork_mark",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "clockwork_mark",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "unsealed_gale",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "unsealed_gale",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "",
+    "title": "Push each enemy within 3 of you 3 away from it. Each moves along its own straight line; stopped lines collide."
+  },
+  {
+    "card": "butcher_chop",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "butcher_chop",
+    "glossary_key": "",
+    "icon": "health",
+    "text": "If Target at Half Health\nApplies if the target is at or below half health before the hit.",
+    "title": "Health"
+  },
+  {
+    "card": "tombsplitter",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "tombsplitter",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you, facing the adjacent tile you choose.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "tombsplitter",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "chain_lock",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "chain_lock",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "chain_lock",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "chain_lock",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "mirror_flash",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "mirror_flash",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Illusion placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "mirror_flash",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "dust_glide",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "dust_glide",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "sawtooth_flurry",
+    "glossary_key": "",
+    "icon": "flurry",
+    "text": "Repeat this card once per Card Play left, spending them all.",
+    "title": "Flurry"
+  },
+  {
+    "card": "sawtooth_flurry",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "sawtooth_flurry",
+    "glossary_key": "",
+    "icon": "bleed",
+    "text": "Takes that much damage before each move or attack.",
+    "title": "Bleed"
+  },
+  {
+    "card": "serrated_slip",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "serrated_slip",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "serrated_slip",
+    "glossary_key": "",
+    "icon": "expose",
+    "text": "Its next damaging hit takes that much more damage.",
+    "title": "Expose"
+  },
+  {
+    "card": "backhand_nick",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "backhand_nick",
+    "glossary_key": "",
+    "icon": "bleed",
+    "text": "Takes that much damage before each move or attack.",
+    "title": "Bleed"
+  },
+  {
+    "card": "backhand_nick",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "stormstring_shot",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "stormstring_shot",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "stormstring_shot",
+    "glossary_key": "",
+    "icon": "chain",
+    "text": "Jumps to new targets within that many tiles of each hit.",
+    "title": "Chain"
+  },
+  {
+    "card": "stormstring_shot",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.\nLeaves this ground in the affected area.",
+    "title": "Electrified"
+  },
+  {
+    "card": "forked_nock",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "forked_nock",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "forked_nock",
+    "glossary_key": "",
+    "icon": "expose",
+    "text": "Its next damaging hit takes that much more damage.",
+    "title": "Expose"
+  },
+  {
+    "card": "forked_nock",
+    "glossary_key": "",
+    "icon": "chain",
+    "text": "Jumps to new targets within that many tiles of each hit.",
+    "title": "Chain"
+  },
+  {
+    "card": "far_draw",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.",
+    "title": "Electrified"
+  },
+  {
+    "card": "far_draw",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "far_draw",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "hookspine_reap",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "hookspine_reap",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "hookspine_reap",
+    "glossary_key": "",
+    "icon": "bleed",
+    "text": "Takes that much damage before each move or attack.",
+    "title": "Bleed"
+  },
+  {
+    "card": "hookspine_reap",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "Move the target that many tiles straight closer; if blocked, Collision.",
+    "title": "Pull"
+  },
+  {
+    "card": "sweeping_haft",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "sweeping_haft",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "sweeping_haft",
+    "glossary_key": "",
+    "icon": "sunder",
+    "text": "Strips that much Block, then Stoneskin, before damage.",
+    "title": "Sunder"
+  },
+  {
+    "card": "hook_and_hold",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "hook_and_hold",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "hook_and_hold",
+    "glossary_key": "",
+    "icon": "expose",
+    "text": "Its next damaging hit takes that much more damage.",
+    "title": "Expose"
+  },
+  {
+    "card": "hook_and_hold",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "phoenix_cleave",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "phoenix_cleave",
+    "glossary_key": "",
+    "icon": "health_cost",
+    "text": "Lose that much Health; Block can't prevent it.",
+    "title": "Health Cost"
+  },
+  {
+    "card": "phoenix_cleave",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "phoenix_cleave",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "phoenix_cleave",
+    "glossary_key": "",
+    "icon": "detonate",
+    "text": "Blow up the chosen ground, hitting everyone on and next to it, you included.",
+    "title": "Detonate"
+  },
+  {
+    "card": "ember_guard",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "ember_guard",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.",
+    "title": "Fire"
+  },
+  {
+    "card": "ember_guard",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "rekindle_edge",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "rekindle_edge",
+    "glossary_key": "",
+    "icon": "detonate",
+    "text": "Blow up the chosen ground, hitting everyone on and next to it, you included.",
+    "title": "Detonate"
+  },
+  {
+    "card": "nail_parry",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "nail_parry",
+    "glossary_key": "",
+    "icon": "pierce",
+    "text": "Ignores Block and Stoneskin.",
+    "title": "Pierce"
+  },
+  {
+    "card": "nail_parry",
+    "glossary_key": "",
+    "icon": "sunder",
+    "text": "Strips that much Block, then Stoneskin, before damage.",
+    "title": "Sunder"
+  },
+  {
+    "card": "spike_check",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "spike_check",
+    "glossary_key": "",
+    "icon": "retaliate",
+    "text": "Until your next turn, enemies that hit you in melee take 3.",
+    "title": "Retaliate"
+  },
+  {
+    "card": "lodestone_reversal",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "lodestone_reversal",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "lodestone_reversal",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "Move the target that many tiles straight closer; if blocked, Collision.",
+    "title": "Pull"
+  },
+  {
+    "card": "lodestone_reversal",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.\nLeaves this ground in the affected area.",
+    "title": "Electrified"
+  },
+  {
+    "card": "lodestone_reversal",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "polar_guard",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "polar_guard",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.",
+    "title": "Electrified"
+  },
+  {
+    "card": "witchglass_double",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "witchglass_double",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Illusion placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "witchglass_double",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "witchglass_double",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "reflected_threat",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "reflected_threat",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Illusion placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "reflected_threat",
+    "glossary_key": "",
+    "icon": "retaliate",
+    "text": "Until your next turn, enemies that hit you up close take that much damage.",
+    "title": "Retaliate"
+  },
+  {
+    "card": "anchor_slam",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "anchor_slam",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "anchor_slam",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "anchor_slam",
+    "glossary_key": "",
+    "icon": "sunder",
+    "text": "Strips that much Block, then Stoneskin, before damage.",
+    "title": "Sunder"
+  },
+  {
+    "card": "anchor_slam",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "anchor_slam",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "Move the target that many tiles straight closer; if blocked, Collision.",
+    "title": "Pull"
+  },
+  {
+    "card": "undertow_guard",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "undertow_guard",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "undertow_guard",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "undertow_guard",
+    "glossary_key": "",
+    "icon": "expose",
+    "text": "Its next damaging hit takes that much more damage.",
+    "title": "Expose"
+  },
+  {
+    "card": "undertow_guard",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "Move the target that many tiles straight closer; if blocked, Collision.",
+    "title": "Pull"
+  },
+  {
+    "card": "field_suture",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "field_suture",
+    "glossary_key": "",
+    "icon": "heal",
+    "text": "Restore that much Health.",
+    "title": "Heal"
+  },
+  {
+    "card": "field_suture",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "threadbare_guard",
+    "glossary_key": "",
+    "icon": "cleanse",
+    "text": "Remove Bleed, Immobilize, Chilled from yourself.",
+    "title": "Cleanse"
+  },
+  {
+    "card": "threadbare_guard",
+    "glossary_key": "",
+    "icon": "bleed",
+    "text": "Cleanse\nRemove Bleed, Immobilize, Chilled from yourself.",
+    "title": "Bleed"
+  },
+  {
+    "card": "threadbare_guard",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Cleanse\nRemove Bleed, Immobilize, Chilled from yourself.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "threadbare_guard",
+    "glossary_key": "",
+    "icon": "chilled",
+    "text": "Cleanse\nRemove Bleed, Immobilize, Chilled from yourself.",
+    "title": "Chilled"
+  },
+  {
+    "card": "threadbare_guard",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "threadbare_guard",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "cinderweave_guard",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "cinderweave_guard",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "cinderweave_guard",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "cinderweave_guard",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground in the affected area.",
+    "title": "Fire"
+  },
+  {
+    "card": "cinder_patch",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "cinder_patch",
+    "glossary_key": "",
+    "icon": "heal",
+    "text": "Restore that much Health.",
+    "title": "Heal"
+  },
+  {
+    "card": "cinder_patch",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "cinder_patch",
+    "glossary_key": "",
+    "icon": "surface_consume",
+    "text": "Remove fire beneath you.",
+    "title": "Expend"
+  },
+  {
+    "card": "rimeplate_lock",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "rimeplate_lock",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "rimeplate_lock",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "rimeplate_lock",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "rimeplate_lock",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "rimeplate_lock",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.\nLeaves this ground in the affected area.",
+    "title": "Ice"
+  },
+  {
+    "card": "hoarfrost_shell",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "hoarfrost_shell",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.",
+    "title": "Ice"
+  },
+  {
+    "card": "hoarfrost_shell",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "hoarfrost_shell",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "voidsilk_molt",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "voidsilk_molt",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "Leaves an illusion with this much health where you stood.",
+    "title": "Illusion"
+  },
+  {
+    "card": "voidsilk_molt",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "empty_husk",
+    "glossary_key": "",
+    "icon": "illusion_swap",
+    "text": "Swap places with one of your illusions. Both of you trigger the ground and traps where you land.",
+    "title": "Swap Illusion"
+  },
+  {
+    "card": "empty_husk",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "The illusion gains all your Block as extra health. You lose that Block.",
+    "title": "Block"
+  },
+  {
+    "card": "hobnail_drive",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "hobnail_drive",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "hobnail_drive",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "heel_hook",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "heel_hook",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "heel_hook",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "static_pivot",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "static_pivot",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.\nLeaves this ground in the affected area.",
+    "title": "Electrified"
+  },
+  {
+    "card": "static_pivot",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "spur_spark",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "spur_spark",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.\nLeaves this ground in the affected area.",
+    "title": "Electrified"
+  },
+  {
+    "card": "spur_spark",
+    "glossary_key": "",
+    "icon": "quicken",
+    "text": "Your next card this turn costs 1 less Time (minimum 1).",
+    "title": "Quicken 1"
+  },
+  {
+    "card": "cloudstep_loop",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "cloudstep_loop",
+    "glossary_key": "",
+    "icon": "card_play",
+    "text": "Playing a card spends one. Refills each turn; kills give one more.",
+    "title": "Card Play"
+  },
+  {
+    "card": "zephyr_feint",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "zephyr_feint",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "zephyr_feint",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "worldroot_stride",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "worldroot_stride",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "worldroot_stride",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.",
+    "title": "Rubble"
+  },
+  {
+    "card": "rooted_kick",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "rooted_kick",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "rooted_kick",
+    "glossary_key": "",
+    "icon": "sunder",
+    "text": "Strips that much Block, then Stoneskin, before damage.",
+    "title": "Sunder"
+  },
+  {
+    "card": "rooted_kick",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "rooted_kick",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground in the affected area.",
+    "title": "Rubble"
+  },
+  {
+    "card": "loaded_toss",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "loaded_toss",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "loaded_toss",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "loaded_toss",
+    "glossary_key": "",
+    "icon": "card_play",
+    "text": "Playing a card spends one. Refills each turn; kills give one more.",
+    "title": "Card Play"
+  },
+  {
+    "card": "snake_eyes",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "snake_eyes",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "snake_eyes",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "snake_eyes",
+    "glossary_key": "",
+    "icon": "expose",
+    "text": "Its next damaging hit takes that much more damage.",
+    "title": "Expose"
+  },
+  {
+    "card": "snake_eyes",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "locket_chill",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "locket_chill",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "locket_chill",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.\nLeaves this ground in the affected area.",
+    "title": "Ice"
+  },
+  {
+    "card": "kept_breath",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "kept_breath",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "kept_breath",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.",
+    "title": "Ice"
+  },
+  {
+    "card": "kept_breath",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "borrowed_spark",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "borrowed_spark",
+    "glossary_key": "",
+    "icon": "health_cost",
+    "text": "Lose that much Health; Block can't prevent it.",
+    "title": "Health Cost"
+  },
+  {
+    "card": "borrowed_spark",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.",
+    "title": "Fire"
+  },
+  {
+    "card": "borrowed_spark",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "borrowed_spark",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "borrowed_spark",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "borrowed_spark",
+    "glossary_key": "",
+    "icon": "card_play",
+    "text": "Playing a card spends one. Refills each turn; kills give one more.",
+    "title": "Card Play"
+  },
+  {
+    "card": "cinder_second",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "cinder_second",
+    "glossary_key": "",
+    "icon": "detonate",
+    "text": "Blow up the chosen ground, hitting everyone on and next to it, you included.",
+    "title": "Detonate"
+  },
+  {
+    "card": "cinder_second",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "cinder_second",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "thorn_crown_pact",
+    "glossary_key": "",
+    "icon": "rite",
+    "text": "Lasts the rest of combat. Exhaust.",
+    "title": "Rite"
+  },
+  {
+    "card": "thorn_crown_pact",
+    "glossary_key": "",
+    "icon": "health_cost",
+    "text": "Lose that much Health; Block can't prevent it.",
+    "title": "Health Cost"
+  },
+  {
+    "card": "royal_bramble",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "royal_bramble",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "royal_bramble",
+    "glossary_key": "",
+    "icon": "bleed",
+    "text": "Takes that much damage before each move or attack.",
+    "title": "Bleed"
+  },
+  {
+    "card": "royal_bramble",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "Move the target that many tiles straight closer; if blocked, Collision.",
+    "title": "Pull"
+  },
+  {
+    "card": "royal_bramble",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "royal_bramble",
+    "glossary_key": "",
+    "icon": "health_cost",
+    "text": "Empower cost: pay 1 health after the card resolves.",
+    "title": "Health Cost"
+  },
+  {
+    "card": "royal_bramble",
+    "glossary_key": "",
+    "icon": "expose",
+    "text": "Its next damaging hit takes that much more damage.",
+    "title": "Expose"
+  },
+  {
+    "card": "royal_bramble",
+    "glossary_key": "",
+    "icon": "sunder",
+    "text": "Strips that much Block, then Stoneskin, before damage.",
+    "title": "Sunder"
+  },
+  {
+    "card": "crimson_draught",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "crimson_draught",
+    "glossary_key": "",
+    "icon": "heal",
+    "text": "Restore that much Health.",
+    "title": "Heal"
+  },
+  {
+    "card": "mossglass_elixir",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "mossglass_elixir",
+    "glossary_key": "",
+    "icon": "heal",
+    "text": "Restore that much Health.",
+    "title": "Heal"
+  },
+  {
+    "card": "mossglass_elixir",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "nail_bomb",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "nail_bomb",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "nail_bomb",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "nail_bomb",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "nail_bomb",
+    "glossary_key": "",
+    "icon": "sunder",
+    "text": "Strips that much Block, then Stoneskin, before damage.",
+    "title": "Sunder"
+  },
+  {
+    "card": "pitch_firebomb",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "pitch_firebomb",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "pitch_firebomb",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "pitch_firebomb",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "pitch_firebomb",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground in the affected area.",
+    "title": "Fire"
+  },
+  {
+    "card": "frost_snare",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "frost_snare",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "frost_snare",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "frost_snare",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "frost_snare",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.\nLeaves this ground in the affected area.",
+    "title": "Ice"
+  },
+  {
+    "card": "storm_jar",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "storm_jar",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "storm_jar",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "storm_jar",
+    "glossary_key": "",
+    "icon": "chain",
+    "text": "Jumps to new targets within that many tiles of each hit.",
+    "title": "Chain"
+  },
+  {
+    "card": "storm_jar",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.",
+    "title": "Electrified"
+  },
+  {
+    "card": "storm_jar",
+    "glossary_key": "",
+    "icon": "shock",
+    "text": "On its next turn, it can only Move or Blink.",
+    "title": "Shock"
+  },
+  {
+    "card": "smoke_bomb",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "smoke_bomb",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "smoke_bomb",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "jaw_trap",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "jaw_trap",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "jaw_trap",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "jaw_trap",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "bone_ward_charm",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "bone_ward_charm",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "bone_ward_charm",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "grave_dust_satchel",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "grave_dust_satchel",
+    "glossary_key": "",
+    "icon": "pierce",
+    "text": "Ignores Block and Stoneskin.",
+    "title": "Pierce"
+  },
+  {
+    "card": "grave_dust_satchel",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "grave_dust_satchel",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "grave_dust_satchel",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground in the affected area.",
+    "title": "Rubble"
+  },
+  {
+    "card": "windlass_volley",
+    "glossary_key": "",
+    "icon": "flurry",
+    "text": "Repeat this card once per Card Play left, spending them all.",
+    "title": "Flurry"
+  },
+  {
+    "card": "windlass_volley",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "windlass_volley",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "windlass_volley",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "crank_reload",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "crank_reload",
+    "glossary_key": "",
+    "icon": "card_play",
+    "text": "Playing a card spends one. Refills each turn; kills give one more.",
+    "title": "Card Play"
+  },
+  {
+    "card": "blade_dance",
+    "glossary_key": "",
+    "icon": "flurry",
+    "text": "Repeat this card once per Card Play left, spending them all.",
+    "title": "Flurry"
+  },
+  {
+    "card": "blade_dance",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "blade_dance",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "gathering_rhythm",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "gathering_rhythm",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "gathering_rhythm",
+    "glossary_key": "",
+    "icon": "card_play",
+    "text": "Playing a card spends one. Refills each turn; kills give one more.",
+    "title": "Card Play"
+  },
+  {
+    "card": "cinder_fusillade",
+    "glossary_key": "",
+    "icon": "flurry",
+    "text": "Repeat this card once per Card Play left, spending them all.",
+    "title": "Flurry"
+  },
+  {
+    "card": "cinder_fusillade",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "cinder_fusillade",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "cinder_fusillade",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground in the affected area.",
+    "title": "Fire"
+  },
+  {
+    "card": "storm_salvo",
+    "glossary_key": "",
+    "icon": "flurry",
+    "text": "Repeat this card once per Card Play left, spending them all.",
+    "title": "Flurry"
+  },
+  {
+    "card": "storm_salvo",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "storm_salvo",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "storm_salvo",
+    "glossary_key": "",
+    "icon": "chain",
+    "text": "Jumps to new targets within that many tiles of each hit.",
+    "title": "Chain"
+  },
+  {
+    "card": "storm_salvo",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "razor_gale",
+    "glossary_key": "",
+    "icon": "flurry",
+    "text": "Repeat this card once per Card Play left, spending them all.",
+    "title": "Flurry"
+  },
+  {
+    "card": "razor_gale",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "razor_gale",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "razor_gale",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "beacon",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "",
+    "title": "Light radius in tiles."
+  },
+  {
+    "card": "beacon",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Light placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "beacon",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "beacon",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "bitter_tonic",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "bitter_tonic",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "bitter_tonic",
+    "glossary_key": "",
+    "icon": "card_play",
+    "text": "Playing a card spends one. Refills each turn; kills give one more.",
+    "title": "Card Play"
+  },
+  {
+    "card": "blessed_salve",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "blessed_salve",
+    "glossary_key": "",
+    "icon": "heal",
+    "text": "Restore that much Health.",
+    "title": "Heal"
+  },
+  {
+    "card": "blessed_salve",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "",
+    "title": "Light radius in tiles, centered on you."
+  },
+  {
+    "card": "blessed_salve",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "break_the_veil",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "break_the_veil",
+    "glossary_key": "",
+    "icon": "dispel_umbra",
+    "text": "Lower the Umbra by that many stages this combat.",
+    "title": "Dispel Umbra"
+  },
+  {
+    "card": "break_the_veil",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "buffet",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "buffet",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "buffet",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "caltrops",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "caltrops",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "caltrops",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "caltrops",
+    "glossary_key": "",
+    "icon": "bleed",
+    "text": "Takes that much damage before each move or attack.",
+    "title": "Bleed"
+  },
+  {
+    "card": "caltrops",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground in the affected area.",
+    "title": "Rubble"
+  },
+  {
+    "card": "censer_swing",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "censer_swing",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "censer_swing",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "",
+    "title": "Light radius in tiles, centered on you."
+  },
+  {
+    "card": "censer_swing",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "cinder_wall",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.",
+    "title": "Fire"
+  },
+  {
+    "card": "cinder_wall",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "cinder_wall",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "cinder_wall",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "cold_shoulder",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "cold_shoulder",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "crosswind",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "crosswind",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "crosswind",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "",
+    "title": "Push 2 in any open direction."
+  },
+  {
+    "card": "fan_of_knives",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "fan_of_knives",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "fan_of_knives",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "flame_jet",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "flame_jet",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you, facing the adjacent tile you choose.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "flame_jet",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground in the affected area.",
+    "title": "Fire"
+  },
+  {
+    "card": "frost_lane",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.",
+    "title": "Ice"
+  },
+  {
+    "card": "frost_lane",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "frost_lane",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "frost_lane",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "frost_nova",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "frost_nova",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "frost_nova",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.",
+    "title": "Ice"
+  },
+  {
+    "card": "geode",
+    "glossary_key": "",
+    "icon": "raise_terrain",
+    "text": "Raises an outcrop with this much health on empty floor. It blocks movement and sight and leaves Rubble when destroyed.",
+    "title": "Raise Terrain"
+  },
+  {
+    "card": "geode",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Outcrop placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "geode",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "glacier_salts",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "glacier_salts",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.",
+    "title": "Ice"
+  },
+  {
+    "card": "glacier_salts",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "glacier_salts",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "haft_shove",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "haft_shove",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "hoarfrost_wall",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "hoarfrost_wall",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.",
+    "title": "Ice"
+  },
+  {
+    "card": "hoarfrost_wall",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "hurricane_palm",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "hurricane_palm",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "incense_haze",
+    "glossary_key": "",
+    "icon": "truesight",
+    "text": "Every enemy counts as visible for the shown turns.",
+    "title": "Truesight"
+  },
+  {
+    "card": "incense_haze",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "jolt",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "jolt",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "kestrel_dive",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "kestrel_dive",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "kestrel_dive",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "kindle",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.",
+    "title": "Fire"
+  },
+  {
+    "card": "kindle",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "kindle",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "lamp_oil",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "lamp_oil",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.",
+    "title": "Fire"
+  },
+  {
+    "card": "lamp_oil",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "lamp_oil",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "lash",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "lash",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "lash",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "Move the target that many tiles straight closer; if blocked, Collision.",
+    "title": "Pull"
+  },
+  {
+    "card": "mirror_charm",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "mirror_charm",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "mirror_charm",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Illusion placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "pinning_quarrel",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "pinning_quarrel",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "pinning_quarrel",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "plant_pavise",
+    "glossary_key": "",
+    "icon": "raise_terrain",
+    "text": "Raises an outcrop with this much health on empty floor. It blocks movement and sight and leaves Rubble when destroyed.",
+    "title": "Raise Terrain"
+  },
+  {
+    "card": "plant_pavise",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Outcrop placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "plant_pavise",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "quarry_plating",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "quarry_plating",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.",
+    "title": "Rubble"
+  },
+  {
+    "card": "raise_stone",
+    "glossary_key": "",
+    "icon": "raise_terrain",
+    "text": "Raises an outcrop with this much health on empty floor. It blocks movement and sight and leaves Rubble when destroyed.",
+    "title": "Raise Terrain"
+  },
+  {
+    "card": "raise_stone",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Outcrop placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "raise_stone",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "raise_the_anvil",
+    "glossary_key": "",
+    "icon": "raise_terrain",
+    "text": "Raises an outcrop with this much health on empty floor. It blocks movement and sight and leaves Rubble when destroyed.",
+    "title": "Raise Terrain"
+  },
+  {
+    "card": "raise_the_anvil",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Outcrop placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "raise_the_anvil",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "rime_hack",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "rime_hack",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.\nLeaves this ground in the affected area.",
+    "title": "Ice"
+  },
+  {
+    "card": "scorch",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "scorch",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "scorch",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.",
+    "title": "Fire"
+  },
+  {
+    "card": "seekers_mark",
+    "glossary_key": "",
+    "icon": "truesight",
+    "text": "Every enemy counts as visible for the shown turns.",
+    "title": "Truesight"
+  },
+  {
+    "card": "seekers_mark",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "seers_candle",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "seers_candle",
+    "glossary_key": "",
+    "icon": "truesight",
+    "text": "Every enemy counts as visible for the shown turns.",
+    "title": "Truesight"
+  },
+  {
+    "card": "seers_candle",
+    "glossary_key": "",
+    "icon": "vision",
+    "text": "See that many tiles farther for the shown turns.",
+    "title": "Vision"
+  },
+  {
+    "card": "seers_candle",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "shield_charge",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "shield_charge",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "shield_charge",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "shiver_shot",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "shiver_shot",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "snare_coil",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "snare_coil",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "snare_coil",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "snare_coil",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "Move the target that many tiles straight closer; if blocked, Collision.",
+    "title": "Pull"
+  },
+  {
+    "card": "spear_thrust",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "spear_thrust",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you, facing the adjacent tile you choose.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "straw_double",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "straw_double",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Illusion placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "straw_double",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "sun_flash",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "sun_flash",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "",
+    "title": "Light radius in tiles, centered on you."
+  },
+  {
+    "card": "sun_flash",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "thunderclap",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "thunderclap",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "thunderclap",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "thunderclap",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.",
+    "title": "Electrified"
+  },
+  {
+    "card": "unhorse",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "unhorse",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "vigil",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "vigil",
+    "glossary_key": "",
+    "icon": "vision",
+    "text": "See that many tiles farther for the shown turns.",
+    "title": "Vision"
+  },
+  {
+    "card": "vigil",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "yank",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "yank",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "yank",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "Move the target that many tiles straight closer; if blocked, Collision.",
+    "title": "Pull"
+  },
+  {
+    "card": "ember_jab",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "ember_jab",
+    "glossary_key": "",
+    "icon": "bleed",
+    "text": "Takes that much damage before each move or attack.",
+    "title": "Bleed"
+  },
+  {
+    "card": "ember_jab",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "cinderburst",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "cinderburst",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "cinderburst",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "cinderburst",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "Creates Light at the target. Radius in tiles.",
+    "title": "Light"
+  },
+  {
+    "card": "cinderburst",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "gate_gambit",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "gate_gambit",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "gate_gambit",
+    "glossary_key": "",
+    "icon": "vision",
+    "text": "See that many tiles farther for the shown turns.",
+    "title": "Vision"
+  },
+  {
+    "card": "gate_gambit",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "arc_flash",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "arc_flash",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "arc_flash",
+    "glossary_key": "",
+    "icon": "follow_up",
+    "text": "Gains this bonus if you already played a card this turn.",
+    "title": "Follow-up"
+  },
+  {
+    "card": "arc_flash",
+    "glossary_key": "",
+    "icon": "chain",
+    "text": "Jumps to new targets within that many tiles of each hit.",
+    "title": "Chain"
+  },
+  {
+    "card": "barbed_mail",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "barbed_mail",
+    "glossary_key": "",
+    "icon": "retaliate",
+    "text": "Until your next turn, enemies that hit you in melee take 3 and suffer Bleed 1.",
+    "title": "Retaliate"
+  },
+  {
+    "card": "barbed_mail",
+    "glossary_key": "",
+    "icon": "bleed",
+    "text": "Takes that much damage before each move or attack.",
+    "title": "Bleed"
+  },
+  {
+    "card": "blinding_bash",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "blinding_bash",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "If Target in Light\nApplies if the target stands in Light.",
+    "title": "Light"
+  },
+  {
+    "card": "blinding_bash",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "brace_the_spear",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "brace_the_spear",
+    "glossary_key": "",
+    "icon": "retaliate",
+    "text": "Until your next turn, enemies that hit you in melee take 5.",
+    "title": "Retaliate"
+  },
+  {
+    "card": "bristle",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "bristle",
+    "glossary_key": "",
+    "icon": "retaliate",
+    "text": "Until your next turn, enemies that hit you in melee take 2.",
+    "title": "Retaliate"
+  },
+  {
+    "card": "capacitor",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "capacitor",
+    "glossary_key": "",
+    "icon": "next_attack",
+    "text": "Your next Lightning attack this turn gains Chain 2.",
+    "title": "Next Attack"
+  },
+  {
+    "card": "capacitor",
+    "glossary_key": "",
+    "icon": "element_lightning",
+    "text": "Only a Lightning attack uses this bonus.",
+    "title": "Lightning"
+  },
+  {
+    "card": "capacitor",
+    "glossary_key": "",
+    "icon": "chain",
+    "text": "Next Attack\nYour next Lightning attack this turn gains Chain 2.",
+    "title": "Chain"
+  },
+  {
+    "card": "charged_orb",
+    "glossary_key": "",
+    "icon": "quicken",
+    "text": "Your next card this turn costs 2 less Time (minimum 1).",
+    "title": "Quicken 2"
+  },
+  {
+    "card": "charged_orb",
+    "glossary_key": "",
+    "icon": "next_attack",
+    "text": "Your next Lightning attack this turn gains Chain 1.",
+    "title": "Next Attack"
+  },
+  {
+    "card": "charged_orb",
+    "glossary_key": "",
+    "icon": "element_lightning",
+    "text": "Only a Lightning attack uses this bonus.",
+    "title": "Lightning"
+  },
+  {
+    "card": "charged_orb",
+    "glossary_key": "",
+    "icon": "chain",
+    "text": "Next Attack\nYour next Lightning attack this turn gains Chain 1.",
+    "title": "Chain"
+  },
+  {
+    "card": "couched_lance",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "couched_lance",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "couched_lance",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Deals 1 more damage for each tile you moved this turn (maximum 5 more).",
+    "title": "Move"
+  },
+  {
+    "card": "crack_the_whip",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "crack_the_whip",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "crack_the_whip",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "crushing_blow",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "crushing_blow",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "dazzle",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "dazzle",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "dazzle",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "If Target in Light\nApplies if the target stands in Light.",
+    "title": "Light"
+  },
+  {
+    "card": "dazzle",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "deflect",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "deflect",
+    "glossary_key": "",
+    "icon": "retaliate",
+    "text": "Until your next turn, enemies that hit you in melee take 4.",
+    "title": "Retaliate"
+  },
+  {
+    "card": "earthen_rampart",
+    "glossary_key": "",
+    "icon": "raise_terrain",
+    "text": "Raises an outcrop with this much health on empty floor. It blocks movement and sight and leaves Rubble when destroyed.",
+    "title": "Raise Terrain"
+  },
+  {
+    "card": "earthen_rampart",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Outcrop placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "earthen_rampart",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "earthen_rampart",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "earthen_rampart",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "earthen_rampart",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Empower cost: Exhaust this card.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "eye_of_the_storm",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "eye_of_the_storm",
+    "glossary_key": "",
+    "icon": "retaliate",
+    "text": "Until your next turn, enemies that hit you in melee suffer Push 2.",
+    "title": "Retaliate"
+  },
+  {
+    "card": "eye_of_the_storm",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "flowing_step",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "flowing_step",
+    "glossary_key": "",
+    "icon": "follow_up",
+    "text": "Gains this bonus if you already played a card this turn.",
+    "title": "Follow-up"
+  },
+  {
+    "card": "flowing_step",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "galvanize",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "galvanize",
+    "glossary_key": "",
+    "icon": "quicken",
+    "text": "Your next card this turn costs 2 less Time (minimum 1).",
+    "title": "Quicken 2"
+  },
+  {
+    "card": "hallowed_strike",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "hallowed_strike",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "If Target in Light\nApplies if the target stands in Light.",
+    "title": "Light"
+  },
+  {
+    "card": "headlong",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "headlong",
+    "glossary_key": "",
+    "icon": "next_attack",
+    "text": "Your next attack this turn deals 1 more for each tile you moved this turn (maximum 4).",
+    "title": "Next Attack"
+  },
+  {
+    "card": "hourglass_sand",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "hourglass_sand",
+    "glossary_key": "",
+    "icon": "quicken",
+    "text": "Your next card this turn costs 4 less Time (minimum 1).",
+    "title": "Quicken 4"
+  },
+  {
+    "card": "hourglass_sand",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "hurl_spear",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "hurl_spear",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "hurl_spear",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "hurl_spear",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Empower cost: Exhaust this card.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "hurl_spear",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "main_gauche",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "main_gauche",
+    "glossary_key": "",
+    "icon": "follow_up",
+    "text": "Gains this bonus if you already played a card this turn.",
+    "title": "Follow-up"
+  },
+  {
+    "card": "main_gauche",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "mirror_image",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "mirror_image",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Illusion placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "mirror_image",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "mirror_image",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "mirror_image",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "Empower cost: 2 more Time.",
+    "title": "Time"
+  },
+  {
+    "card": "overclock",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "overclock",
+    "glossary_key": "",
+    "icon": "card_play",
+    "text": "Playing a card spends one. Refills each turn; kills give one more.",
+    "title": "Card Play"
+  },
+  {
+    "card": "overclock",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "overclock",
+    "glossary_key": "",
+    "icon": "health_cost",
+    "text": "Empower cost: pay 1 health after the card resolves.",
+    "title": "Health Cost"
+  },
+  {
+    "card": "overhead_smash",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "overhead_smash",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "overhead_smash",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "Empower cost: 2 more Time.",
+    "title": "Time"
+  },
+  {
+    "card": "overhead_smash",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "palm_blade",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "palm_blade",
+    "glossary_key": "",
+    "icon": "follow_up",
+    "text": "Gains this bonus if you already played a card this turn.",
+    "title": "Follow-up"
+  },
+  {
+    "card": "palm_blade",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "palm_strike",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "palm_strike",
+    "glossary_key": "",
+    "icon": "follow_up",
+    "text": "Gains this bonus if you already played a card this turn.",
+    "title": "Follow-up"
+  },
+  {
+    "card": "palm_strike",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "rimefang",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "rimefang",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "rimefang",
+    "glossary_key": "",
+    "icon": "follow_up",
+    "text": "Gains this bonus if you already played a card this turn.",
+    "title": "Follow-up"
+  },
+  {
+    "card": "rimefang",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.",
+    "title": "Ice"
+  },
+  {
+    "card": "rite_of_hoarfrost",
+    "glossary_key": "",
+    "icon": "rite",
+    "text": "Lasts the rest of combat. Exhaust.",
+    "title": "Rite"
+  },
+  {
+    "card": "rite_of_noon",
+    "glossary_key": "",
+    "icon": "rite",
+    "text": "Lasts the rest of combat. Exhaust.",
+    "title": "Rite"
+  },
+  {
+    "card": "rite_of_tailwinds",
+    "glossary_key": "",
+    "icon": "rite",
+    "text": "Lasts the rest of combat. Exhaust.",
+    "title": "Rite"
+  },
+  {
+    "card": "rite_of_the_mountain",
+    "glossary_key": "",
+    "icon": "rite",
+    "text": "Lasts the rest of combat. Exhaust.",
+    "title": "Rite"
+  },
+  {
+    "card": "rite_of_the_pyre",
+    "glossary_key": "",
+    "icon": "rite",
+    "text": "Lasts the rest of combat. Exhaust.",
+    "title": "Rite"
+  },
+  {
+    "card": "rite_of_the_storm",
+    "glossary_key": "",
+    "icon": "rite",
+    "text": "Lasts the rest of combat. Exhaust.",
+    "title": "Rite"
+  },
+  {
+    "card": "salamander_heart",
+    "glossary_key": "",
+    "icon": "rite",
+    "text": "Lasts the rest of combat. Exhaust.",
+    "title": "Rite"
+  },
+  {
+    "card": "static_mantle",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "static_mantle",
+    "glossary_key": "",
+    "icon": "retaliate",
+    "text": "Until your next turn, enemies that hit you in melee suffer Shock.",
+    "title": "Retaliate"
+  },
+  {
+    "card": "static_mantle",
+    "glossary_key": "",
+    "icon": "shock",
+    "text": "On its next turn, it can only Move or Blink.",
+    "title": "Shock"
+  },
+  {
+    "card": "static_rush",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "static_rush",
+    "glossary_key": "",
+    "icon": "quicken",
+    "text": "Your next card this turn costs 2 less Time (minimum 1).",
+    "title": "Quicken 2"
+  },
+  {
+    "card": "stolen_moment",
+    "glossary_key": "",
+    "icon": "quicken",
+    "text": "Your next card this turn costs 3 less Time (minimum 1).",
+    "title": "Quicken 3"
+  },
+  {
+    "card": "stolen_moment",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "stonefist",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "stonefist",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Deals 1 more damage for each Stoneskin you have (maximum 6 more).",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "stonewall_stance",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "stonewall_stance",
+    "glossary_key": "",
+    "icon": "follow_up",
+    "text": "Gains this bonus if you already played a card this turn.",
+    "title": "Follow-up"
+  },
+  {
+    "card": "sunlance",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "sunlance",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "sunlance",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "If Target in Light\nApplies if the target stands in Light.",
+    "title": "Light"
+  },
+  {
+    "card": "sworn_oath",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "sworn_oath",
+    "glossary_key": "",
+    "icon": "next_attack",
+    "text": "Your next attack this turn deals 3 more.",
+    "title": "Next Attack"
+  },
+  {
+    "card": "tempest_form",
+    "glossary_key": "",
+    "icon": "rite",
+    "text": "Lasts the rest of combat. Exhaust.",
+    "title": "Rite"
+  },
+  {
+    "card": "throwing_net",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "throwing_net",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "throwing_net",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "throwing_net",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "tremor",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "tremor",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "tremor",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "tremor",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "tremor",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "Empower cost: 2 more Time.",
+    "title": "Time"
+  },
+  {
+    "card": "whetstone",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "whetstone",
+    "glossary_key": "",
+    "icon": "next_attack",
+    "text": "Your next attack this turn deals 4 more and Pierces.",
+    "title": "Next Attack"
+  },
+  {
+    "card": "whetstone",
+    "glossary_key": "",
+    "icon": "pierce",
+    "text": "Next Attack\nYour next attack this turn deals 4 more and Pierces.",
+    "title": "Pierce"
+  },
+  {
+    "card": "wind_shear",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "wind_shear",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "wind_shear",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "wind_shear",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "wind_shear",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "wind_shear",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "Empower cost: 2 more Time.",
+    "title": "Time"
+  },
+  {
+    "card": "ball_lightning",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "ball_lightning",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Illusion placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "ball_lightning",
+    "glossary_key": "",
+    "icon": "retaliate",
+    "text": "Enemies that damage this illusion take 4 Lightning damage and are Shocked. Once per enemy attack.",
+    "title": "Retaliate"
+  },
+  {
+    "card": "ball_lightning",
+    "glossary_key": "",
+    "icon": "shock",
+    "text": "Enemies that damage this illusion are Shocked.",
+    "title": "Shock"
+  },
+  {
+    "card": "ball_lightning",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.\nLeaves this ground in the affected area.",
+    "title": "Electrified"
+  },
+  {
+    "card": "bottled_gale",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "bottled_gale",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "",
+    "title": "Push each enemy within 1 of you 3 away from it. Each moves along its own straight line; stopped lines collide."
+  },
+  {
+    "card": "catch_the_wind",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "catch_the_wind",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Gain this much Block for each tile you move.",
+    "title": "Block"
+  },
+  {
+    "card": "changing_winds",
+    "glossary_key": "",
+    "icon": "swap",
+    "text": "Swap places with a one-tile enemy or one of your illusions. Both arrive normally; nothing collides.",
+    "title": "Swap"
+  },
+  {
+    "card": "changing_winds",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "cinder_trail",
+    "glossary_key": "",
+    "icon": "fireproof",
+    "text": "Fire doesn't damage you this turn.",
+    "title": "Fireproof"
+  },
+  {
+    "card": "cinder_trail",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "cinder_trail",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground on each tile you leave.",
+    "title": "Fire"
+  },
+  {
+    "card": "cinder_trail",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.",
+    "title": "Fire"
+  },
+  {
+    "card": "crystal_mantle",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "crystal_mantle",
+    "glossary_key": "",
+    "icon": "frost_armor",
+    "text": "Each direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and health costs bypass it.",
+    "title": "Crystal Mantle"
+  },
+  {
+    "card": "discharge",
+    "glossary_key": "",
+    "icon": "discharge",
+    "text": "Remove a connected Electrified network, hitting enemies on and next to it.",
+    "title": "Discharge"
+  },
+  {
+    "card": "discharge",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.",
+    "title": "Electrified"
+  },
+  {
+    "card": "discharge",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Hits every foe on the red tiles, even unseen ones.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "discharge",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Choose an Electrified tile within this range and line of sight.",
+    "title": "Range"
+  },
+  {
+    "card": "doppelganger",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "doppelganger",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Illusion placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "doppelganger",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "While this illusion lives, your ranged attacks may fire from its tile.",
+    "title": "Ranged"
+  },
+  {
+    "card": "dust_devil",
+    "glossary_key": "",
+    "icon": "surface_consume",
+    "text": "Expends this ground on the chosen tile first.",
+    "title": "Expend"
+  },
+  {
+    "card": "dust_devil",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.",
+    "title": "Rubble"
+  },
+  {
+    "card": "dust_devil",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Choose a tile within this range.",
+    "title": "Range"
+  },
+  {
+    "card": "dust_devil",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "",
+    "title": "Push each enemy within 1 of the chosen tile 2 away from it. Each moves along its own straight line; stopped lines collide."
+  },
+  {
+    "card": "dust_devil",
+    "glossary_key": "",
+    "icon": "expose",
+    "text": "Its next damaging hit takes that much more damage.",
+    "title": "Expose"
+  },
+  {
+    "card": "ember_ward",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "ember_ward",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground under each adjacent enemy.",
+    "title": "Fire"
+  },
+  {
+    "card": "fan_the_flames",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "fan_the_flames",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "fan_the_flames",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "fan_the_flames",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground on each tile the target passes through.",
+    "title": "Fire"
+  },
+  {
+    "card": "fan_the_flames",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.",
+    "title": "Fire"
+  },
+  {
+    "card": "fault_strike",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "fault_strike",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground in the affected area.",
+    "title": "Rubble"
+  },
+  {
+    "card": "fault_strike",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you, facing the adjacent tile you choose.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "flash_powder",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "flash_powder",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "flash_powder",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "flash_powder",
+    "glossary_key": "",
+    "icon": "expose",
+    "text": "Its next damaging hit takes that much more damage.",
+    "title": "Expose"
+  },
+  {
+    "card": "flash_powder",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "Creates Light at the target. Radius in tiles.",
+    "title": "Light"
+  },
+  {
+    "card": "flash_powder",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "flashsteam",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "flashsteam",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "flashsteam",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "flashsteam",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.",
+    "title": "Ice"
+  },
+  {
+    "card": "flashsteam",
+    "glossary_key": "",
+    "icon": "surface_consume",
+    "text": "Removes the Ice on each pattern tile after the hit.",
+    "title": "Expend"
+  },
+  {
+    "card": "frost_circuit",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.\nTurns a Ice tile and every Ice tile connected to it into Electrified.",
+    "title": "Ice"
+  },
+  {
+    "card": "frost_circuit",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.\nTurns a Ice tile and every Ice tile connected to it into Electrified.",
+    "title": "Electrified"
+  },
+  {
+    "card": "frost_circuit",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Hits every foe on the red tiles, even unseen ones.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "frost_circuit",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Choose a Ice tile within this range and line of sight.",
+    "title": "Range"
+  },
+  {
+    "card": "frost_circuit",
+    "glossary_key": "",
+    "icon": "shock",
+    "text": "On its next turn, it can only Move or Blink.",
+    "title": "Shock"
+  },
+  {
+    "card": "frost_heave",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "frost_heave",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "frost_heave",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Can't Move, Blink or Swap during its next turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "frost_heave",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground in the affected area.",
+    "title": "Rubble"
+  },
+  {
+    "card": "frost_heave",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.",
+    "title": "Ice"
+  },
+  {
+    "card": "frost_heave",
+    "glossary_key": "",
+    "icon": "surface_consume",
+    "text": "Removes the Ice beneath the target after the hit.",
+    "title": "Expend"
+  },
+  {
+    "card": "frozen_bite",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "frozen_bite",
+    "glossary_key": "",
+    "icon": "card_play",
+    "text": "Playing a card spends one. Refills each turn; kills give one more.",
+    "title": "Card Play"
+  },
+  {
+    "card": "gale_ward",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "gale_ward",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "",
+    "title": "Push each enemy within 1 of you 1 away from it. Each moves along its own straight line; stopped lines collide."
+  },
+  {
+    "card": "glide",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "glide",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.\nLeaves this ground on the tile you started on.",
+    "title": "Ice"
+  },
+  {
+    "card": "grapple",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "grounding",
+    "glossary_key": "",
+    "icon": "surface_consume",
+    "text": "Remove the shown ground to power this effect.",
+    "title": "Expend"
+  },
+  {
+    "card": "grounding",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.",
+    "title": "Electrified"
+  },
+  {
+    "card": "grounding",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "hall_of_mirrors",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "hall_of_mirrors",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "headsmans_toll",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "headsmans_toll",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "headsmans_toll",
+    "glossary_key": "",
+    "icon": "card_play",
+    "text": "Playing a card spends one. Refills each turn; kills give one more.",
+    "title": "Card Play"
+  },
+  {
+    "card": "headsmans_toll",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "hoarfrost_ward",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "hoarfrost_ward",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.\nLeaves this ground under each adjacent enemy.",
+    "title": "Ice"
+  },
+  {
+    "card": "hotfoot",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "hotfoot",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "hotfoot",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "ice_sculpture",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "ice_sculpture",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Illusion placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "ice_sculpture",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.\nLeaves this ground on each empty tile next to the illusion.",
+    "title": "Ice"
+  },
+  {
+    "card": "immolation",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "immolation",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit relative to you.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "immolation",
+    "glossary_key": "",
+    "icon": "detonate",
+    "text": "Blow up the chosen ground, hitting everyone on and next to it, you included.",
+    "title": "Detonate"
+  },
+  {
+    "card": "immolation",
+    "glossary_key": "",
+    "icon": "empower",
+    "text": "Optional: pay the extra cost while playing this card for the bonus.",
+    "title": "Empower"
+  },
+  {
+    "card": "immolation",
+    "glossary_key": "",
+    "icon": "health_cost",
+    "text": "Empower cost: pay 2 health after the card resolves.",
+    "title": "Health Cost"
+  },
+  {
+    "card": "joust",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "joust",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "magma_vent",
+    "glossary_key": "",
+    "icon": "detonate",
+    "text": "Blow up the chosen ground, hitting everyone on and next to it, you included.",
+    "title": "Detonate"
+  },
+  {
+    "card": "magma_vent",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nDetonates this ground instead of Fire.",
+    "title": "Rubble"
+  },
+  {
+    "card": "magma_vent",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "magma_vent",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nLeaves this ground on each detonated tile and its four neighbors.",
+    "title": "Fire"
+  },
+  {
+    "card": "meteorfall",
+    "glossary_key": "",
+    "icon": "cinder_marks",
+    "text": "Meteorfall\nMarks the shown tiles. At the start of your next turn, before you draw, each marked tile takes the damage (anyone there, including you) and becomes Fire.",
+    "title": "Cinder Marks"
+  },
+  {
+    "card": "meteorfall",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Hits every foe on the red tiles, even unseen ones.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "meteorfall",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Mark tiles within this range and line of sight.",
+    "title": "Range"
+  },
+  {
+    "card": "meteorfall",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "meteorfall",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.\nEach marked tile becomes this ground when the meteor lands.",
+    "title": "Fire"
+  },
+  {
+    "card": "petrify",
+    "glossary_key": "",
+    "icon": "petrify",
+    "text": "The enemy turns to stone: it skips its next turn (the skipped turn still costs its Time) and gains 5 Block, which lasts through your next turn. Dragons are immune.",
+    "title": "Petrify"
+  },
+  {
+    "card": "petrify",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "plasma_arc",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "plasma_arc",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "plasma_arc",
+    "glossary_key": "",
+    "icon": "chain",
+    "text": "Jumps to new targets within that many tiles of each hit.",
+    "title": "Chain"
+  },
+  {
+    "card": "plasma_arc",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.",
+    "title": "Fire"
+  },
+  {
+    "card": "plasma_arc",
+    "glossary_key": "",
+    "icon": "surface_consume",
+    "text": "Removes the Fire beneath each enemy hit after the hit.",
+    "title": "Expend"
+  },
+  {
+    "card": "powder_keg",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "powder_keg",
+    "glossary_key": "",
+    "icon": "raise_terrain",
+    "text": "Places a powder keg with this much health on empty floor. It blocks movement, not sight.",
+    "title": "Raise Terrain"
+  },
+  {
+    "card": "powder_keg",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Outcrop placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "powder_keg",
+    "glossary_key": "",
+    "icon": "detonate",
+    "text": "When the keg is destroyed by anything, it deals 6 to its tile and each tile next to it: you, illusions, enemies and terrain. Kegs set each other off.",
+    "title": "Detonate"
+  },
+  {
+    "card": "pyroclasm",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "pyroclasm",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "pyroclasm",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Entering deals 2 damage; starting a turn here deals 3.",
+    "title": "Fire"
+  },
+  {
+    "card": "pyroclasm",
+    "glossary_key": "",
+    "icon": "surface_consume",
+    "text": "Removes the Fire beneath the target after the hit.",
+    "title": "Expend"
+  },
+  {
+    "card": "refraction",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "refraction",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "refraction",
+    "glossary_key": "",
+    "icon": "illusion",
+    "text": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "title": "Illusion"
+  },
+  {
+    "card": "revealing_glare",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "Each Enemy in Light\nHits every enemy you can see that stands in Light. There is no target to choose.",
+    "title": "Light"
+  },
+  {
+    "card": "revealing_glare",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Only enemies within this distance of you.",
+    "title": "Range"
+  },
+  {
+    "card": "revealing_glare",
+    "glossary_key": "",
+    "icon": "expose",
+    "text": "Its next damaging hit takes that much more damage.",
+    "title": "Expose"
+  },
+  {
+    "card": "revealing_glare",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "rime_step",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "rime_step",
+    "glossary_key": "",
+    "icon": "surface_ice",
+    "text": "Units on it are Chilled.\nLeaves this ground under each adjacent enemy.",
+    "title": "Ice"
+  },
+  {
+    "card": "rockburst",
+    "glossary_key": "",
+    "icon": "terrain_burst",
+    "text": "Destroy an outcrop, crate or other terrain within range and sight.",
+    "title": "Terrain Burst"
+  },
+  {
+    "card": "rockburst",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Hits every foe on the red tiles, even unseen ones.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "rockburst",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "",
+    "title": "Range to the terrain you destroy."
+  },
+  {
+    "card": "rockburst",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground in the affected area.",
+    "title": "Rubble"
+  },
+  {
+    "card": "rockburst",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "rooted_stance",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Absorbs damage after Block; lasts until used up.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "rooted_stance",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "You can't Move, Blink or Swap for the rest of this turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "searing_light",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "Each Enemy in Light\nHits every enemy you can see that stands in Light. There is no target to choose.",
+    "title": "Light"
+  },
+  {
+    "card": "searing_light",
+    "glossary_key": "",
+    "icon": "all_enemies",
+    "text": "Hits every visible enemy that qualifies; no target needed.",
+    "title": "Sweeping Strike"
+  },
+  {
+    "card": "seek_the_light",
+    "glossary_key": "",
+    "icon": "blink",
+    "text": "Teleport up to that many tiles to a visible open tile.",
+    "title": "Blink"
+  },
+  {
+    "card": "shatter",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "shatter",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "shatter",
+    "glossary_key": "",
+    "icon": "freeze",
+    "text": "If Target Frozen\nApplies if the target is Frozen before the hit.",
+    "title": "Freeze"
+  },
+  {
+    "card": "shatter",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Shatter\nIf the target was Frozen before the hit, deal 5 to each other enemy next to it (not tripled).",
+    "title": "Area Attack"
+  },
+  {
+    "card": "shatter_swing",
+    "glossary_key": "",
+    "icon": "melee",
+    "text": "Damage an adjacent target, or one within the shown Range.",
+    "title": "Melee"
+  },
+  {
+    "card": "shatter_swing",
+    "glossary_key": "",
+    "icon": "freeze",
+    "text": "If Target Frozen\nApplies if the target is Frozen before the hit.",
+    "title": "Freeze"
+  },
+  {
+    "card": "shatter_swing",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Shatter\nIf the target was Frozen before the hit, deal 4 to each other enemy next to it (not tripled).",
+    "title": "Area Attack"
+  },
+  {
+    "card": "shattered_reflection",
+    "glossary_key": "",
+    "icon": "shatter_illusion",
+    "text": "Destroy one of your illusions within range. It counts as destroyed for illusion effects.",
+    "title": "Shatter Illusion"
+  },
+  {
+    "card": "shattered_reflection",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Hits every foe on the red tiles, even unseen ones.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "shattered_reflection",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "",
+    "title": "Range to the illusion you destroy."
+  },
+  {
+    "card": "shattered_reflection",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "Creates Light at the target. Radius in tiles.",
+    "title": "Light"
+  },
+  {
+    "card": "shattered_reflection",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "shield_wall",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "shield_wall",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "You can't Move, Blink or Swap for the rest of this turn.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "shrug_off",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Turn all your Block into Stoneskin.",
+    "title": "Block"
+  },
+  {
+    "card": "shrug_off",
+    "glossary_key": "",
+    "icon": "stoneskin",
+    "text": "Turn all your Block into Stoneskin.",
+    "title": "Stoneskin"
+  },
+  {
+    "card": "shrug_off",
+    "glossary_key": "",
+    "icon": "draw",
+    "text": "Draw that many cards.",
+    "title": "Draw"
+  },
+  {
+    "card": "skate",
+    "glossary_key": "",
+    "icon": "skate",
+    "text": "This turn, moving onto Ice costs no movement and Ice doesn't Chill you.",
+    "title": "Skate"
+  },
+  {
+    "card": "skate",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "skybolt",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "skybolt",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "skybolt",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Any enemy you can see, ignoring range and line of sight.",
+    "title": "Range"
+  },
+  {
+    "card": "skybolt",
+    "glossary_key": "",
+    "icon": "shock",
+    "text": "Every enemy this hits is Shocked, including Chain and conducted hits.",
+    "title": "Shock"
+  },
+  {
+    "card": "sleet_squall",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Maximum distance in tiles.",
+    "title": "Range"
+  },
+  {
+    "card": "sleet_squall",
+    "glossary_key": "",
+    "icon": "push",
+    "text": "Move the target that many tiles straight away; if blocked, Collision.",
+    "title": "Push"
+  },
+  {
+    "card": "sleet_squall",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "smelling_salts",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "smelling_salts",
+    "glossary_key": "",
+    "icon": "cleanse",
+    "text": "Remove Immobilize, Shock, Chilled from yourself.",
+    "title": "Cleanse"
+  },
+  {
+    "card": "smelling_salts",
+    "glossary_key": "",
+    "icon": "immobilize",
+    "text": "Cleanse\nRemove Immobilize, Shock, Chilled from yourself.",
+    "title": "Immobilize"
+  },
+  {
+    "card": "smelling_salts",
+    "glossary_key": "",
+    "icon": "shock",
+    "text": "Cleanse\nRemove Immobilize, Shock, Chilled from yourself.",
+    "title": "Shock"
+  },
+  {
+    "card": "smelling_salts",
+    "glossary_key": "",
+    "icon": "chilled",
+    "text": "Cleanse\nRemove Immobilize, Shock, Chilled from yourself.",
+    "title": "Chilled"
+  },
+  {
+    "card": "smelling_salts",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "static_ward",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "static_ward",
+    "glossary_key": "",
+    "icon": "surface_electrified",
+    "text": "Lightning hits spread across connected Electrified tiles.\nLeaves this ground under each adjacent enemy and on your tile.",
+    "title": "Electrified"
+  },
+  {
+    "card": "stoke",
+    "glossary_key": "",
+    "icon": "surface_fire",
+    "text": "Each Enemy on Fire\nHits every enemy you can see that stands on Fire. There is no target to choose.",
+    "title": "Fire"
+  },
+  {
+    "card": "stoke",
+    "glossary_key": "",
+    "icon": "all_enemies",
+    "text": "Hits every visible enemy that qualifies; no target needed.",
+    "title": "Sweeping Strike"
+  },
+  {
+    "card": "stone_ward",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "stone_ward",
+    "glossary_key": "",
+    "icon": "surface_rubble",
+    "text": "Costs 2 movement to leave.\nLeaves this ground under each adjacent enemy.",
+    "title": "Rubble"
+  },
+  {
+    "card": "sunpath_stride",
+    "glossary_key": "",
+    "icon": "move",
+    "text": "Walk up to that many tiles.",
+    "title": "Move"
+  },
+  {
+    "card": "sunpath_stride",
+    "glossary_key": "",
+    "icon": "illuminate",
+    "text": "Creates Light on each tile you enter. Radius in tiles.",
+    "title": "Light"
+  },
+  {
+    "card": "sunpath_stride",
+    "glossary_key": "",
+    "icon": "time",
+    "text": "How many of your turns this effect lasts.",
+    "title": "Turns"
+  },
+  {
+    "card": "thunderstone",
+    "glossary_key": "",
+    "icon": "consume",
+    "text": "Gone for the rest of the run once used.",
+    "title": "Consume"
+  },
+  {
+    "card": "thunderstone",
+    "glossary_key": "",
+    "icon": "ranged",
+    "text": "Damage a target in Range and line of sight.",
+    "title": "Ranged"
+  },
+  {
+    "card": "thunderstone",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Any enemy you can see, ignoring range and line of sight.",
+    "title": "Range"
+  },
+  {
+    "card": "thunderstone",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "vortex",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Choose a tile within this range.",
+    "title": "Range"
+  },
+  {
+    "card": "vortex",
+    "glossary_key": "",
+    "icon": "pull",
+    "text": "",
+    "title": "Pull each enemy within 2 of the chosen tile 2 toward it. Each moves along its own straight line; stopped lines collide."
+  },
+  {
+    "card": "windbreak",
+    "glossary_key": "",
+    "icon": "block",
+    "text": "Absorbs damage until its holder's next turn.",
+    "title": "Block"
+  },
+  {
+    "card": "windbreak",
+    "glossary_key": "",
+    "icon": "anchored",
+    "text": "Until your next turn, you can't be pushed or pulled.",
+    "title": "Anchored"
+  },
+  {
+    "card": "worldbreak",
+    "glossary_key": "",
+    "icon": "terrain_burst",
+    "text": "Destroy an adjacent Outcrop or Worldspine you raised.",
+    "title": "Terrain Burst"
+  },
+  {
+    "card": "worldbreak",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Hits every foe on the red tiles, even unseen ones.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "worldbreak",
+    "glossary_key": "",
+    "icon": "stagger",
+    "text": "Delays the target's next turn by this much Time.",
+    "title": "Stagger"
+  },
+  {
+    "card": "worldspine",
+    "glossary_key": "",
+    "icon": "exhaust",
+    "text": "Leaves your deck for the rest of combat.",
+    "title": "Exhaust"
+  },
+  {
+    "card": "worldspine",
+    "glossary_key": "",
+    "icon": "raise_terrain",
+    "text": "Raises a Worldspine with this much health on each empty tile around the target. Spires block movement, not sight, and leave Rubble when destroyed.",
+    "title": "Raise Terrain"
+  },
+  {
+    "card": "worldspine",
+    "glossary_key": "",
+    "icon": "range",
+    "text": "Outcrop placement range.",
+    "title": "Range"
+  },
+  {
+    "card": "worldspine",
+    "glossary_key": "",
+    "icon": "aoe",
+    "text": "Area pattern\nRed tiles are hit.",
+    "title": "Area Attack"
+  },
+  {
+    "card": "worldspine",
+    "glossary_key": "",
+    "icon": "terrain_burst",
+    "text": "At the start of each of your turns, each enemy next to at least one of your Worldspines takes 3.",
+    "title": "Terrain Burst"
+  }
+]

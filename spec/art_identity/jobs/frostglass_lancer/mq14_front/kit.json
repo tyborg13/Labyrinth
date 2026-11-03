@@ -1,0 +1,46 @@
+{
+ "K": 4,
+ "anatomy": "biped",
+ "id": "frostglass_lancer",
+ "job_id": "mq14-lancer-front-r5",
+ "kind": "creature",
+ "kit_kind": "maquette",
+ "kit_version": "a99fecb0235cb1389d1020e47144337fdc0b55e4f78e11b51949d8213365adb0",
+ "match_reference": {
+  "job_path": "spec/art_identity/jobs/frostglass_lancer/mq4_front/kit.json",
+  "pixel_sha256": "71fab9192eec413f7c2b3bc6bdf4f27666a7992d333df0fef4da831dcc83d5f9"
+ },
+ "method": "edit of the owner-approved r4 front to the mq-14 maquette: far (spear-side) shoulder and pauldron raised to the spec shoulder rule, hand and spear fixed; image tool output (1254 px) resized to 1024 (Lanczos); palette matched to mq4_front",
+ "peers": [
+  "hero_front"
+ ],
+ "prompt_path": "prompt.md",
+ "prompt_sha256": "4eef0a3d26bf7610048488c614e4515a391d08566ade14837cdeb334888a5daf",
+ "prompt_source": "spec/art_identity/maquettes/frostglass_lancer/prompt_front_r5.md",
+ "refs": [
+  {
+   "canon_id": "frostglass_lancer_front_r4_approved_raw",
+   "file": "refs/01_approved_painting_r4.png",
+   "pixel_sha256": "a756b22e61e24c03a15c030a211798c7c6176a617bc0e3e001c5d0747f4171ba",
+   "role": "identity",
+   "source_file": "spec/art_identity/jobs/frostglass_lancer/mq4_rear/refs/03_lancer_front_r4_raw.png"
+  },
+  {
+   "canon_id": "maquette_front_parts_mq14",
+   "file": "refs/02_maquette_front_parts_mq14.png",
+   "pixel_sha256": "7e843b53fc30b73e2dd4f135040a07542071b1d657953c6e9c316cc9b5f0c1e8",
+   "role": "maquette_parts",
+   "source_file": "spec/art_identity/maquettes/frostglass_lancer/delivery/front_parts.png (mq-14)"
+  },
+  {
+   "canon_id": "maquette_front_clay_mq14",
+   "file": "refs/03_maquette_front_clay_mq14.png",
+   "pixel_sha256": "dcf279d3ef73f77479380bae5ff80d5ab8a3140f2553860459eba4b8af9426b8",
+   "role": "maquette_clay",
+   "source_file": "spec/art_identity/maquettes/frostglass_lancer/delivery/front_clay.png (mq-14)"
+  }
+ ],
+ "size_class": "large",
+ "target_h": 240,
+ "view": "creature_front"
+}

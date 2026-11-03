@@ -35,6 +35,7 @@ func _initialize() -> void:
 func _run() -> void:
 	_canvas = SubViewport.new()
 	_canvas.size = VIEWPORT_SIZE
+	_canvas.gui_embed_subwindows = true
 	_canvas.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(_canvas)
 	_scene = load("res://scenes/run_scene.tscn").instantiate()
@@ -73,16 +74,25 @@ func _run() -> void:
 	ticks["enemies"][2]["hp"] = 4
 	ticks["enemies"][0]["intent"] = Data.enemy_def("ember_tick")["intents"][1].duplicate(true)
 	await _show(ticks, {}, Vector2i(3, 3))
-	await _capture("04_ticks_hover_burst_ring", {"hover_tile": "(3, 3)", "ring_tiles": 8, "damage": 4})
-	var kindled: Dictionary = engine.resolve_enemy_turn_with_steps(ticks, 0)["state"]
-	await _show(kindled, {"focus_actor_keys": ["enemy_1"]}, Vector2i(3, 3))
-	await _capture("05_tick_kindle_resolution", {"kindled_bonus": 2, "burst_damage": 6, "glow_alpha": 0.35})
+	await _capture("04_ticks_hover_burst_glow", {"hover_tile": "(3, 3)", "glow_tiles": 8, "damage": 4})
+	var kindle_phase: Dictionary = engine.resolve_enemy_turn_with_steps(ticks, 0)
+	var kindled: Dictionary = kindle_phase["state"]
+	var kindle_step: Dictionary = {}
+	for step: Dictionary in kindle_phase["steps"]:
+		if str(step.get("action_type", "")) == "kindle": kindle_step = step; break
+	_expect(not kindle_step.is_empty(), "Kindle proof uses the resolver's actual status step and source tile")
+	var kindle_feedback: Dictionary = {"focus_actor_keys": ["enemy_1"], "kindle_pop": {"actor_key": "enemy_1", "elapsed": 0.125}, "floating_texts": preload("res://scripts/floating_combat_text.gd").animate_entries(preload("res://scripts/enemy_mechanics/kindle_view.gd").texts(kindle_step), 0.125, false)}
+	await _show(kindled, kindle_feedback, kindled["enemies"][0]["pos"])
+	await _capture("05_tick_kindle_resolution", {"kindled_bonus": 2, "burst_damage": 6, "glow_alpha": 0.35, "source_tile": str(kindle_step["tile"]), "anchor_id": kindle_step["actor_key"]})
 	await _show(kindled, {}, Vector2i(3, 3))
 	await _capture("06_tick_after_kindle", {"kindled_bonus": 2, "burst_damage": 6})
 	var action: Dictionary = {"type": "ranged", "range": 5, "damage": 6}
 	var damage: Dictionary = _scene.call("_preview_damage_for_action", kindled, action, Vector2i(3, 3))
 	await _show(kindled, {"damage_preview": damage}, Vector2i(3, 3))
 	_expect(int(damage.get("player", {}).get("hp_loss", 0)) > 0 and damage.has("enemy_4"), "Lethal proof contains friendly and enemy burst damage")
+	var expanded: Rect2 = board.enemy_intent_visual_global_rect("enemy_1")
+	var rail: Control = _scene.get("_turn_order_panel")
+	_expect(expanded.has_area() and not expanded.intersects(rail.get_global_rect()), "Native expanded Burst display stays clear of the turn-order column")
 	await _capture("07_tick_lethal_card_preview", {"damage_preview": damage})
 	var after: Dictionary = engine.apply_player_action(kindled, action, Vector2i(3, 3))
 	var events: Array = after.get("death_burst_events", [])
@@ -98,6 +108,7 @@ func _run() -> void:
 	await _capture("08_tick_chain_mid", {"burst_id": events[1]["id"], "burst_order": [events[0]["id"], events[1]["id"], events[2]["id"]], "elapsed_seconds": middle_seconds, "chain_start_interval_seconds": BurstView.BURST_CHAIN_SECONDS})
 	await _show(after)
 	await _capture("09_tick_chain_after", {"burst_count": events.size(), "hero_hp": after["player"]["hp"]})
+	await _capture_additional(after, presentation)
 	var report := FileAccess.open(OUTPUT_DIR.path_join("semantic-proof.json"), FileAccess.WRITE)
 	report.store_string(JSON.stringify({"captures": _captures, "failures": _failures, "ui_scale": 1.0, "resolution": [1920, 1080]}, "\t"))
 	report.close()
@@ -127,3 +138,7 @@ func _finish(label: String) -> void:
 	for failure: String in _failures: push_error(failure)
 	print("%s: PASS" % label if _failures.is_empty() else "%s: FAIL (%d failures)" % [label, _failures.size()])
 	quit(0 if _failures.is_empty() else 1)
+
+# brs-01 extends the existing production proof without changing its fixtures.
+func _capture_additional(_after: Dictionary, _chain_presentation: Dictionary) -> void:
+	pass

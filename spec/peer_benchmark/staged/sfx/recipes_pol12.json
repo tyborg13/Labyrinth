@@ -1,0 +1,13 @@
+{
+  "hit.blade.light": {
+    "A": {
+      "note": "pol-12. The owner's blade tick (hit.blade.light pick C) over the first moments of the owner's heavy blade hit (hit.blade.heavy pick B), pitched up three semitones: the same sword, smaller. The tick alone was a 40 ms click with nothing under it, 3 to 6 dB below the other hits; limiter gain could not fix that.",
+      "length_s": 0.5,
+      "master": {"peak_dbfs": -3.3, "fade_out_ms": 80},
+      "layers": [
+        {"take": "c5c4dad45b65#1", "trim": [0.0208, 0.5], "gain_db": -8},
+        {"take": "f68bcd9c5970#1", "pitch": 1.19, "gain_db": -6, "highpass_hz": 90, "trim": [0.0, 0.22], "fade_out_ms": 90}
+      ]
+    }
+  }
+}

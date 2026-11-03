@@ -1,0 +1,38 @@
+{
+  "authority": "mq-20 unit brief, owner verdict 2026-10-28",
+  "pose": {
+    "hip_lean_degrees": 14,
+    "head_additional_pitch_degrees": 12,
+    "knee_bend_near_degrees": 18,
+    "knee_bend_far_degrees": 10,
+    "ankle_span_over_shoulders": 1.1,
+    "near_step_over_L": 0.16,
+    "fist_height_over_H": 0.50,
+    "fist_forward_of_hip_over_L": 0.14,
+    "fist_outward_of_hip_over_L": 0.36,
+    "near_elbow_bend_degrees": 25,
+    "near_pole_outward_degrees": 30,
+    "far_upper_out_degrees": 10,
+    "far_elbow_bend_degrees": 25,
+    "far_finger_length_over_H": 0.09,
+    "far_finger_knuckle_degrees": 35,
+    "far_wrist_ahead_of_thigh_over_L": 0.10
+  },
+  "dimensions": {
+    "lantern_chain_over_H": 0.08,
+    "lantern_body_height_over_H": 0.16,
+    "lantern_width_over_H": 0.085,
+    "lantern_leg_clearance_over_H_min": 0.03,
+    "pauldron_width_over_H": 0.20,
+    "pauldron_height_over_H": 0.17,
+    "pauldron_thickness_over_H": 0.035,
+    "pauldron_outward_degrees": 12,
+    "pauldron_cross_proud_over_H": 0.02,
+    "robe_strand_count": 10,
+    "robe_strand_width_over_H_range": [0.02, 0.05],
+    "robe_strand_length_over_H_range": [0.05, 0.18],
+    "robe_hole_count": 4,
+    "robe_hole_diameter_over_H_range": [0.02, 0.03],
+    "robe_notches_per_front_edge_range": [2, 3]
+  }
+}

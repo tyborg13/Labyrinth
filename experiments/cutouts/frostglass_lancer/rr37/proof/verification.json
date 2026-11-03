@@ -1,0 +1,155 @@
+{
+  "native_pixels": false,
+  "windowed_runs": 0,
+  "full_suites_run": false,
+  "uncommitted": true,
+  "focused": {
+    "log": "/private/tmp/labyrinth_codex/rr37-focused-tests-capacity.log",
+    "result": [
+      "Ran 14 tests in 149.101s",
+      "OK",
+      "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+      "MAQUETTE PRODUCTION LOGIC: PASS (1634 frames)",
+      "MAQUETTE PRODUCTION LOGIC: PASS (1634 frames)"
+    ]
+  },
+  "references": {
+    "log": "/private/tmp/labyrinth_codex/rr37-reference-tests-capacity.log",
+    "result": [
+      "Ran 168 tests in 267.967s",
+      "OK"
+    ]
+  },
+  "storage": {
+    "log": "/private/tmp/labyrinth_codex/rr37-storage-tests.log",
+    "result": [
+      "Ran 20 tests in 15.712s",
+      "OK"
+    ]
+  },
+  "registration_art_icon": {
+    "log": "/private/tmp/labyrinth_codex/rr37-registration-tests-settled.log",
+    "result": [
+      "FAIL: test_shipped_derivations_and_manifest_are_current (tests.test_board_pixel_density.BoardPixelDensityTest)",
+      "rest rebake needed: assets/units/frostglass_lancer_cutout/humanoid_v2/rear/rest.png: no rebake record; run --record-rests after native rebake",
+      "Ran 166 tests in 138.704s",
+      "FAILED (failures=1)"
+    ],
+    "remaining_failure": "test_shipped_derivations_and_manifest_are_current requires the director native rest rebake for the two new Lancer views; assertions unchanged"
+  },
+  "gates": {
+    "log": "/private/tmp/labyrinth_codex/rr37-gates.log",
+    "result": [
+      "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+      "RR37 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+      "RR37 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6"
+    ]
+  },
+  "cpu_defects": {
+    "log": "/private/tmp/labyrinth_codex/rr37-cpu-defects.log",
+    "result": [
+      "RR37 D1: PASS (54 frames; native=False; defects=0)",
+      "RR37 D2: PASS (54 frames; native=False; defects=0)",
+      "RR37 D3: PASS (54 frames; native=False; defects=0)",
+      "RR37 D4: PASS (54 frames; native=False; defects=0)",
+      "RR37 D5: PASS (54 frames; native=False; defects=0)"
+    ]
+  },
+  "sfx": [
+    {
+      "log": "/private/tmp/labyrinth_codex/rr37-sfx-0-capacity.log",
+      "result": [
+        "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)"
+      ]
+    },
+    {
+      "log": "/private/tmp/labyrinth_codex/rr37-sfx-1-capacity.log",
+      "result": [
+        "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)"
+      ]
+    },
+    {
+      "log": "/private/tmp/labyrinth_codex/rr37-sfx-2-capacity.log",
+      "result": [
+        "SFX SYNC HARNESS RESULT: PASS (1688 observations, 0 failures)"
+      ]
+    }
+  ],
+  "production": [
+    {
+      "view": "front",
+      "log": "/private/tmp/labyrinth_codex/rr37-production-front-current.log",
+      "manifest": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/production_front/logic_frames.json",
+      "result": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1634 frames)"
+      ]
+    },
+    {
+      "view": "rear",
+      "log": "/private/tmp/labyrinth_codex/rr37-production-rear-current.log",
+      "manifest": "experiments/cutouts/frostglass_lancer/rr37/proof/logs/production_rear/logic_frames.json",
+      "result": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1634 frames)"
+      ]
+    }
+  ],
+  "captures_pending": [
+    "density",
+    "rest",
+    "native",
+    "sheets",
+    "idle",
+    "production",
+    "review"
+  ],
+  "action_canvas": {
+    "native_pixels": false,
+    "views": {
+      "front": {
+        "low": [
+          -260.5,
+          -255.0
+        ],
+        "high": [
+          128.5,
+          28.0
+        ],
+        "canvas_edge_pixels": 0
+      },
+      "rear": {
+        "low": [
+          -96.5,
+          -223.5
+        ],
+        "high": [
+          248.5,
+          25.5
+        ],
+        "canvas_edge_pixels": 0
+      }
+    },
+    "rect": [
+      -261,
+      -255,
+      522,
+      283
+    ],
+    "full_samples_sha256": "012268a13bc4cf91579900e0b67d87e80e7324defbd0a7924ebe65c6e6c978f0",
+    "note": "CPU construction envelope; native owner proof remains required"
+  },
+  "placeholder_names": [
+    "TODO_DESIGN_rear_hand_near_hidden_paint",
+    "TODO_DESIGN_rear_belt_hidden_paint",
+    "TODO_DESIGN_rear_pelvis_hidden_paint",
+    "TODO_DESIGN_rear_tabard_hidden_paint"
+  ],
+  "production_gates": [
+    "RR37 PRODUCTION CONTACTS/POSES: PASS (0 errors)",
+    "RR37 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+  ],
+  "registration_audit": "TEST REGISTRATION AUDIT: PASS (814 scripts; full suite=461, quarantined=29, windowed probe=324)",
+  "preservation": "RR37 PRESERVATION: PASS (5554 protected files; other rigs byte-identical)",
+  "rest_probe_load": "RR37 REST REBAKE LOAD: PASS (headless; no native pixels)",
+  "shadow": "RR37 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)",
+  "native_proof_status": "not run: worker has no window-server access; no renderer acceptance claimed"
+}

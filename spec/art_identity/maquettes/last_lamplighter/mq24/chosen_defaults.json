@@ -1,0 +1,71 @@
+{
+  "scope": "Proof, numerical and test controls only; no player-visible design choices.",
+  "capture_size_px": 1088,
+  "physical_scale": "mq20 unchanged; clays at native 1:1, old art at exact 4x",
+  "hand_crop_scale": 3,
+  "hand_crop_padding_px": 8,
+  "sheet_panel_width_px": 1088,
+  "sheet_height_px": 1248,
+  "sheet_background_rgba": [
+    24,
+    24,
+    24,
+    255
+  ],
+  "sheet_sole_y_px": 1180,
+  "execution": {
+    "job_timeout_s": 110,
+    "response_timeout_s": 120,
+    "poll_s": 1
+  },
+  "test_fixture": "tests/test_mq24_maquette.py FIXTURE_DEFAULTS; explicitly injected, never used by official proof",
+  "measurement": "contract.json measurement controls; inherited topology; 1e-6 H positional, 0.0001 H metric and 0.1 degree angle tolerances",
+  "native_mutation_displacement_over_H": 0.2,
+  "regeneration": "fresh copied source, no native model or cache copied",
+  "projected_triangle_epsilon": 1e-12,
+  "hand_construction": {
+    "frame_epsilon": 1e-10
+  },
+  "mantle_construction": {
+    "row_power": 0.5,
+    "ray_epsilon": 1e-09,
+    "arc_samples": 257,
+    "coincident_root_epsilon": 1e-07,
+    "root_width_iterations": 32,
+    "spacing_iterations": 8,
+    "clearance_iterations": 12
+  },
+  "forearm_frame": "Length runs elbow to wrist; body-backward normal projected perpendicular to length; near normal faces the fixed upper ring arc.",
+  "finger_roots": "Sample the curved distal ellipse at the prescribed lateral coordinates; this attaches fingers to the palm instead of floating tubes beyond its pole.",
+  "near_thumb_fallback": "If bounded articulation cannot reach, preserve exact total length with equal links at the maximum allowed curls and report failed contact.",
+  "capture_batches": "One clay, parts or facing/silhouette pass per job; four solos per job with no redundant facing/parts renders. No renderer settings or timeouts changed.",
+  "mesh_face_comparison": "Compare oriented cycles against pinned source; for opened native meshes derive Blender's existing outward-normal bake from the pinned source signed volume. The inherited sabaton loft is left-handed. Never infer expected winding from the live candidate.",
+  "mantle_facets": "Recover the first interior upper-arm ring as shoulder support; project active columns onto the physical iron envelope. Use a conservative half-thickness offset correction for facets that cut convex joints. Hold all Z, neckline and hem-root positions fixed; only internal rows and tongue-tip XY may move. Independently probe all skin vertices and face centres.",
+  "fist_solver": {
+    "roll_samples": 401,
+    "offset_samples": 201,
+    "thumb_segment_samples": 101,
+    "thumb_root_angle_samples": 121,
+    "epsilon": 1e-09,
+    "contact_residual_tolerance_over_H": 0.0001
+  },
+  "fist_candidate_order": "Maximum signed upper-loop crossings, then least normalized axial/roll motion from the director preferred pose. Zero contained candidates means no accepted pose; retain the preferred diagnostic.",
+  "near_thumb_solve": "Sample the nearest middle segment surface and root angle, solve a two-link chain of total 0.045 H analytically, prefer balanced segment lengths, then a midpoint contact. Use the actual faceted surface; no dimensions, joint limits or clearances are relaxed.",
+  "mantle_native_normals": "Derive the unchanged Blender normal bake from pinned round-1 shell adjacency and signed volume; source hem-rim winding is inconsistent with the skin. No live candidate winding is adopted.",
+  "independent_pose_audit": {
+    "roll_samples": 401,
+    "offset_samples": 201,
+    "method": "Recovered live closed disks, polygon parity, signed wire crossings; no constructor inequalities or diagnostics."
+  },
+  "surface_distance": {
+    "pair_batch_size": 256,
+    "method": "Exact triangle vertex, interior-edge and segment/face distance; conservative AABB pruning."
+  },
+  "native_capture_gate": {
+    "alpha_threshold": 128,
+    "pixel_mapping": "floor projected coordinate to its containing native pixel; existing pixel-centre triangle sampler locates ring/chain regions",
+    "ownership": "existing native backend nearest sRGB label decoder, intersected with native lantern solo alpha",
+    "top_bar": "Director feedback 1: inside native hand alpha, or no more than 8 px above native silhouette top at 1088 px.",
+    "below_fist": "Director feedback 1\u20132: the lower grip ring, held_chain and lantern_cap_ring union lies below each occupied column's lowest hand pixel; every occupied column required."
+  }
+}

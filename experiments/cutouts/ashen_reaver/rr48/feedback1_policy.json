@@ -1,0 +1,5 @@
+{
+  "floor_direction": "keyed",
+  "floor_bound_deg": 95,
+  "basis": "Director feedback 2 section 6; never reverse the signed path; stop at second support or 95 degrees."
+}

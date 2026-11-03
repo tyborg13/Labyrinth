@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "files": 74,
+  "output": "/private/tmp/labyrinth_codex/rr-55/cel_grub",
+  "status": "current",
+  "builder": "tools/cel_look.py build (unchanged, inventory restricted to owned Grub paths)",
+  "global_cache": "Finalize with the normal common build after director native rest rebake"
+}

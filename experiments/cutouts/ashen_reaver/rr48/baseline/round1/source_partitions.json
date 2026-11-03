@@ -1,0 +1,586 @@
+{
+  "front/hidden_leg_far.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_hidden_leg_far.png",
+      "sha256": "d2e14a01bc506b916a97a611ecc85f5494eeb4ee7070b6caade0a23eaaf6d9c8"
+    },
+    "source_offset": [
+      126,
+      116
+    ]
+  },
+  "front/hidden_leg_near.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_hidden_leg_near.png",
+      "sha256": "641b4f18e491085bb2c39b9de2a19a9d1c463ad779e5d46b54c5dbe244796191"
+    },
+    "source_offset": [
+      172,
+      127
+    ]
+  },
+  "front/hidden_pelvis.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_hidden_pelvis.png",
+      "sha256": "7d7f155198b8c55cf74514e6219de87870fd4c2a0b3443563ec89823a4a6d838"
+    },
+    "source_offset": [
+      127,
+      110
+    ]
+  },
+  "front/hidden_torso.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_hidden_torso.png",
+      "sha256": "36350e3e77568067de0ef458f0a6f7fe3d9dc6b4c19d5b3353713ee2ce7be195"
+    },
+    "source_offset": [
+      0,
+      0
+    ]
+  },
+  "front/loincloth_back.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_loincloth_back.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      169,
+      142
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/loincloth_back.png",
+      "sha256": "d76dc6a904e39f7f072d46c926f08266477f1da5a0ed821c45e50674df347a00",
+      "offset": [
+        169,
+        142
+      ]
+    }
+  },
+  "front/leg_far.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_leg_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      114,
+      120
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/leg_far.png",
+      "sha256": "83c5ce7ba7cd03ca499ac8a8928f0da8a1e70ee6e7a1596f2179ac2cb0a49ffe",
+      "offset": [
+        114,
+        120
+      ]
+    }
+  },
+  "front/foot_far.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_foot_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      103,
+      176
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/foot_far.png",
+      "sha256": "0a6824142d412b1c804e25ad3116f0fd2c09c90868226a064d0647c9687955a7",
+      "offset": [
+        103,
+        176
+      ]
+    }
+  },
+  "front/arm_far.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_arm_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      94,
+      84
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/arm_far.png",
+      "sha256": "28ea3e85a96e9b612f79ccc5bd06728648cbcb124db5e670b78296c4b471166c",
+      "offset": [
+        94,
+        84
+      ]
+    }
+  },
+  "front/falchion.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_falchion.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      27,
+      138
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/falchion.png",
+      "sha256": "bd085e058517b828e7edfcbbc3d776914b9e8aa23728fad9fec31f8f2599585f",
+      "offset": [
+        27,
+        138
+      ]
+    }
+  },
+  "front/hand_far.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_hand_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      83,
+      116
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/hand_far.png",
+      "sha256": "9c9503604104f551b0009258df8ae0eab93b79c558e97378cd9ea96f34aade31",
+      "offset": [
+        83,
+        116
+      ]
+    }
+  },
+  "front/pelvis.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_pelvis.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      133,
+      100
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/pelvis.png",
+      "sha256": "7a5c554b47e3a456f2e1034fac60c469bbffa7626b4c80dc3dbaa5a57988ebaa",
+      "offset": [
+        133,
+        100
+      ]
+    }
+  },
+  "front/leg_near.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_leg_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      170,
+      127
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/leg_near.png",
+      "sha256": "43798d9923259188771aa11eaeb59749df7342fe3b8896e26e7f5d937dcbd4ea",
+      "offset": [
+        170,
+        127
+      ]
+    }
+  },
+  "front/foot_near.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_foot_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      169,
+      207
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/foot_near.png",
+      "sha256": "c38a887f59a59cde458f823d258ffced4845a8e96bf52dd024fb3905e74368ac",
+      "offset": [
+        169,
+        207
+      ]
+    }
+  },
+  "front/loincloth.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_loincloth.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      143,
+      120
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/loincloth.png",
+      "sha256": "6c81cfcaf623cac78102533c754f54894ceb927b3eb61a9394a6f64fbdc4aead",
+      "offset": [
+        143,
+        120
+      ]
+    }
+  },
+  "front/arm_near.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_arm_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      193,
+      94
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/arm_near.png",
+      "sha256": "d95319408c21ef6631b9b636920c2279c0f99883d43ce07c96a7eb2dbd6d7b2a",
+      "offset": [
+        193,
+        94
+      ]
+    }
+  },
+  "front/hand_near.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_hand_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      172,
+      120
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/hand_near.png",
+      "sha256": "830def084175056be07edbdd145f6abc2975b3d1f74b4875b782afc74d3d5199",
+      "offset": [
+        172,
+        120
+      ]
+    }
+  },
+  "front/torso.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_torso.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      103,
+      34
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/torso.png",
+      "sha256": "c8aa3907529b72d395a399c3bc77a5627a62cd549a999851468c5fe7cc9e2246",
+      "offset": [
+        103,
+        34
+      ]
+    }
+  },
+  "front/head.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_front_head.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      134,
+      6
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/front/head.png",
+      "sha256": "dfbcee5c0f7f57970570745409846d86470e2410dbeb7310a572b66bd7464cc7",
+      "offset": [
+        134,
+        6
+      ]
+    }
+  },
+  "rear/hidden_leg_far.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_hidden_leg_far.png",
+      "sha256": "eccd3e05056e672d515e621e325b9a075e141d54fb04778f70fa35959d550461"
+    },
+    "source_offset": [
+      96,
+      134
+    ]
+  },
+  "rear/hidden_leg_near.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_hidden_leg_near.png",
+      "sha256": "3a5c6ebdf5c0ce651e34336d7aa37917507783a2a07ea2bd89c29eb9994208fb"
+    },
+    "source_offset": [
+      62,
+      142
+    ]
+  },
+  "rear/hidden_pelvis.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_hidden_pelvis.png",
+      "sha256": "02f6dc1b0947a28f210c874105cacc886aae2745aa24b3924c1b2706b55f08ce"
+    },
+    "source_offset": [
+      65,
+      113
+    ]
+  },
+  "rear/hidden_torso.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_hidden_torso.png",
+      "sha256": "16481868f8bd56db6d784b37d00508e32232d011404fb8ca8d0e0c66ab38489f"
+    },
+    "source_offset": [
+      48,
+      82
+    ]
+  },
+  "rear/loincloth.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_loincloth.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      92,
+      137
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/loincloth.png",
+      "sha256": "ab2bb964ce5f5be0b6d69e618c5abd75855ab15f23ee4ec538c62a8b08861fdc",
+      "offset": [
+        92,
+        137
+      ]
+    }
+  },
+  "rear/leg_near.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_leg_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      56,
+      134
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/leg_near.png",
+      "sha256": "47e037036a4b37c6867d2cb5a6bf63bc325e7d686f3a40dcf777a0e243f0fc3c",
+      "offset": [
+        56,
+        134
+      ]
+    }
+  },
+  "rear/foot_near.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_foot_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      53,
+      183
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/foot_near.png",
+      "sha256": "0bf3bd954ad7d025d14a231e841f0375dd3201072e3c4a122e23622dc076056e",
+      "offset": [
+        53,
+        183
+      ]
+    }
+  },
+  "rear/arm_near.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_arm_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      48,
+      82
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/arm_near.png",
+      "sha256": "155ca740bfa1a52c5ef69cfcc10fc0f1c6b77c700ad3a9b724f9696e3829dc08",
+      "offset": [
+        48,
+        82
+      ]
+    }
+  },
+  "rear/hand_near.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_hand_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      60,
+      104
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/hand_near.png",
+      "sha256": "1bad7073842955f7f2300df518770dcb460075201bb5b9f5286e0dee7830aa55",
+      "offset": [
+        60,
+        104
+      ]
+    }
+  },
+  "rear/pelvis.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_pelvis.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      65,
+      111
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/pelvis.png",
+      "sha256": "cf39bc4c18ef4cd08a32f3b99936bc21a3a1f6cc74474ab9d0c71cbcfd78faba",
+      "offset": [
+        65,
+        111
+      ]
+    }
+  },
+  "rear/loincloth_back.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_loincloth_back.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      62,
+      126
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/loincloth_back.png",
+      "sha256": "4fca141576654681a630da7ab87670782a2b2c5f8107ef41bfd5a52c47269c7a",
+      "offset": [
+        62,
+        126
+      ]
+    }
+  },
+  "rear/leg_far.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_leg_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      106,
+      134
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/leg_far.png",
+      "sha256": "30e19d18d905e57c2b923854bf2b4e2059ec57fc481fae73ee1aaa1fac4ac354",
+      "offset": [
+        106,
+        134
+      ]
+    }
+  },
+  "rear/foot_far.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_foot_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      108,
+      219
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/foot_far.png",
+      "sha256": "b23441a473216074f4c6a16cf1872e2d23cdd2cce12cb532afd3d3ef2101d4c5",
+      "offset": [
+        108,
+        219
+      ]
+    }
+  },
+  "rear/arm_far.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_arm_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      120,
+      94
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/arm_far.png",
+      "sha256": "005d5f75731f15fbb8196f1a71e2157e68d751859f27d632e5dd367a0649b6f1",
+      "offset": [
+        120,
+        94
+      ]
+    }
+  },
+  "rear/falchion.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_falchion.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      156,
+      143
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/falchion.png",
+      "sha256": "0e0604a31db39f63f6de2dc3a7e12e1c31a6acd65aeae905a638636183fcbf73",
+      "offset": [
+        156,
+        143
+      ]
+    }
+  },
+  "rear/hand_far.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_hand_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      138,
+      136
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/hand_far.png",
+      "sha256": "a93c036e646e95b4b586a3f08b0def4132c22d866b25dd6786be466def696a5a",
+      "offset": [
+        138,
+        136
+      ]
+    }
+  },
+  "rear/torso.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_torso.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      42,
+      40
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/torso.png",
+      "sha256": "2a2958d545337ef8a8f473f944518f854387615f6b3ec5b8db3d741c51b3b95a",
+      "offset": [
+        42,
+        40
+      ]
+    }
+  },
+  "rear/head.png": {
+    "mask": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback1_rear_head.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "source_offset": [
+      81,
+      8
+    ],
+    "outside": {
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round0/production/rear/head.png",
+      "sha256": "4ae54cdb084dec24ea03622e6799e874cdf9666c6f6554b977003c3e5ee36131",
+      "offset": [
+        81,
+        8
+      ]
+    }
+  }
+}

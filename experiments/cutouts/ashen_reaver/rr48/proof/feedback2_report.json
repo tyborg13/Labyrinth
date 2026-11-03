@@ -1,0 +1,1284 @@
+{
+  "unit": "rr-48",
+  "feedback": 2,
+  "accepted_base": "7b4198b20",
+  "branch": "codex/rr-48",
+  "uncommitted": true,
+  "native_pixels": false,
+  "production_ready": false,
+  "requirements": {
+    "1_underlay_coverage": {
+      "status": "implemented",
+      "criterion": "Transparent vacated texels are correct background. Coverage stays informational and is absent from gate acceptance.",
+      "record": "underlay_coverage.json",
+      "transparent_background_entries": 7308
+    },
+    "2_underlay_tucks": {
+      "status": "implemented",
+      "rule": "Exact director underlay RGBA in opaque own tucks and vacated footprints, bone-owned below every visible layer. Hidden head, arm, hand, falchion, leg, foot, pelvis, torso and both cloth layers are present.",
+      "underlay_texels_by_view": {
+        "front": 2659,
+        "rear": 2625
+      },
+      "source_checks": {
+        "ok": true,
+        "errors": [],
+        "texel_checks": 14587,
+        "cap_texels": 2030,
+        "scope": "source",
+        "native_pixels": false
+      },
+      "production_checks": {
+        "ok": true,
+        "errors": [],
+        "texel_checks": 14587,
+        "cap_texels": 2030,
+        "scope": "production",
+        "native_pixels": false
+      }
+    },
+    "3_approved_joint_caps_and_grip": {
+      "status": "implemented_headless_native_pending",
+      "cap_texels_by_view": {
+        "front": 1254,
+        "rear": 776
+      },
+      "donor_rule": "Every cap equals approved painting RGBA at that source coordinate; no outline-class donor. The existing exposed outline full-3x3 gate is unchanged.",
+      "elbows": "Registered cross-joint caps on fore bones, within the inherited 3 px band policy.",
+      "grip_cause": "Independent post-snap item/gauntlet anchors diverged; rear original sword also had an occluded 16-texel crossguard separated by the fist.",
+      "grip_fix": "Opt-in post-presentation grip constraint and one shared snapped grip anchor. Approved interior grip cap connects the painted blade and crossguard through the fist. No raster mask exception.",
+      "source_grip": {
+        "ok": true,
+        "errors": [],
+        "checks": 710,
+        "native_pixels": false
+      },
+      "production_grip": {
+        "ok": true,
+        "errors": [],
+        "checks": 710,
+        "native_pixels": false
+      }
+    },
+    "4_slivers": {
+      "status": "implemented",
+      "rule": "Exact source-coordinate fragments re-owned to their actual rest cover/contact; no invented paint. Every recorded fragment had a receiver, so none needed clearing.",
+      "ledgers": [
+        "../feedback2_fragments.json",
+        "../feedback2_rigid_fragments.json",
+        "../feedback2_ownership.json"
+      ],
+      "source_texel_transfer_operations": 312,
+      "detached_components": 0,
+      "held_release_findings": 0,
+      "frames": 844,
+      "rest_identity_px": {
+        "front": 0,
+        "rear": 0
+      }
+    },
+    "5_budgets": {
+      "status": "clamps_applied_remaining_tears_for_native_judgment",
+      "record": "../feedback2_joint_budgets.json",
+      "clamps": 77,
+      "clamped_profiles": [
+        {
+          "clip": "move",
+          "group": "arm_near",
+          "scale": 0.1
+        },
+        {
+          "clip": "move",
+          "group": "arm_far",
+          "scale": 0.9166666666666666
+        },
+        {
+          "clip": "move",
+          "group": "legs",
+          "scale": 0.9833333333333333
+        }
+      ],
+      "retained_profiles": [
+        {
+          "clip": "rake",
+          "group": "arm_near",
+          "scale": 1.0
+        },
+        {
+          "clip": "rake",
+          "group": "arm_far",
+          "scale": 1.0
+        },
+        {
+          "clip": "sweep",
+          "group": "arm_near",
+          "scale": 1.0
+        },
+        {
+          "clip": "sweep",
+          "group": "arm_far",
+          "scale": 1.0
+        },
+        {
+          "clip": "fall",
+          "group": "arm_near",
+          "scale": 1.0
+        },
+        {
+          "clip": "fall",
+          "group": "arm_far",
+          "scale": 1.0
+        },
+        {
+          "clip": "fall",
+          "group": "legs",
+          "scale": 1.0
+        },
+        {
+          "clip": "hit",
+          "group": "arm_near",
+          "scale": 1.0
+        },
+        {
+          "clip": "hit",
+          "group": "arm_far",
+          "scale": 1.0
+        },
+        {
+          "clip": "death",
+          "group": "arm_near",
+          "scale": 1.0
+        },
+        {
+          "clip": "death",
+          "group": "arm_far",
+          "scale": 1.0
+        },
+        {
+          "clip": "death",
+          "group": "legs",
+          "scale": 1.0
+        }
+      ],
+      "method": "Descending nonzero 1/60 target-to-rest joint-group profiles. Adaptive witnesses reject; every surviving profile checks every frame, global component attachment, six changing states, walk/knee/support rules. These are conservative coupled profiles, not independent continuous joint maxima.",
+      "never_zero": true,
+      "remaining_joint_holes": 226,
+      "remaining_tears": "feedback2_remaining_tears.json",
+      "final_tears_by_joint": [
+        {
+          "view": "front",
+          "clip": "death",
+          "joint": "hip_far",
+          "frames": [
+            76,
+            77
+          ],
+          "pixels_by_frame": [
+            3,
+            3
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "joint": "hip_near",
+          "frames": [
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            62,
+            63,
+            64,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95
+          ],
+          "pixels_by_frame": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            4,
+            5,
+            6,
+            8,
+            7,
+            8,
+            13,
+            13,
+            12,
+            12,
+            12,
+            17,
+            17,
+            20,
+            18,
+            16,
+            16,
+            16,
+            16,
+            16,
+            16,
+            16,
+            16,
+            16,
+            16
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "joint": "internal_arm_near",
+          "frames": [
+            72,
+            73,
+            74
+          ],
+          "pixels_by_frame": [
+            5,
+            2,
+            2
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "joint": "wrist_far",
+          "frames": [
+            41,
+            42,
+            43,
+            56
+          ],
+          "pixels_by_frame": [
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "fall",
+          "joint": "hip_near",
+          "frames": [
+            30
+          ],
+          "pixels_by_frame": [
+            2
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "fall",
+          "joint": "internal_arm_far",
+          "frames": [
+            7,
+            9,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            24,
+            25,
+            27,
+            29
+          ],
+          "pixels_by_frame": [
+            3,
+            4,
+            2,
+            2,
+            3,
+            2,
+            2,
+            3,
+            2,
+            2,
+            4,
+            43
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "fall",
+          "joint": "internal_arm_near",
+          "frames": [
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            28,
+            29,
+            30
+          ],
+          "pixels_by_frame": [
+            2,
+            2,
+            2,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            2,
+            2
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "fall",
+          "joint": "shoulder_far",
+          "frames": [
+            4,
+            5,
+            9,
+            30,
+            30
+          ],
+          "pixels_by_frame": [
+            2,
+            2,
+            2,
+            4,
+            3
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "fall",
+          "joint": "shoulder_near",
+          "frames": [
+            34,
+            35,
+            37,
+            67,
+            68
+          ],
+          "pixels_by_frame": [
+            5,
+            2,
+            4,
+            4,
+            2
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "fall",
+          "joint": "wrist_far",
+          "frames": [
+            3
+          ],
+          "pixels_by_frame": [
+            3
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "hit",
+          "joint": "internal_arm_near",
+          "frames": [
+            9,
+            10,
+            11,
+            12
+          ],
+          "pixels_by_frame": [
+            3,
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "hit",
+          "joint": "shoulder_far",
+          "frames": [
+            10,
+            11,
+            12
+          ],
+          "pixels_by_frame": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "rake",
+          "joint": "internal_arm_far",
+          "frames": [
+            6,
+            20
+          ],
+          "pixels_by_frame": [
+            11,
+            93
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "rake",
+          "joint": "internal_arm_near",
+          "frames": [
+            13,
+            14,
+            15,
+            16,
+            17,
+            24,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "pixels_by_frame": [
+            2,
+            2,
+            3,
+            3,
+            3,
+            3,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "rake",
+          "joint": "shoulder_far",
+          "frames": [
+            4,
+            5,
+            5,
+            6,
+            19,
+            20
+          ],
+          "pixels_by_frame": [
+            2,
+            4,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "rake",
+          "joint": "shoulder_near",
+          "frames": [
+            24,
+            31,
+            32,
+            33,
+            34,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            45,
+            48,
+            50
+          ],
+          "pixels_by_frame": [
+            2,
+            6,
+            6,
+            6,
+            6,
+            3,
+            2,
+            2,
+            2,
+            2,
+            2,
+            3,
+            2,
+            2
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "rake",
+          "joint": "wrist_far",
+          "frames": [
+            4,
+            5
+          ],
+          "pixels_by_frame": [
+            2,
+            3
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "sweep",
+          "joint": "grip",
+          "frames": [
+            48
+          ],
+          "pixels_by_frame": [
+            2
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "sweep",
+          "joint": "internal_arm_far",
+          "frames": [
+            5,
+            20
+          ],
+          "pixels_by_frame": [
+            8,
+            98
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "sweep",
+          "joint": "internal_arm_near",
+          "frames": [
+            14,
+            15,
+            22
+          ],
+          "pixels_by_frame": [
+            4,
+            4,
+            3
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "sweep",
+          "joint": "shoulder_far",
+          "frames": [
+            3,
+            4,
+            6,
+            20,
+            24,
+            25,
+            26,
+            27,
+            28
+          ],
+          "pixels_by_frame": [
+            2,
+            3,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "sweep",
+          "joint": "shoulder_near",
+          "frames": [
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46
+          ],
+          "pixels_by_frame": [
+            2,
+            4,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            4,
+            5,
+            4
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "death",
+          "joint": "grip",
+          "frames": [
+            39,
+            44
+          ],
+          "pixels_by_frame": [
+            4,
+            2
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "death",
+          "joint": "shoulder_far",
+          "frames": [
+            87,
+            88
+          ],
+          "pixels_by_frame": [
+            2,
+            2
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "death",
+          "joint": "wrist_near",
+          "frames": [
+            10,
+            82
+          ],
+          "pixels_by_frame": [
+            2,
+            2
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "fall",
+          "joint": "grip",
+          "frames": [
+            15,
+            16,
+            16,
+            18,
+            19,
+            25,
+            26,
+            27
+          ],
+          "pixels_by_frame": [
+            2,
+            2,
+            2,
+            2,
+            4,
+            4,
+            2,
+            2
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "fall",
+          "joint": "internal_arm_far",
+          "frames": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            18,
+            19,
+            20,
+            26,
+            27,
+            28,
+            28
+          ],
+          "pixels_by_frame": [
+            17,
+            8,
+            14,
+            10,
+            9,
+            7,
+            6,
+            2,
+            2,
+            2,
+            2,
+            8,
+            13,
+            2
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "fall",
+          "joint": "shoulder_far",
+          "frames": [
+            28,
+            28
+          ],
+          "pixels_by_frame": [
+            2,
+            2
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "fall",
+          "joint": "wrist_near",
+          "frames": [
+            71
+          ],
+          "pixels_by_frame": [
+            2
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "hit",
+          "joint": "wrist_near",
+          "frames": [
+            2
+          ],
+          "pixels_by_frame": [
+            2
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "rake",
+          "joint": "internal_arm_far",
+          "frames": [
+            7,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ],
+          "pixels_by_frame": [
+            11,
+            3,
+            13,
+            11,
+            8,
+            6,
+            6,
+            2,
+            2,
+            2,
+            2,
+            6,
+            6
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "rake",
+          "joint": "shoulder_far",
+          "frames": [
+            6,
+            8,
+            8
+          ],
+          "pixels_by_frame": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "rake",
+          "joint": "wrist_near",
+          "frames": [
+            10
+          ],
+          "pixels_by_frame": [
+            2
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "sweep",
+          "joint": "internal_arm_far",
+          "frames": [
+            5,
+            6,
+            7,
+            8,
+            19
+          ],
+          "pixels_by_frame": [
+            17,
+            14,
+            9,
+            7,
+            11
+          ]
+        }
+      ],
+      "strict_gate_status": "FINDINGS; authorized retention does not waive remaining tears",
+      "replay": "feedback2_targets.json; rr48_feedback2_budgets.py --verify-record reconstructs accepted targets, verifies initial geometry hashes, and exactly reproduces live motion"
+    },
+    "6_floor": {
+      "status": "headless_pass_native_pending",
+      "rule": "Only keyed direction; first second support or 95-degree bound. Entire visible and hidden falchion silhouette projects to the floor after landing.",
+      "source": {
+        "ok": true,
+        "errors": [],
+        "checks": 144,
+        "final_angle_deg": {
+          "front": -90.0000017075473,
+          "rear": 90.0000017075474
+        },
+        "native_pixels": false
+      },
+      "production": {
+        "ok": true,
+        "errors": [],
+        "checks": 144,
+        "final_angle_deg": {
+          "front": -90.0000017075473,
+          "rear": 90.0000017075474
+        },
+        "native_pixels": false
+      },
+      "target_angle_deg": {
+        "front": -90,
+        "rear": 90
+      },
+      "bound_deg": 95,
+      "both_views_second_support_reached": true
+    }
+  },
+  "original_task_acceptance": {
+    "1_cut": "Fourteen visible pieces per view; rigid torso retains both pauldrons. Approved rest 0 px. Only exact registered underlay/cap copies and rest-contact re-ownership were added; density-treated production rest retained as production authority.",
+    "2_hidden_fills": "Accepted full-clip footprint masks remain. Exact underlay partition extended to own tuck masks; transparent vacated texels clear to background. No generated or smeared paint.",
+    "3_motion": "Protected director file unchanged; all seven clips, root-relative follow, idle hierarchy, release and drop retained. New measured clamps have exact values and budget_note records.",
+    "4_production": "Accepted data-driven routing, every movement step, contact actions, pre-battle/portrait paths, hit/death fade and Wildfire mechanics preserved. Both-view six-action production logic and 1808 strike checks pass.",
+    "5_gates": "Exact supply, cap/underlay boundaries and mutations; elbow/walk/knee/support/direction/reach/idle, floor, grip, production/depth and earlier byte parity verified headlessly. Strict assembled and overall gates retain 226 joint-hole findings; native proof remains director-owned."
+  },
+  "generic_extensions": [
+    {
+      "file": "scripts/maquette_cutout_runtime/humanoid_grip.gd",
+      "change": "New opt-in post-snap grip solver and shared snapped sprite anchor; no creature names."
+    },
+    {
+      "file": "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+      "change": "Transient lock only for a held item opting in, before release."
+    },
+    {
+      "file": "scripts/maquette_cutout_runtime/humanoid_presentation.gd",
+      "change": "Apply opted-in grip after presentation and elbow clamp; preserve floor constraint ordering."
+    },
+    {
+      "files": [
+        "tools/maquette_motion/gates.py",
+        "tests/maquette_cutout/proof_inputs.gd"
+      ],
+      "change": "Inventory new runtime dependency; exact pinned provenance maintained."
+    }
+  ],
+  "gate_results": {
+    "numerical_motion_ok": true,
+    "exact_source_art_ok": true,
+    "joint_policy_ok": true,
+    "assembled": {
+      "ok": false,
+      "fresh": true,
+      "frames": 844,
+      "findings_by_kind": {
+        "joint_hole": 226
+      },
+      "record": "proof/feedback2_joint_measurement.json",
+      "native_pixels": false
+    },
+    "overall_ok": false,
+    "no_native_acceptance_claim": true
+  },
+  "tests": {
+    "focused": {
+      "result_lines": [
+        "Ran 14 tests in 189.294s",
+        "OK",
+        "RR48 AIR REFERENCES: PASS (real engine anchor; legacy CPU mask bytes unchanged)",
+        "RR48 BONE SAMPLES: PASS (1276 poses; headless transforms only)",
+        "RR48 BONE SAMPLES: PASS (1276 poses; headless transforms only)",
+        "RR48 MOTION MUTATIONS: PASS (hyperextension and detached grip rejected)",
+        "RR48 FEEDBACK 2 MUTATIONS: PASS (changed cap, outside-tuck cap, detached falchion, reversed keyed floor path rejected)",
+        "RR48 SOURCE PAINT: PASS (both views 0 px; no synthesized underlays)",
+        "RR48 ASSEMBLED BUDGET MUTATION: PASS (actual disconnected paint rejected)",
+        "RR48 ROOT-RELATIVE FOLLOW: PASS (202 phases; root-travel mutation rejected; both endpoints zero)",
+        "RR48 HEADLESS DEPTH: PASS (2 boards; 496 routes; 26784 samples; 104980 prop comparisons; native pixels=false)",
+        "RR48 EARLIER POSE SAMPLES: PASS (10 rigs; 8086 frames)",
+        "RR48 EARLIER POSE SAMPLES: PASS (10 rigs; 8086 frames)",
+        "RR48 EARLIER RIG PARITY: PASS (all earlier humanoid production frames byte-identical)",
+        "RR48 UNDERLAY MUTATIONS: PASS (wrong RGBA, opaque replacement of director air and authority outside footprints/tucks rejected)",
+        "RR48 NATIVE FLOOR ORACLE MUTATIONS: PASS (synthetic codec fixture only; native pixels=false)",
+        "RR48 PRODUCTION LOGIC: PASS (front/rear move, rake, sweep, fall, hit, death)",
+        "RR48 DIRECTOR DATA: PASS (byte-identical import; clamps recorded separately)",
+        "RR48 SOURCE PROVENANCE MUTATIONS: PASS (only pinned before/after bytes normalize)",
+        "RR48 STRIKE REGISTRATION: PASS (1808 checks; production registry and every supported facing)"
+      ],
+      "log": "/private/tmp/rr48-f2-focused-final.log",
+      "command": "PYTHONPATH=tools python3 -m unittest tests.test_rr48_reaver"
+    },
+    "gates": {
+      "result_lines": [
+        "RR48 HELD front: PASS (0 errors)",
+        "RR48 HELD rear: PASS (0 errors)",
+        "RR48 WALK front: PASS (0 errors)",
+        "RR48 WALK rear: PASS (0 errors)",
+        "RR48 SUPPORTS front: PASS (0 errors)",
+        "RR48 SUPPORTS rear: PASS (0 errors)",
+        "RR48 DIRECTION front: PASS (0 errors)",
+        "RR48 DIRECTION rear: PASS (0 errors)",
+        "RR48 REACH front: PASS (0 errors)",
+        "RR48 REACH rear: PASS (0 errors)",
+        "RR48 IDLE front: PASS (0 errors)",
+        "RR48 IDLE rear: PASS (0 errors)",
+        "RR48 ELBOW GATE: PASS (2552 checks; maximum hyperextension 0.000060 deg)",
+        "RR48 ART GATE: PASS (strict tuck/cap source; transparent underlay is background)",
+        "RR48 PAINTED BUDGET GATE: FINDINGS (0 unresolved profiles; 12 retained for native judgment)",
+        "RR48 ASSEMBLED GATE: FINDINGS (844 frames; fresh=True; {'joint_hole': 226})",
+        "RR48 OVERALL GATE: FINDINGS"
+      ],
+      "log": "/private/tmp/rr48-f2-gates-final.log",
+      "command": "PYTHONPATH=tools python3 experiments/cutouts/ashen_reaver/rr48_gates.py --samples experiments/cutouts/ashen_reaver/rr48/proof/feedback2_samples.json"
+    },
+    "assembled_joints": {
+      "result_lines": [
+        "RR48 ASSEMBLED JOINT FRAME front rake 18 findings 12",
+        "RR48 ASSEMBLED JOINT FRAME front fall 21 findings 92",
+        "RR48 ASSEMBLED JOINT FRAME front death 33 findings 120",
+        "RR48 ASSEMBLED JOINT FRAME rear move 7 findings 172",
+        "RR48 ASSEMBLED JOINT FRAME rear sweep 16 findings 193",
+        "RR48 ASSEMBLED JOINT FRAME rear hit 1 findings 219",
+        "RR48 ASSEMBLED JOINT FRAME rear death 91 findings 226",
+        "RR48 PAINTED JOINTS: FINDINGS (844 frames; 11394 transported seam surfaces; 226 findings)"
+      ],
+      "log": "/private/tmp/rr48-f2-joints-final.log",
+      "command": "PYTHONPATH=tools python3 experiments/cutouts/ashen_reaver/rr48_joint_budget.py"
+    },
+    "budget_replay": {
+      "result_lines": [
+        "RR48 JOINT BUDGET REPLAY: PASS (accepted targets; exact initial geometry; 77 recorded clamps reproduce live motion)"
+      ],
+      "log": "/private/tmp/rr48-f2-budget-replay.log"
+    },
+    "metadata": {
+      "result_lines": [
+        "Ran 35 tests in 22.603s",
+        "OK"
+      ],
+      "log": "/private/tmp/rr48-f2-metadata.log",
+      "command": "PYTHONPATH=tools python3 -m unittest tests.test_proof_runtime_paths tests.test_program_suite_runner"
+    },
+    "art_identity": {
+      "command": "python3 tests/test_art_identity_gate.py",
+      "result_lines": [
+        "Ran 111 tests in 78.672s",
+        "OK"
+      ],
+      "log": "/private/tmp/rr48-f2-art-final.log"
+    },
+    "icon_identity": {
+      "result_lines": [
+        "Ran 8 tests in 0.067s",
+        "OK"
+      ],
+      "log": "/private/tmp/rr48-f2-icons.log",
+      "command": "python3 tests/test_icon_identity_policy.py"
+    },
+    "preservation": {
+      "result_lines": [
+        "Ran 10 tests in 0.359s",
+        "FAILED (failures=1)",
+        "RR46 arc_thrall PRESERVATION: PASS (412 protected files)",
+        "RR46 briar_weaver PRESERVATION: PASS (113 protected files)",
+        "RR46 chainbound_gaoler PRESERVATION: PASS (253 protected files)",
+        "RR46 gale_herald PRESERVATION: PASS (135 protected files)",
+        "RR46 glacial_mirror PRESERVATION: PASS (137 protected files)",
+        "RR46 gloam_stalker PRESERVATION: PASS (121 protected files)",
+        "RR46 hoarfrost_seer PRESERVATION: PASS (366 protected files)",
+        "RR46 hollow_mimic PRESERVATION: PASS (103 protected files)",
+        "RR46 slag_mortar PRESERVATION: PASS (217 protected files)"
+      ],
+      "log": "/private/tmp/rr48-f2-preservation.log"
+    },
+    "sfx_sync": [
+      {
+        "program": "tests/suites/sfx_sync_0_program.gd",
+        "result_lines": [
+          "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)"
+        ],
+        "log": "/private/tmp/rr48-f2-sfx0.log"
+      },
+      {
+        "program": "tests/suites/sfx_sync_1_program.gd",
+        "result_lines": [
+          "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)"
+        ],
+        "log": "/private/tmp/rr48-f2-sfx1.log"
+      },
+      {
+        "program": "tests/suites/sfx_sync_2_program.gd",
+        "result_lines": [
+          "SFX SYNC HARNESS RESULT: PASS (1688 observations, 0 failures)"
+        ],
+        "log": "/private/tmp/rr48-f2-sfx2.log"
+      }
+    ],
+    "native_probe_load": {
+      "result_lines": [
+        "RR48 NATIVE PROBE LOAD: PASS"
+      ],
+      "log": "/private/tmp/rr48-f2-native-load.log"
+    },
+    "shadow": {
+      "result_lines": [
+        "RR48 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ],
+      "log": "/private/tmp/rr48-f2-shadow.log"
+    },
+    "registration": {
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (918 scripts; full suite=550, quarantined=29, windowed probe=339)"
+      ],
+      "log": "/private/tmp/rr48-f2-registration.log"
+    },
+    "resource_audit": {
+      "result_lines": [
+        "ISOLATION AUDIT: 255 modules; /private/tmp/rr48-f2-resource-audit/isolation-audit.md"
+      ],
+      "log": "/private/tmp/rr48-f2-audit.log",
+      "command": "python3 tools/run_python_suite.py --shards 4 --audit-only --output-dir /private/tmp/rr48-f2-resource-audit"
+    },
+    "full_suites": "Not run, as directed for feedback 2.",
+    "idle_binding_check": {
+      "command": "PYTHONPATH=tools python3 experiments/cutouts/ashen_reaver/rr48_joint_budget.py --clips idle --output experiments/cutouts/ashen_reaver/rr48/proof/logs/feedback2_idle_binding_check.json",
+      "result_lines": [
+        "RR48 PAINTED JOINTS: PASS (100 frames; 1350 transported seam surfaces; 0 findings)"
+      ],
+      "log": "/private/tmp/rr48-f2-idle-bindings.log"
+    },
+    "proof_wrapper_syntax": {
+      "command": "sh -n experiments/cutouts/ashen_reaver/rr48_proof.sh",
+      "exit_code": 0
+    }
+  },
+  "proof": {
+    "cpu_sheets": "feedback2_sheets.json",
+    "cpu_capture_directory": "seam_cpu/feedback2_compare/",
+    "sheets": 14,
+    "same_round1_frame_indices": true,
+    "panels": [
+      "round1 clean",
+      "round1 overlay",
+      "feedback2 clean",
+      "feedback2 overlay"
+    ],
+    "all_14_images_inspected": true,
+    "tuck_atlas": "seam_cpu/feedback2_tuck_references.png",
+    "native_capture_attempts": 0,
+    "owner_commands": "owner_commands.json",
+    "resolution": [
+      1920,
+      1080
+    ],
+    "ui_scale": 1.0
+  },
+  "protected_and_scope": "feedback2_scope.json; all 9 director inputs and 413 pinned baseline files verified; every non-Reaver shared registry entry unchanged",
+  "earlier_rigs": {
+    "compiled_outputs_identical": 10,
+    "presented_frames_byte_identical": 8086,
+    "gaoler_included": true,
+    "production_asset_changes": 0,
+    "historical_preservation": "9 families pass, 1 pre-existing Lancer snapshot mismatch; feedback2_preexisting_preservation.json proves working file == accepted HEAD. Local master does not contain that file. Assertion and asset remain unchanged."
+  },
+  "TODO_DESIGN": {},
+  "chosen_defaults": {
+    "search_denominator": 60,
+    "search_witness_count": 6,
+    "cpu_triangle_batch_size": 128,
+    "serialized_budget_tolerance_px": 0.001,
+    "floor_oracle_tolerance_px": 0.0001,
+    "inherited_proof_canvas_size": 640,
+    "inherited_source_offset": 192,
+    "test_fixtures": {
+      "process_timeout_seconds": 300,
+      "detachment_mutation_px": [
+        -120,
+        -60
+      ],
+      "floor_mutation_px": 0.25,
+      "synthetic_floor_rgba": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "authority_mutation_uv": [
+        0,
+        0
+      ]
+    },
+    "cpu_sheets": {
+      "padding_px": 16,
+      "gutter_px": 8,
+      "matte_rgba": [
+        30,
+        30,
+        36,
+        255
+      ],
+      "overlay_rgba": [
+        255,
+        0,
+        190,
+        255
+      ]
+    },
+    "reference_atlas": {
+      "matte": [
+        30,
+        30,
+        36,
+        255
+      ],
+      "opaque_underlay": [
+        20,
+        255,
+        80,
+        255
+      ],
+      "transparent_underlay": [
+        255,
+        0,
+        190,
+        255
+      ]
+    }
+  },
+  "open_issues": [
+    "226 CPU joint-hole findings remain in 12 approved-motion profiles retained for native judgment; exact frames/joints/pixel counts are in feedback2_remaining_tears.json. Idle and move are clean in the assembled sweep.",
+    "Windowed density/rest, seams/clean-piece/native captures, sheets, protagonist idle comparison, both-view production/review and both native depth jobs remain pending because the sandbox has no window-server access.",
+    "Pre-existing Lancer historical preservation assertion fails at humanoid_v2/front.json against e3034e24; current file equals accepted HEAD. No assertion was rewritten."
+  ],
+  "files_changed_groups": [
+    "experiments/cutouts/ashen_reaver/: case-specific source/cap/fragment/budget tools, ledgers, layouts, source/check textures, baseline snapshots and proof records",
+    "assets/units/ashen_reaver_cutout/: promoted exact textures, layouts, motion, held_drop.gd and integration provenance",
+    "scripts/maquette_cutout_runtime/: humanoid_grip.gd plus two opt-in hooks",
+    "tests/test_rr48_reaver.py; tests/rr48/depth_inventory.json and runtime_binding_changes.json; tests/maquette_cutout/proof_inputs.gd",
+    "tools/maquette_motion/gates.py runtime inventory",
+    "Only Reaver art identity/density entries, outputs and adopted source textures"
+  ],
+  "changed_files_manifest": "feedback2_changed_files.json"
+}

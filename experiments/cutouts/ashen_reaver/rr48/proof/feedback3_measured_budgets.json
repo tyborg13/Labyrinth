@@ -1,0 +1,536 @@
+{
+  "status": "measured_full_requested",
+  "source_sweep_sha256": "4150f830479429b5d1f91f3dd500b9b990bca34853c2acb47cee006029d8bb10",
+  "production_sweep_sha256": "55d2c0df7ee8de1373888491f981880910310fdb6a82cd47abe7265c9551b76d",
+  "profiles": [
+    {
+      "clip": "idle",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "idle",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "idle",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "idle",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "move",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "move",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "move",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "move",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "rake",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "rake",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "rake",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "rake",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "sweep",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "sweep",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "sweep",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "sweep",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "fall",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "fall",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "fall",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "fall",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "hit",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "hit",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "hit",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "hit",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "death",
+      "group": "body",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "death",
+      "group": "arm_near",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "death",
+      "group": "arm_far",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    },
+    {
+      "clip": "death",
+      "group": "legs",
+      "scale": 1.0,
+      "status": "full_requested_excursion_verified"
+    }
+  ],
+  "new_painted_clamps": [],
+  "remaining_blocking_tears": [],
+  "accepted_short_tears": [
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "joint": "cloth_front_root",
+      "bbox": [
+        306,
+        353,
+        307,
+        355
+      ],
+      "pixel_count": 2,
+      "painted_pixels": 2,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 2,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "joint": "cloth_front_root",
+      "bbox": [
+        319,
+        362,
+        320,
+        363
+      ],
+      "pixel_count": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 16,
+      "joint": "cloth_front_root",
+      "bbox": [
+        321,
+        363,
+        322,
+        364
+      ],
+      "pixel_count": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 29,
+      "joint": "cloth_front_root",
+      "bbox": [
+        349,
+        375,
+        350,
+        376
+      ],
+      "pixel_count": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "joint": "cloth_front_root",
+      "bbox": [
+        362,
+        383,
+        363,
+        384
+      ],
+      "pixel_count": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 81,
+      "joint": "wrist_near",
+      "bbox": [
+        259,
+        309,
+        260,
+        310
+      ],
+      "pixel_count": 1,
+      "painted_pixels": 1,
+      "receivers": {
+        "leg_far": 0,
+        "leg_near": 0,
+        "pelvis": 1,
+        "torso": 0,
+        "head": 0,
+        "foot_far": 0,
+        "foot_near": 0
+      }
+    }
+  ],
+  "original_angular_budget_clamps": [
+    {
+      "view": "front",
+      "clip": "rake",
+      "source": "torso.lean_deg",
+      "at": 0.5,
+      "target": -10,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "rake",
+      "source": "torso.lean_deg",
+      "at": 0.7,
+      "target": -11,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.28,
+      "target": 5,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.45,
+      "target": -8,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.6,
+      "target": -9,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.75,
+      "target": -9,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "source": "falchion.angle_deg",
+      "at": 0.3,
+      "target": 70,
+      "clamped": 35,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "source": "falchion.angle_deg",
+      "at": 0.5,
+      "target": -40,
+      "clamped": -35,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "source": "falchion.angle_deg",
+      "at": 0.85,
+      "target": -40,
+      "clamped": -35,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "source": "torso.lean_deg",
+      "at": 0.3,
+      "target": 6,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "source": "torso.lean_deg",
+      "at": 0.5,
+      "target": -14,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "source": "torso.lean_deg",
+      "at": 0.85,
+      "target": -14,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "rake",
+      "source": "torso.lean_deg",
+      "at": 0.5,
+      "target": 10,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "rake",
+      "source": "torso.lean_deg",
+      "at": 0.7,
+      "target": 11,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.28,
+      "target": -5,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.45,
+      "target": 8,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.6,
+      "target": 9,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "source": "torso.lean_deg",
+      "at": 0.75,
+      "target": 9,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "source": "falchion.angle_deg",
+      "at": 0.3,
+      "target": -70,
+      "clamped": -35,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "source": "falchion.angle_deg",
+      "at": 0.5,
+      "target": 40,
+      "clamped": 35,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "source": "falchion.angle_deg",
+      "at": 0.85,
+      "target": 40,
+      "clamped": 35,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "source": "torso.lean_deg",
+      "at": 0.3,
+      "target": -6,
+      "clamped": -4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "source": "torso.lean_deg",
+      "at": 0.5,
+      "target": 14,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "source": "torso.lean_deg",
+      "at": 0.85,
+      "target": 14,
+      "clamped": 4,
+      "budget_note": "Binding humanoid v2 angular budget; no director source rewrite"
+    }
+  ],
+  "dynamic_clamps_record": "gates.json/dynamic_budget_clamps"
+}

@@ -1,5 +1,26 @@
 extends "res://tests/pillar_torch_lighting_probe.gd"
 
+const SLIVER_SETTLE_FRAMES: int = 8
+const SLIVER_TEXTURE_ID: String = "gloam_stalker"
+var _sliver_checks: int = 0
+
+# Test-only board-space slice: positive area, but native polygon orientation
+# loses its sign at this origin. Reuse approved production art for both paths.
+class SliverQuads extends Node2D:
+	const Treatment = preload("res://scripts/combat_art_treatment.gd")
+	const SLIVER_RECT: Rect2 = Rect2(600, 300, 0.011, 0.35)
+	const NORMAL_RECT: Rect2 = Rect2(600, 320, 32, 32)
+	var source: Texture2D
+	var atlas: AtlasTexture
+	var draw_count: int = 0
+
+	func _draw() -> void:
+		draw_count += 1
+		for texture: Texture2D in [source, atlas]:
+			var profile: int = Treatment.ACTOR_ATLAS if texture is AtlasTexture else Treatment.ACTOR
+			Treatment.draw_rect(self, texture, SLIVER_RECT, Color.WHITE, profile)
+			Treatment.draw_rect(self, texture, NORMAL_RECT, Color.WHITE, profile)
+
 
 class TextureSwatches extends Node2D:
 	const Treatment = preload("res://scripts/combat_art_treatment.gd")
@@ -41,6 +62,9 @@ class TextureSwatches extends Node2D:
 # replacement. Every comparison holds pose, UI, camera and motion settings fixed.
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	if DisplayServer.get_name() == "headless":
+		call_deferred("_verify_sliver_draw_commands")
+		return
 	ProgressionStore.set_storage_path("user://art_probe_progression.json")
 	ProgressionStore.set_run_storage_path("user://art_probe_run.save")
 	SettingsStore.set_storage_path("user://art_probe_settings.json")
@@ -145,6 +169,52 @@ func _initialize() -> void:
 		push_error(error)
 	print("ART TREATMENT PROBE: %s" % ("PASS" if _errors.is_empty() else "FAIL"))
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
+	quit(0 if _errors.is_empty() else 1)
+
+func _sliver_expect(ok: bool, message: String) -> void:
+	_sliver_checks += 1
+	_expect(ok, message)
+
+func _verify_sliver_draw_commands() -> void:
+	root.size = VIEWPORT_SIZE
+	root.content_scale_size = VIEWPORT_SIZE
+	var quads := SliverQuads.new()
+	var definition: Dictionary = preload("res://scripts/game_data.gd").enemy_def(SLIVER_TEXTURE_ID)
+	quads.source = preload("res://scripts/asset_loader.gd").load_texture(str(definition["art_path"]))
+	_sliver_expect(quads.source != null, "Sliver regression loads approved production texture")
+	if quads.source == null:
+		quads.free()
+		_finish_sliver_regression()
+		return
+	_sliver_expect(not (quads.source is AtlasTexture), "Regression exercises both ordinary and atlas texture paths")
+	quads.atlas = AtlasTexture.new()
+	quads.atlas.atlas = quads.source
+	quads.atlas.region = Rect2(Vector2.ZERO, quads.source.get_size())
+	var rect: Rect2 = SliverQuads.SLIVER_RECT
+	var points := PackedVector2Array([rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)])
+	_sliver_expect(rect.has_area(), "Regression slice has positive area")
+	# Float orientation precision can differ between engine builds. The contract
+	# is an error-free draw; a build that can triangulate this slice is also valid.
+	print("ART TREATMENT SLIVER FIXTURE: %d native triangle indices" % Geometry2D.triangulate_polygon(points).size())
+	var treatment := preload("res://scripts/combat_art_treatment.gd").new()
+	quads.material = treatment.material
+	root.add_child(quads)
+	for frame: int in range(SLIVER_SETTLE_FRAMES): await process_frame
+	_sliver_expect(quads.draw_count > 0, "Headless regression submits live canvas draw commands")
+	var log_path: String = OS.get_environment("LABYRINTH_GODOT_LOG_PATH")
+	var log_exists: bool = not log_path.is_empty() and FileAccess.file_exists(log_path)
+	_sliver_expect(log_exists, "Task runner exposes this process's engine log")
+	if log_exists:
+		# RenderingServer errors do not necessarily change the engine exit code.
+		# Read our isolated native log so a rejected draw fails this regression.
+		_sliver_expect(not FileAccess.get_file_as_string(log_path).contains("Invalid polygon data, triangulation failed."), "Positive clipped quads must not produce native polygon errors")
+	quads.queue_free()
+	await process_frame
+	_finish_sliver_regression()
+
+func _finish_sliver_regression() -> void:
+	for error: String in _errors: push_error(error)
+	print("ART TREATMENT SLIVER REGRESSION: %s (%d checks, %d failures)" % ["PASS" if _errors.is_empty() else "FAIL", _sliver_checks, _errors.size()])
 	quit(0 if _errors.is_empty() else 1)
 
 func _difference(a: Image, b: Image, region: Rect2i) -> float:

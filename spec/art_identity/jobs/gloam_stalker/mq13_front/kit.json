@@ -1,0 +1,86 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "gloam_stalker",
+  "job_id": "mq13-gloam-front-r3",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "1d4b4a8658469fdcd3c799e62960ead64a3305c88302bda7b0af2a0187deb921",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/gloam_stalker/mq12_front/kit.json",
+    "pixel_sha256": "924fad62a68cd6616a444c3f442fb9e135e1be82ee7bc9e05f9ecc9ba342f07e"
+  },
+  "method": "paint-over of the mq-13 r3 maquette (stalking crouch, forward hunch, flush carapace plates) with the r1 painting as identity; round 2 is an image-model edit of round 0 that moves the near leg onto the maquette's near-leg part; image tool output (1254 px) resized once (Lanczos) to 983 px, i.e. 1024 x 0.96, and placed on the 1024 green canvas at (21, 39), keeping the sole and centre, so front and rear share one scale to the maquette (front fit 0.95, rear 0.99); same director tone step as r1/r2, then palette-matched (CIE Lab) to the approved mq-12 front so the r3 cloak keeps the near-black identity",
+  "peers": [
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "bc3d91ea525c77b1bd07cf4fcb1007c8f671c6a537387a8dc1b5abc783c22769",
+  "prompt_source": "spec/art_identity/maquettes/gloam_stalker/prompt_front_r3.md",
+  "raw_steps": [
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_front_r1.json",
+          "sha256": "ebfde5d4f513f87a16de4655fd559be8bc5c3a3323c00433e06b1b795c26785a"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "5998e2a00852e4bd4a2b4e00d435400f0174655453b259ecef45bce8b4b151ba"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_pixel_sha256": "b9590340f6a745b866cfd61b872ddd8defd32434452f7c68aa85b3645b0c4756",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "refs": [
+    {
+      "canon_id": "maquette_front_parts_mq13",
+      "file": "refs/01_maquette_front_parts_mq13.png",
+      "pixel_sha256": "f320352e89a2645e09afee2ac3a545d187ca273f6b361e93d4e3a8f7d4959a2e",
+      "role": "maquette_parts",
+      "source_file": "spec/art_identity/maquettes/gloam_stalker/delivery/front_parts.png (mq-13 r3)"
+    },
+    {
+      "canon_id": "maquette_front_clay_mq13",
+      "file": "refs/02_maquette_front_clay_mq13.png",
+      "pixel_sha256": "0c6bb98d9a29979dda6c6c4d5a221bffd323c016d5be8ecbe8eb6ef09fc2e14d",
+      "role": "maquette_clay",
+      "source_file": "spec/art_identity/maquettes/gloam_stalker/delivery/front_clay.png (mq-13 r3)"
+    },
+    {
+      "canon_id": "gloam_stalker_front_r1_approved_raw",
+      "file": "refs/03_identity_gloam_r1.png",
+      "pixel_sha256": "0d271761728a735b37f96844000dc2eaa21fda18bd609631af6f426a468c679a",
+      "role": "identity",
+      "source_file": "spec/art_identity/jobs/gloam_stalker/mq12_front/refs/01_approved_painting_r1.png"
+    },
+    {
+      "canon_id": "approved_frostglass_lancer_mq4_front",
+      "file": "refs/04_approved_frostglass_lancer_mq4_front.png",
+      "pixel_sha256": "5ae6ac1f259665257abf87af1e79a90f68421e52af16ab7941cc45d01ac90a26",
+      "role": "identity",
+      "source_file": "spec/art_identity/jobs/gloam_stalker/mq5_front/refs/04_approved_frostglass_lancer_mq4_front.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/05_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "spec/art_identity/jobs/gloam_stalker/mq5_front/refs/05_hero_front.png"
+    },
+    {
+      "canon_id": "gloam_stalker_front_mq13_round0",
+      "file": "refs/06_edit_source_v1.png",
+      "pixel_sha256": "75d6f1792249530b0c4cef2105d191ef193dbc82135d6bf7b0f315ae826dda3e",
+      "role": "edit_source",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq13-gloam-front-r3/gloam-stalker-front.png"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 215,
+  "view": "creature_front"
+}

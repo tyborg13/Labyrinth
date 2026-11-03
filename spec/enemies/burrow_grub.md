@@ -1,5 +1,25 @@
 # Burrow Grub — EN01 implementation
 
+## mrk-01 — current keyword and implementation
+
+Burrow and Erupt remain move names, with their existing paintings, markers,
+effects, movement, damage and audio. Their glossary/grimoire keyword is
+**Marked**: “These tiles take the hit on this enemy's next turn.” Both old
+names are lookup aliases. The intent tooltips are:
+
+- Burrow: “Burrows and marks your tile. While buried, it can't be targeted or moved, but Area Attacks hit it.”
+- Erupt: “Emerges at the mark, hitting and moving whoever stands there. Neighbours get Push 1. Leaves Rubble; gains Expose 2.”
+
+`burrow.gd` and `burrow_view.gd` remain separate. Burial, occupancy,
+untargetability, old-position area damage, deterministic fallback landing and
+ordered displacement/push cannot safely share the projectile landing policy.
+The zero-weight forced Erupt, damage 6, Push 1, Rubble and self-Expose 2 are
+unchanged. Permanent checks live in `tests/mrk01_marked_test.gd`; the shared
+`tests/mrk01_marked_probe.gd` captures all three enemies and the Marked grimoire
+at 1920×1080/100% UI scale. Its default output is portable under
+`user://mrk01_marked_probe`.
+
+
 Binding design: [director roster v1](../peer_benchmark/enemy_roster_v1.md),
 protected `burrow_grub` entry in `../peer_benchmark/staged/enemies/wave_e1.json`,
 and the supplied EN01/shared brief plus director feedback 1. Staged standard Worldspine Roots enemy:

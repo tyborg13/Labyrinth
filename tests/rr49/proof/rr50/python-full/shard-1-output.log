@@ -1,0 +1,490 @@
+MODULE test_arc_thrall_maquette_r2: 0.626s
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+MODULE test_art_identity_gate: 92.523s
+ADOPTED 1 source file(s)
+ADOPTED 1 source file(s)
+ADOPTED 3 source file(s)
+PROCESSED 2 file(s)
+CHECK-OK
+WROTE-ORIGINALS 1 file(s)
+stale: paint/a.png
+PROCESSED 1 file(s)
+CHECK-OK
+stale: paint/b.png
+MODULE test_board_pixel_density: 190.062s
+MODULE test_cutout_workflow: 1.307s
+MODULE test_gait01: 120.917s
+MODULE test_glacial_mirror_shoulder: 4.342s
+GODOT SIDECARS: gitignored exemptions = 2151
+FAIL: test_godot_sidecars.GodotSidecarRepositoryTests.test_tracked_sources_have_sidecars_and_sidecars_have_sources
+MODULE test_godot_sidecars: 4.165s
+INT04 COLOUR MUTATIONS: PASS (unit-head geometry, gait targets and alpha caught)
+INT04 COMPILED SPEC MUTATION: PASS (foreign unit-head recipe change caught)
+INT04 COORDINATED EDIT MUTATION: PASS (mq-05; matching spec_hash cannot authorize foreign edits)
+INT04 COORDINATED EDIT MUTATION: PASS (mq-07; matching spec_hash cannot authorize foreign edits)
+INT04 COORDINATED EDIT MUTATION: PASS (mq-08; matching spec_hash cannot authorize foreign edits)
+INT04 COORDINATED EDIT MUTATION: PASS (mq-09; matching spec_hash cannot authorize foreign edits)
+INT04 EXACT HASH MUTATION: PASS (allowlisted path still requires the pinned endpoint bytes)
+INT04 FOREIGN ADDITION MUTATION: PASS (all four units; only owned floor entries may change)
+INT04 HASH TABLE MUTATION: PASS (foreign historical bytes and own live bytes enforced)
+INT04 LIVE LANCER MUTATION: PASS (mq-05; cloth and solids use historical input)
+INT04 LIVE LANCER MUTATION: PASS (mq-07; cloth and solids use historical input)
+INT04 LIVE LANCER MUTATION: PASS (mq-08; cloth and solids use historical input)
+INT04 LIVE LANCER MUTATION: PASS (mq-09; cloth and solids use historical input)
+INT04 RECIPE DELETION MUTATION: PASS (mq-09; omitted inventory entry is rejected)
+INT04 RANGE MUTATION: PASS (committed foreign edit caught; later commits/working edits ignored)
+INT04 REGENERATION MUTATIONS: PASS (foreign historical recipe caught; native/own inputs and new modules still guarded)
+INT04 REGISTRY MUTATION: PASS (foreign historical entry caught; own live inputs pinned)
+MODULE test_int04_preservation: 26.933s
+INT05 BINDING MUTATION: PASS (top-level inputs allowed; nested payload change rejected)
+INT05 SEER RANGE MUTATION: PASS (in-range edit caught; later commits and working bytes ignored)
+MODULE test_int05_preservation: 3.407s
+INT07 PIN MUTATIONS: PASS (80/80 same-file unapproved byte changes rejected, including added caps)
+INT07 EXTENSION AUDIT: PASS (80 exact rr-44/rr-49 deltas; 26 additions; no earlier integration absorbed)
+INT07 INVENTORY AUDIT: PASS (only two approved Gaoler source bindings changed; all coverage/timing/route fields preserved)
+INT07 OTHER RIGS: PASS (664/664 submitted states byte-identical to ff77c892c; 12 rigs; both views; every clip)
+MODULE test_int07_preservation: 16.218s
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+GAOLER REBUILD: PASS (882 files)
+MODULE test_maquette_cutout: 71.173s
+MAQUETTE_REAR_TURN_EXEMPT: burrow_grub/delivery; crawler; measurements.json labels contain neither foot_near nor foot_far
+MAQUETTE_REAR_TURN_EXEMPT: ember_tick/delivery; crawler; measurements.json labels contain neither foot_near nor foot_far
+MAQUETTE_REAR_TURN: arc_thrall/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 7324}, "feet": {"far": [381.8912792931233, 766.4408759124087], "near": [650.9663096831772, 932.2087609698051]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 6022, "near": 0}, "feet": {"far": [640.0060078267101, 957.5310588105606], "near": [365.31380597014925, 778.718407960199]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: ashen_reaver/delivery; {"front": {"body_side_pixels_over_torso": {"far": 2636, "near": 7531}, "feet": {"far": [603.4073610676676, 774.6852257324575], "near": [780.4624126785528, 926.3330205400897]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 8183, "near": 3336}, "feet": {"far": [419.63512103505843, 917.662979966611], "near": [242.51466137952625, 766.0342272774706]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: briar_weaver/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 91}, "feet": {"far": [416.67600052833177, 856.8140272090873], "near": [629.6274303115483, 941.6047083626142]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 3694, "near": 0}, "feet": {"far": [614.6205017301038, 943.3117647058823], "near": [387.7181610005284, 864.3780165580412]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: chainbound_gaoler/delivery; {"front": {"body_side_pixels_over_torso": {"far": 51, "near": 12479}, "feet": {"far": [391.1721753705935, 862.499502383322], "near": [600.5055047474806, 929.0731053765946]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 2588, "near": 602}, "feet": {"far": [629.7068596237337, 886.992474674385], "near": [420.246881224447, 820.5399412936366]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: frostglass_lancer/delivery; {"front": {"body_side_pixels_over_torso": {"far": 363, "near": 1543}, "feet": {"far": [297.46833839918946, 825.2388551165147], "near": [501.7735029475644, 838.2717964629228]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 2141, "near": 0}, "feet": {"far": [724.8757423481042, 765.0095934216537], "near": [519.097794117647, 753.04375]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: frostglass_lancer/proof_r2; {"front": {"body_side_pixels_over_torso": {"far": 187, "near": 16542}, "feet": {"far": [393.8564532159591, 879.163850631833], "near": [592.9711770552321, 936.5219366747125]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 30227, "near": 419}, "feet": {"far": [629.1768214742224, 912.3647209203239], "near": [430.0423175234308, 855.0790968474865]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: gale_herald/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 30484}, "feet": {"far": [358.0113908872902, 805.4586330935252], "near": [593.3415730337078, 932.5376915219612]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 28462, "near": 14316}, "feet": {"far": [543.2776779026217, 932.0721348314606], "near": [295.37894736842105, 851.7421052631579]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: glacial_mirror/delivery; {"front": {"body_side_pixels_over_torso": {"far": 130, "near": 10655}, "feet": {"far": [377.86641299455835, 748.1117384722393], "near": [643.67326616223, 895.0453600972282]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 7100, "near": 19}, "feet": {"far": [642.8824913711954, 899.4059852525886], "near": [376.7757103767628, 755.3293201431278]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: gloam_stalker/delivery; {"front": {"body_side_pixels_over_torso": {"far": 2075, "near": 26014}, "feet": {"far": [434.2191960496875, 811.3167965434766], "near": [614.128536977492, 940.9293408360129]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 43075, "near": 7441}, "feet": {"far": [586.3248728029603, 879.4575046253469], "near": [408.0581198646689, 762.3441275978734]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: hoarfrost_seer/delivery; {"front": {"body_side_pixels_over_torso": {"far": 341, "near": 1107}, "feet": {"far": [423.7324824824825, 863.3228228228228], "near": [688.8261385199241, 950.7903225806451]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 4580, "near": 4170}, "feet": {"far": [598.7137254901961, 984.8564705882353], "near": [336.8793774319066, 934.2506485084306]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: hollow_mimic/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 4432}, "feet": {"far": [420.48188653451814, 804.2334244702665], "near": [620.8431866073519, 901.5471201123859]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 6184, "near": 0}, "feet": {"far": [597.9966266201101, 920.185062437119], "near": [395.28327469321204, 846.9659315197803]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: last_lamplighter/delivery; {"front": {"body_side_pixels_over_torso": {"far": 2, "near": 1541}, "feet": {"far": [502.59590671109, 839.4935744883389], "near": [598.8781532603522, 940.880533079486]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 1202, "near": 0}, "feet": {"far": [518.2593482905983, 980.0104166666666], "near": [421.8994383525007, 878.7263974324686]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: slag_mortar/delivery; {"front": {"body_side_pixels_over_torso": {"far": 882, "near": 3693}, "feet": {"far": [355.95605545383205, 860.7253465864504], "near": [650.1871435476075, 956.2407926534557]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 15246, "near": 0}, "feet": {"far": [668.0532365396249, 953.9786613870099], "near": [365.84287054409003, 863.3672607879924]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: storm_cantor/delivery; {"front": {"body_side_pixels_over_torso": {"far": 170, "near": 2224}, "feet": {"far": [488.5965474722565, 900.4125770653515], "near": [592.0337438423645, 986.1896551724138]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 2835, "near": 34}, "feet": {"far": [534.3583230579532, 937.423427866831], "near": [430.99458261511944, 851.5860625461709]}, "lower_foot": "far", "lower_foot_right": true}}
+DELIVERY_STAGE: PASS; tmpyv55jf76
+DELIVERY_STAGE: PASS; tmppo06drxq
+DELIVERY_STAGE: PASS; tmpv9xgqoai
+MODULE test_maquette_rear_turn: 23.871s
+MODULE test_mq09_forms: 30.324s
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5435907, "figure": "hollow_mimic", "files": 107}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3535279, "figure": "briar_weaver", "files": 77}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3882980, "figure": "slag_mortar", "files": 87}
+MQ09_FIT: PASS; hollow_mimic; front_iou=0.815673910; rear_iou=0.770515331
+MQ09_FIT: PASS; briar_weaver; front_iou=0.706400955; rear_iou=0.680170738
+MQ09_FIT: PASS; slag_mortar; front_iou=0.799598979; rear_iou=0.772701972
+MODULE test_mq09_maquettes: 9.178s
+MODULE test_mq11_accessories: 2.640s
+MQ11_ACCEPTANCE: PASS; figures=2; native_fit_shape_turn_collision_ownership_determinism_bound=true
+MODULE test_mq11_freshness: 0.700s
+MQ11_MUTATION_CAUGHT: flap_row_ordering; errors=0
+MQ11_MUTATION_CAUGHT: unowned_accessory_preservation; errors=0
+MQ11_ACCEPTANCE: PASS; figures=2; native_fit_shape_turn_collision_ownership_determinism_bound=true
+MQ11_MUTATION_CAUGHT: acceptance_freshness; errors=0
+MQ11_MUTATION_CAUGHT: shape_report_spec_binding; errors=0
+MODULE test_mq11_guard_mutations: 0.393s
+MODULE test_mq11_validation: 0.558s
+MQ12_CURRENT_PRESERVATION: PASS; figures=8; delivery_files=791
+MQ12_APPROVED_HISTORY_AND_MQ13_SUCCESSOR: PASS; historical_inputs_and_current_seals_exact=True
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5715009, "figure": "gale_herald", "files": 168}
+MQ12_GIT_VISIBLE_CURATION: PASS; gale_herald
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5785315, "figure": "gloam_stalker", "files": 174}
+MQ12_GIT_VISIBLE_CURATION: PASS; gloam_stalker
+MODULE test_mq12_preservation: 2.437s
+MODULE test_mq12_shoulders: 1.607s
+MODULE test_mq12_successor: 1.220s
+DELIVERY_STAGE: PASS; staged
+MODULE test_mq13_delivery: 4.858s
+MODULE test_mq13_evidence: 0.225s
+MQ13_BRIDGE: maquette.blend.receipt; exit=0
+MQ13_BRIDGE: build_report.json.receipt; exit=0
+MQ13_BOUNDED_CAPTURE: COMPLETE; native_geometry=True; view=rear; solos=None
+MODULE test_mq13_saved_body: 0.058s
+MQ14_FIT: PASS; front_iou=0.711792466; rear_iou=0.693576133
+MODULE test_mq14_lancer: 3.405s
+MODULE test_mq15_cloth: 0.424s
+MQ15_ACCEPTANCE: FAIL; {"heights": {"front": {"head_to_sole_px": 828, "head_top_px": 181, "helm_to_sole_px": 817.6923951132571, "helm_top_px": 191.30760488674287, "sole_bottom_px": 1009}, "rear": {"head_to_sole_px": 841, "head_top_px": 127, "helm_to_sole_px": 830.7375068832291, "helm_top_px": 137.26249311677083, "sole_bottom_px": 968}}, "mass": {"barrel_chest": true, "closed_native_forms": true, "cloth": false, "gloved_grip": true, "mass": true, "no_part_holes": true, "no_see_through": false, "open_front": true}, "pose": {"feet_planted": true, "front_chain_side": true, "level_shoulders_3d": true, "native_endpoints": true, "native_joint_inventory": true, "native_projection": true, "rear_chain_side": true, "shoulder_rule": true}, "proportions": {"helm_height": true, "knee_to_sole": true, "pelvis_to_knee": true, "shoulder_width": true, "torso_height": true, "total_height": true}, "turn": {"front_lower_foot_right": true, "front_proper_rotation": true, "rear_is_half_turn": true, "rear_lower_foot_right": true, "rear_not_mirror": false, "rear_proper_rotation": true}}
+MQ15_ACCEPTANCE: PASS; {"heights": {"front": {"head_to_sole_px": 828, "head_top_px": 181, "helm_to_sole_px": 817.6923951132571, "helm_top_px": 191.30760488674287, "sole_bottom_px": 1009}, "rear": {"head_to_sole_px": 841, "head_top_px": 127, "helm_to_sole_px": 830.7375068832291, "helm_top_px": 137.26249311677083, "sole_bottom_px": 968}}, "mass": {"barrel_chest": true, "closed_native_forms": true, "cloth": true, "gloved_grip": true, "mass": true, "no_part_holes": true, "no_see_through": true, "open_front": true}, "pose": {"feet_planted": true, "front_chain_side": true, "level_shoulders_3d": true, "native_endpoints": true, "native_joint_inventory": true, "native_projection": true, "rear_chain_side": true, "shoulder_rule": true}, "proportions": {"helm_height": true, "knee_to_sole": true, "pelvis_to_knee": true, "shoulder_width": true, "torso_height": true, "total_height": true}, "turn": {"front_lower_foot_right": true, "front_proper_rotation": true, "rear_is_half_turn": true, "rear_lower_foot_right": true, "rear_not_mirror": true, "rear_proper_rotation": true}}
+MQ15_COMMIT_CURATION: PASS; bytes=5939586; files=204
+MQ15_ACCEPTANCE: PASS; {"heights": {"front": {"head_to_sole_px": 828, "head_top_px": 181, "helm_to_sole_px": 817.6923951132571, "helm_top_px": 191.30760488674287, "sole_bottom_px": 1009}, "rear": {"head_to_sole_px": 841, "head_top_px": 127, "helm_to_sole_px": 830.7375068832291, "helm_top_px": 137.26249311677083, "sole_bottom_px": 968}}, "mass": {"barrel_chest": true, "closed_native_forms": true, "cloth": true, "gloved_grip": true, "mass": true, "no_part_holes": true, "no_see_through": true, "open_front": true}, "pose": {"feet_planted": true, "front_chain_side": true, "level_shoulders_3d": true, "native_endpoints": true, "native_joint_inventory": true, "native_projection": true, "rear_chain_side": true, "shoulder_rule": true}, "proportions": {"helm_height": true, "knee_to_sole": true, "pelvis_to_knee": true, "shoulder_width": true, "torso_height": true, "total_height": true}, "turn": {"front_lower_foot_right": true, "front_proper_rotation": true, "rear_is_half_turn": true, "rear_lower_foot_right": true, "rear_not_mirror": true, "rear_proper_rotation": true}}
+MODULE test_mq15_maquette: 18.015s
+MODULE test_mq15_native_geometry: 0.312s
+MODULE test_mq15_pose_fit: 1.679s
+Packaged 24 native frames; original front and reflection audits PASS
+Packaged 24 native frames; original front and reflection audits PASS
+Packaged 24 native frames; original front and reflection audits PASS
+MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+MOTION GATES: PASS (4 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+SHRIKE PRODUCTION REEL: PASS /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-oji39lfy/shrike/png/production_reel.mp4
+SHRIKE PRODUCTION REEL: PASS /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-oji39lfy/shrike/webp/production_reel.mp4
+SHRIKE PRODUCTION REEL: PASS /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-oji39lfy/shrike/rgba/production_reel.mp4
+/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-4mddam4l/strike/png-sheet/strike_trail_front.png
+/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-4mddam4l/strike/webp-sheet/strike_trail_front.png
+/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/cap01-readers-4mddam4l/strike/rgba-sheet/strike_trail_front.png
+Created 24 full-cycle contact sheets
+Created 24 full-cycle contact sheets
+Created 24 full-cycle contact sheets
+MODULE test_native_review_readers: 4.046s
+MODULE test_production_crop_plan: 18.674s
+PROOF GLOW MUTATION: CAUGHT (Python/Godot bindings and certificate)
+PROOF MSAA PIN REMOVAL: CAUGHT by startup assertion
+PROOF VIEWPORT SETTINGS: PASS (135 viewports; no renderer capture)
+PROOF RENDER DEFAULTS: PASS [{"canvas_item_default_texture_filter": 1, "canvas_item_default_texture_repeat": 0, "msaa_2d": 2, "snap_2d_transforms_to_pixel": false, "snap_2d_vertices_to_pixel": false, "use_hdr_2d": false}, {"canvas_item_default_texture_filter": 1, "canvas_item_default_texture_repeat": 0, "msaa_2d": 0, "snap_2d_transforms_to_pixel": false, "snap_2d_vertices_to_pixel": false, "use_hdr_2d": false}]
+PROOF MSAA MUTATION: CAUGHT (project 0/3 produce byte-identical headless transform samples)
+MODULE test_proof_render_inputs: 4.479s
+PROOF DEPENDENCY MUTATION: class_name_extends CAUGHT
+PROOF DEPENDENCY MUTATION: class_name_call CAUGHT
+PROOF DEPENDENCY MUTATION: shader_preload CAUGHT
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round4/gaoler_motion.gd
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round5/gaoler_motion.gd
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round6/gaoler_motion.gd
+PROOF CASE MOTION CLOSURE: PASS (15 case roots)
+PROOF DEPENDENCY MUTATION: case_motion_preload CAUGHT
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round4/gaoler_motion.gd
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round5/gaoler_motion.gd
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round6/gaoler_motion.gd
+PROOF CASE MOTION CLOSURE: PASS (15 case roots)
+PROOF DEPENDENCY MUTATION: archived_case_motion_preload CAUGHT
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round4/gaoler_motion.gd
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round5/gaoler_motion.gd
+PROOF ARCHIVE GAP (pre-existing): experiments/cutouts/chainbound_gaoler/mq3/provenance/round6/gaoler_motion.gd
+PROOF CASE MOTION CLOSURE: PASS (15 case roots)
+MODULE test_proof_runtime_paths: 5.192s
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+MODULE test_rr07_delivery: 3.626s
+MODULE test_rr07_production: 120.531s
+MODULE test_rr10_bone_evidence: 11.783s
+RR10 SHEETS: PASS (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr10-sheet-fixture-_ysy0i5e/sheets)
+MODULE test_rr10_feedback: 1.129s
+MODULE test_rr10_humanoid: 46.302s
+MODULE test_rr10_layout_parity: 0.866s
+MODULE test_rr10_native_exceptions: 0.039s
+MODULE test_rr10_occluded_foot: 1.035s
+MODULE test_rr10_rear: 0.804s
+MODULE test_rr10_reveal_fills: 1.533s
+MODULE test_rr10_rope: 0.961s
+MODULE test_rr10_silhouette_gates: 0.018s
+RR10 ATTACHMENT TRANSFORMS: PASS (629 poses; max wrist snap separation 1.368480 px)
+MODULE test_rr10_tucks: 1.592s
+MODULE test_rr11_humanoid: 17.615s
+MODULE test_rr13_continuations: 4.285s
+MODULE test_rr14_anatomy: 2.201s
+MODULE test_rr14_bone_guards: 1.063s
+MODULE test_rr14_continuation_domains: 0.001s
+RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)
+MODULE test_rr14_foundations: 1.254s
+RR14 SEER RANGE IDENTITY: PASS (777 files; only two input-binding objects excluded)
+MODULE test_rr14_seer_identity: 0.165s
+RR16 THRALL POSE IDENTITY: PASS (1050 exact rows)
+RR16 SEER POSE IDENTITY: PASS (1258 exact rows)
+MODULE test_rr15_action_direction: 46.836s
+MODULE test_rr15_native_cleanup: 1.947s
+MODULE test_rr15_reach: 12.342s
+MODULE test_rr15_shoulder: 1.314s
+MODULE test_rr15_view_keys: 0.640s
+RR16 CURVED REACH: FAIL AS REQUIRED (23.113249183 px at 0.500730859)
+RR16 SUPPORT MODES: PASS (4 views/configurations)
+MODULE test_rr16_feedback1: 1.142s
+MODULE test_rr16_review_fixes: 0.073s
+MODULE test_rr17_cutout: 13.127s
+MODULE test_rr17_feedback: 16.724s
+MODULE test_rr17_integration: 7.968s
+MODULE test_rr17_production: 69.982s
+MODULE test_rr18_air_policy: 0.038s
+MODULE test_rr18_humanoid: 35.823s
+MODULE test_rr18_materials: 0.011s
+RR19 SHARED CLOCK MUTATION: CAUGHT (Tick frame 20 instead of 53 at 0.900 s)
+MODULE test_rr19_overlap: 23.501s
+MODULE test_rr20_cutout: 23.679s
+MODULE test_rr20_feedback2: 8.291s
+MODULE test_rr20_production: 100.851s
+MODULE test_rr20_residue: 0.053s
+MODULE test_rr20_rest_space: 0.102s
+RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)
+MODULE test_rr21_cutout: 23.417s
+MODULE test_rr21_production: 71.491s
+MODULE test_rr21_residue: 0.049s
+Running task-local command:
+  task: rr-50-python-1
+  run: rr-50-python-1-1793280084579497000-96636
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-1-1793280084579497000-96636
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-1-1793280084579497000-96636/godot.log --headless --path . --script tests/rr21/samples.gd -- --case /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/review_clean_5hho5u8c/checkout/mq9 --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/review_clean_5hho5u8c/checkout/mq9/proof/logs/samples.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR10 BONE SAMPLES: PASS (1106 poses; headless transforms only)
+RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)
+RR21 NATIVE PROVENANCE: CURRENT
+RR21 FRONT CUT: PASS (0 errors)
+RR21 FRONT DIRECTION: PASS (621 positive checks; lash/thornwall required)
+RR21 FRONT WALK: PASS (6 swings; minimum peak 65.597 degrees; fit 0.073320 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582567 px)
+RR21 FRONT REACH: REPORT (14 keyed paths; 1000 intervals; 0 inside-minimum errors; 8 overreach reports)
+RR21 REAR CUT: PASS (0 errors)
+RR21 REAR DIRECTION: PASS (621 positive checks; lash/thornwall required)
+RR21 REAR WALK: PASS (6 swings; minimum peak 69.553 degrees; fit 0.063006 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582570 px)
+RR21 REAR REACH: REPORT (14 keyed paths; 1000 intervals; 0 inside-minimum errors; 5 overreach reports)
+RR21 RESIDUE: PASS (158 derived surfaces; zero outside declared features)
+RR21 HEADLESS GATES: PASS (0 errors)
+RR21 REVIEW PREFLIGHT: PASS (headless evidence; native pixels and encoding not run)
+Running task-local command:
+  task: rr-50-python-1
+  run: rr-50-python-1-1793280099397798000-96647
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-1-1793280099397798000-96647
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-1-1793280099397798000-96647/godot.log --headless --path . --script tests/rr21/samples.gd -- --case /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/review_clean_5hho5u8c/checkout/mq9 --output /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/review_clean_5hho5u8c/checkout/mq9/proof/logs/samples.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR10 BONE SAMPLES: PASS (1106 poses; headless transforms only)
+RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)
+RR21 NATIVE PROVENANCE: CURRENT
+RR21 FRONT CUT: PASS (0 errors)
+RR21 FRONT DIRECTION: PASS (621 positive checks; lash/thornwall required)
+RR21 FRONT WALK: PASS (6 swings; minimum peak 65.597 degrees; fit 0.073320 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582567 px)
+RR21 FRONT REACH: REPORT (14 keyed paths; 1000 intervals; 0 inside-minimum errors; 8 overreach reports)
+RR21 REAR CUT: PASS (0 errors)
+RR21 REAR DIRECTION: PASS (621 positive checks; lash/thornwall required)
+RR21 REAR WALK: PASS (6 swings; minimum peak 69.553 degrees; fit 0.063006 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582570 px)
+RR21 REAR REACH: REPORT (14 keyed paths; 1000 intervals; 0 inside-minimum errors; 5 overreach reports)
+RR21 RESIDUE: PASS (158 derived surfaces; zero outside declared features)
+RR21 HEADLESS GATES: PASS (0 errors)
+RR21 REVIEW PREFLIGHT: PASS (headless evidence; native pixels and encoding not run)
+MODULE test_rr21_review: 36.283s
+RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)
+MODULE test_rr21_walk: 8.384s
+MODULE test_rr23_owner_fixes: 18.012s
+MODULE test_rr24_feedback2: 11.163s
+MODULE test_rr24_policies: 0.837s
+MODULE test_rr24_thrall: 5.063s
+MODULE test_rr26_consolidation: 1.759s
+MODULE test_rr26_fragments: 9.322s
+MODULE test_rr26_hem_attachments: 1.563s
+test_rr27_thrall.ThrallStrictProvenanceTests.test_feedback_gate_rejects_changed_candidate_motion_before_rendering ... skipped: rr-27 Tether study not adopted (feedback 3; decision 2026-10-19): its feedback-1 evidence binds tool hashes that later units change, and its evaluate() requires fresh evidence first.
+RR27 POSE ROW IDENTITY: PASS (1050 rows; 0 changed raw rows)
+RR27 PAINT/REST/MOTION IDENTITY: PASS (440 protected files; 4 authorized copy-removal outputs; 0 unexpected)
+MODULE test_rr27_thrall: 12.457s
+MODULE test_rr28_continuations: 17.583s
+MODULE test_rr28_shadow: 2.082s
+RR29 RR20 RANGE MUTATION: PASS (in-range input caught; later commits and working bytes ignored)
+RR29 RR28 RANGE MUTATION: PASS (actual layout assertion rejects in-range edit; later repair cannot hide it)
+RR29 COMMITTED SCOPE MUTATION: PASS (clean committed foreign rig/case edits rejected against integration)
+MODULE test_rr29_historical_ranges: 3.994s
+RR29 REAR PROMPT TAMPERING: PASS (job revision, canonical revision and reordered chain rejected)
+MODULE test_rr29_mimic: 19.951s
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:245: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-50/tools/art_identity_gate.py:254: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+MODULE test_rr35_cutout: 44.143s
+MODULE test_rr35_native_defects: 3.223s
+MODULE test_rr35_production: 67.866s
+RR10 SHEETS: FAIL; diagnostic saved (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr38-diagnostic-4xpb45r2/sheets)
+MODULE test_rr38_feedback1: 10.040s
+MODULE test_rr38_feedback2: 8.049s
+RR38 PRODUCTION PROOF CASE: PASS (exact treated paint; alpha ownership unchanged; independently composed rests)
+Running task-local command:
+  task: rr-50-python-1
+  run: rr-50-python-1-1793280356864815000-97718
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-python-1-1793280356864815000-97718
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-python-1-1793280356864815000-97718/godot.log --headless --path . --script tests/rr38/samples.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-50/experiments/cutouts/chainbound_gaoler/rr38/proof/calibration-hp52jmh1/treated --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-50/experiments/cutouts/chainbound_gaoler/rr38/proof/calibration-hp52jmh1/treated/proof/logs/samples.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)
+
+RR38 CALIBRATION SHARD front/death/40: 1 frames; 1.851s
+RR38 CALIBRATION SHARD front/death/36: 3 frames; 4.290s
+RR38 CALIBRATION SHARD front/death/44: 2 frames; 3.134s
+RR38 CALIBRATION SHARD front/death/52: 1 frames; 1.817s
+RR38 CALIBRATION SHARD front/death/48: 2 frames; 3.076s
+RR38 CALIBRATION SHARD front/death/56: 3 frames; 4.364s
+RR38 CALIBRATION SHARD front/death/60: 4 frames; 5.728s
+RR38 CALIBRATION SHARD front/death/68: 2 frames; 3.163s
+RR38 CALIBRATION SHARD front/death/64: 4 frames; 5.758s
+RR38 CALIBRATION SHARD front/death/76: 2 frames; 3.130s
+RR38 CALIBRATION SHARD front/death/80: 2 frames; 3.129s
+RR38 CALIBRATION SHARD front/guard/8: 2 frames; 2.505s
+RR38 CALIBRATION SHARD front/guard/44: 3 frames; 3.467s
+RR38 CALIBRATION SHARD front/move/8: 3 frames; 3.507s
+RR38 CALIBRATION SHARD front/move/12: 4 frames; 4.555s
+RR38 CALIBRATION SHARD front/move/28: 1 frames; 1.449s
+RR38 CALIBRATION SHARD front/move/16: 4 frames; 4.484s
+RR38 CALIBRATION SHARD front/move/36: 3 frames; 3.503s
+RR38 CALIBRATION SHARD front/move/32: 4 frames; 4.521s
+RR38 CALIBRATION SHARD front/move/40: 1 frames; 1.463s
+RR38 CALIBRATION SHARD front/move/48: 2 frames; 2.454s
+RR38 CALIBRATION SHARD front/press/8: 1 frames; 1.841s
+RR38 CALIBRATION SHARD front/press/12: 2 frames; 3.128s
+RR38 CALIBRATION SHARD front/press/16: 3 frames; 4.368s
+RR38 CALIBRATION SHARD front/press/32: 1 frames; 1.826s
+RR38 CALIBRATION SHARD front/press/20: 3 frames; 4.411s
+RR38 CALIBRATION SHARD front/press/40: 2 frames; 3.125s
+RR38 CALIBRATION SHARD front/press/36: 3 frames; 4.455s
+RR38 CALIBRATION SHARD front/reel/28: 3 frames; 3.519s
+RR38 CALIBRATION SHARD front/reel/32: 4 frames; 4.509s
+RR38 CALIBRATION SHARD front/reel/36: 4 frames; 4.482s
+RR38 CALIBRATION SHARD front/reel/40: 3 frames; 3.508s
+RR38 CALIBRATION SHARD front/reel/48: 4 frames; 4.566s
+RR38 CALIBRATION SHARD front/reel/52: 4 frames; 4.546s
+RR38 CALIBRATION SHARD rear/death/32: 2 frames; 2.965s
+RR38 CALIBRATION SHARD rear/death/56: 2 frames; 3.071s
+RR38 CALIBRATION SHARD rear/death/60: 1 frames; 1.864s
+RR38 CALIBRATION SHARD rear/death/68: 2 frames; 3.132s
+RR38 CALIBRATION SHARD rear/guard/8: 2 frames; 2.422s
+RR38 CALIBRATION SHARD rear/guard/44: 2 frames; 2.408s
+RR38 CALIBRATION SHARD rear/move/12: 2 frames; 2.422s
+RR38 CALIBRATION SHARD rear/move/32: 2 frames; 2.411s
+RR38 CALIBRATION SHARD rear/move/16: 3 frames; 3.338s
+RR38 CALIBRATION SHARD rear/pin/28: 1 frames; 1.446s
+RR38 CALIBRATION SHARD rear/pin/36: 1 frames; 1.418s
+RR38 CALIBRATION SHARD rear/move/36: 4 frames; 4.298s
+RR38 CALIBRATION SHARD rear/press/8: 1 frames; 1.790s
+RR38 CALIBRATION SHARD rear/press/40: 1 frames; 1.804s
+RR38 CALIBRATION SHARD rear/reel/28: 1 frames; 1.441s
+RR38 CALIBRATION SHARD rear/reel/48: 4 frames; 4.327s
+RR38 CALIBRATION SHARD rear/reel/52: 4 frames; 4.418s
+RR38 CPU/NATIVE CALIBRATION: PASS (263/263 frame/kind signatures; 314 native errors; 0 misses)
+MODULE test_rr38_feedback3: 90.376s
+RR38 BONE SAMPLES: PASS (1352 poses; headless transforms only)
+MODULE test_rr38_gaoler: 15.403s
+MODULE test_rr42_feedback2: 4.497s
+
+test_motion_targets_and_reference_compilation_unchanged (tests.test_rr42_gaoler.GaolerPaintTests) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.062s
+
+OK
+
+RR42 TRACKED-ONLY MOTION TEST: PASS (5217 tracked files; ignored production_case absent)
+MODULE test_rr42_feedback3: 1.623s
+MODULE test_rr42_gaoler: 41.029s
+RR44 NATIVE RELEASE: PASS (4 hash-bound native layers; no recoloured pixel can earn an exemption)
+RR44 ADOPTED CAPS: PASS (visible sleeve and hidden cap retain the same approved RGBA after density)
+RR44 PRESS/FOLLOW: PASS (22px authored lift retained; body frame decision resolved)
+RR44 HELD SOURCE: PASS (boot ink removed from held item; isolated held item, detached grip and recolour rejected)
+MQ15_ACCEPTANCE: PASS; {"heights": {"front": {"head_to_sole_px": 828, "head_top_px": 181, "helm_to_sole_px": 817.6923951132571, "helm_top_px": 191.30760488674287, "sole_bottom_px": 1009}, "rear": {"head_to_sole_px": 841, "head_top_px": 127, "helm_to_sole_px": 830.7375068832291, "helm_top_px": 137.26249311677083, "sole_bottom_px": 968}}, "mass": {"barrel_chest": true, "closed_native_forms": true, "cloth": true, "gloved_grip": true, "mass": true, "no_part_holes": true, "no_see_through": true, "open_front": true}, "pose": {"feet_planted": true, "front_chain_side": true, "level_shoulders_3d": true, "native_endpoints": true, "native_joint_inventory": true, "native_projection": true, "rear_chain_side": true, "shoulder_rule": true}, "proportions": {"helm_height": true, "knee_to_sole": true, "pelvis_to_knee": true, "shoulder_width": true, "torso_height": true, "total_height": true}, "turn": {"front_lower_foot_right": true, "front_proper_rotation": true, "rear_is_half_turn": true, "rear_lower_foot_right": true, "rear_not_mirror": true, "rear_proper_rotation": true}}
+MQ15_COMMIT_CURATION: PASS; bytes=5939586; files=204
+RR44 MAQUETTE LEGACY: PASS (every historical mq-15 row and capture hash unchanged)
+RR44 PAINTED ELBOW/OWNERSHIP: PASS (exact source boundary ownership; registered paint; RGBA/depth/weight mutations fail)
+RR44 PACKED FOOTPRINTS: PASS (16 overlapping masks; both skin families, source/native origins and every UV choice identical)
+RR44 REAR OWNERSHIP: PASS (158 exact arm/glove/chain edge texels; director-opaque body cannot be claimed)
+RR44 RELEASE SOURCE: PASS (every rigid link certified; recolour, scale and pre-release mutations fail)
+MODULE test_rr44_feedback1: 23.662s
+RR44 F2 DENSITY ORACLE: PASS (13 cap crops reconstructed from their own garments; no cap PNG or production source input)
+RR44 F2 EFFECTIVE PAINT: PASS (168 frozen r1 RGBA values at existing approved UVs; recolour, clear and wrong clip rejected)
+RR44 F2 FLAT RATCHET: PASS (4202 regions; +2 allowed; +3 and new region fail)
+RR44 F2 NATIVE REPLAY FIXTURE: PASS (892 poses; 14 exact native-origin anchors)
+RR44 F2 PAINT AUTHORITY: PASS (20 exact source regions; recolour and clear rejected)
+RR44 F2 NATIVE RGBA: PASS (both hash-bound idle frames; single painted-pixel recolour fails)
+RR44 F2 NATIVE BOOT FIXTURE: PASS (rear guard 42, move 21 and reel 28 reject detached 20–39px slivers)
+RR44 F2 NATIVE GRIP FIXTURE: PASS (rear hit 15 and front reel 63 reject; full native RGBA/hash bound)
+RR44 F2 NATIVE RELEASE JOINT: PASS (hash-bound rear death 31; 6px released grip opening; body-joint mutation still fails)
+RR44 F2 PRESENTED GRIP: PASS (fresh poses; detached painted-grip mutation fails)
+RR44 F2 CAP ALIGNMENT: PASS (fresh move 13 and released death; shifted helper and missing alignment rejected)
+RR44 F2 NATIVE RIGID TRANSFORMS: PASS (front/rear native released death RGBA; no inferred second origin snap)
+RR44 F2 JOINT/OWNERSHIP: PASS (exact own-paint caps; boot/belt ownership; cap recolour fails)
+RR44 F2 FAR SLEEVE: PASS (both visible skinned contours byte-identical to hash-bound approved r1 geometry)
+MODULE test_rr44_feedback2: 15.351s
+RR44 BODY FOLLOW: PASS (generated angle active; root/pelvis/body motion alone cannot move hook)
+RR44 MOTION: PASS (both elbows, both pendulums, rigid attached chain; every authored/presented frame)
+RR44 TWO-LEG WALK MUTATION: PASS (both views; displaced planted foot fails)
+RR44 FOREIGN COMPILATION: PASS (all nine reference sets unchanged)
+RR44 HELD FOLLOW: PASS (world/moving-root implementations; zero gain, zero lag and locked chain rejected)
+RR44 ELBOW/PENDULUM MUTATIONS: PASS (inverted elbow, missing policy, static far arm rejected)
+MODULE test_rr44_motion: 53.604s
+RR46 arc_thrall PRESERVATION: PASS (412 protected files)
+MODULE test_rr46_preserve_arc_thrall: 0.080s
+RR46 briar_weaver PRESERVATION: PASS (113 protected files)
+MODULE test_rr46_preserve_briar_weaver: 0.047s
+RR46 chainbound_gaoler PRESERVATION: PASS (279 protected files)
+MODULE test_rr46_preserve_chainbound_gaoler: 0.057s
+RR46 glacial_mirror PRESERVATION: PASS (137 protected files)
+MODULE test_rr46_preserve_glacial_mirror: 0.036s
+RR46 gloam_stalker PRESERVATION: PASS (121 protected files)
+MODULE test_rr46_preserve_gloam_stalker: 0.048s
+RR46 hoarfrost_seer PRESERVATION: PASS (366 protected files)
+MODULE test_rr46_preserve_hoarfrost_seer: 0.071s
+RR46 hollow_mimic PRESERVATION: PASS (103 protected files)
+MODULE test_rr46_preserve_hollow_mimic: 0.039s
+RR49 BASELINE: PASS (52/52; source=24 idle=24 released=4; omitted-category mutations rejected)
+RR49 SUBMITTED GEOMETRY: PASS (892 fresh frames; 100 idle frames; buffer, skin, texture, duplicate-transform and missing-policy mutations rejected)
+RR49 ROOT TRANSFORM: {"checks":1184,"detached_mutation_quads":{"NE":16,"NW":16,"SE":16,"SW":16},"errors":[],"facings":4,"native":false,"quad_checks":256}
+RR10 SHEETS: PASS (0 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr49-compose-routing-yyt2zgo4/sheets)
+RR10 SHEETS: PASS (0 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr49-compose-routing-yyt2zgo4/sheets)
+RR49 SHEETS ROUTING: PASS (strict release oracle forwarded; generic default unchanged)
+MODULE test_rr49_native: 47.698s
+RR50 PAIRED RUN 1: {"fallback_median_us": 4742, "fast_median_us": 2375, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 1.99663157894737, "view": "front"}
+RR50 PAIRED RUN 1: {"fallback_median_us": 4308, "fast_median_us": 2201, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 1.95729213993639, "view": "rear"}
+RR50 ABSOLUTE RUN 1: median=1480 us; max=2333 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 PAIRED RUN 2: {"fallback_median_us": 4773, "fast_median_us": 2199, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.17053206002729, "view": "front"}
+RR50 PAIRED RUN 2: {"fallback_median_us": 4312, "fast_median_us": 2027, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.12728169708929, "view": "rear"}
+RR50 ABSOLUTE RUN 2: median=1496 us; max=2454 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 PAIRED RUN 3: {"fallback_median_us": 4793, "fast_median_us": 2213, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.16583822864889, "view": "front"}
+RR50 PAIRED RUN 3: {"fallback_median_us": 4344, "fast_median_us": 2053, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.11592791037506, "view": "rear"}
+RR50 ABSOLUTE RUN 3: median=1447 us; max=2471 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 PAIRED RUN 4: {"fallback_median_us": 4787, "fast_median_us": 2201, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.17492049068605, "view": "front"}
+RR50 PAIRED RUN 4: {"fallback_median_us": 4348, "fast_median_us": 2034, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.13765978367748, "view": "rear"}
+RR50 ABSOLUTE RUN 4: median=1442 us; max=2292 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 PAIRED RUN 5: {"fallback_median_us": 4722, "fast_median_us": 2195, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.15125284738041, "view": "front"}
+RR50 PAIRED RUN 5: {"fallback_median_us": 4298, "fast_median_us": 2038, "minimum_speedup": 1.6, "ok": true, "samples": 1071, "speedup": 2.10893032384691, "view": "rear"}
+RR50 ABSOLUTE RUN 5: median=1440 us; max=2304 us; headroom=2.0
+RR49 SUBMISSION COST: PASS (18 clip/views; 2 interleaved views; headroom=2.0)
+RR50 CLEAN TIMING: PASS (5/5 paired and absolute guards under task runner)
+RR50 CACHE PAYLOAD: PASS {"errors":[],"ok":true,"views":[{"idle_full_bytes":3273856,"maximum_bytes":4194304,"mixed_full_bytes":3293248,"motion_full_bytes":3312640,"view":"front"},{"idle_full_bytes":2884352,"maximum_bytes":4194304,"mixed_full_bytes":2902272,"motion_full_bytes":2920192,"view":"rear"}]}
+RR50 CAPACITY MUTATION: PASS (128 exceeds 4 MiB in both views)
+RR49 COST MUTATIONS: PASS (disabled cache loses repeat hits; legacy per-mesh scalar path exceeds timing budget)
+RR49 EXACT IDENTITY: PASS (8364 poses; 304685 polygon buffers; actual one-vertex mutation caught)
+RR50 FAST-PATH MUTATION: PASS (reviewer production patch rejected; [{"fallback_median_us": 4782, "fast_median_us": 4789, "minimum_speedup": 1.6, "ok": false, "samples": 1071, "speedup": 0.998538316976404, "view": "front"}, {"fallback_median_us": 4325, "fast_median_us": 4327, "minimum_speedup": 1.6, "ok": false, "samples": 1071, "speedup": 0.999537785994916, "view": "rear"}])
+RR50 PIN AUDIT: PASS (only stable_paint.gd and stable_skin.gd; both unapproved-byte mutations rejected)
+RR49 RELOAD: PASS (5 helpers; identical front/rear buffers; legacy double-load mutation caught)
+MODULE test_rr49_submission: 148.156s

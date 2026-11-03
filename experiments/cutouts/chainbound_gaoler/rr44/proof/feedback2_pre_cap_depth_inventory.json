@@ -1,0 +1,344 @@
+{
+  "frames": 892,
+  "native_calibrated": true,
+  "errors": [
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 21,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_move_021_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 22,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_move_022_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 23,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_move_023_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 41,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_move_041_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 42,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_move_042_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 43,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_move_043_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 32,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_reel_032_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 33,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_reel_033_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 34,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_reel_034_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 35,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_reel_035_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 36,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_reel_036_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 37,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_reel_037_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 38,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_reel_038_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 39,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_reel_039_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 40,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_reel_040_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 41,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_reel_041_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "reel",
+      "frame": 59,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_reel_059_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "pin",
+      "frame": 28,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_pin_028_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "press",
+      "frame": 1,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_press_001_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 10,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_guard_010_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 9,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_hit_009_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 12,
+      "kinds": [
+        "flat_region"
+      ],
+      "crop": "proof/logs/rr44_crops/front_hit_012_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 61,
+      "kinds": [
+        "foreign",
+        "missing",
+        "seam"
+      ],
+      "crop": "proof/logs/rr44_crops/front_death_061_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 62,
+      "kinds": [
+        "foreign"
+      ],
+      "crop": "proof/logs/rr44_crops/front_death_062_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 63,
+      "kinds": [
+        "foreign"
+      ],
+      "crop": "proof/logs/rr44_crops/front_death_063_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 64,
+      "kinds": [
+        "foreign"
+      ],
+      "crop": "proof/logs/rr44_crops/front_death_064_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 65,
+      "kinds": [
+        "foreign"
+      ],
+      "crop": "proof/logs/rr44_crops/front_death_065_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 66,
+      "kinds": [
+        "foreign"
+      ],
+      "crop": "proof/logs/rr44_crops/front_death_066_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 67,
+      "kinds": [
+        "foreign"
+      ],
+      "crop": "proof/logs/rr44_crops/front_death_067_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 68,
+      "kinds": [
+        "foreign"
+      ],
+      "crop": "proof/logs/rr44_crops/front_death_068_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 69,
+      "kinds": [
+        "foreign"
+      ],
+      "crop": "proof/logs/rr44_crops/front_death_069_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 70,
+      "kinds": [
+        "foreign"
+      ],
+      "crop": "proof/logs/rr44_crops/front_death_070_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 82,
+      "kinds": [
+        "foreign"
+      ],
+      "crop": "proof/logs/rr44_crops/front_death_082_cpu_4x.webp"
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 83,
+      "kinds": [
+        "foreign"
+      ],
+      "crop": "proof/logs/rr44_crops/front_death_083_cpu_4x.webp"
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 46,
+      "kinds": [
+        "painted_exposure"
+      ],
+      "crop": "proof/logs/rr44_crops/rear_move_046_cpu_4x.webp"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 30,
+      "kinds": [
+        "missing",
+        "seam"
+      ],
+      "crop": "proof/logs/rr44_crops/rear_death_030_cpu_4x.webp"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 31,
+      "kinds": [
+        "missing",
+        "seam"
+      ],
+      "crop": "proof/logs/rr44_crops/rear_death_031_cpu_4x.webp"
+    }
+  ],
+  "status": "superseded by backing-depth, redundant-edge and release-adjacency corrections"
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "mutation": "equipment_180",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "fit_shrinks_type",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "shared_minimum_removed",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "rules_shrink",
+    "rejected": true,
+    "returncode": 1
+  }
+]

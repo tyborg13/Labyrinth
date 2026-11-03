@@ -54,6 +54,14 @@ All case paths are relative to the directory containing `cutout.json`, including
 
 A layout declares `canvas_size: [255,255]`, `facing`, a `joints` dictionary (global bind `position` and parent name/null), and `parts`. Each part has a unique name, PNG `file`, global source `offset`, controlling `bone`, global `z_index`, and optional `equipment_slot`. Optional `joint_meshes` replace named parts. The special `cape_mesh` replaces the cape-segment sprites as in the production loader.
 
+Humanoid `held_items` may opt into `source_grip: [x,y]`, a registered painted
+grip point shared by the item and its gripping hand. This is needed when the
+hand joint marks the wrist rather than the painted shaft centre. The sampler
+transports that point through the hand and retains the item's authored world
+angle; rest registration and release timing stay unchanged. Omit the field to
+retain the existing hand-joint pivot arithmetic. The Lancer's rr-43 case measures
+this point from the painted shaft axis and its existing hand joint.
+
 Meshes contain source-space `vertices`, crop-local `uvs`, explicit three-index `triangles`, and one normalized `weights` array per influencing bone. A shared `family` requires identical weights at coincident vertices. `rest_source` and its optional digest refer to a baked 255px assembled silhouette. The preview bakes fresh rest images once even when an existing rest file is supplied.
 
 ## Explicit ownership and mesh recipes

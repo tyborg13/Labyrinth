@@ -60,7 +60,7 @@ func _run() -> void:
 		var point: Vector2 = board.get_global_transform_with_canvas() * rect.get_center()
 		await _hover(point)
 		_expect(root.gui_get_hovered_control() == board, label + ": pointer reaches the actual board")
-		_expect(str(board.call("_get_tooltip", rect.get_center())).begins_with("Wooden crate\n3/3 HP"), label + ": hovered subject is the living crate")
+		_expect(str((board.call("tile_tooltip_detail", board.call("_get_tooltip", rect.get_center())) as Dictionary)["text"]).begins_with("Wooden crate\n3/3 HP"), label + ": hovered subject is the living crate")
 		_expect(_visible_tooltips(board) == 1, label + ": actual crate tooltip exists before transition")
 		await _capture(label + "_combat_crate")
 		# Keep the pointer stationary through the live victory overlay and reward view.

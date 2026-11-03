@@ -1,0 +1,83 @@
+[
+  {
+    "name": "no_freeze",
+    "caught": true,
+    "exit": 1,
+    "parse_error": false,
+    "summary": [
+      "BOARD STATUS PLATES TEST RESULT: FAIL (28181 assertions; 12 failures)"
+    ]
+  },
+  {
+    "name": "no_keywords",
+    "caught": true,
+    "exit": 1,
+    "parse_error": false,
+    "summary": [
+      "BOARD STATUS PLATES TEST RESULT: FAIL (28181 assertions; 15 failures)"
+    ]
+  },
+  {
+    "name": "no_truesight",
+    "caught": true,
+    "exit": 1,
+    "parse_error": false,
+    "summary": [
+      "BOARD STATUS PLATES TEST RESULT: FAIL (28181 assertions; 15 failures)"
+    ]
+  },
+  {
+    "name": "no_defenses",
+    "caught": true,
+    "exit": 1,
+    "parse_error": false,
+    "summary": [
+      "BOARD STATUS PLATES TEST RESULT: FAIL (28181 assertions; 24 failures)"
+    ]
+  },
+  {
+    "name": "no_group_avoidance",
+    "caught": true,
+    "exit": 1,
+    "parse_error": false,
+    "summary": [
+      "BOARD STATUS PLATES TEST RESULT: FAIL (28181 assertions; 418 failures)"
+    ]
+  },
+  {
+    "name": "no_neighbour_key",
+    "caught": true,
+    "exit": 1,
+    "parse_error": false,
+    "summary": [
+      "BOARD STATUS PLATES TEST RESULT: FAIL (28181 assertions; 4 failures)"
+    ]
+  },
+  {
+    "name": "no_intent_obstacles",
+    "caught": true,
+    "exit": 1,
+    "parse_error": false,
+    "summary": [
+      "BOARD STATUS PLATES TEST RESULT: FAIL (28181 assertions; 5 failures)"
+    ]
+  },
+  {
+    "name": "no_crest_obstacles",
+    "caught": false,
+    "exit": 0,
+    "parse_error": false,
+    "summary": [
+      "BOARD STATUS PLATES TEST RESULT: PASS (28181 assertions; 0 failures)"
+    ]
+  },
+  {
+    "name": "no_intent_clearance",
+    "caught": true,
+    "exit": 1,
+    "parse_error": false,
+    "summary": [
+      "BOARD STATUS PLATES TEST RESULT: FAIL (28181 assertions; 4 failures)"
+    ]
+  }
+]

@@ -20,9 +20,11 @@ func _initialize() -> void:
 		for clip: String in ["idle", "walk"]:
 			var samples: Array[float] = []
 			for rig: Node2D in rigs:
+				var layout: Dictionary = rig.get("layout")
+				var sampled_clip: String = "move" if clip == "walk" and str(layout.get("rig", "")) == "humanoid_v2" else clip
 				for frame: int in range(96):
 					var started: int = Time.get_ticks_usec()
-					rig.call("apply_pose", clip, float(frame % 48)/48.0)
+					rig.call("apply_pose", sampled_clip, float(frame % 48)/48.0)
 					samples.append(float(Time.get_ticks_usec()-started))
 			phases[clip] = _stats(samples)
 		poses[actor] = phases
@@ -58,7 +60,9 @@ func _create_rigs(actors: Array) -> Array[Node2D]:
 	var rigs: Array[Node2D] = []
 	for actor: String in actors:
 		var family: String = "guardian" if GuardianRenderer.handles(actor) else actor
-		var script: Script = load("res://scripts/%s_cutout/rig.gd" % family)
+		var legacy_path: String = "res://scripts/%s_cutout/rig.gd" % family
+		var path: String = legacy_path if ResourceLoader.exists(legacy_path) else "res://assets/units/%s_cutout/rig.gd" % family
+		var script: Script = load(path)
 		for facing: String in ["front", "rear"]:
 			var rig: Node2D = script.new()
 			rig.set("facing", facing)

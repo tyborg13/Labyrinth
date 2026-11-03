@@ -1,0 +1,58 @@
+[
+  {
+    "mutation": "hud_registration_key",
+    "file": "scripts/combat_board_view.gd",
+    "old": "\"cutout_registrations\": _cutout_floor_registrations(hud_units)",
+    "new": "\"cutout_registrations\": {}",
+    "expected_failure": "HUD registration key invalidates cached pose"
+  },
+  {
+    "mutation": "warmup_restore_hover",
+    "file": "scripts/board_hover_hud_warmup.gd",
+    "old": "board._hover_tile = hover",
+    "new": "board._hover_tile = Vector2i(3, 3)",
+    "expected_failure": "Warmup restores hover/focus before submission returns"
+  },
+  {
+    "mutation": "torch_live_clock",
+    "file": "scripts/combat_board_view.gd",
+    "old": "var cycle: float = wrapf(particle_template.cycle_phase + time_seconds * particle_template.speed, 0.0, 1.0)",
+    "new": "var cycle: float = wrapf(particle_template.cycle_phase, 0.0, 1.0)",
+    "expected_failure": "Live torch cycle preserves every ordered sprite/trail command"
+  },
+  {
+    "mutation": "badge_catalog_keys",
+    "file": "scripts/intent_badges.gd",
+    "old": "definitions, engine._relic_effects",
+    "new": "[], engine._relic_effects",
+    "expected_failure": "Badge catalog mutation invalidates presentation and orders"
+  },
+  {
+    "mutation": "overlay_leader_key",
+    "file": "scripts/combat_board_view.gd",
+    "old": "\"leader\": WarbandView.command_leader(self)",
+    "new": "\"leader\": {}",
+    "expected_failure": "Retained overlay draw inputs/glow geometry match independent selectors"
+  },
+  {
+    "mutation": "overlay_burrow_key",
+    "file": "scripts/combat_board_view.gd",
+    "old": "\"burrow_marks\": BurrowView.marks(combat_state)",
+    "new": "\"burrow_marks\": []",
+    "expected_failure": "Retained overlay draw inputs/glow geometry match independent selectors"
+  },
+  {
+    "mutation": "overlay_burst_key",
+    "file": "scripts/combat_board_view.gd",
+    "old": "\"burst_tiles\": DeathBurstView.focused_tiles(self)",
+    "new": "\"burst_tiles\": []",
+    "expected_failure": "Retained overlay draw inputs/glow geometry match independent selectors"
+  },
+  {
+    "mutation": "overlay_zone_key",
+    "file": "scripts/combat_board_view.gd",
+    "old": "\"zone_tags\": ThreatTiles.zone_tags((presentation.get(\"threats_at_rest\", {}) as Dictionary).get(\"threats\", []))",
+    "new": "\"zone_tags\": []",
+    "expected_failure": "Retained overlay draw inputs/glow geometry match independent selectors"
+  }
+]

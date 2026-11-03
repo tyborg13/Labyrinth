@@ -1,0 +1,8 @@
+{
+ "front": {
+  "far": [96, 215],
+  "near": [140, 245],
+  "kind": "feet",
+  "note": "Sabaton tips annotated on the painting (lowest opaque pixel of each foot). Feet, as for the Cantor and Reaver take two: the stoop flattens the shoulder line."
+ }
+}

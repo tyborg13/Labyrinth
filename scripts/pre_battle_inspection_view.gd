@@ -10,6 +10,9 @@ const InkPool = preload("res://scripts/ui_ink_pool_stage.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const GuardianLibrary = preload("res://scripts/guardian_library.gd")
+const CapacitorView = preload("res://scripts/enemy_mechanics/capacitor_view.gd")
+const BurstTraitText = preload("res://scripts/enemy_mechanics/burst_trait_text.gd")
+const Lob = preload("res://scripts/enemy_mechanics/marked_strike.gd")
 
 static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> Control:
 	var definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
@@ -59,7 +62,9 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	var initiative := View.label("Base initiative %d" % int(definition.get("base_initiative", 0)), 17, Palette.STEEL)
 	initiative.name = "PreBattleEnemyInitiativeLine"
 	identity.add_child(initiative)
-	identity.add_child(View.label(str(host.call("_pre_battle_enemy_threat_summary", str(enemy.get("type", "")))), 14, Palette.TEXT_2))
+	# The Burst trait row below already states a Tick's headline threat.
+	if not definition.has("death_burst"):
+		identity.add_child(View.label(str(host.call("_pre_battle_enemy_threat_summary", str(enemy.get("type", "")))), 14, Palette.TEXT_2))
 	if interactive:
 		var close_button := CloseSocket.new()
 		close_button.name = "PreBattleInspectionCloseButton"
@@ -76,6 +81,8 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 		var battle: Dictionary = host.get("_pre_battle_preview_run_state").get("combat_state", {})
 		var order: String = preload("res://scripts/warband_combat_rules.gd").order_line(battle.get("objective", {}))
 		if not order.is_empty(): content.add_child(rules_label(order, "WarbandCaptainOrder", 600.0))
+	var burst_trait: Dictionary = preload("res://scripts/enemy_mechanics/death_burst_view.gd").trait_token(enemy)
+	if not burst_trait.is_empty(): content.add_child(build_trait(burst_trait))
 	content.add_child(View.section("KNOWN MOVES"))
 	var moves := VBoxContainer.new()
 	moves.name = "PreBattleKnownMoves"
@@ -83,7 +90,8 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	content.add_child(moves)
 	for intent: Dictionary in host.call("_pre_battle_known_enemy_intents", str(enemy.get("type", ""))):
 		var battle: Dictionary = host.get("_pre_battle_preview_run_state").get("combat_state", {})
-		moves.add_child(build_move(host, preload("res://scripts/warband_combat_rules.gd").intent(battle, enemy, intent)))
+		var shown: Dictionary = preload("res://scripts/warband_combat_rules.gd").intent(battle, enemy, intent)
+		moves.add_child(build_move(host, Lob.presentation_intent(host.get("_combat_engine"), battle, enemy, shown)))
 	if moves.get_child_count() == 0:
 		moves.add_child(View.label("No recorded moves.", 14, Palette.TEXT_2))
 	return panel
@@ -98,6 +106,8 @@ static func rules_label(text: String, node_name: String, width: float) -> Label:
 	return result
 
 static func build_move(host: Node, intent: Dictionary) -> Control:
+	var rows: Array = move_rows(intent)
+	var capacitor: bool = CapacitorView.Rules.handles_intent(intent)
 	var plate := Controls.Plate.new()
 	plate.name = "PreBattleKnownMoveRow"
 	plate.top = Palette.INK_2
@@ -110,7 +120,7 @@ static func build_move(host: Node, intent: Dictionary) -> Control:
 	var socket := Socket.new()
 	socket.socket_size = 40.0
 	socket.interactive = false
-	var key: String = str(host.call("_pre_battle_known_move_icon_key", intent))
+	var key: String = str(rows[0][0]["icon"]) if capacitor and not rows.is_empty() else str(host.call("_pre_battle_known_move_icon_key", intent))
 	socket.setup(ActionIcons.icon_texture(key))
 	socket.get_node("Icon").name = "PreBattleKnownMoveIcon"
 	socket.get_node("PreBattleKnownMoveIcon").set_meta("icon_key", key)
@@ -121,7 +131,9 @@ static func build_move(host: Node, intent: Dictionary) -> Control:
 	row.add_child(text_box)
 	text_box.add_child(View.label(str(intent.get("name", "Move")), 18))
 	var actions: Array = intent.get("actions", []) as Array
-	var summary: String = ActionIcons.plain_text_for_rows(ActionIcons.rows_for_actions(actions)).replace("\n", "  /  ")
+	var summary: String = ActionIcons.plain_text_for_rows(rows).replace("\n", "  /  ")
+	if capacitor or actions.any(func(action: Dictionary) -> bool: return str(action.get("type", "")) == "kindle"):
+		plate.tooltip_text = move_tooltip(rows)
 	text_box.add_child(rules_label(summary if not summary.is_empty() else "Recovers." if actions.is_empty() else "Special action", "PreBattleMoveEffect", 410.0))
 	var notes: String = GuardianLibrary.intent_notes(intent)
 	if not notes.is_empty():
@@ -138,3 +150,37 @@ static func build_move(host: Node, intent: Dictionary) -> Control:
 	time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	time_chip.add_child(time_label)
 	return plate
+
+static func move_rows(intent: Dictionary) -> Array:
+	var capacitor: Array = CapacitorView.rows(intent)
+	return capacitor if not capacitor.is_empty() else ActionIcons.rows_for_actions(intent.get("actions", []))
+
+static func move_tooltip(rows: Array) -> String:
+	var details := PackedStringArray()
+	for row: Array in rows:
+		for token: Dictionary in row:
+			var detail: String = ActionIcons.token_tooltip(token)
+			if not detail.is_empty() and not details.has(detail): details.append(detail)
+	return "\n".join(details)
+
+static func build_trait(burst_trait: Dictionary) -> Control:
+	var row := HBoxContainer.new()
+	row.name = "EnemyBurstTrait"
+	row.add_theme_constant_override("separation", 10)
+	var socket := Socket.new()
+	socket.socket_size = 40.0
+	socket.interactive = false
+	socket.setup(ActionIcons.icon_texture("burst"))
+	row.add_child(socket)
+	var text := VBoxContainer.new()
+	text.custom_minimum_size.x = BurstTraitText.WIDTH
+	text.add_theme_constant_override("separation", 2)
+	row.add_child(text)
+	var title := View.label(str(burst_trait["value"]), 18)
+	title.name = "EnemyBurstTraitTitle"
+	text.add_child(title)
+	var rules := rules_label(str(burst_trait["tooltip"]), "EnemyBurstTraitRules", BurstTraitText.WIDTH)
+	rules.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	text.add_child(rules)
+	row.tooltip_text = str(burst_trait["tooltip"])
+	return row

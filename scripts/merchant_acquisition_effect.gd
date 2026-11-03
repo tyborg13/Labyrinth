@@ -11,6 +11,9 @@ var reduced_motion: bool = false
 var selling: bool = false
 var proxy: Control
 var _elapsed: float = 0.0
+var _glow_layers: Array[StyleBoxFlat]
+var _star_points := PackedVector2Array()
+var _ribbon_points := PackedVector2Array()
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -20,7 +23,24 @@ func _ready() -> void:
 	proxy.pivot_offset = origin.size * 0.5
 	proxy.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(proxy)
+	_star_points.resize(4)
+	_ribbon_points.resize(40)
+	_prepare_warm_glow()
 	_update_pose()
+
+func _prepare_warm_glow() -> void:
+	for layer: int in range(5):
+		var glow := StyleBoxFlat.new()
+		glow.set_corner_radius_all(14 + layer * 5)
+		glow.shadow_size = 12 + layer * 6
+		_glow_layers.append(glow)
+
+func _draw_warm_glow(strength: float) -> void:
+	for layer: int in range(_glow_layers.size()):
+		var glow: StyleBoxFlat = _glow_layers[layer]
+		glow.bg_color = Color(ACCENT, strength * 0.018)
+		glow.shadow_color = Color(ACCENT, strength * 0.09)
+		draw_style_box(glow, origin.grow(5 + layer * 4))
 
 func _process(delta: float) -> void:
 	_elapsed += delta
@@ -49,23 +69,16 @@ func _draw() -> void:
 	var burst: float = clampf(_elapsed / 0.35, 0, 1)
 	var strength: float = sin(burst * PI)
 	var center: Vector2 = origin.get_center()
-	for layer: int in range(5):
-		var glow := StyleBoxFlat.new()
-		glow.bg_color = Color(ACCENT, strength * 0.018)
-		glow.set_corner_radius_all(14 + layer * 5)
-		glow.shadow_color = Color(ACCENT, strength * 0.09)
-		glow.shadow_size = 12 + layer * 6
-		draw_style_box(glow, origin.grow(5 + layer * 4))
+	_draw_warm_glow(strength)
 	for index: int in range(12):
 		var angle: float = float(index) * TAU / 12.0 + 0.3
 		var direction := Vector2(cos(angle), sin(angle))
 		_star(center + direction * (45 + burst * 58), (2 + index % 3) * strength, Color(ACCENT, strength * 0.8))
 	var flight: float = smoothstep(0.23, 0.73, _elapsed)
 	if flight > 0 and flight < 1:
-		var points := PackedVector2Array()
 		for index: int in range(40):
-			points.append(_path(maxf(0, flight - 0.19 + 0.19 * float(index) / 39.0)))
-		_ribbon(points, sin(flight * PI))
+			_ribbon_points[index] = _path(maxf(0, flight - 0.19 + 0.19 * float(index) / 39.0))
+		_ribbon(_ribbon_points, sin(flight * PI))
 	var arrival: float = clampf((_elapsed - 0.68) / 0.26, 0, 1)
 	for index: int in range(9):
 		var direction := Vector2.from_angle(float(index) * TAU / 9.0)
@@ -90,5 +103,9 @@ func _ribbon(points: PackedVector2Array, alpha: float) -> void:
 
 func _star(center: Vector2, radius: float, tint: Color) -> void:
 	if radius < 0.25 or tint.a < 0.015: return
-	draw_colored_polygon(PackedVector2Array([center + Vector2(-radius, 0), center + Vector2(0, -radius * 1.6), center + Vector2(radius, 0), center + Vector2(0, radius * 1.6)]), tint)
+	_star_points[0] = center + Vector2(-radius, 0)
+	_star_points[1] = center + Vector2(0, -radius * 1.6)
+	_star_points[2] = center + Vector2(radius, 0)
+	_star_points[3] = center + Vector2(0, radius * 1.6)
+	draw_colored_polygon(_star_points, tint)
 	draw_line(center + Vector2(-radius * 2, 0), center + Vector2(radius * 2, 0), Color(tint, tint.a * 0.4), 1, true)

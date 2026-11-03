@@ -5,6 +5,53 @@ const Committed = preload("res://scripts/guardian_combat_rules.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Fields = preload("res://scripts/dragon_pressure_fields.gd")
 
+static func initialize(engine: RefCounted, state: Dictionary) -> void:
+	if not state.get("battlefield_rule", {}).is_empty(): return
+	for enemy: Dictionary in state.get("enemies", []):
+		var key: String = str(engine.GameData.enemy_def(str(enemy.get("type", ""))).get("battlefield_instance", ""))
+		if key.is_empty(): continue
+		engine.BattlefieldRules.install(engine, state, engine.BattlefieldRules.instance_for(key, int(enemy["id"])))
+		return
+
+# Only dragon-owned Outcrops fuel Faultline. A player Outcrop with the same
+# numeric actor id is not the source's stone.
+static func owned_stone(state: Dictionary, owner_id: int = -1) -> Array[Dictionary]:
+	var sources: Dictionary = {}
+	for enemy: Dictionary in state.get("enemies", []):
+		if str(enemy.get("type", "")) == "tharokh": sources[int(enemy["id"])] = true
+	var result: Array[Dictionary]
+	for terrain: Dictionary in state.get("terrain", []):
+		var id: int = int(terrain.get("owner_id", -1))
+		if str(terrain.get("kind", "")) == "crag_outcrop" and str(terrain.get("owner_kind", "")) == "enemy" and sources.has(id) and (owner_id < 0 or id == owner_id) and int(terrain.get("hp", 0)) > 0: result.append(terrain)
+	return result
+
+static func migrate_save(value: Variant) -> void:
+	if value is Array:
+		for child: Variant in value: migrate_save(child)
+	elif value is Dictionary:
+		value.erase("dive_wake")
+		if str(value.get("record_trail", "")) == "dive_wake": value.erase("record_trail")
+		if str(value.get("kind", "")) == "dragon_spire":
+			value["kind"] = "crag_outcrop"
+			value["owner_kind"] = "enemy"
+		if str(value.get("type", "")) in ["vyraketh", "tharokh", "iskaldra", "vaeloryx", "zekarion", "noctyrax"]:
+			var intent: Dictionary = value.get("intent", {})
+			var kept: Array[Dictionary]
+			for action: Dictionary in intent.get("actions", []):
+				if str(action.get("committed_shape", "")) in ["surface_snapshot", "trail_snapshot"] or str(action.get("field_anchor", "")) == "player" or str(action.get("type", "")) == "raise_terrain": continue
+				if str(value["type"]) == "tharokh" and str(action.get("type", "")) == "terrain_burst":
+					if str(intent.get("id", "")) != "faultline": continue
+					if int(action.get("radius", 0)) != 1: action["radius"] = 1
+				action.erase("record_trail")
+				kept.append(action)
+			if intent.has("actions"): intent["actions"] = kept
+			# Removed riders may have been the only reason this saved intent held
+			# a plan. Keep retained geometry, but do not suppress live movement.
+			if not Committed.has_authored_actions(intent): intent.erase("committed_plan")
+		for key: Variant in value:
+			if str(key) in ["analytics", "analytics_context", "analytics_events", "progression_analytics_outbox", "completed_run_results", "last_run_result", "log", "surface_events", "elemental_source", "rubble_source"]: continue
+			migrate_save(value[key])
+
 static func declare(engine: RefCounted, state: Dictionary, index: int, intents: Array) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
 	# Honor a previously saved first-revision Night Coil warning once. Current
@@ -23,7 +70,6 @@ static func declare(engine: RefCounted, state: Dictionary, index: int, intents: 
 			"cinder_marks":
 				if str(action.get("placement", "")) == "band": action["declared_tiles"] = Fields.band_tiles(engine, state, enemy, int(action.get("count", 7)))
 				else: action["declared_tiles"] = meteor_tiles(engine, state, enemy, int(action.get("count", 5))) if str(action.get("placement", "")) == "scattered" else kindle_tiles(engine, state, enemy, int(action.get("count", 3)))
-			"raise_terrain": action["declared_tiles"] = spire_tiles(engine,state,enemy,int(action.get("count",4)),int(action.get("maximum",4)),str(action.get("placement","")) == "paired")
 			"lightning_strikes": action["declared_tiles"] = Fields.band_tiles(engine,state,enemy,int(action.get("count",7))) if str(action.get("placement","")) == "band" else storm_tiles(engine,state,enemy,int(action.get("count",3)))
 		if bool(action.get("snuff_brazier",false)):
 			var braziers: Array = state.get("guardian_braziers",[])
@@ -102,57 +148,10 @@ static func meteor_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionar
 		result.append(selected)
 	return result
 
-static func spire_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary, count: int, maximum: int = 4, paired: bool = false) -> Array[Vector2i]:
-	var preview: Dictionary = state.duplicate(true)
-	var result: Array[Vector2i]
-	var choices: Array[Vector2i] = Committed.candidates(engine,state,enemy["pos"],state["player"]["pos"],6)
-	var approach: Vector2i = _approach_spire_tile(engine, preview, enemy, choices)
-	while result.size() < count and engine._dragon_spires(preview).size() < maximum:
-		var selected: Vector2i = approach if result.is_empty() else Vector2i(-1, -1)
-		var best_score: int = -99999
-		if selected.x < 0:
-			for tile: Vector2i in choices:
-				if result.has(tile) or engine._enemy_distance_to_tile(enemy,tile) < 1: continue
-				if not spire_preserves_routes(engine, preview, enemy, tile): continue
-				var separation: int = 4
-				for existing: Dictionary in engine._dragon_spires(preview): separation = mini(separation, Paths.manhattan(existing["pos"], tile))
-				# Spread the four future radius-2 bursts across routes. A cluster of
-				# four rocks is still a single cheap dodge, despite its larger count.
-				var score: int = separation * 10 - Paths.manhattan(tile, state["player"]["pos"])
-				if paired:
-					# Stagger paired pressure across the approach. Radius-one pulses
-					# overlap without putting all four rocks in one incidental Sweep.
-					var preferred_gap: int = 2 if result.size() % 2 == 1 else 4
-					score = -absi(separation - preferred_gap) * 20 - Paths.manhattan(tile, state["player"]["pos"]) * 3
-				if score > best_score:
-					best_score = score
-					selected = tile
-		if selected.x < 0: break
-		preview["terrain"].append({"kind":engine.DRAGON_SPIRE_KIND, "pos":selected, "hp":4})
-		result.append(selected)
-	return result
-
-static func _approach_spire_tile(engine: RefCounted, state: Dictionary, enemy: Dictionary, choices: Array[Vector2i]) -> Vector2i:
-	var target: Vector2i = state["player"]["pos"]
-	if engine._enemy_distance_to_tile(enemy, target) < 3 or not engine._dragon_spires(state).is_empty(): return Vector2i(-1, -1)
-	var selected := Vector2i(-1, -1)
-	var nearest_body: int = 99999
-	# At range, reserve one approach flank before spreading the other spires.
-	# The native western approach otherwise cleared its only nearby rock as
-	# incidental boss damage. Close combat retains the existing placement score.
-	for tile: Vector2i in choices:
-		if absi(tile.x - target.x) != 1 or absi(tile.y - target.y) != 1: continue
-		var body_distance: int = engine._enemy_distance_to_tile(enemy, tile)
-		if body_distance < 1 or body_distance >= nearest_body: continue
-		if not spire_preserves_routes(engine, state, enemy, tile): continue
-		selected = tile
-		nearest_body = body_distance
-	return selected
-
 static func spire_preserves_routes(engine: RefCounted, state: Dictionary, enemy: Dictionary, tile: Vector2i) -> bool:
 	if not Committed.preserves_routes(engine, state, tile): return false
 	var preview: Dictionary = state.duplicate(true)
-	preview["terrain"].append({"kind":engine.DRAGON_SPIRE_KIND, "pos":tile, "hp":4})
+	preview["terrain"].append({"kind":"crag_outcrop", "pos":tile, "hp":4})
 	# Structural exits ignore temporary actors. Actual placement still rejects
 	# occupied marks; a nearby player must not cancel every held spire.
 	var blockers: Dictionary = engine._occupied_terrain_tiles(preview)
@@ -183,15 +182,18 @@ static func eclipse_preview(state: Dictionary, action: Dictionary) -> Dictionary
 		if int(brazier["id"]) == int(action.get("brazier_id",-1)): brazier["lit"] = false
 	return preview
 
+# Noctyrax's relight-on-step, also enabled by a room's `brazier_relight_on_step`
+# (Last Light, spx-08). The dragon's own fight keeps its exact event.
 static func relight_brazier(state: Dictionary) -> void:
 	var shadow_dragon_alive: bool = false
 	for enemy: Dictionary in state.get("enemies", []):
 		if str(enemy.get("type", "")) == "noctyrax" and int(enemy.get("hp", 0)) > 0:
 			shadow_dragon_alive = true
 			break
-	if not shadow_dragon_alive: return
+	var room_enabled: bool = bool(state.get("brazier_relight_on_step", false))
+	if not shadow_dragon_alive and not room_enabled: return
 	var position: Vector2i = state["player"]["pos"]
 	for brazier: Dictionary in state.get("guardian_braziers", []):
 		if brazier.get("pos", Vector2i(-1, -1)) != position or bool(brazier.get("lit", true)): continue
 		brazier["lit"] = true
-		Surfaces.record_event(state, {"kind": "dragon_light_restored", "brazier_id": int(brazier["id"]), "tile": position, "trigger": "player_arrival", "source": {"actor_kind": "player"}})
+		Surfaces.record_event(state, {"kind": "dragon_light_restored" if shadow_dragon_alive else "brazier_relit", "brazier_id": int(brazier["id"]), "tile": position, "trigger": "player_arrival", "source": {"actor_kind": "player"}})

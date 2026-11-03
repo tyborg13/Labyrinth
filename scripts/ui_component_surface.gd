@@ -27,6 +27,16 @@ static var _mipmapped_textures: Dictionary = {}
 static var _radial_textures: Dictionary = {}
 static var _socket_materials: Dictionary = {}
 
+# Shared by YOUR KIT and the event Health strip.
+static func style_kit_health_bar(bar: ProgressBar, tint: Color = Palette.ALLY) -> void:
+	var background := StyleBoxFlat.new()
+	background.bg_color = Palette.INK_3
+	background.set_corner_radius_all(2)
+	bar.add_theme_stylebox_override("background", background)
+	var fill := background.duplicate() as StyleBoxFlat
+	fill.bg_color = tint
+	bar.add_theme_stylebox_override("fill", fill)
+
 static func texture_material(fade_start: float = 1.0) -> ShaderMaterial:
 	if _icon_shader == null:
 		_icon_shader = Shader.new()

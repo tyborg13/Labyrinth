@@ -1,0 +1,30 @@
+[
+  {
+    "module": "test_rr49_submission",
+    "resources": [
+      "gaoler"
+    ],
+    "written_paths": [
+      "experiments/cutouts/chainbound_gaoler/ (mq3 native mutation diagnostics; rr38/rr42 case readers and temporary calibration children); assets/units/chainbound_gaoler_cutout/"
+    ],
+    "imports": [],
+    "declared_imports": [],
+    "fixed_tmp_literals": [],
+    "isolated_godot_tasks": [
+      "rr-50"
+    ],
+    "write_call_lines": [
+      32,
+      35,
+      71,
+      72,
+      76,
+      79,
+      83,
+      130,
+      217,
+      217
+    ],
+    "isolation": "explicit shared-resource declaration; same shard for shared paths"
+  }
+]

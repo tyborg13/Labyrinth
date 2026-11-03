@@ -127,7 +127,7 @@
     }
    },
    "move": {
-    "seconds": 0.85,
+    "seconds": 0.5,
     "intents": [
      "arc_jab:move_toward"
     ],

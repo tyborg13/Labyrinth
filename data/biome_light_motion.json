@@ -1,0 +1,538 @@
+{
+  "schema_version": 1,
+  "frames": 16,
+  "grid": [
+    4,
+    4
+  ],
+  "frame_size": [
+    188,
+    344
+  ],
+  "proof_scale": 3,
+  "metric": {
+    "top_fraction": 0.45,
+    "channel_delta": 24
+  },
+  "biomes": {
+    "vyraketh": {
+      "mask": {
+        "bounds": [
+          0,
+          0,
+          38,
+          44
+        ],
+        "hue_degrees": [
+          0,
+          75
+        ],
+        "min_luminance": 0.07,
+        "min_saturation": 0.35
+      },
+      "displacement": {
+        "amplitude": [
+          1.5,
+          2
+        ],
+        "noise_scale": 13,
+        "cycles": [
+          3,
+          2
+        ],
+        "anchor_y": 44,
+        "tip_power": 0.8,
+        "root_strength": 0.35
+      },
+      "flicker_range": 0.1,
+      "flicker_harmonics": [
+        [
+          1,
+          1,
+          0
+        ]
+      ],
+      "glow_range": 0,
+      "particles": {
+        "count": 3,
+        "fade_power": 1,
+        "paths": [
+          {
+            "start": [
+              12,
+              18
+            ],
+            "end": [
+              9,
+              1
+            ],
+            "phase": 0,
+            "duration": 0.42
+          },
+          {
+            "start": [
+              19,
+              22
+            ],
+            "end": [
+              22,
+              3
+            ],
+            "phase": 0.33,
+            "duration": 0.42
+          },
+          {
+            "start": [
+              8,
+              16
+            ],
+            "end": [
+              5,
+              0
+            ],
+            "phase": 0.67,
+            "duration": 0.33
+          }
+        ]
+      },
+      "glint": {
+        "count": 0,
+        "start_y": 48,
+        "end_y": 6,
+        "radius": 4,
+        "gain": 0.8
+      },
+      "strike_frames": [],
+      "strike_gain": 0,
+      "target_percent": [
+        9,
+        13
+      ],
+      "minimum_unique_frames": 16,
+      "motion_mask": null,
+      "glow_dither": [
+        17,
+        29,
+        127
+      ],
+      "glow_cycles": 1,
+      "strike_motion_scale": [],
+      "phase_offset": 0
+    },
+    "noctyrax": {
+      "mask": {
+        "bounds": [
+          0,
+          0,
+          35,
+          42
+        ],
+        "hue_degrees": [
+          255,
+          310
+        ],
+        "min_luminance": 0.06,
+        "min_saturation": 0.3
+      },
+      "displacement": {
+        "amplitude": [
+          2.3,
+          3
+        ],
+        "noise_scale": 13,
+        "cycles": [
+          3,
+          2
+        ],
+        "anchor_y": 42,
+        "tip_power": 0.8,
+        "root_strength": 0.35
+      },
+      "flicker_range": 0.1,
+      "flicker_harmonics": [
+        [
+          1,
+          1,
+          0
+        ]
+      ],
+      "glow_range": 0,
+      "particles": {
+        "count": 0,
+        "fade_power": 1,
+        "paths": []
+      },
+      "glint": {
+        "count": 0,
+        "start_y": 48,
+        "end_y": 6,
+        "radius": 4,
+        "gain": 0.8
+      },
+      "strike_frames": [],
+      "strike_gain": 0,
+      "target_percent": [
+        6,
+        9
+      ],
+      "minimum_unique_frames": 16,
+      "motion_mask": null,
+      "glow_dither": [
+        17,
+        29,
+        127
+      ],
+      "glow_cycles": 1,
+      "strike_motion_scale": [],
+      "phase_offset": 0
+    },
+    "zekarion": {
+      "mask": {
+        "bounds": [
+          0,
+          0,
+          40,
+          54
+        ],
+        "hue_degrees": [
+          250,
+          315
+        ],
+        "min_luminance": 0.08,
+        "min_saturation": 0.12
+      },
+      "displacement": {
+        "amplitude": [
+          7,
+          3
+        ],
+        "noise_scale": 13,
+        "cycles": [
+          3,
+          2
+        ],
+        "anchor_y": 54,
+        "tip_power": 0.8,
+        "root_strength": 0.35
+      },
+      "flicker_range": 0.04,
+      "flicker_harmonics": [
+        [
+          1,
+          0.7,
+          0.07
+        ],
+        [
+          3,
+          0.3,
+          0.13
+        ]
+      ],
+      "glow_range": 0.02,
+      "particles": {
+        "count": 0,
+        "fade_power": 1,
+        "paths": []
+      },
+      "glint": {
+        "count": 0,
+        "start_y": 48,
+        "end_y": 6,
+        "radius": 4,
+        "gain": 0.8
+      },
+      "strike_frames": [
+        2,
+        6,
+        10,
+        15
+      ],
+      "strike_gain": 0.2,
+      "target_percent": [
+        6,
+        12
+      ],
+      "minimum_unique_frames": 16,
+      "motion_mask": null,
+      "glow_dither": [
+        17,
+        29,
+        127
+      ],
+      "glow_cycles": 1,
+      "strike_motion_scale": [
+        1,
+        1,
+        1,
+        0.08
+      ],
+      "phase_offset": 0
+    },
+    "vaeloryx": {
+      "mask": {
+        "bounds": [
+          4,
+          42,
+          34,
+          75
+        ],
+        "hue_degrees": [
+          30,
+          75
+        ],
+        "min_luminance": 0.48,
+        "min_saturation": 0.15
+      },
+      "displacement": {
+        "amplitude": [
+          6,
+          8
+        ],
+        "noise_scale": 13,
+        "cycles": [
+          3,
+          2
+        ],
+        "anchor_y": 72,
+        "tip_power": 0.8,
+        "root_strength": 0.35
+      },
+      "flicker_range": 0.03,
+      "flicker_harmonics": [
+        [
+          3,
+          0.7,
+          0
+        ],
+        [
+          5,
+          0.3,
+          0.13
+        ]
+      ],
+      "glow_range": 0.08,
+      "particles": {
+        "count": 0,
+        "fade_power": 1,
+        "paths": []
+      },
+      "glint": {
+        "count": 0,
+        "start_y": 48,
+        "end_y": 6,
+        "radius": 4,
+        "gain": 0.8
+      },
+      "strike_frames": [],
+      "strike_gain": 0,
+      "target_percent": [
+        2,
+        5
+      ],
+      "minimum_unique_frames": 16,
+      "motion_mask": {
+        "bounds": [
+          8,
+          43,
+          29,
+          72
+        ],
+        "hue_degrees": [
+          30,
+          75
+        ],
+        "min_luminance": 0.48,
+        "min_saturation": 0.1
+      },
+      "glow_dither": [
+        17,
+        29,
+        127
+      ],
+      "glow_cycles": 3,
+      "strike_motion_scale": [],
+      "phase_offset": 0
+    },
+    "tharokh": {
+      "mask": {
+        "bounds": [
+          0,
+          18,
+          47,
+          64
+        ],
+        "hue_degrees": [
+          20,
+          75
+        ],
+        "min_luminance": 0.3,
+        "min_saturation": 0.55
+      },
+      "displacement": {
+        "amplitude": [
+          0,
+          0
+        ],
+        "noise_scale": 13,
+        "cycles": [
+          3,
+          2
+        ],
+        "anchor_y": 64,
+        "tip_power": 0.8,
+        "root_strength": 0.35
+      },
+      "flicker_range": 0,
+      "flicker_harmonics": [
+        [
+          3,
+          0.7,
+          0
+        ],
+        [
+          5,
+          0.3,
+          0.13
+        ]
+      ],
+      "glow_range": 0.12,
+      "particles": {
+        "count": 3,
+        "fade_power": 1,
+        "paths": [
+          {
+            "start": [
+              12,
+              19
+            ],
+            "end": [
+              10,
+              1
+            ],
+            "phase": 0,
+            "duration": 0.65
+          },
+          {
+            "start": [
+              22,
+              20
+            ],
+            "end": [
+              25,
+              3
+            ],
+            "phase": 0.33,
+            "duration": 0.65
+          },
+          {
+            "start": [
+              29,
+              23
+            ],
+            "end": [
+              33,
+              5
+            ],
+            "phase": 0.67,
+            "duration": 0.65
+          }
+        ]
+      },
+      "glint": {
+        "count": 0,
+        "start_y": 48,
+        "end_y": 6,
+        "radius": 4,
+        "gain": 0.8
+      },
+      "strike_frames": [],
+      "strike_gain": 0,
+      "target_percent": [
+        2,
+        4
+      ],
+      "minimum_unique_frames": 12,
+      "motion_mask": null,
+      "glow_dither": [
+        17,
+        29,
+        127
+      ],
+      "glow_cycles": 1,
+      "strike_motion_scale": [],
+      "phase_offset": 0
+    },
+    "iskaldra": {
+      "mask": {
+        "bounds": [
+          0,
+          6,
+          38,
+          49
+        ],
+        "hue_degrees": [
+          180,
+          225
+        ],
+        "min_luminance": 0.35,
+        "min_saturation": 0.15
+      },
+      "displacement": {
+        "amplitude": [
+          0,
+          0
+        ],
+        "noise_scale": 13,
+        "cycles": [
+          3,
+          2
+        ],
+        "anchor_y": 49,
+        "tip_power": 0.8,
+        "root_strength": 0.35
+      },
+      "flicker_range": 0,
+      "flicker_harmonics": [
+        [
+          3,
+          0.7,
+          0
+        ],
+        [
+          5,
+          0.3,
+          0.13
+        ]
+      ],
+      "glow_range": 0.06,
+      "particles": {
+        "count": 0,
+        "fade_power": 1,
+        "paths": []
+      },
+      "glint": {
+        "count": 1,
+        "start_y": 48,
+        "end_y": 6,
+        "radius": 1,
+        "gain": 0.35
+      },
+      "strike_frames": [],
+      "strike_gain": 0,
+      "target_percent": [
+        1,
+        3
+      ],
+      "minimum_unique_frames": 12,
+      "motion_mask": null,
+      "glow_dither": [
+        17,
+        29,
+        127
+      ],
+      "glow_cycles": 1,
+      "strike_motion_scale": [],
+      "phase_offset": 0
+    }
+  }
+}

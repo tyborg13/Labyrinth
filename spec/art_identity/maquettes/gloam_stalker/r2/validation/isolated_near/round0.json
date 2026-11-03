@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "proof_only": true,
+  "label": "cape_near",
+  "spec_hash": "7380522c5bedd5bf67b951d41f13e18fef125b554c81dc1495437241da16aed3",
+  "native_build_sha256": "4c47c088572ae02987f6f6c4a5e1b89adbdc36c546b0af0edd4753a5f5bacb8b",
+  "selected_faces": {
+    "cloak_render": {
+      "faces": 5951,
+      "vertices": 6056,
+      "world_geometry_hash": "84084a84cc8cf0b0a00fdb44c3a90ba3cd23e3bc9163622cac8fe11aade93f4e"
+    },
+    "front_cloak_render": {
+      "faces": 29339,
+      "vertices": 29433,
+      "world_geometry_hash": "092d234317b178c08058ef074c0c9622a1767c8f40bb8811fc8c4d0f553ba3db"
+    }
+  },
+  "solo_sha256": "82c0bd767c0ffd4de1f65e4b3854df45c304c867d85e16a56b7d7ee5f0b3388f",
+  "method": "Native selected cloth faces only; excluded faces removed from a disposable scene, with native board camera, resolution and emission solo settings unchanged."
+}

@@ -10,7 +10,8 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const UI_FONT = preload("res://fonts/LabyrinthCrumble-UI.tres")
 const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
 
-const PANEL_MINIMUM_SIZE := Vector2(820.0, 720.0)
+# Tall enough to show every row at once; shorter screens scroll.
+const PANEL_MINIMUM_SIZE := Vector2(820.0, 836.0)
 const CONTROL_WIDTH: float = 276.0
 const ROW_HEIGHT: float = 56.0
 # The brief supplies the label/options, but no secondary row copy.
@@ -213,7 +214,7 @@ func _build_footer() -> Control:
 	var cancel := Button.new()
 	cancel.text = "Cancel"
 	_style_button(cancel, 120.0, Color("efe4c1"), UiSkin.VARIANT_COMPACT)
-	cancel.pressed.connect(_dismiss_restore_confirmation)
+	cancel.pressed.connect(_cancel_restore_confirmation)
 	confirm_row.add_child(cancel)
 	var confirm := Button.new()
 	confirm.text = "Restore"
@@ -439,6 +440,10 @@ func _show_restore_confirmation() -> void:
 func _dismiss_restore_confirmation() -> void:
 	if _confirmation_panel != null:
 		_confirmation_panel.visible = false
+
+func _cancel_restore_confirmation() -> void:
+	_dismiss_restore_confirmation()
+	_set_status("Saved automatically")
 
 func _confirm_restore_defaults() -> void:
 	_settings = SettingsStore.restore_defaults(get_window())

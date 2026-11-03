@@ -1,0 +1,38 @@
+{
+  "director_files": {
+    "spec/peer_benchmark/staged/rr-43/rear_v2_raw_1024.png": "d3fd34f585647d96daf1f43f71c83396e032cd9f56bbaeac88c42269b718872d",
+    "spec/peer_benchmark/staged/rr-43/recolour_rear.py": "acc62d607d59b2a76c017e6a55e78ce0db20d2f7ea79ea6b047e748b1ff5a4cd",
+    "spec/peer_benchmark/staged/rr-43/.gdignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "spec/peer_benchmark/staged/rr-43/rear_v2_processed.png": "85845e1e0c66ab760afd6671390dfab71f5a20c7e62c3e8b1420b74250c7e8b7",
+    "spec/peer_benchmark/staged/rr-43/director_compare_front_old_new_x3.png": "e7cbb7be09e9aba5aa0b4d90b07c1275639c3e233d55090fd2b4385e2bafc9db",
+    "spec/peer_benchmark/staged/rr-43/prompt_rear_v2_edit.md": "3ac5470bd35bb955f6194f8cfd686214be8aa883746fbc453d8140d612cea180"
+  },
+  "parent_job": "spec/art_identity/jobs/frostglass_lancer/mq14_rear",
+  "registration": {
+    "offset": [
+      0,
+      0
+    ],
+    "scale": 1
+  },
+  "review": {
+    "status": "feedback 1 house outline applied; current sheet pending director judgment",
+    "edge_light_share": 0.0,
+    "edge_light_share_max": 0.06,
+    "exception_approved": false,
+    "round_0_director_verdict": "accepted except missing house outline"
+  },
+  "no_generated_art": true,
+  "outline": {
+    "recipe_step": 4,
+    "tone": [
+      20,
+      16,
+      21
+    ],
+    "neighbours": 4,
+    "changed_rgb_pixels": 1020,
+    "alpha_changed_pixels": 0,
+    "authority": "whole registered silhouette, never individual cuts"
+  }
+}

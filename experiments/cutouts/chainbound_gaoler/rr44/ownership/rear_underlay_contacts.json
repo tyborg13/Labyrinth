@@ -1,0 +1,2697 @@
+{
+  "rule": "director erased-arm alpha; nearest simultaneous eight-connected approved part contact; lexical count ties recorded",
+  "texels": [
+    {
+      "uv": [
+        155,
+        100
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        15,
+        9,
+        11,
+        255
+      ]
+    },
+    {
+      "uv": [
+        156,
+        100
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        153,
+        101
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 6
+      },
+      "rgba": [
+        44,
+        31,
+        32,
+        255
+      ]
+    },
+    {
+      "uv": [
+        154,
+        101
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        43,
+        30,
+        31,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        101
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        18,
+        11,
+        14,
+        255
+      ]
+    },
+    {
+      "uv": [
+        154,
+        102
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        42,
+        29,
+        30,
+        255
+      ]
+    },
+    {
+      "uv": [
+        154,
+        103
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        42,
+        29,
+        30,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        103
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        14,
+        11,
+        11,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        104
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        18,
+        11,
+        14,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        105
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        33,
+        22,
+        24,
+        255
+      ]
+    },
+    {
+      "uv": [
+        156,
+        105
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        156,
+        106
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        156,
+        107
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        28,
+        19,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        157,
+        107
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        157,
+        108
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        9,
+        5,
+        5,
+        255
+      ]
+    },
+    {
+      "uv": [
+        157,
+        109
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        9,
+        5,
+        5,
+        255
+      ]
+    },
+    {
+      "uv": [
+        158,
+        109
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        158,
+        110
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        28,
+        24,
+        23,
+        255
+      ]
+    },
+    {
+      "uv": [
+        158,
+        111
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        46,
+        32,
+        32,
+        255
+      ]
+    },
+    {
+      "uv": [
+        159,
+        111
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        1,
+        0,
+        0,
+        255
+      ]
+    },
+    {
+      "uv": [
+        159,
+        112
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        0,
+        1,
+        3,
+        255
+      ]
+    },
+    {
+      "uv": [
+        159,
+        113
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        0,
+        3,
+        4,
+        255
+      ]
+    },
+    {
+      "uv": [
+        160,
+        113
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        160,
+        114
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        160,
+        115
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        161,
+        117
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        163,
+        121
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        164,
+        122
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        164,
+        123
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        4,
+        3,
+        4,
+        255
+      ]
+    },
+    {
+      "uv": [
+        165,
+        123
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        165,
+        124
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        52,
+        25,
+        23,
+        255
+      ]
+    },
+    {
+      "uv": [
+        165,
+        125
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        79,
+        35,
+        29,
+        255
+      ]
+    },
+    {
+      "uv": [
+        166,
+        125
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        9,
+        3,
+        5,
+        255
+      ]
+    },
+    {
+      "uv": [
+        166,
+        126
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        87,
+        31,
+        27,
+        255
+      ]
+    },
+    {
+      "uv": [
+        166,
+        127
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        94,
+        39,
+        29,
+        255
+      ]
+    },
+    {
+      "uv": [
+        167,
+        127
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        77,
+        32,
+        23,
+        255
+      ]
+    },
+    {
+      "uv": [
+        167,
+        128
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        87,
+        31,
+        27,
+        255
+      ]
+    },
+    {
+      "uv": [
+        168,
+        128
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        9,
+        3,
+        5,
+        255
+      ]
+    },
+    {
+      "uv": [
+        168,
+        129
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        12,
+        6,
+        5,
+        255
+      ]
+    },
+    {
+      "uv": [
+        168,
+        130
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        18,
+        5,
+        8,
+        255
+      ]
+    },
+    {
+      "uv": [
+        169,
+        130
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        169,
+        131
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        169,
+        132
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        18,
+        9,
+        10,
+        255
+      ]
+    },
+    {
+      "uv": [
+        170,
+        132
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        170,
+        133
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        1,
+        0,
+        0,
+        255
+      ]
+    },
+    {
+      "uv": [
+        171,
+        133
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        171,
+        134
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        171,
+        135
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        172,
+        136
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        144,
+        138
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        56,
+        22,
+        18,
+        255
+      ]
+    },
+    {
+      "uv": [
+        145,
+        138
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        56,
+        22,
+        18,
+        255
+      ]
+    },
+    {
+      "uv": [
+        173,
+        138
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2,
+        "hand_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        174,
+        138
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        145,
+        139
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        60,
+        23,
+        18,
+        255
+      ]
+    },
+    {
+      "uv": [
+        174,
+        139
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        44,
+        21,
+        15,
+        255
+      ]
+    },
+    {
+      "uv": [
+        175,
+        139
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 1
+      },
+      "rgba": [
+        0,
+        3,
+        4,
+        255
+      ]
+    },
+    {
+      "uv": [
+        145,
+        140
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        57,
+        23,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        146,
+        140
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        56,
+        22,
+        18,
+        255
+      ]
+    },
+    {
+      "uv": [
+        175,
+        140
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        71,
+        34,
+        27,
+        255
+      ]
+    },
+    {
+      "uv": [
+        176,
+        140
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 1
+      },
+      "rgba": [
+        40,
+        21,
+        15,
+        255
+      ]
+    },
+    {
+      "uv": [
+        146,
+        141
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        52,
+        19,
+        16,
+        255
+      ]
+    },
+    {
+      "uv": [
+        147,
+        141
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        52,
+        22,
+        20,
+        255
+      ]
+    },
+    {
+      "uv": [
+        176,
+        141
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        85,
+        41,
+        32,
+        255
+      ]
+    },
+    {
+      "uv": [
+        177,
+        141
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 1
+      },
+      "rgba": [
+        68,
+        37,
+        30,
+        255
+      ]
+    },
+    {
+      "uv": [
+        147,
+        142
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        55,
+        23,
+        20,
+        255
+      ]
+    },
+    {
+      "uv": [
+        148,
+        142
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        57,
+        23,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        177,
+        142
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        75,
+        37,
+        30,
+        255
+      ]
+    },
+    {
+      "uv": [
+        178,
+        142
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 1
+      },
+      "rgba": [
+        4,
+        3,
+        4,
+        255
+      ]
+    },
+    {
+      "uv": [
+        148,
+        143
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        9,
+        5,
+        5,
+        255
+      ]
+    },
+    {
+      "uv": [
+        149,
+        143
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        5,
+        2,
+        3,
+        255
+      ]
+    },
+    {
+      "uv": [
+        178,
+        143
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 4
+      },
+      "rgba": [
+        48,
+        23,
+        20,
+        255
+      ]
+    },
+    {
+      "uv": [
+        179,
+        143
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 2
+      },
+      "rgba": [
+        21,
+        13,
+        7,
+        255
+      ]
+    },
+    {
+      "uv": [
+        180,
+        143
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        149,
+        144
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        2,
+        0,
+        1,
+        255
+      ]
+    },
+    {
+      "uv": [
+        150,
+        144
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        3,
+        0,
+        0,
+        255
+      ]
+    },
+    {
+      "uv": [
+        151,
+        144
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        9,
+        1,
+        4,
+        255
+      ]
+    },
+    {
+      "uv": [
+        180,
+        144
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        151,
+        145
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        56,
+        19,
+        13,
+        255
+      ]
+    },
+    {
+      "uv": [
+        152,
+        145
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        57,
+        20,
+        16,
+        255
+      ]
+    },
+    {
+      "uv": [
+        152,
+        146
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        56,
+        20,
+        16,
+        255
+      ]
+    },
+    {
+      "uv": [
+        153,
+        146
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        52,
+        19,
+        16,
+        255
+      ]
+    },
+    {
+      "uv": [
+        153,
+        147
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        56,
+        21,
+        17,
+        255
+      ]
+    },
+    {
+      "uv": [
+        154,
+        147
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        56,
+        23,
+        20,
+        255
+      ]
+    },
+    {
+      "uv": [
+        154,
+        148
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        57,
+        23,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        148
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "arm_far": 1,
+        "hand_far": 3
+      },
+      "rgba": [
+        57,
+        23,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        149
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        56,
+        23,
+        20,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        150
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        151
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        152
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        153
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        154
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        155
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        156,
+        155
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 4
+      },
+      "rgba": [
+        4,
+        3,
+        4,
+        255
+      ]
+    },
+    {
+      "uv": [
+        156,
+        156
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        156,
+        157
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        157,
+        157
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 4
+      },
+      "rgba": [
+        21,
+        8,
+        10,
+        255
+      ]
+    },
+    {
+      "uv": [
+        157,
+        158
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        157,
+        159
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        158,
+        159
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        159,
+        160
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        159,
+        161
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        177,
+        163
+      ],
+      "previous": "coat_far",
+      "owner": "chain",
+      "contacts": {
+        "hand_far": 2,
+        "chain": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        156,
+        101
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        155,
+        102
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 5
+      },
+      "rgba": [
+        15,
+        9,
+        11,
+        255
+      ]
+    },
+    {
+      "uv": [
+        156,
+        102
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        156,
+        103
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        156,
+        104
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        158,
+        107
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        158,
+        108
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        159,
+        110
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        160,
+        111
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        160,
+        112
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        165,
+        122
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        166,
+        124
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        167,
+        124
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        167,
+        125
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        167,
+        126
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        21,
+        13,
+        7,
+        255
+      ]
+    },
+    {
+      "uv": [
+        168,
+        126
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        168,
+        127
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        3,
+        0,
+        0,
+        255
+      ]
+    },
+    {
+      "uv": [
+        169,
+        127
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        169,
+        128
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        169,
+        129
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        175,
+        138
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        144,
+        139
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        60,
+        23,
+        18,
+        255
+      ]
+    },
+    {
+      "uv": [
+        176,
+        139
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        144,
+        140
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        7,
+        3,
+        5,
+        255
+      ]
+    },
+    {
+      "uv": [
+        177,
+        140
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        144,
+        141
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        145,
+        141
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        55,
+        23,
+        20,
+        255
+      ]
+    },
+    {
+      "uv": [
+        178,
+        141
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        145,
+        142
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        146,
+        142
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        179,
+        142
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        147,
+        143
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        147,
+        144
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        148,
+        144
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        8,
+        6,
+        7,
+        255
+      ]
+    },
+    {
+      "uv": [
+        148,
+        145
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        149,
+        145
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        0,
+        3,
+        4,
+        255
+      ]
+    },
+    {
+      "uv": [
+        150,
+        145
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        53,
+        20,
+        15,
+        255
+      ]
+    },
+    {
+      "uv": [
+        150,
+        146
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        33,
+        12,
+        12,
+        255
+      ]
+    },
+    {
+      "uv": [
+        151,
+        146
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        57,
+        20,
+        16,
+        255
+      ]
+    },
+    {
+      "uv": [
+        151,
+        147
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        55,
+        22,
+        17,
+        255
+      ]
+    },
+    {
+      "uv": [
+        152,
+        147
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        53,
+        21,
+        16,
+        255
+      ]
+    },
+    {
+      "uv": [
+        152,
+        148
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        49,
+        18,
+        15,
+        255
+      ]
+    },
+    {
+      "uv": [
+        153,
+        148
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        60,
+        23,
+        18,
+        255
+      ]
+    },
+    {
+      "uv": [
+        153,
+        149
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        42,
+        18,
+        14,
+        255
+      ]
+    },
+    {
+      "uv": [
+        154,
+        149
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "arm_far": 1,
+        "hand_far": 3
+      },
+      "rgba": [
+        57,
+        23,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        154,
+        150
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        6,
+        5,
+        7,
+        255
+      ]
+    },
+    {
+      "uv": [
+        154,
+        151
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "hand_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        169,
+        126
+      ],
+      "previous": "torso",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        143,
+        140
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        143,
+        141
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 2
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        149,
+        146
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 4
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        150,
+        147
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        151,
+        148
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        151,
+        149
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 1
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        152,
+        149
+      ],
+      "previous": "coat_far",
+      "owner": "arm_far",
+      "contacts": {
+        "arm_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    },
+    {
+      "uv": [
+        153,
+        150
+      ],
+      "previous": "coat_far",
+      "owner": "hand_far",
+      "contacts": {
+        "arm_far": 1,
+        "hand_far": 3
+      },
+      "rgba": [
+        20,
+        16,
+        21,
+        255
+      ]
+    }
+  ],
+  "unresolved": []
+}

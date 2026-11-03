@@ -1,0 +1,678 @@
+[
+  {
+    "script": "tests/dragon_boss_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/dragon_boss_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/00-dragon_boss_test.log",
+    "result_lines": [
+      "Dragon boss suite passed."
+    ]
+  },
+  {
+    "script": "tests/dragon_committed_patterns_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/dragon_committed_patterns_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/01-dragon_committed_patterns_test.log",
+    "result_lines": [
+      "Dragon committed patterns passed."
+    ]
+  },
+  {
+    "script": "tests/dragon_exchange_presentation_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/dragon_exchange_presentation_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/02-dragon_exchange_presentation_test.log",
+    "result_lines": [
+      "TEST RESULT: PASS Dragon exchange presentation []"
+    ]
+  },
+  {
+    "script": "tests/dragon_feedback_mechanics_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/dragon_feedback_mechanics_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/03-dragon_feedback_mechanics_test.log",
+    "result_lines": [
+      "Dragon feedback mechanics passed."
+    ]
+  },
+  {
+    "script": "tests/dragon_pressure_mechanics_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/dragon_pressure_mechanics_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/04-dragon_pressure_mechanics_test.log",
+    "result_lines": [
+      "DRAGON PRESSURE MECHANICS TEST: PASS (402 checks)"
+    ]
+  },
+  {
+    "script": "tests/dragon_reward_feedback_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/dragon_reward_feedback_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/05-dragon_reward_feedback_test.log",
+    "result_lines": []
+  },
+  {
+    "script": "tests/dragon_spire_routes_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/dragon_spire_routes_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/06-dragon_spire_routes_test.log",
+    "result_lines": [
+      "DRAGON SPIRE ROUTES TEST: PASS (4 checks)"
+    ]
+  },
+  {
+    "script": "tests/dragon_trophy_feedback_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/dragon_trophy_feedback_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/07-dragon_trophy_feedback_test.log",
+    "result_lines": []
+  },
+  {
+    "script": "tests/dragon_wallet_ack_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/dragon_wallet_ack_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/08-dragon_wallet_ack_test.log",
+    "result_lines": [
+      "DRAGON WALLET ACK TEST: PASS (108 checks)"
+    ]
+  },
+  {
+    "script": "tests/battlefield_rules_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/battlefield_rules_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/09-battlefield_rules_test.log",
+    "result_lines": [
+      "BATTLEFIELD RULES TEST RESULT: PASS (597 checks, 0 failures)"
+    ]
+  },
+  {
+    "script": "tests/boss_health_preview_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/boss_health_preview_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/10-boss_health_preview_test.log",
+    "result_lines": [
+      "BOSS LIVE PULSE REDRAW: PASS (live 4 -> 10; reduced 11 -> 11)",
+      "BOSS REDUCED MOTION MEAN: PASS (amber 0.641; lethal 0.763)",
+      "BOSS HEALTH PREVIEW TEST: PASS (0 failures)"
+    ]
+  },
+  {
+    "script": "tests/turn_clock_hud_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/turn_clock_hud_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/11-turn_clock_hud_test.log",
+    "result_lines": [
+      "TURN CLOCK HUD TEST RESULT: PASS"
+    ]
+  },
+  {
+    "script": "tests/turn_clock_wait_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/turn_clock_wait_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/12-turn_clock_wait_test.log",
+    "result_lines": [
+      "TURN CLOCK WAIT TEST RESULT: PASS"
+    ]
+  },
+  {
+    "script": "tests/suites/full_scene_clock_program.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/suites/full_scene_clock_program.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/13-full_scene_clock_program.log",
+    "result_lines": [
+      "TEST RESULT: PASS"
+    ]
+  },
+  {
+    "script": "tests/combat_analytics_context_equivalence_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/combat_analytics_context_equivalence_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/14-combat_analytics_context_equivalence_test.log",
+    "result_lines": [
+      "TEST RESULT: PASS \u2014 44 analytics-context/boundary comparisons (0 failures)"
+    ]
+  },
+  {
+    "script": "tests/encounter_analytics_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/encounter_analytics_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/15-encounter_analytics_test.log",
+    "result_lines": [
+      "ENCOUNTER CALLER METADATA: PASS (UI/headless; combat, Guardian, boss; start/end/rewards)",
+      "ENCOUNTER ANALYTICS: PASS (0 failures)"
+    ]
+  },
+  {
+    "script": "tests/surface_analytics_batch_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/surface_analytics_batch_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/16-surface_analytics_batch_test.log",
+    "result_lines": [
+      "TEST RESULT: PASS surface analytics batch and partial append recovery"
+    ]
+  },
+  {
+    "script": "tests/grimoire_search_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/grimoire_search_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/17-grimoire_search_test.log",
+    "result_lines": [
+      "GRIMOIRE SEARCH TEST RESULT: PASS"
+    ]
+  },
+  {
+    "script": "tests/grimoire_search_rows_equivalence_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/grimoire_search_rows_equivalence_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/18-grimoire_search_rows_equivalence_test.log",
+    "result_lines": [
+      "GRIMOIRE ROW RETENTION RESULT: {\"cases\":50,\"differences\":0,\"errors\":[],\"orphan_nodes\":0,\"reused_rows\":371}"
+    ]
+  },
+  {
+    "script": "tests/short_card_tooltips_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/short_card_tooltips_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/19-short_card_tooltips_test.log",
+    "result_lines": [
+      "TT01 GRIMOIRE DISCOVERY: PASS (39 entries; 10 default, 29 discovered; 31 independent encounters)",
+      "SHORT CARD TOOLTIPS TEST RESULT: PASS (845 checks, 0 failures)"
+    ]
+  },
+  {
+    "script": "tests/encounter_measurement_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/encounter_measurement_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/20-encounter_measurement_test.log",
+    "result_lines": [
+      "ENCOUNTER RUN SAVE: PASS (3 seeds; ProgressionStore; complete state equality)",
+      "ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)",
+      "ENCOUNTER SMALL SWEEP: PASS (revision 5; 84 rooms; seeds 1..15)",
+      "ENCOUNTER SMALL SWEEP: PASS (revision 6; 120 rooms; seeds 1..25)",
+      "ENCOUNTER SMALL SWEEP: PASS (revision 7; 120 rooms; seeds 1..21)",
+      "SKYBOLT OVERRIDES: PASS (60 checks; 0 failures)",
+      "ENCOUNTER BOT DETERMINISM: PASS (3 explicit objective fixtures, repeated seeded rooms)",
+      "ENCOUNTER MEASUREMENT: PASS (2671 checks; 0 failures)"
+    ]
+  },
+  {
+    "script": "tests/dragon_element_rules_probe.gd",
+    "args": [
+      "--check-only"
+    ],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/dragon_element_rules_probe.gd",
+      "--",
+      "--check-only"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/21-dragon_element_rules_probe.log",
+    "result_lines": [
+      "BOS02 PROBE CONTRACT: PASS (13 states; 1920x1080; UI scale 100%)"
+    ]
+  },
+  {
+    "script": "tests/surface_core_review_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/surface_core_review_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/22-surface_core_review_test.log",
+    "result_lines": []
+  },
+  {
+    "script": "tests/suites/full_scene_creature_cutouts_program.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/suites/full_scene_creature_cutouts_program.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/23-full_scene_creature_cutouts_program.log",
+    "result_lines": [
+      "TEST RESULT: PASS"
+    ]
+  },
+  {
+    "script": "tests/threats_at_rest_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/threats_at_rest_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/24-threats_at_rest_test.log",
+    "result_lines": [
+      "THREATS AT REST TEST RESULT: PASS (16952 assertions; includes compass suite)"
+    ]
+  },
+  {
+    "script": "tests/suites/sfx_sync_0_program.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/suites/sfx_sync_0_program.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/25-sfx_sync_0_program.log",
+    "result_lines": [
+      "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)"
+    ]
+  },
+  {
+    "script": "tests/suites/sfx_sync_1_program.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/suites/sfx_sync_1_program.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/26-sfx_sync_1_program.log",
+    "result_lines": [
+      "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)"
+    ]
+  },
+  {
+    "script": "tests/suites/full_scene_controls_program.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/suites/full_scene_controls_program.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/27-full_scene_controls_program.log",
+    "result_lines": [
+      "TEST RESULT: PASS"
+    ]
+  },
+  {
+    "script": "tests/card_display_performance_test.gd",
+    "args": [],
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "bos-02",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/card_display_performance_test.gd"
+    ],
+    "exit_code": 0,
+    "log": "/private/tmp/bos-02-feedback2-standalone/28-card_display_performance_test.log",
+    "result_lines": [
+      "CARD DISPLAY CACHE PERFORMANCE RESULT: PASS (0 failures)"
+    ]
+  }
+]

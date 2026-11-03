@@ -1,0 +1,7 @@
+{
+  "revision": "6eab1db07dc703dca0b00972f6adb2eb01c5cf70",
+  "source": "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+  "source_sha256": "0a653c45016717a7353fa4cdb85fc28830cdb464eef62cd78894195164378f51",
+  "captured_sha256": "fa7019dcbbe3492c1b52178368b6d9cd824ef2ba2e1e762b1d0f63ee154c6e1e",
+  "normalization": "Relative preload paths made absolute; no arithmetic changes."
+}

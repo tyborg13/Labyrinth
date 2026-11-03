@@ -1,0 +1,34 @@
+{
+  "ok": true,
+  "errors": [],
+  "native_pixels": true,
+  "production_ready": false,
+  "native_calibrated": true,
+  "native_calibration": {
+    "ok": true,
+    "fixture_sha256": "8245c825fb7d9eba06d5474dbf0fa5dd3f1ecc07cd9c15892b6b8aae7d5cb8dd",
+    "native_signatures": 1336,
+    "receipt_sha256": "18ea9566d46bf89786ed1daf00b09a61ddff03be06d4824e215b1df0a2b68ff6",
+    "scope": "Round-0 native findings covered by fresh CPU observations; new native review pending"
+  },
+  "maquette_native": {
+    "native_verified": true,
+    "spec_hash": "a418639631060cb67fc4db8a90485f787bed35cf3a3e06843e5788be3f1281ac",
+    "acceptance_sha256": "b75ff880916f3d97cacfca351b44e462b920172c2d1919a76fce32bcfac18849",
+    "front_iou": 0.8489029631305135,
+    "semantic_centroids": {
+      "head": 4.439639763496944,
+      "hand_far": 3.2818142520019222,
+      "chain_hook": 2.0754752786642223,
+      "hand_near": 4.248744021725114,
+      "foot_near": 4.412193034779927,
+      "foot_far": 4.612858888777866,
+      "tabard": 4.550138025508319,
+      "upper_far": 4.4198183075292,
+      "fore_far": 4.971802989523241,
+      "chain": 1.443616801744522
+    },
+    "all_mq15_rows_passed": true,
+    "rear_policy": "proper half turn diag(-1,-1,1); never independently fitted"
+  }
+}

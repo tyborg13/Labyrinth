@@ -1,0 +1,12 @@
+Use your built-in image generation tool (real image generation, not code drawing). Make ONE image: a square 1024x1024 PNG.
+
+Edit the reference. It is this character's approved painting (front view): a tall, gaunt figure in dull brass plate, a narrow faceted great helm with two tall hooked brass tines, a deep navy hood and scarf, three-lame brass pauldrons with short spikes, an open cage of curved brass ribs with a dull bronze bell hanging inside it, a long navy tabard with a brass sigil hanging from the waist, a long ragged navy cloak hanging behind him and showing on both sides, brass plated legs and pointed sabatons. On the image's LEFT his far arm reaches out and its gauntlet grips a tall staff with a three-tined fork at the top, a navy pennant and a navy wrap. On the image's RIGHT his near arm hangs forward of the body with an open clawed gauntlet in front of the thigh. Keep EVERYTHING exactly as it is (palette, block size, every pixel position, helm, tines, hood, scarf, both pauldrons, ribs, tabard, cloak, both legs and sabatons, size and framing) except these things:
+
+Remove both arms below the pauldrons (upper arms, elbows, forearms, both gauntlets, the open clawed hand), the whole staff with its fork, pennant and wrap, and the bell. Paint what was hidden behind them, as if they had never been there:
+- behind the near arm and open hand: the near side of the ribcage and flank, the brass hip and near thigh plate, and the navy cloak behind them, with the same fold shading and torn edges as the visible cloak;
+- under the far pauldron where the far arm left the body: the far flank of the chest and the navy cloak's ragged edge continuing down in the same folds, with a one-block dark outline on its outer edge;
+- behind the bell: the dark hollow inside the ribcage with the same curved brass ribs continuing across it, evenly spaced, arcing down and back from the sternum.
+Nothing new is added: no arms, hands, staff, bell, light, glow, ground or shadow. Everything left of the far flank, where only the arm and staff were, becomes background.
+
+Background: perfectly flat opaque chroma green #00FF00 (RGB 0,255,0) on every background pixel, including gaps. No floor, ground, cast shadow, glow halo, vignette, scenery, border, text or labels. Nothing touches the canvas edge.
+Hand: keep the reference's pixel-art hand exactly. Every colour patch is at least one 4x4 block, contours step in 4-pixel blocks, the outline is one dark block wide, and nothing is thinner than one block. The image will be shrunk 4x back to game size.

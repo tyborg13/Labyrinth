@@ -36,7 +36,6 @@ func _initialize() -> void:
 		preload("res://tests/suites/biome_suite.gd").run(_expect)
 		preload("res://tests/suites/combat_objective_suite.gd").run(_expect)
 		preload("res://tests/suites/reach_rebalance_suite.gd").run(_expect)
-		preload("res://tests/suites/terrain_connectivity_equivalence_suite.gd").run(_expect)
 		_finish("Encounter affected integration suites")
 		return
 	Suite.run(_expect)

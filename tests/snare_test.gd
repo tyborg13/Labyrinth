@@ -3,10 +3,17 @@ const Suite = preload("res://tests/suites/snare_suite.gd")
 var failures: Array[String]
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
-	if OS.get_cmdline_user_args().has("--feedback-2-only"):
+	if OS.get_cmdline_user_args().has("--pressure-boundary-only"):
+		preload("res://tests/suites/snare_pressure_boundary_suite.gd").run(_expect)
+	elif OS.get_cmdline_user_args().has("--pressure-only"):
+		preload("res://tests/suites/snare_pressure_suite.gd").run(_expect)
+	elif OS.get_cmdline_user_args().has("--feedback-2-only"):
 		preload("res://tests/suites/snare_regression_suite.gd").run(_expect)
 	else:
 		Suite.run(_expect)
+		preload("res://tests/suites/snare_pressure_suite.gd").run(_expect)
+	if not OS.get_cmdline_user_args().has("--pressure-boundary-only"):
+		preload("res://tests/suites/snare_pressure_boundary_suite.gd").run(_expect)
 	for failure: String in failures: push_error(failure)
 	print("Snare suite: %d failures" % failures.size())
 	quit(0 if failures.is_empty() else 1)

@@ -3,6 +3,7 @@ class_name CombatObjectiveRules
 
 const SnareRooms = preload("res://scripts/snare_room_rules.gd")
 const WarbandRooms = preload("res://scripts/warband_room_rules.gd")
+const LastLightRooms = preload("res://scripts/last_light_rules.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const Identity = preload("res://scripts/enemy_identity.gd")
 
@@ -59,6 +60,11 @@ static func build_for_room(run_seed: int, room: Dictionary, travel_dir: Vector2i
 		result["name"] = title_for_objective(result)
 		result["description"] = description_for_objective(result)
 	if SnareRooms.is_room(room): result.merge(SnareRooms.objective(room), true)
+	if LastLightRooms.is_room(room):
+		result.merge(LastLightRooms.objective(room, encounter_depth), true)
+		result["name"] = title_for_objective(result)
+		result["description"] = description_for_objective(result)
+	if preload("res://scripts/hoarder_room_rules.gd").is_room(room): result.merge(preload("res://scripts/hoarder_room_rules.gd").objective(room, encounter_depth), true)
 	match objective_type:
 		KILL_LEADER:
 			var boss_room: bool = str(room.get("type", "combat")) in ["boss", "guardian"]
@@ -68,7 +74,7 @@ static func build_for_room(run_seed: int, room: Dictionary, travel_dir: Vector2i
 			result["leader_health_multiplier"] = result.get("leader_health_multiplier", 1.0 if boss_room else 1.5)
 			result["leader_stoneskin"] = result.get("leader_stoneskin", 0 if boss_room else 2 + encounter_depth)
 		SURVIVE:
-			result["target_clock"] = SURVIVAL_TARGET_BY_ENCOUNTER_DEPTH[encounter_depth - 1]
+			result["target_clock"] = int(result.get("target_clock", SURVIVAL_TARGET_BY_ENCOUNTER_DEPTH[encounter_depth - 1]))
 			result["reinforcement_interval"] = SURVIVAL_REINFORCEMENT_INTERVAL
 			result["next_reinforcement_clock"] = SURVIVAL_REINFORCEMENT_INTERVAL
 			result["reinforcement_waves_spawned"] = 0
@@ -164,6 +170,8 @@ static func is_control_intent(intent: Dictionary) -> bool:
 static func _type_for_room(run_seed: int, room: Dictionary) -> String:
 	var room_type: String = str(room.get("type", "combat"))
 	if SnareRooms.is_room(room): return REACH_EXIT
+	if LastLightRooms.is_room(room): return SURVIVE
+	if preload("res://scripts/hoarder_room_rules.gd").is_room(room): return KILL_LEADER
 	if Specials.is_warband(room):
 		return KILL_LEADER
 	if room_type in ["boss", "guardian"]:
@@ -240,18 +248,32 @@ static func _mixed_seed(run_seed: int, coord: Vector2i, salt: int) -> int:
 # Keep persisted objective ids stable. Resolve copy from the current identity so
 # resumed saves also show named dragon/guardian objectives without migration.
 static func title_for_objective(objective: Dictionary) -> String:
+	if objective.has("objective_title"): return str(objective["objective_title"])
 	var type: String = str(objective.get("type", KILL_ALL))
+	if str(objective.get("special_type", "")) == LastLightRooms.TYPE: return LastLightRooms.title()
 	if type == KILL_LEADER:
 		if str(objective.get("special_type", "")) == "warband":
-			return "Defeat %s" % Identity.running_name(str(objective["leader_display_name"]))
+			return "Defeat %s" % (Identity.running_name(str(objective["leader_display_name"])) if str(objective["leader_display_name"]).begins_with("The ") else "the " + str(objective["leader_display_name"]))
+		if str(objective.get("special_type", "")) == "ember_hoarder": return str(Specials.definition("ember_hoarder")["objective_title"])
 		var identity: String = str(objective.get("leader_type", ""))
 		var data: Dictionary = preload("res://scripts/game_data.gd").enemy_def(identity)
 		if bool(data.get("guardian",false)) or preload("res://scripts/dragon_boss_library.gd").is_dragon_boss_id(identity):
 			return "Defeat %s" % str(data.get("name",identity.capitalize()))
 	return display_name(type)
 
+static func hud_title_for_objective(objective: Dictionary) -> String:
+	if objective.has("objective_hud_title"): return str(objective["objective_hud_title"])
+	var special: String = str(objective.get("special_type", ""))
+	if special == LastLightRooms.TYPE or (special == "ember_hoarder" and str(objective.get("type", KILL_ALL)) == KILL_LEADER):
+		return str(Specials.definition(special).get("objective_hud_title", title_for_objective(objective)))
+	return title_for_objective(objective)
+
 static func description_for_objective(objective: Dictionary) -> String:
 	var type: String = str(objective.get("type",KILL_ALL))
+	if str(objective.get("special_type", "")) == LastLightRooms.TYPE: return LastLightRooms.description()
+	if str(objective.get("special_type", "")) == "umbral_snare":
+		return description(type) + "\n" + str(SnareRooms.Pressure.definition({"objective": objective})["text"])
+	if str(objective.get("special_type", "")) == "ember_hoarder" and type == KILL_LEADER: return str(Specials.definition("ember_hoarder")["objective_description"])
 	if str(objective.get("special_type", "")) == "warband":
 		return "Kill the captain and the rest flee. Followers within 2 tiles of it deal +1 damage." + "\n" + preload("res://scripts/warband_combat_rules.gd").order_line(objective)
 	var title: String = title_for_objective(objective)

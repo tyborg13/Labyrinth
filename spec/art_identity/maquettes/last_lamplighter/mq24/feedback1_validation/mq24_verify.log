@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof.py", line 187, in <module>
+    if __name__=='__main__':raise SystemExit(main())
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof.py", line 183, in main
+    else:verify(args.capture,args.regeneration)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof.py", line 120, in verify
+    if not protected() or not acceptance(spec,captured,False)['passed']:raise ValueError('mq-24 acceptance failed')
+ValueError: mq-24 acceptance failed

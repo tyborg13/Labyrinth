@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "protected_director_hashes": 9,
+  "byte_exact_motion_imports": 2,
+  "integration_extension_manifest_byte_identical": true,
+  "integration_compiler_byte_identical": true,
+  "earlier_unit_asset_deltas": [],
+  "conflict_files_resolved_in_working_files": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd",
+    "tools/humanoid_cutout/compiler.py",
+    "tools/humanoid_cutout/cpu_pose.py",
+    "tests/rr46/preservation.py"
+  ],
+  "git_index_intentionally_unmerged": true
+}

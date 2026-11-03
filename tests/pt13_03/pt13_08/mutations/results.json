@@ -1,0 +1,72 @@
+[
+  {
+    "mutation": "equipment_180",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "fit_shrinks_type",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "shared_minimum_removed",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "rules_shrink",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "hidden_face",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "grimoire_ancestor_half",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "delayed_scale_one_second",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "null_measurements",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "chronicle_parent_half",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "graftwright_rules_hidden",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "graftwright_rules_empty",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "graftwright_title_swap_hidden",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "graftwright_subtitle_hidden",
+    "rejected": true,
+    "returncode": 1
+  },
+  {
+    "mutation": "graftwright_subtitle_empty",
+    "rejected": true,
+    "returncode": 1
+  }
+]

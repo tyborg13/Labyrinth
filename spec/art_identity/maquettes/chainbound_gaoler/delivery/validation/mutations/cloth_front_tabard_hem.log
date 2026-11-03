@@ -1,0 +1,13 @@
+test_every_cloth_width_and_hem_guard_is_enforced (tests.test_mq15_cloth.ClothTests) ... 
+======================================================================
+FAIL: test_every_cloth_width_and_hem_guard_is_enforced (tests.test_mq15_cloth.ClothTests) (row='front_tabard_hem')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_cloth.py", line 22, in test_every_cloth_width_and_hem_guard_is_enforced
+    self.assertFalse(cloth_row_passed(name,0,100,data['limits']))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

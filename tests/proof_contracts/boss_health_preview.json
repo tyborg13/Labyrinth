@@ -1,0 +1,13 @@
+{
+  "min_images": 7,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "01_hover_nonlethal.png", "width": 1920, "height": 1080, "regions": [{"rect": [570, 18, 780, 100], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "02_selected_nonlethal_peak.png", "width": 1920, "height": 1080, "regions": [{"rect": [570, 18, 780, 100], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "03_selected_nonlethal_trough.png", "width": 1920, "height": 1080},
+    {"pattern": "04_chain_regular_comparison.png", "width": 1920, "height": 1080, "regions": [{"rect": [300, 120, 1300, 700], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "05_lethal_red.png", "width": 1920, "height": 1080, "regions": [{"rect": [570, 18, 780, 100], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "06_reduced_motion_early.png", "width": 1920, "height": 1080},
+    {"pattern": "07_reduced_motion_later.png", "width": 1920, "height": 1080}
+  ]
+}

@@ -1,0 +1,53 @@
+{
+ "K": 4,
+ "anatomy": "biped",
+ "id": "last_lamplighter",
+ "job_id": "img-last-lamplighter-rear-mq20",
+ "kind": "creature",
+ "kit_kind": "maquette",
+ "kit_version": "0a68f97f2191ebef480a7afdec6f8556b1253051e108fa5c9c47ce6379b443b2",
+ "method": "maquette paint-over rear (mq-20) from the approved front, K=4",
+ "peers": [
+  "gloam_stalker_front",
+  "grave_surgeon_front"
+ ],
+ "prompt_path": "prompt.md",
+ "prompt_sha256": "ced73f9536119111cbb740c8d55e3c11699b84a482b7f36c1ce1928e31c7a047",
+ "prompt_source": "spec/art_identity/maquettes/last_lamplighter/mq20/prompt_rear.md",
+ "refs": [
+  {
+   "canon_id": "maquette_mq20_rear_parts",
+   "file": "refs/01_maquette_rear_parts.png",
+   "pixel_sha256": "5df73446a324e7540f5e847a80f47ebd7e547ed2b268dc1732da9525197bd2c5",
+   "role": "maquette_parts"
+  },
+  {
+   "canon_id": "maquette_mq20_rear_clay",
+   "file": "refs/02_maquette_rear_clay.png",
+   "pixel_sha256": "ded3c865be8dbc3f99fd0faae815ebcdbbd81882bf64dbc875fae3e4bf2b77eb",
+   "role": "maquette_clay"
+  },
+  {
+   "canon_id": "approved_lamplighter_mq20_front",
+   "file": "refs/03_approved_front.png",
+   "pixel_sha256": "0ffe75cfb4599e2eba524010168e4a0bc542739683fae610975b4f280348fb6b",
+   "role": "identity"
+  },
+  {
+   "canon_id": "gloam_stalker_rear",
+   "file": "refs/04_gloam_stalker_rear.png",
+   "pixel_sha256": "da4d715db7b3f49cf840bba8600373ccceef643fbd98b21c67299dccf75cf7a3",
+   "role": "canon"
+  },
+  {
+   "canon_id": "hero_rear",
+   "file": "refs/05_hero_rear.png",
+   "pixel_sha256": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af",
+   "role": "canon"
+  }
+ ],
+ "size_class": "large",
+ "target_h": null,
+ "target_w": null,
+ "view": "creature_rear"
+}

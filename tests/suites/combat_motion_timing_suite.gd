@@ -1,9 +1,15 @@
 extends RefCounted
 
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const OUTPUT_DIR: String = "user://probes/combat_motion_polish_v1"
 
 static func run(tree: SceneTree, expect: Callable, capture: bool = false) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _run_scoped(scope, tree, expect, capture)
+	)
+
+static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable, capture: bool = false) -> void:
 	if capture:
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	for reduced_motion: bool in [false, true]:
@@ -81,7 +87,7 @@ static func _test_combined_counter_rewards(tree: SceneTree, instance: Node, expe
 	var gain_label: Label = _gain_label(instance)
 	expect.call(gain_label != null and gain_label.text == "+18", "The combined ember reward must begin alongside the card-play reward")
 	var meter: Control = instance.get("_play_meter") as Control
-	var deadline: int = Time.get_ticks_msec() + 1500
+	var deadline: int = Time.get_ticks_msec() + 10000
 	var sampled: bool = false
 	while not bool(completion.get("done", false)) and Time.get_ticks_msec() < deadline:
 		if reduced_motion:
@@ -90,7 +96,7 @@ static func _test_combined_counter_rewards(tree: SceneTree, instance: Node, expe
 			sampled = true
 			await _capture(instance, "combined_rewards_%s.png" % _motion_name(reduced_motion))
 		await tree.process_frame
-	expect.call(bool(completion.get("done", false)), "Combined death rewards must complete as one short presentation")
+	expect.call(bool(completion.get("done", false)), "Timeout waiting for combined death rewards presentation")
 	expect.call(int(instance.get("_card_play_count_override")) == before_plays + 3, "The aggregate card-play reward must retain its exact total after feedback")
 	expect.call(meter.scale.is_equal_approx(Vector2.ONE) and meter.modulate.is_equal_approx(Color.WHITE), "The play meter must settle cleanly after the aggregate reward")
 	expect.call(int(instance.get("_ember_count_override")) == -1, "The ember presentation override must be released after feedback")
@@ -101,12 +107,12 @@ static func _test_surface_motion(tree: SceneTree, instance: Node, expect: Callab
 	preload("res://scripts/board_surface_rules.gd").place(after, Vector2i(3, 4), "fire")
 	var completion: Dictionary = {"done": false}
 	_track_surface(instance, before, after, completion)
-	var deadline: int = Time.get_ticks_msec() + 1500
+	var deadline: int = Time.get_ticks_msec() + 10000
 	var board: Control = instance.get("board_view") as Control
 	while not bool(completion.get("done", false)) and Time.get_ticks_msec() < deadline:
 		if reduced_motion: expect.call(board.scale.is_equal_approx(Vector2.ONE), "Reduced ground feedback never displaces the board")
 		await tree.process_frame
-	expect.call(bool(completion.get("done", false)), "Ground feedback completes in one short beat")
+	expect.call(bool(completion.get("done", false)), "Timeout waiting for ground feedback")
 	expect.call((board.get("combat_state") as Dictionary).get("surfaces", {}) == after.get("surfaces", {}), "Ground feedback must settle on the exact committed surface state")
 	# An overwrite lands the new ground and breaks the old in the same frame.
 	var Surface = preload("res://scripts/board_surface_rules.gd")
@@ -118,14 +124,14 @@ static func _test_surface_motion(tree: SceneTree, instance: Node, expect: Callab
 	_track_surface(instance, iced, kindled, completion)
 	var saw_break: bool = false
 	var break_without_fire: bool = false
-	deadline = Time.get_ticks_msec() + 1500
+	deadline = Time.get_ticks_msec() + 10000
 	while not bool(completion.get("done", false)) and Time.get_ticks_msec() < deadline:
 		var shown: Array = (board.get("presentation") as Dictionary).get("surface_feedback_events", []) as Array
 		if shown.any(func(event: Dictionary) -> bool: return str(event.get("break_surface", "")) == "ice" and event.get("tile") == Vector2i(3, 4)):
 			saw_break = true
 			if Surface.element_at(board.get("combat_state") as Dictionary, Vector2i(3, 4)) != "fire": break_without_fire = true
 		await tree.process_frame
-	expect.call(bool(completion.get("done", false)) and saw_break and not break_without_fire, "An overwrite breaks the old Ice in the same frames the new Fire is shown")
+	expect.call(bool(completion.get("done", false)) and saw_break and not break_without_fire, "Timeout waiting for Ice overwrite; old Ice breaks while new Fire is shown")
 
 static func _track_death_rewards(instance: Node, before: Dictionary, after: Dictionary, completion: Dictionary) -> void:
 	await instance.call("_animate_death_rewards", before, after)

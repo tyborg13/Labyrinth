@@ -38,13 +38,22 @@ static func footprint_shape(engine: RefCounted, state: Dictionary, origin: Vecto
 		for row: int in range(back, front + 1):
 			candidates.append(direction * row + side * (left - 1))
 			candidates.append(direction * row + side * (right + 1))
+	# Tharokh's retained lanes crossed its old spires. Keep that geometry when
+	# Upheaval uses ordinary sight-blocking Outcrops; only the source's stone
+	# is transparent to this flagged attack. Movement still uses the real board.
+	var sight_state: Dictionary = state
+	if bool(action.get("preserve_owned_terrain", false)):
+		var stone: Array[Dictionary] = engine._dragon_spires(state)
+		if not stone.is_empty():
+			sight_state = state.duplicate(true)
+			sight_state["terrain"] = state.get("terrain", []).filter(func(entry: Dictionary) -> bool: return not stone.has(entry))
 	for tile: Vector2i in candidates:
 		if not Paths.is_passable(state["grid"], tile) or result.has(tile): continue
 		# Cover is evaluated from the nearest edge, never through the dragon.
 		var nearest: Vector2i = body[0]
 		for source: Vector2i in body:
 			if Paths.manhattan(source, tile) < Paths.manhattan(nearest, tile): nearest = source
-		if engine.combat_line_of_sight(state, nearest, tile): result.append(tile)
+		if engine.combat_line_of_sight(sight_state, nearest, tile): result.append(tile)
 	return result
 
 # Radial patterns use distance from the whole body, preserving a close safe eye.

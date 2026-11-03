@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "comparison": "git diff --quiet HEAD",
+  "protected_files": 5809,
+  "protected_sha256": "7573d4457492beefcc9a96d86fedc5d297a3857eb9224bfdab507918c40284fc",
+  "paths": [
+    "assets/units",
+    "scripts/maquette_cutout_runtime",
+    "spec/art_identity/jobs/frostglass_lancer",
+    "spec/art_identity/maquettes/frostglass_lancer",
+    "spec/peer_benchmark/staged/rr-37/motion_tracks.json"
+  ],
+  "motion_sha256": "65fe0b1a4892ad3a75827ba14cdd14dd8c41253f8f0ef1ebf79fb1240e7dc039",
+  "case_paint_and_motion_unchanged": true,
+  "prior_anatomy_unchanged": true,
+  "unchanged_retained_poses": 54
+}

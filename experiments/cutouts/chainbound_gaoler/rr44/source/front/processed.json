@@ -1,0 +1,66 @@
+{
+  "K": 4,
+  "drawn_size": [
+    255,
+    255
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "match_reference": {
+    "path": "refs/approved.png",
+    "pixel_sha256": "394e5284cdf9dfe72e85508b269c2562612401e7fcb19ee99c27ac1facef37bc"
+  },
+  "metrics": {
+    "chroma": 0.11070395747370498,
+    "edge_light_share": 0.0,
+    "feature_px": 5.900222647599187,
+    "height": 216,
+    "height_drawn": 216.0,
+    "orphan_share": 0.06043409582870181,
+    "regions": 491,
+    "run_length": 2.3186380900705372,
+    "symmetry": 0.6288255547054323,
+    "thin_abs": 0.005265313286140549,
+    "thin_rel": 0.05493476861873281,
+    "value": 0.17105488383617648,
+    "width": 144
+  },
+  "pixel_sha256": "47fe107f8e84dab4957f03ae5313c1790f778cce499fcfa43cfd9f39b1ac4d3c",
+  "placement": [
+    0,
+    0
+  ],
+  "processing": "gaoler_arm_rr44_registered_native",
+  "raw_pixel_sha256": "47fe107f8e84dab4957f03ae5313c1790f778cce499fcfa43cfd9f39b1ac4d3c",
+  "raw_steps": [
+    {
+      "inputs": {
+        "approved": {
+          "path": "refs/approved.png",
+          "sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2"
+        },
+        "mask": {
+          "path": "refs/old_arm_mask.png",
+          "sha256": "4344a5823dca7a4c5f73e75c3494e129f7934ebbd1a96a34716f1c845e0a1979"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "7d7af2a7333fc2cd35aa9a1073faafb21481b5000bffb92ef470925229ca15ea"
+        },
+        "recipe": {
+          "path": "refs/compose_arm.py",
+          "sha256": "8025cd27b0bf1193bc7dae546c6b4a08396309757cef186ff895dfc3f09d1942"
+        }
+      },
+      "kind": "gaoler_arm_rr44",
+      "output_raw_pixel_sha256": "47fe107f8e84dab4957f03ae5313c1790f778cce499fcfa43cfd9f39b1ac4d3c",
+      "parameters": {
+        "side": "left"
+      }
+    }
+  ],
+  "shift": [
+    0,
+    0
+  ]
+}

@@ -1,0 +1,275 @@
+{
+  "unit": "rr-35",
+  "branch": "codex/rr-35",
+  "uncommitted": true,
+  "full_suites_run": false,
+  "full_suite_reason": "Brief assigns full suites to director at merge.",
+  "windowed_runs_attempted": false,
+  "native_acceptance_complete": false,
+  "headless_acceptance_complete": false,
+  "protected_motion_byte_identical": true,
+  "requirements": {
+    "1": "Re-cut, torso carapace ownership and hidden coverage implemented; visible rests 0px both; front transparent RGB exception recorded; native density rest pending.",
+    "2": "PASS actual-node order and mutations both views.",
+    "3": "PASS protected import, rear override, production resolver/contacts/movement/SFX integration.",
+    "4": "PASS four measured leg/view policies and walk gates.",
+    "5": "New gates and mutations implemented; CPU seams/components pass 706 frames. Strict gates fail three protected-input conflicts; native proof pending."
+  },
+  "todo_design": {
+    "TODO_DESIGN_front_slash_reach": "Protected slash on the r3 leading blade does not reach 18 source px at contact.",
+    "TODO_DESIGN_slash_torso_lean_limit": "Protected slash reaches 6 degrees; binding spec caps actions at 4.",
+    "TODO_DESIGN_rear_move_foot_near_reach": "Protected gait on r3 crouch violates abs(L1-L2)+4 minimum reach."
+  },
+  "unresolved_gate_errors": [
+    "front/slash/0.45: torso lean limit",
+    "front/slash/0.48: torso lean limit",
+    "front/slash/0.55: torso lean limit",
+    "front/slash/0.57: torso lean limit",
+    "front/slash/0.59: torso lean limit",
+    "front/slash/0.66: torso lean limit",
+    "front/slash/0.74: torso lean limit",
+    "front/slash/0.775: torso lean limit",
+    "front/slash/0.7: torso lean limit",
+    "front: slash tip reach 16.414892 px < 18",
+    "rear/move/foot_near: minimum reach 22.200474 px < 25.409323 px at 0.047229492",
+    "rear/slash/0.45: torso lean limit",
+    "rear/slash/0.48: torso lean limit",
+    "rear/slash/0.55: torso lean limit",
+    "rear/slash/0.57: torso lean limit",
+    "rear/slash/0.59: torso lean limit",
+    "rear/slash/0.66: torso lean limit",
+    "rear/slash/0.74: torso lean limit",
+    "rear/slash/0.775: torso lean limit",
+    "rear/slash/0.7: torso lean limit"
+  ],
+  "total_unresolved_gate_errors": 20,
+  "rest": {
+    "front": {
+      "rest_mismatch_pixels": 0,
+      "approved_painting_rgba_mismatch_pixels": 1,
+      "transparent_rgb_normalized_pixels": 1
+    },
+    "rear": {
+      "rest_mismatch_pixels": 0,
+      "approved_painting_rgba_mismatch_pixels": 0,
+      "transparent_rgb_normalized_pixels": 0
+    }
+  },
+  "slash_reach": {
+    "front": {
+      "leading_blade": "hand_far",
+      "source_tip": [
+        49.5,
+        144.5
+      ],
+      "contact": 0.48,
+      "rest_tip": [
+        49.5,
+        144.5
+      ],
+      "contact_tip": [
+        40.79013795405625,
+        158.4135534241795
+      ],
+      "distance_px": 16.41489158498674,
+      "minimum_px": 18,
+      "errors": [
+        "front: slash tip reach 16.414892 px < 18"
+      ]
+    },
+    "rear": {
+      "leading_blade": "hand_far",
+      "source_tip": [
+        205.5,
+        212.5
+      ],
+      "contact": 0.48,
+      "rest_tip": [
+        205.5,
+        212.5
+      ],
+      "contact_tip": [
+        226.97891902923607,
+        213.52110540866903
+      ],
+      "distance_px": 21.503176949467083,
+      "minimum_px": 18,
+      "errors": []
+    }
+  },
+  "tests": [
+    {
+      "name": "focused",
+      "command": "python3 -B -m unittest tests.test_rr35_cutout tests.test_rr35_production",
+      "exit_code": 1,
+      "result_lines": [
+        "Ran 20 tests in 113.977s",
+        "FAILED (failures=4)"
+      ],
+      "log": "logs/final_focused.txt"
+    },
+    {
+      "name": "references",
+      "command": "python3 -B tests/rr35/run_reference_tests.py tests.test_rr10_humanoid tests.test_rr11_humanoid tests.test_rr18_humanoid tests.test_rr17_cutout tests.test_rr17_integration tests.test_rr21_cutout tests.test_rr21_production tests.test_rr26_consolidation tests.test_rr29_mimic tests.test_rr30_mortar tests.test_rr31_calibration tests.test_rr31_storage tests.test_rr32_herald tests.test_rr32_production",
+      "exit_code": 0,
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1305 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1305 frames)",
+        "Ran 154 tests in 433.870s",
+        "OK"
+      ],
+      "log": "logs/references.txt"
+    },
+    {
+      "name": "gates",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_gates.py",
+      "exit_code": 1,
+      "result_lines": [
+        "RR35 ALL GATES: FAIL (20 unique errors; native=False)",
+        "RR35 FRONT: cut=0 bone=9 direction=0 walk=0 supports=0 claws=0 facing=0 reach=0 overreach=7",
+        "RR35 REAR: cut=0 bone=9 direction=0 walk=0 supports=0 claws=0 facing=0 reach=1 overreach=5"
+      ],
+      "log": "logs/final_gates.txt"
+    },
+    {
+      "name": "CPU every-frame surfaces/components",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_seams.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 FRONT CPU SEAMS/CLEAN: PASS (353 frames; 0 failures)",
+        "RR35 REAR CPU SEAMS/CLEAN: PASS (353 frames; 0 failures)"
+      ],
+      "log": "logs/final_cpu.txt"
+    },
+    {
+      "name": "identity",
+      "command": "python3 tests/test_art_identity_gate.py",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 111 tests in 38.520s",
+        "OK"
+      ],
+      "log": "logs/art_identity.txt"
+    },
+    {
+      "name": "icons",
+      "command": "python3 tests/test_icon_identity_policy.py",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 8 tests in 0.062s",
+        "OK"
+      ],
+      "log": "logs/icon_identity.txt"
+    },
+    {
+      "name": "registration",
+      "command": "python3 tools/test_registration_audit.py",
+      "exit_code": 0,
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (814 scripts; full suite=461, quarantined=29, windowed probe=324)"
+      ],
+      "log": "logs/registration.txt"
+    },
+    {
+      "name": "preservation",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_preservation.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 PRESERVATION: PASS (2959 protected files; 2 expected generic changes)"
+      ],
+      "log": "logs/preservation.txt"
+    },
+    {
+      "name": "density",
+      "command": "python3 tools/process_board_density.py --check --only gloam_stalker_cutout",
+      "exit_code": 1,
+      "result_lines": [
+        "rest rebake needed: assets/units/gloam_stalker_cutout/humanoid_v2/front/rest.png: rest pixels changed since recorded rebake",
+        "rest rebake needed: assets/units/gloam_stalker_cutout/humanoid_v2/rear/rest.png: rest pixels changed since recorded rebake"
+      ],
+      "log": "logs/density_check.txt"
+    },
+    {
+      "name": "runtime",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-35 --stream -- godot --headless --path . --script tests/rr35/runtime_checks.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 RUNTIME: PASS (61 checks; headless registration, views, portraits and clocks)"
+      ],
+      "log": "logs/runtime.txt"
+    },
+    {
+      "name": "native probe load",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-35 --stream -- godot --headless --path . --script tests/rr35/native_capture.gd -- --case experiments/cutouts/gloam_stalker/rr35 --output experiments/cutouts/gloam_stalker/rr35/proof/native --validate-only",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 NATIVE PROBE LOAD: PASS"
+      ],
+      "log": "logs/native_probe.txt"
+    },
+    {
+      "name": "density probe load",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-35 --stream -- godot --headless --path . --script tests/rr35/density_capture.gd -- --validate-only",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 DENSITY PROBE LOAD: PASS"
+      ],
+      "log": "logs/density_probe.txt"
+    },
+    {
+      "name": "SFX sync 0",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-35 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)"
+      ],
+      "log": "logs/sfx_0.txt"
+    },
+    {
+      "name": "SFX sync 1",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-35 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)"
+      ],
+      "log": "logs/sfx_1.txt"
+    },
+    {
+      "name": "SFX sync 2",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-35 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (1688 observations, 0 failures)"
+      ],
+      "log": "logs/sfx_2.txt"
+    },
+    {
+      "name": "production contacts/poses front",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_production.py --input experiments/cutouts/gloam_stalker/rr35/proof/logs/production_front/logic_frames.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+      ],
+      "log": "logs/production_front_gates.txt"
+    },
+    {
+      "name": "production contacts/poses rear",
+      "command": "PYTHONPATH=tools python3 -B experiments/cutouts/gloam_stalker/rr35_production.py --input experiments/cutouts/gloam_stalker/rr35/proof/logs/production_rear/logic_frames.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR35 PRODUCTION CONTACTS/POSES: PASS (0 errors)"
+      ],
+      "log": "logs/production_rear_gates.txt"
+    }
+  ],
+  "generic_changes": [
+    "tools/humanoid_cutout/anatomy.schema.json",
+    "tools/humanoid_cutout/walk_gates.py"
+  ],
+  "remaining_director_work": [
+    "Resolve three TODO_DESIGN conflicts without weakening gates.",
+    "Run native density/rest rebake, record rests, refresh two Gloam shadow records.",
+    "Capture rest/native/sheets/idle/production/review at 1920x1080, 100% UI scale.",
+    "Director-owned commit, peer review, inspection fixture and publication."
+  ]
+}

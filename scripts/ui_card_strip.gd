@@ -11,6 +11,8 @@ const Typography = preload("res://scripts/ui_typography.gd")
 const Surface = preload("res://scripts/ui_component_surface.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const GameData = preload("res://scripts/game_data.gd")
+# Width of one strip in a deck list (the fight preview and the Character screen).
+const LIST_WIDTH: float = 190.0
 
 static var _art_crops: Dictionary = {}
 
@@ -104,7 +106,18 @@ func _layout() -> void:
 	_name.position = Vector2(60.0 * layout_scale, 0.0)
 	var name_end: float = _count.position.x if _count.visible else size.x - 6.0 * layout_scale
 	_name.size = Vector2(maxf(0.0, name_end - _name.position.x), size.y)
+	_fit_name()
 	queue_redraw()
+
+# A long name steps down a size or two when that fits it whole, as card titles
+# do. A name too long even then keeps its size and trims.
+func _fit_name() -> void:
+	var font: Font = _name.get_theme_font("font")
+	for candidate: int in [15, 14, 13]:
+		Typography.set_label_size(_name, candidate)
+		if font == null or font.get_string_size(_name.text, HORIZONTAL_ALIGNMENT_LEFT, -1, _name.get_theme_font_size("font_size")).x <= _name.size.x:
+			return
+	Typography.set_label_size(_name, 15)
 
 func _interaction_changed() -> void:
 	var active: bool = is_hovered() or has_focus(true)

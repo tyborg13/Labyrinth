@@ -1,0 +1,302 @@
+{
+  "headless_complete": true,
+  "native_windowed_run": false,
+  "full_suite_run": false,
+  "native_acceptance": "pending director seven-stage windowed capture and 2\u20134x judgment",
+  "results": {
+    "focused": {
+      "command": "python3 -m unittest tests.test_rr37_feedback3 tests.test_rr37_feedback1 tests.test_rr37_lancer tests.test_rr37_production tests.test_rr37_feedback2 -v",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-final-verified-focused.log",
+      "sha256": "cd6abc36b602d4b900b6ca9d1240b4bef4d5362784a474f2f9f2622f2202f77d",
+      "exit_code": 0,
+      "result_lines": [
+        "RR37 ROUND3 UNCOVERED CPU: PASS (7 production-rest poses; not native proof)",
+        "RR37 ROUND2 UNCOVERED REGRESSION: PASS (all 5 requested native failures rejected; 2 rest controls clean)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR37 FRONT PRODUCTION FRAMES: PASS (512 frames; 0 failures; software raster, native runtime poses)",
+        "RR37 REAR PRODUCTION FRAMES: PASS (512 frames; 0 failures; software raster, native runtime poses)",
+        "Ran 36 tests in 648.918s",
+        "OK",
+        "RR37 REJECTED NATIVE REGRESSION: PASS (6 rejected frames + 1 unchanged rear-idle control; components and joint seams detected)",
+        "RR37 REJECTED PRODUCTION RASTER: PASS (detects 6 components > rest 1)",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1634 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1634 frames)"
+      ]
+    },
+    "references": {
+      "command": "env LABYRINTH_TASK_ID=rr-37 python3 tests/rr35/run_reference_tests.py tests.test_rr10_humanoid tests.test_rr11_humanoid tests.test_rr18_humanoid tests.test_rr17_cutout tests.test_rr21_cutout tests.test_rr20_cutout tests.test_rr22_humanoid tests.test_rr32_herald tests.test_rr35_cutout tests.test_rr35_native_defects",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-final-references.log",
+      "sha256": "929eb466a046b0c27db0efab5a1a41df0023b405c01d6d2f8399ff5e771e0fda",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 168 tests in 285.574s",
+        "OK"
+      ]
+    },
+    "art_identity": {
+      "command": "python3 -m unittest tests.test_art_identity_gate",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-final-verified-art.log",
+      "sha256": "7e7afca9149bdd37f746b290b525b515b8811354669d052717573f4f40d52bf6",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 111 tests in 41.240s",
+        "OK"
+      ]
+    },
+    "gates": {
+      "command": "rr37_evidence.refresh_samples(root), then python3 experiments/cutouts/frostglass_lancer/rr37_gates.py --case root; roots are source CASE and exact treated PROOF_CASE",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-final-verified-gates.log",
+      "sha256": "c74f782c0671d6cd46141da36eb5e779181a6949af8003de0a54e1ea16435cf2",
+      "exit_code": 0,
+      "result_lines": [
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+        "RR37 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+        "RR37 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+        "RR37 BONE SAMPLES: PASS (1396 poses; headless transforms only)",
+        "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+        "RR37 FRONT: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+        "RR37 REAR: cut=0 bone=0 direction=0 walk=0 supports=0 spear=0 facing=0 reach=0 overreach=6",
+        "RR37 COMPACT SAMPLES: PASS (1396 poses; full transforms in ignored logs)",
+        "RR37 COMPACT SAMPLES: PASS (1396 poses; full transforms in ignored logs)"
+      ]
+    },
+    "shadow_and_probe": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-37 --stream -- godot --headless --path . --script tests/rr37/shadow_refresh.gd; then the same runner with tests/rr37/native_capture.gd -- --case experiments/cutouts/frostglass_lancer/rr37/proof/production_case --output experiments/cutouts/frostglass_lancer/rr37/proof/logs/final_probe_load --validate-only",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-final-verified-shadow-probe.log",
+      "sha256": "26a3ae502094d0b0ead3caef63c1b25b345485be0c42d886fea025639f71de40",
+      "exit_code": 0,
+      "result_lines": [
+        "RR37 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)",
+        "RR37 NATIVE PROBE LOAD: PASS"
+      ]
+    },
+    "sfx": {
+      "command": "For n=0,1,2: python3 tools/godot_task_runner.py --task-id rr-37 --stream -- godot --headless --path . --script tests/suites/sfx_sync_<n>_program.gd",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-final-sfx.log",
+      "sha256": "9cfbc04775dd7c99d178531e42506da8a0fe5f308163c588f1e443a0842f0cc5",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (4243 observations, 0 failures)",
+        "SFX SYNC HARNESS RESULT: PASS (3516 observations, 0 failures)",
+        "SFX SYNC HARNESS RESULT: PASS (1688 observations, 0 failures)"
+      ]
+    },
+    "registration": {
+      "command": "python3 tools/test_registration_audit.py",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-final-registration.log",
+      "sha256": "2b1a7adb25e1c29054be6051a329e30b280c01af8e708ba178f7711401f174ba",
+      "exit_code": 0,
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (814 scripts; full suite=461, quarantined=29, windowed probe=324)"
+      ]
+    },
+    "bounds": {
+      "command": "PYTHONPATH=tools:experiments/cutouts/frostglass_lancer python3 experiments/cutouts/frostglass_lancer/rr37_bounds.py",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-final-bounds.log",
+      "sha256": "9915bf37098343f7191838eb4f3ae2dc332bfe4298fac85b34894ab4d2d3d2ca",
+      "exit_code": 0,
+      "result_lines": [
+        "RR37 ACTION CAPACITY: PASS ([-267, -255, 534, 279]; zero canvas-edge pixels; CPU construction)"
+      ]
+    },
+    "preservation": {
+      "command": "git diff --quiet HEAD for protected tracked paths; SHA-256 closure; exact non-Lancer JSON equality",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-final-preservation.log",
+      "sha256": "67cbca764590ffda4a7d49751a30db48679ae0c9bd8b7ba60a0d5c25f7d6d177",
+      "exit_code": 0,
+      "result_lines": [
+        "RR37 FEEDBACK3 PRESERVATION: PASS (37914 protected tracked files; paintings, maquette, motion and every other rig byte-identical)",
+        "RR37 NON-LANCER REGISTRIES: PASS (all non-Lancer entries and metadata unchanged)",
+        "RR37 SHIPPED MOTION: PASS (director and compiled motion byte-identical; branch codex/rr-37)"
+      ]
+    },
+    "final_scope": {
+      "command": "git diff --name-only HEAD and git ls-files --others --exclude-standard scope assertion; exact foreign registry comparison; git diff --check; sh -n experiments/cutouts/frostglass_lancer/rr37_proof.sh",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-final-scope.log",
+      "sha256": "f8e89531d1ec8706ef5f8c59dd00eb74dafd32e2a22224385923c8e3867aab55",
+      "exit_code": 0,
+      "result_lines": [
+        "RR37 FINAL SCOPE: PASS (only owned paths and the optional donor helper; all protected inputs and other rigs unchanged)",
+        "RR37 NON-LANCER REGISTRIES: PASS (exact equality for every other entry and metadata field)",
+        "RR37 DIFF CHECK: PASS",
+        "RR37 PROOF SHELL SYNTAX: PASS"
+      ]
+    },
+    "density_check": {
+      "command": "python3 tools/process_board_density.py --check --only frostglass_lancer_cutout",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-final-density-check.log",
+      "sha256": "3449b3b0b114e988bc56e7c538a0ce1f13b664899d7d845db567f2c339a207fe",
+      "exit_code": 1,
+      "result_lines": [
+        "rest rebake needed: assets/units/frostglass_lancer_cutout/humanoid_v2/front/rest.png: rest pixels changed since recorded rebake",
+        "rest rebake needed: assets/units/frostglass_lancer_cutout/humanoid_v2/rear/rest.png: rest pixels changed since recorded rebake"
+      ]
+    },
+    "previews": {
+      "command": "PYTHONPATH=tools:experiments/cutouts/frostglass_lancer python3 experiments/cutouts/frostglass_lancer/rr37_feedback3_preview.py",
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-final-previews.log",
+      "sha256": "d173c8d951e832730e7467e0dbaab94f0d8a59724b84517f6ac6366cfff75f6b",
+      "exit_code": 0,
+      "result_lines": [
+        "RR37 SOFTWARE PREVIEW: PASS (front_lunge_0020; /Users/borgerding/workspace/Labyrinth.worktrees/rr-37/experiments/cutouts/frostglass_lancer/rr37/proof/feedback3_cpu/front_lunge_0020.png; not native proof)",
+        "RR37 SOFTWARE PREVIEW: PASS (front_cast_0000; /Users/borgerding/workspace/Labyrinth.worktrees/rr-37/experiments/cutouts/frostglass_lancer/rr37/proof/feedback3_cpu/front_cast_0000.png; not native proof)",
+        "RR37 SOFTWARE PREVIEW: PASS (front_cast_0004; /Users/borgerding/workspace/Labyrinth.worktrees/rr-37/experiments/cutouts/frostglass_lancer/rr37/proof/feedback3_cpu/front_cast_0004.png; not native proof)",
+        "RR37 SOFTWARE PREVIEW: PASS (front_cast_0012; /Users/borgerding/workspace/Labyrinth.worktrees/rr-37/experiments/cutouts/frostglass_lancer/rr37/proof/feedback3_cpu/front_cast_0012.png; not native proof)",
+        "RR37 SOFTWARE PREVIEW: PASS (front_guard_0025; /Users/borgerding/workspace/Labyrinth.worktrees/rr-37/experiments/cutouts/frostglass_lancer/rr37/proof/feedback3_cpu/front_guard_0025.png; not native proof)",
+        "RR37 SOFTWARE PREVIEW: PASS (rear_lunge_0036; /Users/borgerding/workspace/Labyrinth.worktrees/rr-37/experiments/cutouts/frostglass_lancer/rr37/proof/feedback3_cpu/rear_lunge_0036.png; not native proof)",
+        "RR37 SOFTWARE PREVIEW: PASS (rear_cast_0000; /Users/borgerding/workspace/Labyrinth.worktrees/rr-37/experiments/cutouts/frostglass_lancer/rr37/proof/feedback3_cpu/rear_cast_0000.png; not native proof)"
+      ]
+    }
+  },
+  "production_raster": {
+    "front": {
+      "frames": 512,
+      "death_frames": 96,
+      "failures": 0
+    },
+    "rear": {
+      "frames": 512,
+      "death_frames": 96,
+      "failures": 0
+    }
+  },
+  "raster_scope": "software raster of exact density-treated production textures using fresh actual runtime poses; not a native renderer seal",
+  "round2_fixture": {
+    "source_manifest_sha256": "a2115a5cc5aeff0dfed780954df3ef0a1bee2ae759f4ab3aabfc734791f752ac",
+    "source_gate_log_sha256": "c777671c6bf857c8aa8547e1ec29576cf2e9cc1c60c70af39ed11afbe36355f8",
+    "required_failures": [
+      [
+        "front",
+        "cast",
+        4
+      ],
+      [
+        "front",
+        "cast",
+        12
+      ],
+      [
+        "front",
+        "lunge",
+        20
+      ],
+      [
+        "front",
+        "guard",
+        25
+      ],
+      [
+        "rear",
+        "lunge",
+        36
+      ]
+    ],
+    "rest_controls": [
+      [
+        "front",
+        "cast",
+        0
+      ],
+      [
+        "rear",
+        "cast",
+        0
+      ]
+    ],
+    "scope": "Original round-2 native PNG/layer bytes, not a reconstructed image"
+  },
+  "round2_gate_outcome": "FAIL on all five requested original native frames; both original rest controls clean",
+  "release_declaration": [
+    {
+      "item": "spear",
+      "clip": "death"
+    }
+  ],
+  "release_timing": "protected compiled motion release_at, with runtime view override; unchanged",
+  "protected_motion_sha256": "65fe0b1a4892ad3a75827ba14cdd14dd8c41253f8f0ef1ebf79fb1240e7dc039",
+  "implementation_sha256": {
+    "experiments/cutouts/frostglass_lancer/rr37_acceptance.py": "61bac7196b46afe7b2e4b9b05467a2cc03d4e6ca52b3319ac2d54abfe77dd306",
+    "experiments/cutouts/frostglass_lancer/rr37_build.py": "193ca4fa5c4bdff98e54a9e8603694d3f51f21a0433e938755da7aa853a04c40",
+    "experiments/cutouts/frostglass_lancer/rr37_continuations.py": "991cd1f26aa84f5d565b743d5558effcb1e3cfdf1bfef95a464223864a0f6b4c",
+    "experiments/cutouts/frostglass_lancer/rr37_coverage.py": "ecde34dd2879d9e91404f2f53cf9f6d76148a24582a548d6e0bfae9403066bf5",
+    "experiments/cutouts/frostglass_lancer/rr37_feedback3_fixture.py": "cf25f8d9c95886f59cb92e98d2f307b6fa1de9d87e7082f06dc9aa7f999a4828",
+    "experiments/cutouts/frostglass_lancer/rr37_feedback3_preview.py": "c1f916d50b7c1b3a2fd344a75be93fdbe9d97942fa85d6b95014d91db5f9e029",
+    "experiments/cutouts/frostglass_lancer/rr37_frames.py": "3ce7695b310d1ef8ad7ae7b73bcd5b4cd5a685be42b4f20a9bb3a74faea8ff9a",
+    "experiments/cutouts/frostglass_lancer/rr37_gates.py": "a4b659f9a4521cdc4bc75c8ddb6e13d2062b671684d8f212c99bac1f84ee4fc2",
+    "experiments/cutouts/frostglass_lancer/rr37_materials.py": "f1f30d138c902df5fd40696052fe6b352af550b209c65d63771329de84e2c7f8",
+    "experiments/cutouts/frostglass_lancer/rr37_proof_case.py": "0b4d570eab192ef139271caf495d75ff345445d5a8c31fd47bb44096e224cfde",
+    "experiments/cutouts/frostglass_lancer/rr37_surfaces.py": "f068ab3ec19e4bbd44cfac9a278ebb2302f3e63b933c3ffc07e543e14bb194f3",
+    "experiments/cutouts/frostglass_lancer/rr37_traces.py": "4283cc01dfc89d719ba3b0f69660bacce3ae417eb0c40b58b3192a9b77cf2b35",
+    "experiments/cutouts/frostglass_lancer/rr37_uncovered.py": "f0d1ca44a230272b34e16d477facc9c00f2848a53cfc468ea754f07dca5bc4a9",
+    "tests/test_rr37_feedback3.py": "cefbfde22ae2b3cc0b5aa9c40655a4375aff66cf59d9239d2e861bac9ed2127a",
+    "tools/humanoid_cutout/gait_continuations.py": "608e40f826699b622bc177a500f8ff0b18b8dd26920f26c416d3ab251bed0c8d"
+  },
+  "todo_design": {},
+  "chosen_defaults": {
+    "continuation_canvas_padding_px": 4,
+    "transform_comparison_epsilon": 0.0001,
+    "preview": {
+      "crop": [
+        140,
+        130,
+        430,
+        430
+      ],
+      "scale": 4
+    },
+    "mutation": {
+      "view": "front",
+      "clip": "cast",
+      "frame": 12,
+      "island_radius_px": 2,
+      "donor_target_uv": [
+        0,
+        0
+      ]
+    }
+  },
+  "generic_change": {
+    "path": "tools/humanoid_cutout/gait_continuations.py",
+    "optional_fields": {
+      "continuation_interior_margin_px": 0,
+      "continuation_donor_uvs": null
+    },
+    "references_passed": 168
+  },
+  "superseded_construction_checks": [
+    {
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-shaft-all-focused.log",
+      "sha256": "eee3a69d5202441bf3c44ba052dd717e33762047b40b06c97f3f82cf00ed203b",
+      "result": "Ran 25 tests in 642.344s / FAILED (failures=1); 55 rear frames exposed by narrow shaft; repaired adjoining own-material joint coverage"
+    },
+    {
+      "log": "/private/tmp/labyrinth_codex/rr37-feedback3-complete-focused.log",
+      "sha256": "5e90ef572e38bad9d2388f7815c67106e7b1f2ab2f59a5399f984c7f28f783f6",
+      "result": "Ran 36 tests in 722.625s / FAILED (failures=1); 8 released-spear splits; fixed common presentation anchor, then closed remaining joint pockets"
+    }
+  ],
+  "windowed_commands": [
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh density",
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh rest",
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh native",
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh sheets",
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh idle",
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh production",
+    "sh experiments/cutouts/frostglass_lancer/rr37_proof.sh review"
+  ],
+  "open_issues": [
+    "Fresh director native capture and 2\u20134x judgment pending",
+    "Two native density rest records require the director density stage"
+  ],
+  "final_data_sha256": {
+    "experiments/cutouts/frostglass_lancer/rr37/layouts/front.json": "2f81fb07d5b23c169ae9adad8415328a76a6aac73c4a2909a2463fa306c56a1b",
+    "experiments/cutouts/frostglass_lancer/rr37/layouts/rear.json": "e41e99996fc89bcd6870e421cd3826c3092f7f3de830681ca76bbe9c8d50c8ad",
+    "experiments/cutouts/frostglass_lancer/rr37/gait_continuations.json": "575b6ed3ba63ecd054d707dad881d252c5c573554acfeb61f51d7698cab6fb79",
+    "experiments/cutouts/frostglass_lancer/rr37/clip_continuations.json": "92da46a76f2eb2000f05d466d2fa8658ce66f71d4f9dab939fe1f3df46d9ec95",
+    "experiments/cutouts/frostglass_lancer/rr37/proof/production_binding.json": "e0a24d6093f59cee7fcf46b3f0ca2c0b11309c0c34de0471a8a5c92d27d7306f",
+    "assets/units/frostglass_lancer_cutout/humanoid_v2/front.json": "42ba3c4c37e30d22fb54dc3cbeacf42f6a1b83aec43170fb4de312f6be429ac0",
+    "assets/units/frostglass_lancer_cutout/humanoid_v2/rear.json": "c1fdb6216c59bd3e9f770b2936449344ebb9c125d1281d0e993a4153089e24f6"
+  }
+}

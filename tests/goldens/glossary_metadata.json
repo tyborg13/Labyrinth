@@ -1,0 +1,1203 @@
+{
+  "metadata": [
+    {
+      "aliases": [],
+      "icon": "reflect",
+      "id": "reflect",
+      "name": "Reflect"
+    },
+    {
+      "aliases": [],
+      "icon": "flying",
+      "id": "flying",
+      "name": "Flying"
+    },
+    {
+      "aliases": [
+        "lob_mark",
+        "lob_land"
+      ],
+      "icon": "lob",
+      "id": "lob",
+      "name": "Lob Slag"
+    },
+    {
+      "aliases": [
+        "gain_charge",
+        "reset_charge",
+        "chain_discharge"
+      ],
+      "icon": "charge",
+      "id": "charge",
+      "name": "Charge"
+    },
+    {
+      "aliases": [
+        "mirror_last_attack"
+      ],
+      "icon": "mirror",
+      "id": "mirror",
+      "name": "Mirror"
+    },
+    {
+      "aliases": [
+        "icefall_mark",
+        "icefall_land"
+      ],
+      "icon": "icefall",
+      "id": "icefall",
+      "name": "Icefall"
+    },
+    {
+      "aliases": [
+        "call_wind",
+        "gust"
+      ],
+      "icon": "wind",
+      "id": "wind",
+      "name": "Gust"
+    },
+    {
+      "aliases": [],
+      "icon": "burrow",
+      "id": "burrow",
+      "name": "Burrow"
+    },
+    {
+      "aliases": [],
+      "icon": "erupt",
+      "id": "erupt",
+      "name": "Erupt"
+    },
+    {
+      "aliases": [
+        "kindle"
+      ],
+      "icon": "burst",
+      "id": "burst",
+      "name": "Bursts"
+    },
+    {
+      "aliases": [
+        "surface_adjacent_enemies"
+      ],
+      "icon": "surface",
+      "id": "surface",
+      "name": "Shape Ground"
+    },
+    {
+      "aliases": [],
+      "icon": "surface_fire",
+      "id": "surface_fire",
+      "name": "Fire"
+    },
+    {
+      "aliases": [],
+      "icon": "surface_ice",
+      "id": "surface_ice",
+      "name": "Ice"
+    },
+    {
+      "aliases": [],
+      "icon": "surface_electrified",
+      "id": "surface_electrified",
+      "name": "Electrified"
+    },
+    {
+      "aliases": [],
+      "icon": "surface_rubble",
+      "id": "surface_rubble",
+      "name": "Rubble"
+    },
+    {
+      "aliases": [],
+      "icon": "chilled",
+      "id": "chilled",
+      "name": "Chilled"
+    },
+    {
+      "aliases": [],
+      "icon": "detonate",
+      "id": "detonate",
+      "name": "Detonate"
+    },
+    {
+      "aliases": [
+        "consume_surface",
+        "Expends",
+        "Expended",
+        "Expending",
+        "Consume Ground",
+        "Consume Surface"
+      ],
+      "icon": "surface_consume",
+      "id": "surface_consume",
+      "name": "Expend"
+    },
+    {
+      "aliases": [],
+      "icon": "surface_relocate",
+      "id": "surface_relocate",
+      "name": "Relocate Ground"
+    },
+    {
+      "aliases": [],
+      "icon": "melee",
+      "id": "melee",
+      "name": "Melee"
+    },
+    {
+      "aliases": [],
+      "icon": "ranged",
+      "id": "ranged",
+      "name": "Ranged"
+    },
+    {
+      "aliases": [],
+      "icon": "pierce",
+      "id": "pierce",
+      "name": "Pierce"
+    },
+    {
+      "aliases": [
+        "move_toward"
+      ],
+      "icon": "move",
+      "id": "move",
+      "name": "Move"
+    },
+    {
+      "aliases": [
+        "move_away"
+      ],
+      "icon": "retreat",
+      "id": "retreat",
+      "name": "Retreat"
+    },
+    {
+      "aliases": [],
+      "icon": "blink",
+      "id": "blink",
+      "name": "Blink"
+    },
+    {
+      "aliases": [],
+      "icon": "range",
+      "id": "range",
+      "name": "Range"
+    },
+    {
+      "aliases": [],
+      "icon": "block",
+      "id": "block",
+      "name": "Block"
+    },
+    {
+      "aliases": [
+        "convert_block_to_stoneskin"
+      ],
+      "icon": "stoneskin",
+      "id": "stoneskin",
+      "name": "Stoneskin"
+    },
+    {
+      "aliases": [
+        "heal_self"
+      ],
+      "icon": "heal",
+      "id": "heal",
+      "name": "Heal"
+    },
+    {
+      "aliases": [],
+      "icon": "draw",
+      "id": "draw",
+      "name": "Draw"
+    },
+    {
+      "aliases": [
+        "Card Plays"
+      ],
+      "icon": "card_play",
+      "id": "card_play",
+      "name": "Card Play"
+    },
+    {
+      "aliases": [],
+      "icon": "flurry",
+      "id": "flurry",
+      "name": "Flurry"
+    },
+    {
+      "aliases": [],
+      "icon": "follow_up",
+      "id": "follow_up",
+      "name": "Follow-up"
+    },
+    {
+      "aliases": [],
+      "icon": "empower",
+      "id": "empower",
+      "name": "Empower"
+    },
+    {
+      "aliases": [],
+      "icon": "stagger",
+      "id": "stagger",
+      "name": "Stagger"
+    },
+    {
+      "aliases": [],
+      "icon": "time",
+      "id": "time",
+      "name": "Time"
+    },
+    {
+      "aliases": [],
+      "icon": "illusion",
+      "id": "illusion",
+      "name": "Illusion"
+    },
+    {
+      "aliases": [
+        "Illuminate"
+      ],
+      "icon": "illuminate",
+      "id": "illuminate",
+      "name": "Light"
+    },
+    {
+      "aliases": [],
+      "icon": "vision",
+      "id": "vision",
+      "name": "Vision"
+    },
+    {
+      "aliases": [
+        "True Sight"
+      ],
+      "icon": "truesight",
+      "id": "truesight",
+      "name": "Truesight"
+    },
+    {
+      "aliases": [],
+      "icon": "dispel_umbra",
+      "id": "dispel_umbra",
+      "name": "Dispel Umbra"
+    },
+    {
+      "aliases": [],
+      "icon": "eclipse",
+      "id": "eclipse",
+      "name": "Eclipse"
+    },
+    {
+      "aliases": [],
+      "icon": "bleed",
+      "id": "bleed",
+      "name": "Bleed"
+    },
+    {
+      "aliases": [],
+      "icon": "expose",
+      "id": "expose",
+      "name": "Expose"
+    },
+    {
+      "aliases": [],
+      "icon": "sunder",
+      "id": "sunder",
+      "name": "Sunder"
+    },
+    {
+      "aliases": [],
+      "icon": "exhaust",
+      "id": "exhaust",
+      "name": "Exhaust"
+    },
+    {
+      "aliases": [],
+      "icon": "consume",
+      "id": "consume",
+      "name": "Consume"
+    },
+    {
+      "aliases": [],
+      "icon": "retaliate",
+      "id": "retaliate",
+      "name": "Retaliate"
+    },
+    {
+      "aliases": [],
+      "icon": "quicken",
+      "id": "quicken",
+      "name": "Quicken"
+    },
+    {
+      "aliases": [],
+      "icon": "rite",
+      "id": "rite",
+      "name": "Rite"
+    },
+    {
+      "aliases": [],
+      "icon": "next_attack",
+      "id": "next_attack",
+      "name": "Next Attack"
+    },
+    {
+      "aliases": [],
+      "icon": "swap",
+      "id": "swap",
+      "name": "Swap"
+    },
+    {
+      "aliases": [
+        "Petrified"
+      ],
+      "icon": "petrify",
+      "id": "petrify",
+      "name": "Petrify"
+    },
+    {
+      "aliases": [],
+      "icon": "cleanse",
+      "id": "cleanse",
+      "name": "Cleanse"
+    },
+    {
+      "aliases": [],
+      "icon": "skate",
+      "id": "skate",
+      "name": "Skate"
+    },
+    {
+      "aliases": [],
+      "icon": "anchored",
+      "id": "anchored",
+      "name": "Anchored"
+    },
+    {
+      "aliases": [],
+      "icon": "fireproof",
+      "id": "fireproof",
+      "name": "Fireproof"
+    },
+    {
+      "aliases": [
+        "convert_surface"
+      ],
+      "icon": "surface_convert",
+      "id": "surface_convert",
+      "name": "Convert Ground"
+    },
+    {
+      "aliases": [],
+      "icon": "discharge",
+      "id": "discharge",
+      "name": "Discharge"
+    },
+    {
+      "aliases": [],
+      "icon": "all_enemies",
+      "id": "all_enemies",
+      "name": "Sweeping Strike"
+    },
+    {
+      "aliases": [],
+      "icon": "illusion_swap",
+      "id": "illusion_swap",
+      "name": "Swap Illusion"
+    },
+    {
+      "aliases": [
+        "destroy_illusion"
+      ],
+      "icon": "shatter_illusion",
+      "id": "shatter_illusion",
+      "name": "Shatter Illusion"
+    },
+    {
+      "aliases": [
+        "Frozen"
+      ],
+      "icon": "freeze",
+      "id": "freeze",
+      "name": "Freeze"
+    },
+    {
+      "aliases": [
+        "Shocked"
+      ],
+      "icon": "shock",
+      "id": "shock",
+      "name": "Shock"
+    },
+    {
+      "aliases": [
+        "Immobilized",
+        "Rooted"
+      ],
+      "icon": "immobilize",
+      "id": "immobilize",
+      "name": "Immobilize"
+    },
+    {
+      "aliases": [],
+      "icon": "chain",
+      "id": "chain",
+      "name": "Chain"
+    },
+    {
+      "aliases": [
+        "force_area"
+      ],
+      "icon": "push",
+      "id": "push",
+      "name": "Push"
+    },
+    {
+      "aliases": [],
+      "icon": "pull",
+      "id": "pull",
+      "name": "Pull"
+    },
+    {
+      "aliases": [],
+      "icon": "collision",
+      "id": "collision",
+      "name": "Collision"
+    },
+    {
+      "aliases": [],
+      "icon": "health",
+      "id": "health",
+      "name": "Health"
+    },
+    {
+      "aliases": [],
+      "icon": "health_cost",
+      "id": "health_cost",
+      "name": "Health Cost"
+    },
+    {
+      "aliases": [
+        "Area Attacks"
+      ],
+      "icon": "aoe",
+      "id": "aoe",
+      "name": "Area Attack"
+    },
+    {
+      "aliases": [],
+      "icon": "lightning_strikes",
+      "id": "lightning_strikes",
+      "name": "Lightning Strikes"
+    },
+    {
+      "aliases": [
+        "Summon Minions"
+      ],
+      "icon": "summon_minions",
+      "id": "summon_minions",
+      "name": "Summon"
+    },
+    {
+      "aliases": [],
+      "icon": "raise_terrain",
+      "id": "raise_terrain",
+      "name": "Raise Terrain"
+    },
+    {
+      "aliases": [
+        "burst_terrain"
+      ],
+      "icon": "terrain_burst",
+      "id": "terrain_burst",
+      "name": "Terrain Burst"
+    },
+    {
+      "aliases": [
+        "meteor_marks",
+        "Kindle Ground"
+      ],
+      "icon": "cinder_marks",
+      "id": "cinder_marks",
+      "name": "Cinder Marks"
+    },
+    {
+      "aliases": [],
+      "icon": "detonate_cinders",
+      "id": "detonate_cinders",
+      "name": "Crownfire"
+    },
+    {
+      "aliases": [
+        "The Hollow Gale",
+        "Arena Gale"
+      ],
+      "icon": "gale_force",
+      "id": "gale_force",
+      "name": "Hollow Gale"
+    },
+    {
+      "aliases": [
+        "mantle"
+      ],
+      "icon": "frost_armor",
+      "id": "frost_armor",
+      "name": "Crystal Mantle"
+    },
+    {
+      "aliases": [],
+      "icon": "guard_ally",
+      "id": "guard_ally",
+      "name": "Guard Ally"
+    },
+    {
+      "aliases": [],
+      "icon": "heal_ally",
+      "id": "heal_ally",
+      "name": "Heal Ally"
+    },
+    {
+      "aliases": [
+        "The Last Eclipse"
+      ],
+      "icon": "umbra_eclipse",
+      "id": "umbra_eclipse",
+      "name": "Last Eclipse"
+    },
+    {
+      "aliases": [],
+      "icon": "radiance",
+      "id": "radiance",
+      "name": "Radiance"
+    },
+    {
+      "aliases": [],
+      "icon": "ember",
+      "id": "ember",
+      "name": "Embers"
+    },
+    {
+      "aliases": [],
+      "icon": "run",
+      "id": "run",
+      "name": "The Run"
+    },
+    {
+      "aliases": [],
+      "icon": "map_rooms",
+      "id": "map_rooms",
+      "name": "Map and Rooms"
+    },
+    {
+      "aliases": [
+        "Character and Loadout",
+        "Character Loadout"
+      ],
+      "icon": "loadout",
+      "id": "loadout",
+      "name": "Character"
+    },
+    {
+      "aliases": [],
+      "icon": "rewards",
+      "id": "rewards",
+      "name": "Rewards"
+    },
+    {
+      "aliases": [],
+      "icon": "relics",
+      "id": "relics",
+      "name": "Relics"
+    },
+    {
+      "aliases": [],
+      "icon": "combat_board",
+      "id": "combat_board",
+      "name": "Combat Board"
+    },
+    {
+      "aliases": [],
+      "icon": "turn_clock",
+      "id": "turn_clock",
+      "name": "Turn Clock"
+    },
+    {
+      "aliases": [],
+      "icon": "health_defense",
+      "id": "health_defense",
+      "name": "Health and Defenses"
+    },
+    {
+      "aliases": [],
+      "icon": "defiance",
+      "id": "defiance",
+      "name": "Defiance"
+    },
+    {
+      "aliases": [],
+      "icon": "targeting",
+      "id": "targeting",
+      "name": "Targeting"
+    },
+    {
+      "aliases": [],
+      "icon": "fatigue",
+      "id": "fatigue",
+      "name": "Fatigue"
+    },
+    {
+      "aliases": [],
+      "icon": "traps",
+      "id": "traps",
+      "name": "Traps"
+    },
+    {
+      "aliases": [],
+      "icon": "umbra",
+      "id": "umbra",
+      "name": "The Umbra"
+    },
+    {
+      "aliases": [],
+      "icon": "worldspines",
+      "id": "worldspines",
+      "name": "Worldspines"
+    },
+    {
+      "aliases": [],
+      "icon": "element_fire",
+      "id": "element_fire",
+      "name": "Fire"
+    },
+    {
+      "aliases": [],
+      "icon": "element_ice",
+      "id": "element_ice",
+      "name": "Ice"
+    },
+    {
+      "aliases": [],
+      "icon": "element_lightning",
+      "id": "element_lightning",
+      "name": "Lightning"
+    },
+    {
+      "aliases": [],
+      "icon": "element_air",
+      "id": "element_air",
+      "name": "Air"
+    },
+    {
+      "aliases": [],
+      "icon": "element_earth",
+      "id": "element_earth",
+      "name": "Earth"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_quick_wits",
+      "id": "skill_quick_wits",
+      "name": "Quick Wits"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_measured_breath",
+      "id": "skill_measured_breath",
+      "name": "Measured Breath"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_ghost_stride",
+      "id": "skill_ghost_stride",
+      "name": "Ghost Stride"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_discerning_eye",
+      "id": "skill_discerning_eye",
+      "name": "Discerning Eye"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_rehearsed_escape",
+      "id": "skill_rehearsed_escape",
+      "name": "Rehearsed Escape"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_makeshift_tool",
+      "id": "skill_makeshift_tool",
+      "name": "Makeshift Tool"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_carry_the_guard",
+      "id": "skill_carry_the_guard",
+      "name": "Carry the Guard"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_pain_remembers",
+      "id": "skill_pain_remembers",
+      "name": "Pain Remembers"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_sure_footed",
+      "id": "skill_sure_footed",
+      "name": "Sure-Footed"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_afterimage",
+      "id": "skill_afterimage",
+      "name": "Afterimage"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_deferred_choice",
+      "id": "skill_deferred_choice",
+      "name": "Deferred Choice"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_salvager",
+      "id": "skill_salvager",
+      "name": "Salvager"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_borrowed_time",
+      "id": "skill_borrowed_time",
+      "name": "Borrowed Time"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_last_reserve",
+      "id": "skill_last_reserve",
+      "name": "Last Reserve"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_plunderers_step",
+      "id": "skill_plunderers_step",
+      "name": "Plunderer's Step"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_prismatic_instinct",
+      "id": "skill_prismatic_instinct",
+      "name": "Prismatic Instinct"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_curators_patience",
+      "id": "skill_curators_patience",
+      "name": "Curator's Patience"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_living_shadow",
+      "id": "skill_living_shadow",
+      "name": "Living Shadow"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_true_bearing",
+      "id": "skill_true_bearing",
+      "name": "True Bearing"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_encore",
+      "id": "skill_encore",
+      "name": "Encore"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_open_arsenal",
+      "id": "skill_open_arsenal",
+      "name": "Open Arsenal"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_confluence",
+      "id": "skill_confluence",
+      "name": "Confluence"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_last_door",
+      "id": "skill_last_door",
+      "name": "Last Door"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_long_dawn",
+      "id": "skill_long_dawn",
+      "name": "Long Dawn"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_sunpath",
+      "id": "skill_sunpath",
+      "name": "Sunpath"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_witchlight",
+      "id": "skill_witchlight",
+      "name": "Witchlight"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_dawnbrand",
+      "id": "skill_dawnbrand",
+      "name": "Dawnbrand"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_afterglow",
+      "id": "skill_afterglow",
+      "name": "Afterglow"
+    },
+    {
+      "aliases": [],
+      "icon": "skill_open_sky",
+      "id": "skill_open_sky",
+      "name": "Open Sky"
+    },
+    {
+      "aliases": [
+        "Skill Points"
+      ],
+      "icon": "res://assets/art/icons/skill_point.png",
+      "id": "skill_point",
+      "name": "Skill Point"
+    },
+    {
+      "aliases": [
+        "Moltshard",
+        "Shard"
+      ],
+      "icon": "res://assets/art/icons/moltshard.png",
+      "id": "moltshard",
+      "name": "Moltshards"
+    },
+    {
+      "aliases": [],
+      "icon": null,
+      "id": "wait",
+      "name": "Wait"
+    },
+    {
+      "aliases": [],
+      "icon": null,
+      "id": "turns",
+      "name": "Turns"
+    },
+    {
+      "aliases": [],
+      "icon": null,
+      "id": "movement",
+      "name": "Movement"
+    },
+    {
+      "aliases": [
+        "Items"
+      ],
+      "icon": null,
+      "id": "item",
+      "name": "Item"
+    },
+    {
+      "aliases": [
+        "Outcrops"
+      ],
+      "icon": null,
+      "id": "outcrop",
+      "name": "Outcrop"
+    },
+    {
+      "aliases": [],
+      "icon": "wildfire",
+      "id": "wildfire",
+      "name": "Wildfire"
+    },
+    {
+      "aliases": [],
+      "icon": "frostbite",
+      "id": "frostbite",
+      "name": "Frostbite"
+    },
+    {
+      "aliases": [],
+      "icon": "lightning_storm",
+      "id": "lightning_storm",
+      "name": "Lightning Storm"
+    },
+    {
+      "aliases": [
+        "upheaval_mark",
+        "Thornwall"
+      ],
+      "icon": "upheaval",
+      "id": "upheaval",
+      "name": "Upheaval"
+    },
+    {
+      "aliases": [],
+      "icon": "shadowstep",
+      "id": "shadowstep",
+      "name": "Shadowstep"
+    }
+  ],
+  "unchanged": [
+    {
+      "aliases": [],
+      "definition": "Once per combat, discard a card to gain @icon(draw) 1. Costs no @icon(card_play) or @icon(time).",
+      "icon": "skill_quick_wits",
+      "id": "skill_quick_wits",
+      "name": "Quick Wits"
+    },
+    {
+      "aliases": [],
+      "definition": "At the end of your turn, bank 1 unused @icon(card_play) for your next turn. Wait still applies.",
+      "icon": "skill_measured_breath",
+      "id": "skill_measured_breath",
+      "name": "Measured Breath"
+    },
+    {
+      "aliases": [],
+      "definition": "Once per combat, activate to make your next free move a @icon(blink) of up to 2 tiles.",
+      "icon": "skill_ghost_stride",
+      "id": "skill_ghost_stride",
+      "name": "Ghost Stride"
+    },
+    {
+      "aliases": [],
+      "definition": "Once between bosses, replace every card in a non-boss combat reward with new ones.",
+      "icon": "skill_discerning_eye",
+      "id": "skill_discerning_eye",
+      "name": "Discerning Eye"
+    },
+    {
+      "aliases": [],
+      "definition": "Once per combat, activate to send your next non-item @icon(exhaust) card to your discard instead.",
+      "icon": "skill_rehearsed_escape",
+      "id": "skill_rehearsed_escape",
+      "name": "Rehearsed Escape"
+    },
+    {
+      "aliases": [],
+      "definition": "Once per combat, activate to send your next item to your discard instead of @icon(consume).",
+      "icon": "skill_makeshift_tool",
+      "id": "skill_makeshift_tool",
+      "name": "Makeshift Tool"
+    },
+    {
+      "aliases": [],
+      "definition": "Once per combat, activate while you have @icon(block): at the end of your turn, it becomes @icon(stoneskin).",
+      "icon": "skill_carry_the_guard",
+      "id": "skill_carry_the_guard",
+      "name": "Carry the Guard"
+    },
+    {
+      "aliases": [],
+      "definition": "The first time each combat you lose @icon(health), the next non-item card put in your discard returns to your hand.",
+      "icon": "skill_pain_remembers",
+      "id": "skill_pain_remembers",
+      "name": "Pain Remembers"
+    },
+    {
+      "aliases": [],
+      "definition": "Once per combat, take no damage from the first @icon(traps) that hits you.",
+      "icon": "skill_sure_footed",
+      "id": "skill_sure_footed",
+      "name": "Sure-Footed"
+    },
+    {
+      "aliases": [],
+      "definition": "The first time each combat you @icon(blink), leave an @icon(illusion) 2 where you started.",
+      "icon": "skill_afterimage",
+      "id": "skill_afterimage",
+      "name": "Afterimage"
+    },
+    {
+      "aliases": [],
+      "definition": "Skip a card reward to save 1 offered card. It replaces 1 card in your next non-boss card reward.",
+      "icon": "skill_deferred_choice",
+      "id": "skill_deferred_choice",
+      "name": "Deferred Choice"
+    },
+    {
+      "aliases": [],
+      "definition": "Once between bosses, recover the first equipment drop left uncollected after victory.",
+      "icon": "skill_salvager",
+      "id": "skill_salvager",
+      "name": "Salvager"
+    },
+    {
+      "aliases": [],
+      "definition": "The first card paid for with a banked @icon(card_play) each combat adds no @icon(time).",
+      "icon": "skill_borrowed_time",
+      "id": "skill_borrowed_time",
+      "name": "Borrowed Time"
+    },
+    {
+      "aliases": [],
+      "definition": "Once per combat, lethal @icon(fatigue) leaves you at @icon(health) 1.",
+      "icon": "skill_last_reserve",
+      "id": "skill_last_reserve",
+      "name": "Last Reserve"
+    },
+    {
+      "aliases": [],
+      "definition": "The first time each combat a card's @icon(move) or @icon(blink) collects loot, gain 1 @icon(card_play).",
+      "icon": "skill_plunderers_step",
+      "id": "skill_plunderers_step",
+      "name": "Plunderer's Step"
+    },
+    {
+      "aliases": [],
+      "definition": "Once per combat, place any ground on a visible tile within @icon(range) 4. Costs no @icon(card_play) or @icon(time).",
+      "icon": "skill_prismatic_instinct",
+      "id": "skill_prismatic_instinct",
+      "name": "Prismatic Instinct"
+    },
+    {
+      "aliases": [],
+      "definition": "After choosing a relic, save 1 unchosen relic for your next relic offer.",
+      "icon": "skill_curators_patience",
+      "id": "skill_curators_patience",
+      "name": "Curator's Patience"
+    },
+    {
+      "aliases": [],
+      "definition": "Once per turn, when an @icon(illusion) is removed, return your latest non-item discard to hand.",
+      "icon": "skill_living_shadow",
+      "id": "skill_living_shadow",
+      "name": "Living Shadow"
+    },
+    {
+      "aliases": [],
+      "definition": "Before combat, choose an open starting tile within @icon(range) 2 of the entrance.",
+      "icon": "skill_true_bearing",
+      "id": "skill_true_bearing",
+      "name": "True Bearing"
+    },
+    {
+      "aliases": [],
+      "definition": "Once per combat, return a non-item card from discard to your hand. Costs no @icon(card_play) or @icon(time).",
+      "icon": "skill_encore",
+      "id": "skill_encore",
+      "name": "Encore"
+    },
+    {
+      "aliases": [],
+      "definition": "Equip any equipment in your trinket slot.",
+      "icon": "skill_open_arsenal",
+      "id": "skill_open_arsenal",
+      "name": "Open Arsenal"
+    },
+    {
+      "aliases": [],
+      "definition": "Once per combat, @icon(surface_relocate) 1 ground tile. Both tiles must be visible, within @icon(range) 4 of you and each other.",
+      "icon": "skill_confluence",
+      "id": "skill_confluence",
+      "name": "Confluence"
+    },
+    {
+      "aliases": [],
+      "definition": "Once between bosses, a non-boss defeat returns you to the previous room at @icon(health) 1.",
+      "icon": "skill_last_door",
+      "id": "skill_last_door",
+      "name": "Last Door"
+    },
+    {
+      "aliases": [],
+      "definition": "Temporary @icon(illuminate), @icon(vision) and @icon(truesight) you create last 1 more turn.",
+      "icon": "skill_long_dawn",
+      "id": "skill_long_dawn",
+      "name": "Long Dawn"
+    },
+    {
+      "aliases": [],
+      "definition": "Once per turn, when you @icon(move) or @icon(blink) 3+ tiles, leave @icon(illuminate) 1 for 2 turns on your path.",
+      "icon": "skill_sunpath",
+      "id": "skill_sunpath",
+      "name": "Sunpath"
+    },
+    {
+      "aliases": [],
+      "definition": "Your @icon(illusion) give off @icon(illuminate) 1 while they last.",
+      "icon": "skill_witchlight",
+      "id": "skill_witchlight",
+      "name": "Witchlight"
+    },
+    {
+      "aliases": [],
+      "definition": "Your first @icon(melee), @icon(ranged), @icon(push) or @icon(pull) hit each turn on an enemy in @icon(illuminate) applies @icon(expose) 1.",
+      "icon": "skill_dawnbrand",
+      "id": "skill_dawnbrand",
+      "name": "Dawnbrand"
+    },
+    {
+      "aliases": [],
+      "definition": "When an @icon(illusion) is removed, leave @icon(illuminate) 1 for 2 turns on its tile.",
+      "icon": "skill_afterglow",
+      "id": "skill_afterglow",
+      "name": "Afterglow"
+    },
+    {
+      "aliases": [],
+      "definition": "While you stand in @icon(illuminate), you have @icon(truesight).",
+      "icon": "skill_open_sky",
+      "id": "skill_open_sky",
+      "name": "Open Sky"
+    },
+    {
+      "aliases": [],
+      "definition": "On its beat, each Fire tile sets the next tile in the blaze's direction on Fire.",
+      "icon": "wildfire",
+      "id": "wildfire",
+      "name": "Wildfire"
+    },
+    {
+      "aliases": [],
+      "definition": "On its beat, an Ice hit strikes everyone standing on Ice, Freezing them.",
+      "icon": "frostbite",
+      "id": "frostbite",
+      "name": "Frostbite"
+    },
+    {
+      "aliases": [],
+      "definition": "On its beat, lightning strikes every Electrified tile; some storms Chain on.",
+      "icon": "lightning_storm",
+      "id": "lightning_storm",
+      "name": "Lightning Storm"
+    },
+    {
+      "aliases": [
+        "upheaval_mark",
+        "Thornwall"
+      ],
+      "definition": "On its beat, the marked tiles rise as Outcrops, throwing off whoever stands there.",
+      "icon": "upheaval",
+      "id": "upheaval",
+      "name": "Upheaval"
+    },
+    {
+      "aliases": [],
+      "definition": "On its beat, every enemy hidden in the dark Blinks toward you.",
+      "icon": "shadowstep",
+      "id": "shadowstep",
+      "name": "Shadowstep"
+    }
+  ]
+}

@@ -1,0 +1,892 @@
+{
+  "plan_sha256": "570c28996aff52b742e24e72657ad1f9a1a93373d56f19c018dcae5def76a595",
+  "source_head": "7e79da07c039ac4f80ed66154018ba876b38b18f",
+  "ladders": {
+    "last_lamplighter": {
+      "rows": [
+        {
+          "guardian": "last_lamplighter",
+          "rung": 0,
+          "label": "Accepted round 0",
+          "n": 90,
+          "win_rate": 0.0,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 4.0,
+            "p10": 2,
+            "p90": 4
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 24.0,
+            "p10": 24,
+            "p90": 26
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "shadow": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 312,
+              "n": 90,
+              "median": 4.0,
+              "p10": 2,
+              "p90": 4
+            },
+            "beat_damage_to_hero": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "beat_damage_to_enemies": {
+              "total": 2,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "helper_kills": {
+              "total": 76,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            },
+            "summons": {
+              "total": 165,
+              "n": 90,
+              "median": 2.0,
+              "p10": 1,
+              "p90": 2
+            }
+          },
+          "inside_band": false
+        },
+        {
+          "guardian": "last_lamplighter",
+          "rung": 1,
+          "label": "Last Procession melee 8 \u2192 6",
+          "n": 90,
+          "win_rate": 0.0,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 4.0,
+            "p10": 2,
+            "p90": 5
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 24.0,
+            "p10": 24,
+            "p90": 26
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "shadow": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 320,
+              "n": 90,
+              "median": 4.0,
+              "p10": 2,
+              "p90": 5
+            },
+            "beat_damage_to_hero": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "beat_damage_to_enemies": {
+              "total": 2,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "helper_kills": {
+              "total": 77,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            },
+            "summons": {
+              "total": 171,
+              "n": 90,
+              "median": 2.0,
+              "p10": 1,
+              "p90": 3
+            }
+          },
+          "inside_band": false
+        },
+        {
+          "guardian": "last_lamplighter",
+          "rung": 2,
+          "label": "Lamplighter HP 44 \u2192 36",
+          "n": 90,
+          "win_rate": 0.1,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 4.0,
+            "p10": 2,
+            "p90": 5
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 24.0,
+            "p10": 23,
+            "p90": 26
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "shadow": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 311,
+              "n": 90,
+              "median": 4.0,
+              "p10": 2,
+              "p90": 5
+            },
+            "beat_damage_to_hero": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "beat_damage_to_enemies": {
+              "total": 2,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "helper_kills": {
+              "total": 77,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            },
+            "summons": {
+              "total": 169,
+              "n": 90,
+              "median": 2.0,
+              "p10": 1,
+              "p90": 3
+            }
+          },
+          "inside_band": false
+        },
+        {
+          "guardian": "last_lamplighter",
+          "rung": 3,
+          "label": "Snuff cap 2 \u2192 1",
+          "n": 90,
+          "win_rate": 0.15555555555555556,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 4.0,
+            "p10": 3,
+            "p90": 6
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 24.0,
+            "p10": 21,
+            "p90": 26
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "shadow": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 377,
+              "n": 90,
+              "median": 4.0,
+              "p10": 3,
+              "p90": 6
+            },
+            "beat_damage_to_hero": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "beat_damage_to_enemies": {
+              "total": 2,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "helper_kills": {
+              "total": 84,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            },
+            "summons": {
+              "total": 94,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            }
+          },
+          "inside_band": false
+        },
+        {
+          "guardian": "last_lamplighter",
+          "rung": 4,
+          "label": "Mourning Hook damage 4 \u2192 3",
+          "n": 90,
+          "win_rate": 0.16666666666666666,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 4.0,
+            "p10": 3,
+            "p90": 6
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 24.0,
+            "p10": 21,
+            "p90": 26
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "shadow": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 377,
+              "n": 90,
+              "median": 4.0,
+              "p10": 3,
+              "p90": 6
+            },
+            "beat_damage_to_hero": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "beat_damage_to_enemies": {
+              "total": 2,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "helper_kills": {
+              "total": 85,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            },
+            "summons": {
+              "total": 94,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            }
+          },
+          "inside_band": false
+        },
+        {
+          "guardian": "last_lamplighter",
+          "rung": 5,
+          "label": "Guardian Wick Shade Grasp / Hooking Grasp melee 2 \u2192 1",
+          "n": 90,
+          "win_rate": 0.24444444444444444,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 4.0,
+            "p10": 4,
+            "p90": 6
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 24.0,
+            "p10": 20,
+            "p90": 26
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "shadow": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 395,
+              "n": 90,
+              "median": 4.0,
+              "p10": 3,
+              "p90": 6
+            },
+            "beat_damage_to_hero": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "beat_damage_to_enemies": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "helper_kills": {
+              "total": 87,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 1
+            },
+            "summons": {
+              "total": 96,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            }
+          },
+          "inside_band": false
+        }
+      ],
+      "chosen_rung": 5,
+      "inside_band": false
+    },
+    "storm_cantor": {
+      "rows": [
+        {
+          "guardian": "storm_cantor",
+          "rung": 0,
+          "label": "Accepted round 0",
+          "n": 90,
+          "win_rate": 0.9888888888888889,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 6.5,
+            "p10": 5,
+            "p90": 8
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 10.0,
+            "p10": 3,
+            "p90": 17
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "lightning": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 143,
+              "n": 90,
+              "median": 2.0,
+              "p10": 1,
+              "p90": 3
+            },
+            "beat_damage_to_hero": {
+              "total": 332,
+              "n": 90,
+              "median": 3.0,
+              "p10": 0,
+              "p90": 6
+            },
+            "beat_damage_to_enemies": {
+              "total": 868,
+              "n": 90,
+              "median": 9.0,
+              "p10": 0,
+              "p90": 15
+            },
+            "helper_kills": {
+              "total": 148,
+              "n": 90,
+              "median": 2.0,
+              "p10": 0,
+              "p90": 3
+            },
+            "summons": {
+              "total": 40,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 1
+            }
+          },
+          "inside_band": false
+        },
+        {
+          "guardian": "storm_cantor",
+          "rung": 1,
+          "label": "Cantor HP 38 \u2192 46",
+          "n": 90,
+          "win_rate": 0.9888888888888889,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 7.0,
+            "p10": 6,
+            "p90": 9
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 11.0,
+            "p10": 3,
+            "p90": 19
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "lightning": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 175,
+              "n": 90,
+              "median": 2.0,
+              "p10": 1,
+              "p90": 3
+            },
+            "beat_damage_to_hero": {
+              "total": 385,
+              "n": 90,
+              "median": 3.0,
+              "p10": 0,
+              "p90": 9
+            },
+            "beat_damage_to_enemies": {
+              "total": 997,
+              "n": 90,
+              "median": 9.0,
+              "p10": 6,
+              "p90": 18
+            },
+            "helper_kills": {
+              "total": 173,
+              "n": 90,
+              "median": 2.0,
+              "p10": 1,
+              "p90": 3
+            },
+            "summons": {
+              "total": 53,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 1
+            }
+          },
+          "inside_band": false
+        },
+        {
+          "guardian": "storm_cantor",
+          "rung": 2,
+          "label": "Broken Rhythm melee 5 \u2192 7",
+          "n": 90,
+          "win_rate": 0.9666666666666667,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 7.0,
+            "p10": 6,
+            "p90": 9
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 11.0,
+            "p10": 3,
+            "p90": 21
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "lightning": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 176,
+              "n": 90,
+              "median": 2.0,
+              "p10": 1,
+              "p90": 3
+            },
+            "beat_damage_to_hero": {
+              "total": 385,
+              "n": 90,
+              "median": 3.0,
+              "p10": 0,
+              "p90": 9
+            },
+            "beat_damage_to_enemies": {
+              "total": 1004,
+              "n": 90,
+              "median": 9.0,
+              "p10": 6,
+              "p90": 19
+            },
+            "helper_kills": {
+              "total": 173,
+              "n": 90,
+              "median": 2.0,
+              "p10": 1,
+              "p90": 3
+            },
+            "summons": {
+              "total": 52,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 1
+            }
+          },
+          "inside_band": false
+        },
+        {
+          "guardian": "storm_cantor",
+          "rung": 3,
+          "label": "Call the Spark cap 1 \u2192 2",
+          "n": 90,
+          "win_rate": 0.9333333333333333,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 7.0,
+            "p10": 5,
+            "p90": 9
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 11.0,
+            "p10": 3,
+            "p90": 22
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "lightning": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 171,
+              "n": 90,
+              "median": 2.0,
+              "p10": 1,
+              "p90": 3
+            },
+            "beat_damage_to_hero": {
+              "total": 364,
+              "n": 90,
+              "median": 3.0,
+              "p10": 0,
+              "p90": 8
+            },
+            "beat_damage_to_enemies": {
+              "total": 1023,
+              "n": 90,
+              "median": 9.0,
+              "p10": 6,
+              "p90": 19
+            },
+            "helper_kills": {
+              "total": 179,
+              "n": 90,
+              "median": 2.0,
+              "p10": 1,
+              "p90": 3
+            },
+            "summons": {
+              "total": 87,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            }
+          },
+          "inside_band": false
+        },
+        {
+          "guardian": "storm_cantor",
+          "rung": 4,
+          "label": "Lightning Storm damage 3 \u2192 4",
+          "n": 90,
+          "win_rate": 0.9777777777777777,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 7.0,
+            "p10": 6,
+            "p90": 9
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 12.0,
+            "p10": 4,
+            "p90": 20
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "lightning": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 172,
+              "n": 90,
+              "median": 2.0,
+              "p10": 1,
+              "p90": 3
+            },
+            "beat_damage_to_hero": {
+              "total": 426,
+              "n": 90,
+              "median": 4.0,
+              "p10": 0,
+              "p90": 8
+            },
+            "beat_damage_to_enemies": {
+              "total": 1238,
+              "n": 90,
+              "median": 15.0,
+              "p10": 0,
+              "p90": 24
+            },
+            "helper_kills": {
+              "total": 193,
+              "n": 90,
+              "median": 2.0,
+              "p10": 1,
+              "p90": 3
+            },
+            "summons": {
+              "total": 92,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            }
+          },
+          "inside_band": false
+        }
+      ],
+      "chosen_rung": 4,
+      "inside_band": false
+    },
+    "rimejaw": {
+      "rows": [
+        {
+          "guardian": "rimejaw",
+          "rung": 0,
+          "label": "Accepted round 0",
+          "n": 90,
+          "win_rate": 0.2777777777777778,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 4.0,
+            "p10": 2,
+            "p90": 6
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 24.0,
+            "p10": 16,
+            "p90": 24
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "ice": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 326,
+              "n": 90,
+              "median": 4.0,
+              "p10": 2,
+              "p90": 5
+            },
+            "beat_damage_to_hero": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "beat_damage_to_enemies": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "helper_kills": {
+              "total": 89,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            },
+            "summons": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            }
+          },
+          "inside_band": false
+        },
+        {
+          "guardian": "rimejaw",
+          "rung": 1,
+          "label": "Harrowing Pounce melee 7 \u2192 6",
+          "n": 90,
+          "win_rate": 0.3111111111111111,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 4.0,
+            "p10": 2,
+            "p90": 6
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 24.0,
+            "p10": 15,
+            "p90": 24
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "ice": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 337,
+              "n": 90,
+              "median": 4.0,
+              "p10": 2,
+              "p90": 5
+            },
+            "beat_damage_to_hero": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "beat_damage_to_enemies": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "helper_kills": {
+              "total": 95,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            },
+            "summons": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            }
+          },
+          "inside_band": false
+        },
+        {
+          "guardian": "rimejaw",
+          "rung": 2,
+          "label": "Rimejaw HP 38 \u2192 34",
+          "n": 90,
+          "win_rate": 0.43333333333333335,
+          "one_turn_escape_share": null,
+          "turns": {
+            "n": 90,
+            "median": 4.0,
+            "p10": 2,
+            "p90": 5
+          },
+          "hp_lost": {
+            "n": 90,
+            "median": 24.0,
+            "p10": 12,
+            "p90": 24
+          },
+          "turn_cap_reached": 0,
+          "biomes": {
+            "ice": 90
+          },
+          "metrics": {
+            "beats_fired": {
+              "total": 306,
+              "n": 90,
+              "median": 3.0,
+              "p10": 2,
+              "p90": 5
+            },
+            "beat_damage_to_hero": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "beat_damage_to_enemies": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            },
+            "helper_kills": {
+              "total": 91,
+              "n": 90,
+              "median": 1.0,
+              "p10": 0,
+              "p90": 2
+            },
+            "summons": {
+              "total": 0,
+              "n": 90,
+              "median": 0.0,
+              "p10": 0,
+              "p90": 0
+            }
+          },
+          "inside_band": true
+        }
+      ],
+      "chosen_rung": 2,
+      "inside_band": true
+    }
+  }
+}

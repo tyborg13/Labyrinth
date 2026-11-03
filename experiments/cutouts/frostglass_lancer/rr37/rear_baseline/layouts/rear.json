@@ -1,0 +1,546 @@
+{
+  "facing": "rear",
+  "canvas_size": [
+    255,
+    255
+  ],
+  "joints": {
+    "root": {
+      "position": [
+        88.49233684210529,
+        257.10835199999997
+      ],
+      "parent": null
+    },
+    "pelvis": {
+      "position": [
+        133.12462484210528,
+        144.95811200000003
+      ],
+      "parent": "root"
+    },
+    "torso": {
+      "position": [
+        133.12462484210528,
+        101.211744
+      ],
+      "parent": "pelvis"
+    },
+    "head": {
+      "position": [
+        133.12462484210528,
+        54.709984000000006
+      ],
+      "parent": "torso"
+    },
+    "spear": {
+      "position": [
+        201.4344808421053,
+        108.84512
+      ],
+      "parent": "hand_far"
+    },
+    "upper_near": {
+      "position": [
+        99.65131284210528,
+        84.777024
+      ],
+      "parent": "torso"
+    },
+    "fore_near": {
+      "position": [
+        87.2520488421053,
+        114.55839999999999
+      ],
+      "parent": "upper_near"
+    },
+    "hand_near": {
+      "position": [
+        106.16011284210529,
+        125.91264
+      ],
+      "parent": "fore_near"
+    },
+    "thigh_near": {
+      "position": [
+        119.17771284210528,
+        146.78419200000002
+      ],
+      "parent": "pelvis"
+    },
+    "shin_near": {
+      "position": [
+        102.1282728421053,
+        191.09103999999996
+      ],
+      "parent": "thigh_near"
+    },
+    "foot_near": {
+      "position": [
+        89.73262484210528,
+        227.54032
+      ],
+      "parent": "shin_near"
+    },
+    "upper_far": {
+      "position": [
+        161.32942484210525,
+        94.030368
+      ],
+      "parent": "torso"
+    },
+    "fore_far": {
+      "position": [
+        184.57668884210528,
+        102.614752
+      ],
+      "parent": "upper_far"
+    },
+    "hand_far": {
+      "position": [
+        201.4344808421053,
+        108.84512
+      ],
+      "parent": "fore_far"
+    },
+    "thigh_far": {
+      "position": [
+        147.38251284210529,
+        146.78419200000002
+      ],
+      "parent": "pelvis"
+    },
+    "shin_far": {
+      "position": [
+        156.99022484210528,
+        193.26063999999997
+      ],
+      "parent": "thigh_far"
+    },
+    "foot_far": {
+      "position": [
+        158.5378728421053,
+        231.26118399999996
+      ],
+      "parent": "shin_far"
+    },
+    "cape_near_mid": {
+      "parent": "torso",
+      "position": [
+        113.06231242105264,
+        167.605872
+      ]
+    },
+    "cape_near_tip": {
+      "parent": "cape_near_mid",
+      "position": [
+        93.0,
+        234.0
+      ]
+    },
+    "cape_far_mid": {
+      "parent": "torso",
+      "position": [
+        118.31231242105264,
+        165.605872
+      ]
+    },
+    "cape_far_tip": {
+      "parent": "cape_far_mid",
+      "position": [
+        103.5,
+        230.0
+      ]
+    },
+    "tabard_mid": {
+      "parent": "pelvis",
+      "position": [
+        159.81231242105264,
+        158.979056
+      ]
+    },
+    "tabard_tip": {
+      "parent": "tabard_mid",
+      "position": [
+        186.5,
+        173.0
+      ]
+    }
+  },
+  "parts": [
+    {
+      "name": "head",
+      "logical_part": "head",
+      "bone": "head",
+      "file": "pieces/rear/head.png",
+      "offset": [
+        80,
+        19
+      ],
+      "bbox": [
+        80,
+        19,
+        175,
+        121
+      ],
+      "z_index": 21
+    },
+    {
+      "name": "torso",
+      "logical_part": "torso",
+      "bone": "torso",
+      "file": "pieces/rear/torso.png",
+      "offset": [
+        101,
+        63
+      ],
+      "bbox": [
+        101,
+        63,
+        162,
+        128
+      ],
+      "z_index": 20
+    },
+    {
+      "name": "pelvis",
+      "logical_part": "pelvis",
+      "bone": "pelvis",
+      "file": "pieces/rear/pelvis.png",
+      "offset": [
+        103,
+        96
+      ],
+      "bbox": [
+        103,
+        96,
+        158,
+        156
+      ],
+      "z_index": 17
+    },
+    {
+      "name": "belt",
+      "logical_part": "belt",
+      "bone": "pelvis",
+      "file": "pieces/rear/belt.png",
+      "offset": [
+        99,
+        82
+      ],
+      "bbox": [
+        99,
+        82,
+        169,
+        149
+      ],
+      "z_index": 12
+    },
+    {
+      "name": "tabard",
+      "logical_part": "tabard",
+      "bone": "pelvis",
+      "file": "pieces/rear/tabard.png",
+      "offset": [
+        181,
+        144
+      ],
+      "bbox": [
+        181,
+        144,
+        184,
+        153
+      ],
+      "z_index": 4
+    },
+    {
+      "name": "cape_near",
+      "logical_part": "cape_near",
+      "bone": "torso",
+      "file": "pieces/rear/cape_near.png",
+      "offset": [
+        66,
+        116
+      ],
+      "bbox": [
+        66,
+        116,
+        134,
+        232
+      ],
+      "z_index": 5
+    },
+    {
+      "name": "cape_far",
+      "logical_part": "cape_far",
+      "bone": "torso",
+      "file": "pieces/rear/cape_far.png",
+      "offset": [
+        100,
+        90
+      ],
+      "bbox": [
+        100,
+        90,
+        187,
+        231
+      ],
+      "z_index": 11
+    },
+    {
+      "name": "pauldron_near",
+      "logical_part": "pauldron_near",
+      "bone": "torso",
+      "file": "pieces/rear/pauldron_near.png",
+      "offset": [
+        80,
+        58
+      ],
+      "bbox": [
+        80,
+        58,
+        99,
+        98
+      ],
+      "z_index": 16
+    },
+    {
+      "name": "upper_near",
+      "logical_part": "upper_near",
+      "bone": "upper_near",
+      "file": "pieces/rear/upper_near.png",
+      "offset": [
+        77,
+        104
+      ],
+      "bbox": [
+        77,
+        104,
+        92,
+        125
+      ],
+      "z_index": 15
+    },
+    {
+      "name": "fore_near",
+      "logical_part": "fore_near",
+      "bone": "upper_near",
+      "file": "pieces/rear/fore_near.png",
+      "offset": [
+        84,
+        114
+      ],
+      "bbox": [
+        84,
+        114,
+        96,
+        127
+      ],
+      "z_index": 10
+    },
+    {
+      "name": "hand_near",
+      "logical_part": "hand_near",
+      "bone": "hand_near",
+      "file": "pieces/rear/hand_near.png",
+      "offset": [
+        99,
+        121
+      ],
+      "bbox": [
+        99,
+        121,
+        122,
+        138
+      ],
+      "z_index": 6
+    },
+    {
+      "name": "pauldron_far",
+      "logical_part": "pauldron_far",
+      "bone": "torso",
+      "file": "pieces/rear/pauldron_far.png",
+      "offset": [
+        159,
+        58
+      ],
+      "bbox": [
+        159,
+        58,
+        173,
+        89
+      ],
+      "z_index": 19
+    },
+    {
+      "name": "upper_far",
+      "logical_part": "upper_far",
+      "bone": "upper_far",
+      "file": "pieces/rear/upper_far.png",
+      "offset": [
+        173,
+        100
+      ],
+      "bbox": [
+        173,
+        100,
+        189,
+        114
+      ],
+      "z_index": 18
+    },
+    {
+      "name": "fore_far",
+      "logical_part": "fore_far",
+      "bone": "upper_far",
+      "file": "pieces/rear/fore_far.png",
+      "offset": [
+        183,
+        88
+      ],
+      "bbox": [
+        183,
+        88,
+        202,
+        118
+      ],
+      "z_index": 13
+    },
+    {
+      "name": "hand_far",
+      "logical_part": "hand_far",
+      "bone": "hand_far",
+      "file": "pieces/rear/hand_far.png",
+      "offset": [
+        192,
+        112
+      ],
+      "bbox": [
+        192,
+        112,
+        202,
+        118
+      ],
+      "z_index": 9
+    },
+    {
+      "name": "thigh_near",
+      "logical_part": "thigh_near",
+      "bone": "thigh_near",
+      "file": "pieces/rear/thigh_near.png",
+      "offset": [
+        98,
+        130
+      ],
+      "bbox": [
+        98,
+        130,
+        146,
+        198
+      ],
+      "z_index": 7
+    },
+    {
+      "name": "shin_near",
+      "logical_part": "shin_near",
+      "bone": "thigh_near",
+      "file": "pieces/rear/shin_near.png",
+      "offset": [
+        78,
+        212
+      ],
+      "bbox": [
+        78,
+        212,
+        89,
+        232
+      ],
+      "z_index": 2
+    },
+    {
+      "name": "foot_near",
+      "logical_part": "foot_near",
+      "bone": "foot_near",
+      "file": "pieces/rear/foot_near.png",
+      "offset": [
+        78,
+        221
+      ],
+      "bbox": [
+        78,
+        221,
+        87,
+        232
+      ],
+      "z_index": 0
+    },
+    {
+      "name": "thigh_far",
+      "logical_part": "thigh_far",
+      "bone": "thigh_far",
+      "file": "pieces/rear/thigh_far.png",
+      "offset": [
+        125,
+        135
+      ],
+      "bbox": [
+        125,
+        135,
+        166,
+        197
+      ],
+      "z_index": 8
+    },
+    {
+      "name": "shin_far",
+      "logical_part": "shin_far",
+      "bone": "thigh_far",
+      "file": "pieces/rear/shin_far.png",
+      "offset": [
+        141,
+        206
+      ],
+      "bbox": [
+        141,
+        206,
+        171,
+        235
+      ],
+      "z_index": 3
+    },
+    {
+      "name": "foot_far",
+      "logical_part": "foot_far",
+      "bone": "foot_far",
+      "file": "pieces/rear/foot_far.png",
+      "offset": [
+        138,
+        221
+      ],
+      "bbox": [
+        138,
+        221,
+        187,
+        246
+      ],
+      "z_index": 1
+    },
+    {
+      "name": "spear",
+      "logical_part": "spear",
+      "bone": "spear",
+      "file": "pieces/rear/spear.png",
+      "offset": [
+        185,
+        31
+      ],
+      "bbox": [
+        185,
+        31,
+        225,
+        145
+      ],
+      "z_index": 14
+    }
+  ]
+}

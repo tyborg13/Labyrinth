@@ -1,0 +1,283 @@
+{
+  "ok": true,
+  "views": {
+    "front": {
+      "reassignment": {
+        "head": {
+          "painted_pixels": 2043,
+          "reassigned_pixels": 786,
+          "reassigned_share": 0.38472834067547723,
+          "above_15_percent": true
+        },
+        "seg_1": {
+          "painted_pixels": 2120,
+          "reassigned_pixels": 555,
+          "reassigned_share": 0.2617924528301887,
+          "above_15_percent": true
+        },
+        "seg_2": {
+          "painted_pixels": 2192,
+          "reassigned_pixels": 767,
+          "reassigned_share": 0.3499087591240876,
+          "above_15_percent": true
+        },
+        "seg_3": {
+          "painted_pixels": 2420,
+          "reassigned_pixels": 869,
+          "reassigned_share": 0.35909090909090907,
+          "above_15_percent": true
+        },
+        "seg_4": {
+          "painted_pixels": 2865,
+          "reassigned_pixels": 991,
+          "reassigned_share": 0.3458987783595113,
+          "above_15_percent": true
+        },
+        "seg_5": {
+          "painted_pixels": 2171,
+          "reassigned_pixels": 723,
+          "reassigned_share": 0.3330262551819438,
+          "above_15_percent": true
+        },
+        "seg_6": {
+          "painted_pixels": 2695,
+          "reassigned_pixels": 1262,
+          "reassigned_share": 0.46827458256029686,
+          "above_15_percent": true
+        },
+        "tail": {
+          "painted_pixels": 1176,
+          "reassigned_pixels": 1081,
+          "reassigned_share": 0.91921768707483,
+          "above_15_percent": true
+        },
+        "leg_near_1": {
+          "painted_pixels": 52,
+          "reassigned_pixels": 13,
+          "reassigned_share": 0.25,
+          "above_15_percent": true
+        },
+        "leg_near_2": {
+          "painted_pixels": 46,
+          "reassigned_pixels": 29,
+          "reassigned_share": 0.6304347826086957,
+          "above_15_percent": true
+        },
+        "leg_near_3": {
+          "painted_pixels": 37,
+          "reassigned_pixels": 14,
+          "reassigned_share": 0.3783783783783784,
+          "above_15_percent": true
+        },
+        "leg_far_1": {
+          "painted_pixels": 0,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0,
+          "above_15_percent": false
+        },
+        "leg_far_2": {
+          "painted_pixels": 0,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0,
+          "above_15_percent": false
+        },
+        "leg_far_3": {
+          "painted_pixels": 0,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0,
+          "above_15_percent": false
+        }
+      },
+      "depth_order": [
+        "tail",
+        "leg_far_3",
+        "seg_6",
+        "seg_5",
+        "leg_near_3",
+        "leg_far_2",
+        "seg_4",
+        "seg_3",
+        "leg_near_2",
+        "leg_far_1",
+        "seg_2",
+        "seg_1",
+        "leg_near_1",
+        "head"
+      ],
+      "bone_mapping": {
+        "head": "head",
+        "seg_1": "seg_1",
+        "seg_2": "seg_2",
+        "seg_3": "seg_3",
+        "seg_4": "seg_4",
+        "seg_5": "seg_5",
+        "seg_6": "seg_6",
+        "tail": "tail",
+        "leg_near_1": "leg_near_1",
+        "leg_near_2": "leg_near_2",
+        "leg_near_3": "leg_near_3",
+        "leg_far_1": "leg_far_1",
+        "leg_far_2": "leg_far_2",
+        "leg_far_3": "leg_far_3"
+      },
+      "rigid_cloth_mapping": {},
+      "ownership_cleanup": {},
+      "unmaterialized_parts": []
+    },
+    "rear": {
+      "reassignment": {
+        "head": {
+          "painted_pixels": 1361,
+          "reassigned_pixels": 294,
+          "reassigned_share": 0.216017634092579,
+          "above_15_percent": true
+        },
+        "seg_1": {
+          "painted_pixels": 2002,
+          "reassigned_pixels": 256,
+          "reassigned_share": 0.12787212787212787,
+          "above_15_percent": false
+        },
+        "seg_2": {
+          "painted_pixels": 2071,
+          "reassigned_pixels": 216,
+          "reassigned_share": 0.104297440849831,
+          "above_15_percent": false
+        },
+        "seg_3": {
+          "painted_pixels": 2041,
+          "reassigned_pixels": 215,
+          "reassigned_share": 0.10534051935325821,
+          "above_15_percent": false
+        },
+        "seg_4": {
+          "painted_pixels": 2238,
+          "reassigned_pixels": 188,
+          "reassigned_share": 0.0840035746201966,
+          "above_15_percent": false
+        },
+        "seg_5": {
+          "painted_pixels": 1742,
+          "reassigned_pixels": 130,
+          "reassigned_share": 0.07462686567164178,
+          "above_15_percent": false
+        },
+        "seg_6": {
+          "painted_pixels": 2052,
+          "reassigned_pixels": 149,
+          "reassigned_share": 0.0726120857699805,
+          "above_15_percent": false
+        },
+        "tail": {
+          "painted_pixels": 964,
+          "reassigned_pixels": 110,
+          "reassigned_share": 0.11410788381742738,
+          "above_15_percent": false
+        },
+        "leg_near_1": {
+          "painted_pixels": 0,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0,
+          "above_15_percent": false
+        },
+        "leg_near_2": {
+          "painted_pixels": 0,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0,
+          "above_15_percent": false
+        },
+        "leg_near_3": {
+          "painted_pixels": 0,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0,
+          "above_15_percent": false
+        },
+        "leg_far_1": {
+          "painted_pixels": 66,
+          "reassigned_pixels": 29,
+          "reassigned_share": 0.4393939393939394,
+          "above_15_percent": true
+        },
+        "leg_far_2": {
+          "painted_pixels": 139,
+          "reassigned_pixels": 45,
+          "reassigned_share": 0.3237410071942446,
+          "above_15_percent": true
+        },
+        "leg_far_3": {
+          "painted_pixels": 183,
+          "reassigned_pixels": 100,
+          "reassigned_share": 0.546448087431694,
+          "above_15_percent": true
+        }
+      },
+      "depth_order": [
+        "leg_near_1",
+        "head",
+        "seg_1",
+        "leg_far_1",
+        "leg_near_2",
+        "seg_2",
+        "seg_3",
+        "leg_far_2",
+        "leg_near_3",
+        "seg_4",
+        "seg_5",
+        "leg_far_3",
+        "seg_6",
+        "tail"
+      ],
+      "bone_mapping": {
+        "head": "head",
+        "seg_1": "seg_1",
+        "seg_2": "seg_2",
+        "seg_3": "seg_3",
+        "seg_4": "seg_4",
+        "seg_5": "seg_5",
+        "seg_6": "seg_6",
+        "tail": "tail",
+        "leg_near_1": "leg_near_1",
+        "leg_near_2": "leg_near_2",
+        "leg_near_3": "leg_near_3",
+        "leg_far_1": "leg_far_1",
+        "leg_far_2": "leg_far_2",
+        "leg_far_3": "leg_far_3"
+      },
+      "rigid_cloth_mapping": {},
+      "ownership_cleanup": {},
+      "unmaterialized_parts": []
+    }
+  },
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "95a0f98fecbab3521e8da61b5e10a411b809a0bbea9ea52554899aa7d04f9d2a"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "4f7c41e7f248fd11fd140237e01529fa37bb9128ec30e25584b868d83d9e0aa7"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "burrow_grub",
+    "layouts": {
+      "front": {
+        "joints": 15,
+        "parts": 23,
+        "meshes": 0,
+        "vertices": 0
+      },
+      "rear": {
+        "joints": 15,
+        "parts": 24,
+        "meshes": 0,
+        "vertices": 0
+      }
+    },
+    "errors": []
+  }
+}

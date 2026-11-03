@@ -51,11 +51,11 @@ func _cases() -> Array[Dictionary]:
 				var advanced: Dictionary = _engine.advance_one_activation_with_steps(state)
 				state = advanced["state"]
 				if bool(advanced["complete"]): break
-			if round_index == 0:
+			if round_index == 1:
 				result.append({"name": "03_squad_after_thornwall" if squad else "01_solo_after_thornwall", "state": state.duplicate(true)})
 		result.append({"name": "04_squad_later_rounds" if squad else "02_solo_later_rounds", "state": state.duplicate(true)})
 	var reachable: Dictionary = result[0]["state"].duplicate(true)
-	reachable["player"]["pos"] = Suite.NEAR_HERO
+	reachable["player"]["pos"] = Suite.REACHABLE_HERO
 	result.append({"name": "05_lash_reachable", "state": reachable})
 	return result
 

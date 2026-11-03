@@ -1,0 +1,9 @@
+{
+  "body_frame_max_angle_difference_deg": 1.5000004624689214,
+  "legacy_elbow": {
+    "ok": true,
+    "errors": [],
+    "checks": 2552,
+    "max_hyperextension_deg": 1.95992725912637
+  }
+}

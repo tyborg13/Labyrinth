@@ -1,0 +1,7314 @@
+{
+  "note": "rr-51: same motion, shorter source-px stride at 1.10; total move flat area −24%; director-accepted 2026-10-29",
+  "clip": "move",
+  "art_scale": 1.1,
+  "maximum_growth_px": 2,
+  "provenance": "director acceptance 2026-10-29 (rr-51): the Gaoler move clip at art_scale 1.10 only; every other clip keeps feedback2_flat_baseline.json / feedback2_native_flat_baseline.json",
+  "history": {
+    "path": "feedback2_flat_baseline.json",
+    "sha256": "69ffeead027bcaf8f3defd9290095d6913d898ea50f3a29be388bd17929fbdc8",
+    "art_scale": 0.9,
+    "move_regions": 710,
+    "move_pixels": 18055
+  },
+  "source": {
+    "samples_sha256": "502d3f5bfcc176df354a9e66fb05c72f062e8a77a30623dd149c1997bd03643a",
+    "frames": 102
+  },
+  "move_pixels": 13678,
+  "regions": [
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 2,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        300,
+        365,
+        301,
+        371
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 3,
+      "piece": "coat_far",
+      "pixels": 4,
+      "bbox": [
+        346,
+        310,
+        347,
+        314
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 3,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        347,
+        315,
+        350,
+        320
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 3,
+      "piece": "arm_near",
+      "pixels": 6,
+      "bbox": [
+        343,
+        293,
+        345,
+        298
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 4,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        296,
+        369,
+        297,
+        373
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 4,
+      "piece": "leg_near",
+      "pixels": 13,
+      "bbox": [
+        345,
+        316,
+        348,
+        322
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 4,
+      "piece": "arm_near",
+      "pixels": 11,
+      "bbox": [
+        341,
+        292,
+        344,
+        300
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 4,
+      "piece": "arm_near",
+      "pixels": 8,
+      "bbox": [
+        343,
+        285,
+        347,
+        291
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 4,
+      "piece": "arm_near",
+      "pixels": 4,
+      "bbox": [
+        345,
+        313,
+        347,
+        317
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 4,
+      "piece": "coat_near",
+      "pixels": 8,
+      "bbox": [
+        356,
+        378,
+        363,
+        380
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 4,
+      "piece": "torso",
+      "pixels": 8,
+      "bbox": [
+        294,
+        300,
+        296,
+        307
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 5,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        294,
+        370,
+        295,
+        376
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 5,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        293,
+        335,
+        295,
+        339
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 5,
+      "piece": "coat_far",
+      "pixels": 4,
+      "bbox": [
+        340,
+        302,
+        341,
+        306
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 5,
+      "piece": "leg_near",
+      "pixels": 14,
+      "bbox": [
+        343,
+        318,
+        347,
+        324
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 5,
+      "piece": "arm_near",
+      "pixels": 14,
+      "bbox": [
+        339,
+        292,
+        342,
+        302
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 5,
+      "piece": "arm_near",
+      "pixels": 8,
+      "bbox": [
+        342,
+        315,
+        345,
+        319
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 5,
+      "piece": "coat_near",
+      "pixels": 7,
+      "bbox": [
+        355,
+        380,
+        361,
+        382
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 6,
+      "piece": "leg_near",
+      "pixels": 11,
+      "bbox": [
+        340,
+        321,
+        343,
+        327
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 6,
+      "piece": "arm_near",
+      "pixels": 7,
+      "bbox": [
+        339,
+        317,
+        342,
+        321
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 6,
+      "piece": "pelvis",
+      "pixels": 5,
+      "bbox": [
+        303,
+        331,
+        305,
+        334
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 7,
+      "piece": "leg_near",
+      "pixels": 4,
+      "bbox": [
+        338,
+        321,
+        340,
+        325
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 7,
+      "piece": "arm_near",
+      "pixels": 7,
+      "bbox": [
+        341,
+        286,
+        348,
+        287
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 7,
+      "piece": "arm_near",
+      "pixels": 5,
+      "bbox": [
+        337,
+        317,
+        339,
+        321
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 8,
+      "piece": "leg_far",
+      "pixels": 8,
+      "bbox": [
+        283,
+        343,
+        286,
+        350
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 8,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        284,
+        289,
+        285,
+        295
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 10,
+      "piece": "leg_far",
+      "pixels": 8,
+      "bbox": [
+        283,
+        396,
+        287,
+        399
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 11,
+      "piece": "torso",
+      "pixels": 10,
+      "bbox": [
+        353,
+        298,
+        354,
+        308
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 11,
+      "piece": "torso",
+      "pixels": 5,
+      "bbox": [
+        350,
+        293,
+        353,
+        296
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 12,
+      "piece": "leg_far",
+      "pixels": 7,
+      "bbox": [
+        274,
+        348,
+        276,
+        355
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 12,
+      "piece": "coat_far",
+      "pixels": 5,
+      "bbox": [
+        330,
+        383,
+        334,
+        385
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 12,
+      "piece": "torso",
+      "pixels": 15,
+      "bbox": [
+        350,
+        299,
+        352,
+        310
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 12,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        349,
+        295,
+        351,
+        297
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 13,
+      "piece": "coat_far",
+      "pixels": 10,
+      "bbox": [
+        326,
+        385,
+        332,
+        387
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 13,
+      "piece": "arm_near",
+      "pixels": 7,
+      "bbox": [
+        322,
+        368,
+        328,
+        371
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 13,
+      "piece": "torso",
+      "pixels": 21,
+      "bbox": [
+        347,
+        300,
+        350,
+        313
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 14,
+      "piece": "coat_far",
+      "pixels": 10,
+      "bbox": [
+        323,
+        386,
+        329,
+        388
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 14,
+      "piece": "torso",
+      "pixels": 19,
+      "bbox": [
+        344,
+        302,
+        347,
+        314
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 14,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        343,
+        297,
+        346,
+        301
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 15,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        270,
+        346,
+        272,
+        350
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 15,
+      "piece": "coat_far",
+      "pixels": 4,
+      "bbox": [
+        321,
+        374,
+        325,
+        376
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 15,
+      "piece": "leg_near",
+      "pixels": 9,
+      "bbox": [
+        336,
+        389,
+        339,
+        393
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 15,
+      "piece": "leg_near",
+      "pixels": 4,
+      "bbox": [
+        335,
+        398,
+        336,
+        402
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 15,
+      "piece": "torso",
+      "pixels": 19,
+      "bbox": [
+        342,
+        304,
+        345,
+        316
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 15,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        341,
+        299,
+        344,
+        303
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 16,
+      "piece": "pelvis",
+      "pixels": 5,
+      "bbox": [
+        281,
+        342,
+        283,
+        345
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 16,
+      "piece": "torso",
+      "pixels": 13,
+      "bbox": [
+        341,
+        306,
+        343,
+        317
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 16,
+      "piece": "torso",
+      "pixels": 5,
+      "bbox": [
+        339,
+        301,
+        342,
+        304
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 17,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        266,
+        348,
+        268,
+        352
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 17,
+      "piece": "pelvis",
+      "pixels": 8,
+      "bbox": [
+        328,
+        345,
+        335,
+        347
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 17,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        340,
+        310,
+        341,
+        316
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 17,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        338,
+        302,
+        340,
+        304
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 18,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        255,
+        376,
+        257,
+        379
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 18,
+      "piece": "leg_far",
+      "pixels": 5,
+      "bbox": [
+        258,
+        367,
+        260,
+        371
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 18,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        263,
+        349,
+        265,
+        353
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 19,
+      "piece": "leg_far",
+      "pixels": 21,
+      "bbox": [
+        263,
+        406,
+        271,
+        412
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 19,
+      "piece": "leg_far",
+      "pixels": 11,
+      "bbox": [
+        257,
+        355,
+        261,
+        364
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 19,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        311,
+        343,
+        313,
+        346
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 19,
+      "piece": "foot_near",
+      "pixels": 11,
+      "bbox": [
+        323,
+        409,
+        328,
+        414
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 20,
+      "piece": "leg_far",
+      "pixels": 7,
+      "bbox": [
+        256,
+        357,
+        258,
+        364
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 20,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        310,
+        335,
+        312,
+        340
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 20,
+      "piece": "arm_near",
+      "pixels": 10,
+      "bbox": [
+        308,
+        330,
+        312,
+        337
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 20,
+      "piece": "arm_near",
+      "pixels": 8,
+      "bbox": [
+        312,
+        299,
+        320,
+        300
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 20,
+      "piece": "arm_near",
+      "pixels": 8,
+      "bbox": [
+        305,
+        310,
+        308,
+        316
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 20,
+      "piece": "pelvis",
+      "pixels": 54,
+      "bbox": [
+        305,
+        344,
+        314,
+        366
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 20,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        304,
+        371,
+        306,
+        373
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 21,
+      "piece": "leg_far",
+      "pixels": 5,
+      "bbox": [
+        255,
+        358,
+        256,
+        363
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 21,
+      "piece": "leg_near",
+      "pixels": 12,
+      "bbox": [
+        307,
+        335,
+        311,
+        341
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 21,
+      "piece": "arm_near",
+      "pixels": 13,
+      "bbox": [
+        310,
+        300,
+        319,
+        302
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 21,
+      "piece": "arm_near",
+      "pixels": 11,
+      "bbox": [
+        306,
+        331,
+        310,
+        335
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 22,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        256,
+        387,
+        257,
+        393
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 22,
+      "piece": "leg_near",
+      "pixels": 16,
+      "bbox": [
+        304,
+        335,
+        308,
+        341
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 22,
+      "piece": "arm_near",
+      "pixels": 25,
+      "bbox": [
+        300,
+        306,
+        306,
+        319
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 23,
+      "piece": "leg_near",
+      "pixels": 17,
+      "bbox": [
+        302,
+        337,
+        306,
+        343
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 23,
+      "piece": "arm_near",
+      "pixels": 31,
+      "bbox": [
+        298,
+        307,
+        304,
+        321
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 23,
+      "piece": "pelvis",
+      "pixels": 426,
+      "bbox": [
+        297,
+        343,
+        314,
+        383
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 23,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        301,
+        334,
+        303,
+        338
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 24,
+      "piece": "leg_near",
+      "pixels": 13,
+      "bbox": [
+        300,
+        339,
+        304,
+        345
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 24,
+      "piece": "arm_near",
+      "pixels": 28,
+      "bbox": [
+        297,
+        310,
+        302,
+        323
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 24,
+      "piece": "arm_near",
+      "pixels": 9,
+      "bbox": [
+        303,
+        305,
+        309,
+        307
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 24,
+      "piece": "pelvis",
+      "pixels": 470,
+      "bbox": [
+        295,
+        344,
+        312,
+        389
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 24,
+      "piece": "pelvis",
+      "pixels": 6,
+      "bbox": [
+        299,
+        336,
+        302,
+        340
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 25,
+      "piece": "leg_near",
+      "pixels": 16,
+      "bbox": [
+        298,
+        341,
+        302,
+        347
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 25,
+      "piece": "arm_near",
+      "pixels": 28,
+      "bbox": [
+        295,
+        312,
+        300,
+        325
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 25,
+      "piece": "arm_near",
+      "pixels": 9,
+      "bbox": [
+        301,
+        307,
+        307,
+        309
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 25,
+      "piece": "pelvis",
+      "pixels": 454,
+      "bbox": [
+        293,
+        347,
+        310,
+        391
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 25,
+      "piece": "pelvis",
+      "pixels": 6,
+      "bbox": [
+        297,
+        338,
+        300,
+        342
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 25,
+      "piece": "pelvis",
+      "pixels": 5,
+      "bbox": [
+        261,
+        352,
+        263,
+        355
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 26,
+      "piece": "leg_near",
+      "pixels": 12,
+      "bbox": [
+        295,
+        343,
+        299,
+        349
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 26,
+      "piece": "arm_near",
+      "pixels": 25,
+      "bbox": [
+        291,
+        313,
+        297,
+        326
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 26,
+      "piece": "pelvis",
+      "pixels": 423,
+      "bbox": [
+        290,
+        349,
+        307,
+        392
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 26,
+      "piece": "pelvis",
+      "pixels": 5,
+      "bbox": [
+        258,
+        353,
+        260,
+        356
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 27,
+      "piece": "leg_near",
+      "pixels": 10,
+      "bbox": [
+        293,
+        344,
+        296,
+        350
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 27,
+      "piece": "arm_near",
+      "pixels": 14,
+      "bbox": [
+        289,
+        317,
+        292,
+        327
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 27,
+      "piece": "arm_near",
+      "pixels": 4,
+      "bbox": [
+        296,
+        309,
+        300,
+        310
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 27,
+      "piece": "pelvis",
+      "pixels": 337,
+      "bbox": [
+        288,
+        351,
+        302,
+        389
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 27,
+      "piece": "pelvis",
+      "pixels": 5,
+      "bbox": [
+        256,
+        354,
+        258,
+        357
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 28,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        239,
+        366,
+        241,
+        372
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 28,
+      "piece": "leg_near",
+      "pixels": 4,
+      "bbox": [
+        292,
+        345,
+        294,
+        348
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 28,
+      "piece": "arm_near",
+      "pixels": 10,
+      "bbox": [
+        290,
+        340,
+        294,
+        347
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 28,
+      "piece": "arm_near",
+      "pixels": 8,
+      "bbox": [
+        294,
+        309,
+        302,
+        310
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 28,
+      "piece": "arm_near",
+      "pixels": 8,
+      "bbox": [
+        287,
+        320,
+        290,
+        326
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 29,
+      "piece": "leg_far",
+      "pixels": 18,
+      "bbox": [
+        231,
+        378,
+        236,
+        391
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 29,
+      "piece": "torso",
+      "pixels": 8,
+      "bbox": [
+        237,
+        312,
+        239,
+        319
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 30,
+      "piece": "leg_far",
+      "pixels": 8,
+      "bbox": [
+        238,
+        418,
+        242,
+        421
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 30,
+      "piece": "arm_near",
+      "pixels": 4,
+      "bbox": [
+        301,
+        391,
+        305,
+        392
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 31,
+      "piece": "leg_far",
+      "pixels": 7,
+      "bbox": [
+        231,
+        369,
+        233,
+        376
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 31,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        223,
+        399,
+        224,
+        405
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 31,
+      "piece": "leg_far",
+      "pixels": 5,
+      "bbox": [
+        221,
+        386,
+        223,
+        390
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 31,
+      "piece": "arm_near",
+      "pixels": 8,
+      "bbox": [
+        291,
+        391,
+        299,
+        394
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 31,
+      "piece": "pelvis",
+      "pixels": 5,
+      "bbox": [
+        287,
+        357,
+        291,
+        359
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 31,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        308,
+        324,
+        309,
+        330
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 31,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        306,
+        316,
+        308,
+        318
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 32,
+      "piece": "coat_far",
+      "pixels": 5,
+      "bbox": [
+        285,
+        391,
+        289,
+        393
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 32,
+      "piece": "arm_near",
+      "pixels": 7,
+      "bbox": [
+        278,
+        388,
+        284,
+        391
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 32,
+      "piece": "torso",
+      "pixels": 13,
+      "bbox": [
+        305,
+        321,
+        307,
+        332
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 32,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        304,
+        317,
+        306,
+        319
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 33,
+      "piece": "coat_far",
+      "pixels": 10,
+      "bbox": [
+        281,
+        407,
+        287,
+        409
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 33,
+      "piece": "torso",
+      "pixels": 19,
+      "bbox": [
+        302,
+        323,
+        305,
+        335
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 33,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        301,
+        318,
+        304,
+        322
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 34,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        227,
+        367,
+        229,
+        371
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 34,
+      "piece": "coat_far",
+      "pixels": 10,
+      "bbox": [
+        278,
+        409,
+        284,
+        411
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 34,
+      "piece": "arm_near",
+      "pixels": 7,
+      "bbox": [
+        274,
+        392,
+        280,
+        395
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 34,
+      "piece": "torso",
+      "pixels": 19,
+      "bbox": [
+        299,
+        325,
+        302,
+        337
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 34,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        298,
+        320,
+        301,
+        324
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 35,
+      "piece": "leg_near",
+      "pixels": 9,
+      "bbox": [
+        291,
+        412,
+        294,
+        416
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 35,
+      "piece": "pelvis",
+      "pixels": 5,
+      "bbox": [
+        238,
+        363,
+        240,
+        366
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 35,
+      "piece": "torso",
+      "pixels": 19,
+      "bbox": [
+        297,
+        327,
+        300,
+        339
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 35,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        296,
+        322,
+        299,
+        326
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 36,
+      "piece": "coat_far",
+      "pixels": 5,
+      "bbox": [
+        276,
+        398,
+        280,
+        400
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 36,
+      "piece": "arm_near",
+      "pixels": 6,
+      "bbox": [
+        270,
+        396,
+        275,
+        398
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 36,
+      "piece": "torso",
+      "pixels": 13,
+      "bbox": [
+        296,
+        328,
+        298,
+        339
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 36,
+      "piece": "torso",
+      "pixels": 5,
+      "bbox": [
+        294,
+        323,
+        297,
+        326
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 37,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        221,
+        371,
+        223,
+        375
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 37,
+      "piece": "torso",
+      "pixels": 32,
+      "bbox": [
+        289,
+        320,
+        296,
+        340
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 38,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        210,
+        398,
+        212,
+        401
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 38,
+      "piece": "leg_far",
+      "pixels": 5,
+      "bbox": [
+        213,
+        389,
+        215,
+        393
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 39,
+      "piece": "leg_far",
+      "pixels": 21,
+      "bbox": [
+        218,
+        429,
+        226,
+        435
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 39,
+      "piece": "leg_far",
+      "pixels": 11,
+      "bbox": [
+        212,
+        378,
+        216,
+        387
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 39,
+      "piece": "foot_near",
+      "pixels": 5,
+      "bbox": [
+        279,
+        432,
+        281,
+        435
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 40,
+      "piece": "leg_far",
+      "pixels": 9,
+      "bbox": [
+        211,
+        379,
+        214,
+        387
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 40,
+      "piece": "leg_near",
+      "pixels": 4,
+      "bbox": [
+        265,
+        358,
+        267,
+        361
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 40,
+      "piece": "arm_near",
+      "pixels": 12,
+      "bbox": [
+        263,
+        353,
+        267,
+        360
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 40,
+      "piece": "arm_near",
+      "pixels": 4,
+      "bbox": [
+        265,
+        395,
+        268,
+        397
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 40,
+      "piece": "pelvis",
+      "pixels": 48,
+      "bbox": [
+        260,
+        367,
+        269,
+        388
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 40,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        259,
+        393,
+        261,
+        396
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 41,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        210,
+        380,
+        212,
+        386
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 41,
+      "piece": "leg_near",
+      "pixels": 10,
+      "bbox": [
+        262,
+        358,
+        265,
+        364
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 41,
+      "piece": "arm_near",
+      "pixels": 9,
+      "bbox": [
+        261,
+        354,
+        264,
+        358
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 42,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        211,
+        410,
+        212,
+        416
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 42,
+      "piece": "leg_near",
+      "pixels": 12,
+      "bbox": [
+        258,
+        358,
+        262,
+        365
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 42,
+      "piece": "arm_near",
+      "pixels": 23,
+      "bbox": [
+        255,
+        328,
+        261,
+        342
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 43,
+      "piece": "leg_near",
+      "pixels": 13,
+      "bbox": [
+        256,
+        359,
+        261,
+        365
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 43,
+      "piece": "arm_near",
+      "pixels": 31,
+      "bbox": [
+        253,
+        329,
+        259,
+        343
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 43,
+      "piece": "pelvis",
+      "pixels": 428,
+      "bbox": [
+        252,
+        363,
+        269,
+        405
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 43,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        257,
+        356,
+        259,
+        360
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 44,
+      "piece": "leg_near",
+      "pixels": 11,
+      "bbox": [
+        254,
+        360,
+        258,
+        367
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 44,
+      "piece": "arm_near",
+      "pixels": 31,
+      "bbox": [
+        251,
+        330,
+        257,
+        344
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 44,
+      "piece": "pelvis",
+      "pixels": 467,
+      "bbox": [
+        250,
+        364,
+        267,
+        410
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 44,
+      "piece": "pelvis",
+      "pixels": 5,
+      "bbox": [
+        255,
+        357,
+        257,
+        361
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 45,
+      "piece": "leg_near",
+      "pixels": 10,
+      "bbox": [
+        253,
+        363,
+        256,
+        369
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 45,
+      "piece": "arm_near",
+      "pixels": 26,
+      "bbox": [
+        249,
+        333,
+        255,
+        346
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 45,
+      "piece": "pelvis",
+      "pixels": 406,
+      "bbox": [
+        248,
+        368,
+        264,
+        412
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 46,
+      "piece": "leg_near",
+      "pixels": 7,
+      "bbox": [
+        250,
+        364,
+        252,
+        370
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 46,
+      "piece": "torso",
+      "pixels": 19,
+      "bbox": [
+        199,
+        337,
+        201,
+        356
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 47,
+      "piece": "leg_far",
+      "pixels": 5,
+      "bbox": [
+        199,
+        417,
+        200,
+        422
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 47,
+      "piece": "arm_near",
+      "pixels": 5,
+      "bbox": [
+        244,
+        343,
+        246,
+        347
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 48,
+      "piece": "coat_near",
+      "pixels": 4,
+      "bbox": [
+        261,
+        426,
+        264,
+        428
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 49,
+      "piece": "leg_far",
+      "pixels": 12,
+      "bbox": [
+        196,
+        439,
+        201,
+        443
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 1,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        340,
+        410,
+        342,
+        412
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 1,
+      "piece": "coat_far",
+      "pixels": 57,
+      "bbox": [
+        336,
+        342,
+        346,
+        367
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 1,
+      "piece": "coat_far",
+      "pixels": 9,
+      "bbox": [
+        337,
+        405,
+        341,
+        410
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 1,
+      "piece": "leg_near",
+      "pixels": 21,
+      "bbox": [
+        268,
+        386,
+        279,
+        390
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 1,
+      "piece": "coat_near",
+      "pixels": 48,
+      "bbox": [
+        268,
+        365,
+        275,
+        380
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 1,
+      "piece": "coat_near",
+      "pixels": 20,
+      "bbox": [
+        272,
+        354,
+        275,
+        364
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 1,
+      "piece": "foot_near",
+      "pixels": 40,
+      "bbox": [
+        268,
+        374,
+        276,
+        388
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 2,
+      "piece": "leg_far",
+      "pixels": 41,
+      "bbox": [
+        313,
+        405,
+        334,
+        407
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 2,
+      "piece": "coat_far",
+      "pixels": 59,
+      "bbox": [
+        339,
+        340,
+        349,
+        366
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 2,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        339,
+        403,
+        343,
+        408
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 2,
+      "piece": "leg_near",
+      "pixels": 8,
+      "bbox": [
+        278,
+        382,
+        284,
+        384
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 2,
+      "piece": "foot_near",
+      "pixels": 46,
+      "bbox": [
+        278,
+        365,
+        284,
+        382
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 3,
+      "piece": "leg_far",
+      "pixels": 63,
+      "bbox": [
+        314,
+        404,
+        338,
+        407
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 3,
+      "piece": "coat_far",
+      "pixels": 60,
+      "bbox": [
+        341,
+        339,
+        351,
+        365
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 3,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        341,
+        402,
+        345,
+        407
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 3,
+      "piece": "coat_far",
+      "pixels": 4,
+      "bbox": [
+        337,
+        403,
+        340,
+        406
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 3,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        283,
+        350,
+        285,
+        354
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 4,
+      "piece": "leg_far",
+      "pixels": 48,
+      "bbox": [
+        316,
+        404,
+        333,
+        407
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 4,
+      "piece": "leg_far",
+      "pixels": 8,
+      "bbox": [
+        339,
+        334,
+        342,
+        340
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 4,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        340,
+        411,
+        342,
+        413
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 4,
+      "piece": "coat_far",
+      "pixels": 83,
+      "bbox": [
+        343,
+        338,
+        353,
+        367
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 4,
+      "piece": "coat_far",
+      "pixels": 19,
+      "bbox": [
+        333,
+        403,
+        342,
+        409
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 4,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        343,
+        402,
+        347,
+        407
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 5,
+      "piece": "leg_far",
+      "pixels": 28,
+      "bbox": [
+        319,
+        405,
+        333,
+        407
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 5,
+      "piece": "leg_far",
+      "pixels": 9,
+      "bbox": [
+        341,
+        334,
+        344,
+        341
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 5,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        345,
+        327,
+        348,
+        330
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 5,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        340,
+        410,
+        342,
+        412
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 5,
+      "piece": "coat_far",
+      "pixels": 92,
+      "bbox": [
+        344,
+        335,
+        355,
+        367
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 5,
+      "piece": "coat_far",
+      "pixels": 20,
+      "bbox": [
+        337,
+        404,
+        344,
+        410
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 5,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        345,
+        403,
+        349,
+        408
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 5,
+      "piece": "pelvis",
+      "pixels": 10,
+      "bbox": [
+        331,
+        302,
+        339,
+        311
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 5,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        287,
+        350,
+        289,
+        354
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 5,
+      "piece": "torso",
+      "pixels": 7,
+      "bbox": [
+        331,
+        295,
+        332,
+        302
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 6,
+      "piece": "leg_far",
+      "pixels": 35,
+      "bbox": [
+        320,
+        404,
+        333,
+        407
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 6,
+      "piece": "leg_far",
+      "pixels": 10,
+      "bbox": [
+        344,
+        333,
+        347,
+        340
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 6,
+      "piece": "coat_far",
+      "pixels": 95,
+      "bbox": [
+        347,
+        334,
+        358,
+        366
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 6,
+      "piece": "coat_far",
+      "pixels": 46,
+      "bbox": [
+        332,
+        403,
+        346,
+        411
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 6,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        347,
+        402,
+        351,
+        407
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 6,
+      "piece": "foot_near",
+      "pixels": 7,
+      "bbox": [
+        291,
+        374,
+        292,
+        381
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 6,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        358,
+        276,
+        359,
+        280
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 7,
+      "piece": "leg_far",
+      "pixels": 37,
+      "bbox": [
+        322,
+        402,
+        335,
+        405
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 7,
+      "piece": "leg_far",
+      "pixels": 10,
+      "bbox": [
+        346,
+        331,
+        349,
+        338
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 7,
+      "piece": "leg_far",
+      "pixels": 5,
+      "bbox": [
+        350,
+        325,
+        353,
+        328
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 7,
+      "piece": "leg_far",
+      "pixels": 5,
+      "bbox": [
+        342,
+        408,
+        344,
+        411
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 7,
+      "piece": "coat_far",
+      "pixels": 96,
+      "bbox": [
+        349,
+        332,
+        360,
+        364
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 7,
+      "piece": "coat_far",
+      "pixels": 43,
+      "bbox": [
+        335,
+        401,
+        348,
+        409
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 7,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        349,
+        400,
+        353,
+        405
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 7,
+      "piece": "foot_near",
+      "pixels": 18,
+      "bbox": [
+        291,
+        370,
+        295,
+        382
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 7,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        360,
+        274,
+        361,
+        278
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 8,
+      "piece": "leg_far",
+      "pixels": 15,
+      "bbox": [
+        325,
+        400,
+        340,
+        401
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 8,
+      "piece": "leg_far",
+      "pixels": 10,
+      "bbox": [
+        348,
+        329,
+        351,
+        336
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 8,
+      "piece": "leg_far",
+      "pixels": 5,
+      "bbox": [
+        352,
+        323,
+        355,
+        326
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 8,
+      "piece": "coat_far",
+      "pixels": 96,
+      "bbox": [
+        351,
+        330,
+        362,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 8,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        351,
+        398,
+        355,
+        403
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 8,
+      "piece": "coat_far",
+      "pixels": 9,
+      "bbox": [
+        346,
+        399,
+        350,
+        403
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 8,
+      "piece": "foot_near",
+      "pixels": 7,
+      "bbox": [
+        291,
+        374,
+        292,
+        381
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "piece": "leg_far",
+      "pixels": 10,
+      "bbox": [
+        317,
+        380,
+        321,
+        387
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "piece": "leg_far",
+      "pixels": 9,
+      "bbox": [
+        350,
+        328,
+        353,
+        335
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "piece": "leg_far",
+      "pixels": 5,
+      "bbox": [
+        354,
+        321,
+        357,
+        325
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "piece": "coat_far",
+      "pixels": 91,
+      "bbox": [
+        353,
+        329,
+        364,
+        361
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "piece": "coat_far",
+      "pixels": 13,
+      "bbox": [
+        353,
+        397,
+        357,
+        402
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "piece": "coat_near",
+      "pixels": 51,
+      "bbox": [
+        285,
+        356,
+        292,
+        372
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "piece": "coat_near",
+      "pixels": 12,
+      "bbox": [
+        290,
+        348,
+        293,
+        355
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "piece": "foot_near",
+      "pixels": 8,
+      "bbox": [
+        291,
+        374,
+        292,
+        382
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "piece": "foot_near",
+      "pixels": 4,
+      "bbox": [
+        292,
+        370,
+        294,
+        373
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "piece": "torso",
+      "pixels": 5,
+      "bbox": [
+        343,
+        271,
+        346,
+        276
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 10,
+      "piece": "leg_far",
+      "pixels": 12,
+      "bbox": [
+        330,
+        397,
+        333,
+        402
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 10,
+      "piece": "leg_far",
+      "pixels": 8,
+      "bbox": [
+        353,
+        326,
+        356,
+        332
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 10,
+      "piece": "leg_far",
+      "pixels": 7,
+      "bbox": [
+        322,
+        380,
+        324,
+        385
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 10,
+      "piece": "coat_far",
+      "pixels": 82,
+      "bbox": [
+        357,
+        330,
+        367,
+        359
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 10,
+      "piece": "coat_far",
+      "pixels": 6,
+      "bbox": [
+        329,
+        399,
+        331,
+        403
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 10,
+      "piece": "coat_near",
+      "pixels": 46,
+      "bbox": [
+        288,
+        354,
+        294,
+        370
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 10,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        286,
+        310,
+        288,
+        313
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 10,
+      "piece": "foot_near",
+      "pixels": 4,
+      "bbox": [
+        292,
+        370,
+        294,
+        373
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 10,
+      "piece": "torso",
+      "pixels": 13,
+      "bbox": [
+        357,
+        270,
+        368,
+        273
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 11,
+      "piece": "leg_far",
+      "pixels": 12,
+      "bbox": [
+        338,
+        396,
+        343,
+        403
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 11,
+      "piece": "coat_far",
+      "pixels": 41,
+      "bbox": [
+        331,
+        396,
+        343,
+        404
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 11,
+      "piece": "coat_far",
+      "pixels": 40,
+      "bbox": [
+        362,
+        339,
+        369,
+        355
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 11,
+      "piece": "coat_far",
+      "pixels": 6,
+      "bbox": [
+        361,
+        333,
+        363,
+        338
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 11,
+      "piece": "leg_near",
+      "pixels": 4,
+      "bbox": [
+        317,
+        383,
+        320,
+        387
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 11,
+      "piece": "coat_near",
+      "pixels": 25,
+      "bbox": [
+        290,
+        360,
+        294,
+        369
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 11,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        288,
+        309,
+        290,
+        312
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 11,
+      "piece": "foot_near",
+      "pixels": 18,
+      "bbox": [
+        291,
+        370,
+        295,
+        382
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 11,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        366,
+        269,
+        370,
+        272
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 12,
+      "piece": "leg_far",
+      "pixels": 22,
+      "bbox": [
+        363,
+        342,
+        368,
+        357
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 12,
+      "piece": "leg_far",
+      "pixels": 5,
+      "bbox": [
+        369,
+        351,
+        371,
+        354
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 12,
+      "piece": "coat_far",
+      "pixels": 78,
+      "bbox": [
+        333,
+        395,
+        348,
+        403
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 12,
+      "piece": "leg_near",
+      "pixels": 4,
+      "bbox": [
+        317,
+        383,
+        320,
+        387
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 12,
+      "piece": "coat_near",
+      "pixels": 7,
+      "bbox": [
+        292,
+        364,
+        295,
+        368
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 12,
+      "piece": "foot_far",
+      "pixels": 6,
+      "bbox": [
+        368,
+        379,
+        371,
+        383
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 12,
+      "piece": "foot_near",
+      "pixels": 8,
+      "bbox": [
+        291,
+        374,
+        292,
+        382
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 12,
+      "piece": "foot_near",
+      "pixels": 7,
+      "bbox": [
+        292,
+        370,
+        295,
+        373
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 12,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        368,
+        268,
+        372,
+        271
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 13,
+      "piece": "leg_far",
+      "pixels": 78,
+      "bbox": [
+        360,
+        326,
+        373,
+        354
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 13,
+      "piece": "leg_far",
+      "pixels": 5,
+      "bbox": [
+        370,
+        378,
+        373,
+        382
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 13,
+      "piece": "coat_far",
+      "pixels": 90,
+      "bbox": [
+        335,
+        394,
+        355,
+        402
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 13,
+      "piece": "leg_near",
+      "pixels": 62,
+      "bbox": [
+        294,
+        335,
+        304,
+        364
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 13,
+      "piece": "leg_near",
+      "pixels": 4,
+      "bbox": [
+        317,
+        383,
+        320,
+        387
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 13,
+      "piece": "coat_near",
+      "pixels": 4,
+      "bbox": [
+        300,
+        352,
+        302,
+        354
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 13,
+      "piece": "foot_near",
+      "pixels": 8,
+      "bbox": [
+        291,
+        374,
+        293,
+        381
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 13,
+      "piece": "foot_near",
+      "pixels": 7,
+      "bbox": [
+        292,
+        369,
+        295,
+        372
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 13,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        353,
+        266,
+        355,
+        270
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "piece": "leg_far",
+      "pixels": 103,
+      "bbox": [
+        363,
+        325,
+        376,
+        356
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        373,
+        379,
+        376,
+        382
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "piece": "coat_far",
+      "pixels": 82,
+      "bbox": [
+        338,
+        394,
+        354,
+        402
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "piece": "leg_near",
+      "pixels": 39,
+      "bbox": [
+        295,
+        351,
+        302,
+        363
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        294,
+        381,
+        299,
+        383
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "piece": "coat_near",
+      "pixels": 4,
+      "bbox": [
+        302,
+        352,
+        304,
+        354
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        331,
+        354,
+        333,
+        356
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "piece": "foot_near",
+      "pixels": 13,
+      "bbox": [
+        291,
+        374,
+        293,
+        382
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "piece": "foot_near",
+      "pixels": 11,
+      "bbox": [
+        292,
+        369,
+        296,
+        373
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "piece": "leg_far",
+      "pixels": 22,
+      "bbox": [
+        370,
+        341,
+        375,
+        356
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "piece": "leg_far",
+      "pixels": 9,
+      "bbox": [
+        376,
+        350,
+        379,
+        356
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "piece": "coat_far",
+      "pixels": 78,
+      "bbox": [
+        340,
+        394,
+        356,
+        402
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "piece": "leg_near",
+      "pixels": 36,
+      "bbox": [
+        297,
+        351,
+        304,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "piece": "leg_near",
+      "pixels": 27,
+      "bbox": [
+        290,
+        379,
+        305,
+        383
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "piece": "pelvis",
+      "pixels": 6,
+      "bbox": [
+        333,
+        354,
+        335,
+        357
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "piece": "foot_far",
+      "pixels": 6,
+      "bbox": [
+        375,
+        378,
+        378,
+        382
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "piece": "foot_near",
+      "pixels": 6,
+      "bbox": [
+        294,
+        364,
+        296,
+        367
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "piece": "foot_near",
+      "pixels": 6,
+      "bbox": [
+        294,
+        368,
+        297,
+        372
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "piece": "foot_near",
+      "pixels": 4,
+      "bbox": [
+        291,
+        378,
+        293,
+        380
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 16,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        376,
+        351,
+        379,
+        355
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 16,
+      "piece": "coat_far",
+      "pixels": 67,
+      "bbox": [
+        342,
+        393,
+        356,
+        401
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 16,
+      "piece": "leg_near",
+      "pixels": 37,
+      "bbox": [
+        298,
+        350,
+        305,
+        363
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 16,
+      "piece": "leg_near",
+      "pixels": 23,
+      "bbox": [
+        291,
+        380,
+        304,
+        383
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 16,
+      "piece": "coat_near",
+      "pixels": 4,
+      "bbox": [
+        305,
+        352,
+        307,
+        354
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 16,
+      "piece": "pelvis",
+      "pixels": 6,
+      "bbox": [
+        335,
+        353,
+        337,
+        356
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 16,
+      "piece": "foot_far",
+      "pixels": 5,
+      "bbox": [
+        377,
+        377,
+        380,
+        381
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 16,
+      "piece": "foot_near",
+      "pixels": 4,
+      "bbox": [
+        296,
+        369,
+        298,
+        371
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 17,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        378,
+        349,
+        381,
+        353
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 17,
+      "piece": "coat_far",
+      "pixels": 49,
+      "bbox": [
+        344,
+        391,
+        356,
+        399
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 17,
+      "piece": "coat_far",
+      "pixels": 4,
+      "bbox": [
+        377,
+        339,
+        378,
+        343
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 17,
+      "piece": "leg_near",
+      "pixels": 32,
+      "bbox": [
+        301,
+        348,
+        307,
+        359
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 17,
+      "piece": "coat_near",
+      "pixels": 4,
+      "bbox": [
+        307,
+        350,
+        309,
+        352
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 17,
+      "piece": "pelvis",
+      "pixels": 6,
+      "bbox": [
+        337,
+        351,
+        339,
+        354
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 17,
+      "piece": "foot_near",
+      "pixels": 5,
+      "bbox": [
+        298,
+        366,
+        301,
+        369
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 17,
+      "piece": "foot_near",
+      "pixels": 4,
+      "bbox": [
+        295,
+        375,
+        297,
+        378
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "piece": "coat_far",
+      "pixels": 32,
+      "bbox": [
+        347,
+        389,
+        354,
+        396
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "piece": "coat_far",
+      "pixels": 4,
+      "bbox": [
+        380,
+        337,
+        381,
+        341
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "piece": "coat_far",
+      "pixels": 4,
+      "bbox": [
+        382,
+        342,
+        383,
+        346
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "piece": "leg_near",
+      "pixels": 33,
+      "bbox": [
+        298,
+        373,
+        312,
+        377
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "piece": "foot_far",
+      "pixels": 7,
+      "bbox": [
+        376,
+        378,
+        378,
+        384
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "piece": "foot_near",
+      "pixels": 18,
+      "bbox": [
+        301,
+        358,
+        306,
+        365
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "piece": "foot_near",
+      "pixels": 10,
+      "bbox": [
+        300,
+        365,
+        303,
+        373
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "piece": "coat_far",
+      "pixels": 21,
+      "bbox": [
+        381,
+        330,
+        387,
+        346
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "piece": "coat_far",
+      "pixels": 19,
+      "bbox": [
+        349,
+        387,
+        354,
+        394
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "piece": "coat_far",
+      "pixels": 4,
+      "bbox": [
+        379,
+        326,
+        381,
+        329
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "piece": "leg_near",
+      "pixels": 21,
+      "bbox": [
+        306,
+        368,
+        316,
+        372
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "piece": "coat_near",
+      "pixels": 52,
+      "bbox": [
+        308,
+        344,
+        316,
+        360
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "piece": "coat_near",
+      "pixels": 13,
+      "bbox": [
+        313,
+        336,
+        316,
+        343
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        306,
+        300,
+        308,
+        303
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "piece": "foot_far",
+      "pixels": 6,
+      "bbox": [
+        378,
+        378,
+        380,
+        382
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "piece": "foot_near",
+      "pixels": 33,
+      "bbox": [
+        306,
+        359,
+        311,
+        369
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "piece": "foot_near",
+      "pixels": 8,
+      "bbox": [
+        312,
+        356,
+        314,
+        361
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "piece": "torso",
+      "pixels": 16,
+      "bbox": [
+        371,
+        259,
+        387,
+        263
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 20,
+      "piece": "coat_far",
+      "pixels": 32,
+      "bbox": [
+        383,
+        329,
+        389,
+        345
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 20,
+      "piece": "coat_far",
+      "pixels": 6,
+      "bbox": [
+        381,
+        323,
+        383,
+        328
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 20,
+      "piece": "coat_far",
+      "pixels": 6,
+      "bbox": [
+        351,
+        389,
+        354,
+        392
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 20,
+      "piece": "leg_near",
+      "pixels": 9,
+      "bbox": [
+        315,
+        365,
+        321,
+        367
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 20,
+      "piece": "foot_near",
+      "pixels": 66,
+      "bbox": [
+        314,
+        348,
+        322,
+        366
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 21,
+      "piece": "coat_far",
+      "pixels": 57,
+      "bbox": [
+        381,
+        319,
+        391,
+        344
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 21,
+      "piece": "coat_far",
+      "pixels": 6,
+      "bbox": [
+        382,
+        384,
+        384,
+        387
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 21,
+      "piece": "leg_near",
+      "pixels": 9,
+      "bbox": [
+        321,
+        362,
+        328,
+        364
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 21,
+      "piece": "pelvis",
+      "pixels": 11,
+      "bbox": [
+        367,
+        282,
+        374,
+        290
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 21,
+      "piece": "foot_near",
+      "pixels": 35,
+      "bbox": [
+        322,
+        345,
+        327,
+        363
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 21,
+      "piece": "torso",
+      "pixels": 16,
+      "bbox": [
+        366,
+        257,
+        375,
+        271
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 21,
+      "piece": "torso",
+      "pixels": 9,
+      "bbox": [
+        367,
+        276,
+        369,
+        282
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 22,
+      "piece": "coat_far",
+      "pixels": 59,
+      "bbox": [
+        384,
+        318,
+        394,
+        344
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 22,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        383,
+        382,
+        387,
+        387
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 22,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        326,
+        329,
+        328,
+        333
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 22,
+      "piece": "torso",
+      "pixels": 7,
+      "bbox": [
+        374,
+        256,
+        379,
+        259
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 22,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        370,
+        275,
+        371,
+        281
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 23,
+      "piece": "leg_far",
+      "pixels": 17,
+      "bbox": [
+        359,
+        383,
+        376,
+        384
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 23,
+      "piece": "leg_far",
+      "pixels": 7,
+      "bbox": [
+        382,
+        312,
+        385,
+        318
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 23,
+      "piece": "coat_far",
+      "pixels": 78,
+      "bbox": [
+        386,
+        316,
+        396,
+        345
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 23,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        385,
+        381,
+        389,
+        386
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 23,
+      "piece": "pelvis",
+      "pixels": 6,
+      "bbox": [
+        374,
+        283,
+        379,
+        288
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 23,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        328,
+        328,
+        330,
+        332
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 23,
+      "piece": "torso",
+      "pixels": 7,
+      "bbox": [
+        376,
+        255,
+        381,
+        258
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 23,
+      "piece": "torso",
+      "pixels": 5,
+      "bbox": [
+        372,
+        275,
+        373,
+        280
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "piece": "leg_far",
+      "pixels": 33,
+      "bbox": [
+        361,
+        382,
+        378,
+        384
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "piece": "leg_far",
+      "pixels": 9,
+      "bbox": [
+        384,
+        311,
+        387,
+        318
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "piece": "coat_far",
+      "pixels": 89,
+      "bbox": [
+        387,
+        312,
+        398,
+        344
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "piece": "coat_far",
+      "pixels": 15,
+      "bbox": [
+        380,
+        381,
+        386,
+        387
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        387,
+        380,
+        391,
+        385
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "piece": "torso",
+      "pixels": 15,
+      "bbox": [
+        385,
+        254,
+        394,
+        258
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "piece": "torso",
+      "pixels": 14,
+      "bbox": [
+        378,
+        254,
+        384,
+        259
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        373,
+        264,
+        375,
+        268
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        374,
+        275,
+        375,
+        279
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        388,
+        296,
+        390,
+        300
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "piece": "leg_far",
+      "pixels": 26,
+      "bbox": [
+        363,
+        382,
+        376,
+        384
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "piece": "leg_far",
+      "pixels": 10,
+      "bbox": [
+        386,
+        311,
+        389,
+        318
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        390,
+        304,
+        393,
+        308
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        383,
+        388,
+        385,
+        390
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "piece": "coat_far",
+      "pixels": 95,
+      "bbox": [
+        389,
+        312,
+        400,
+        344
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "piece": "coat_far",
+      "pixels": 27,
+      "bbox": [
+        380,
+        381,
+        388,
+        388
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        389,
+        380,
+        393,
+        385
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "piece": "pelvis",
+      "pixels": 7,
+      "bbox": [
+        378,
+        282,
+        384,
+        288
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        332,
+        327,
+        334,
+        331
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "piece": "torso",
+      "pixels": 10,
+      "bbox": [
+        376,
+        273,
+        378,
+        279
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        400,
+        254,
+        401,
+        258
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        390,
+        296,
+        392,
+        300
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "piece": "leg_far",
+      "pixels": 21,
+      "bbox": [
+        366,
+        382,
+        377,
+        384
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "piece": "leg_far",
+      "pixels": 10,
+      "bbox": [
+        389,
+        311,
+        392,
+        318
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        393,
+        304,
+        396,
+        308
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "piece": "coat_far",
+      "pixels": 96,
+      "bbox": [
+        392,
+        312,
+        403,
+        344
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "piece": "coat_far",
+      "pixels": 40,
+      "bbox": [
+        380,
+        381,
+        391,
+        389
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        392,
+        380,
+        396,
+        385
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "piece": "foot_near",
+      "pixels": 7,
+      "bbox": [
+        336,
+        351,
+        337,
+        358
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "piece": "torso",
+      "pixels": 7,
+      "bbox": [
+        383,
+        254,
+        388,
+        257
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        379,
+        273,
+        380,
+        279
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        393,
+        296,
+        395,
+        300
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 27,
+      "piece": "leg_far",
+      "pixels": 20,
+      "bbox": [
+        368,
+        380,
+        378,
+        382
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 27,
+      "piece": "leg_far",
+      "pixels": 10,
+      "bbox": [
+        391,
+        309,
+        394,
+        316
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 27,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        395,
+        302,
+        398,
+        306
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 27,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        385,
+        386,
+        387,
+        388
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 27,
+      "piece": "coat_far",
+      "pixels": 96,
+      "bbox": [
+        394,
+        310,
+        405,
+        342
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 27,
+      "piece": "coat_far",
+      "pixels": 40,
+      "bbox": [
+        382,
+        379,
+        393,
+        387
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 27,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        394,
+        378,
+        398,
+        383
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 27,
+      "piece": "foot_near",
+      "pixels": 18,
+      "bbox": [
+        336,
+        347,
+        340,
+        359
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 27,
+      "piece": "torso",
+      "pixels": 5,
+      "bbox": [
+        385,
+        252,
+        388,
+        255
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 28,
+      "piece": "leg_far",
+      "pixels": 10,
+      "bbox": [
+        393,
+        307,
+        396,
+        314
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 28,
+      "piece": "leg_far",
+      "pixels": 7,
+      "bbox": [
+        397,
+        300,
+        400,
+        304
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 28,
+      "piece": "coat_far",
+      "pixels": 96,
+      "bbox": [
+        396,
+        308,
+        407,
+        340
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 28,
+      "piece": "coat_far",
+      "pixels": 20,
+      "bbox": [
+        389,
+        377,
+        395,
+        384
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 28,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        396,
+        376,
+        400,
+        381
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 28,
+      "piece": "foot_near",
+      "pixels": 7,
+      "bbox": [
+        336,
+        351,
+        337,
+        358
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 28,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        407,
+        250,
+        408,
+        254
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 29,
+      "piece": "leg_far",
+      "pixels": 10,
+      "bbox": [
+        395,
+        305,
+        398,
+        312
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 29,
+      "piece": "leg_far",
+      "pixels": 7,
+      "bbox": [
+        364,
+        358,
+        366,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 29,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        399,
+        298,
+        402,
+        302
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 29,
+      "piece": "coat_far",
+      "pixels": 95,
+      "bbox": [
+        398,
+        306,
+        409,
+        338
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 29,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        398,
+        374,
+        402,
+        379
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 29,
+      "piece": "coat_near",
+      "pixels": 51,
+      "bbox": [
+        330,
+        333,
+        337,
+        349
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 29,
+      "piece": "coat_near",
+      "pixels": 12,
+      "bbox": [
+        335,
+        325,
+        338,
+        332
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 29,
+      "piece": "foot_near",
+      "pixels": 8,
+      "bbox": [
+        336,
+        351,
+        337,
+        359
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 30,
+      "piece": "leg_far",
+      "pixels": 17,
+      "bbox": [
+        366,
+        354,
+        369,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 30,
+      "piece": "leg_far",
+      "pixels": 9,
+      "bbox": [
+        375,
+        375,
+        377,
+        380
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 30,
+      "piece": "leg_far",
+      "pixels": 8,
+      "bbox": [
+        398,
+        304,
+        401,
+        310
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 30,
+      "piece": "coat_far",
+      "pixels": 88,
+      "bbox": [
+        401,
+        305,
+        412,
+        337
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 30,
+      "piece": "coat_far",
+      "pixels": 5,
+      "bbox": [
+        374,
+        377,
+        376,
+        381
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 30,
+      "piece": "coat_near",
+      "pixels": 46,
+      "bbox": [
+        333,
+        332,
+        339,
+        348
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 31,
+      "piece": "coat_far",
+      "pixels": 43,
+      "bbox": [
+        376,
+        374,
+        387,
+        381
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 31,
+      "piece": "coat_far",
+      "pixels": 40,
+      "bbox": [
+        407,
+        317,
+        414,
+        333
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 31,
+      "piece": "coat_far",
+      "pixels": 6,
+      "bbox": [
+        406,
+        311,
+        408,
+        316
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 31,
+      "piece": "leg_near",
+      "pixels": 4,
+      "bbox": [
+        362,
+        360,
+        365,
+        364
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 31,
+      "piece": "coat_near",
+      "pixels": 24,
+      "bbox": [
+        335,
+        338,
+        339,
+        347
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 31,
+      "piece": "foot_near",
+      "pixels": 18,
+      "bbox": [
+        336,
+        347,
+        340,
+        359
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 32,
+      "piece": "leg_far",
+      "pixels": 22,
+      "bbox": [
+        408,
+        319,
+        413,
+        334
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 32,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        414,
+        329,
+        416,
+        331
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 32,
+      "piece": "coat_far",
+      "pixels": 75,
+      "bbox": [
+        378,
+        372,
+        393,
+        380
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 32,
+      "piece": "coat_near",
+      "pixels": 7,
+      "bbox": [
+        337,
+        342,
+        340,
+        345
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 32,
+      "piece": "coat_near",
+      "pixels": 6,
+      "bbox": [
+        338,
+        337,
+        341,
+        341
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 32,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        335,
+        285,
+        337,
+        288
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 32,
+      "piece": "foot_far",
+      "pixels": 6,
+      "bbox": [
+        413,
+        356,
+        416,
+        360
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 32,
+      "piece": "foot_near",
+      "pixels": 8,
+      "bbox": [
+        336,
+        351,
+        337,
+        359
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 32,
+      "piece": "foot_near",
+      "pixels": 7,
+      "bbox": [
+        337,
+        347,
+        340,
+        351
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 32,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        396,
+        244,
+        398,
+        248
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 33,
+      "piece": "leg_far",
+      "pixels": 78,
+      "bbox": [
+        405,
+        304,
+        418,
+        332
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 33,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        415,
+        356,
+        418,
+        360
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 33,
+      "piece": "coat_far",
+      "pixels": 84,
+      "bbox": [
+        380,
+        372,
+        397,
+        380
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 33,
+      "piece": "leg_near",
+      "pixels": 62,
+      "bbox": [
+        339,
+        313,
+        349,
+        342
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 33,
+      "piece": "coat_near",
+      "pixels": 4,
+      "bbox": [
+        345,
+        330,
+        347,
+        332
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 33,
+      "piece": "foot_near",
+      "pixels": 10,
+      "bbox": [
+        336,
+        351,
+        338,
+        359
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 33,
+      "piece": "foot_near",
+      "pixels": 7,
+      "bbox": [
+        337,
+        347,
+        340,
+        350
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 33,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        398,
+        244,
+        400,
+        248
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 34,
+      "piece": "leg_far",
+      "pixels": 99,
+      "bbox": [
+        408,
+        302,
+        421,
+        333
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 34,
+      "piece": "coat_far",
+      "pixels": 82,
+      "bbox": [
+        383,
+        371,
+        399,
+        379
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 34,
+      "piece": "leg_near",
+      "pixels": 39,
+      "bbox": [
+        340,
+        328,
+        347,
+        340
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 34,
+      "piece": "leg_near",
+      "pixels": 6,
+      "bbox": [
+        339,
+        358,
+        344,
+        360
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 34,
+      "piece": "coat_near",
+      "pixels": 4,
+      "bbox": [
+        347,
+        329,
+        349,
+        331
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 34,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        376,
+        331,
+        378,
+        333
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 34,
+      "piece": "foot_far",
+      "pixels": 4,
+      "bbox": [
+        419,
+        355,
+        421,
+        357
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 34,
+      "piece": "foot_near",
+      "pixels": 13,
+      "bbox": [
+        336,
+        351,
+        338,
+        359
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 34,
+      "piece": "foot_near",
+      "pixels": 11,
+      "bbox": [
+        337,
+        346,
+        341,
+        350
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 34,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        418,
+        244,
+        422,
+        247
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "piece": "leg_far",
+      "pixels": 22,
+      "bbox": [
+        415,
+        318,
+        420,
+        333
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        421,
+        327,
+        423,
+        330
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "piece": "coat_far",
+      "pixels": 76,
+      "bbox": [
+        385,
+        371,
+        400,
+        379
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "piece": "leg_near",
+      "pixels": 39,
+      "bbox": [
+        342,
+        328,
+        349,
+        340
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "piece": "leg_near",
+      "pixels": 13,
+      "bbox": [
+        335,
+        357,
+        344,
+        360
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "piece": "pelvis",
+      "pixels": 6,
+      "bbox": [
+        378,
+        331,
+        380,
+        334
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "piece": "foot_far",
+      "pixels": 6,
+      "bbox": [
+        420,
+        355,
+        423,
+        359
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "piece": "foot_near",
+      "pixels": 8,
+      "bbox": [
+        339,
+        346,
+        342,
+        350
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "piece": "foot_near",
+      "pixels": 6,
+      "bbox": [
+        339,
+        341,
+        341,
+        344
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "piece": "foot_near",
+      "pixels": 6,
+      "bbox": [
+        336,
+        355,
+        338,
+        358
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 36,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        421,
+        328,
+        424,
+        332
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 36,
+      "piece": "coat_far",
+      "pixels": 65,
+      "bbox": [
+        387,
+        370,
+        401,
+        378
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 36,
+      "piece": "leg_near",
+      "pixels": 39,
+      "bbox": [
+        343,
+        327,
+        350,
+        341
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 36,
+      "piece": "leg_near",
+      "pixels": 10,
+      "bbox": [
+        336,
+        358,
+        344,
+        360
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 36,
+      "piece": "coat_near",
+      "pixels": 4,
+      "bbox": [
+        350,
+        329,
+        352,
+        331
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 36,
+      "piece": "pelvis",
+      "pixels": 6,
+      "bbox": [
+        380,
+        330,
+        382,
+        333
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 36,
+      "piece": "foot_near",
+      "pixels": 6,
+      "bbox": [
+        341,
+        346,
+        343,
+        349
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 36,
+      "piece": "foot_near",
+      "pixels": 6,
+      "bbox": [
+        336,
+        354,
+        339,
+        358
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 36,
+      "piece": "torso",
+      "pixels": 4,
+      "bbox": [
+        405,
+        242,
+        407,
+        246
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 37,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        423,
+        327,
+        426,
+        331
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 37,
+      "piece": "coat_far",
+      "pixels": 47,
+      "bbox": [
+        389,
+        368,
+        401,
+        376
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 37,
+      "piece": "coat_far",
+      "pixels": 4,
+      "bbox": [
+        422,
+        317,
+        423,
+        321
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 37,
+      "piece": "leg_near",
+      "pixels": 36,
+      "bbox": [
+        345,
+        326,
+        352,
+        339
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 37,
+      "piece": "leg_near",
+      "pixels": 15,
+      "bbox": [
+        338,
+        355,
+        348,
+        358
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 37,
+      "piece": "coat_near",
+      "pixels": 4,
+      "bbox": [
+        352,
+        328,
+        354,
+        330
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 37,
+      "piece": "pelvis",
+      "pixels": 6,
+      "bbox": [
+        382,
+        329,
+        384,
+        332
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 38,
+      "piece": "coat_far",
+      "pixels": 29,
+      "bbox": [
+        392,
+        366,
+        399,
+        373
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 38,
+      "piece": "coat_far",
+      "pixels": 4,
+      "bbox": [
+        425,
+        314,
+        426,
+        318
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 38,
+      "piece": "coat_far",
+      "pixels": 4,
+      "bbox": [
+        427,
+        319,
+        428,
+        323
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 38,
+      "piece": "leg_near",
+      "pixels": 20,
+      "bbox": [
+        343,
+        351,
+        353,
+        354
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 38,
+      "piece": "foot_far",
+      "pixels": 9,
+      "bbox": [
+        421,
+        355,
+        423,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 38,
+      "piece": "foot_near",
+      "pixels": 34,
+      "bbox": [
+        343,
+        335,
+        351,
+        351
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 38,
+      "piece": "torso",
+      "pixels": 13,
+      "bbox": [
+        419,
+        239,
+        431,
+        242
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 39,
+      "piece": "coat_far",
+      "pixels": 21,
+      "bbox": [
+        426,
+        308,
+        432,
+        324
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 39,
+      "piece": "coat_far",
+      "pixels": 19,
+      "bbox": [
+        394,
+        365,
+        399,
+        372
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 39,
+      "piece": "coat_far",
+      "pixels": 4,
+      "bbox": [
+        424,
+        304,
+        426,
+        307
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 39,
+      "piece": "leg_near",
+      "pixels": 21,
+      "bbox": [
+        349,
+        346,
+        359,
+        350
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 39,
+      "piece": "coat_near",
+      "pixels": 38,
+      "bbox": [
+        353,
+        322,
+        358,
+        338
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 39,
+      "piece": "foot_far",
+      "pixels": 6,
+      "bbox": [
+        423,
+        356,
+        425,
+        360
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 39,
+      "piece": "foot_near",
+      "pixels": 45,
+      "bbox": [
+        349,
+        331,
+        354,
+        347
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 40,
+      "piece": "coat_far",
+      "pixels": 32,
+      "bbox": [
+        428,
+        307,
+        434,
+        323
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 40,
+      "piece": "coat_far",
+      "pixels": 6,
+      "bbox": [
+        426,
+        301,
+        428,
+        306
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 40,
+      "piece": "coat_far",
+      "pixels": 6,
+      "bbox": [
+        396,
+        367,
+        399,
+        370
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 40,
+      "piece": "leg_near",
+      "pixels": 14,
+      "bbox": [
+        357,
+        342,
+        365,
+        345
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 40,
+      "piece": "foot_near",
+      "pixels": 58,
+      "bbox": [
+        356,
+        326,
+        364,
+        344
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "piece": "coat_far",
+      "pixels": 57,
+      "bbox": [
+        426,
+        296,
+        436,
+        321
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "piece": "coat_far",
+      "pixels": 9,
+      "bbox": [
+        425,
+        360,
+        429,
+        365
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "piece": "leg_near",
+      "pixels": 9,
+      "bbox": [
+        363,
+        339,
+        370,
+        341
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        355,
+        275,
+        357,
+        278
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "piece": "foot_near",
+      "pixels": 45,
+      "bbox": [
+        364,
+        322,
+        370,
+        339
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "piece": "torso",
+      "pixels": 27,
+      "bbox": [
+        411,
+        234,
+        422,
+        249
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "piece": "torso",
+      "pixels": 11,
+      "bbox": [
+        424,
+        234,
+        432,
+        238
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "piece": "torso",
+      "pixels": 7,
+      "bbox": [
+        412,
+        254,
+        414,
+        259
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 42,
+      "piece": "leg_far",
+      "pixels": 19,
+      "bbox": [
+        402,
+        361,
+        421,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 42,
+      "piece": "coat_far",
+      "pixels": 59,
+      "bbox": [
+        429,
+        295,
+        439,
+        321
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 42,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        428,
+        359,
+        432,
+        364
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 42,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        358,
+        274,
+        360,
+        277
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 42,
+      "piece": "foot_near",
+      "pixels": 8,
+      "bbox": [
+        370,
+        330,
+        371,
+        338
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 42,
+      "piece": "foot_near",
+      "pixels": 7,
+      "bbox": [
+        371,
+        326,
+        374,
+        330
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 42,
+      "piece": "torso",
+      "pixels": 7,
+      "bbox": [
+        419,
+        233,
+        424,
+        236
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 42,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        415,
+        252,
+        416,
+        258
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 43,
+      "piece": "leg_far",
+      "pixels": 37,
+      "bbox": [
+        404,
+        360,
+        423,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 43,
+      "piece": "coat_far",
+      "pixels": 71,
+      "bbox": [
+        431,
+        293,
+        441,
+        322
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 43,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        430,
+        358,
+        434,
+        363
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 43,
+      "piece": "coat_far",
+      "pixels": 5,
+      "bbox": [
+        425,
+        359,
+        429,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 43,
+      "piece": "pelvis",
+      "pixels": 6,
+      "bbox": [
+        419,
+        260,
+        424,
+        265
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 43,
+      "piece": "pelvis",
+      "pixels": 4,
+      "bbox": [
+        360,
+        273,
+        362,
+        276
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 43,
+      "piece": "torso",
+      "pixels": 7,
+      "bbox": [
+        421,
+        232,
+        426,
+        235
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 43,
+      "piece": "torso",
+      "pixels": 5,
+      "bbox": [
+        417,
+        252,
+        418,
+        257
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 44,
+      "piece": "leg_far",
+      "pixels": 54,
+      "bbox": [
+        405,
+        359,
+        426,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 44,
+      "piece": "leg_far",
+      "pixels": 7,
+      "bbox": [
+        429,
+        288,
+        432,
+        294
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 44,
+      "piece": "coat_far",
+      "pixels": 79,
+      "bbox": [
+        433,
+        292,
+        443,
+        321
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 44,
+      "piece": "coat_far",
+      "pixels": 17,
+      "bbox": [
+        425,
+        358,
+        431,
+        365
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 44,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        432,
+        357,
+        436,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 44,
+      "piece": "torso",
+      "pixels": 8,
+      "bbox": [
+        423,
+        231,
+        428,
+        235
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 44,
+      "piece": "torso",
+      "pixels": 5,
+      "bbox": [
+        419,
+        251,
+        420,
+        256
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 44,
+      "piece": "torso",
+      "pixels": 5,
+      "bbox": [
+        433,
+        272,
+        435,
+        277
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 45,
+      "piece": "leg_far",
+      "pixels": 45,
+      "bbox": [
+        407,
+        359,
+        423,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 45,
+      "piece": "leg_far",
+      "pixels": 9,
+      "bbox": [
+        431,
+        288,
+        434,
+        295
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 45,
+      "piece": "coat_far",
+      "pixels": 89,
+      "bbox": [
+        434,
+        289,
+        445,
+        321
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 45,
+      "piece": "coat_far",
+      "pixels": 34,
+      "bbox": [
+        423,
+        358,
+        433,
+        366
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 45,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        434,
+        357,
+        438,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 45,
+      "piece": "pelvis",
+      "pixels": 13,
+      "bbox": [
+        421,
+        256,
+        429,
+        265
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 45,
+      "piece": "torso",
+      "pixels": 12,
+      "bbox": [
+        421,
+        249,
+        423,
+        256
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 45,
+      "piece": "torso",
+      "pixels": 10,
+      "bbox": [
+        420,
+        239,
+        424,
+        246
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 45,
+      "piece": "torso",
+      "pixels": 7,
+      "bbox": [
+        426,
+        231,
+        431,
+        234
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 45,
+      "piece": "torso",
+      "pixels": 6,
+      "bbox": [
+        435,
+        271,
+        437,
+        277
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 46,
+      "piece": "leg_far",
+      "pixels": 75,
+      "bbox": [
+        410,
+        357,
+        427,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 46,
+      "piece": "leg_far",
+      "pixels": 8,
+      "bbox": [
+        434,
+        286,
+        437,
+        292
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 46,
+      "piece": "coat_far",
+      "pixels": 84,
+      "bbox": [
+        438,
+        290,
+        448,
+        319
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 46,
+      "piece": "coat_far",
+      "pixels": 38,
+      "bbox": [
+        427,
+        356,
+        436,
+        364
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 46,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        437,
+        355,
+        441,
+        360
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 46,
+      "piece": "pelvis",
+      "pixels": 7,
+      "bbox": [
+        435,
+        269,
+        439,
+        274
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 46,
+      "piece": "torso",
+      "pixels": 20,
+      "bbox": [
+        422,
+        229,
+        433,
+        243
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 46,
+      "piece": "torso",
+      "pixels": 11,
+      "bbox": [
+        435,
+        228,
+        443,
+        232
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 47,
+      "piece": "leg_far",
+      "pixels": 34,
+      "bbox": [
+        413,
+        355,
+        425,
+        358
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 47,
+      "piece": "leg_far",
+      "pixels": 20,
+      "bbox": [
+        405,
+        331,
+        408,
+        342
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 47,
+      "piece": "leg_far",
+      "pixels": 10,
+      "bbox": [
+        436,
+        285,
+        439,
+        292
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 47,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        440,
+        278,
+        443,
+        282
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 47,
+      "piece": "leg_far",
+      "pixels": 4,
+      "bbox": [
+        432,
+        362,
+        434,
+        364
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 47,
+      "piece": "coat_far",
+      "pixels": 95,
+      "bbox": [
+        439,
+        286,
+        450,
+        318
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 47,
+      "piece": "coat_far",
+      "pixels": 47,
+      "bbox": [
+        425,
+        354,
+        439,
+        362
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 47,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        440,
+        353,
+        444,
+        358
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 47,
+      "piece": "coat_near",
+      "pixels": 46,
+      "bbox": [
+        371,
+        313,
+        378,
+        328
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 47,
+      "piece": "coat_near",
+      "pixels": 10,
+      "bbox": [
+        376,
+        305,
+        379,
+        312
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 48,
+      "piece": "leg_far",
+      "pixels": 19,
+      "bbox": [
+        407,
+        331,
+        410,
+        341
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 48,
+      "piece": "leg_far",
+      "pixels": 10,
+      "bbox": [
+        438,
+        283,
+        441,
+        290
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 48,
+      "piece": "leg_far",
+      "pixels": 6,
+      "bbox": [
+        442,
+        276,
+        445,
+        280
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 48,
+      "piece": "coat_far",
+      "pixels": 95,
+      "bbox": [
+        441,
+        284,
+        452,
+        316
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 48,
+      "piece": "coat_far",
+      "pixels": 14,
+      "bbox": [
+        442,
+        352,
+        446,
+        357
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 48,
+      "piece": "coat_near",
+      "pixels": 30,
+      "bbox": [
+        373,
+        318,
+        378,
+        327
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 49,
+      "piece": "leg_far",
+      "pixels": 7,
+      "bbox": [
+        440,
+        282,
+        443,
+        288
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 49,
+      "piece": "leg_far",
+      "pixels": 5,
+      "bbox": [
+        418,
+        355,
+        420,
+        358
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 49,
+      "piece": "coat_far",
+      "pixels": 77,
+      "bbox": [
+        444,
+        286,
+        454,
+        315
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 49,
+      "piece": "leg_near",
+      "pixels": 20,
+      "bbox": [
+        378,
+        310,
+        382,
+        321
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 49,
+      "piece": "coat_near",
+      "pixels": 5,
+      "bbox": [
+        377,
+        317,
+        379,
+        321
+      ]
+    }
+  ]
+}

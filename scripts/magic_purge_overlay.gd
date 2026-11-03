@@ -15,7 +15,10 @@ const StatChip = preload("res://scripts/ui_stat_chip.gd")
 const PriceTag = preload("res://scripts/scavenger_price_tag.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const RowScroll = preload("res://scripts/magic_purge_row_scroll.gd")
+const ScavengerAction = preload("res://scripts/scavenger_action.gd")
+const ScavengerMaterials = preload("res://scripts/scavenger_materials.gd")
 const MAX_COLUMNS: int = 7
+const GRID_LAYOUT_CARD_WIDTH: float = 196.0
 const CARD_GAP := Vector2(16.0, 20.0)
 const CROWN_HEADROOM: float = 18.0
 const BADGE_OVERFLOW_PADDING := Vector2(24.0, 24.0)
@@ -29,6 +32,8 @@ const SCREEN_MARGIN: float = 24.0
 const GRID_CONFIRM_MODULATE: float = 0.30
 const HEADER_CONFIRM_MODULATE: float = 0.60
 const SCRIM_ALPHA: float = 0.72
+# The Scavenger's Purge service sits this far right of the Browse/Sell tabs.
+const SCAVENGER_SERVICE_GAP: float = 28.0
 
 var source: String = ""
 var pending_card_id: String = ""
@@ -110,6 +115,7 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	header.add_theme_constant_override("separation", int(CARD_GAP.x))
 	content.add_child(header)
 	var entries: Array[Dictionary] = List.entries(state.get("attuned_magic_cards", []) as Array)
+	_columns = columns_for(entries.size())
 	var heading := PurgeHeading.new()
 	heading.name = "MagicPurgeHeading"
 	heading.setup("PURGE A SPELL", "%d spells" % (state.get("attuned_magic_cards", []) as Array).size())
@@ -141,7 +147,7 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	_scroll = RowScroll.new()
 	_scroll.name = "MagicPurgeScroll"
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if entries.size() > 14 else ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if entries.size() > _columns * RowScroll.VISIBLE_ROWS else ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var padding := StyleBoxEmpty.new()
 	padding.content_margin_top = CROWN_HEADROOM
@@ -163,13 +169,12 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 		empty.name = "MagicPurgeEmpty"
 		_grid.add_child(empty)
 		empty.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_columns = maxi(1, mini(entries.size(), MAX_COLUMNS))
-	if not entries.is_empty(): _scroll.configure(_grid, _columns, int(PileView.CARD_SIZE.y + CARD_GAP.y))
+	if not entries.is_empty(): _scroll.configure(_grid, _columns, ceili(PileView.CARD_SIZE.y + CARD_GAP.y))
 	_grid.resized.connect(_layout_grid)
 	_panel.custom_minimum_size = dialog_size_for(entries.size()) if not entries.is_empty() else _dialog_size
-	# Reserve the scrollbar in the existing right margin, keeping seven 196px
-	# columns and both the card spacing and the outer dialog width exact.
-	if entries.size() > 14:
+	# Reserve the scrollbar in the existing right margin, keeping the
+	# card spacing and the outer dialog width exact as columns reflow.
+	if entries.size() > _columns * RowScroll.VISIBLE_ROWS:
 		var bar_width: float = _scroll.get_v_scroll_bar().get_combined_minimum_size().x
 		_panel.get_theme_stylebox("panel").content_margin_right = SIDE_MARGIN - bar_width
 	_grid_panel_style = _panel.get_theme_stylebox("panel") as StyleBoxFlat
@@ -191,11 +196,19 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	call_deferred("focus_default")
 
 static func dialog_size_for(identities: int) -> Vector2:
-	var cols: int = maxi(1, mini(identities, MAX_COLUMNS))
-	var rows: int = maxi(1, mini(ceili(float(identities) / MAX_COLUMNS), 2))
-	var width: float = maxf(MIN_WIDTH, cols * PileView.CARD_SIZE.x + (cols - 1) * CARD_GAP.x + SIDE_MARGIN * 2.0)
+	var cols: int = columns_for(identities)
+	var rows: int = maxi(1, mini(ceili(float(identities) / cols), RowScroll.VISIBLE_ROWS))
+	var width: float = layout_width_for(identities)
 	var viewport_height: float = rows * PileView.CARD_SIZE.y + (rows - 1) * CARD_GAP.y + CROWN_HEADROOM + BADGE_OVERFLOW_PADDING.y
 	return Vector2(width, minf(1080.0 - SCREEN_MARGIN * 2.0, TOP_MARGIN + HEADER_HEIGHT + HEADER_GAP + viewport_height + BOTTOM_MARGIN))
+
+static func layout_width_for(identities: int) -> float:
+	var cols: int = maxi(1, mini(identities, MAX_COLUMNS))
+	return maxf(MIN_WIDTH, cols * GRID_LAYOUT_CARD_WIDTH + (cols - 1) * CARD_GAP.x + SIDE_MARGIN * 2.0)
+
+static func columns_for(identities: int) -> int:
+	var available: float = layout_width_for(identities) - SIDE_MARGIN * 2.0
+	return maxi(1, mini(identities, floori((available + CARD_GAP.x) / (PileView.CARD_SIZE.x + CARD_GAP.x))))
 
 func _layout_grid() -> void:
 	var rows: int = ceili(float(_rows.size()) / _columns)
@@ -206,7 +219,7 @@ func _layout_grid() -> void:
 		var row_count: int = mini(_columns, _rows.size() - row * _columns)
 		var row_width: float = row_count * PileView.CARD_SIZE.x + (row_count - 1) * CARD_GAP.x
 		var cell: Control = _rows[index]
-		cell.position = Vector2((card_width - row_width) * 0.5 + (index % _columns) * (PileView.CARD_SIZE.x + CARD_GAP.x), row * (PileView.CARD_SIZE.y + CARD_GAP.y))
+		cell.position = Vector2((card_width - row_width) * 0.5 + (index % _columns) * (PileView.CARD_SIZE.x + CARD_GAP.x), row * ceili(PileView.CARD_SIZE.y + CARD_GAP.y))
 
 func select_card(card_id: String) -> void:
 	if _committing: return
@@ -299,39 +312,65 @@ func focus_default() -> void:
 		target.grab_focus()
 	else: _list_cancel.grab_focus()
 
+# The service's price, inked on its strap in the shop's own shaded type.
+static func _scavenger_price_ink(font_size: int, line_height: float) -> HBoxContainer:
+	var ink := HBoxContainer.new()
+	ink.name = "ScavengerPurgePrice"
+	ink.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ink.add_theme_constant_override("separation", 5)
+	var ember := TextureRect.new()
+	ember.texture = Assets.load_texture(PriceTag.EMBER_PATH)
+	ember.custom_minimum_size = Vector2(18.0, 22.0)
+	ember.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	ember.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ember.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	ember.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	ember.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ink.add_child(ember)
+	var value := Label.new()
+	value.name = "PriceTagValue"
+	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	value.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ScavengerMaterials.shade(value, font_size, line_height)
+	ink.add_child(value)
+	return ink
+
 static func install_scavenger(host: Node, shop: Control) -> void:
 	var buy: Button = shop.find_child("ScavengerBrowseMode", true, false)
 	var sell: Button = shop.find_child("ScavengerSellMode", true, false)
-	if buy == null or sell == null: return
+	var tabs: Control = shop.find_child("ScavengerModeToggle", true, false)
+	if buy == null or sell == null or tabs == null: return
 	var button: Button = shop.find_child("ScavengerPurge", true, false)
 	if button == null:
-		# Reuse the shop's approved segmented control; no new art or geometry.
-		button = preload("res://scripts/scavenger_action.gd").new()
+		# Purge is a paid service, not a third view of the shop: it stands apart
+		# from the Browse/Sell tabs on the shop's BUY strap, its price inside it.
+		button = ScavengerAction.new()
 		button.name = "ScavengerPurge"
-		button.set("surface", "segment")
-		button.custom_minimum_size = sell.custom_minimum_size
 		Typography.set_button_size(button, 22)
 		button.pressed.connect(host.call.bind("_open_magic_purge", "scavenger"))
-		sell.get_parent().add_child(button)
+		tabs.get_parent().add_child(button)
+		var ink: HBoxContainer = _scavenger_price_ink(button.get_theme_font_size("font_size"), tabs.size.y - 14.0)
+		button.add_child(ink)
+		button.set("trailing", ink)
 	var price: int = host.get("_run_engine").scavenger_purge_price(host.get("_run_state"))
 	button.text = "Purge a spell"
 	button.disabled = List.entries(host.get("_run_state").get("attuned_magic_cards", []) as Array).is_empty()
 	button.tooltip_text = "You have no spells to purge." if button.disabled else "Remove a spell from your deck."
-	button.custom_minimum_size = sell.custom_minimum_size
-	var old_tag: Node = button.get_node_or_null("ScavengerPurgePrice")
-	if old_tag != null:
-		button.remove_child(old_tag)
-		old_tag.queue_free()
-	var tag := preload("res://scripts/scavenger_price_tag.gd").new()
-	tag.name = "ScavengerPurgePrice"
-	tag.amount = price
-	tag.affordable = host.get("_run_engine").held_embers(host.get("_run_state")) >= price
-	# Use the wares' authored tag at its existing size, pinned above this plate.
-	tag.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	tag.offset_left = -118.0
-	tag.offset_top = -60.0
-	tag.offset_bottom = 0.0
-	button.add_child(tag)
+	var price_ink: HBoxContainer = button.get_node("ScavengerPurgePrice")
+	var affordable: bool = host.get("_run_engine").held_embers(host.get("_run_state")) >= price
+	var value: Label = price_ink.get_node("PriceTagValue")
+	value.text = str(price)
+	value.add_theme_color_override("font_color", Palette.GOLD_BRIGHT if affordable else Palette.DANGER_BRIGHT)
+	price_ink.set_meta("affordable", affordable)
+	price_ink.size = price_ink.get_combined_minimum_size()
+	button.call("prepare_label")
+	var caption_label: Label = button.get("_label")
+	var caption: float = ceilf(caption_label.get_theme_font("font").get_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, -1, caption_label.get_theme_font_size("font_size")).x)
+	# Caption, gap and price between the strap's brass ends, with a little slack.
+	var width: float = caption + price_ink.size.x + Typography.scaled_value(button, ScavengerAction.TRAILING_GAP) + 2.0 * ScavengerAction.TRAILING_EDGE + 4.0
+	button.position = tabs.position + Vector2(tabs.size.x + SCAVENGER_SERVICE_GAP, 0.0)
+	button.custom_minimum_size = Vector2(width, tabs.size.y)
+	button.size = button.custom_minimum_size
 	button.focus_neighbor_left = button.get_path_to(sell)
 	button.focus_neighbor_right = button.get_path_to(shop.get("_leave_button"))
 	sell.focus_neighbor_right = sell.get_path_to(button)

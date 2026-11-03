@@ -1,0 +1,14 @@
+{
+  "min_images": 8,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*hand_7_hovered_worldbreak_base.png", "width": 1920, "height": 1080, "regions": [{"rect": [445, 880, 205, 145], "min_luma_range": 10, "min_luma_stdev": 2}]},
+    {"pattern": "*hand_7_hovered_cloudstep_loop_upgraded.png", "width": 1920, "height": 1080, "regions": [{"rect": [445, 880, 205, 145], "min_luma_range": 10, "min_luma_stdev": 2}]},
+    {"pattern": "*deck_view_worldbreak_base.png", "width": 1920, "height": 1080, "regions": [{"rect": [875, 595, 170, 120], "min_luma_range": 10, "min_luma_stdev": 2}]},
+    {"pattern": "*deck_view_cloudstep_loop_upgraded.png", "width": 1920, "height": 1080, "regions": [{"rect": [875, 595, 170, 120], "min_luma_range": 10, "min_luma_stdev": 2}]},
+    {"pattern": "*hand_7_hovered_hall_of_mirrors_base.png", "width": 1920, "height": 1080, "regions": [{"rect": [445, 880, 205, 145], "min_luma_range": 10, "min_luma_stdev": 2}]},
+    {"pattern": "*hand_7_hovered_hall_of_mirrors_upgraded.png", "width": 1920, "height": 1080, "regions": [{"rect": [445, 880, 205, 145], "min_luma_range": 10, "min_luma_stdev": 2}]},
+    {"pattern": "*deck_view_hall_of_mirrors_base.png", "width": 1920, "height": 1080, "regions": [{"rect": [875, 595, 170, 120], "min_luma_range": 10, "min_luma_stdev": 2}]},
+    {"pattern": "*deck_view_hall_of_mirrors_upgraded.png", "width": 1920, "height": 1080, "regions": [{"rect": [875, 595, 170, 120], "min_luma_range": 10, "min_luma_stdev": 2}]}
+  ]
+}

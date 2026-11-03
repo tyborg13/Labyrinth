@@ -19,6 +19,7 @@ func _initialize() -> void:
 	Store.set_run_storage_path("user://dragon_rewards_run.save")
 	_test_milestones()
 	_test_claim_outbox()
+	_test_claim_with_pending_heirloom()
 	_test_wallet_recovery()
 	_test_wallet_event_context()
 	_test_gift_write_failure()
@@ -74,6 +75,9 @@ func _claim_fixture(id: String, seed: int) -> Dictionary:
 	var options := {"dragon_id":id, "dragon_depth":24 if id == "noctyrax" else 4, "dragon_case":"reward", "seed":seed}
 	var state: Dictionary = Factory.build(engine, Combat.new(), engine.create_new_run(Factory.seed_for_options(options), Store.default_data()), options)
 	state["analytics"] = {"run_id":"dragon_claim_%d" % seed, "combat_counter":1}
+	# Receipt recovery owns a completed terminal choice; heirloom recovery has
+	# its own pending-choice case below and in opening_boon_recovery_test.
+	state["heirloom_end"] = {"done": true}
 	return state
 
 func _claim_host(state: Dictionary) -> RunScene:
@@ -156,7 +160,7 @@ func _test_claim_outbox() -> void:
 	host = _claim_host(reward_state)
 	expect(bool(host.call("_commit_dragon_reward_continue")), "Final Continue succeeds despite unavailable analytics storage")
 	var profile: Dictionary = Store.load_data()
-	expect(not Store.has_saved_run() and Store.progression_analytics_outbox(profile).size() == 1, "Final Continue transfers the claim to the profile before clearing the run")
+	expect(not Store.has_saved_run() and _pending_claim_count(profile, key) == 1, "Final Continue transfers the claim to the profile before clearing the run")
 	expect(int(profile["embers"]) == held and Store.pending_starting_relic_gifts(profile).size() == 1, "Final outbox merge preserves the bank and one-descent trophy gift")
 	host.free()
 	Analytics.set_storage_dir(EVENT_DIR)
@@ -177,7 +181,7 @@ func _test_claim_outbox() -> void:
 		host = _claim_host(reward_state)
 		expect(not bool(host.call("_commit_dragon_reward_continue")) and _claim_count(key) == 0, "Failed terminal profile save emits no claim")
 		var fallback: Dictionary = Store.load_saved_run()
-		expect(fallback["mode"] == "victory" and Store.progression_analytics_outbox(fallback["progression"]).size() == 1, "Failed terminal profile write retains a resumable terminal receipt")
+		expect(fallback["mode"] == "victory" and _pending_claim_count(fallback["progression"], key) == 1, "Failed terminal profile write retains a resumable terminal receipt")
 		if reload_fallback:
 			host.free()
 			host = _claim_host(fallback)
@@ -380,3 +384,23 @@ func _test_dialogue() -> void:
 	profile["embers"] = 180
 	offer = dialogue.emaciated_service_dialogue(profile)
 	expect(not bool(offer["lines"][0]["options"][0]["disabled"]) and not bool(offer["lines"][0]["options"][1]["disabled"]), "Funded entrance trade and level are enabled")
+
+func _pending_claim_count(profile: Dictionary, key: String) -> int:
+	var count: int = 0
+	for entry: Dictionary in Store.progression_analytics_outbox(profile):
+		if str(entry.get("idempotency_key", "")) == key and str(entry.get("event_type", "")) == "reward_claimed": count += 1
+	return count
+
+func _test_claim_with_pending_heirloom() -> void:
+	var state: Dictionary = _claim_fixture("noctyrax", 969501)
+	state["heirloom_end"] = {"done": false}
+	var key: String = "reward_claimed|%s" % state["pending_reward"]["milestone_id"]
+	var held: int = Run.new().held_embers(state)
+	expect(Store.save_data(Store.set_embers(state["progression"], 0)) and Store.save_run_state(state), "Pending heirloom fixture saves its original reward")
+	var host: RunScene = _claim_host(state)
+	expect(bool(host.call("_commit_dragon_reward_continue")), "Final Continue commits before the pending heirloom choice")
+	expect(Store.has_saved_run() and Store.load_saved_run().get("mode") == "victory", "Pending heirloom keeps the terminal continuation resumable")
+	expect(_claim_count(key) == 1 and int(Store.load_data()["embers"]) == held, "Pending heirloom retains exactly one claim and the settled bank")
+	expect(not bool(host.call("_commit_dragon_reward_continue")) and _claim_count(key) == 1, "Repeated Continue during heirloom selection cannot duplicate a reward")
+	host.free()
+	Store.clear_saved_run()

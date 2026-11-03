@@ -25,6 +25,10 @@ func _initialize() -> void:
 	await _capture(true)
 	await _capture(false, true)
 	await _capture(true, true)
+	for side: int in range(4):
+		await preload("res://tests/helpers/chain_footprint_capture.gd").capture(self, viewport, OUTPUT, side, false, false, Callable(self, "_expect"))
+		await preload("res://tests/helpers/chain_footprint_capture.gd").capture(self, viewport, OUTPUT, side, true, false, Callable(self, "_expect"))
+	await preload("res://tests/helpers/chain_footprint_capture.gd").capture(self, viewport, OUTPUT, 1, false, true, Callable(self, "_expect"))
 	for failure: String in failures:
 		push_error(failure)
 	print(ProjectSettings.globalize_path(OUTPUT))

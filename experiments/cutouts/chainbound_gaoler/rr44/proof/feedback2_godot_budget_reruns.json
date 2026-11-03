@@ -1,0 +1,493 @@
+{
+  "complete": true,
+  "results": [
+    {
+      "name": "prepared_other_character_view_test",
+      "returncode": 124,
+      "seconds": 180.317,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/00-prepared_other_character_view_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/00/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "retained_character_inventory_equivalence_test",
+      "returncode": 124,
+      "seconds": 180.237,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/01-retained_character_inventory_equivalence_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/01/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "encounter_measurement_test",
+      "returncode": 0,
+      "seconds": 79.421,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/02-encounter_measurement_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/02/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "rr17/runtime_test",
+      "returncode": 0,
+      "seconds": 30.021,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/03-rr17-runtime_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/03/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "rr18/runtime_test",
+      "returncode": 0,
+      "seconds": 18.429,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/04-rr18-runtime_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/04/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "special_encounter_test",
+      "returncode": 124,
+      "seconds": 180.108,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/05-special_encounter_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/05/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "special_encounter_legend_test",
+      "returncode": 0,
+      "seconds": 4.603,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/06-special_encounter_legend_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/06/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "warband_orders_test",
+      "returncode": 0,
+      "seconds": 76.411,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/07-warband_orders_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/07/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "warband_wind_lock_test",
+      "returncode": 0,
+      "seconds": 23.411,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/08-warband_wind_lock_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/08/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "wbv_markers_test",
+      "returncode": 0,
+      "seconds": 27.006,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/09-wbv_markers_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/09/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "warband_orders_probe",
+      "returncode": 0,
+      "seconds": 28.053,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/10-warband_orders_probe.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/10/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "warband_test",
+      "returncode": 0,
+      "seconds": 159.726,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/11-warband_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/11/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "warband_ui_test",
+      "returncode": 0,
+      "seconds": 70.615,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/12-warband_ui_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/12/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "snare_test",
+      "returncode": 0,
+      "seconds": 72.71,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/13-snare_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/13/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "snare_ui_test",
+      "returncode": 0,
+      "seconds": 15.151,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/14-snare_ui_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/14/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "pass_preview_prewarm_test",
+      "returncode": 0,
+      "seconds": 97.12,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/15-pass_preview_prewarm_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/15/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "petrify_tooltip_test",
+      "returncode": 0,
+      "seconds": 14.034,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/16-petrify_tooltip_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/16/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "perf/analytics_restart_test",
+      "returncode": 0,
+      "seconds": 3.983,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/17-perf-analytics_restart_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/17/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "perf/background_persistence_test",
+      "returncode": 0,
+      "seconds": 1.824,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/18-perf-background_persistence_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/18/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "perf/deferred_deadline_test",
+      "returncode": 0,
+      "seconds": 3.839,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/19-perf-deferred_deadline_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/19/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "perf/transition_failure_0_test",
+      "returncode": 0,
+      "seconds": 169.495,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/20-perf-transition_failure_0_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/20/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "perf/transition_failure_1_test",
+      "returncode": 0,
+      "seconds": 167.954,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/21-perf-transition_failure_1_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/21/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "perf/transition_failure_2_test",
+      "returncode": 0,
+      "seconds": 173.246,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/22-perf-transition_failure_2_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/22/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "perf/transition_failure_3_test",
+      "returncode": 0,
+      "seconds": 104.666,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/23-perf-transition_failure_3_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/23/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "perf/combat_frame_scenarios",
+      "returncode": 0,
+      "seconds": 82.527,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/24-perf-combat_frame_scenarios.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/24/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "cache_switch_regression_test",
+      "returncode": 0,
+      "seconds": 37.0,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/25-cache_switch_regression_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/25/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "engine_cache_directories_test",
+      "returncode": 0,
+      "seconds": 1.125,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/26-engine_cache_directories_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/26/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "battlefield_rules_probe",
+      "returncode": 0,
+      "seconds": 19.36,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/27-battlefield_rules_probe.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/27/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "el02_evidence",
+      "returncode": 0,
+      "seconds": 5.765,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/28-el02_evidence.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/28/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "element_retrofit_test",
+      "returncode": 0,
+      "seconds": 51.803,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/29-element_retrofit_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/29/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "element_retrofit_probe",
+      "returncode": 0,
+      "seconds": 30.349,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/30-element_retrofit_probe.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/30/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "en03_enemies_probe",
+      "returncode": 0,
+      "seconds": 16.065,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/31-en03_enemies_probe.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/31/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "en05_enemies_probe",
+      "returncode": 0,
+      "seconds": 15.782,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/32-en05_enemies_probe.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/32/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "en06_enemies_probe",
+      "returncode": 0,
+      "seconds": 15.608,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/33-en06_enemies_probe.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/33/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "el04_rule_views_test",
+      "returncode": 0,
+      "seconds": 56.461,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/34-el04_rule_views_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/34/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "enemy_no_action_test",
+      "returncode": 124,
+      "seconds": 176.747,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/35-enemy_no_action_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/35/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_11_test",
+      "returncode": 1,
+      "seconds": 34.419,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/36-fix_11_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/36/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "fix_11_probe",
+      "returncode": 1,
+      "seconds": 15.497,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/37-fix_11_probe.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/37/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "fix_12_probe",
+      "returncode": 0,
+      "seconds": 46.983,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/38-fix_12_probe.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/38/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "fix_14_test",
+      "returncode": 124,
+      "seconds": 125.512,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/39-fix_14_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/39/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_14_matrix_test",
+      "returncode": 0,
+      "seconds": 40.49,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/40-fix_14_matrix_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/40/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "fix_12_arrival_test",
+      "returncode": 0,
+      "seconds": 40.867,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/41-fix_12_arrival_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/41/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "fix_12_reactions_0_test",
+      "returncode": 124,
+      "seconds": 4.523,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/42-fix_12_reactions_0_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/42/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_12_reactions_1_test",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/43-fix_12_reactions_1_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/43/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_12_cascades_test",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/44-fix_12_cascades_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/44/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_12_feedback_test",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/45-fix_12_feedback_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/45/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "fix_12_bleed_test",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/46-fix_12_bleed_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/46/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "short_card_tooltips_test",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/47-short_card_tooltips_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/47/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "card_panel_text_test",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/48-card_panel_text_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/48/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "board_status_plates_test",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/49-board_status_plates_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/49/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "status_capture_probe",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/50-status_capture_probe.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/50/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "status_plates_performance_probe",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/51-status_plates_performance_probe.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/51/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "rr38/runtime_checks",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/52-rr38-runtime_checks.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/52/godot.log",
+      "reason": "full suite budget exhausted"
+    },
+    {
+      "name": "heirloom_notification_test",
+      "returncode": 124,
+      "seconds": 0.0,
+      "log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/53-heirloom_notification_test.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-budget-reruns.logs/53/godot.log",
+      "reason": "full suite budget exhausted"
+    }
+  ],
+  "seconds": 900.194,
+  "failed": true
+}

@@ -364,3 +364,320 @@
 
 - 2026-10-19 (director): the Thrall's rear Tether keeps its owner-approved motion. The near-side upright hold (A, 65/153) failed the 60.5 px minimum-reach gate on every raise/lower path (rr-27 feedback 1-3), and the gate stays: it guards against the arm crumple the owner flagged. The fin is backlog.
 - 2026-10-19 (director): Empower glossary copy is "Pay the extra cost as you play this card to gain its bonus. Charge it with the card's seal." (19 words; the ui-03 line was over the 20-word budget).
+
+## 2026-10-21 master checkpoint (owner approval)
+- Owner, 2026-10-21: "Let's finish the warband stuff so that we can merge it all", then, after the Warband difficulty
+  data: "Ok, I'll trust the data till I can playtest. Let's ship it and I'll test for myself once it is on master."
+- PUBLISHED: `origin/master` = d96eadf4f (integration at that commit: Godot 680 s PASS, Python OK; `authorize-publish`
+  recorded). Included everything since 209cbc67c: the rig and painting fixes, Empower and its sounds, map-03 (revision
+  7 maps), the special encounters (map placement, the Warband with its six orders, spx-07's fixes, the Umbral Snare
+  core). Not included: wbv-01 (marker redesign v2, awaiting review), spx-06 (Snare pressures, in a fix round),
+  meas-02 (measurement). The primary checkout's local master was not moved (untracked files; a fast-forward is safe).
+- Playtest 11: frozen worktree ../peer-benchmark-playtest-11 at d96eadf4f (imported; start, combat and Warband
+  fixtures verified). playtest-10 and playtest-spx removed.
+
+## 2026-10-27 — Hand at rest stays a glance view (director)
+- The resting hand renders rules and icon numbers at 13.3 px (cards are 208 px wide; hover/focus is 1.28× at 17 px).
+  Checked on the card-01 native capture of a seven-card hand: costs, titles, art, icons with their numbers, and the
+  rightmost card's full rule all read. What hides text at rest is the fan overlap (34% at seven cards): the next
+  card covers each card's trailing words and title end.
+- Decided: no change. The hand at rest is a glance view; hover and focus are the reading views (17 px). Raising the
+  rest width to 220 px for a 14 px floor would cover about 17 px more of the board and still leave the overlap. The
+  pt13-03 exemptions `hand_1_rest` and `hand_7_rest` stay. Playtest 14 asked the owner and got no answer; revisit
+  only if they report it.
+
+## 2026-10-27 — card-02 refresh budget (director)
+- The 2 ms budget covers refreshes where no card's text changes, invalidation and hidden-card paths (measured
+  0.03–0.75 ms for 60 cards). Rebuilding visible faces whose text really changes (77 ms worst case, 60 unique visible
+  cards) is accepted: it happens only on a deliberate action (equipping gear, an upgrade) and costs what the hand
+  pays per card.
+
+## 2026-10-27 — Boss rules approved; summons give a Card Play (owner + director)
+- Owner approved inbox `boss-rules` ("all feel reasonable; tweak the numbers as needed for balance"). The draft and its
+  director decisions (`encounter_redesign/boss_rules_draft.md`) are the spec. Build: bos-01 (engine dials), then
+  bos-02 (dragons) and bos-03 (Guardians), each measured before/after; the director tunes numbers from the results.
+- Half-Health switch banner: "{SOURCE NAME} GROWS FIERCER" (uppercase, existing banner style). Not "enraged": the
+  Umbra-depth `boss_enrage` modifier already owns that idea.
+- Owner: "make summoned enemies grant an extra play". Director reading (posted in the thread as the default; the
+  owner didn't object): +1 Card Play on the hero's next turn per `summon_minions` move that brings in at least one
+  enemy, for every summoner, stacking, no cap. Death spawns, Survive waves and the Guardian auto re-summon (being
+  removed) don't count. Rule sentence: "When an enemy summons, you gain +1 Card Play on your next turn."
+## 2026-10-27 — Glacial Mirror placement (owner inbox mirror-real-fight)
+- Owner: "a smidge down and to the left". Director diagnosis: the intent chip covered the Mirror's lower foot in both
+  views (so it read as standing high), and pt13-06 had registered it on the old static painting, not the rig's rest
+  frame (live feet 2.4 px front / 6.5 px rear right of centre at 1080p). Fix (pt15-01): chips never cover their owner's
+  feet; the Mirror registers on its live soles plus an owner nudge of +5 source px left; no extra "down", because the
+  revealed foot answers it. Interim nudge 230731f2e is replaced by pt15-01.
+- bos-03 refinement: the Last Lamplighter's Shadowstep moves only its Wick Shades (`who: ["wick_shade"]`), not
+  `all_hidden`, for the same reason as Noctyrax: a hidden leader arriving without a forecast breaks "shown a turn
+  ahead". Panel: "After each of your turns, hidden Wick Shades Blink 1 tile toward you." Provisional tuning bands for
+  the bot: elemental dragons 30–60%, Noctyrax 15–40%, Guardians 35–65% each.
+
+## 2026-10-27 — Enemy action captions rest on the HUD scrim (director, enc-03)
+- A longer caption ran over the Slagmaster's leader crest. The caption already draws above the board, but the crest
+  showed through its transparent background. Decided: every enemy action caption rests on the existing soft HUD scrim
+  (`hud_seat_scrim.gd`): text rect + 48 px sides / 10 px top and bottom, INK_0 at 0.85 under the text, fading over the
+  outer 48 px / 6 px. No framed plate, and no overlay moves (design principle 1).
+- pt15-01 r1: the chip protects only its owner's **soles** (bottom 6% of the rest silhouette, bounding rect + 4 px),
+  as an owner-only obstacle in the existing placement order; the side choice stays pt14-04's. The 20% foot band moved
+  154/172 chips (mostly side flips) — far beyond the owner's Mirror note.
+
+## 2026-10-27 — Maquette briefs state volumes, not just poses (director lesson, mq-16/mq-17)
+- Codex builds exactly the pose numbers given and fills the rest with the thinnest, flattest geometry: stick limbs,
+  slab cloth, disc pauldrons, a straight over-long blade (mq-16 r1, mq-17 r0). Every maquette brief must also state:
+  limb diameters and joint sizes as fractions of H, measured on the current art; cloth as draped surfaces with a
+  minimum thickness and fold count; armour as shells and lames; held items' length and profile from the art; and a
+  held blade or flat item kept in a vertical plane (or another plane that reads in both views) so the true 180° rear
+  turn doesn't show it edge-on.
+
+## 2026-10-27 — sum-01 accepted over one review finding (director)
+- Codex re-review of 7e8b0c2b8 asked for origin validation: a hand-edited save (origin "authored"/""/garbage) or a
+  legacy mid-Guardian save can make an injected Guardian replacement pay one Card Play. Accepted as is: save editing in a
+  single-player game isn't a threat model; the legacy case pays at most once; and bos-03 deletes the injected
+  replacement (`with_reinforcements`) entirely, at which point bos-03 also removes the origin distinction.
+- rr-46 TODO_DESIGN_SEER_SIX_STEP_GAIT: the Hoarfrost Seer keeps its authored four-shuffle glide (a robed figure); the
+  six-step rule applies to rigs authored with six steps.
+
+## 2026-10-27 — Paint-over judgments (director)
+- Ashen Reaver front paint-over (mq-16 maquette, K=4): all gate metrics pass at art_scale 1.0 (drawn 235 px, 1.09×
+  hero; lateral axis 35°). Judge (Claude, rubric): PASS on all nine criteria. New Reaver art uses art_scale 1.0 (paint
+  at drawn size), replacing the legacy 1.15. Rear generating from the approved front.
+- Storm Cantor front paint-over: FAIL on proportions (rubric 2): spindly beside the hero and Seer. thin_rel 0.27 (body
+  alone 0.157; old art 0.36). Cause: mq-17's feedback-1 volumes came from the gaunt old art. Fix: mq-17 r3 chunkier
+  volumes, then repaint. The free-standing staff will always fail thin_rel (anything under ~15 px is removed), so its
+  approval needs a recorded owner exception with the body-only value.
+
+## 2026-10-27 — card-02 accepted after its three rounds (director)
+- Final Codex review of 1f5297d22: correctness clean (35,685 cached-vs-fresh comparisons, 0 mismatches; 23/23
+  mutations caught; the hash-collision fix confirmed). One residual: the first illusion trigger projects 41 cards
+  needlessly (11.5 ms with 60 unique visible cards, once). Accepted: rare, one-off, no visible change. Possible later
+  polish: select only consumed effect outputs (Widow Thread's Expose condition).
+
+## 2026-10-27/28 — Lamplighter, Cantor, rr-46 cadence, summon copy, Gaoler paint (director)
+- Last Lamplighter (mq-18): the lantern hangs beside the near leg, not out to the side, so its candle still shows in
+  the rear. Front and rear paint-overs pass every art-gate check with no exception (rear thin_rel 0.055, edge light
+  0.048; front 0.068 / 0.033; lateral axis 8.9° measured across the shoulders, since the feet measure the stride).
+  Posted as inbox `lamplighter-paint`.
+- Storm Cantor (mq-17 r3 answers): the bell dome is 0.10 H across, moved out 0.033 H to span 0.36 H; the fork tines
+  are 0.02 H at the base and taper.
+- rr-46: speed parity accepted (0.183 s per tile, death 1.036 s). The rebuilt enemies' six gait steps per tile stay
+  as they are, but are flagged for the owner to judge in the next playtest ("do the legs read as a scurry?").
+- Summon glossary copy: "Calls the shown enemy into the fight. When an enemy summons, you gain +1 Card Play on your
+  next turn." (19 words). It supersedes tt-01's short copy for `summon_minions`; int-06 updates the registry.
+- Gaoler rr-44, judged on the native frames at 3-4× in both views and every clip:
+  - **Defects to fix:** the chain detaches from the fist (rear hit 15, front reel 63), and thin slivers sit beside
+    the boots in the rear.
+  - **Joins:** closed with the approved-paint joint cap.
+  - **Accepted as painting:**
+    - the rear underlay's striped panel: the gambeson flank under the chain arm, the same quilted grey as his front
+      sleeves;
+    - the 20 hidden backing regions, frozen as director paint (the worst case of each piece read as cloth or leather
+      in shadow);
+    - flat regions, as a ratchet (fail on a new region or one more than 2 px larger).
+  - A toning edit of the strip was tried and dropped: it cut a seam into the cowl.
+- Integration merges: when two units re-pin the same golden seed, the director keeps one side at the merge and the
+  repair unit regenerates the combined values with the field-by-field audit (enc-04 method). Seed 421 at the enc-04
+  merge kept bos-01's pair, and int-06 regenerates it.
+
+## 2026-10-28 — owner verdicts, tuning, hero facing, model switch (director)
+- **Owner art verdicts.** `reaver-paint`, `cantor-paint` and `lamplighter-paint` all NEED CHANGES, with a common
+  thread: the maquette poses read as "toy soldiers". Each gets a maquette take two before any repaint:
+  - **mq-19, Cantor:** a living stance, a full tattered cloak over the back, a torn tabard. The two staff exceptions
+    are approved.
+  - **mq-20, Lamplighter:** a stoop; the lamp-house was a director misread of the old art and becomes twin shoulder
+    plates with a cross; a bigger lantern on a ring grip; a shredded robe.
+  - **mq-21, Reaver:** a real sword grip, pauldrons set to the side, a crested octagonal helm, real legs, a back
+    loincloth, a fighter's crouch and heavier arms.
+  - Lesson: brief maquette poses toward the old art's energy; neutral "ceremonial" poses read as toys.
+- `mirror-real-fight-2`: APPROVED (pt15-01).
+- **Guardian tuning (bos-03), from the ladders:**
+  - Rimejaw: Pounce 6, HP 34 (43.3%).
+  - Last Lamplighter: HP 30, Procession 6, Snuff cap 1, Hook 3, Guardian Shades hit for 1 (44.4%).
+  - Storm Cantor: his Peal beat helps the hero (it strikes his own helpers). The final ladder reverts it to 3/Chain 2
+    and leans on HP and Broken Rhythm.
+- **Dragon tuning (bos-02):**
+  - Tharokh: Claw 14, HP 72, Stonewake 6 (58%).
+  - Vyraketh: Maw 8, Breath 6, HP 52, 1 Droplet (34%).
+  - Vaeloryx: Gale Push 1, Dive 6, HP 50, 1 Shrike (36%).
+  - Noctyrax: Void Claw 10, HP 64 (32%).
+  - Iskaldra: unchanged (36%).
+  - Zekarion: final rungs HP 50, then Overload bolt 3.
+  - The director wrote the Grimoire copy for nine dragon entries, and `gale_force` becomes "Strikes everywhere within
+    2 tiles of Vaeloryx and Pushes struck actors 1 tile."
+- **rr-46/rr-47:** the native ID-depth proof caught a real runtime defect: moving units vanished on the back row. The
+  ground position came from the artwork's facing offset. Fixed in rr-47; all 20 native jobs pass. Proof cost cut from
+  956 s / 1.8 GB to about 24 s / 30 MB per job by comparing ownership IDs.
+- **Hero facing (owner idea):** he keeps the facing of his last step, target or sourced hit; rule beats, hazards,
+  ticks and pushes don't turn him; a fight starts facing the nearest enemy. Built as hf-01 behind a `persist|snap`
+  switch for an A/B playtest.
+- **Model:** for 2026-10-28 the owner switched new Codex runs to `gpt-6-astra` (a banked reset). Astra runs the Git
+  preflight itself and stops on the sandbox's read-only metadata, so the preamble and resume notes now say preflight
+  and commits are the director's.
+- **Model (afternoon):** the owner switched back to sol: "astra has sufficiently burned through openai usage for
+  dubious benefit". New runs use the default model. Running astra jobs were left to finish.
+- **Hero facing details:** ties go to the unmirrored candidate, never across front and rear. Combat start faces the
+  nearest enemy by Manhattan distance, with the lower id on ties. Undo restores the pre-move facing. Only direct enemy
+  hits turn him: trap damage never does, even when an enemy sets the trap off. Erupt turns him toward the surfacing
+  tile.
+- **Cantor take two (art):**
+  - The director ratified the as-built cloak, so the geometry is not regenerated. Fold amplitude runs from 0 to
+    0.02 H, linear. Standoff is 0.02 + 0.015·t(2−t) H. Width is ×(1 + 0.15·t(2−t)). The written profiles drifted by
+    at most 0.005 H, and an approved paint-over sits on this delivery.
+  - The front's lateral axis is measured on the feet (39.2°), not the shoulders (5.4°): the 14° lean onto the staff
+    flattens the shoulder line by design.
+- **Limb lengths never change (restated):** mq-21 lengthened the Reaver's near arm 1.14× through pose
+  reconstruction, so mq-23 rebuilds it with fixed-length solving. Angles are exact; positions are soft targets with
+  the miss reported.
+- **Reaver paint colour:** warm grey-brown gunmetal with bronze rims, matching take one, which the owner liked. Not
+  copper (chroma 0.211, gate FAIL) and not cold blue-grey.
+- **Lamplighter take three (owner):** no shoulder plates of any kind. The mantle drapes over the shoulders with
+  ragged points. Real hands: four clawed fingers and a thumb on the free hand, and a fist through the ring on the
+  lantern hand.
+- **Zekarion:** accepted at 24% after bos-02's last rungs, because rungs 3–5 were noise and beat → hero rose. The
+  cause is the same-phase Skybreak → Overload strike that bos-04 removes. Retune after bos-04's re-measure.
+- **A banner belongs to its fight:** the half-Health banner clears whenever a new combat state loads (bos-04).
+- **Reaver paint:** the owner approved take two after one fix (the rear left leg reconnected behind the back
+  loincloth). The paint is about 25% bulkier than the mq-23 maquette, so the rig registers its joints on the
+  painting, not by bounding-box mapping.
+- **Reaver rig motion** (`staged/rr-48`):
+  - his three intents get their own clips: Raking Flame drags the burning edge along the floor; Hooked Sweep is a wide
+    waist-high swing; Executioner's Fall is a shoulder-high chop, after which he stays bent over the blade (exposed);
+  - the pauldrons are fused to the torso; there are two loincloth chains;
+  - the falchion trails the fist in the walk, slips at death and lies flat;
+  - he slumps rather than kneeling.
+- **Lamplighter fist:** ratified as built. Containment and wire contact were the director's over-specification. The
+  ring visibly exits the fist, and the fingertips close to within 0.014 H.
+- **Bosses:** Zekarion (24%) and Lightning Warband T3 (50%) are accepted for playtest 16 (within n=30–50 noise).
+- **Proof contracts:** a frame check must match what that frame shows. Guardian forecast frames have no "YOUR TURN"
+  band, so their check covers the board, not the band.
+
+## 2026-10-29 — Reaver rig joints (rr-48 round 2, director)
+- **Underlay coverage:** a vacated texel where the underlay is transparent is background (air where the falchion, arms
+  or hands were). Clearing it is correct, not a finding. The rr-48 round-1 criterion was a director error.
+- **Tucks take the director underlay wherever it is opaque.** The underlay shows only through gaps (vacated footprints
+  and tuck masks), always beneath every visible piece. For the Reaver this covers the neck, waist, hips, loincloth
+  tops and ankles.
+- **The remaining bands** (shoulders under the pauldrons, wrists, the grip inside the fist, elbows) close with the
+  Gaoler's approved-paint joint cap: no new paint, interior donors only.
+- **The falchion** stays attached at the grip until `release_at`. On the floor it pivots only in the keyed direction,
+  up to 95°, until it rests on two points.
+- **Budgets** are clamped after the paint is in place, never to zero. A remaining tear the live action needs is judged
+  on native frames.
+- **Reaver native (rr-48 r2), director judgment:**
+  - Exposed outline-class texels that are exact director paint (underlay or approved caps) are painting: the armour's
+    dark tones in shadow (the Gaoler precedent). The 3×3 dark-slab gate stays blocking.
+  - The underlay sits behind the whole body. Each hidden receiver carries its whole underlay domain.
+  - Natural negative space is judged against the underlay: what's air there is air behind the arms and loincloth.
+  - The walk keeps both arms' full swing (owner rule). The rr-38 clamps elsewhere have a 60% floor.
+  - A hole of ≤ 4 px lasting ≤ 3 frames is accepted.
+- **One runtime for every rig:** when two rigs build the same feature (elbow policy, held-follow frames), the merged
+  production implementation wins and the later rig ports onto it.
+
+## 2026-10-29 — scale, the repaint method, the Opus window (director)
+- **Board scale:** the Gaoler's `art_scale` goes from 0.90 to 1.10 (1.10× the hero), at the hero's pixel density
+  through the board-density regrid (grid = t / r). No repaint.
+  - Guardians stay at 1.15: about 1.2-1.3× the hero, imposing bosses.
+  - The other rig-v2 enemies are unchanged (0.92-1.11×; the creatures read in character).
+- **Repaint method** (owner `cantor-paint-2`: "these keep recurring"):
+  - the maquette sets the pose and perspective only, and its forms must match the original's measured proportions;
+  - joints are pointed plate cops or tapered overlaps, never spheres; hands have jointed fingers; chest pieces turn
+    with the body; the original's heads, face plates and props are kept;
+  - the art-gate preamble says so (65e2bee62), and every paint-over is checked against the owner's
+    recurring-defects list before posting.
+- **The Cantor's tines:** on the original, the far tine (screen-left in the front view) is the taller one. The mq-26
+  brief had the sides backwards; corrected in its round 2.
+- **Daytime windowed proof:** a covered Godot window stalls the capture (no PNGs). Merge on proven byte-identity when
+  the bytes match a native-passed state; otherwise wait for a visible window.
+
+## 2026-10-30 — Last Light and the Ember Hoarder (director)
+- **Last Light tuning** (the first bot pass was toothless: 99/100/97% wins, dawn after 3 turns, 0.5 Snuffs a fight):
+  - the night is longer: `time_target_by_depth` 60/66/72 in the data, supplied through the special's objective; the
+    parked generic Survive keeps 42/46/50;
+  - the Wick Shade's cycle interleaves Snuff (Grasp, Snuff, Drift, Snuff), so it threatens a brazier from its second
+    turn.
+  - Result: bot wins 97.3/92.7/94.7%, dawn after 4 turns, Health lost 5-7, about 1.2 Snuffs a fight, median 2
+    braziers lit at dawn. Accepted for the first playtest: the bot never relights, so the owner's feel decides the rest.
+- **Last Light implementation calls accepted:** Snuff acts only in rooms that relight on step, so the Lamplighter and
+  Noctyrax stay byte-identical; the special starts at layout revision 7; sight 3 comes from the "deep" Umbra stage.
+- **Ember Hoarder:** rule panel "Slip Away"; panel icon = its own map emblem; break line "The brood scatters!"; board
+  art = the Ember Tick's articulated rig at the Tick's scale. spx-09's defaults stay (kicker "BATTLEFIELD · N TURNS
+  LEFT", dissolve at the end of the hero turn, hoard = the standard room's Embers ×1.0, reward line in the run notice).
+  Bot catch rates (6-10%) say little because the bot doesn't chase; tune from the playtest.
+- **Deferred, both specials:** a board marker for the Snuff target, and a reward-screen line for specials.
+- **One mechanism per job** when parallel units overlap: int-09 keeps one revision gate (`first_layout_revision` in
+  the catalog plus the place-level skip), one special-cohort API and one fixture strategy (re-seeded, named seeds).
+
+## 2026-10-31: enemy simplification and cel default (owner approved `thrall-rework-v1`, `enemy-mechanics-audit`, `cel-look-3`)
+- **Cel is the default:** characters, props, pillars and walls filtered, floors original. Tests and art gates see source art (`off`); owners and exports see `all`. Tune by data only (`tools/cel_look.json`).
+- **Retaliate on enemies is 3,** the hero cards' example amount, not 4: two hits at 4 cost a third of the hero's Health.
+- **Recede has no Block:** with Mirror's selection gone the Mimic retreats often, and 4 Block per retreat made melee a stall.
+- **Dive's band is path plus one tile either side,** Razor Dive's shape: the Shrike stops beside the hero, so a path-only shape could never hit.
+- **Marked gets a new icon;** the four move icons stay as move identities.
+- **Lob tooltips keep resolved numbers and phase:** arm damage appears nowhere else in text.
+- **Dynamo is not re-tuned:** 86 / 70 / 43% by tier now matches the Warband cohort's 81 / 68.5 / 43.5%.
+- **perf-10 dropped:** section CPU fell, frames didn't. Judge by frames.
+- **Suites run at normal priority:** background QoS with Codex load took the Godot suite from 14 to 69 min and starved seven wall-clock tests into false failures.
+- **Golden and byte comparisons follow intended changes:** review the leaf diff, then re-pin; don't weaken comparisons.
+
+## 2026-10-31 chn-01: enemy Chain forecasting left as is
+Codex's re-review of 4b61526dc found two preview gaps when an enemy's Chain action also pushes the hero. No enemy in `data/enemies.json` has a Chain action, so neither can happen in play. Accepted without another round; revisit if an enemy ever gains Chain.
+
+## 2026-10-31 evt-01: event history stays a small synchronous write
+Codex's re-review of ee01c9360 asked to move `user://recent_events.json` I/O off the main thread, measured with a contrived 16 MiB file. The real file holds at most 16 ids and is written once per event click, not on a hover or frame path. Accepted as is; all four original findings are closed.
+
+## 2026-10-31 brs-01: a Tick dying in the dark still shows its dissolve
+Codex's re-review of ef62549b6 found that a hidden Tick dying from Bleed still draws its death dissolve on a concealed tile. The Burst itself is correctly redacted. Seeing an enemy die in the dark is harmless and tells the player why tiles nearby flared. Accepted without a fourth round; all other findings closed.
+
+## 2026-10-31 brs-02: one missing popup left as is
+Codex's re-review of df4cc171c closed both findings. It found that when an enemy takes Burst and Fire damage in one resolution, its bar still ends correctly (50, 46, 44) but the later 2 Fire damage has no popup. Rare and cosmetic, with the Health value correct. Accepted without another round.
+
+## 2026-11-01 OWNER: no tagline on the run-end screen
+Owner: "these are not good imo, so let's just nuke it." The quips are gone from defeat, victory and withdraw. The cause line and score move up 42 px to close the gap. Titles (SLAIN, FALLEN, ESCAPED, WITHDRAWN) stay.
+
+## 2026-11-01: shadow rooms are not an outlier; no tuning
+meas-04 and meas-05 compared standard shadow rooms with the other elements and showed win rates of 18.5 / 0 / 1.5% by tier against 66-84 / 40-50 / 20-37%. That comparison is confounded. Shadow is only ever the final section (`dragon_boss_library.gd`: `sequence_index >= FINAL_BOSS_SEQUENCE_INDEX` gives the shadow boss), while the other elements average sections 0-4, and enemy damage and HP scale with depth while the bot's deck preset does not. Bot win rate by section, all elements, from meas-04's own records:
+
+| Tier | s0 | s1 | s2 | s3 | s4 | s5 (shadow) |
+|---|---|---|---|---|---|---|
+| 1 | 97% | 94% | 92% | 54% | 44% | 18% |
+| 2 | 94% | 77% | 38% | 9% | 8% | 0% |
+| 3 | 78% | 35% | 18% | 9% | 6% | 2% |
+
+Shadow is the end of a curve, not a break in it. A fixed starter-tier deck against final-section enemies says nothing about a player with five sections of rewards. **Decision: no shadow tuning, and the meas-05 dials are not applied.** Open question, no unit yet: whether the steep drop from section 2 to 3 matches a real run; it needs a bot whose deck grows with the run, or the owner's play. The owner's analytics hold 63 fights in 6 runs on the Steam build, none near the final section, so they can't answer it.
+
+## 2026-11-01: the steep difficulty drop doesn't survive a growing deck; no tuning
+meas-06 played 25 whole runs with the deck growing (always taking the card-heuristic pick) and Health refilled before each fight, 840 fights. Standard-fight win rate by section: 87 / 77 / 56 / 41 / 50 / 38%, largest step 21 points at section 2 to 3 (zero-based 1 to 2). The fixed-deck tiers dropped 38 to 43 points. The bot's tactics are weak, so these are floors, not expected player rates; the shape is what counts. **Decision: the curve needs no tuning from this.** With Health carrying over, the same bot dies in section 1 about 90% of the time, which says more about the bot than the game; owner analytics stay the source for real run length. **Open:** dragons won 88 / 60 / 52 / 32 / 32 / 60% by section at N=25, so the final dragon may be easier than the two before it. meas-06 round 2 measures it at N=100.
+
+## 2026-11-01: the typed-array literal rewrite is parked; Windows is untested
+qa-19 audited 559 shipped scripts for the `AGENTS.md` typed-array rule and rewrote 594 bare-literal sites in 55 files. Its runtime probes (Godot 4.6.1, macOS) found direct literals work, and **no confirmed untyped runtime transfer in shipped code**; the true hazards it measured (untyped transfers, selected ternary branches, `map`, untyped `duplicate`/`filter`/`slice`) have no real hit. A 55-file churn with no known failure would conflict with every open branch and departs from the code's own style. **Decision: merge the on-demand audit (`tools/typed_array_audit.py`, report in `spec/peer_benchmark/qa/typed_array_2026-11/`) and park the rewrite on `codex/qa-19-literals-parked`.** Unrelated to the rewrite: 13 literals in `guardian_combat_rules.gd` were out of its scope. **Open:** nothing has run on Windows, so the rule's claim can't be settled here. A real Windows launch is the test, and if it fails on typed arrays the parked rewrite is ready.
+
+## 2026-11-01: final dragon not clearly the hardest; hold, watch it in play
+meas-06 round 2 fought each section's real dragon from the ladder's loadouts at full Health, N=24 per section (the 100 target wasn't reached): 83 / 58 / 50 / 50 / 42 / 63%. Noctyrax (final) sits above sections 3 and 4, but the Wilson intervals overlap. He also costs less Health (median 20 against 24) and takes longer (7 turns against 3 to 4). One caveat widens the gap: the frozen policy doesn't run the half-Health rule change the other five dragons have in play, and Noctyrax has no such change, so the bot's fights understate the other five. **Decision: no tuning yet.** The sample is small, the bot is weak, and no real player has reached him (owner analytics: none near the final section). A final boss that plays easier than the fights before it would be a real flaw, so ask about it in the next playtest that reaches him. If it's confirmed, the dial is his Health or a shorter clock, in existing primitives. Report: `encounter_redesign/measurements/run_curve_2026-11/dragons.md`.
+
+
+## 2026-11-03: a release branch between integration and master (owner)
+The owner wants work to keep flowing into the inbox no matter what is waiting, and only what they approve in the inbox to reach master. Until now the tested push candidate was integration itself, so waiting on a verdict froze every merge.
+- **Levels:**
+  - unit branches `codex/<id>`;
+  - integration `codex/peer-benchmark`: everything that passes director review merges here at once. Playtests pin here. It never freezes;
+  - release `codex/release`: master plus only inbox-approved units. Full suites run here;
+  - master.
+- **Units start from `codex/release`** (`CU new <id> --base codex/release`), so an approved unit carries no unapproved work. A unit that needs someone else's unapproved work stacks on that one branch, and its inbox entry says "needs X approved too".
+- **On approval:** merge the unit's own branch (not integration's merge commit) into release. So keep each unit branch until it is on release; remove only the worktree after its integration merge. Conflicts get resolved twice, once per line.
+- **Publishing (owner, 2026-11-03: "Approval is enough, batched"):** an inbox APPROVED is permission to publish that item. Full suites run on release and the push goes to master at most once a day, and always when the owner asks for a Steam build. `authorize-publish --user-approval` cites the inbox approvals it carries. Hold suites while the owner plays.
+- **Transition:** release starts at 04bceae9b, the candidate that passed both full suites. It carries pol-12, pol-20, pol-45, walk-01, qa-22, hud-01 and qa-23, plus fb-kindle-words, fb-burst-look, fb-tharokh and the Reaver rig, which the owner chose to ship rather than revert. It pushes on the walk-1 verdict; after that, master equals release and the rule applies cleanly. perf-14 and win-01 already started from 04bceae9b.
+
+## 2026-11-03: Windows and Linux builds pass every check a Mac can run (win-01)
+win-01 exported all three Steam presets from the release candidate 04bceae9b through the cel export path (each `CEL_PACK_TEST paths=2939 failures=0`). It loaded each exported pack in this Mac's Godot: new run, first fight, a dealt card played, save, fresh-process resume with full state and RNG equal. Zero mis-cased `res://` references (8,408 checked), zero illegal or case-colliding names in the packs (9,955 entries each), zero illegal run-time file names (48 writers), and every save path stays under 260 characters. **Decision: no change.**
+- `scripts/battlefield_rules/bot_policy.gd` ships but can't load, because its base `tools/encounter_bot.gd` is excluded from export. Only tools and tests use it, so it's harmless; move it under `tools/` whenever its suites are next touched.
+- `TODO_DESIGN_save_path` is decided as no change: `LABYRINTH_USER_DIR_NAME` is a developer and test-runner override, never set on a player's machine.
+- The new typed-array site (`sfx_cue_router.gd:55`, a typed const literal) follows the pattern qa-19 measured as safe; it stays with the parked rewrite.
+**Still open:** native libraries, GPU and shader cache paths, input, Steam and Deck, audio and real play on Windows and Linux. Only a real launch tests those. Report: `spec/peer_benchmark/qa/win_01_2026-11-03/`.
+
+## 2026-11-03: death timing, the "not now" look, and turn-order portraits (owner)
+- **Humanoid deaths (death-1 NEEDS CHANGES):** the fall plays at 0.6x its animated length, and the fade takes 0.8 s. The owner found 0.8x a little long and the 0.45 s fade basically instant. The total stays about the same (Reaver 1.76 s against 1.73 s). On branch `codex/death-01` as death-2.
+- **Unplayable cards keep the faded look (pol-02 skipped):** the owner prefers today's see-through fade to the darkened, crisp version. The branch is parked, not deleted. The polish slot doesn't retry the darkened treatment.
+- **Turn-order portraits are still, painted head portraits for every enemy** (owner regression report). The rail and the landing strip had swapped in live board renderers for the maquette rigs, showing a bobbing midsection. Every rig already has a painted portrait; the rail uses it. The pre-battle inspection view keeps its live portrait. Portraits older than their board art (Lamplighter, Lightning Wisp) are rebuilt from the current art (por-02).
+
+## 2026-11-03: what reaches the release line without an inbox entry
+The release rule (only inbox-approved units) covers everything a player can see, hear or feel. Changes with nothing to show go to release directly once they pass their checks: tests and probes, director and proof tooling, docs and ledgers. Examples: qa-24, which found both controller "failures" were stale probes, not player bugs, and the review inbox's storage button. Anything that changes the game, however small (perf-14's cache bounds, por-02's portraits), still goes through the inbox. The owner can veto this split.

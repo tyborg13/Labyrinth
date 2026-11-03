@@ -1,0 +1,1 @@
+Edit your latest image (storm-cantor-front-v4). Keep EVERYTHING exactly as it is, and change only one thing: at the very tip of the far (image-left) helm tine there is a single pink/magenta block. Replace it with the tine's own dull antique brass, so the tine ends in a clean brass point. Nothing else changes; same 1024x1024 image, same flat #00FF00 background.

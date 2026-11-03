@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+"""Capture failed native quad inputs, restoring the product source in finally."""
+from pathlib import Path
+import hashlib
+import json
+import os
+import signal
+import subprocess
+import sys
+import time
+
+PROJECT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-23')
+EVIDENCE = Path('/private/tmp/labyrinth_codex/qa-23')
+SOURCE = PROJECT / 'scripts/combat_art_treatment.gd'
+BASELINE = EVIDENCE / 'combat_art_treatment.baseline.gd'
+OUTPUT = EVIDENCE / 'replay-no-embrace-seed-3-polygon-confirm'
+CLEANUP_SECONDS = 10
+
+def main():
+    baseline = BASELINE.read_bytes()
+    if SOURCE.read_bytes() != baseline:
+        raise RuntimeError('Product source changed since preserved baseline; refusing diagnostic overwrite')
+    needle = '\tdraw_polygon(canvas, points, PackedColorArray([tint]), uvs, sampled, profile)\n'
+    diagnostic = '''\tif Geometry2D.triangulate_polygon(points).is_empty():
+\t\tprint("QA23_INVALID_ART_RECT " + JSON.stringify({"rect_b64": Marshalls.raw_to_base64(var_to_bytes(rect)), "source_b64": Marshalls.raw_to_base64(var_to_bytes(source_rect)), "quad_b64": Marshalls.raw_to_base64(var_to_bytes(points)), "uvs_b64": Marshalls.raw_to_base64(var_to_bytes(uvs)), "rect": str(rect), "points": str(points), "texture": sampled.resource_path, "texture_size": str(sampled.get_size()), "profile": profile}))
+'''
+    text = baseline.decode()
+    if text.count(needle) != 1:
+        raise RuntimeError('Expected draw_rect call not unique')
+    instrumented = text.replace(needle, diagnostic + needle).encode()
+    (EVIDENCE / 'combat_art_treatment.diagnostic.gd').write_bytes(instrumented)
+    command = [sys.executable, str(EVIDENCE / 'run_hunt_task.py'), '--seed', '3',
+        '--runs', '1', '--processes', '1', '--no-embrace', '--output-dir', str(OUTPUT)]
+    record = dict(argv=command, baseline_sha256=hashlib.sha256(baseline).hexdigest(),
+        diagnostic_sha256=hashlib.sha256(instrumented).hexdigest(), started=time.time(),
+        note='Read-only quad logging immediately before unchanged draw_polygon submission; no drawing/input/tuning change')
+    child = None
+    def interrupted(signum, frame):
+        if child is not None and child.poll() is None:
+            child.terminate()
+            try:
+                child.wait(timeout=CLEANUP_SECONDS)
+            except subprocess.TimeoutExpired:
+                child.kill()
+                child.wait()
+        raise SystemExit(128+signum)
+    for signum in (signal.SIGTERM, signal.SIGINT):
+        signal.signal(signum, interrupted)
+    SOURCE.write_bytes(instrumented)
+    try:
+        with (EVIDENCE / 'polygon-confirm.log').open('w') as log:
+            child = subprocess.Popen(command, cwd=PROJECT,
+                env=dict(os.environ, LABYRINTH_CEL_LOOK='off'),
+                stdout=log, stderr=subprocess.STDOUT)
+            record['returncode'] = child.wait()
+    finally:
+        SOURCE.write_bytes(baseline)
+        record['restored_baseline'] = SOURCE.read_bytes() == baseline
+        record['wall_seconds'] = time.time()-record['started']
+        (EVIDENCE / 'polygon-confirm-execution.json').write_text(json.dumps(record,indent=2)+'\n')
+    print('QA23 POLYGON CONFIRM: exit=' + str(record.get('returncode')) + '; baseline restored=' + str(record['restored_baseline']), flush=True)
+    return record.get('returncode',1)
+
+if __name__ == '__main__':
+    sys.exit(main())

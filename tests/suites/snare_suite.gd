@@ -91,7 +91,9 @@ static func battle(biome: String = "fire") -> Dictionary:
 
 static func _boundaries(expect: Callable) -> void:
 	var engine := Combat.new()
-	var state: Dictionary = battle()
+	# Keep this seal-only death/reward assertion separate from Fire killing its
+	# zero-Ember hunters. The pressure suite covers normal Fire contact separately.
+	var state: Dictionary = battle("earth")
 	var original: Dictionary = state.duplicate(true)
 	expect.call(not engine.player_movement_targets(state).any(func(tile: Vector2i) -> bool: return Objectives.exit_target_tiles(state["objective"]).has(tile)), "No exit within first-turn base movement")
 	var binder: Dictionary = state["enemies"][1]
@@ -104,7 +106,8 @@ static func _boundaries(expect: Callable) -> void:
 	var binder_turn: Dictionary = engine.resolve_enemy_turn_with_steps(state, 1)["state"]
 	expect.call(binder_turn["enemies"][1]["pos"] == binder_pos and binder_turn["player"]["hp"] == state["player"]["hp"] and binder_turn["enemies"][1]["intent"]["name"] == "Seal · 2", "Only Seal, no movement or damage")
 	var pushed: Dictionary = engine._force_move_enemy_from(state.duplicate(true), 1, {"push": 2}, binder_pos + Vector2i.UP, true, 2)
-	expect.call(pushed["enemies"][1]["pos"] == binder_pos, "Sealbinder cannot be displaced")
+	expect.call(pushed["enemies"][1]["pos"] != binder_pos, "An unanchored Sealbinder can be displaced")
+	state.erase("battlefield_rule") # This assertion isolates sealing from environmental damage.
 	for turn: int in range(1, 5):
 		state = engine.finish_player_activation(state)
 		expect.call(not bool(state["objective"]["exits"][1]["sealed"]) if turn <= 2 else bool(state["objective"]["exits"][1]["sealed"]), "Sealing waits until round end %d" % turn)
@@ -218,11 +221,13 @@ static func _rewards_and_save(expect: Callable) -> void:
 	Fixture.stage(combat, kept_run, "escape")
 	var kept_result: Dictionary = engine.finish_combat(kept_run, kept_run["combat_state"])
 	_analytics(expect, kept_run, kept_run["combat_state"], kept_result, 3, 1)
-	_natural_entry(expect, engine, combat, source)
+	_natural_entry(expect, engine, combat)
 	print("Snare escape/reward/save: all 18 biome/tier fixtures, 1/2/3 open doors and pending-round resume checked")
 
-static func _natural_entry(expect: Callable, engine: RefCounted, combat: RefCounted, source: Dictionary) -> void:
-	var run: Dictionary = source.duplicate(true)
+static func _natural_entry(expect: Callable, engine: RefCounted, combat: RefCounted) -> void:
+	# int-09: seed 1 finds natural Snares on the merged revision-7 catalog.
+	var natural_entry_seed: int = 1
+	var run: Dictionary = engine.create_new_run(natural_entry_seed, Store.default_data())
 	var selected: Dictionary = {}
 	for room: Dictionary in run["rooms"].values():
 		if room.get("special_type", "") != "umbral_snare": continue

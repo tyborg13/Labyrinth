@@ -1,0 +1,16 @@
+{
+  "front_job": "spec/art_identity/jobs/frostglass_lancer/mq14_front",
+  "rear_job": "spec/art_identity/jobs/frostglass_lancer/mq14_rear_v2",
+  "front_delivery": "spec/art_identity/maquettes/frostglass_lancer/delivery",
+  "rear_delivery": "spec/art_identity/maquettes/frostglass_lancer/delivery",
+  "fused_occlusion": true,
+  "intentionally_empty": {
+    "rear": {
+      "hand_near": "covered by the cloak in the approved rear painting (director, rr-37 feedback 1)",
+      "belt": "covered by the cloak in the approved rear painting (director, rr-37 feedback 1)",
+      "pelvis": "covered by the cloak in the approved rear painting (director, rr-37 feedback 1)",
+      "tabard": "covered by the cloak in the approved rear painting (director, rr-37 feedback 1)"
+    }
+  },
+  "design_placeholders": {}
+}

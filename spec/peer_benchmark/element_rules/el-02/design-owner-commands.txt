@@ -1,0 +1,9 @@
+cd /Users/borgerding/workspace/Labyrinth.worktrees/el-02 && python3 tools/visual_probe_runner.py --task-id el-02 --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --expect-size 1920x1080 --proof-contract tests/proof_contracts/element_retrofit.json --result-manifest proof/el-02/render-manifest.json tests/element_retrofit_probe.gd
+
+cd /Users/borgerding/workspace/Labyrinth.worktrees/el-02 && python3 tools/visual_probe_runner.py --task-id el-02 --no-headless --display-driver macos --audio-driver Dummy --timeout 60 --expect-size 1920x1080 --proof-contract tests/proof_contracts/en02_enemies.json --result-manifest proof/el-02/en02-render-manifest.json tests/en02_enemies_probe.gd
+
+cd /Users/borgerding/workspace/Labyrinth.worktrees/el-02 && python3 tools/visual_probe_runner.py --task-id el-02 --no-headless --display-driver macos --audio-driver Dummy --timeout 60 --expect-size 1920x1080 --proof-contract tests/en04_enemies_probe_contract.json --result-manifest proof/el-02/en04-render-manifest.json tests/en04_enemies_probe.gd
+
+cd /Users/borgerding/workspace/Labyrinth.worktrees/el-02 && python3 tools/inspection_fixture.py --task-id el-02 --run-id el-02-warband-earth --scenario warband --warband-biome earth --warband-tier 2 --seed 83 --manifest proof/el-02/inspection-warband-earth.json --launch
+
+cd /Users/borgerding/workspace/Labyrinth.worktrees/el-02 && python3 tools/inspection_fixture.py --task-id el-02 --run-id el-02-snare-lightning --scenario snare --snare-biome lightning --snare-tier 2 --seed 83 --manifest proof/el-02/inspection-snare-lightning.json --launch

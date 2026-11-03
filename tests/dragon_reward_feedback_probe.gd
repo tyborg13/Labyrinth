@@ -5,12 +5,18 @@ const Combat = preload("res://scripts/combat_engine.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const Graph = preload("res://scripts/section_map_graph.gd")
+const Transition = preload("res://scripts/section_transition.gd")
 const OUTPUT: String = "user://probes/dragon_reward_feedback_v3"
+const PRESENTATION_TIMEOUT_MSEC: int = 12000
 var scene: Node
 var canvas: SubViewport
 var failed: int = 0
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	if DisplayServer.get_name() == "headless":
+		print("HEADLESS SEMANTICS ONLY: no renderer captures")
+		process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
 	call_deferred("_run")
 func _run() -> void:
 	Store.set_storage_path("user://reward_feedback_profile.json")
@@ -80,31 +86,31 @@ func _run() -> void:
 	scene.call("_speak_to_emaciated_man")
 	expect(not bool((scene.call("_current_dialogue_line") as Dictionary).get("service",false)), "Repeat Speak remains ordinary dialogue")
 	scene.call("_close_dialogue")
-	# Standard acquisition, blocking/repeated activation, and smooth map arrival.
+	# Graph dragons now claim synchronously, then descend into the next section.
 	state = _reward_state(engine, combat, "vyraketh", profile)
+	var destination: Vector2i = Graph.section(state, Graph.active_section(state) + 1)["entry"]
 	await _load(state)
 	await _capture("reward_before_continue")
 	var button: Button = scene.find_child("DragonRewardContinue", true, false)
 	button.grab_focus()
 	button.pressed.emit()
-	expect(str((scene.get("_run_state") as Dictionary)["mode"]) == "room" and bool(scene.get("_relic_claim_in_progress")), "Claim commits synchronously before presentation")
+	var transition: Node = scene.get("_section_transition")
+	expect(str((scene.get("_run_state") as Dictionary)["mode"]) == "room" and is_instance_valid(transition), "Claim commits synchronously before the section transition")
 	var saved: Dictionary = Store.load_saved_run()
-	expect(str(saved.get("mode","")) == "room", "Interruption during delivery resumes saved room")
+	expect(str(saved.get("mode","")) == "room" and saved.has(Transition.CLAIMED_REWARD_KEY), "Interruption preserves the saved claim and resumable section transition")
+	var committed_relics: Array = (saved.get("relics", []) as Array).duplicate()
 	scene.call("_on_dragon_reward_continue")
+	expect(scene.get("_section_transition") == transition and (scene.get("_run_state") as Dictionary).get("relics", []) == committed_relics, "Repeated Continue cannot restart the transition or grant another relic")
 	await create_timer(0.17).timeout
-	await _capture("relic_standard_delivery")
-	expect(scene.find_child("RelicAcquisitionBeam",true,false) != null, "Dragon uses standard relic beam")
-	expect(not (scene.get("_large_map_scrim") as Control).visible, "Map is hidden during delivery")
-	await _wait_phase("settlement")
-	await _capture("relic_hud_settlement")
-	expect(not (scene.get("_large_map_scrim") as Control).visible, "Map remains hidden during settlement")
-	await _wait_phase("map_transition")
-	await create_timer(0.09).timeout
-	await _capture("map_fade")
+	await _capture("section_departure")
+	expect(not (scene.get("_large_map_scrim") as Control).visible, "Map is hidden during section departure")
+	await _wait_section_title(transition)
+	await _capture("section_title")
+	expect(not (scene.get("_large_map_scrim") as Control).visible, "Map stays hidden until the title-to-map handoff")
 	await _wait_complete()
 	await _capture("map_ready")
-	expect((scene.get("_large_map_scrim") as Control).visible and is_equal_approx((scene.get("_large_map_scrim") as Control).modulate.a,1.0), "Map settles fully visible after delivery")
-	# Reduced motion keeps final states and completion without beam travel.
+	_expect_map_arrival(destination)
+	# Reduced motion uses the same committed section arrival.
 	settings["reduced_motion"] = true
 	Settings.apply_settings(settings, root, false)
 	scene.set("_settings", settings)
@@ -115,6 +121,7 @@ func _run() -> void:
 	await _capture("reduced_motion_receipt")
 	await _wait_complete()
 	await _capture("reduced_motion_map")
+	_expect_map_arrival(destination)
 	# Final trophy is explicitly delivered to the next-run receipt, not current HUD.
 	settings["reduced_motion"] = false
 	Settings.apply_settings(settings, root, false)
@@ -123,15 +130,22 @@ func _run() -> void:
 	scene.call("_on_dragon_reward_continue")
 	await create_timer(0.17).timeout
 	await _capture("next_run_trophy_delivery")
+	expect(scene.find_child("RelicAcquisitionBeam",true,false) != null, "Final dragon uses the standard relic beam to the next-run receipt")
+	await _wait_phase("settlement")
+	await _capture("next_run_trophy_settlement")
 	await _wait_complete()
+	await _capture("final_recap")
 	expect(str((scene.get("_run_state") as Dictionary)["mode"]) == "victory", "Final dragon reaches recap after delivery")
-	# Cancel a sleeping delivery by loading its already committed snapshot.
+	# Resume the already committed snapshot, including its unfinished descent.
 	await _load(_reward_state(engine,combat,"vyraketh",profile))
 	scene.call("_on_dragon_reward_continue")
 	await process_frame
 	saved = Store.load_saved_run()
 	await _load(saved)
-	expect(not bool(scene.get("_relic_claim_in_progress")) and scene.find_child("RelicAcquisitionBeam",true,false) == null, "Resume cancels transient delivery and preserves the committed claim")
+	expect(is_instance_valid(scene.get("_section_transition")) and (scene.get("_run_state") as Dictionary).get("relics", []) == saved.get("relics", []), "Resume restarts the section transition and preserves the committed claim")
+	await _wait_complete()
+	_expect_map_arrival(destination)
+	await _capture("resumed_map")
 	print("DRAGON REWARD FEEDBACK PROOF: ", "PASS" if failed == 0 else "FAIL")
 	canvas.queue_free()
 	await process_frame
@@ -152,15 +166,26 @@ func _load(state: Dictionary) -> void:
 	scene.call("_close_large_map")
 	await create_timer(0.15).timeout
 func _wait_phase(phase: String) -> void:
-	var deadline: int = Time.get_ticks_msec() + 5000
+	var deadline: int = Time.get_ticks_msec() + PRESENTATION_TIMEOUT_MSEC
 	while str(scene.get("_relic_delivery_phase")) != phase and bool(scene.get("_relic_claim_in_progress")) and Time.get_ticks_msec() < deadline: await process_frame
 	expect(str(scene.get("_relic_delivery_phase")) == phase, "Presentation reaches " + phase)
 func _wait_complete() -> void:
-	var deadline: int = Time.get_ticks_msec() + 5000
-	while bool(scene.get("_relic_claim_in_progress")) and Time.get_ticks_msec() < deadline: await process_frame
-	expect(not bool(scene.get("_relic_claim_in_progress")), "Presentation completes in bounded time")
+	var deadline: int = Time.get_ticks_msec() + PRESENTATION_TIMEOUT_MSEC
+	while (bool(scene.get("_relic_claim_in_progress")) or is_instance_valid(scene.get("_section_transition"))) and Time.get_ticks_msec() < deadline: await process_frame
+	expect(not bool(scene.get("_relic_claim_in_progress")) and not is_instance_valid(scene.get("_section_transition")), "Presentation completes in bounded time")
+func _wait_section_title(transition: Node) -> void:
+	var deadline: int = Time.get_ticks_msec() + PRESENTATION_TIMEOUT_MSEC
+	while is_instance_valid(transition) and float(transition.get("elapsed")) < Transition.TEXT_AT + Transition.TEXT_SECONDS and Time.get_ticks_msec() < deadline: await process_frame
+	expect(is_instance_valid(transition) and bool(transition.get("active")) and float(transition.get("elapsed")) >= Transition.TEXT_AT + Transition.TEXT_SECONDS and not str((transition.get("_title") as Label).text).is_empty(), "Presentation reaches the section title")
+func _expect_map_arrival(destination: Vector2i) -> void:
+	var current: Dictionary = scene.get("_run_state")
+	var map: Control = scene.get("_large_map_scrim")
+	expect(current.get("current_room") == destination and str(current.get("mode", "")) == "room", "Transition enters the next section threshold")
+	expect(map.visible and is_equal_approx(map.modulate.a, 1.0) and not bool(scene.get("_animation_lock")), "Map settles fully visible with input restored after the section transition")
+	expect(Store.load_saved_run().get("current_room") == destination, "Section arrival is durably saved")
 func _capture(label: String) -> void:
 	await process_frame
+	if DisplayServer.get_name() == "headless": return
 	await RenderingServer.frame_post_draw
 	var image: Image = canvas.get_texture().get_image()
 	expect(image.get_size() == Vector2i(1920,1080), "Native 1920x1080 proof")

@@ -1,0 +1,56 @@
+{
+  "designs": {
+    "hit.blade.light": {
+      "layers": [
+        {
+          "end_seconds": 0.88,
+          "licence_id": "Sonniss GDC Bundle licence",
+          "source_path": "sonniss_gdc/GDC2015/Timothy McHugh - Gorification [HD]/gore - medium metal blade wet impact in to flesh and removed - 6.wav",
+          "source_sha256": "c5c4dad45b65f3ac0cfb0ee217125482e730f46246f050ef924324fa6bbdc61a",
+          "start_seconds": 0.08,
+          "take_id": "c5c4dad45b65#1"
+        },
+        {
+          "end_seconds": 0.43,
+          "licence_id": "Sonniss GDC Bundle licence",
+          "source_path": "sonniss_gdc/GDC2019/Sound Spark LLC \u2013 Gore/Melee_Deep_Wound_05.wav",
+          "source_sha256": "f68bcd9c59704a21c9c407e50cfe85461ca724a080ae7c548a5c552e862fd5a9",
+          "start_seconds": 0.0,
+          "take_id": "f68bcd9c5970#1"
+        }
+      ],
+      "licence_id": "Sonniss GDC Bundle licence",
+      "recipe": {
+        "layers": [
+          {
+            "gain_db": -8,
+            "take": "c5c4dad45b65#1",
+            "trim": [
+              0.0208,
+              0.5
+            ]
+          },
+          {
+            "fade_out_ms": 90,
+            "gain_db": -6,
+            "highpass_hz": 90,
+            "pitch": 1.19,
+            "take": "f68bcd9c5970#1",
+            "trim": [
+              0.0,
+              0.22
+            ]
+          }
+        ],
+        "length_s": 0.5,
+        "master": {
+          "fade_out_ms": 80,
+          "peak_dbfs": -3.3
+        },
+        "note": "pol-12. The owner's blade tick (hit.blade.light pick C) over the first moments of the owner's heavy blade hit (hit.blade.heavy pick B), pitched up three semitones: the same sword, smaller. The tick alone was a 40 ms click with nothing under it, 3 to 6 dB below the other hits; limiter gain could not fix that."
+      }
+    }
+  },
+  "recipe_file": "spec/peer_benchmark/staged/sfx/recipes_pol12.json",
+  "selected_label": "A"
+}

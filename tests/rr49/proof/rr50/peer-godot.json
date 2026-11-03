@@ -1,0 +1,52 @@
+{
+  "complete": true,
+  "results": [
+    {
+      "name": "special_encounter_test",
+      "returncode": 0,
+      "seconds": 53.056,
+      "log_path": "/private/tmp/labyrinth_codex/rr50-peer-godot.logs/00-special_encounter_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/labyrinth_codex/rr50-peer-godot.logs/00/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "enemy_no_action_test",
+      "returncode": 0,
+      "seconds": 24.299,
+      "log_path": "/private/tmp/labyrinth_codex/rr50-peer-godot.logs/01-enemy_no_action_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/labyrinth_codex/rr50-peer-godot.logs/01/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "fix_11_test",
+      "returncode": 0,
+      "seconds": 16.507,
+      "log_path": "/private/tmp/labyrinth_codex/rr50-peer-godot.logs/02-fix_11_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/labyrinth_codex/rr50-peer-godot.logs/02/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "fix_11_probe",
+      "returncode": 0,
+      "seconds": 5.274,
+      "log_path": "/private/tmp/labyrinth_codex/rr50-peer-godot.logs/03-fix_11_probe.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/labyrinth_codex/rr50-peer-godot.logs/03/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "hero_facing_test",
+      "returncode": 1,
+      "seconds": 4.464,
+      "log_path": "/private/tmp/labyrinth_codex/rr50-peer-godot.logs/04-hero_facing_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/labyrinth_codex/rr50-peer-godot.logs/04/godot.log",
+      "reason": ""
+    }
+  ],
+  "seconds": 53.087,
+  "failed": true
+}

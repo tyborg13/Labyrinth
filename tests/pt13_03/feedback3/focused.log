@@ -1,0 +1,11 @@
+card_widget_tooltip_item_preview: PASS
+CARD WIDGET/TOOLTIP/ITEM PREVIEW FOCUSED RESULT: PASS (385 checks, 0 failures)
+negative_fixtures: PASS
+reading_layouts: PASS
+CARD READING LAYOUT RESULT: PASS (352 checks, 0 failures)
+scavenger_inspection: PASS
+SCAVENGER INSPECTION RESULT: PASS (14 checks, 0 failures)
+scavenger_visual: FAIL
+SCAVENGER VISUAL PASS 4: FAIL
+scavenger_regression: PASS
+SCAVENGER / MERCHANT / LOADOUT REGRESSION: PASS

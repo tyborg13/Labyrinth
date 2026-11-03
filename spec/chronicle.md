@@ -49,6 +49,8 @@ analytics delivery and run saves retain their existing contracts.
 The menu creates Chronicle between New Game and Settings with the existing
 Obsidian slab style, 78 px height and 14 px gap (92 px pitch). Existing node names
 remain intact. Opening hides the menu actions; closing restores Chronicle focus.
+The run-end recap opens the same panel from its quiet Chronicle link and hides itself
+while the panel is up, in the same way.
 
 `chronicle_panel.gd` draws the shared major-dialog gilded frame and reuses the
 Crumble fonts, palette, section-map icons, approved equipment/relic textures,

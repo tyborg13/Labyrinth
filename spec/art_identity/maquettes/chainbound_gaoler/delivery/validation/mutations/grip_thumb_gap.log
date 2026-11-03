@@ -1,0 +1,14 @@
+test_thumb_needs_lateral_and_vertical_overlap_and_a_bounded_gap (tests.test_mq15_native_geometry.NativeGeometryTests) ... FAIL
+
+======================================================================
+FAIL: test_thumb_needs_lateral_and_vertical_overlap_and_a_bounded_gap (tests.test_mq15_native_geometry.NativeGeometryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_native_geometry.py", line 56, in test_thumb_needs_lateral_and_vertical_overlap_and_a_bounded_gap
+    self.assertFalse(g.thumb_contact_passed(overlap,FIXTURE_DEFAULTS['detached_gap_m']))
+AssertionError: np.True_ is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

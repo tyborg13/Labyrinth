@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "policy": "best",
+  "seed": 1,
+  "repeat_count": 2,
+  "record_sha256": "bb19db342faa271cb0fb25d7052577f1450062d9fce19cd70d3d68a12d328702",
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "end_section": 0,
+  "fights": 3,
+  "choices": 3
+}

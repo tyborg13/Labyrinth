@@ -19,6 +19,7 @@ NAMES = {
     "last_lamplighter": "Last Lamplighter",
 }
 STUDIES = {
+    "beat": "Inspect the next Guardian beat in a real fight",
     "encounter": "Begin combat with a prepared ordinary deck and full health",
     "pre_battle": "Inspect the named objective, enemies and loadout before entering",
     "relic": "Try the exclusive trophy on a small staged board",
@@ -28,7 +29,7 @@ STUDIES = {
     "outage": "Play after one brazier goes dark and its Shade appears",
     "outcrops": "Begin before Groundsplit with Craghide’s outcrops present",
     "summon": "Begin with Storm Cantor’s replacement-Wisp intent declared",
-    "reinforcements": "Begin with a missing helper’s replacement intent declared",
+    "reinforcements": "Inspect a fallen finite helper and the next declared intent",
     "ground_targeting": "Try Detonate on empty Fire ground within normal range, without a trophy",
     "network": "Play against the Cantor cohort after its opening electrical setup",
     "telegraph": "Inspect the Guardian's third intent and its current threats",
@@ -76,7 +77,7 @@ def main() -> None:
         cases += [("last_lamplighter", "map_entry"),
                   ("ashen_reaver", "reward"), ("ashen_reaver", "ground_targeting"), ("last_lamplighter", "outage"),
                   ("craghide", "outcrops"), ("storm_cantor", "summon"), ("storm_cantor", "network")]
-        cases += [("craghide", "occupied_summon"), ("craghide", "occlusion"), ("storm_cantor", "sweep"), ("last_lamplighter", "relight"), ("last_lamplighter", "displaced_pattern"), ("gallows_roc", "displaced_pattern")]
+        cases += [("storm_cantor", "occupied_summon"), ("craghide", "occlusion"), ("storm_cantor", "sweep"), ("last_lamplighter", "relight"), ("last_lamplighter", "displaced_pattern"), ("gallows_roc", "displaced_pattern")]
         cases += [(actor, "telegraph") for actor in ["ashen_reaver", "rimejaw", "gallows_roc"]]
     results = [generate(actor, case, args.launch) for actor, case in cases]
     if args.all:

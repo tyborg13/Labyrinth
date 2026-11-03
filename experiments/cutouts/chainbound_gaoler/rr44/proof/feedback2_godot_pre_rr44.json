@@ -1,0 +1,52 @@
+{
+  "complete": true,
+  "results": [
+    {
+      "name": "main_menu_input_test",
+      "returncode": 1,
+      "seconds": 33.178,
+      "log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/00-main_menu_input_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/00/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "fix_11_test",
+      "returncode": 1,
+      "seconds": 21.183,
+      "log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/01-fix_11_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/01/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "fix_11_probe",
+      "returncode": 1,
+      "seconds": 7.969,
+      "log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/02-fix_11_probe.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/02/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "suites/sfx_sync_0_program",
+      "returncode": 124,
+      "seconds": 180.213,
+      "log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/03-suites-sfx_sync_0_program.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/03/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "suites/sfx_sync_1_program",
+      "returncode": 124,
+      "seconds": 180.17,
+      "log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/04-suites-sfx_sync_1_program.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-pre-rr44-baseline.logs/04/godot.log",
+      "reason": ""
+    }
+  ],
+  "seconds": 422.846,
+  "failed": true
+}

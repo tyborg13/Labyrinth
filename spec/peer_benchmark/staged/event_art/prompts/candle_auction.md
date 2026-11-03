@@ -1,0 +1,1 @@
+Subject: rows of hooded bidders seen from behind, sitting in a dim stone hall, all facing a tall auctioneer at a lectern. One candle burning low on the lectern is the only strong light. The lot on the table beside it is covered by a cloth. Mood: hushed, formal, sinister.

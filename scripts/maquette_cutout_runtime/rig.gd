@@ -6,6 +6,32 @@ var character_id: String = "shale_bloomer"
 var case_directory: String = ""
 var precise_angles: Dictionary = {}
 var _glow_textures: Dictionary = {}
+var cap_bones: Dictionary = {}
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSFORM_CHANGED:
+		preload("stable_paint.gd").follow_root(self)
+
+func load_rig() -> bool:
+	# The inherited same-facing load is a no-op; its live helper map survives.
+	if _loaded_facing != facing: cap_bones.clear()
+	return super.load_rig()
+
+func _build_mesh(data: Dictionary, mesh_name: String, source_key: String) -> void:
+	if not data.get("rigid_source_alignment", false):
+		super._build_mesh(data, mesh_name, source_key)
+		preload("stable_paint.gd").register_mesh(self, data, mesh_name)
+		return
+	preload("humanoid_joint_caps.gd").ensure_bones(self, data)
+	super._build_mesh(data, mesh_name, source_key)
+	var mesh: Polygon2D = get_node_or_null(NodePath(mesh_name)) as Polygon2D
+	if mesh == null: return
+	var prepared: Dictionary = _source_data.prepare_mesh(data, mesh_name, source_key)
+	mesh.clear_bones()
+	for name: String in prepared["weights"]:
+		var bone: Bone2D = cap_bones[name] if cap_bones.has(name) else bones[name]
+		mesh.add_bone(skeleton.get_path_to(bone), prepared["weights"][name])
+	preload("stable_paint.gd").register_mesh(self, data, mesh_name)
 
 func base_path() -> String:
 	return case_directory if not case_directory.is_empty() else "res://assets/units/" + character_id + "_cutout"
@@ -21,14 +47,17 @@ func apply_pose(clip_name: String, phase_value: float) -> void:
 	var data: Dictionary = SemanticMotion.data_for(layout)
 	apply_authored_pose(clip_name, Pixels.phase_for(data, clip_name, phase_value))
 	if str(data.get("rig", "")) == "humanoid_v2":
-		preload("humanoid_presentation.gd").apply(self, clip_name)
+		preload("humanoid_presentation.gd").apply(self, clip_name, phase_value)
+		preload("stable_paint.gd").apply(self, clip_name)
 		return
-	Pixels.apply(self)
+	Pixels.apply(self, clip_name)
 
 ## Diagnostic oracle entry point; never used by production playback. Retain the
 ## raw Bone2D contract separately from the deliberately stepped presentation.
 func apply_authored_pose(clip_name: String, phase_value: float) -> void:
 	layout["motion_data"] = base_path().path_join("compiled_motion.json")
+	preload("stable_paint.gd").restore(self)
+	preload("humanoid_held_follow.gd").reset_authored_sprites(self, SemanticMotion.data_for(layout))
 	var pose: Dictionary = SemanticMotion.sample_pose(clip_name, phase_value, layout, facing)
 	_apply_sampled_pose(pose, true)
 	precise_angles.clear()
@@ -37,6 +66,10 @@ func apply_authored_pose(clip_name: String, phase_value: float) -> void:
 			self, SemanticMotion.data_for(layout), clip_name, phase_value)
 		precise_angles = preload("res://assets/units/hoarfrost_seer_cutout/precision.gd").angles(
 			SemanticMotion.data_for(layout), layout, facing, clip_name, phase_value)
+		# The legacy Seer precision pass reconstructs authored translations.
+		# Restore only the runtime root after that solve; its rig file is pinned.
+		if clip_name == "move" and not layout.get("root_forward_override", {}).is_empty():
+			(bones["root"] as Bone2D).position = pose["root"]["position"]
 	for bone: String in bones:
 		(bones[bone] as Bone2D).modulate.a = float(pose.get(bone, {}).get("alpha", 1.0))
 	if layout.has("glow_textures"):
@@ -52,3 +85,4 @@ func apply_authored_pose(clip_name: String, phase_value: float) -> void:
 		# Keep the authored float64 half-step decision out of Bone2D's float32
 		# matrix decomposition, as in the rr-05 native agreement path.
 		precise_angles["cap"] = deg_to_rad(float(channels.get("cap", {}).get("lean_deg", 0.0)) * float(layout.get("forward_reflection", 1.0)))
+	preload("humanoid_joint_caps.gd").apply(self, {}, clip_name, phase_value)

@@ -1,0 +1,46 @@
+{
+  "runs_started": 21,
+  "processes_ended": 21,
+  "outcomes": {
+    "embrace": 13,
+    "softlock": 8
+  },
+  "sections": {
+    "0": 21,
+    "1": 9,
+    "2": 6,
+    "3": 3,
+    "4": 1,
+    "5": 0
+  },
+  "room_kinds": {
+    "start": 40,
+    "combat": 147,
+    "event": 78,
+    "scavenger": 24,
+    "treasure": 40,
+    "campfire": 32,
+    "umbral_snare": 4,
+    "graftwright": 5,
+    "boss": 19,
+    "guardian": 12,
+    "warband": 3,
+    "ember_hoarder": 3,
+    "last_light": 7
+  },
+  "side_actions": {
+    "side_deck": 16,
+    "side_escape": 39,
+    "side_map": 34,
+    "side_reduced_motion": 52,
+    "side_resume": 43,
+    "side_settings": 51,
+    "side_hover_hand": 13
+  },
+  "room_censuses": 414,
+  "max_orphans": 0,
+  "decisions": 17679,
+  "wall_seconds": 4614.756300208,
+  "native_crashes": 0,
+  "sample_runner_nonzero_statuses": 8
+}

@@ -76,7 +76,6 @@ func _one_line_card_tooltips() -> void:
 	for id: String in GameData.cards():
 		var card: Dictionary = GameData.card_def(id)
 		var leading: Array = []
-		if int(card.get("time", 0)) > 0: leading.append("time")
 		if ActionIcons.card_is_rite(card): leading.append("rite")
 		for entry: Dictionary in ActionIcons.tooltip_entries_for_rows(ActionIcons.rows_for_card(card), leading):
 			var lines: PackedStringArray = str(entry["tooltip"]).strip_edges().split("\n", false)

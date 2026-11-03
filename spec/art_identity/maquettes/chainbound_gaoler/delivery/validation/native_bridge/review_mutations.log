@@ -1,0 +1,8 @@
+00:00.295  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/spec/art_identity/maquettes/chainbound_gaoler/proof/f5/capture/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+MQ15_REVIEW_MUTATION: flatten_native_fingers; CAUGHT
+MQ15_REVIEW_MUTATION: detach_native_top_link; CAUGHT
+MQ15_REVIEW_MUTATION: detach_native_thumb_sideways; CAUGHT
+MQ15_REVIEW_MUTATION: detach_native_thumb_forward; CAUGHT
+MQ15_REVIEW_MUTATION: changed_helm_old_hash; CAUGHT
+MQ15_REVIEW_NATIVE_MUTATIONS: PASS; caught=5/5

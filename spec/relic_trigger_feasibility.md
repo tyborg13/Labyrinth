@@ -66,7 +66,7 @@ Lightning under Stormcoal.
 | Pocket Sundial | Using both base card plays brings your next turn 2 Time sooner. | 2 per full turn. |
 | Borrowed Hourglass | End your turn with a card play unused: take another turn at once. | Once per combat; the extra turn's Time is added to the following turn. |
 | Whirling Sash | One extra card play each turn; cards after the second cost 2 more Time. | The surcharge makes long turns delay the next one. |
-| Crown of Surplus | Cards without Empower gain Empower (+3 Time): repeat the first action. | Excludes Rites, items, Flurry and cards with their own Empower. |
+| Crown of Surplus | Cards without Empower gain Empower (+3 Time): repeat the first action. | Excludes Rites, items and cards with their own Empower. The internal Flurry guard is dormant (flu-01). |
 | Pendulum Weight | Stagger beyond the per-turn limit of 6 becomes damage. | Bounded by real Stagger supply; dragons halve Stagger before overflow. |
 | Siege Ram Totem | Collision damage also Staggers the enemy by that much. | Within the normal per-turn Stagger limit. |
 | Battering Yoke | An enemy pushed into another enemy knocks it 1 tile on. | Each enemy is knocked at most once per action. |

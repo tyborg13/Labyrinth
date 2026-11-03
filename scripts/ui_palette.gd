@@ -24,6 +24,10 @@ const DANGER := Color("c7453b")
 const DANGER_BRIGHT := Color("ef6a5a")
 const ALLY := Color("5cc0a8")
 const UMBRA := Color("9a7cf0")
+# The two billow colours the board paints the Umbra with: its deep violet-black
+# and the violet that rolls through it.
+const UMBRA_DEEP := Color(0.018, 0.006, 0.042)
+const UMBRA_VIOLET := Color(0.165, 0.048, 0.235)
 const STEEL := Color("8fb3d9")
 const SUCCESS := Color("8fcf7d")
 

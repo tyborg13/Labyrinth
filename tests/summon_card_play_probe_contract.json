@@ -1,0 +1,18 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*01_call_the_spark_resolves.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [18, 18, 1884, 1044], "min_luma_range": 16, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "*02_next_turn_card_plays.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [0, 720, 640, 360], "min_luma_range": 16, "min_luma_stdev": 3}]
+    }
+  ]
+}

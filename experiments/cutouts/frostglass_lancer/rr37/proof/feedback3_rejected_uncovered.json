@@ -1,0 +1,269 @@
+{
+  "ok": false,
+  "errors": [
+    "('front', 'lunge', 20): uncovered_missing_pixels: 34",
+    "('front', 'lunge', 20): uncovered_foreign_texels: 988",
+    "('rear', 'lunge', 36): uncovered_foreign_texels: 1170",
+    "('rear', 'lunge', 36): uncovered_outline_pixels: 32",
+    "('rear', 'lunge', 36): uncovered_outside_surface_pixels: 5",
+    "('front', 'cast', 4): uncovered_missing_pixels: 16",
+    "('front', 'cast', 4): uncovered_foreign_texels: 395",
+    "('front', 'cast', 12): uncovered_missing_pixels: 34",
+    "('front', 'cast', 12): uncovered_foreign_texels: 953",
+    "('front', 'guard', 25): uncovered_missing_pixels: 44",
+    "('front', 'guard', 25): uncovered_foreign_texels: 1304"
+  ],
+  "frames": [
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 20,
+      "metrics": {
+        "uncovered_missing_pixels": 34,
+        "uncovered_foreign_texels": 988,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {
+        "missing": {
+          "pixels": 34,
+          "bbox": [
+            273,
+            287,
+            281,
+            310
+          ]
+        },
+        "foreign": {
+          "pixels": 988,
+          "bbox": [
+            243,
+            252,
+            418,
+            412
+          ]
+        }
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "lunge",
+      "frame": 36,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 1170,
+        "uncovered_outline_pixels": 32,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 5
+      },
+      "diagnostics": {
+        "foreign": {
+          "pixels": 1170,
+          "bbox": [
+            225,
+            244,
+            406,
+            421
+          ]
+        },
+        "outline": {
+          "pixels": 32,
+          "bbox": [
+            359,
+            287,
+            397,
+            368
+          ]
+        },
+        "outside": {
+          "pixels": 5,
+          "bbox": [
+            367,
+            317,
+            380,
+            341
+          ]
+        }
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 0,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "cast",
+      "frame": 0,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 4,
+      "metrics": {
+        "uncovered_missing_pixels": 16,
+        "uncovered_foreign_texels": 395,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "native_joint_pockets": [
+        {
+          "bbox": [
+            270,
+            295,
+            275,
+            301
+          ],
+          "pixel_count": 10
+        }
+      ],
+      "diagnostics": {
+        "missing": {
+          "pixels": 16,
+          "bbox": [
+            270,
+            288,
+            278,
+            301
+          ]
+        },
+        "foreign": {
+          "pixels": 395,
+          "bbox": [
+            239,
+            265,
+            421,
+            402
+          ]
+        }
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 12,
+      "metrics": {
+        "uncovered_missing_pixels": 34,
+        "uncovered_foreign_texels": 953,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {
+        "missing": {
+          "pixels": 34,
+          "bbox": [
+            271,
+            287,
+            278,
+            301
+          ]
+        },
+        "foreign": {
+          "pixels": 953,
+          "bbox": [
+            236,
+            239,
+            410,
+            403
+          ]
+        }
+      }
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 25,
+      "metrics": {
+        "uncovered_missing_pixels": 44,
+        "uncovered_foreign_texels": 1304,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "diagnostics": {
+        "missing": {
+          "pixels": 44,
+          "bbox": [
+            271,
+            290,
+            278,
+            304
+          ]
+        },
+        "foreign": {
+          "pixels": 1304,
+          "bbox": [
+            238,
+            244,
+            417,
+            416
+          ]
+        }
+      }
+    }
+  ],
+  "native_pixels": true,
+  "source_manifest_sha256": "ea985e5be9cb44c78416e1de346b17cb1216f1efe5eaf7ed9bfcfe3fb17bd10d",
+  "scope": "Immutable round-2 actual native pixels; expected negative regression, not current native acceptance",
+  "fixture_receipt": {
+    "source_manifest_sha256": "a2115a5cc5aeff0dfed780954df3ef0a1bee2ae759f4ab3aabfc734791f752ac",
+    "source_gate_log_sha256": "c777671c6bf857c8aa8547e1ec29576cf2e9cc1c60c70af39ed11afbe36355f8",
+    "required_failures": [
+      [
+        "front",
+        "cast",
+        4
+      ],
+      [
+        "front",
+        "cast",
+        12
+      ],
+      [
+        "front",
+        "lunge",
+        20
+      ],
+      [
+        "front",
+        "guard",
+        25
+      ],
+      [
+        "rear",
+        "lunge",
+        36
+      ]
+    ],
+    "rest_controls": [
+      [
+        "front",
+        "cast",
+        0
+      ],
+      [
+        "rear",
+        "cast",
+        0
+      ]
+    ],
+    "scope": "Original round-2 native PNG/layer bytes, not a reconstructed image"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "front": {
+    "outside_paint_texels": 0,
+    "different_rgba_pixels": 0,
+    "crop_4x": "proof/front_rest_outside_4x.png"
+  },
+  "rear": {
+    "outside_paint_texels": 0,
+    "different_rgba_pixels": 0,
+    "crop_4x": "proof/rear_rest_outside_4x.png"
+  }
+}

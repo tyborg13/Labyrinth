@@ -2,7 +2,7 @@
   "rig": "humanoid_v2",
   "units": "source_px",
   "creature": "arc_thrall",
-  "director_sha256": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
+  "director_sha256": "2604ea481b148f60962bd109e1f625332700150529764e3c19270f32c093ce2a",
   "projection": {
     "front": {
       "forward": [
@@ -28,7 +28,7 @@
       "release_at": {}
     },
     "move": {
-      "seconds": 0.85,
+      "seconds": 0.5,
       "intents": [
         "arc_jab:move_toward"
       ],

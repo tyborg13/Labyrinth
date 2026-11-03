@@ -1,0 +1,42 @@
+Running task-local command:
+  task: pt13-03
+  run: pt13-03-1793058540361303000-38129
+  HOME: /private/tmp/labyrinth-godot-home/pt13-03-1793058540361303000-38129
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-03-1793058540361303000-38129/godot.log --headless --path . --script tests/graftwright_console_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+Undertaker Plate inherited Shadow Step.
+Run 0 | seed 91526 | mode graftwright | HP 24/24 | embers 0 | deck 16
+Graftwright: one same-type card inheritance; the donor is destroyed.
+  training_sword [weapon]: ["quick_stab", "whirlwind_slash", "bloody_lunge"]
+  splintered_shield [offhand]: ["brace", "guarded_step"]
+  undertaker_plate [armor]: ["undertaker_stand", "shadow_step"]
+  skirmisher_boots [boots]: ["sidestep_slash", "hamstring_shot"]
+  cracked_lantern [trinket]: ["lantern_shot"]
+  boiled_leather [armor]: ["leather_roll", "rallying_breath"]
+  iron_cleaver [weapon]: ["cleaver_hook", "needle_flurry", "butcher_chop"]
+Command: graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX (zero-based), or leave.
+The work is complete.
+The work is complete.
+Run 0 | seed 91526 | mode graftwright | HP 24/24 | embers 0 | deck 16
+Graftwright: one same-type card inheritance; the donor is destroyed.
+  training_sword [weapon]: ["quick_stab", "whirlwind_slash", "bloody_lunge"]
+  splintered_shield [offhand]: ["brace", "guarded_step"]
+  undertaker_plate [armor]: ["undertaker_stand", "shadow_step"]
+  skirmisher_boots [boots]: ["sidestep_slash", "hamstring_shot"]
+  cracked_lantern [trinket]: ["lantern_shot"]
+  boiled_leather [armor]: ["leather_roll", "rallying_breath"]
+  iron_cleaver [weapon]: ["cleaver_hook", "needle_flurry", "butcher_chop"]
+Command: graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX (zero-based), or leave.
+The work is complete.
+Run 0 | seed 91526 | mode room | HP 24/24 | embers 0 | deck 16
+Room (11,-5) | depth 11 | none graftwright
+Moves:
+  0: (11,-2) depth 11 none scavenger [outward, same depth]
+Command: move N
+GRAFTWRIGHT CONSOLE TEST: PASS
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)

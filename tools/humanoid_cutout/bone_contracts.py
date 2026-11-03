@@ -45,7 +45,7 @@ def target_chains(layout, values):
             for key in ('forward_px', 'lift_px', 'inward_px'))]
 
 
-def fk_world(layout, values, modes, forward, step):
+def fk_world(layout, values, modes, forward, step, clip=None):
     """Reconstruct the unsolved parent-relative target without runtime code."""
     result = {}
     joints = layout['joints']
@@ -63,6 +63,7 @@ def fk_world(layout, values, modes, forward, step):
         origin += [channels.get('lane_px', 0.), 0.]
         origin += forward * amount + [np.sign(joints['root']['position'][0] - position[0]) *
                                       channels.get('inward_px', 0.), -channels.get('lift_px', 0.)]
+        if name in layout.get('screen_lift_bones', {}).get(clip, []):origin[1] -= forward[1] * amount
         angle = math.radians(channels.get('lean_deg', 0.) + channels.get('swing_deg', 0.))
         c, s = math.cos(angle), math.sin(angle)
         local = np.array([[c, -s, origin[0]], [s, c, origin[1]], [0., 0., 1.]])
@@ -81,7 +82,7 @@ def fk_world(layout, values, modes, forward, step):
     return result
 
 
-def ik_errors(layout, bones, chain, fk, epsilon, anatomy):
+def ik_errors(layout, bones, chain, fk, epsilon, anatomy, elbow_policy=None, forward=None):
     names = [chain[key] for key in ('first', 'second', 'target')]
     a, b, c = [np.asarray(bones[n]['global'][4:]) for n in names]
     ra, rb, rc = [np.asarray(layout['joints'][n]['position']) for n in names]
@@ -91,6 +92,9 @@ def ik_errors(layout, bones, chain, fk, epsilon, anatomy):
         errors.append('IK length: ' + names[-1])
     def cross(u, v): return u[0] * v[1] - u[1] * v[0]
     expected_side = np.sign(cross(rc-ra, rb-ra))
+    if (elbow_policy and layout['facing'] in elbow_policy['views'] and
+            names[-1].startswith('hand_') and names[-1].split('_')[-1] in elbow_policy['sides']):
+        expected_side = np.sign(forward[0])
     if names[-1].startswith('foot_'):
         expected_side = leg_bend_side(layout, anatomy, names[-1].split('_')[-1], layout['facing'])
     # Cross products have squared-pixel units. Scale the serialized position

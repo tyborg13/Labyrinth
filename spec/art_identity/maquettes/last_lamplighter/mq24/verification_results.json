@@ -1,0 +1,112 @@
+{
+  "status": "ACCEPTED_FEEDBACK3_GATES_VERIFIED",
+  "accepted": true,
+  "reviewed_base_commit": "167b89f7e1ec98415f572f199afe9db9cce69185",
+  "requirements": {
+    "1_required_columns": "Complete projected lower-grip-ring, held-chain and cap-ring regions in the unoccluded native lantern solo define required columns. Depth-tested visibility never removes a required column. All 30 columns pass in each view. Hiding front column 722, or 722\u2013724, fails.",
+    "2_far_palm_orientation": "Native palm normal is recovered from live oval topology. Body-backward canonical -X is projected perpendicular to live elbow\u2013wrist endpoints, independently of hand constructor axes. Angle must be zero within the existing 0.1-degree tolerance; native error is 0.000143327211 degrees. A complete 180-degree far-hand rotation fails.",
+    "3_current_entry_points": "README and this report describe accepted=true. Prior current reports, bindings and regeneration receipts are retained under history/mq25_feedback2; earlier rounds remain historical.",
+    "accepted_delivery": "Existing accepted capture pixels are unchanged. Fresh copied-source compilation and native geometry build/audit pass current gates, retain every mesh hash, and reseal the delivery and regeneration bindings.",
+    "protected_files": "57 source pieces, 57 native mesh hashes, 247 protected inputs and all 308 checked capture/sidecar files are byte-identical. Paint jobs, prompts and mq20 are unchanged.",
+    "proof_scope": "Focused tests only; no full suite, windowed run, recapture, Git write, commit, peer review or sign-off."
+  },
+  "tests": {
+    "mq24": {
+      "command": "python3 -B -m unittest tests.test_mq24_maquette",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 53 tests in 31.261s",
+        "OK"
+      ],
+      "log": "feedback3_validation/mq24_tests.log"
+    },
+    "mq20": {
+      "command": "python3 -B -m unittest tests.test_mq20_maquette",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 35 tests in 31.041s",
+        "OK"
+      ],
+      "log": "feedback3_validation/mq20_tests.log"
+    },
+    "delivery_and_sidecars": {
+      "command": "python3 -B -m unittest spec.art_identity.maquettes.blender.test_delivery_validation tests.test_godot_sidecars",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 30 tests in 6.372s",
+        "OK",
+        "GODOT SIDECARS: gitignored exemptions = 2151"
+      ],
+      "log": "feedback3_validation/delivery_sidecars.log"
+    },
+    "art_identity": {
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 111 tests in 67.838s",
+        "OK"
+      ],
+      "log": "feedback3_validation/art_identity.log"
+    },
+    "mq24_verify": {
+      "command": "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq24.proof verify --capture spec/art_identity/maquettes/last_lamplighter/mq24/delivery --regeneration spec/art_identity/maquettes/last_lamplighter/mq24/delivery/validation/regeneration",
+      "exit_code": 0,
+      "result_lines": [
+        "MQ24_HASH_BOUND_DELIVERY: PASS; regeneration verified"
+      ],
+      "log": "feedback3_validation/mq24_verify.log"
+    },
+    "mq20_verify": {
+      "command": "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq20.proof verify",
+      "exit_code": 0,
+      "result_lines": [
+        "MQ20_HASH_BOUND_DELIVERY: PASS"
+      ],
+      "log": "feedback3_validation/mq20_verify.log"
+    },
+    "gate_revalidation": {
+      "command": "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq24.proof revalidate --out spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-feedback3-revalidation --capture spec/art_identity/maquettes/last_lamplighter/mq24/delivery --regeneration spec/art_identity/maquettes/last_lamplighter/mq24/delivery/validation/regeneration",
+      "exit_code": 0,
+      "result_lines": [
+        "MQ24_HASH_BOUND_DELIVERY: PASS; regeneration verified",
+        "MQ24_GATE_REVALIDATION: PASS; captures_byte_identical=true; native_meshes=57"
+      ],
+      "log": "feedback3_validation/revalidation.log"
+    },
+    "resource_audit": {
+      "command": "python3 -B tools/run_python_suite.py --shards 4 --audit-only --output-dir spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-feedback3-resource-audit",
+      "exit_code": 0,
+      "result_lines": [
+        "ISOLATION AUDIT: 236 modules; /Users/borgerding/workspace/Labyrinth.worktrees/mq-25/spec/art_identity/maquettes/last_lamplighter/mq24/proof/mq25-feedback3-resource-audit/isolation-audit.md"
+      ],
+      "log": "feedback3_validation/resource_audit.log"
+    }
+  },
+  "focused_test_total": 229,
+  "regressions": "feedback3_validation/regressions.json",
+  "geometry": "feedback3_validation/geometry_preservation.json",
+  "complete_mesh_hash_list": "ratification_validation/geometry_sha256.md",
+  "native_capture_acceptance": "delivery/mq24_acceptance.json",
+  "gate_revalidation": "delivery/validation/gate_revalidation.json",
+  "native_mutation_table": "feedback3_validation/mutation_table.md",
+  "native_segment_lengths": "feedback3_validation/segment_lengths.md",
+  "todo_design_fields": [],
+  "chosen_defaults": {
+    "new_player_visible_values": null,
+    "body_backward_axis": "Established maquette coordinate reference -X; existing 0.1-degree tolerance, no new design value.",
+    "test_mutations": "Director-specified front columns [722] and [722,723,724], and complete far-hand reversal of 180 degrees. Stored in FIXTURE_DEFAULTS.",
+    "gate_only_input_allowlist": [
+      "capture_gate.py",
+      "rule_measure.py",
+      "proof.py",
+      "revalidation.py"
+    ],
+    "proof_output_path": "proof/mq25-feedback3-revalidation"
+  },
+  "proof_for_design_owner": {
+    "captures": "delivery/contact_sheet.webp and delivery/{front,rear}_hand_{near,far}_3x.png",
+    "windowed_commands": [],
+    "inspection_fixture": "Not applicable: offline native maquette; no Godot UI scene or playable save. Existing 1088px native captures supply proof. No windowed command or new ID capture was needed."
+  },
+  "open_issues": []
+}

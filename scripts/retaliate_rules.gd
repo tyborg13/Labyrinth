@@ -6,10 +6,13 @@ class_name RetaliateRules
 ## takes the Retaliate amount as non-direct damage (Block/Stoneskin absorb; no
 ## Chill/Freeze multiplier or Expose) and the riders (Bleed adds, Shock and
 ## Push). Rite `thorns` effects are a permanent Retaliate that stacks with it.
-## Triggers once per enemy attack. Kills pay death rewards but no card play.
+## Enemy owners use the same lifetime and flat-damage rules against hero
+## attacks, with no relic thorns. Each owner clears at its own turn start.
+## Triggers once per attack. Kills pay death rewards but no card play.
 ## See spec/card_keywords_wave3.md.
 
 const Data = preload("res://scripts/game_data.gd")
+const Glossary = preload("res://scripts/glossary.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const DefenseRelicRules = preload("res://scripts/defense_relic_rules.gd")
@@ -69,7 +72,7 @@ static func is_melee_hit(engine: RefCounted, state: Dictionary, attacker: Dictio
 
 ## Hooked after the enemy->player hit loop in CombatEngine._resolve_board_attack,
 ## inside its damage batch so deaths flush with this context.
-static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: int, action: Dictionary, struck_tile: Vector2i = Vector2i(-999999, -999999)) -> Dictionary:
+static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: int, action: Dictionary, struck_tile: Vector2i = Vector2i(-999999, -999999), trace: Dictionary = {}) -> Dictionary:
 	var player: Dictionary = state.get("player", {}) as Dictionary
 	if int(player.get("hp", 0)) <= 0:
 		return state
@@ -82,6 +85,8 @@ static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: 
 	var before: Dictionary = engine._normalized_enemy((state.get("enemies", []) as Array)[index])
 	if int(before.get("hp", 0)) <= 0 or not is_melee_hit(engine, state, before, action, struck_tile):
 		return state
+	engine._resolver_journal("begin", state, {"kind": "retaliate", "id": attacker_id})
+	var reaction_before: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").capture(trace, state)
 	var previous_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 	var context: Dictionary = {"actor_kind": "player", "actor_id": -1, "source_kind": "retaliate", "player_card": false, "causal_owner": "player", "target_enemy_id": attacker_id}
 	state["damage_context"] = context
@@ -101,7 +106,7 @@ static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: 
 	if int(rider["bleed"]) > 0 or int(rider["shock"]) > 0 or int(rider["push"]) > 0:
 		state = engine._apply_action_keywords_to_enemy(state, index, rider, player_pos, true)
 	var after: Dictionary = engine._surface_actor(state, "enemy", attacker_id)
-	Surfaces.record_event(state, {
+	var event: Dictionary = {
 		"kind": EVENT_KIND,
 		"enemy_id": attacker_id,
 		"actor_key": engine._enemy_key(before),
@@ -120,9 +125,90 @@ static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: 
 		"attacker_before": {"pos": before.get("pos", Vector2i.ZERO), "hp": int(before.get("hp", 0)), "block": int(before.get("block", 0)), "stoneskin": int(before.get("stoneskin", 0))},
 		"sources": (total.get("sources", []) as Array).duplicate(),
 		"source": context.duplicate(true)
-	})
+	}
+	var owner: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").capture_owner(engine, trace, reaction_before, state)
+	var realized: Dictionary = owner.get("losses", {})
+	event.merge(realized, true)
+	Surfaces.record_event(state, event)
+	owner["sequence"] = int(state.get("surface_event_sequence", 0))
+	engine._resolver_journal("end", state)
+	preload("res://scripts/reaction_presentation_trace.gd").reaction_finished(engine, trace, owner, state)
 	state["damage_context"] = previous_context
 	return state
+
+## Range is sampled at impact, before the attack moves either participant.
+static func is_close_player_hit(engine: RefCounted, defender: Dictionary, action: Dictionary, origin: Vector2i) -> bool:
+	if str(action.get("type", "")) == "melee": return true
+	for tile: Vector2i in engine._enemy_footprint_tiles(defender):
+		if Paths.manhattan(origin, tile) <= 1: return true
+	return false
+
+## Board attacks and Detonate collect positive hits before displacement, then
+## react once per surviving defender after the whole attack has resolved.
+static func collect_player_hit(engine: RefCounted, state: Dictionary, defenders: Dictionary, defender_id: int, action: Dictionary, origin: Vector2i, damage: int) -> void:
+	if damage <= 0: return
+	var defender: Dictionary = engine._surface_actor(state, "enemy", defender_id)
+	if defender.has(STATE_KEY) and is_close_player_hit(engine, defender, action, origin): defenders[defender_id] = true
+
+static func after_player_hits(engine: RefCounted, state: Dictionary, defenders: Dictionary, action: Dictionary, trace: Dictionary = {}) -> Dictionary:
+	for defender_id: int in defenders:
+		state = after_player_hit(engine, state, defender_id, action, trace)
+	return state
+
+## The shared attack hooks call this once per struck defender, after their hit
+## loop. Non-direct damage uses normal defense but excludes incoming modifiers.
+static func after_player_hit(engine: RefCounted, state: Dictionary, defender_id: int, action: Dictionary, trace: Dictionary = {}) -> Dictionary:
+	var defender: Dictionary = engine._surface_actor(state, "enemy", defender_id)
+	var total: Dictionary = totals(defender, [])
+	var before: Dictionary = (state.get("player", {}) as Dictionary).duplicate(true)
+	if int(defender.get("hp", 0)) <= 0 or int(before.get("hp", 0)) <= 0 or not bool(total.get("active", false)): return state
+	engine._resolver_journal("begin", state, {"kind": "retaliate", "id": defender_id})
+	var reaction_before: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").capture(trace, state)
+	var previous_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
+	var context: Dictionary = {"actor_kind": "enemy", "actor_id": defender_id, "enemy_type": str(defender.get("type", "")), "intent_id": str((defender.get("intent", {}) as Dictionary).get("id", "")), "source_kind": "retaliate", "player_card": false, "causal_owner": "enemy"}
+	state["damage_context"] = context
+	state = engine._damage_player(state, int(total["amount"]), false, false, "retaliate")
+	var rider: Dictionary = {"type": "retaliate", "bleed": int(total["bleed"]), "shock": int(total["shock"]), "push": int(total["push"])}
+	if int(rider["bleed"]) > 0 or int(rider["shock"]) > 0 or int(rider["push"]) > 0:
+		state = engine._apply_action_keywords_to_target(state, {"kind": "player", "id": -1}, rider, engine._closest_enemy_tile_to(defender, before.get("pos", Vector2i.ZERO)))
+	var after: Dictionary = state["player"]
+	var event: Dictionary = {
+		"kind": EVENT_KIND,
+		"enemy_id": defender_id,
+		"actor_kind": "enemy",
+		"actor_key": "player",
+		"target_kind": "player",
+		"attack_type": str(action.get("type", "")),
+		"damage": int(total["amount"]),
+		"thorns": 0,
+		"hp_loss": maxi(0, int(before["hp"]) - int(after["hp"])),
+		"block_loss": maxi(0, int(before.get("block", 0)) - int(after.get("block", 0))),
+		"stoneskin_loss": maxi(0, int(before.get("stoneskin", 0)) - int(after.get("stoneskin", 0))),
+		"bleed": int(rider["bleed"]),
+		"shock": int(rider["shock"]),
+		"push": int(rider["push"]),
+		"from": before["pos"],
+		"to": after["pos"],
+		"killed": int(after["hp"]) <= 0,
+		"attacker_before": before,
+		"sources": total["sources"],
+		"source": context
+	}
+	var owner: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").capture_owner(engine, trace, reaction_before, state)
+	event.merge(owner.get("losses", {}), true)
+	Surfaces.record_event(state, event)
+	owner["sequence"] = int(state.get("surface_event_sequence", 0))
+	engine._resolver_journal("end", state)
+	preload("res://scripts/reaction_presentation_trace.gd").reaction_finished(engine, trace, owner, state)
+	state["damage_context"] = previous_context
+	return state
+
+static func enemy_badges(enemy: Dictionary) -> Array[Dictionary]:
+	var badges: Array[Dictionary] = player_badges(enemy, [])
+	for badge: Dictionary in badges:
+		badge["status_class"] = "buff"
+		badge["tooltip"] = "Retaliate %d\n%s" % [int(totals(enemy, [])["amount"]), Glossary.definition("retaliate")]
+	return badges
 
 static func events_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []

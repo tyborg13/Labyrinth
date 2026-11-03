@@ -208,7 +208,7 @@ static func note_enemy_hit(engine: RefCounted, state: Dictionary, struck: Dictio
 	struck[illusion_id] = entry
 
 ## Once per enemy attack, inside its damage batch (next to Retaliate).
-static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: int, struck: Dictionary) -> Dictionary:
+static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: int, struck: Dictionary, trace: Dictionary = {}) -> Dictionary:
 	var ids: Array = struck.keys()
 	ids.sort()
 	for id_var: Variant in ids:
@@ -217,18 +217,20 @@ static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: 
 		var entry: Dictionary = struck[id_var] as Dictionary
 		var on_damaged: Dictionary = illusion.get("on_damaged", {}) as Dictionary if typeof(illusion.get("on_damaged", null)) == TYPE_DICTIONARY else {}
 		if not on_damaged.is_empty():
-			state = _retort(engine, state, attacker_id, illusion, entry, "on_damaged", int(on_damaged.get("damage", 0)), str(on_damaged.get("element", "none")), int(on_damaged.get("shock", 0)))
+			state = _retort(engine, state, attacker_id, illusion, entry, "on_damaged", int(on_damaged.get("damage", 0)), str(on_damaged.get("element", "none")), int(on_damaged.get("shock", 0)), trace)
 		if bool(illusion.get("reflect", false)):
-			state = _retort(engine, state, attacker_id, illusion, entry, "reflect", int(entry.get("damage", 0)), "none", 0)
+			state = _retort(engine, state, attacker_id, illusion, entry, "reflect", int(entry.get("damage", 0)), "none", 0, trace)
 	return state
 
-static func _retort(engine: RefCounted, state: Dictionary, attacker_id: int, illusion: Dictionary, entry: Dictionary, trait_id: String, amount: int, element: String, shock: int) -> Dictionary:
+static func _retort(engine: RefCounted, state: Dictionary, attacker_id: int, illusion: Dictionary, entry: Dictionary, trait_id: String, amount: int, element: String, shock: int, trace: Dictionary = {}) -> Dictionary:
 	var index: int = engine._enemy_index_for_id(state, attacker_id)
 	if index < 0:
 		return state
 	var before: Dictionary = engine._normalized_enemy((state.get("enemies", []) as Array)[index])
 	if int(before.get("hp", 0)) <= 0 or (amount <= 0 and shock <= 0):
 		return state
+	engine._resolver_journal("begin", state, {"kind": "illusion_retort", "id": attacker_id})
+	var reaction_before: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").capture(trace, state)
 	var previous_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 	var context: Dictionary = {"actor_kind": "player", "actor_id": -1, "source_kind": RETORT_EVENT, "player_card": false, "causal_owner": "player", "target_enemy_id": attacker_id, "illusion_id": int(illusion.get("id", -1)), "trait": trait_id, "element": element, "card_id": str(illusion.get("source_card_id", ""))}
 	state["damage_context"] = context
@@ -238,7 +240,7 @@ static func _retort(engine: RefCounted, state: Dictionary, attacker_id: int, ill
 	if shock > 0:
 		state = engine._apply_action_keywords_to_enemy(state, index, {"type": RETORT_EVENT, "shock": shock, "element": element}, illusion_tile, true)
 	var after: Dictionary = engine._surface_actor(state, "enemy", attacker_id)
-	Surfaces.record_event(state, {
+	var event: Dictionary = {
 		"kind": RETORT_EVENT,
 		"trait": trait_id,
 		"enemy_id": attacker_id,
@@ -256,7 +258,14 @@ static func _retort(engine: RefCounted, state: Dictionary, attacker_id: int, ill
 		"killed": int(after.get("hp", 0)) <= 0,
 		"attacker_before": {"pos": before.get("pos", Vector2i.ZERO), "hp": int(before.get("hp", 0)), "block": int(before.get("block", 0)), "stoneskin": int(before.get("stoneskin", 0))},
 		"source": context.duplicate(true)
-	})
+	}
+	var owner: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").capture_owner(engine, trace, reaction_before, state)
+	var realized: Dictionary = owner.get("losses", {})
+	event.merge(realized, true)
+	Surfaces.record_event(state, event)
+	owner["sequence"] = int(state.get("surface_event_sequence", 0))
+	engine._resolver_journal("end", state)
+	preload("res://scripts/reaction_presentation_trace.gd").reaction_finished(engine, trace, owner, state)
 	state["damage_context"] = previous_context
 	return state
 

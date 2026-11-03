@@ -263,7 +263,7 @@ def rigid_shell(piece, spec):
         from .rigid_clearance import fit
         fit(obj, piece, spec)
     for polygon in obj.data.polygons:
-        polygon.use_smooth = True
+        polygon.use_smooth = polygon.index not in piece.get('flat_faces', [])
     return obj
 
 

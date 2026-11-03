@@ -57,6 +57,7 @@ static func damage_entry(
 	color: Color,
 	overrides: Dictionary = {}
 ) -> Dictionary:
+	var hit_scale: float = damage_hit_scale(absi(text.to_int()))
 	var entry: Dictionary = {
 		"kind": KIND_DAMAGE,
 		"tile": tile,
@@ -70,9 +71,19 @@ static func damage_entry(
 		"shadow_offset": Vector2(2.0, 4.0),
 		"shadow_color": Color(0.06, 0.01, 0.01, 0.78),
 		"alignment": HORIZONTAL_ALIGNMENT_CENTER,
+		"hit_scale": hit_scale,
+		# A bigger number grows down into the body, not up into the health bars,
+		# which would shove it off its target.
+		"offset": maxf(0.0, hit_scale - 1.0) * DAMAGE_PEAK_FONT_SIZE * 0.8,
 	}
 	entry.merge(overrides, true)
 	return entry
+
+
+# A bigger hit throws a bigger number. These are the hit-stop's and the screen
+# shake's damage steps, so the number, the freeze and the shake agree on a hit.
+static func damage_hit_scale(amount: int) -> float:
+	return 0.8 if amount <= 3 else 1.0 if amount <= 7 else 1.25 if amount <= 11 else 1.5
 
 
 static func is_damage_entry(entry: Dictionary) -> bool:
@@ -218,8 +229,9 @@ static func animate_entry(base_entry: Dictionary, progress: float, reduced_motio
 
 static func _animate_damage_entry(entry: Dictionary, t: float, reduced_motion: bool) -> Dictionary:
 	var base_font_size: int = int(entry.get("font_size", DAMAGE_BASE_FONT_SIZE))
+	var hit_scale: float = float(entry.get("hit_scale", 1.0))
 	if reduced_motion:
-		entry["font_size"] = maxi(base_font_size, DAMAGE_REDUCED_MOTION_FONT_SIZE)
+		entry["font_size"] = roundi(maxi(base_font_size, DAMAGE_REDUCED_MOTION_FONT_SIZE) * hit_scale)
 		entry["font_scale"] = 1.0
 		entry["outline_size"] = maxi(int(entry.get("outline_size", DAMAGE_OUTLINE_SIZE)), DAMAGE_OUTLINE_SIZE)
 		entry["alpha"] = _alpha_for_progress(t, DAMAGE_REDUCED_FADE_START)
@@ -235,11 +247,11 @@ static func _animate_damage_entry(entry: Dictionary, t: float, reduced_motion: b
 	else:
 		var exit_t: float = clampf((t - DAMAGE_SETTLE_PROGRESS) / (1.0 - DAMAGE_SETTLE_PROGRESS), 0.0, 1.0)
 		animated_font_size = lerpf(float(base_font_size), float(exit_font_size), smoothstep(0.0, 1.0, exit_t))
-	entry["font_size"] = peak_font_size
+	entry["font_size"] = roundi(peak_font_size * hit_scale)
 	entry["font_scale"] = animated_font_size / float(maxi(1, peak_font_size))
-	entry["outline_size"] = 6
+	entry["outline_size"] = roundi(6.0 * sqrt(hit_scale))
 	entry["alpha"] = _alpha_for_progress(t, DAMAGE_FADE_START)
-	_prepare_scaled_icon(entry, float(peak_font_size) / float(maxi(1, base_font_size)))
+	_prepare_scaled_icon(entry, hit_scale * float(peak_font_size) / float(maxi(1, base_font_size)))
 	return entry
 
 

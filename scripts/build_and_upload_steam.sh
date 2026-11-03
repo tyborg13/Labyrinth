@@ -436,7 +436,8 @@ build_description() {
 }
 
 godot_version_raw() {
-	"${GODOT_BINARY}" --version | head -n1
+	python3 "${PROJECT_ROOT}/tools/godot_task_runner.py" --project "${PROJECT_ROOT}" --task-id steam-export --stream -- \
+		"${GODOT_BINARY}" --version | grep -E '^[0-9]+\.[0-9]+' | head -n1
 }
 
 godot_template_version() {
@@ -591,10 +592,9 @@ export_platform() {
 	log "Exporting ${platform} build with preset '${preset_name}'."
 	rm -rf "${staging_parent_dir}"
 	ensure_dir "${staging_parent_dir}"
-	(
-		cd "${EXPORT_PROJECT_ROOT}"
-		"${GODOT_BINARY}" --headless --path . --export-release "${preset_name}" "${staging_path}"
-	)
+	python3 "${PROJECT_ROOT}/tools/export_game.py" --task-id steam-export \
+		--godot "${GODOT_BINARY}" --project "${EXPORT_PROJECT_ROOT}" \
+		--preset "${preset_name}" --output "${staging_path}"
 	if [[ "${platform}" == "linux" && -f "${staging_path}" ]]; then
 		chmod +x "${staging_path}"
 	fi
@@ -674,6 +674,10 @@ validate_exported_pck() {
 		if [[ -n "${matches}" ]]; then
 			fail "Exported ${platform} PCK includes development-only resources: ${matches//$'\n'/, }"
 		fi
+		# Derives the expected stamp/inventory from current inputs, including
+		# in upload-only mode; matching old packed hashes are insufficient.
+		python3 "${PROJECT_ROOT}/tools/cel_look_export.py" --task-id steam-export \
+			--godot "${GODOT_BINARY}" "${pck_path}"
 	done <<< "${pck_paths}"
 }
 
@@ -917,6 +921,10 @@ main() {
 
 	if [[ "${MODE}" != "upload-only" ]]; then
 		ensure_godot_templates
+		# Generate before rsync so sanitized Steam and playtest exports contain
+		# the exact current variants. The export wrapper validates the copy too.
+		python3 "${PROJECT_ROOT}/tools/cel_look.py" build --if-stale
+		python3 "${PROJECT_ROOT}/tools/cel_look.py" status
 		prepare_export_project
 		rm -rf "${CONTENT_ROOT}" "${EXPORT_STAGING_ROOT}"
 		ensure_dir "${CONTENT_ROOT}"

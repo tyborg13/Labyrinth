@@ -4,7 +4,6 @@ const Combat = preload("res://scripts/combat_engine.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Fixtures = preload("res://tests/suites/en03_enemies_suite.gd")
 const Capacitor = preload("res://scripts/enemy_mechanics/capacitor.gd")
-const Mimic = preload("res://scripts/enemy_mechanics/mimic.gd")
 const CapacitorView = preload("res://scripts/enemy_mechanics/capacitor_view.gd")
 const Board = preload("res://scripts/combat_board_view.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
@@ -38,11 +37,9 @@ static func capacitor(charge: int = 3) -> Dictionary:
 	value["enemies"][0]["charge"] = charge
 	return value
 
-static func mirror(card: String = "whirlwind_slash", pos: Vector2i = Vector2i(6, 4), hero: Vector2i = Vector2i(4, 4)) -> Dictionary:
-	var value: Dictionary = state([enemy("hollow_mimic", 1, pos, "shade_bolt")], hero)
-	value[Mimic.HISTORY_KEY] = card
-	value["enemies"][0]["intent"] = Combat.new()._surface_prepare_enemy_intent(value, value["enemies"][0], Data.enemy_def("hollow_mimic")["intents"][0])
-	return value
+# Legacy art/probe callers retain their fixture signature; live combat is Echo.
+static func mirror(_card: String = "", pos: Vector2i = Vector2i(6, 4), hero: Vector2i = Vector2i(4, 4)) -> Dictionary:
+	return state([enemy("hollow_mimic", 1, pos, "echo")], hero)
 
 static func resolve_action(value: Dictionary, action: Dictionary = {}) -> Dictionary:
 	var engine := Combat.new()
@@ -57,7 +54,7 @@ static func run(expect: Callable) -> void:
 	_charge_and_grounded(expect)
 	_chain(expect)
 	_immobile(expect)
-	_mirror(expect)
+	preload("res://tests/suites/mim01_suite.gd").run(expect)
 	_preview_and_save(expect)
 	_ai_and_live_proof_states(expect)
 
@@ -67,10 +64,13 @@ static func _schema(expect: Callable) -> void:
 	var engine := Combat.new()
 	for id: String in ["storm_capacitor", "hollow_mimic"]:
 		var expected: Dictionary = staged[id].duplicate(true)
+		if id == "hollow_mimic":
+			expected["intents"][0] = JSON.parse_string('{"id":"echo","name":"Echo","time":6,"weight":3,"actions":[{"type":"ranged","damage":3,"range":4,"element":"shadow"},{"type":"retaliate","amount":3}]}')
+			expected["intents"][2]["actions"].resize(1) # Director feedback 1 removes Recede's Block.
 		if id == "storm_capacitor":
 			for intent: Dictionary in expected["intents"]:
 				if intent["id"] == "discharge": intent["name"] = "Arc Burst"
-		expect.call(expected == production[id], "%s equals the protected staged entry plus the approved Arc Burst name" % id)
+		expect.call(expected == production[id], "%s equals the protected staged entry plus the approved Echo and Arc Burst changes" % id)
 		for field: String in ["name", "max_hp", "base_initiative", "reward_embers", "accent", "art_path", "intents"]:
 			expect.call(production[id].has(field), "%s has required field %s" % [id, field])
 		var sprite: Texture2D = Assets.load_texture(production[id]["art_path"])
@@ -89,7 +89,7 @@ static func _schema(expect: Callable) -> void:
 		for entry: Dictionary in engine.current_turn_order(value):
 			if str(entry.get("type", "")) == id: found = true
 		expect.call(found, "%s participates in the actual turn clock" % id)
-	for key: String in ["charge", "mirror"]:
+	for key: String in ["charge", "retaliate"]:
 		expect.call(Icons.icon_texture(key) != null and Icons.icon_texture(key).get_size() == Vector2(64, 64), "%s approved icon decodes on 64 canvas" % key)
 
 static func _presentation_numbers_and_pips(expect: Callable) -> void:
@@ -104,9 +104,6 @@ static func _presentation_numbers_and_pips(expect: Callable) -> void:
 	expect.call(Badges.descriptor({"type": "gain_charge", "amount": 1.0})["number"] == "+1", "Charge pill keeps its positive sign with float input")
 	expect.call(Badges.descriptor({"type": "ranged", "damage": 6.0, "hits": 2.0})["number"] == "6×2", "Repeated computed damage stays integer in the shared badge path")
 	expect.call(Icons.token_value_text({"value": 6.0}) == "6" and Icons.token_value_text({"value": "+1"}) == "+1", "Expanded intent tokens normalize numeric floats and preserve authored text")
-	var value: Dictionary = mirror()
-	value["enemies"][0]["intent"]["actions"][0]["copy"]["damage"] = 8.0
-	expect.call(Badges.build(engine, value, value)["badges"][0]["number"] == "8", "Mimic computed copy uses the same integer pill path")
 	var health_frame := Rect2(100, 200, 80, 12)
 	var centers: Array[Vector2] = CapacitorView.pip_centers(health_frame)
 	expect.call(centers.size() == 3 and centers[1] == Vector2(140, 190), "Pip row is horizontally centred and 10px above the health-frame top")
@@ -134,7 +131,7 @@ static func _charge_and_grounded(expect: Callable) -> void:
 	var turn_result: Dictionary = engine.resolve_enemy_turn_with_steps(value, 0)
 	expect.call(turn_result["state"]["enemies"][0]["charge"] == 0 and turn_result["state"]["enemies"][0]["intent"]["id"] == "charge", "Discharge resets Charge and selects Charge afterward")
 	var badge: Dictionary = CapacitorView.badges(value["enemies"][0])[0]
-	expect.call(badge["icon"] == "charge" and badge["tooltip"] == "Charge\nGains Charge each use. At 3, its next intent is Arc Burst: lightning jumping between nearby units. Shock removes 1.\n3/3", "Charge status shares the intent icon and exact tooltip")
+	expect.call(badge["icon"] == "charge" and badge["tooltip"] == "Charge\nAt 3 Charge it unleashes Arc Burst; Shock removes 1.\n3/3", "Charge status shares the intent icon and exact tooltip")
 	var frozen: Dictionary = value.duplicate(true)
 	frozen["enemies"][0]["freeze"] = 1
 	expect.call(engine.resolve_enemy_turn_with_steps(frozen, 0)["state"]["enemies"][0]["charge"] == 3, "Skipped frozen activation preserves pips")
@@ -196,84 +193,10 @@ static func _immobile(expect: Callable) -> void:
 	expect.call(forced["enemies"][0]["pos"] == origin and forced["enemies"][0]["hp"] == value["enemies"][0]["hp"], "Immobile capacitor cannot be forced or take blocked-move collision damage")
 	for type: String in ["move_toward", "move_away"]:
 		expect.call(resolve_action(value, {"type": type, "range": 2})["state"]["enemies"][0]["pos"] == origin, "Immobile capacitor cannot execute %s" % type)
-	expect.call(Wind.anchored(value, "enemy", value["enemies"][0]), "Construct capacitor is anchored against wind")
+	expect.call(not Wind.anchored(value, "enemy", value["enemies"][0]), "Capacitor has no wind immunity")
+	var gusted: Dictionary = engine._force_move_actor(value.duplicate(true), "enemy", int(value["enemies"][0]["id"]), Vector2i.UP, 1, {}, true)
+	expect.call(gusted["enemies"][0]["pos"] == origin and gusted["enemies"][0]["hp"] == value["enemies"][0]["hp"], "Immobility alone holds the capacitor against the Gust's forced move")
 	expect.call(engine._enemy_actual_path_records(value, value["enemies"][0], 2).size() == 1, "AI path previews keep immobile units at their anchor")
-
-static func _mirror(expect: Callable) -> void:
-	var engine := Combat.new()
-	var value: Dictionary = state([enemy("hollow_mimic", 1, Vector2i(5, 4), "mirror")])
-	expect.call(value["enemies"][0]["intent"]["id"] == "shade_bolt", "No attack card yet falls back to Shade Bolt")
-	value = mirror("whirlwind_slash")
-	var intent: Dictionary = value["enemies"][0]["intent"]
-	expect.call(intent["name"] == "Mirror: Whirlwind Slash", "Mirror names the selected base card")
-	var copied: Dictionary = intent["actions"][0]["copy"]
-	expect.call(copied["damage"] == 8 and copied["pattern"] == Data.card_def("whirlwind_slash")["actions"][0]["pattern"], "Mirror preserves base damage and targeting pattern")
-	var result: Dictionary = resolve_action(value)
-	expect.call(result["state"]["player"]["hp"] == TEST_HERO_HP - 8 and result["state"]["enemies"][0]["pos"] == Vector2i(5, 4), "Self-centred area copy moves into range then hits for base eight")
-	expect.call(engine.enemy_threat_tiles(value, 0)["projected_attack"] == result["context"]["resolved_tiles"], "Mirror shape telegraph equals resolved tiles")
-	value = mirror("hurl_spear", Vector2i(7, 4), Vector2i(1, 4))
-	result = resolve_action(value)
-	expect.call(result["state"]["enemies"][0]["pos"] == Vector2i(5, 4) and result["state"]["player"]["hp"] == TEST_HERO_HP - 6, "Ranged copy uses card range four after a two-tile approach")
-	value = mirror("quick_stab", Vector2i(7, 4), Vector2i(1, 4))
-	result = resolve_action(value)
-	expect.call(value["enemies"][0]["intent"]["name"] == "Shade Bolt" and result["state"]["enemies"][0]["pos"] == Vector2i(5, 4) and result["state"]["player"]["hp"] == TEST_HERO_HP - 4, "Still outside copied range after Move two resolves Shade Bolt")
-	value = mirror("waning_pulse", Vector2i(5, 4))
-	var hero_tile: Vector2i = value["player"]["pos"]
-	result = resolve_action(value)
-	expect.call(result["state"]["player"]["pos"] == hero_tile and result["state"]["surfaces"] == value["surfaces"] and result["state"]["player"]["shock"] == 0, "Copy does not apply the original Push/surface/status riders")
-	expect.call(result["state"]["player"]["hp"] == TEST_HERO_HP - 3, "Copy damage ignores hypothetical hero relic/status bonuses")
-	value = mirror("hurl_spear", Vector2i(7, 4), Vector2i(1, 4))
-	value["enemies"][0]["shock"] = 1
-	result = engine.resolve_enemy_turn_with_steps(value, 0)
-	expect.call(result["state"]["enemies"][0]["pos"] == Vector2i(5, 4) and result["state"]["player"]["hp"] == TEST_HERO_HP, "Shocked compound Mirror retains its move and skips attack")
-	value = mirror("hurl_spear", Vector2i(7, 4), Vector2i(1, 4))
-	value["enemies"][0]["immobilize"] = true
-	result = engine.resolve_enemy_turn_with_steps(value, 0)
-	expect.call(result["state"]["enemies"][0]["pos"] == Vector2i(7, 4) and result["state"]["player"]["hp"] == TEST_HERO_HP, "Immobilize prevents copied-range approach")
-	value = mirror()
-	value[Mimic.HISTORY_KEY] = "quick_stab"
-	expect.call(resolve_action(value)["state"]["player"]["hp"] == TEST_HERO_HP - 8, "Revealed copy is frozen at intent selection despite a later attack card")
-	var attacks: Dictionary = state([enemy("hollow_mimic", 1, Vector2i(6, 4), "shade_bolt"), enemy("warden", 2, Vector2i(5, 4))])
-	var card_action: Dictionary = engine.card_play_actions("quick_stab", attacks)[0]
-	var attacked: Dictionary = engine.apply_player_action(attacks, card_action, Vector2i(5, 4))
-	expect.call(attacked.get(Mimic.HISTORY_KEY, "") == "quick_stab", "Actual hero card damage records combat-wide history")
-	attacked = engine.apply_player_action(attacked, {"type": "block", "amount": 2, "_card_id": "brace"}, Vector2i(-1, -1))
-	expect.call(attacked[Mimic.HISTORY_KEY] == "quick_stab", "Nonattack card does not replace history")
-	var miss: Dictionary = engine.apply_player_action(attacks, card_action, Vector2i(7, 7))
-	expect.call(not miss.has(Mimic.HISTORY_KEY), "Invalid/missed attacks do not enter the damage history")
-	var upgraded_state: Dictionary = attacks.duplicate(true)
-	upgraded_state["card_mods"] = {"quick_stab": [{"type": "damage", "amount": 3}]}
-	var modified: Dictionary = engine.card_play_actions("quick_stab", upgraded_state)[0]
-	modified["damage"] = 99 # Regression fixture stands for upgrades/relics/status bonuses.
-	var modified_after: Dictionary = engine.apply_player_action(upgraded_state, modified, Vector2i(5, 4))
-	var copied_base: Dictionary = Mimic.copy_attack(Mimic.base_card(str(modified_after.get(Mimic.HISTORY_KEY, ""))))
-	expect.call(copied_base.get("damage", 0) == 6, "Recorded empowered/upgraded attack copies the unmodified base six")
-	value = mirror("discharge")
-	expect.call(value["enemies"][0]["intent"]["name"] == "Mirror: Discharge" and value["enemies"][0]["intent"]["actions"][0]["copy"]["damage"] == 5, "Special targeting preserves Mirror name and base damage")
-	result = resolve_action(value)
-	expect.call(result["state"]["player"]["hp"] == TEST_HERO_HP - 5 and result["context"]["resolved_tiles"] == [value["player"]["pos"]], "Special targeting resolves the copied base damage as one ranged hit")
-	expect.call(engine.enemy_threat_tiles(value, 0)["projected_attack"] == result["context"]["resolved_tiles"], "Special-target copy forecast equals resolved single-target geometry")
-	_mirror_special_shapes(expect)
-
-static func _mirror_special_shapes(expect: Callable) -> void:
-	# Debug-only cards cover every special targeting family without changing data.
-	for type: String in ["discharge", "chain", "summon", "blink", "push", "pull", "surface"]:
-		var copy: Dictionary = Mimic.copy_attack({"element": "shadow", "actions": [{"type": type, "damage": 7.0, "range": 9, "push": 2, "shock": 3, "surface": "charged"}]})
-		expect.call(copy["type"] == "ranged" and copy["range"] == 4 and copy["damage"] == 7 and copy["element"] == "shadow", "%s targeting mirrors base damage as range-four single-target geometry" % type)
-		expect.call(not copy.has("push") and not copy.has("shock") and not copy.has("surface"), "%s copy omits all original riders" % type)
-	for target: String in ["self", "player"]:
-		var copy: Dictionary = Mimic.copy_attack({"actions": [{"type": "aoe", "target": target, "damage": 7, "pattern": [[0, 0], [1, 0]]}]})
-		expect.call(copy["type"] == "ranged" and copy["range"] == 4 and not copy.has("pattern"), "Explicit %s targeting uses Shade Bolt geometry" % target)
-	var chained: Dictionary = Mimic.copy_attack({"actions": [{"type": "ranged", "damage": 7, "range": 9, "chain": 2}]})
-	expect.call(chained["type"] == "ranged" and chained["range"] == 4 and not chained.has("chain"), "Chain rider converts a ranged attack to special range-four geometry")
-	var force_only: Dictionary = Mimic.copy_attack({"actions": [{"type": "push", "amount": 2}]})
-	expect.call(force_only["damage"] == 0 and force_only["range"] == 4 and force_only["type"] == "ranged", "Force-only card preserves zero base damage without copying collision riders")
-	var pattern: Array = [[0, 0], [1, 0], [2, 0]]
-	var first: Dictionary = Mimic.copy_attack({"actions": [{"type": "block", "amount": 2}, {"type": "aoe", "damage": 7, "range": 3, "pattern": pattern, "pattern_line": true, "shock": 2}, {"type": "ranged", "damage": 99, "range": 9}]})
-	expect.call(first["type"] == "aoe" and first["damage"] == 7 and first["pattern"] == pattern and first["range"] == 3 and first["pattern_line"], "Multiple damaging actions copy only the first damage and direct line shape")
-	expect.call(not first.has("shock"), "First damaging action still omits status riders")
-	var special_first: Dictionary = Mimic.copy_attack({"actions": [{"type": "discharge", "damage": 5}, {"type": "melee", "damage": 99}]})
-	expect.call(special_first["type"] == "ranged" and special_first["range"] == 4 and special_first["damage"] == 5, "First damaging action remains authoritative when it has special targeting")
 
 static func _preview_and_save(expect: Callable) -> void:
 	var engine := Combat.new()
@@ -286,12 +209,11 @@ static func _preview_and_save(expect: Callable) -> void:
 	var mirror_value: Dictionary = mirror()
 	value["enemies"].append(mirror_value["enemies"][0].duplicate(true))
 	value["enemies"][4]["id"] = 5
-	value[Mimic.HISTORY_KEY] = "whirlwind_slash"
 	var path: String = Store._run_storage_path
 	Store.set_run_storage_path("user://en06_roundtrip.save")
 	expect.call(Store.save_run_state({"mode": "combat", "combat_state": value}), "En06 mid-mechanic save writes")
 	var loaded: Dictionary = Store.load_saved_run().get("combat_state", {})
-	expect.call(loaded["enemies"][0]["charge"] == 3 and loaded[Mimic.HISTORY_KEY] == "whirlwind_slash" and loaded["enemies"][4]["intent"] == value["enemies"][4]["intent"], "Charge, history and selected copy round-trip through real saves")
+	expect.call(loaded["enemies"][0]["charge"] == 3 and loaded["enemies"][4]["intent"] == value["enemies"][4]["intent"], "Charge and selected Echo round-trip through real saves")
 	expect.call(resolve_action(loaded)["state"] == resolve_action(value)["state"], "Reloaded discharge resolves byte-identically")
 	Store.clear_saved_run()
 	Store.set_run_storage_path(path)
@@ -340,25 +262,8 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	Profile.mark("capacitor_hover")
 	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
 	expect.call(scene.board_view._damage_preview_map().get("enemy_2", {}).get("hp", -1) == int(value["enemies"][1]["hp"]) - 6, "Live RunScene shows capacitor friendly-fire HP preview")
-	expect.call(scene.board_view._unit_status_badges(value["enemies"][0])[0]["tooltip"] == "Charge\nGains Charge each use. At 3, its next intent is Arc Burst: lightning jumping between nearby units. Shock removes 1.\n3/3", "Live board exposes exact Charge badge tooltip")
-	value = mirror()
-	Profile.mark("mirror_install")
-	Fixtures.install(scene, value)
-	Profile.mark("mirror_settle")
-	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
-	scene._on_board_tile_hovered(value["enemies"][0]["pos"])
-	Profile.mark("mirror_hover")
-	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
-	expect.call(scene.board_view.enemy_intent_tooltip("enemy_1").contains("Mirror\nCopies your last damaging card at base damage, without its effects. The copy is fixed when declared.\nWhirlwind Slash: 8 damage."), "Live board exposes the exact copied-card tooltip")
-	var descriptor: Dictionary = Compass.descriptors_for_state(value, [1])["enemy_1"]
-	expect.call(descriptor["icon"] == "aoe" and descriptor["value"] == 8, "Copied area attack icon and base damage appear in the compass")
-	expect.call(scene.board_view._damage_preview_map().get("player", {}).get("hp", -1) == TEST_HERO_HP - 8, "Live Mirror preview shows its real moved-area outcome")
-	var mirrored_result: Dictionary = resolve_action(value)
-	var animated: Dictionary = value.duplicate(true)
-	Profile.mark("mirror_animation")
-	await preload("res://scripts/enemy_mechanics/mimic_view.gd").animate(scene, animated, mirrored_result["step"])
-	Profile.mark("mirror_animation_finished")
-	expect.call(animated["player"]["hp"] == mirrored_result["state"]["player"]["hp"] and animated["enemies"][0]["pos"] == mirrored_result["state"]["enemies"][0]["pos"], "Actual Mirror animation applies resolved movement and damage without resolving again")
+	expect.call(scene.board_view._unit_status_badges(value["enemies"][0])[0]["tooltip"] == "Charge\nAt 3 Charge it unleashes Arc Burst; Shock removes 1.\n3/3", "Live board exposes exact Charge badge tooltip")
+	var animated: Dictionary
 	value = capacitor()
 	Fixtures.install(scene, value)
 	var engine := Combat.new()
@@ -381,47 +286,13 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	Profile.mark("live_finished")
 
 static func mirror_after_play() -> Dictionary:
-	var engine := Combat.new()
-	var value: Dictionary = state([enemy("hollow_mimic", 1, Vector2i(6, 4), "shade_bolt"), enemy("warden", 2, Vector2i(3, 4))])
-	value["deck"]["hand"] = ["whirlwind_slash", "pale_spark"]
-	value = engine.apply_player_action(value, engine.card_play_actions("whirlwind_slash", value)[0], value["player"]["pos"])
-	value = engine.finish_player_card(value, 0)
-	value["enemies"][0]["intent"] = engine._surface_prepare_enemy_intent(value, value["enemies"][0], Data.enemy_def("hollow_mimic")["intents"][0])
-	return engine._initialize_initiative_queue(value)
+	return mirror()
 
 static func _ai_and_live_proof_states(expect: Callable) -> void:
 	var engine := Combat.new()
-	var seen: Dictionary = {}
-	for seed: int in range(24):
-		var value: Dictionary = mirror("quick_stab", Vector2i(5, 4))
-		var rng := RandomNumberGenerator.new()
-		rng.seed = seed
-		engine._assign_enemy_intent(value, 0, rng)
-		seen[value["enemies"][0]["intent"]["id"]] = true
-		var replay: Dictionary = mirror("quick_stab", Vector2i(5, 4))
-		rng.seed = seed
-		engine._assign_enemy_intent(replay, 0, rng)
-		expect.call(value["enemies"][0]["intent"] == replay["enemies"][0]["intent"], "Mimic selection is seeded and deterministic")
-	expect.call(seen.has("mirror") and seen.has("recede") and seen.has("shade_bolt"), "Mimic uses all three director-weighted legal intents")
-	var distant: Dictionary = mirror("quick_stab", Vector2i(7, 7), Vector2i(1, 1))
-	var rng := RandomNumberGenerator.new()
-	rng.seed = TEST_SEED
-	engine._assign_enemy_intent(distant, 0, rng)
-	expect.call(distant["enemies"][0]["intent"]["id"] == "recede", "AI filters attacks that cannot hit even after the copied approach/fallback")
-	var proof: Dictionary = mirror_after_play()
-	expect.call(proof.get(Mimic.HISTORY_KEY, "") == "whirlwind_slash" and proof["enemies"][0]["intent"]["name"] == "Mirror: Whirlwind Slash", "Windowed probe fixture genuinely played the damaging area card")
-	expect.call(resolve_action(proof)["state"]["player"]["hp"] == TEST_HERO_HP - 8, "Probe area-copy fixture resolves its advertised base damage")
 	var original: Dictionary = capacitor(2)
 	var windy: Dictionary = original.duplicate(true)
 	windy["wind"] = {"direction": Vector2i.UP, "rounds_left": 2, "source_id": 1, "push": 1}
 	var steps: Array[Dictionary]
 	windy = Wind.end_turn(engine, windy, steps)
 	expect.call(windy["enemies"][0]["pos"] == original["enemies"][0]["pos"], "Actual wind resolution leaves the construct at its anchor")
-	var mirrored: Dictionary = mirror("waning_pulse", Vector2i(5, 4))
-	var badge: Dictionary = preload("res://scripts/intent_badges.gd").build(engine, mirrored, mirrored)["badges"][0]
-	expect.call(badge["icon"] == "aoe" and badge["number"] == "3" and str(badge["secondary_icon"]).is_empty(), "Threats-at-rest pill reports copied damage/shape and no Push rider")
-	var blocked: Dictionary = mirror("hurl_spear", Vector2i(7, 4), Vector2i(1, 4))
-	blocked["grid"][4][4] = "wall"
-	var plan: Dictionary = engine.enemy_intent_plan(blocked, 0)
-	expect.call(not plan["projected_attack"].has(blocked["player"]["pos"]), "Copy respects line-of-sight after movement and fallback")
-

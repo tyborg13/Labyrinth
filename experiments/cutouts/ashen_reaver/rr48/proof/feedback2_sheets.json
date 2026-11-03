@@ -1,0 +1,315 @@
+{
+  "sheets": [
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 0,
+      "phase": 0.0,
+      "round1_findings": 0,
+      "current_findings": 0,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/front_idle_000.png",
+      "crop": [
+        203,
+        182,
+        438,
+        454
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 4,
+      "phase": 0.08,
+      "round1_findings": 16,
+      "current_findings": 0,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/front_move_004.png",
+      "crop": [
+        195,
+        187,
+        429,
+        465
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "rake",
+      "frame": 6,
+      "phase": 0.101694915254237,
+      "round1_findings": 18,
+      "current_findings": 2,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/front_rake_006.png",
+      "crop": [
+        191,
+        182,
+        439,
+        454
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "sweep",
+      "frame": 11,
+      "phase": 0.196428571428571,
+      "round1_findings": 22,
+      "current_findings": 0,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/front_sweep_011.png",
+      "crop": [
+        178,
+        182,
+        440,
+        454
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "fall",
+      "frame": 18,
+      "phase": 0.233766233766234,
+      "round1_findings": 17,
+      "current_findings": 1,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/front_fall_018.png",
+      "crop": [
+        170,
+        181,
+        441,
+        454
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 3,
+      "phase": 0.103448275862069,
+      "round1_findings": 12,
+      "current_findings": 0,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/front_hit_003.png",
+      "crop": [
+        210,
+        182,
+        441,
+        454
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 26,
+      "phase": 0.273684210526316,
+      "round1_findings": 16,
+      "current_findings": 0,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/front_death_026.png",
+      "crop": [
+        202,
+        183,
+        440,
+        454
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "idle",
+      "frame": 0,
+      "phase": 0.0,
+      "round1_findings": 0,
+      "current_findings": 0,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/rear_idle_000.png",
+      "crop": [
+        218,
+        184,
+        422,
+        454
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "phase": 0.36,
+      "round1_findings": 22,
+      "current_findings": 0,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/rear_move_018.png",
+      "crop": [
+        257,
+        205,
+        453,
+        476
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "rake",
+      "frame": 53,
+      "phase": 0.898305084745763,
+      "round1_findings": 17,
+      "current_findings": 0,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/rear_rake_053.png",
+      "crop": [
+        220,
+        186,
+        421,
+        454
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "sweep",
+      "frame": 19,
+      "phase": 0.339285714285714,
+      "round1_findings": 20,
+      "current_findings": 1,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/rear_sweep_019.png",
+      "crop": [
+        217,
+        185,
+        444,
+        454
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "fall",
+      "frame": 24,
+      "phase": 0.311688311688312,
+      "round1_findings": 22,
+      "current_findings": 0,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/rear_fall_024.png",
+      "crop": [
+        215,
+        180,
+        446,
+        454
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 8,
+      "phase": 0.275862068965517,
+      "round1_findings": 15,
+      "current_findings": 0,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/rear_hit_008.png",
+      "crop": [
+        215,
+        182,
+        418,
+        454
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 44,
+      "phase": 0.463157894736842,
+      "round1_findings": 20,
+      "current_findings": 1,
+      "panels": [
+        "round1 clean",
+        "round1 overlay",
+        "feedback2 clean",
+        "feedback2 overlay"
+      ],
+      "file": "proof/seam_cpu/feedback2_compare/rear_death_044.png",
+      "crop": [
+        222,
+        188,
+        424,
+        454
+      ]
+    }
+  ],
+  "native_pixels": false,
+  "defaults": {
+    "padding_px": 16,
+    "gutter_px": 8,
+    "matte_rgba": [
+      30,
+      30,
+      36,
+      255
+    ],
+    "overlay_rgba": [
+      255,
+      0,
+      190,
+      255
+    ]
+  }
+}

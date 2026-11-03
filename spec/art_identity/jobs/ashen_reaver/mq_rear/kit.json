@@ -1,0 +1,55 @@
+{
+ "K": 4,
+ "anatomy": "biped",
+ "edit_prompt_path": "edit_prompt_1.md",
+ "edit_prompt_sha256": "97e6544cda103fadbc001a64c659e41d465b5686809a4c549c97d6461aa4a3ee",
+ "id": "ashen_reaver",
+ "job_id": "img-ashen-reaver-rear",
+ "kind": "creature",
+ "kit_kind": "maquette",
+ "kit_version": "c8508c8b53102f4d842049997824277484e2560c0b99eef7a2f7caacb94e5410",
+ "method": "maquette paint-over rear (mq-16 r2) from the approved front; edit 1 (edit_prompt_1.md: true rear details)",
+ "peers": [
+  "slag_mortar_rear",
+  "grave_surgeon_rear"
+ ],
+ "prompt_path": "prompt.md",
+ "prompt_sha256": "328b7c47051ba3efb430791ba61911ba7929821f4a601e83118c700208556246",
+ "prompt_source": "spec/art_identity/maquettes/ashen_reaver/prompt_rear.md",
+ "refs": [
+  {
+   "canon_id": "maquette_mq16_rear_parts",
+   "file": "refs/01_maquette_rear_parts.png",
+   "pixel_sha256": "6f9ac68cbe1825f054f811693c5c85350f2bea478b7e819e34f463c6f8083ba5",
+   "role": "maquette_parts"
+  },
+  {
+   "canon_id": "maquette_mq16_rear_clay",
+   "file": "refs/02_maquette_rear_clay.png",
+   "pixel_sha256": "55546ecf2025035176d13f1716fd8f3872e0cad579c456e5183316352d00324d",
+   "role": "maquette_clay"
+  },
+  {
+   "canon_id": "approved_reaver_mq_front",
+   "file": "refs/03_approved_front.png",
+   "pixel_sha256": "5ac3937893c49f226b07111f4248d59d19eea2ce6f0a0e238b079a279eb9d528",
+   "role": "identity"
+  },
+  {
+   "canon_id": "slag_mortar_rear",
+   "file": "refs/04_slag_mortar_rear.png",
+   "pixel_sha256": "b26103de97fd815c20433be291cfb83ac216f2fbdb1b8e8da0f0b3b084fee0ae",
+   "role": "canon"
+  },
+  {
+   "canon_id": "hero_rear",
+   "file": "refs/05_hero_rear.png",
+   "pixel_sha256": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af",
+   "role": "canon"
+  }
+ ],
+ "size_class": "large",
+ "target_h": null,
+ "target_w": null,
+ "view": "creature_rear"
+}

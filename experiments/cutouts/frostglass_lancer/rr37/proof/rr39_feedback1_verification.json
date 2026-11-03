@@ -1,0 +1,349 @@
+{
+  "task": "rr-39",
+  "round": "feedback1",
+  "base_head": "0055e4b9937a0cd8b0d43acfe0bb19077dbe0950",
+  "uncommitted": true,
+  "windowed_run": false,
+  "full_suite_run": false,
+  "peer_review_run": false,
+  "patch_applied": "experiments/cutouts/frostglass_lancer/rr39_density_partitions.patch",
+  "acceptance": {
+    "0": "PASS: exact protected underlay and air; 0 processed texels changed outside footprint; both source rests 0px; fresh production Godot rest assemblies 0px and re-sealed as CPU evidence; all 1024 production frames pass, all uncovered metrics zero; rear hem clean. Windowed proof pending director.",
+    "1": "PASS: prior one-renderer and posed-socket implementation retained; runtime and production regressions pass. Windowed proof pending director.",
+    "2": "historical failures and reviewer mutation rejected; prior acceptance retained",
+    "3": "rerun stage regression PASS; prior acceptance retained"
+  },
+  "density_partition": {
+    "native_pixels": false,
+    "outside_changed_texels": 0,
+    "per_part_outside_changed_texels": {
+      "head": 0,
+      "hidden_head": 0,
+      "torso": 0,
+      "hidden_torso": 0,
+      "pelvis": 0,
+      "hidden_pelvis": 0,
+      "tabard": 0,
+      "hidden_tabard": 0,
+      "spear": 0,
+      "hidden_spear": 0,
+      "cape_near": 0,
+      "hidden_cape_near": 0,
+      "arm_near": 0,
+      "hidden_arm_near": 0,
+      "hand_near": 0,
+      "hidden_hand_near": 0,
+      "leg_near": 0,
+      "hidden_leg_near": 0,
+      "foot_near": 0,
+      "hidden_foot_near": 0,
+      "cape_far": 0,
+      "hidden_cape_far": 0,
+      "arm_far": 0,
+      "hidden_arm_far": 0,
+      "hand_far": 0,
+      "hidden_hand_far": 0,
+      "leg_far": 0,
+      "hidden_leg_far": 0,
+      "foot_far": 0,
+      "hidden_foot_far": 0,
+      "covered_torso": 0,
+      "covered_cape_far": 0,
+      "covered_foot_far": 0
+    },
+    "inside_changed_texels": 0,
+    "underlay_changed_texels": 0,
+    "rests": {
+      "front": {
+        "source_mismatch_pixels": 0,
+        "production_assembly_mismatch_pixels": 0,
+        "production_rest_sha256": "f4df52ff98afe501d2f8955bd6cc05f944d036c6ede916e9949cb1fc4443d5f2"
+      },
+      "rear": {
+        "source_mismatch_pixels": 0,
+        "production_assembly_mismatch_pixels": 0,
+        "production_rest_sha256": "6cdfb56a1e5e1ed9c0eb68cb52e22f4472d6d930760418190125b5ec2573a26c"
+      }
+    },
+    "ok": true
+  },
+  "rest_equivalence": {
+    "native_pixels": false,
+    "method": "CPU raster of fresh production Godot rest poses",
+    "pose_sha256": "5018f8e80f2a2c81967d847b00ad6f4d7ed007f835242696807f84d928be180b",
+    "mismatch_pixels": {
+      "front": 0,
+      "rear": 0
+    },
+    "production_rest_sha256": {
+      "front": "f4df52ff98afe501d2f8955bd6cc05f944d036c6ede916e9949cb1fc4443d5f2",
+      "rear": "6cdfb56a1e5e1ed9c0eb68cb52e22f4472d6d930760418190125b5ec2573a26c"
+    },
+    "native_capture": "pending director windowed density/rest stages"
+  },
+  "all_units_density_check": "CHECK-OK",
+  "non_lancer_output_files_byte_identical": 2088,
+  "non_lancer_records_unchanged": true,
+  "tests": {
+    "density": {
+      "result": "OK",
+      "tests": 53,
+      "seconds": 100.795
+    },
+    "art_identity": {
+      "result": "OK",
+      "tests": 111,
+      "seconds": 41.501
+    },
+    "registration": "TEST REGISTRATION AUDIT: PASS (814 scripts; full suite=461, quarantined=29, windowed probe=324)",
+    "focused": {
+      "result": "OK",
+      "tests": 48,
+      "seconds": 681.284
+    },
+    "production_frames": {
+      "front": {
+        "ok": true,
+        "frames": 512,
+        "failures": [],
+        "death_frames": 96,
+        "released_component_frames": 57,
+        "uncovered_totals_by_clip": {
+          "idle": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "move": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "lunge": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "jab": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "cast": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "pin": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "guard": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "hit": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "death": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          }
+        },
+        "native_pixels": false
+      },
+      "rear": {
+        "ok": true,
+        "frames": 512,
+        "failures": [],
+        "death_frames": 96,
+        "released_component_frames": 57,
+        "uncovered_totals_by_clip": {
+          "idle": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "move": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "lunge": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "jab": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "cast": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "pin": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "guard": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "hit": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          },
+          "death": {
+            "uncovered_missing_pixels": 0,
+            "uncovered_foreign_texels": 0,
+            "uncovered_outline_pixels": 0,
+            "uncovered_tiny_components": 0,
+            "uncovered_outside_surface_pixels": 0
+          }
+        },
+        "native_pixels": false
+      }
+    },
+    "source_gates": "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+    "production_gates": "RR37 ALL GATES: PASS (0 unique errors; native=False)",
+    "shadow": "RR37 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+  },
+  "logs": {
+    "all_unit_density": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-all-density.log",
+      "sha256": "fc0805f5b885ebfa08b1ef349d1c7530594734c814cbaf6d4a218eda454d3c77"
+    },
+    "preservation": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-preservation.log",
+      "sha256": "d176d4d2764facc8b61e95108a169ebf363052acfb3ce28c5e388bb7bc8f20b4"
+    },
+    "density_tests": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-density-tests.log",
+      "sha256": "bc7310d5cabf1cc26910a2644d592eef4613863ae65ac6ed450863f5c0c3c3ec"
+    },
+    "rest_seal": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-rest-seal.log",
+      "sha256": "8c8faaf4f4e0120db459977d71bcc13d8df582e2b34289b4761f0c592d217781"
+    },
+    "source_evidence": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-source-evidence.log",
+      "sha256": "3ecc52c2a8bfa9aeca04fa2af86be7815b0253bc548046483560e9ee05e906c7"
+    },
+    "source_gates": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-source-gates.log",
+      "sha256": "5a5d5a1d1a0999f815d768b706b8cf85d9a97aba909b9fab50ff9934735e6ce4"
+    },
+    "production_evidence": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-production-evidence.log",
+      "sha256": "293750501fc9a6bd5212d32170b10a9ca5675532b4f385ec34ce927073a991f8"
+    },
+    "production_gates": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-production-gates.log",
+      "sha256": "5a5d5a1d1a0999f815d768b706b8cf85d9a97aba909b9fab50ff9934735e6ce4"
+    },
+    "registration": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-registration.log",
+      "sha256": "2b1a7adb25e1c29054be6051a329e30b280c01af8e708ba178f7711401f174ba"
+    },
+    "art_identity": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-art-identity.log",
+      "sha256": "67c3fb243cb78d17c77912e0d09f466b544057687cdc9891df8e6c58834f380c"
+    },
+    "shadow": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-shadow.log",
+      "sha256": "3479eea533c546a01ad0aa7c593f8f9fc31fa3a8c9532ce4b99e891a8e8a526b"
+    },
+    "previews": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-previews.log",
+      "sha256": "cd76dcc4a61ab4e90fa84c312643f7ee18096e148d0272b0b25d5cd978c4706a"
+    },
+    "focused": {
+      "path": "/private/tmp/labyrinth_codex/rr39-feedback1-focused.log",
+      "sha256": "882a52600d53d40035f51948243fb938a59849a2c7fb6264e05184950ddf5240"
+    },
+    "production_frame_details": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-39/experiments/cutouts/frostglass_lancer/rr37/proof/logs/production_frames.json",
+      "sha256": "1d2685695199ea56087157b6fbf1aa403183de54a53014b59805ae2c5441589d"
+    }
+  },
+  "todo_design": {},
+  "chosen_defaults": [
+    "Synthetic test values in tests/test_rr39_density_partitions.py::FIXTURE; no player-facing defaults"
+  ],
+  "open_issues": [
+    "Fresh windowed native density/rest/production proof and director 2\u20134\u00d7 judgment pending."
+  ],
+  "commands": [
+    "git apply experiments/cutouts/frostglass_lancer/rr39_density_partitions.patch",
+    "PYTHONPATH=tools python3 -B experiments/cutouts/frostglass_lancer/rr37_density.py --rebuild-derived-sources",
+    "PYTHONPATH=tools python3 -B experiments/cutouts/frostglass_lancer/rr39_density.py --seal-rests",
+    "python3 tools/process_board_density.py --check",
+    "python3 -m unittest tests.test_rr39_density_partitions tests.test_board_pixel_density -v",
+    "LABYRINTH_TASK_ID=rr-39 python3 -m unittest tests.test_rr39_density_partitions tests.test_rr39_lancer tests.test_rr39_proof_rerun tests.test_rr37_feedback3 tests.test_rr37_production tests.test_rr37_lancer tests.test_rr37_feedback1 tests.test_rr37_feedback2 -v",
+    "LABYRINTH_TASK_ID=rr-39 PYTHONPATH=tools python3 -B experiments/cutouts/frostglass_lancer/rr37_evidence.py --refresh",
+    "PYTHONPATH=tools python3 -B experiments/cutouts/frostglass_lancer/rr37_gates.py",
+    "PYTHONPATH=tools python3 -B experiments/cutouts/frostglass_lancer/rr37_proof_case.py",
+    "LABYRINTH_TASK_ID=rr-39 PYTHONPATH=tools python3 -B experiments/cutouts/frostglass_lancer/rr37_evidence.py --refresh --case experiments/cutouts/frostglass_lancer/rr37/proof/production_case",
+    "PYTHONPATH=tools python3 -B experiments/cutouts/frostglass_lancer/rr37_gates.py --case experiments/cutouts/frostglass_lancer/rr37/proof/production_case",
+    "python3 tools/godot_task_runner.py --task-id rr-39 --stream -- godot --headless --path . --script tests/rr37/shadow_refresh.gd",
+    "python3 tests/test_art_identity_gate.py",
+    "python3 tools/test_registration_audit.py",
+    "PYTHONPATH=tools:experiments/cutouts/frostglass_lancer python3 -B experiments/cutouts/frostglass_lancer/rr37_feedback3_preview.py",
+    "git diff --check",
+    "sh -n experiments/cutouts/frostglass_lancer/rr37_proof.sh"
+  ],
+  "windowed_commands": [
+    "LABYRINTH_TASK_ID=rr-39 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh density",
+    "LABYRINTH_TASK_ID=rr-39 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh rest",
+    "LABYRINTH_TASK_ID=rr-39 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh native",
+    "LABYRINTH_TASK_ID=rr-39 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh sheets",
+    "LABYRINTH_TASK_ID=rr-39 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh idle",
+    "LABYRINTH_TASK_ID=rr-39 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh production",
+    "LABYRINTH_TASK_ID=rr-39 sh experiments/cutouts/frostglass_lancer/rr37_proof.sh review"
+  ]
+}

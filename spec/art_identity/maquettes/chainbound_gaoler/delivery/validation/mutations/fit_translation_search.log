@@ -1,0 +1,21 @@
+test_translation_search_cannot_be_dropped (tests.test_mq15_pose_fit.FitTests) ... FAIL
+
+======================================================================
+FAIL: test_translation_search_cannot_be_dropped (tests.test_mq15_pose_fit.FitTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-15/tests/test_mq15_pose_fit.py", line 28, in test_translation_search_cannot_be_dropped
+    self.assertEqual(result['translation_px'],[-18,7]);self.assertEqual(result['iou'],1)
+AssertionError: Lists differ: [0, 0] != [-18, 7]
+
+First differing element 0:
+0
+-18
+
+- [0, 0]
++ [-18, 7]
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

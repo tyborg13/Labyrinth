@@ -1,0 +1,3888 @@
+{
+  "base": "7b4198b20",
+  "uncommitted": true,
+  "files": [
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/held_drop.gd",
+      "sha256": "609b732970fe710d01944f1ebba0bd84cbffa5cdfb0655740953f2cba75713aa"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/compiled_motion.json",
+      "sha256": "d30a3639c2f37d6f68f03bfb0858b94085bdacd26f3d6cefd136f21c97ea8da8"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front.json",
+      "sha256": "39ed042a223e8adab045fbd349dec44a904915d74f7388b5a40de3afc9dc7053"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/arm_far.png",
+      "sha256": "d6f38bb63cfd01fb9f31b27636443fd3d99a82c3288889794335a06a8c22c469"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/arm_near.png",
+      "sha256": "3da4a2da22e65cf7ffcc40821df48d3ace241d5bbe16b80f3584293ecf8aac5a"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/falchion.png",
+      "sha256": "e4c6549ecf9ee5ef6e0ee5a90a5637cd287d8325b5ba58c70147023add79483b"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/foot_far.png",
+      "sha256": "8a51096e44a82aa14cffefa3ae53e5735e8a91883537693a810864a81c40f0fe"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/foot_near.png",
+      "sha256": "8a21e40aaad2e03fe5d944afd5b537f15ef471860d69eb3e4bc4c239e7c95d9a"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_far.png",
+      "sha256": "198b5949fa08a9052a9fcfe541f44bce71c4d55230c8a20b1cf9e5886b8f6d26"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_near.png",
+      "sha256": "dca682116b28190e054618c018ca56dd2fb258a4ada705ec037896e23a51b3d5"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_leg_far.png",
+      "sha256": "68262f2cd58c0ed760def8f80a0d7a8c113f670f79a6966ace7da9046f09cb14"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_leg_near.png",
+      "sha256": "9d050dfd834c1fc89fcbbb275e1e7729ab462b2e4cf8e9c5efb871c3353bae7d"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_pelvis.png",
+      "sha256": "ecdd3b6de8072f62bc2cf62e649af4b7bd8c73e92671dc72b2014a6c065b1847"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_torso.png",
+      "sha256": "f4a2bc61cd498aafc44009e20956d05d792ad8023428b5e21b200ba8e1020b46"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/leg_far.png",
+      "sha256": "49b76abab770eda3d435782650dadc3834949d2db6da6570107d06588b72bbe2"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/leg_near.png",
+      "sha256": "0862c5eb31e7a323d12d457aaad7e904186efd5fb4d0c85329e36917cede17e6"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/loincloth.png",
+      "sha256": "5cbef289dde59758968ea3321690c9614ea4215cd6e3516a6575851bcb75af6c"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/loincloth_back.png",
+      "sha256": "7886effd53871a586a355560b88e5f1fb489db9b2247695eca4f3ed5590e3bf4"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/pelvis.png",
+      "sha256": "3c941a7226c8302940d0c7bd8e1812c5076a59154e65f6476684f2735bf40470"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/torso.png",
+      "sha256": "95f0e872ee5e84486c676c5187f7e851385585a834637d86fc8036bcb3f597be"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear.json",
+      "sha256": "5e9dbd38642e096c9fedfa015af1f8140e6d4190c295478f810cf03f04b3e5ad"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/arm_far.png",
+      "sha256": "7cdef1fee616bd460141d78bc299867e80d244c129d57100cd4f720c84afdbbc"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/foot_far.png",
+      "sha256": "58d37872f2dde71f13ded04444dd451782d6dbbfb53ace63aa3a540702245715"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far.png",
+      "sha256": "e26b539d17aebfba5b6cb31ae115284b3df9b291e33d247d38e9857f258fad9f"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_near.png",
+      "sha256": "a71934b5ab5827d17eba5e7d553be3d4cd8f9101b0d5e0412c870dc96feaebb1"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/head.png",
+      "sha256": "b2064e502a3a6281900f9146c700f1adf07b1754e7373a03b0a4337ade9443ca"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_leg_far.png",
+      "sha256": "66f2865136a2207e9567e1ecefb54f21618ce9fecd86867edaafd7d14c6af4db"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_leg_near.png",
+      "sha256": "90947285b5713ed2679ebd5515c66a316d8786aa27f10b577b8393067ca225f9"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_pelvis.png",
+      "sha256": "3640ccd8a98017bdd8be5dbb723baa1dfff9265389788a7d08757871939ca426"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_torso.png",
+      "sha256": "a21bbab54e7cddce16f4b8d9e41211334a483c33cbf7a419adf70bbfad06b371"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/leg_far.png",
+      "sha256": "8acd768b8268dbaa1af42fd531d935e09185062c43d5f151c5df44417c782da2"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/leg_near.png",
+      "sha256": "ecbf2ce872fd3b85747109448caf61df8fa620aba4ab85b9c10ece847d4ae35e"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/loincloth.png",
+      "sha256": "364101d5211bf6675a1cb204236868ff02bd6c02cefb64b9bc1a0b02d98967e4"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/loincloth_back.png",
+      "sha256": "4fcf0de01eca54e38ee5509dc7d4128c7f927ec17e9db96ac8343490ae34271d"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/pelvis.png",
+      "sha256": "6f14c671e792b00012a0c7d44a56c1d5ab70fa92d65fa08a28d0399b4e8703ed"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/torso.png",
+      "sha256": "464452401b7ccf354750fbeff14049d454820e7244a131017f973f4356c0f45b"
+    },
+    {
+      "status": " M",
+      "path": "assets/units/ashen_reaver_cutout/integration.json",
+      "sha256": "002025a77644bc0211475c182a4cc7e1e637973352ffed42027f07cd15bfc761"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/anatomy.json",
+      "sha256": "ab7423bd5e59cc724c980ae16fa1b951c39748736514c770ea9d0ed549e2b36d"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/arm_far.png",
+      "sha256": "cbae1451fb23e949c60b33ee13529dfe5424c6ed0a87787db4f2fd61d065ada3"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/arm_near.png",
+      "sha256": "1a2b5ccac4488b5ba6413630611e89b635987bd687526b7f741f25b0bb0fe96a"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/falchion.png",
+      "sha256": "acc085a1669bd2ff487aee2ebc1ea4bfa8042a87a47df5caf9d9cbf67e533d6c"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/foot_far.png",
+      "sha256": "e570a936fef7f7080d05972a49a6600a326d7f49264fe2de34ea7dfdba3d4cbf"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/foot_near.png",
+      "sha256": "9580aa4ebe24eb28d575705365eeb649295c6fc4244525f69bfb790f1b7e1ae8"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hand_far.png",
+      "sha256": "afcfaf43f0b0a977c5da00aa6bb14a9cce3673dbf4fb8cccf94c5da3d0693399"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hand_near.png",
+      "sha256": "350dd5d2ec0251d34d72ab9e3b8a1d1bc1e792300656e7cb2c9e1ddd42731e91"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_leg_far.png",
+      "sha256": "0d973ec4f454ddd7f6775ceb3e10176c8b3092ff1c9ecedca80b84d3e6a6567c"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_leg_near.png",
+      "sha256": "0e14971a0d028dc48e7370240a0aad32c53e97a1d0e9b590f430243e7e61a31b"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_pelvis.png",
+      "sha256": "ae4cbb45d5910e489cc4244c03e084576bbda6d0f8865669a1018bf8a72a00e1"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_torso.png",
+      "sha256": "0a4285d952e713b4b0c0b83b10342e34315905b7a8acab10227d27eaceaeabe0"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/leg_far.png",
+      "sha256": "b2d823f006ae303f017029f09149171264d45d70530d67f73a65ce036c48e6c7"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/leg_near.png",
+      "sha256": "5ab5c3b994a688705ff630d67df8049821732476769f8cba4d3d310d07414378"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/loincloth.png",
+      "sha256": "bbd340d8635a878bb8569b7e295f58ab30c253c10241cc6e83a0af5ddab3c8d7"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/loincloth_back.png",
+      "sha256": "bb18b6d71b52b0f3d9ed7599dd12ecfdd3ad5c2f0d02c9ce9abbaa5a3094e55e"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/pelvis.png",
+      "sha256": "3d0f30e0fe2abff8c5a2095d5b912a5a5e25bd7f98b7521eb2665255594f038e"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/torso.png",
+      "sha256": "a93130f327ba11d612193ae9cb0c9dc3caa8db2f13312442b5393f7ffeb0308b"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/arm_far.png",
+      "sha256": "0d13e390f3c658737c2f180926c8f0f723bc71fa7965e8d0ee0e917d7d2167ef"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/foot_far.png",
+      "sha256": "20f7444b92dbd090875f9659d4cd531327e81bbe7e18b32e02dad928f8e4ff0e"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hand_far.png",
+      "sha256": "eca878bfdc74926e35b55400dddfdcfa48f98da9553d254e5a4df755f38f3841"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hand_near.png",
+      "sha256": "6cce6d93ff4945005b9ed725b75cae3e8d98baca15c36109fecf663e4c721065"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/head.png",
+      "sha256": "0895671d2db2143b8316f26b28ef10bc583e0d72088d775e9aac248d26e88125"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_leg_far.png",
+      "sha256": "77d14bac633280313d36d0fea02e4beb3508004bc7408d76d6ef092736362257"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_leg_near.png",
+      "sha256": "7f9a670f251b946b33c836ab8f1f0201df6f25c7819adce7620f934db23a61df"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_pelvis.png",
+      "sha256": "95f13aa5073f55fbb6762f86973e774d2cd70ef4adc1da61a5cf89d3e9f01840"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_torso.png",
+      "sha256": "04d900206e47ab4173684a8127910a0166dc1566a71f57fe603dd27c8932403c"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/leg_far.png",
+      "sha256": "5bcfc05e39ceab3b93b60e6eecafaa5e977a64d6199a70d64ffed6a25f1af65b"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/leg_near.png",
+      "sha256": "1cdc8189a67c400f8403552f7c5ca4853d70e3235acca8a90dc3b69f8c322746"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/loincloth.png",
+      "sha256": "31beae8f60e9828c1eca22d9c14276577a322d22e92aa39878f7e9de8820fd4d"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/loincloth_back.png",
+      "sha256": "907a55eb0fb5480a4ce157ba0886df4ae1b6ad40b562cd3450353c4937bb37c5"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/pelvis.png",
+      "sha256": "72896592b00c5df3bdaacbe2b7346f227f7d8581db84c7ce1c0c411a47ab95e8"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/torso.png",
+      "sha256": "9e35df9d83d37e03ccbcf834a95431ac96e461a97766055d445cb2974ae1cf6c"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/compiled_motion.json",
+      "sha256": "d30a3639c2f37d6f68f03bfb0858b94085bdacd26f3d6cefd136f21c97ea8da8"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/feedback1_policy.json",
+      "sha256": "4cdca4ee8398ac072fca7aeabcc94b5c5551bd254830b1840924f618c2fbcb93"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/inputs.json",
+      "sha256": "d9f54af13499bbd2c3f2898fcc83855b0dfcf883098fcd27ae8246fd1f6de4ff"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/layouts/front.json",
+      "sha256": "28d6ec7ef89e98013c5445aee68b3bd8787fcb7970c634fb2c1c8c03cbe17693"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/layouts/rear.json",
+      "sha256": "f41315143c3359bc24d58f4fc3ee931a3d6626eb5d39462351097e24b7ecb5ee"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/material_contract.json",
+      "sha256": "3443b11640ab98cb8d10fd68a72a2788af22c165c8a6b144d46915f8f578e6f2"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/arm_far.png",
+      "sha256": "79e5ec79353f57a29c07070e995e5d365ae4c71253d04f3d70c91cd9e42c1806"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/arm_near.png",
+      "sha256": "d676c2e389d10f4007f55e067fc83dbd8c093809056476b200cd1f8b32ca1125"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/falchion.png",
+      "sha256": "6dad1d86b9eb21bb1ff11e80a12a25589beecda20b0638a3d92f11c5a776245e"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/foot_far.png",
+      "sha256": "875cee14c84d060921d6466363fbf125f72fc5365f778f8a4e7f5f0894b3f8ef"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/foot_near.png",
+      "sha256": "7260aa843ab626eebc1a2dcf8ca3336489ed994c8b1b2376f039bbd50b241f8c"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hand_far.png",
+      "sha256": "720d811514ffb9cf29a3eb2597776f4cb2e12276d20c74f7a69be5d48e95deda"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hand_near.png",
+      "sha256": "d2983376e46aa309b55e1c3ae89e349e0e457dd4825c0d66ea9e2a9348a9f8b3"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_leg_far.png",
+      "sha256": "68262f2cd58c0ed760def8f80a0d7a8c113f670f79a6966ace7da9046f09cb14"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_leg_near.png",
+      "sha256": "9d050dfd834c1fc89fcbbb275e1e7729ab462b2e4cf8e9c5efb871c3353bae7d"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_pelvis.png",
+      "sha256": "ecdd3b6de8072f62bc2cf62e649af4b7bd8c73e92671dc72b2014a6c065b1847"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_torso.png",
+      "sha256": "f4a2bc61cd498aafc44009e20956d05d792ad8023428b5e21b200ba8e1020b46"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/leg_far.png",
+      "sha256": "b058edf8a3eaa80eda7bbe54533bb004f8ab78b59af52085016bf547bc79d2d1"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/leg_near.png",
+      "sha256": "3d4157263107306670074e60b7b087bb0296a6d11da08dcb11ae415a1099bbe0"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/loincloth.png",
+      "sha256": "5cbef289dde59758968ea3321690c9614ea4215cd6e3516a6575851bcb75af6c"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/loincloth_back.png",
+      "sha256": "7886effd53871a586a355560b88e5f1fb489db9b2247695eca4f3ed5590e3bf4"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/pelvis.png",
+      "sha256": "fed12652665cc43714026e51472f363f79b53ca01a490ce7e41deace10d9bd30"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/torso.png",
+      "sha256": "89a7773a1739afb1f1f8eac3f67cf4c51bf3873a5c6aae2315874ac713368d3e"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/arm_far.png",
+      "sha256": "204219539f8b2b2efce079a4e13129a07b1e5746a77c97c84f47f92b1f5b7745"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/foot_far.png",
+      "sha256": "d0b30d8383c30367f45dfbd3b1dc4b6de8791bebd317cc75545838fca9d7320c"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hand_far.png",
+      "sha256": "c54748bc82520181e406bdad097205e3c0de5f9855d1e325c75df694152b7467"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hand_near.png",
+      "sha256": "815b4656acd8062a9771ffa7ca68b76a9b27501f3a63715c7de0c24c319d4d88"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/head.png",
+      "sha256": "b58417d970cacfaecdf07154e16f46cc30f30261de89392750b4717a264825ad"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_leg_far.png",
+      "sha256": "66f2865136a2207e9567e1ecefb54f21618ce9fecd86867edaafd7d14c6af4db"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_leg_near.png",
+      "sha256": "90947285b5713ed2679ebd5515c66a316d8786aa27f10b577b8393067ca225f9"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_pelvis.png",
+      "sha256": "3640ccd8a98017bdd8be5dbb723baa1dfff9265389788a7d08757871939ca426"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_torso.png",
+      "sha256": "a21bbab54e7cddce16f4b8d9e41211334a483c33cbf7a419adf70bbfad06b371"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/leg_far.png",
+      "sha256": "6bd933b0b18a61f3ebed66497a26afa0cc721a1e7b7607f6b94f1f39df118c38"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/leg_near.png",
+      "sha256": "6c88ff8db055af64a6469e495e1e0c9d4541cc8ea1d41c202fb6984cd75d8782"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/loincloth.png",
+      "sha256": "854ccde4a7a5be8127e339fdd9818937443f3b0b546891e984111f00d5d8b6cf"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/loincloth_back.png",
+      "sha256": "7c95ea554cadc897623a6acca80995ede55772c3b47ecbd16fadf383654fe697"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/pelvis.png",
+      "sha256": "8028213b49272ca739eae8dc3d87f992ffd279b82bbc6cc44f0ef6b37a070d78"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/torso.png",
+      "sha256": "d67a8512bec4c86191c6051a8ccb5a4aab9aab603aef236ed1b58ca6a43e6d14"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/build.json",
+      "sha256": "e1456e042913f3cf5182e0e620348879c1382bf25ba3cff8b7907579802d29fa"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/gates.json",
+      "sha256": "35d4a55a211a2da85eee70daae13d7d04fbf55611595dfa3a07e6247bb0998cd"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/owner_commands.json",
+      "sha256": "4a3d60734b9f804999c0e3b7919513f1f709f7b5b7ba9b4244a86c1d5f129593"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/underlay_coverage.json",
+      "sha256": "90704ed8429ffe431140fd96f93988b9a686e21d40a49014fac57306dccf8564"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48/source_partitions.json",
+      "sha256": "4b0b060e334f285685b05e4f7d286a5abfc0101eaca98080765d1d021d4f5c6e"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48_budget_search.py",
+      "sha256": "ed5ee64dec491bc7e514795c9c4f94c24c669146e496f6fe8626dcf4db9b9394"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48_density.py",
+      "sha256": "6810c2dfd9e44262c30a6a5200f1ce0af472bc52fc95236595ba2e248c5eb6de"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48_feedback1.py",
+      "sha256": "21d1e2acd05955253c392db7768910f89ad11435e278e980c3cbe5d096fe2909"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48_feedback_gates.py",
+      "sha256": "20117d6f53bf3cafc82912c5fd01dde091ba7b77cce796679bcba4ea50c2e758"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48_gates.py",
+      "sha256": "50614ea9243f150930f316891e2bcd5f8e7b1f844e795be627e2b578ec7cb437"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48_joint_budget.py",
+      "sha256": "e2ad815896d28addc22520f575145a529c4de6c1e221c3c21fc4c35c7415afe1"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/ashen_reaver/rr48_proof.sh",
+      "sha256": "b020b5e500448b811a0fa84c12ec38c86038f4fad0ef7ef11c5132e1303a11c1"
+    },
+    {
+      "status": " M",
+      "path": "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+      "sha256": "4dad0635deb2ff17ae4b0caf6ce3f6b6263e9ae2d3b17f5a338ea6e68ee4aa10"
+    },
+    {
+      "status": " M",
+      "path": "scripts/maquette_cutout_runtime/humanoid_presentation.gd",
+      "sha256": "bf508fb65a156ebe8b219d0fdafd0114c003f60d036a240a4ab9ccfd63da2f9d"
+    },
+    {
+      "status": " M",
+      "path": "spec/art_identity/registry.json",
+      "sha256": "349825e17b393f7e22c57bcf0d3b6727f8796f13404b9d111bb70f70ec783255"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/outputs.json",
+      "sha256": "c8cdb42e9643657f4b8ec6508aa89ed2ecd18841d72fe2a6ce0b72f1856fca6a"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/registry.json",
+      "sha256": "16a3a67abb8802d85cc23f7e4f69b76f6aceaa48e69ecd5721e38e3d41aa2b80"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/arm_far.png",
+      "sha256": "d6f38bb63cfd01fb9f31b27636443fd3d99a82c3288889794335a06a8c22c469"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/arm_near.png",
+      "sha256": "3da4a2da22e65cf7ffcc40821df48d3ace241d5bbe16b80f3584293ecf8aac5a"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/falchion.png",
+      "sha256": "e4c6549ecf9ee5ef6e0ee5a90a5637cd287d8325b5ba58c70147023add79483b"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/foot_far.png",
+      "sha256": "8a51096e44a82aa14cffefa3ae53e5735e8a91883537693a810864a81c40f0fe"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/foot_near.png",
+      "sha256": "8a21e40aaad2e03fe5d944afd5b537f15ef471860d69eb3e4bc4c239e7c95d9a"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_far.png",
+      "sha256": "198b5949fa08a9052a9fcfe541f44bce71c4d55230c8a20b1cf9e5886b8f6d26"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_near.png",
+      "sha256": "dca682116b28190e054618c018ca56dd2fb258a4ada705ec037896e23a51b3d5"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_leg_far.png",
+      "sha256": "68262f2cd58c0ed760def8f80a0d7a8c113f670f79a6966ace7da9046f09cb14"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_leg_near.png",
+      "sha256": "9d050dfd834c1fc89fcbbb275e1e7729ab462b2e4cf8e9c5efb871c3353bae7d"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_pelvis.png",
+      "sha256": "ecdd3b6de8072f62bc2cf62e649af4b7bd8c73e92671dc72b2014a6c065b1847"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_torso.png",
+      "sha256": "f4a2bc61cd498aafc44009e20956d05d792ad8023428b5e21b200ba8e1020b46"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/leg_far.png",
+      "sha256": "49b76abab770eda3d435782650dadc3834949d2db6da6570107d06588b72bbe2"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/leg_near.png",
+      "sha256": "0862c5eb31e7a323d12d457aaad7e904186efd5fb4d0c85329e36917cede17e6"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/loincloth.png",
+      "sha256": "5cbef289dde59758968ea3321690c9614ea4215cd6e3516a6575851bcb75af6c"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/loincloth_back.png",
+      "sha256": "7886effd53871a586a355560b88e5f1fb489db9b2247695eca4f3ed5590e3bf4"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/pelvis.png",
+      "sha256": "3c941a7226c8302940d0c7bd8e1812c5076a59154e65f6476684f2735bf40470"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/torso.png",
+      "sha256": "95f0e872ee5e84486c676c5187f7e851385585a834637d86fc8036bcb3f597be"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/arm_far.png",
+      "sha256": "7cdef1fee616bd460141d78bc299867e80d244c129d57100cd4f720c84afdbbc"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/foot_far.png",
+      "sha256": "58d37872f2dde71f13ded04444dd451782d6dbbfb53ace63aa3a540702245715"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far.png",
+      "sha256": "e26b539d17aebfba5b6cb31ae115284b3df9b291e33d247d38e9857f258fad9f"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_near.png",
+      "sha256": "a71934b5ab5827d17eba5e7d553be3d4cd8f9101b0d5e0412c870dc96feaebb1"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/head.png",
+      "sha256": "b2064e502a3a6281900f9146c700f1adf07b1754e7373a03b0a4337ade9443ca"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_leg_far.png",
+      "sha256": "66f2865136a2207e9567e1ecefb54f21618ce9fecd86867edaafd7d14c6af4db"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_leg_near.png",
+      "sha256": "90947285b5713ed2679ebd5515c66a316d8786aa27f10b577b8393067ca225f9"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_pelvis.png",
+      "sha256": "3640ccd8a98017bdd8be5dbb723baa1dfff9265389788a7d08757871939ca426"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_torso.png",
+      "sha256": "a21bbab54e7cddce16f4b8d9e41211334a483c33cbf7a419adf70bbfad06b371"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/leg_far.png",
+      "sha256": "8acd768b8268dbaa1af42fd531d935e09185062c43d5f151c5df44417c782da2"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/leg_near.png",
+      "sha256": "ecbf2ce872fd3b85747109448caf61df8fa620aba4ab85b9c10ece847d4ae35e"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/loincloth.png",
+      "sha256": "364101d5211bf6675a1cb204236868ff02bd6c02cefb64b9bc1a0b02d98967e4"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/loincloth_back.png",
+      "sha256": "4fcf0de01eca54e38ee5509dc7d4128c7f927ec17e9db96ac8343490ae34271d"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/pelvis.png",
+      "sha256": "6f14c671e792b00012a0c7d44a56c1d5ab70fa92d65fa08a28d0399b4e8703ed"
+    },
+    {
+      "status": " M",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/torso.png",
+      "sha256": "464452401b7ccf354750fbeff14049d454820e7244a131017f973f4356c0f45b"
+    },
+    {
+      "status": " M",
+      "path": "tests/maquette_cutout/proof_inputs.gd",
+      "sha256": "e1ee696da20e4f6a2bf5225b4ba959e7562c7b7e99ce514f4ff39e9767760cba"
+    },
+    {
+      "status": " M",
+      "path": "tests/rr48/depth_inventory.json",
+      "sha256": "f9e4959332e1a311c3571495ad09b97a252b2db3883cb5e96762814d7c6732df"
+    },
+    {
+      "status": " M",
+      "path": "tests/rr48/runtime_binding_changes.json",
+      "sha256": "f54309fe40875ca167f201b3a7307b9a50bc465989082d99514bf8917d13a797"
+    },
+    {
+      "status": " M",
+      "path": "tests/test_rr48_reaver.py",
+      "sha256": "df12a02819dd7f54fc56e9b68549f079434dc3785f26ec9725e3b04d422edddb"
+    },
+    {
+      "status": " M",
+      "path": "tools/maquette_motion/gates.py",
+      "sha256": "b5b1708a69c866b7c78845e093d6d0ec9fe0308c4486139cc2e029117cde11e4"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/cap_arm_far.png",
+      "sha256": "6d076393d47943eb90b0dd970eacedbad3799226a95e7df59e6869fb21360807"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/cap_arm_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/cap_arm_near.png",
+      "sha256": "3c5160453fde82d624c27f34bc23a721f37c4a090d95b6ebf5cbceae0b599ce3"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/cap_arm_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_arm_far.png",
+      "sha256": "5096011c7044ec7dc50352f55a4ae436b5828fc421d8b182b4cd7abda5c86294"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_arm_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_arm_near.png",
+      "sha256": "9a0a298ca469a2eb60c1a0cac4852afe69d4dcd1e9a8a96a65d4550543bfe0a9"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_arm_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_falchion.png",
+      "sha256": "c3d0819ee08721a74aebeb8b4ff734658e7df36629fe7fbc8f8b9fc345014870"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_falchion.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_foot_far.png",
+      "sha256": "ef60b98d938d1d50c7bcc23d155719a03a6e2e2e9a5a20c9d4704d6527a12668"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_foot_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_foot_near.png",
+      "sha256": "ee47d834a4b98eb0ec8b96af8ff5c6a25b772c3d59be8232a690158e3618f019"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_foot_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_far.png",
+      "sha256": "2f81cc9422d62727a5ee70aa437cc01af4810a29cc012d34fad22e7ec4ad76f8"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_near.png",
+      "sha256": "edee7daa3e97382d9abfcbedfbe45a9da98e85967cec8f7232c11fa3c00455c7"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_head.png",
+      "sha256": "83bcefaba8efa27667c3059354bd227a803b3eb2b92119cbafeab874d06be41b"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_head.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_loincloth.png",
+      "sha256": "7f523387513c1d948fb536dd9bb5cdf27c4960cf6d9ff4fb0c42fee9bec11f7b"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_loincloth.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_loincloth_back.png",
+      "sha256": "6d62d1212a59c04b02439101dc9dd71eaad79f7133c54f6e7e40aa85b649ab27"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_loincloth_back.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/cap_arm_far.png",
+      "sha256": "ed684defcfeb86970a8ba2376fd5713632a0169c51ea7800222dc8a0542afec1"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/cap_arm_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/cap_arm_near.png",
+      "sha256": "c0f01be13e47228b4749194cae452d6790c96ad03b7cb186ea3df4eca6d44802"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/cap_arm_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_arm_far.png",
+      "sha256": "66cb7a87b7f41514fcd0c6b16b63dd10fa746fcc331f6b7d0eefd3cec06d0548"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_arm_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_arm_near.png",
+      "sha256": "2273623401a9688114f5bdb433e40d50b611c71da1c14ec9b7b4cf5bc5b65baa"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_arm_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_falchion.png",
+      "sha256": "07379856b4242d68fca82180e5f6bce5cc2f5bfad5378bb0b1b00e0004408c0d"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_falchion.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_foot_far.png",
+      "sha256": "2f2da7fd0182ff43f7dd682c1f77cfda2b321605eb0a1ccf2420ddbf03b6989c"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_foot_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_foot_near.png",
+      "sha256": "3d36646e6b6c26a576251ca205c44febe4dd8350517e99e7fb7cf2db13e2f865"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_foot_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far.png",
+      "sha256": "91de4fabf881447ab764cb9ad19b3fa2cc45348b17eb2465cc5e570c134b407f"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_near.png",
+      "sha256": "08a874c624b4197806c19a366de30f2c3929c848a8874a86a65d86e11005c1f9"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_head.png",
+      "sha256": "07f91162034ce828c36dc6719cabe2724a711b830c50593f788c2561890f9b1d"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_head.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_loincloth.png",
+      "sha256": "4ebcc067afe7ae1656b3223e7bad70db50eeeba86f0d4c77adb47a4440beeecf"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_loincloth.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_loincloth_back.png",
+      "sha256": "4e0dbc8576647a72c42205398bd828b92f3757b35d3eefa12680d7aceac00f9e"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_loincloth_back.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/.gdignore",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/anatomy.json",
+      "sha256": "ada6872d6837b7a0555162afeba8d3695770b0f6a011aa414287550a133bdb65"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/arm_far.png",
+      "sha256": "4b0d469566cc18e32f15480702f5d71c37c70778246dec320a02fd71ffbd9b42"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/arm_near.png",
+      "sha256": "defd2e3b58067e45dca6373a52c5cdc5ff50f6d3d0ac0a809653427964b1510d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/falchion.png",
+      "sha256": "ad513fbdf51d3647df7730f382741d12066e58aa80658a9bced70e06d2731600"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/foot_far.png",
+      "sha256": "dcf45965cc1cf1e895100b8b164db494eaf94be4f4d212e8731b17946efe06d5"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/foot_near.png",
+      "sha256": "2321da2f3984435c43af88ddbce07fb7f2731400cc471b2590b3e41dc93521bf"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/hand_far.png",
+      "sha256": "605889f98367bf5ca3932e5c6a9e2889a32759a3a81600a771d7ebe1807ae3bd"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/hand_near.png",
+      "sha256": "dbf1262312562babbbbe305a0d4826e0a1cb4da8ca4a83ec626f44e63b2539d3"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/head.png",
+      "sha256": "d37183feb55cbd1da104eb26f0184d249b112ae0e6e1c1ece9777eafc54f9c60"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/hidden_leg_far.png",
+      "sha256": "88d75e3f61bc27685ba2fa654755c3b6341b9c78714ac5405ff67d5285159848"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/hidden_leg_near.png",
+      "sha256": "e76cce4144dd4a55005d280c71002b792c422369bb4412263422cfb4c61430d1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/hidden_pelvis.png",
+      "sha256": "29af2a6a83585dde533790054f722dbc2b992bb1903e1f5355b0c56d4dff5137"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/hidden_torso.png",
+      "sha256": "980055f32603462384baae4a3dbfa580f0579627bb98c190f84443a047126613"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/leg_far.png",
+      "sha256": "603354986bc16dbf69e03aeb07a9bf160e40c8c75a79b659427ed013899ab6ed"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/leg_near.png",
+      "sha256": "4108b1385d497eda729e9a534a85b074b35a45dd00b79b3d8210cf68b0bb4541"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/loincloth.png",
+      "sha256": "852943f8a3282862a503e3e8c34db5dd44f6bb39b7b93c12a839a603b3b5421a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/loincloth_back.png",
+      "sha256": "330473165d65715d4f66e735954cde7f27f6bf3383304ec441afbfdff11825f7"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/pelvis.png",
+      "sha256": "1039dab4ef4a87f1784727d8128afcb6003aed896d2290cdad47aa7f0a58fa57"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/front/torso.png",
+      "sha256": "61f1495d60e07accf777f011d97baf422fef0bc5a8d417497a976954200e1f8b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/arm_far.png",
+      "sha256": "198083e33942f30979c3d84f27a859c4924b122d3e6b9556bd18b84ae7ca3689"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/arm_near.png",
+      "sha256": "9f46ad748134c1f97636e7732cdd26c907e0ee04f140a3d5ebf8db2d9d69ea56"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/falchion.png",
+      "sha256": "377490144c6a491e89ef331b098df0e2d805431dfb74a69962cda06ed4395967"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/foot_far.png",
+      "sha256": "14bfa2d00eacc70d9630f09bf4055d81112af65a09f0bfd72578bcce15daeee2"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/foot_near.png",
+      "sha256": "588750c564793f44446302c130e16b7174ec43828ed2c2a1c043308ec3395a8a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/hand_far.png",
+      "sha256": "631f32676ab5162186a08928d881a5e97fb6e9ef706f2a60093f08f5cfaa7c07"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/hand_near.png",
+      "sha256": "02b228c61f12d15d92f5a032871cdd92b7447a00edbf9e59ac0dd709680fe8db"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/head.png",
+      "sha256": "162bc253b99db4c4693d5788814e80f466bc26f7c0b453e8e3ffd8cf70a1c815"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/hidden_leg_far.png",
+      "sha256": "2d62a067c98775fbf6a8b8611726c552b524f484abb45894861b75e1ec46cecf"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/hidden_leg_near.png",
+      "sha256": "a9f453f5bee65c8c5684a8228eaff30542c751528c2a1745c4877a2414226399"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/hidden_pelvis.png",
+      "sha256": "2f9f2e34dc599a0892b0fcefae02ed204d017d29aac88ab9d294e87f021a48c4"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/hidden_torso.png",
+      "sha256": "e2230a1c2a22733757e9d1b36df220fc869701022c644cef3a14b5f7972ae11b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/leg_far.png",
+      "sha256": "c1930a07b53aab413ec47c056efae86bcb1c91f182ec7df0a046cc820a4e0ced"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/leg_near.png",
+      "sha256": "90894b4bae6795eadfecd89f79739f367d4d89e009efe3c8d81ecb52e44f21c4"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/loincloth.png",
+      "sha256": "dee4df0059be1d248e040f1d1843fc7c9676160a3b071dc6eff2fa27f62efafd"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/loincloth_back.png",
+      "sha256": "e47df767c403a134d9da9a1ab94dc65e1f84aafbee3f2d242c2f32f840ccf57e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/pelvis.png",
+      "sha256": "7da4e803adf894dcabc37f2a81a1f1895657d23883a760fe789620df5f3baec1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/checks/rear/torso.png",
+      "sha256": "6810b5ba48c956c95c304126090adc6d69c19b6b7e1df5d53fc08c3946170b2f"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/compiled_motion.json",
+      "sha256": "08b27bac5cd23f337e6d436e85419a9dde8fbfc0bd8125ee4b0f54a77868af81"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/cutout.json",
+      "sha256": "660b12191a741486e9bebf7a2523dc759901569d499346d7835c17df567a82ca"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/director_motion.json",
+      "sha256": "bd73148007e974725c5136a2fb88fa605447b57f72ec27e4e2ed278f2823adfd"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/feedback1_policy.json",
+      "sha256": "3e9564f5a513e38f2bd27328dab40924df7c937680a7fd42543133fbc13d4e3e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/front_AuthoredRestAir0.png",
+      "sha256": "dcf68ef68e59643022a4ca6836cbdc5d2c6d598b755a979d4f7d8f204955dc41"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/front_AuthoredRestAir0_mesh.json",
+      "sha256": "e5af4f35cd10c5e5e21d2490ed2374e1a0fe76b7cf149ed0e1d694d98e5d7846"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/front_DirectorClear_leg_far.png",
+      "sha256": "d8d8cf664000f9e89db0839afe5acf86e62aac35acf38c2b8b64f35d1a5c1f0f"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/front_DirectorClear_leg_far_mesh.json",
+      "sha256": "0fa8a80e8fe94aa38cc389acd1c1d84403d6cbef45a684565e9d0264af84f64a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/front_DirectorClear_leg_near.png",
+      "sha256": "66f583738222503f1887c9e1a020bce75c671d82cbf952d882f950802e75b560"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/front_DirectorClear_leg_near_mesh.json",
+      "sha256": "13fdf9c6868e21dec2898a468a05def823d50f7cf1058db583e6718970efa355"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/front_DirectorClear_pelvis.png",
+      "sha256": "d3d936b11e16d68f111fa018eadf57579593b27dfb47d15010ed73a8af6e6084"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/front_DirectorClear_torso.png",
+      "sha256": "fbee0b2dd0d58e1fc7fdd9e218d1bbbf08c0e39ed4d670ce9e078e73d8dd9ac0"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/rear_DirectorClear_leg_far.png",
+      "sha256": "bee83ae1bb6b3edbb3b4da438d364303f02374bbce5aa9ff7e3b405e467b2253"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/rear_DirectorClear_leg_far_mesh.json",
+      "sha256": "3af3820686d923b07c30143d74a8068bf168cd1a4ff238f9e5f526e79ee9b10b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/rear_DirectorClear_leg_near.png",
+      "sha256": "38c1ff9aa522336caaa9df54c38d128b4a6af6bcad35edb6fb349930411a0d3e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/rear_DirectorClear_leg_near_mesh.json",
+      "sha256": "1329bbda495f967cc5952ad191d906c8734d267bdf47401e8cedd1e0e8d0849a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/rear_DirectorClear_pelvis.png",
+      "sha256": "a1128184dc4a22a0f302e31191a0d088251d01f661d71b48ef11e96c16770eaa"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/holes/rear_DirectorClear_torso.png",
+      "sha256": "c5858ee10b87a4930c009eaedb1d1809d57aa1adf3ff94f055e2fc538bc98e32"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/inputs.json",
+      "sha256": "e0747e66d693b1d608646df6760a762b9e4fc3c66a19f4fee115fa45cea4b85f"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/joint_budgets.json",
+      "sha256": "c7848d5aa6a3b1e09df9635fc78845d89acff9eecaa552a7c1ef3dc69a920c7a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/layouts/front.json",
+      "sha256": "471e6eeae3ddb007af329f61c15fdfe898a64429b8c09597f9dd16a241286b9f"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/layouts/rear.json",
+      "sha256": "3dc3fffc370cbab096711c00fa8a99a5887658e33719a4cbe73f3731e8be15eb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/manifest.json",
+      "sha256": "cc5184c2ab1cf9ac89e678a6514ffb3d7a4bef6ac13675d9a29130b7ca307c23"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/material_contract.json",
+      "sha256": "6fa46a1a9e64761fdf94fe67c8940f5fd3581ed0b23d63b83b06744b0900fe4b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_arm_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_arm_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_authority.png",
+      "sha256": "33cc7136db7e7320588ea765f95baea325b18d63ce49e835fe301dc8ea4d84ee"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_falchion.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_foot_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_foot_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_hand_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_hand_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_head.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_hidden_leg_far.png",
+      "sha256": "d2e14a01bc506b916a97a611ecc85f5494eeb4ee7070b6caade0a23eaaf6d9c8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_hidden_leg_near.png",
+      "sha256": "641b4f18e491085bb2c39b9de2a19a9d1c463ad779e5d46b54c5dbe244796191"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_hidden_pelvis.png",
+      "sha256": "7d7f155198b8c55cf74514e6219de87870fd4c2a0b3443563ec89823a4a6d838"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_hidden_torso.png",
+      "sha256": "36350e3e77568067de0ef458f0a6f7fe3d9dc6b4c19d5b3353713ee2ce7be195"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_leg_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_leg_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_loincloth.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_loincloth_back.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_pelvis.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_front_torso.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_arm_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_arm_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_authority.png",
+      "sha256": "2d8762fa4e1a6092f38547ce4bda0a3dbd3916d2584a10bd5fe9f81b51de96b2"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_falchion.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_foot_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_foot_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_hand_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_hand_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_head.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_hidden_leg_far.png",
+      "sha256": "eccd3e05056e672d515e621e325b9a075e141d54fb04778f70fa35959d550461"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_hidden_leg_near.png",
+      "sha256": "3a5c6ebdf5c0ce651e34336d7aa37917507783a2a07ea2bd89c29eb9994208fb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_hidden_pelvis.png",
+      "sha256": "02f6dc1b0947a28f210c874105cacc886aae2745aa24b3924c1b2706b55f08ce"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_hidden_torso.png",
+      "sha256": "16481868f8bd56db6d784b37d00508e32232d011404fb8ca8d0e0c66ab38489f"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_leg_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_leg_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_loincloth.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_loincloth_back.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_pelvis.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/feedback1_rear_torso.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/front.png",
+      "sha256": "d3cc1e23c72b020d70b133af1e4e52c9e3e98bca6effaca5a4e1a639d024ac97"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/ownership/rear.png",
+      "sha256": "bfd43f2580a2e8d68c9ae8caafdb81b5bfc926a4d9e281a1d125b1db6ae45950"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/arm_far.png",
+      "sha256": "a445e35baf57746a71d666feec3aab6625126faf0ebbc5e33da4781f95d9364a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/arm_near.png",
+      "sha256": "1040dcb1751fc541b168ede8c373e417935aa38dad7fc336bf218d723e17ae5b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/falchion.png",
+      "sha256": "4fa3384125e6b46f4736447fb4fee4d5a38f9be0a933f2bbf47d6221edf2790c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/foot_far.png",
+      "sha256": "2158fa24575002d2d4785b83edad7cd237a77cd088eca0cf074fba1a9728449f"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/foot_near.png",
+      "sha256": "faa7d3713956e7e0372c74e7a21f78e98f18ffa24a7ff5fbeb03f9eb06560d89"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/hand_far.png",
+      "sha256": "c5ee89c47b5c72f5f16e434bc297788e9857d75a6a20f83551673fa0b6745e5d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/hand_near.png",
+      "sha256": "9850f2148341f342f8dda56b2377c3032a967f0e0d4f68b7f8b1f0122c8a13b8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/head.png",
+      "sha256": "b82e5d2f698ee6b1219fda7064631bf420098bd0e00cbe43ce82cc666a35712a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/hidden_leg_far.png",
+      "sha256": "c1714460562b49d5a9c521fb4b6fb21f44b703f2959c1e884d0b9ca82e4c8166"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/hidden_leg_near.png",
+      "sha256": "57788d1c8bd4ea3f89a46b70ae47b6bc263436fb53c586a037b83340bd75ecc5"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/hidden_pelvis.png",
+      "sha256": "d2621ea2f7574240ed990d6a6282f7da27eacf5f9b91ba23c1fa55bc128ae5d0"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/hidden_torso.png",
+      "sha256": "980055f32603462384baae4a3dbfa580f0579627bb98c190f84443a047126613"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/leg_far.png",
+      "sha256": "e0ff7e3fe242c58ccc7e37eb901157847e281ff452edf8201c8d66e790c78f58"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/leg_near.png",
+      "sha256": "56393e41071fcb997a6fbfbc1a084090606fe792b3fb3ee835abd312f200ce65"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/loincloth.png",
+      "sha256": "6c81cfcaf623cac78102533c754f54894ceb927b3eb61a9394a6f64fbdc4aead"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/loincloth_back.png",
+      "sha256": "d76dc6a904e39f7f072d46c926f08266477f1da5a0ed821c45e50674df347a00"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/pelvis.png",
+      "sha256": "aaf794faa6f40ea366c76a8947b106a3326954fa6387a2df76b367f3035ab7c5"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/front/torso.png",
+      "sha256": "f521d769e662fffe95b57dc1cc35d1be9582954231331d1b275df68a1f386032"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/arm_far.png",
+      "sha256": "9fd0356304d972d8892ba812980a9a9d32dfaa1ed72a521ea440fc59467dea14"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/arm_near.png",
+      "sha256": "9af8dfd08a318a1d0a00496ff5fb6c7559df94bb75af2d21d3de133737936c9b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/falchion.png",
+      "sha256": "976b9e9b03f45223dc3c6746cabfc07e4b923ffd5e718dc18e5e9fc7a93f7aa2"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/foot_far.png",
+      "sha256": "3820b3553e26c395fd4a4adce405418656dabee12944eb21097cfa84ea91cf51"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/foot_near.png",
+      "sha256": "3757795c5c6942275771167db7a282a2ab1e9a7dc185991e94f4f156fadf2a2e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/hand_far.png",
+      "sha256": "96c0aed1bb774c9c62c3529a511bda3ed5e4e52d6e85d66b5e11db3e7b45d5e7"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/hand_near.png",
+      "sha256": "43edb59ac85bd30804f885f96749599a76e72b4df0bf3a13b0756114bffff4ae"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/head.png",
+      "sha256": "8f0a214e6de827f41b08028067ccb779b1592fdaf5db9c5909e2fefb3be25f1e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/hidden_leg_far.png",
+      "sha256": "ee86417ac476e5163362ceb4422ee6e446150cef390b8c5a9852a8d11d946b67"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/hidden_leg_near.png",
+      "sha256": "e4d7acdd2ff19acd77ce1b464f85245c0f4070faa752f6588e966140d1af4b76"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/hidden_pelvis.png",
+      "sha256": "825f0ecfc116e9410b81dc0acb649a4fbf112402321fb1fa44746f646106b48b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/hidden_torso.png",
+      "sha256": "bbd7fd4479d7a53f6eff0a302f06a93722e3ef121fb35df38d655cde7adf6004"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/leg_far.png",
+      "sha256": "da4885834f6c2ca2d6fdf17295aa9f0e1524c50606c5564cdb91e157fb85d8f7"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/leg_near.png",
+      "sha256": "7f49c78b2411f096167bbd9d296b8243e776c213cfe8db971e1693fca11eeba7"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/loincloth.png",
+      "sha256": "f59aca3c6e9070621af5d6c2dc9afaad01a2ea3ba8d17e0c70d56cb515df2857"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/loincloth_back.png",
+      "sha256": "332a813b42c64b34713587e7bab6a7a0d9239b43b1e677e2e8a064346c697c89"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/pelvis.png",
+      "sha256": "16b7e1d6a18ed742e455bac1d4c2b67ddb096ac777e41946b97835e87d2f6c67"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/pieces/rear/torso.png",
+      "sha256": "26b2b7d1997990750100de0654acab717f1f50b1a42c45991587fa10540aaa60"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/proof/build.json",
+      "sha256": "db077a546ab294b906d8fe6cef43ede0e3f809e0b34070bb3d529fdd46cdb7a1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/proof/feedback1_joint_measurement.json",
+      "sha256": "d2f50a8d2c818807b6e1af14029cd5bdc2ccaf9908fcf8f3376882019bd518e3"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/proof/feedback1_samples.json",
+      "sha256": "ba1ceadc1225293d0d11762a03e60500925f66b55a6151e31a8f68c9a7b8675c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/registration/front.json",
+      "sha256": "b072b8df69d765442a7f8f5e579ff2914b6f031c1167dea6a03a35c2a2e1aaf4"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/registration/rear.json",
+      "sha256": "71ab9a4e98a40b30cbc0cb8b356031ec513107f29db84d8b45ae29948537fb9d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_arm_far.png",
+      "sha256": "e4d5f6c5536c741f4433088ea3334577c775bfe105b6cdcd6d726717a7c89248"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_arm_far_mesh.json",
+      "sha256": "ebb00e11e6e8a50ca89e593fe5e6d37b1db22a7f574a6fe3eb85c3b4d5697681"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_arm_near.png",
+      "sha256": "13b64d9db9712dc4c0647832906ea2450d62d22f1c2455c09d6624fb1416926f"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_arm_near_mesh.json",
+      "sha256": "baf4e684312b1b5c7c4189afb0e6e47e92d64398bf646c86c336fa7daba0146b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_falchion.png",
+      "sha256": "154069e329c793ca81e5f5e89c06a46953fd5a0db735d150747afd089008f015"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_foot_far.png",
+      "sha256": "0c252ecb3b4621fc60427dfbcdfef6724e1de295cecdc89d6ea3fe05b9e877b0"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_foot_near.png",
+      "sha256": "4f5f60265bce071802f243faedab180e50f9561528605657c339c1944ed54aa4"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_hand_far.png",
+      "sha256": "a328540b971590f951470b3720403cbeb58f62a6eaae6546c6431e7a71418b94"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_hand_near.png",
+      "sha256": "f730a3346b226050e53d382a299946e1f72e0affa17ea10cc5842ae7e355bf5a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_head.png",
+      "sha256": "ac6d1678f27c9950233ca3d31b0fdb5f8ff72d21eecbe84e2c0978c38eed425a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_leg_far.png",
+      "sha256": "fccdc6a80acbfb4129fb851074e8c51c75b78582132d1ac50adbed7ae5d5f9cf"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_leg_far_mesh.json",
+      "sha256": "b63534276a48018d8fa24052237d73bf9456367d99f4eaff53701aad276fe5be"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_leg_near.png",
+      "sha256": "1406be58c872de2fd38c3ceceed5b73150f4e8543e0fd46a9f7c1ed9e3be2d4c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_leg_near_mesh.json",
+      "sha256": "f00ce9cf0039429ebbaf4347fb6cf4a4100eca307ea64aef03da2e988dd748a2"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_loincloth.png",
+      "sha256": "b95eaa18d71000b72db1bc47419b10bd7fd1398df86ee804c499a7c23fbca123"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_loincloth_mesh.json",
+      "sha256": "d6a515eb6f01630443d225d00c8b960f1c80e89e8b761d1e2f97ccb69c4cf130"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_pelvis.png",
+      "sha256": "8b5d19644a8ac9ab82f59b30b450257a7a7c00db030dbd93381bcb1fb9dd9bf5"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/front_torso.png",
+      "sha256": "701fc3c9ee9e2f2f00fdbb418e5345458fd93e0ab8d67ee04e19b8e22ef758c1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_arm_far.png",
+      "sha256": "64b297946e11476566dd8e80d3ffa216cd8d9daf08525eda62a151283fef0f94"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_arm_far_mesh.json",
+      "sha256": "8cb5787e3f27f8c97ec2e600c22e2766a3fa8b5a3b2cda54725445cf127c7f92"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_arm_near.png",
+      "sha256": "8172a4ab513570a4be45627582e340e6fa1be5bc605b89b0ec3821ad5de559b6"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_arm_near_mesh.json",
+      "sha256": "043bdc4b8a50a4711406e3365496afca240ac5e3371baadee4f06fb6f83a4321"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_falchion.png",
+      "sha256": "a5a11980e202f3f118e061e751bcf2fb20d7d506e7fa983f0604f7b59c0f254e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_foot_far.png",
+      "sha256": "e4138567b7d8fa15bfb195a3a0d989d1642397ee79620919332ae0e9fc2b0cab"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_foot_near.png",
+      "sha256": "f86519b4dfe5b476f1782b4967a947c34a705ee18a7b524eaf466e99395efecc"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_hand_far.png",
+      "sha256": "ce00ed9b2c5acc6cedb59357e251906a26b5d97eda29dbcb3d9a25f4bd180cdb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_hand_near.png",
+      "sha256": "0b71b5763ed74cb3364e72c9968270e65328dcc7c2919b8b641ce327620d4e19"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_head.png",
+      "sha256": "749481dcd917d07583ed75d1a6c7ee95e00297877f97381653f3d756c1fff3b8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_leg_far.png",
+      "sha256": "e13266afc6311635bc4026999301478c2eebaf701399c599dd832194d6709273"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_leg_far_mesh.json",
+      "sha256": "2140fb3a60956843200734a619fec18faba8075b3b9461fdfbcdfc782cd85f5c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_leg_near.png",
+      "sha256": "5caa5167a382138302e58b6377b4eba708e881d7e63efbdebd5e3a26228f079c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_leg_near_mesh.json",
+      "sha256": "be5d74aadac87a3aee2e7d3c5df485160793ff06176164d49e76b1942b74e38e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_loincloth.png",
+      "sha256": "7c57aaa31183fe0a883210b18f829fba610eb4b4e2bebef249485217f3c1e51a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_loincloth_back.png",
+      "sha256": "48ada8bbe4767ce88ff3c6a60f8c25b3e342f698c19b7f09f77338ecdd0c9683"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_loincloth_back_mesh.json",
+      "sha256": "726b0c16675a49332c490d90cf0eb7ddf0ad0306b3982f00871738e8c62641d2"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_loincloth_mesh.json",
+      "sha256": "33f6b64af3fc843577f8a9bc6ce65328596ebeffac5c2ba38bfa177dc0e8e387"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_pelvis.png",
+      "sha256": "8fa62b269e1c2354e35b98412d60d132dd07612def6da702e426afc803d67a19"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/seams/rear_torso.png",
+      "sha256": "4b79272a5df62d7faef0569eaf05c388c5d92e40bebdd54bcce2dae21e97115b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/source/front/processed.json",
+      "sha256": "b12526c64960d15da384ceaf1870e0ce1ea77681f4e6942eb7f015d29f4a5c9b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/source/front/processed.png",
+      "sha256": "865e34d168a07b023704cdcfe52b40d38647d6dec7aee63637a582b34c71db4d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/source/rear/processed.json",
+      "sha256": "1dee56b1096e106355b632326594465298966489e6264139f231b26c670b7db5"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/source/rear/processed.png",
+      "sha256": "e4e0173adf24a365594f48c48414c2832c3c565449023205d6fb9e615cf542b1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/source_partitions.json",
+      "sha256": "dcc9230c10f6c136c8438fa65cd6f1401b365741c3fe3190e0f2b4d104119b45"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_arm_far.png",
+      "sha256": "54ec2b9a72d6809a71c7725a7921ea343222d4e249973d747240ca190e670932"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_arm_near.png",
+      "sha256": "ac6c880be9b619e2bf626074cc0b91cbf4683b79b581470a56afa078612f1965"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_falchion.png",
+      "sha256": "c60dfa525e816f2c815e095ac1738d2c85c3611960e05d9a1388348b727e9339"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_foot_far.png",
+      "sha256": "b6b09b1e4d0eaa50a52a58e1c6550464962be844379f13a683c93f6ef6393859"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_foot_near.png",
+      "sha256": "ba50fcfc3f5b3e866e9d05599f4f0ebc2af2c8b52b9cd410241827e49dc8afb1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_hand_far.png",
+      "sha256": "4e23518aeaf53cf040167a268a1cd8524df1fc2a6bdfdf7e57d4c2f46383a838"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_hand_near.png",
+      "sha256": "bad2e496f97292996e2bb9342b9fece739ed1b5884fd7d1e7b20e874deb98ea1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_head.png",
+      "sha256": "dbcae73b2b19e47c8fc0635c07d19a0d92450ab086b3b87af0e813e991d6e000"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_leg_far.png",
+      "sha256": "28afc7d58f22c2829da9bd43716809baf8a944620dd4081c0152c1ba547e53ce"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_leg_near.png",
+      "sha256": "7bbcf86e52d042e2a2f25ce316b4a4257344a6d37054f206366b8e8804249802"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_loincloth.png",
+      "sha256": "4d73d377a59418c4940913babeda20cc04774ca65ac0e79509aa9f2273833c6a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_loincloth_back.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_pelvis.png",
+      "sha256": "4a09668dd399f52ac2c5437333858a687f51b296db389c52c1ff09a46d52d769"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/front_torso.png",
+      "sha256": "dfb997178dc74689c74f0fb2051b41293efdd8335098bce88486c31b14d07258"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_arm_far.png",
+      "sha256": "027aab8d0504fc86159eb671be8e107ac9a06c754ffa9c46c2252bdf36f81b28"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_arm_near.png",
+      "sha256": "66c4bda1573f849810b763c22c1e12be36e0b7dc0fc2bed769a581de4e347446"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_falchion.png",
+      "sha256": "5e5a21f39c0eb54c15f669ab0bc571661361c8b50cd13bb199239e4f92ac66f5"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_foot_far.png",
+      "sha256": "5ced44090feb5739471b41ab7ee378f6a8dbee9d89ca44fd9aa6333b970627c8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_foot_near.png",
+      "sha256": "e6fd698461e76f4ccda8fe80aabcdd56d3047de35ad7e7021aa7f03bdc13a21d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_hand_far.png",
+      "sha256": "f5c02cd43e54c27d5ba6c707b23fba8a70fc34edab5e77d2bd04acd02b960e9c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_hand_near.png",
+      "sha256": "53e8dd6ffe5e0fc65a3d5c91e3f02b414700dd11bffed450b64e377fb39cbf09"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_head.png",
+      "sha256": "977f7c22781e4120b512311700fd48aad1503834e678a36a4546d34960d30bfa"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_leg_far.png",
+      "sha256": "4e03f7c0c913aa2bddae7aac965dead71b0a1f8cc794397ca7e9eb144403e3ec"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_leg_near.png",
+      "sha256": "c4c672395af2eb89260124fb1394229cea99131994f39a76cbbd8e34fb2b2618"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_loincloth.png",
+      "sha256": "6a9f3c28ca7919e3d683b41425a7001da8635dec7e75a75a44f2f4228af5ffbf"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_loincloth_back.png",
+      "sha256": "0f1dee658696fe67dc4895c2161f47190d852dedc170d82a14f959ffc6be238b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_pelvis.png",
+      "sha256": "f28a9256921a98ccc77c0b2485a5e3a8f2f9d4742bdac178475d4633fa726def"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/tucks/rear_torso.png",
+      "sha256": "795e257ee770885b2fe5946d66d70b7f02a0af29a8227b8b5c096f639a290ed3"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/front_arm_far_missing.png",
+      "sha256": "cb6729655cec53d2132ff9e275d29fd50a0390ae6139abc809146ba9d9d3ca58"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/front_arm_near_missing.png",
+      "sha256": "975c254a3a5f8cc29b4ee59d6308b33634371acda1d0e50c264fcd034f226323"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/front_falchion_missing.png",
+      "sha256": "2826fd4dc1c60f6d48dd4274c84cf62372217c7bb7b7d8ef0a0841f30c91a03c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/front_hand_far_missing.png",
+      "sha256": "290bee0cc0ba3a8739f2bbbcbe5793f9bf1ce839940854258f89a37339e96ea4"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/front_hand_near_missing.png",
+      "sha256": "3ca3181f6e42bf34e5ca4d8bcd0ce5f428bfea9979df726f2035d1d63bf579da"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/front_loincloth_back_missing.png",
+      "sha256": "b158899cdb5d4ff5c7d07d4d513303415499e1f4ae709655db1e1f9bcd79be56"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/front_loincloth_missing.png",
+      "sha256": "cd40cb964ae489c50bb4f6fd7e0ba8364e000114c8280db0d963fa69bc0c37f7"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/rear_arm_far_missing.png",
+      "sha256": "97fe294c13924dfabc05d2dbb07dce39bba6369bbc76c57cba372463df3373a4"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/rear_arm_near_missing.png",
+      "sha256": "a19033b079812c2c1c61b22de0a36f88340518ea627f47a530993a9694e89a8d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/rear_falchion_missing.png",
+      "sha256": "aa849e649c2808bd7e623565b71beb7c7215634afce43663ab611dd1ea505b76"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/rear_hand_far_missing.png",
+      "sha256": "5bc4a6e40f1d6cde3c7c90156373f6b7695afcd64e52de491d7c7586783618a1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/rear_hand_near_missing.png",
+      "sha256": "673c9455119c0f9d51c185c5c69f5dce11b7cd688d3662e9bd4a2068ba075325"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/rear_loincloth_back_missing.png",
+      "sha256": "8448a39f78184f9a66e0b1283e8de29d3597f71bc95934c45647127a9d1f1cae"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/baseline/round1/underlay_coverage/rear_loincloth_missing.png",
+      "sha256": "85845fb3417f7adc78a6341eeebfb6bdb6c5c9f844897c7bba41f5593c7dd64c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/cap_arm_far.png",
+      "sha256": "46183ad2459a5923449f505a99685133e7c6a8257d04450849613809f8b117af"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/cap_arm_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/cap_arm_near.png",
+      "sha256": "3c219429b48b83f464ace17e9cd58b537acc6d211c117df3709a07366bd10872"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/cap_arm_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_arm_far.png",
+      "sha256": "010a33c27489b6de595e40cf668a6410c8957ee61bda51098871031e335a32e3"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_arm_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_arm_near.png",
+      "sha256": "ff6fce646440245aea0e15204d9fd75b744a6c00c7d176ea4d94ad6f166d2abe"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_arm_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_falchion.png",
+      "sha256": "2040eda99ccd71fd365ef1b24dcc006e2e9c9c3e2ef0e9507fa3c77cca22608e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_falchion.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_foot_far.png",
+      "sha256": "3170616a931f6a03935327ed6821cd511aa32a523501fd1bcc3993e0b6762054"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_foot_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_foot_near.png",
+      "sha256": "6f2cafd83deda7a20e259d87dcae7e09fdec4799f9276380a1f3e93a48b6eb1c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_foot_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_hand_far.png",
+      "sha256": "f44a32dc2a4fb272b829ac1d4ba54d87876322a8fa0d3cfdc0d0f6980e2f7525"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_hand_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_hand_near.png",
+      "sha256": "bdc1b8b3a1488d570e1f4ba303c8a003d36155a8755af15c77e19497d5a96c60"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_hand_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_head.png",
+      "sha256": "b9ba6a533f43c65d95ac80a96853c52806b671be0c9ab90a1a8a651a9610a4fe"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_head.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_loincloth.png",
+      "sha256": "08003b1dd2bbf8ff1e03b030323f4204817f4edd8867497cb1268c33cd613c09"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_loincloth.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_loincloth_back.png",
+      "sha256": "d9b25ae5dd20855045b8b2a57cac8c0d6a771d26165e18f5093439d6ee31b226"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/front/hidden_loincloth_back.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/cap_arm_far.png",
+      "sha256": "75ec5abca4e486b9e11c01602937a17aed0e274f878d9620fed57f8140a13ffc"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/cap_arm_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/cap_arm_near.png",
+      "sha256": "8ce1c6a16e138aec1f4c1235359011ebe6bf513e720d4afa29745403c36143b2"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/cap_arm_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_arm_far.png",
+      "sha256": "9c1a253d20c52d5645c55920c7ce9bf91d6441ef599181678d34d47c1005b8b2"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_arm_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_arm_near.png",
+      "sha256": "ef464ca83dd5928c91cbd5b2f03f0b78e16e8b57d57f960e4cf39cc7977487b9"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_arm_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_falchion.png",
+      "sha256": "1dbade49eac7531b2fdd2338e5d22693796b383863bfcf18955bef075f00d4ea"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_falchion.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_foot_far.png",
+      "sha256": "e166fc82478815c4c8851e6af15eb481ed948cedc9a92b359dd0c0ab26134845"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_foot_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_foot_near.png",
+      "sha256": "338e421ea3aca7eccbf645ee97f887f795a3cb7b092c158eecb81e82ad97e84f"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_foot_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_hand_far.png",
+      "sha256": "de4b8952f636c24677a2cc75a3d9c40cb8f3bf7215564376fd33ffab5a56a89c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_hand_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_hand_near.png",
+      "sha256": "d115070db86759a60b5aafdec6a9200d01fb021584b25185e4bb3402abf35f17"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_hand_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_head.png",
+      "sha256": "84ec8cdac7249693666cd9db74a32e39de0d8ffe306d28982843bb2a8d887b55"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_head.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_loincloth.png",
+      "sha256": "b7fc00b54cbb79e2f04657cb6d829b18b3b5e5fcdb1196eda4d986f839a5c52f"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_loincloth.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_loincloth_back.png",
+      "sha256": "b43bff0447208c130b062900dcd862b21a570452f47713137c0f234d8e82a1de"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/checks/rear/hidden_loincloth_back.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/feedback2_fragments.json",
+      "sha256": "84f309e7cfcc5f60bc892b63665cd12eea6e04cc7d6d53ce6f99749797aecb04"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/feedback2_joint_budgets.json",
+      "sha256": "60c1ff850489ba2944bafc0bc61408d812a4e8ab179fde8c19394f980da30f23"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/feedback2_ownership.json",
+      "sha256": "1120ae9015872448f8339d56f39dec5eabcc2b3f9a3a90bf6cca54eee0cdcf43"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/feedback2_rigid_fragments.json",
+      "sha256": "2ce4e09bab8b123b13cc35b4ac5da01253c035e6ea8734e8703b02882e13c123"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/feedback2_supply.json",
+      "sha256": "338f5127f00e196c4fab4e8245f740a85842eaf86b01a8285183e579e6c07f53"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2Clear_hidden_arm_far.png",
+      "sha256": "3320a8e3df6afa3ccc42c048d97dfc18880d7fa8f618cc0f98af4adc22c99917"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2Clear_hidden_arm_far_mesh.json",
+      "sha256": "bdd648a93f6cf5e0d564fcfc88b177f1c9ddb1fda34240de8f48ba89293a1e29"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2Clear_hidden_arm_near.png",
+      "sha256": "239a2965a1ce52a992cf7f5d030786a9131c2f6e351bf33576399c479d684c73"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2Clear_hidden_arm_near_mesh.json",
+      "sha256": "27c99fe1cdc297b36bb4010456e988d1bba539fbbe4d930b2f1b91b361154de3"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2Clear_hidden_falchion.png",
+      "sha256": "7bb0ea54417e01e8b1815bf150b599ad68392958fb56a8bd61280408cf4d994b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2Clear_hidden_hand_far.png",
+      "sha256": "377474a0dab18a65862e38cf874d3c1cef3bbffc3d30556e3b9e6de896419343"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2Clear_hidden_leg_far.png",
+      "sha256": "e56878653c9a85eba4f425b1b4ec775207e07c0d02b2b6b688e61bb453cfa83d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2Clear_hidden_leg_far_mesh.json",
+      "sha256": "0fa8a80e8fe94aa38cc389acd1c1d84403d6cbef45a684565e9d0264af84f64a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2Clear_hidden_leg_near.png",
+      "sha256": "5506bb02867096a361068ce0c10c19c4d3692d1d3789af11dcf4d20232c329cb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2Clear_hidden_leg_near_mesh.json",
+      "sha256": "13fdf9c6868e21dec2898a468a05def823d50f7cf1058db583e6718970efa355"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2Clear_hidden_pelvis.png",
+      "sha256": "6bf094334813311ff598acab8389583d5b5c46db2a4bab6f2fa41a0eaee2262a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2Clear_hidden_torso.png",
+      "sha256": "3347f502c04745509500102bc9a2a9563fe1a8c5deba4109bd12450c805712cf"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2RestAir0.png",
+      "sha256": "dcf68ef68e59643022a4ca6836cbdc5d2c6d598b755a979d4f7d8f204955dc41"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/front_Feedback2RestAir0_mesh.json",
+      "sha256": "e5af4f35cd10c5e5e21d2490ed2374e1a0fe76b7cf149ed0e1d694d98e5d7846"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_arm_far.png",
+      "sha256": "6e947855dc6d121b04ac8c4069ae794547b7b9e3fb4c8db1e83da49bc420fda3"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_arm_far_mesh.json",
+      "sha256": "1c8836f7a67ccbd8651db95947404a86aa689d7866b20fe721ab9a787347b683"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_arm_near.png",
+      "sha256": "5a1506a95f1cbc9ee47331f9f95b1c0f495e8c507016120396b634990e0fa83d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_arm_near_mesh.json",
+      "sha256": "965438a5cca4ef81d86dbaa5205f114dba05e72211dd86c751c20ead37a718f9"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_falchion.png",
+      "sha256": "7e68ab4c8a0783e8e60aebcde3fe875c45230b5977d732b1dd4381df29be5e04"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_hand_far.png",
+      "sha256": "f214f91b2633017e20f0cc2807b33f0fa6ef7b7e98675cce2d49003ad2b4c0fe"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_hand_near.png",
+      "sha256": "91ce532211339bd8fc3ca2d3d0d221c64602ab63c13f46f0a37ac60d40fa4daa"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_leg_far.png",
+      "sha256": "033c6a049659e7bf2740db7ca0507db0923cb7b08ef5ef805e044e373052a11c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_leg_far_mesh.json",
+      "sha256": "8b1b22b11d9f0237fb76ffb6621ae573234982d76cb63ece88216ec60d5e5196"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_leg_near.png",
+      "sha256": "38c1ff9aa522336caaa9df54c38d128b4a6af6bcad35edb6fb349930411a0d3e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_leg_near_mesh.json",
+      "sha256": "1329bbda495f967cc5952ad191d906c8734d267bdf47401e8cedd1e0e8d0849a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_pelvis.png",
+      "sha256": "71f85e6e8af9d1843aa7465f896c1d1eb4a55f7a8cd09b98b292175c3049d6cc"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/holes/rear_Feedback2Clear_hidden_torso.png",
+      "sha256": "d545f30b5d7c1c4f44d05305d8fdff775ecae6bf151f58d35f69d560ff2fb833"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_arm_far.png",
+      "sha256": "13053b5768c62226ce5f0c78d39111cfaeb279c4b82f2d4df700d9e4b0521471"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_arm_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_cap_arm_far_cap.png",
+      "sha256": "3d6e95c187bc8a59cf829f5141894915d99ca0f6d885e1b500d42bc2a45f6ec8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_cap_arm_far_domain.png",
+      "sha256": "070602391987893f6d4481ffd13a9c2ecf0b3dbcd4a66489cb452e0a90a67b81"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_cap_arm_far_tuck.png",
+      "sha256": "070602391987893f6d4481ffd13a9c2ecf0b3dbcd4a66489cb452e0a90a67b81"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_cap_arm_far_underlay.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_cap_arm_near_cap.png",
+      "sha256": "331658d87ec98cf1c633e56038c3e8508fcdc9154cedf7a6b481676b28546e6f"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_cap_arm_near_domain.png",
+      "sha256": "3452ce7ca680b420445352e19e5dcb4f7a930abadda768d5ff15ae7047d7c173"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_cap_arm_near_tuck.png",
+      "sha256": "3452ce7ca680b420445352e19e5dcb4f7a930abadda768d5ff15ae7047d7c173"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_cap_arm_near_underlay.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_falchion.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_foot_far.png",
+      "sha256": "844242b8145aab3d24169a547868b847fe2ada5f61f2d328dc26afe147ad224c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_foot_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hand_far.png",
+      "sha256": "d59a825011d1063fd649afbc3a813b5cfd63af9ba287dd93aced013a9169e108"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hand_near.png",
+      "sha256": "004a23f884e662dbea311aeba2799fd1accb739836a1d07aadd584a6814c74cd"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_head.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_arm_far_cap.png",
+      "sha256": "8850e9400a2cd19d14b8c8fd6e04a3301beb2bc25bf9eea93075781a1819f994"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_arm_far_domain.png",
+      "sha256": "54ec2b9a72d6809a71c7725a7921ea343222d4e249973d747240ca190e670932"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_arm_far_tuck.png",
+      "sha256": "54ec2b9a72d6809a71c7725a7921ea343222d4e249973d747240ca190e670932"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_arm_far_underlay.png",
+      "sha256": "870a6bd24694f3bda02cca84d77571ff5ab9aa25ef706d45cf198e71e2c120f1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_arm_near_cap.png",
+      "sha256": "5d7bf8cf0aa0201dd517f844144eaf8feecd47bc80d4acad50c4ae4789e6e81d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_arm_near_domain.png",
+      "sha256": "e32712588114c4c6eb0e6b6c9d204aef399e30eda7654c851da32d5d3674cd7a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_arm_near_tuck.png",
+      "sha256": "e32712588114c4c6eb0e6b6c9d204aef399e30eda7654c851da32d5d3674cd7a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_arm_near_underlay.png",
+      "sha256": "6e73c98a7d54dc7cc55f41508cc580ede7e42e2dca23c02c9f39914e3b5028f6"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_falchion_cap.png",
+      "sha256": "b65665a5ae81de67bf0af7724dbcad0177c14d1404dd4c8f70bc9ee2654a3154"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_falchion_domain.png",
+      "sha256": "c60dfa525e816f2c815e095ac1738d2c85c3611960e05d9a1388348b727e9339"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_falchion_tuck.png",
+      "sha256": "c60dfa525e816f2c815e095ac1738d2c85c3611960e05d9a1388348b727e9339"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_falchion_underlay.png",
+      "sha256": "4aa687f775d6420c1f5ae4b4ffb4298cbb591a906da37c287211a650617cbe07"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_foot_far_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_foot_far_domain.png",
+      "sha256": "b6b09b1e4d0eaa50a52a58e1c6550464962be844379f13a683c93f6ef6393859"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_foot_far_tuck.png",
+      "sha256": "b6b09b1e4d0eaa50a52a58e1c6550464962be844379f13a683c93f6ef6393859"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_foot_far_underlay.png",
+      "sha256": "b6b09b1e4d0eaa50a52a58e1c6550464962be844379f13a683c93f6ef6393859"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_foot_near_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_foot_near_domain.png",
+      "sha256": "ba50fcfc3f5b3e866e9d05599f4f0ebc2af2c8b52b9cd410241827e49dc8afb1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_foot_near_tuck.png",
+      "sha256": "ba50fcfc3f5b3e866e9d05599f4f0ebc2af2c8b52b9cd410241827e49dc8afb1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_foot_near_underlay.png",
+      "sha256": "ba50fcfc3f5b3e866e9d05599f4f0ebc2af2c8b52b9cd410241827e49dc8afb1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_hand_far_cap.png",
+      "sha256": "b26abae8d99b4a76ad76daec82400f14315b0374890480a976df5259190d202a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_hand_far_domain.png",
+      "sha256": "4e23518aeaf53cf040167a268a1cd8524df1fc2a6bdfdf7e57d4c2f46383a838"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_hand_far_tuck.png",
+      "sha256": "4e23518aeaf53cf040167a268a1cd8524df1fc2a6bdfdf7e57d4c2f46383a838"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_hand_far_underlay.png",
+      "sha256": "bdd3dad624d801a13ca9b1f1f3c7a2d5b8f7a30954ac09ac13ab71541aaf190a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_hand_near_cap.png",
+      "sha256": "4a56369ca28216c7fd919a7d6e558f667b242b76ae1ceab85be5c45a24a14154"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_hand_near_domain.png",
+      "sha256": "bad2e496f97292996e2bb9342b9fece739ed1b5884fd7d1e7b20e874deb98ea1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_hand_near_tuck.png",
+      "sha256": "bad2e496f97292996e2bb9342b9fece739ed1b5884fd7d1e7b20e874deb98ea1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_hand_near_underlay.png",
+      "sha256": "636fdf8d1c9c47b89781825e5ed12332d70d9aae8badce9994ff8e1ad8cb1583"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_head_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_head_domain.png",
+      "sha256": "dbcae73b2b19e47c8fc0635c07d19a0d92450ab086b3b87af0e813e991d6e000"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_head_tuck.png",
+      "sha256": "dbcae73b2b19e47c8fc0635c07d19a0d92450ab086b3b87af0e813e991d6e000"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_head_underlay.png",
+      "sha256": "dbcae73b2b19e47c8fc0635c07d19a0d92450ab086b3b87af0e813e991d6e000"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_leg_far_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_leg_far_domain.png",
+      "sha256": "494e8716925bb9779b1d28ca856b1fffcc5ec0e6b7d5bdaf56b8bd93fb47c7d5"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_leg_far_tuck.png",
+      "sha256": "28afc7d58f22c2829da9bd43716809baf8a944620dd4081c0152c1ba547e53ce"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_leg_far_underlay.png",
+      "sha256": "494e8716925bb9779b1d28ca856b1fffcc5ec0e6b7d5bdaf56b8bd93fb47c7d5"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_leg_near_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_leg_near_domain.png",
+      "sha256": "a69dca4983e84112305868367e935c7c41d7d147ad68506def6a0acc8b13be91"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_leg_near_tuck.png",
+      "sha256": "7bbcf86e52d042e2a2f25ce316b4a4257344a6d37054f206366b8e8804249802"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_leg_near_underlay.png",
+      "sha256": "0ee9f10adaedb884e5e7bc87f64dcff735c23d399e61b66cad03abc27ef050cc"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_loincloth_back_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_loincloth_back_domain.png",
+      "sha256": "80fbd4c04976cd84fefef6433ff49ec4be731611d90358b104f9c4827478d164"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_loincloth_back_tuck.png",
+      "sha256": "80fbd4c04976cd84fefef6433ff49ec4be731611d90358b104f9c4827478d164"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_loincloth_back_underlay.png",
+      "sha256": "80fbd4c04976cd84fefef6433ff49ec4be731611d90358b104f9c4827478d164"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_loincloth_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_loincloth_domain.png",
+      "sha256": "4d73d377a59418c4940913babeda20cc04774ca65ac0e79509aa9f2273833c6a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_loincloth_tuck.png",
+      "sha256": "4d73d377a59418c4940913babeda20cc04774ca65ac0e79509aa9f2273833c6a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_loincloth_underlay.png",
+      "sha256": "4d73d377a59418c4940913babeda20cc04774ca65ac0e79509aa9f2273833c6a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_pelvis_cap.png",
+      "sha256": "6d5da62ac544e1ed2d57e18ac35ce7e33359776f87afa31c6173583c3f663ca0"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_pelvis_domain.png",
+      "sha256": "f4806c5de18f26378d57b9e84d5740fc052d3a96f125dd70871bcb22c7499f41"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_pelvis_tuck.png",
+      "sha256": "4a09668dd399f52ac2c5437333858a687f51b296db389c52c1ff09a46d52d769"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_pelvis_underlay.png",
+      "sha256": "2226141cce33c00f8d6a74f99f33dc3448412daf0957920d175d857d079bb9f4"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_torso_cap.png",
+      "sha256": "99ff8f80eda6581d75705c5d1154dc5c6e1f3ae7c5c70d2f1e28b5fd59126836"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_torso_domain.png",
+      "sha256": "266f9f75517e64fab18799bccd39981c50483a6da082e57153c64e9f28981245"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_torso_tuck.png",
+      "sha256": "5eefdb3a5ee038147500cb2ca83472aebb3a380a820e23849388d045e4e50abb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_torso_underlay.png",
+      "sha256": "94fa57ca0035e16119bb25e2af09bfc396d9ea0c24b30c4faf3e6db9cb5f5414"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_leg_far.png",
+      "sha256": "d59a825011d1063fd649afbc3a813b5cfd63af9ba287dd93aced013a9169e108"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_leg_near.png",
+      "sha256": "004a23f884e662dbea311aeba2799fd1accb739836a1d07aadd584a6814c74cd"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_loincloth.png",
+      "sha256": "83d7f2a8086d2e7adb2f47bba4ad84a1ff9d7cd42d5b4b5a1e18e60959c1cd30"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_loincloth_back.png",
+      "sha256": "5ef04e4cf76f42b6b860b8c38f554f2783be452c2ca822c240eafc6967e6b5fd"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_pelvis.png",
+      "sha256": "c28156c5ba5e79520c7a023b06573033e7034f90db748cb8588b139d61ec34db"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_torso.png",
+      "sha256": "599b522778d55f107d15e2fe512671f1c0acd4357678a293d9f229b815b0c84a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_arm_far.png",
+      "sha256": "857d174eccb31539aac914dc34a6d5454dc52f045fec9219bcda2429a368df22"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_arm_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_cap_arm_far_cap.png",
+      "sha256": "e2d89645a123f191ae15b751280a93b7935f9dffee0bd213b0d7ebc2b897ae62"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_cap_arm_far_domain.png",
+      "sha256": "9ae7250ae350a2f6fea5a8f65328cc39aa9f6a8a4d4b3c3122ff10eb67e9fba9"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_cap_arm_far_tuck.png",
+      "sha256": "9ae7250ae350a2f6fea5a8f65328cc39aa9f6a8a4d4b3c3122ff10eb67e9fba9"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_cap_arm_far_underlay.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_cap_arm_near_cap.png",
+      "sha256": "242212752539fe001273ddc90204231299cc88519326cdff227bbb32ac598f38"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_cap_arm_near_domain.png",
+      "sha256": "b91736b48df9c251c3196f8501574093510490f058b986eb0d272c73ff026b65"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_cap_arm_near_tuck.png",
+      "sha256": "b91736b48df9c251c3196f8501574093510490f058b986eb0d272c73ff026b65"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_cap_arm_near_underlay.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_falchion.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_foot_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_foot_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hand_far.png",
+      "sha256": "29734cf741032fc53057a55407aadcdf200679b9be5a7cc674a7feba6e9617ea"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hand_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_head.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_arm_far_cap.png",
+      "sha256": "d918ff3ae99defe2529e7677a2e68c0760d0fe5442e3e2a73c1a7937f6e9e256"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_arm_far_domain.png",
+      "sha256": "027aab8d0504fc86159eb671be8e107ac9a06c754ffa9c46c2252bdf36f81b28"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_arm_far_tuck.png",
+      "sha256": "027aab8d0504fc86159eb671be8e107ac9a06c754ffa9c46c2252bdf36f81b28"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_arm_far_underlay.png",
+      "sha256": "2d886e72b0cf5e2baddb79c39852f8c9c73cd346adcf2198d672bf388dabfde6"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_arm_near_cap.png",
+      "sha256": "27bc307cdd0cb2c640fa70d8a091113a55e17d0a0f15f177b850d576a99786e1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_arm_near_domain.png",
+      "sha256": "66c4bda1573f849810b763c22c1e12be36e0b7dc0fc2bed769a581de4e347446"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_arm_near_tuck.png",
+      "sha256": "66c4bda1573f849810b763c22c1e12be36e0b7dc0fc2bed769a581de4e347446"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_arm_near_underlay.png",
+      "sha256": "e22545a0981c4b2c8d72d1c3b23431b17651a4f37c65d76331dd074faf1b8f01"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_falchion_cap.png",
+      "sha256": "aa513a71b89d1744b88fcfdd282fb8d2945aae247fd997f2a8f8f6975868969b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_falchion_domain.png",
+      "sha256": "69c148d3d918f81680927e59c4ecd0b81731d021ea0e2e0c2bc92eac2a1b4efb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_falchion_tuck.png",
+      "sha256": "69c148d3d918f81680927e59c4ecd0b81731d021ea0e2e0c2bc92eac2a1b4efb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_falchion_underlay.png",
+      "sha256": "c8194d553f6ddbe21a46bd2f25a63fbc0c0d62aa4ca233094e0c4a8dea4d8620"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_foot_far_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_foot_far_domain.png",
+      "sha256": "5ced44090feb5739471b41ab7ee378f6a8dbee9d89ca44fd9aa6333b970627c8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_foot_far_tuck.png",
+      "sha256": "5ced44090feb5739471b41ab7ee378f6a8dbee9d89ca44fd9aa6333b970627c8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_foot_far_underlay.png",
+      "sha256": "5ced44090feb5739471b41ab7ee378f6a8dbee9d89ca44fd9aa6333b970627c8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_foot_near_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_foot_near_domain.png",
+      "sha256": "e6fd698461e76f4ccda8fe80aabcdd56d3047de35ad7e7021aa7f03bdc13a21d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_foot_near_tuck.png",
+      "sha256": "e6fd698461e76f4ccda8fe80aabcdd56d3047de35ad7e7021aa7f03bdc13a21d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_foot_near_underlay.png",
+      "sha256": "e6fd698461e76f4ccda8fe80aabcdd56d3047de35ad7e7021aa7f03bdc13a21d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_hand_far_cap.png",
+      "sha256": "493abcb19c809ce57f339385fbf6d00472b2e14cf7c4a410671ff4cb26557ed2"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_hand_far_domain.png",
+      "sha256": "f5c02cd43e54c27d5ba6c707b23fba8a70fc34edab5e77d2bd04acd02b960e9c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_hand_far_tuck.png",
+      "sha256": "f5c02cd43e54c27d5ba6c707b23fba8a70fc34edab5e77d2bd04acd02b960e9c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_hand_far_underlay.png",
+      "sha256": "59948fd0df890a797b6046be8151773fb0d96522969159bc00c0160d303fa23c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_hand_near_cap.png",
+      "sha256": "01585be9d4308b8e9b2c474b84ab606fba13cd425d07ae1761f594ef5f0b1d8d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_hand_near_domain.png",
+      "sha256": "53e8dd6ffe5e0fc65a3d5c91e3f02b414700dd11bffed450b64e377fb39cbf09"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_hand_near_tuck.png",
+      "sha256": "53e8dd6ffe5e0fc65a3d5c91e3f02b414700dd11bffed450b64e377fb39cbf09"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_hand_near_underlay.png",
+      "sha256": "6b06120186cdc6289040baad7cffa7bace945974015983035ef3ddeeeba6a55b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_head_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_head_domain.png",
+      "sha256": "977f7c22781e4120b512311700fd48aad1503834e678a36a4546d34960d30bfa"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_head_tuck.png",
+      "sha256": "977f7c22781e4120b512311700fd48aad1503834e678a36a4546d34960d30bfa"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_head_underlay.png",
+      "sha256": "977f7c22781e4120b512311700fd48aad1503834e678a36a4546d34960d30bfa"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_leg_far_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_leg_far_domain.png",
+      "sha256": "fca37ff2e84463266ec79cf55e693b316afe9e6663897e1ec8e214c8730791a9"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_leg_far_tuck.png",
+      "sha256": "4e03f7c0c913aa2bddae7aac965dead71b0a1f8cc794397ca7e9eb144403e3ec"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_leg_far_underlay.png",
+      "sha256": "fca37ff2e84463266ec79cf55e693b316afe9e6663897e1ec8e214c8730791a9"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_leg_near_cap.png",
+      "sha256": "f31fa5238e17c6e04e5945531e723edac82b6da28dd61b2206e5d963c5da0503"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_leg_near_domain.png",
+      "sha256": "de4977bff997085d640b8c8dc9eab2807e70da95e2dfdc4e60fdeca8f6efdbed"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_leg_near_tuck.png",
+      "sha256": "c4c672395af2eb89260124fb1394229cea99131994f39a76cbbd8e34fb2b2618"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_leg_near_underlay.png",
+      "sha256": "e81ba5dc1bde208c48308421c25ea10b2bf0fc117cebfb3f400d8c3e035f875d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_loincloth_back_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_loincloth_back_domain.png",
+      "sha256": "b543f51fb81b67b2ada36ccf66e89fcbee7f54c5c7f71f13caddb91b3eb3b1f1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_loincloth_back_tuck.png",
+      "sha256": "b543f51fb81b67b2ada36ccf66e89fcbee7f54c5c7f71f13caddb91b3eb3b1f1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_loincloth_back_underlay.png",
+      "sha256": "b543f51fb81b67b2ada36ccf66e89fcbee7f54c5c7f71f13caddb91b3eb3b1f1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_loincloth_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_loincloth_domain.png",
+      "sha256": "6a9f3c28ca7919e3d683b41425a7001da8635dec7e75a75a44f2f4228af5ffbf"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_loincloth_tuck.png",
+      "sha256": "6a9f3c28ca7919e3d683b41425a7001da8635dec7e75a75a44f2f4228af5ffbf"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_loincloth_underlay.png",
+      "sha256": "6a9f3c28ca7919e3d683b41425a7001da8635dec7e75a75a44f2f4228af5ffbf"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_pelvis_cap.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_pelvis_domain.png",
+      "sha256": "c9d89a602b4461af370122937ec977327e18a9604d01d1ecc6bad78fa26a4c99"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_pelvis_tuck.png",
+      "sha256": "f28a9256921a98ccc77c0b2485a5e3a8f2f9d4742bdac178475d4633fa726def"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_pelvis_underlay.png",
+      "sha256": "c9d89a602b4461af370122937ec977327e18a9604d01d1ecc6bad78fa26a4c99"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_torso_cap.png",
+      "sha256": "da588e5780400f14170c250e06689c9bf7703347d97ea3101fca2990a8f99bf6"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_torso_domain.png",
+      "sha256": "53a5c66102c61031913c3fc5467647774717a68274b364dd961d662268b9908e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_torso_tuck.png",
+      "sha256": "795e257ee770885b2fe5946d66d70b7f02a0af29a8227b8b5c096f639a290ed3"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_torso_underlay.png",
+      "sha256": "9369769209624c4b0bf7ae2a25acb6e9bde74f15db684d1cd305cded64504127"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_leg_far.png",
+      "sha256": "8c56a36ef06da800c204d6111bfcf83c2a4d6681f55e9f5c6e6dcbb7e9de071e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_leg_near.png",
+      "sha256": "f4852fbaee7f41f1e95101886b76a3c14709c259f8572109928a3ec994efe914"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_loincloth.png",
+      "sha256": "8c25a82616702a49f2c2efe643cf285abb5151aad7d8e9b7d49128611212bc4d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_loincloth_back.png",
+      "sha256": "d25dd3695046f7eb627b423c37b07d949a4bcf9c23138d5e3613f8c7c61500a5"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_pelvis.png",
+      "sha256": "9ba527a9286255c6e730cea4b454f8477563167a549b3b554d94940f37926899"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_torso.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/cap_arm_far.png",
+      "sha256": "6d076393d47943eb90b0dd970eacedbad3799226a95e7df59e6869fb21360807"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/cap_arm_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/cap_arm_near.png",
+      "sha256": "3c5160453fde82d624c27f34bc23a721f37c4a090d95b6ebf5cbceae0b599ce3"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/cap_arm_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_arm_far.png",
+      "sha256": "5096011c7044ec7dc50352f55a4ae436b5828fc421d8b182b4cd7abda5c86294"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_arm_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_arm_near.png",
+      "sha256": "9a0a298ca469a2eb60c1a0cac4852afe69d4dcd1e9a8a96a65d4550543bfe0a9"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_arm_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_falchion.png",
+      "sha256": "c3d0819ee08721a74aebeb8b4ff734658e7df36629fe7fbc8f8b9fc345014870"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_falchion.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_foot_far.png",
+      "sha256": "ef60b98d938d1d50c7bcc23d155719a03a6e2e2e9a5a20c9d4704d6527a12668"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_foot_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_foot_near.png",
+      "sha256": "ee47d834a4b98eb0ec8b96af8ff5c6a25b772c3d59be8232a690158e3618f019"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_foot_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_hand_far.png",
+      "sha256": "2f81cc9422d62727a5ee70aa437cc01af4810a29cc012d34fad22e7ec4ad76f8"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_hand_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_hand_near.png",
+      "sha256": "edee7daa3e97382d9abfcbedfbe45a9da98e85967cec8f7232c11fa3c00455c7"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_hand_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_head.png",
+      "sha256": "83bcefaba8efa27667c3059354bd227a803b3eb2b92119cbafeab874d06be41b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_head.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_loincloth.png",
+      "sha256": "7f523387513c1d948fb536dd9bb5cdf27c4960cf6d9ff4fb0c42fee9bec11f7b"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_loincloth.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_loincloth_back.png",
+      "sha256": "6d62d1212a59c04b02439101dc9dd71eaad79f7133c54f6e7e40aa85b649ab27"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/front/hidden_loincloth_back.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/cap_arm_far.png",
+      "sha256": "ed684defcfeb86970a8ba2376fd5713632a0169c51ea7800222dc8a0542afec1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/cap_arm_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/cap_arm_near.png",
+      "sha256": "c0f01be13e47228b4749194cae452d6790c96ad03b7cb186ea3df4eca6d44802"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/cap_arm_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_arm_far.png",
+      "sha256": "66cb7a87b7f41514fcd0c6b16b63dd10fa746fcc331f6b7d0eefd3cec06d0548"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_arm_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_arm_near.png",
+      "sha256": "2273623401a9688114f5bdb433e40d50b611c71da1c14ec9b7b4cf5bc5b65baa"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_arm_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_falchion.png",
+      "sha256": "07379856b4242d68fca82180e5f6bce5cc2f5bfad5378bb0b1b00e0004408c0d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_falchion.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_foot_far.png",
+      "sha256": "2f2da7fd0182ff43f7dd682c1f77cfda2b321605eb0a1ccf2420ddbf03b6989c"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_foot_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_foot_near.png",
+      "sha256": "3d36646e6b6c26a576251ca205c44febe4dd8350517e99e7fb7cf2db13e2f865"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_foot_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_hand_far.png",
+      "sha256": "91de4fabf881447ab764cb9ad19b3fa2cc45348b17eb2465cc5e570c134b407f"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_hand_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_hand_near.png",
+      "sha256": "08a874c624b4197806c19a366de30f2c3929c848a8874a86a65d86e11005c1f9"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_hand_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_head.png",
+      "sha256": "07f91162034ce828c36dc6719cabe2724a711b830c50593f788c2561890f9b1d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_head.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_loincloth.png",
+      "sha256": "4ebcc067afe7ae1656b3223e7bad70db50eeeba86f0d4c77adb47a4440beeecf"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_loincloth.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_loincloth_back.png",
+      "sha256": "4e0dbc8576647a72c42205398bd828b92f3757b35d3eefa12680d7aceac00f9e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/pieces/rear/hidden_loincloth_back.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_budget_search.json",
+      "sha256": "978e0737a1648bf96a12166c6e09d85e17051fe69593bf5ca97215c07c70ea90"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_floor.json",
+      "sha256": "8f3b9f53f133ad34e84777ea667ba2cf15d6c1f2eb0657b6cb9d6b0545eadadb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_grip.json",
+      "sha256": "6ab6d7e9b7fb6d79154b6dd780458219362e93440ac2d247e1baa0bc2ba48e11"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_joint_initial.json",
+      "sha256": "c7f20dae5c3907cb25447dde744b53c9d55a3e52028d24b79fa64bf2a338342d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_joint_measurement.json",
+      "sha256": "242e0791a7386f1d0a5d013e037216978587f40cd3887daed5b156662cf43acc"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_policy_floor.json",
+      "sha256": "c91a0a7aff88aaf3788268562a460ccabb2991189b36fbfdc0442e65300be338"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_preexisting_preservation.json",
+      "sha256": "01809832b6f8b9ca54bc4c5243b9776bc6a0c64e534e5a9ab03fd48ba87801c6"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_production_checks.json",
+      "sha256": "e97b02caa4d2bc6ec261fb067e7f1af5a0635eba1a986f05682b58d5f38df15e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_production_floor.json",
+      "sha256": "8f3b9f53f133ad34e84777ea667ba2cf15d6c1f2eb0657b6cb9d6b0545eadadb"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_production_samples.json",
+      "sha256": "13e8733e72bb23ba8310d088eabe8cdf72c58e905c4d009dc2db73aec9bc0975"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_reference_defaults.json",
+      "sha256": "77c9baff4448e34bbd3c5181b76623a279ef87536d3636ed9e7dd9642497028d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_remaining_tears.json",
+      "sha256": "248b61141eae3abb812988068c2b73b92040a3ef14ef6f1a66d94f65edf75159"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_report.json",
+      "sha256": "f0934fc7ce2787a674d8aa9f855c22a04d9c1ee961b6e0c0c35bccd4063c6a31"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_samples.json",
+      "sha256": "babd8d7cb230a5830d99c0203fd442e6e3dd1ba707c9285da9f282e2c6f55902"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_scope.json",
+      "sha256": "b0a66836917250324112422cd0f9638754dc5bc941f715b6588cd0cf2ddbcb22"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_sheets.json",
+      "sha256": "870b2cd79f787c2384ed419158fca9da57451da4281932e24ae536b4531001f2"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_targets.json",
+      "sha256": "8b1f751ef4e074613a8bd52f235769c0fd85a31f0801f075a90ba2a35443f885"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_worst_frames.json",
+      "sha256": "90c4651ccca26d313016ad27a33e28e4d1b95c09b71d520e475f2f345643810a"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/source/feedback2_front_rest.png",
+      "sha256": "865e34d168a07b023704cdcfe52b40d38647d6dec7aee63637a582b34c71db4d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48/source/feedback2_rear_rest.png",
+      "sha256": "e4e0173adf24a365594f48c48414c2832c3c565449023205d6fb9e615cf542b1"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48_feedback2.py",
+      "sha256": "c19302e2c84564f33197d4b8ed414eed2baefe330a85d10b37ac285c104dbf89"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48_feedback2_budgets.py",
+      "sha256": "8ddbcbf10adaf2e06b5dd17f72dc23f4f6e4a45611ab26c214c301a91e524a3e"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48_feedback2_sheets.py",
+      "sha256": "94fbd849d021f362d0b34415d90d2534d1ecd79067c176fba09761682cc39727"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48_feedback2_source.py",
+      "sha256": "b4b3ab0e875238f206a8a2914291ff5d8af61f7ee9dec0765f554b92b8987acf"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48_fragments.py",
+      "sha256": "26dafba4410e2324d93cdc20f8f60f963305bd08a256d03c6c2f9f7cccfb4597"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48_frame_fragments.py",
+      "sha256": "67d10e0323ef385ce348ae42f1a45c6f37604123f57dc2dbb519bebd6b197c92"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48_rest_fragments.py",
+      "sha256": "9f546eecb885efe398c4348311cca4bb826067d81b42dbf4daee960a4f193d13"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48_rigid_fragments.py",
+      "sha256": "58127ea6973bc4e027b26c235e56e4c4505f12c11b9ced04073827900c38131d"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/ashen_reaver/rr48_supply_gates.py",
+      "sha256": "33191a0f656f1aed37c61fe63516726c17cff48461fd8f4a3300984f27b49efe"
+    },
+    {
+      "status": "??",
+      "path": "scripts/maquette_cutout_runtime/humanoid_grip.gd",
+      "sha256": "93c0b72d6dc308397f1be1178af613b91197fd7d0d339b256a5c07492f0d1a22"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/cap_arm_far.png",
+      "sha256": "6d076393d47943eb90b0dd970eacedbad3799226a95e7df59e6869fb21360807"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/cap_arm_near.png",
+      "sha256": "3c5160453fde82d624c27f34bc23a721f37c4a090d95b6ebf5cbceae0b599ce3"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_arm_far.png",
+      "sha256": "5096011c7044ec7dc50352f55a4ae436b5828fc421d8b182b4cd7abda5c86294"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_arm_near.png",
+      "sha256": "9a0a298ca469a2eb60c1a0cac4852afe69d4dcd1e9a8a96a65d4550543bfe0a9"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_falchion.png",
+      "sha256": "c3d0819ee08721a74aebeb8b4ff734658e7df36629fe7fbc8f8b9fc345014870"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_foot_far.png",
+      "sha256": "ef60b98d938d1d50c7bcc23d155719a03a6e2e2e9a5a20c9d4704d6527a12668"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_foot_near.png",
+      "sha256": "ee47d834a4b98eb0ec8b96af8ff5c6a25b772c3d59be8232a690158e3618f019"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_far.png",
+      "sha256": "2f81cc9422d62727a5ee70aa437cc01af4810a29cc012d34fad22e7ec4ad76f8"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_near.png",
+      "sha256": "edee7daa3e97382d9abfcbedfbe45a9da98e85967cec8f7232c11fa3c00455c7"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_head.png",
+      "sha256": "83bcefaba8efa27667c3059354bd227a803b3eb2b92119cbafeab874d06be41b"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_loincloth.png",
+      "sha256": "7f523387513c1d948fb536dd9bb5cdf27c4960cf6d9ff4fb0c42fee9bec11f7b"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_loincloth_back.png",
+      "sha256": "6d62d1212a59c04b02439101dc9dd71eaad79f7133c54f6e7e40aa85b649ab27"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/cap_arm_far.png",
+      "sha256": "ed684defcfeb86970a8ba2376fd5713632a0169c51ea7800222dc8a0542afec1"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/cap_arm_near.png",
+      "sha256": "c0f01be13e47228b4749194cae452d6790c96ad03b7cb186ea3df4eca6d44802"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_arm_far.png",
+      "sha256": "66cb7a87b7f41514fcd0c6b16b63dd10fa746fcc331f6b7d0eefd3cec06d0548"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_arm_near.png",
+      "sha256": "2273623401a9688114f5bdb433e40d50b611c71da1c14ec9b7b4cf5bc5b65baa"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_falchion.png",
+      "sha256": "07379856b4242d68fca82180e5f6bce5cc2f5bfad5378bb0b1b00e0004408c0d"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_foot_far.png",
+      "sha256": "2f2da7fd0182ff43f7dd682c1f77cfda2b321605eb0a1ccf2420ddbf03b6989c"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_foot_near.png",
+      "sha256": "3d36646e6b6c26a576251ca205c44febe4dd8350517e99e7fb7cf2db13e2f865"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far.png",
+      "sha256": "91de4fabf881447ab764cb9ad19b3fa2cc45348b17eb2465cc5e570c134b407f"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_near.png",
+      "sha256": "08a874c624b4197806c19a366de30f2c3929c848a8874a86a65d86e11005c1f9"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_head.png",
+      "sha256": "07f91162034ce828c36dc6719cabe2724a711b830c50593f788c2561890f9b1d"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_loincloth.png",
+      "sha256": "4ebcc067afe7ae1656b3223e7bad70db50eeeba86f0d4c77adb47a4440beeecf"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_loincloth_back.png",
+      "sha256": "4e0dbc8576647a72c42205398bd828b92f3757b35d3eefa12680d7aceac00f9e"
+    }
+  ],
+  "this_manifest": "experiments/cutouts/ashen_reaver/rr48/proof/feedback2_changed_files.json",
+  "native_captures_gitignored": true
+}

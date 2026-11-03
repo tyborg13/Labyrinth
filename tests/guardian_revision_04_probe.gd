@@ -72,7 +72,7 @@ func _patterns(engine: RefCounted,combat: RefCounted,suffix: String) -> void:
 		await scene.call("_on_board_tile_clicked",state["enemies"][0]["pos"])
 		_check(not combat.enemy_intent_plan(state,0)["projected_attack"].is_empty(),id+" displaced attack is visible")
 		await _capture(id+"_displaced_pattern"+suffix)
-	await _load(_fixture(engine,combat,"craghide","occupied_summon"))
+	await _load(_fixture(engine,combat,"storm_cantor","occupied_summon"))
 	var state: Dictionary = scene.get("_combat_state")
 	await scene.call("_on_board_tile_clicked",state["enemies"][0]["pos"])
 	var summon: Array = combat.enemy_intent_plan(state,0).get("projected_summon",[])

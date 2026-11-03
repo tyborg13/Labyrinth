@@ -1,0 +1,90 @@
+{
+  "status": "INCOMPLETE_DESIGN_DATA_PENDING",
+  "tests": [
+    {
+      "command": "python3 -B -m unittest tests.test_mq24_maquette tests.test_mq20_maquette tests.test_mq18_maquette tests.test_maquette_rear_turn -q",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 117 tests in 181.940s",
+        "OK",
+        "DELIVERY_STAGE: PASS; tmpwo6unj5c",
+        "DELIVERY_STAGE: PASS; tmpa7kkfovh",
+        "DELIVERY_STAGE: PASS; tmpiqi7q1rx"
+      ],
+      "log": "focused_checks.log.gz",
+      "log_sha256": "28b5c710b183b48eed41b5e854936f3ff97aba5814f9a655ead4d3143f5b0ff7"
+    },
+    {
+      "command": "python3 -B -m unittest spec.art_identity.maquettes.blender.test_delivery_validation -q",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 11 tests in 7.528s",
+        "OK",
+        "DELIVERY_STAGE: PASS; staged"
+      ],
+      "log": "delivery_checks.log.gz",
+      "log_sha256": "c131d6aed7e527bb9a06e45c86b6c6c22629a47d31f06f0fca725097373ba958"
+    },
+    {
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 111 tests in 152.239s",
+        "OK"
+      ],
+      "log": "art_identity_checks.log.gz",
+      "log_sha256": "397f447bc0e96d7328f4241a615c20214737ba766a36a1a74f8912c0f528bbec"
+    },
+    {
+      "command": "python3 -B tools/run_python_suite.py --shards 4 --audit-only --output-dir spec/art_identity/maquettes/last_lamplighter/mq24/proof/python-resource-audit",
+      "exit_code": 0,
+      "result_lines": [
+        "ISOLATION AUDIT: 236 modules; /Users/borgerding/workspace/Labyrinth.worktrees/mq-24/spec/art_identity/maquettes/last_lamplighter/mq24/proof/python-resource-audit/isolation-audit.md"
+      ],
+      "log": "audit_checks.log.gz",
+      "log_sha256": "b917418b4505c43270636e8c55519a272ffd453a4c1a075413a3ebc8e11c7264"
+    }
+  ],
+  "mq20_proof_verify": {
+    "command": "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq20.proof verify",
+    "exit_code": 0,
+    "result_line": "MQ20_HASH_BOUND_DELIVERY: PASS"
+  },
+  "syntax": {
+    "result_line": "MQ24_PYTHON_SYNTAX: PASS; files=11",
+    "scope": "AST parse only; native Blender imports not executed"
+  },
+  "protected_mq20_bytes": true,
+  "full_suites_run": false,
+  "peer_review_run": false,
+  "git_writes_performed": false,
+  "source_draft": {
+    "command": "python3 -B -m spec.art_identity.maquettes.last_lamplighter.mq24.proof source --draft --out spec/art_identity/maquettes/last_lamplighter/mq24/proof/draft-source",
+    "exit_code": 1,
+    "result_line": "MQ24_SOURCE_GEOMETRY: FAIL; unresolved=['TODO_DESIGN_mantle_rows_over_H', 'TODO_DESIGN_far_hand', 'TODO_DESIGN_near_hand']",
+    "limb_ratios_passed": 8,
+    "limb_ratios_total": 8,
+    "artifact": "proof/draft-source/source_checks.json"
+  },
+  "mutations": {
+    "scope": "debug source fixture targeted gates only; native proof not run",
+    "caught": 6,
+    "survived": 0,
+    "artifact": "source_mutation_proof.json"
+  },
+  "native_build_run": false,
+  "native_captures": [],
+  "native_mutations_run": false,
+  "native_regeneration_run": false,
+  "pending": [
+    "TODO_DESIGN_mantle_rows_over_H",
+    "TODO_DESIGN_far_hand",
+    "TODO_DESIGN_near_hand"
+  ],
+  "missing_references": [
+    ".codex/tasks/briefs/mq-20.md",
+    ".codex/tasks/briefs/mq-22.md",
+    ".codex/tasks/briefs/mq-23.md"
+  ],
+  "warnings": "Art identity emitted existing NumPy matmul RuntimeWarnings and Pillow mode deprecation warnings; all 111 tests passed."
+}

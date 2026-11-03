@@ -1,0 +1,14 @@
+{
+  "authority": "mq-22 director ratification of the as-built mq-19 feedback-3 delivery; supersedes feedback 2/3 profile interpolation",
+  "fold_amplitude": {"formula": "0.02 * t", "shoulders_over_H": 0.0, "root_over_H": 0.02, "tolerance_over_H": 0.004},
+  "standoff": {"formula": "0.02 + 0.015 * t * (2 - t)", "shoulders_over_H": 0.02, "root_over_H": 0.035, "midpoint_over_H": 0.03125, "tolerance_over_H": 0.005},
+  "width": {"formula": "1 + 0.15 * t * (2 - t)", "shoulder_scale": 1.0, "root_scale": 1.15, "relative_tolerance": 0.02},
+  "measurement": {
+    "support_blend_end_t": 0.12,
+    "definition": "Remove the existing smoothstep anatomical attachment blend before measuring the drape profile. Standoff uses the smoothed live torso/pelvis sagittal envelope at the eased drape station. The singular support seam uses the measured limit extrapolated from the first two drape rows and is separately checked against its approved attachment.",
+    "envelope_smoothing_over_H": 0.02,
+    "envelope_samples": 257,
+    "kernel_sigma_extent": 3,
+    "fit_residual_tolerance_over_H": 0.000001
+  }
+}

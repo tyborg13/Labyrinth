@@ -1,0 +1,40 @@
+{
+  "min_images": 8,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*_calibration_f000_frame.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*_move_*_frame.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*_retreat_*_frame.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*_death_*_frame.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*_crop.png"
+    },
+    {
+      "pattern": "*_actual_id.png"
+    },
+    {
+      "pattern": "*_expected_id.png"
+    },
+    {
+      "pattern": "*_actor_mask.png"
+    }
+  ]
+}

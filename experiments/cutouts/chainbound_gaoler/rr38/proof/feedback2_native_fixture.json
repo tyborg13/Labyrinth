@@ -1,0 +1,239 @@
+{
+  "native_manifest_sha256": "0d672b7f4246e08945d98b0731ad3ac5d58a2cd318a4c24ac44c2a7414d76d8a",
+  "note": "Retained round0 pixel evidence only; current renderer acceptance remains director-owned.",
+  "rear_knee": {
+    "native_frame_sha256": "092df5434dd1ff962783ca5b8de84c4df013a988667976d8df6efc92e0fbb98a",
+    "pixels": [
+      {
+        "xy": [
+          277,
+          368
+        ],
+        "native_rgba": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "xy": [
+          278,
+          368
+        ],
+        "native_rgba": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "xy": [
+          277,
+          369
+        ],
+        "native_rgba": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "cpu_only": [
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 8,
+      "native_frame": "front_guard/pose_0008.png",
+      "native_frame_sha256": "afbb841ec9efb0acd9593be7978072c4144072cd469de2027467269d83f65a44",
+      "native_pixel_witnesses": [
+        {
+          "xy": [
+            368,
+            379
+          ],
+          "native_rgba": [
+            69,
+            53,
+            52,
+            255
+          ],
+          "cpu_rgba": [
+            63,
+            48,
+            48,
+            255
+          ]
+        }
+      ],
+      "source_shard": "proof/logs/feedback2/triage_source_final/front_guard_0008/triage.json",
+      "source_shard_sha256": "3c8f847ea0c38211ba69467fc5cfd613dce8f84ba62bb178605e1117319ea2fe",
+      "cpu_finding": {
+        "view": "front",
+        "clip": "guard",
+        "frame": 8,
+        "piece": "coat_near",
+        "pixels": 4,
+        "bbox": [
+          368,
+          376,
+          369,
+          380
+        ],
+        "variance": 0.8125,
+        "source_variance": 114.55196470708938,
+        "ratio": 0.0070928508478887405,
+        "reference_texture": "measured",
+        "decision": "director underlay judgment pending",
+        "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_guard_0008/flat/front_guard_0008_hidden_coat_near_60.png"
+      }
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 9,
+      "native_frame": "front_guard/pose_0009.png",
+      "native_frame_sha256": "94ed9af29869ceb9a712d7520554b66c2e19ea5c69414c4e54fdedbd6386e284",
+      "native_pixel_witnesses": [
+        {
+          "xy": [
+            368,
+            379
+          ],
+          "native_rgba": [
+            69,
+            53,
+            52,
+            255
+          ],
+          "cpu_rgba": [
+            63,
+            48,
+            48,
+            255
+          ]
+        }
+      ],
+      "source_shard": "proof/logs/feedback2/triage_source_final/front_guard_0008/triage.json",
+      "source_shard_sha256": "3c8f847ea0c38211ba69467fc5cfd613dce8f84ba62bb178605e1117319ea2fe",
+      "cpu_finding": {
+        "view": "front",
+        "clip": "guard",
+        "frame": 9,
+        "piece": "coat_near",
+        "pixels": 4,
+        "bbox": [
+          368,
+          376,
+          369,
+          380
+        ],
+        "variance": 0.8125,
+        "source_variance": 114.55196470708938,
+        "ratio": 0.0070928508478887405,
+        "reference_texture": "measured",
+        "decision": "director underlay judgment pending",
+        "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_guard_0008/flat/front_guard_0009_hidden_coat_near_61.png"
+      }
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 46,
+      "native_frame": "front_guard/pose_0046.png",
+      "native_frame_sha256": "93f119361f9f9243c98d89406823f6d8640f0fee0a94034fa9858a3d95123f56",
+      "native_pixel_witnesses": [
+        {
+          "xy": [
+            368,
+            379
+          ],
+          "native_rgba": [
+            69,
+            53,
+            52,
+            255
+          ],
+          "cpu_rgba": [
+            63,
+            48,
+            48,
+            255
+          ]
+        }
+      ],
+      "source_shard": "proof/logs/feedback2/triage_source_final/front_guard_0044/triage.json",
+      "source_shard_sha256": "7294380fe44d487531d0a113cff5746482ee15301d43169abfec44d53ab52229",
+      "cpu_finding": {
+        "view": "front",
+        "clip": "guard",
+        "frame": 46,
+        "piece": "coat_near",
+        "pixels": 4,
+        "bbox": [
+          368,
+          376,
+          369,
+          380
+        ],
+        "variance": 0.8125,
+        "source_variance": 114.55196470708938,
+        "ratio": 0.0070928508478887405,
+        "reference_texture": "measured",
+        "decision": "director underlay judgment pending",
+        "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/front_guard_0044/flat/front_guard_0046_hidden_coat_near_60.png"
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "reel",
+      "frame": 32,
+      "native_frame": "rear_reel/pose_0032.png",
+      "native_frame_sha256": "613ce853b6b748771c264af80c4e27edce28b7e4f77ce7f3163ba8d87a3fced2",
+      "native_pixel_witnesses": [
+        {
+          "xy": [
+            347,
+            320
+          ],
+          "native_rgba": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "cpu_rgba": [
+            25,
+            17,
+            20,
+            255
+          ]
+        }
+      ],
+      "source_shard": "proof/logs/feedback2/triage_source_final/rear_reel_0032/triage.json",
+      "source_shard_sha256": "779470843d538ffdb597ed7f016f64045a1cf9f1b5620cfb27e1029d9f4d7d9f",
+      "cpu_finding": {
+        "view": "rear",
+        "clip": "reel",
+        "frame": 32,
+        "piece": "arm_far",
+        "pixels": 4,
+        "bbox": [
+          345,
+          320,
+          348,
+          322
+        ],
+        "variance": 78.375,
+        "source_variance": 807.5271487703918,
+        "ratio": 0.097055560446903,
+        "reference_texture": "measured",
+        "decision": "director underlay judgment pending",
+        "crop": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-38/experiments/cutouts/chainbound_gaoler/rr38/proof/cpu_frames/rear_reel_0032/flat/rear_reel_0032_hidden_arm_far_46.png"
+      }
+    }
+  ]
+}

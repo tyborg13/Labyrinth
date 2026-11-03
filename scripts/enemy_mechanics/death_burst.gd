@@ -48,6 +48,8 @@ static func on_death(engine: RefCounted, state: Dictionary, enemy: Dictionary) -
 		var source: Dictionary = queue.pop_front()
 		var affected: Array[Vector2i] = tiles(state, source)
 		var amount: int = damage(source)
+		engine._resolver_journal("begin", state, {"kind": "death_burst", "id": source["id"]})
+		var owner: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").cascade_begin(engine, state, {"action_type": "death_burst", "id": source["id"], "tile": source["pos"], "tiles": affected, "damage": amount})
 		state["damage_context"] = {"actor_kind": "enemy", "actor_id": int(source["id"]), "source_kind": "death_burst", "player_card": false}
 		var before: Dictionary = state.duplicate(true)
 		for actor: Dictionary in engine._surface_actor_records(state):
@@ -59,6 +61,8 @@ static func on_death(engine: RefCounted, state: Dictionary, enemy: Dictionary) -
 		events.append({"id": int(source["id"]), "tile": source["pos"], "tiles": affected, "damage": amount,
 			"before": _snapshot(before), "after": _snapshot(state)})
 		state["death_burst_events"] = events
+		engine._resolver_journal("end", state)
+		preload("res://scripts/reaction_presentation_trace.gd").cascade_end(engine, state, owner)
 	state["damage_context"] = prior_context
 	state.erase("_death_burst_queue")
 	state.erase("_death_burst_running")

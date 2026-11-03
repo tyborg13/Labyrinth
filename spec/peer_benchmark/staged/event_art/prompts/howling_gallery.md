@@ -1,0 +1,1 @@
+Subject: a long stone gallery with tall thin slit windows along one wall, pale wind visible streaming through each slit as sparse drifting streaks, dust and old banners pulled sideways. It recedes into darkness. Mood: desolate, musical, unsettling.

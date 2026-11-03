@@ -1,0 +1,47 @@
+[
+  {
+    "name": "threats_at_rest_test",
+    "exit_code": 1,
+    "timed_out": false,
+    "log": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/11-threats_at_rest_test.log",
+    "failure_lines": [
+      "ERROR: Six-enemy intent layout median/p95 stay within the 5 percent pt14-04 metric-contract guard",
+      "THREATS AT REST TEST RESULT: FAIL (1 failures / 16952 assertions)"
+    ]
+  },
+  {
+    "name": "suites/sfx_sync_0_program",
+    "exit_code": 124,
+    "timed_out": true,
+    "log": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/19-suites-sfx_sync_0_program.log",
+    "failure_lines": []
+  },
+  {
+    "name": "suites/sfx_sync_1_program",
+    "exit_code": 124,
+    "timed_out": true,
+    "log": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/20-suites-sfx_sync_1_program.log",
+    "failure_lines": []
+  },
+  {
+    "name": "suites/full_scene_controls_program",
+    "exit_code": 124,
+    "timed_out": true,
+    "log": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/38-suites-full_scene_controls_program.log",
+    "failure_lines": []
+  },
+  {
+    "name": "card_display_performance_test",
+    "exit_code": 1,
+    "timed_out": false,
+    "log": "/private/tmp/labyrinth-godot-home/bos-02-1793215014375449000-50654/Library/Application Support/Escape the Umbra Parallel bos-02-1793215014375449000-50654/program-suites.logs/61-card_display_performance_test.log",
+    "failure_lines": [
+      "ERROR: Unchanged-text refresh stays below 2 ms: count=20 layout=unique case=visible_bleed_unchanged_text",
+      "ERROR: Unchanged-text refresh stays below 2 ms: count=60 layout=duplicate case=visible_bleed_unchanged_text",
+      "ERROR: Unchanged-text refresh stays below 2 ms: count=60 layout=unique case=hidden_health",
+      "ERROR: Unchanged-text refresh stays below 2 ms: count=60 layout=unique case=visible_health_unchanged_text",
+      "CARD DISPLAY CACHE PERFORMANCE RESULT: FAIL (5 failures)",
+      "ERROR: Unchanged-text refresh stays below 2 ms: count=60 layout=unique case=visible_bleed_unchanged_text"
+    ]
+  }
+]

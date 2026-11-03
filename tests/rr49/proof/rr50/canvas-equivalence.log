@@ -1,0 +1,14 @@
+Running task-local command:
+  task: rr-50
+  run: rr-50-1793277703285120000-83608
+  HOME: /private/tmp/labyrinth-godot-home/rr-50-1793277703285120000-83608
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-50-1793277703285120000-83608/godot.log --headless --path . --script tests/prepared_unit_canvas_equivalence_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+V2 BOARD SPRITE GEOMETRY: {"cases":88,"errors":[],"native":false,"orientation_mutations_rejected":0,"placement_mutations_rejected":0}
+PREPARED UNIT CANVAS RESULT: {"cases":64,"checks":4864,"errors":[],"native":false,"orphans":0,"pixel_differences":[]}

@@ -31,10 +31,16 @@ static func title_for(kind: String) -> String:
 	return "Electrified" if kind == "electrified" else kind.capitalize()
 
 static func tooltip(state: Dictionary, tile: Vector2i) -> String:
+	var panels := PackedStringArray()
+	for entry: Dictionary in tooltip_entries(state, tile):
+		panels.append(str(entry["title"]) + "\n" + str(entry["description"]))
+	return "\n\n".join(panels)
+
+static func tooltip_entries(state: Dictionary, tile: Vector2i) -> Array[Dictionary]:
+	var entries: Array[Dictionary]
 	var lines := PackedStringArray()
 	var kind: String = Rules.element_at(state, tile)
 	if not kind.is_empty():
-		lines.append(title_for(kind))
 		match kind:
 			"fire":
 				lines.append("Deals 3 damage at turn start and 2 damage when entered.")
@@ -45,11 +51,10 @@ static func tooltip(state: Dictionary, tile: Vector2i) -> String:
 			"electrified":
 				lines.append("Lightning attacks travel through connected Electrified tiles, hitting enemies on them.")
 				lines.append("Chain can also jump through individual Electrified tiles.")
+		entries.append({"icon": "surface_" + kind, "title": title_for(kind), "description": "\n".join(lines)})
 	if Rules.has_rubble(state, tile):
-		if not lines.is_empty(): lines.append("")
-		lines.append("Rubble")
-		lines.append("Walking out of Rubble costs 2 movement.")
-	return "\n".join(lines)
+		entries.append({"icon": "surface_rubble", "title": "Rubble", "description": "Walking out of Rubble costs 2 movement."})
+	return entries
 
 static func draw_tile(canvas: CanvasItem, state: Dictionary, tile: Vector2i, center: Vector2, width: float, time: float, reduced_motion: bool, draw_rubble: bool = true, draw_elemental: bool = true, draw_electric: bool = true) -> void:
 	var ground: Dictionary = Rules.surface_at(state, tile)
@@ -62,13 +67,14 @@ static func draw_tile(canvas: CanvasItem, state: Dictionary, tile: Vector2i, cen
 	# and shallow plate edges otherwise lose triangulation precision far from
 	# the canvas origin. Restore identity before the caller paints previews.
 	canvas.draw_set_transform(center)
-	# Earth remains visible underneath either kind of elemental treatment.
-	if draw_rubble and Rules.has_rubble(state, tile):
-		_draw_rubble(canvas, Vector2.ZERO, width, seed)
+	# The floor puff stays under Ice; solid chunks break through its sheet.
+	var rubble: bool = draw_rubble and Rules.has_rubble(state, tile)
+	if rubble: _draw_rubble_floor(canvas, Vector2.ZERO, width, seed)
+	if draw_elemental and kind == "ice": _draw_ice(canvas, Vector2.ZERO, width, phase, seed)
+	if rubble: _draw_rubble_chunks(canvas, Vector2.ZERO, width, seed)
 	if draw_elemental:
 		match kind:
 			"fire": _draw_fire(canvas, Vector2.ZERO, width, phase, seed, reduced_motion)
-			"ice": _draw_ice(canvas, Vector2.ZERO, width, phase, seed)
 			"electrified":
 				if draw_electric: _draw_electric(canvas, Vector2.ZERO, width, phase, seed, 1.0)
 	if draw_electric and kind == "fire" and Rules.is_conductive(state, tile):
@@ -81,8 +87,14 @@ static func _diamond(p: Vector2, w: float, h: float) -> PackedVector2Array:
 # Persistent materials share the attack renderer's procedural cloud field,
 # shaded fragments and feathered light. No illustrated floor sprites are used.
 static func _draw_rubble(c: CanvasItem, p: Vector2, w: float, seed: int) -> void:
-	var batch: StaticBatch = _material_batch(c)
+	_draw_rubble_floor(c, p, w, seed)
+	_draw_rubble_chunks(c, p, w, seed)
+
+static func _draw_rubble_floor(c: CanvasItem, p: Vector2, w: float, seed: int) -> void:
 	_floor_puff(c, p, Vector2(w * 0.86, w * 0.34), 0.0, Color(0.17, 0.13, 0.095, 0.72), seed)
+
+static func _draw_rubble_chunks(c: CanvasItem, p: Vector2, w: float, seed: int) -> void:
+	var batch: StaticBatch = _material_batch(c)
 	var chunks: Array[Dictionary]
 	for i: int in range(14):
 		var angle: float = float(i) * 2.399963 + float(seed % 13) * 0.19
@@ -104,8 +116,8 @@ static func _draw_rubble(c: CanvasItem, p: Vector2, w: float, seed: int) -> void
 
 # Outcrops use irregular fracture planes, fixed mineral grain and embedded chips.
 # Only their vertical dimensions rise; the footprint remains planted.
-static func draw_outcrop(c: CanvasItem, center: Vector2, width: float, seed: int, rise: float = 1.0, opacity: float = 1.0) -> void:
-	preload("res://scripts/stone_outcrop_art.gd").draw(c,center,width,seed,rise,opacity)
+static func draw_outcrop(c: CanvasItem, center: Vector2, width: float, seed: int, rise: float = 1.0, opacity: float = 1.0, command_sink: Callable = Callable()) -> void:
+	preload("res://scripts/stone_outcrop_art.gd").draw(c,center,width,seed,rise,opacity,command_sink)
 
 static func _draw_ground_block(c: CanvasItem, p: Vector2, size: float, seed: int, batch: StaticBatch = null, height_scale: float = 1.0, opacity: float = 1.0) -> void:
 	var wide: float = size * (1.0 + SpellFx._hash(seed + 1) * 0.40)

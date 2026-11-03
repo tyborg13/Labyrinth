@@ -1,0 +1,24 @@
+test_windows_safe_typed_arrays (test_card_legibility.CardLegibilityTest) ... ok
+test_adding_stale_sidecar_fails (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_additional_importable_type_is_learned_from_tracked_sidecars (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_all_script_and_shader_types_require_uids (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_complete_tracked_fixture_passes (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_dropping_tracked_import_fails (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_dropping_tracked_uid_fails (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_gdignore_exempts_its_folder_and_descendants_only (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_git_check_ignore_accepts_no_matches_and_rejects_errors (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_git_check_ignore_preserves_spaces_and_newlines (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_git_inventory_preserves_spaces_and_newlines (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_git_inventory_removes_unstaged_deletions (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_gitignore_exempts_only_matching_sidecar_paths (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_gitignored_folder_does_not_exempt_stale_sidecars (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_ignored_folder_does_not_exempt_stale_sidecars (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_importable_types_require_sidecars_even_without_existing_examples (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_missing_sidecar_in_gitignored_folder_is_exempt (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_other_source_types_do_not_require_sidecars (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+test_reports_all_missing_and_stale_paths (test_godot_sidecars.GodotSidecarGuardTests) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.051s
+
+OK

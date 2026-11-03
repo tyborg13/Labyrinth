@@ -181,7 +181,9 @@ static func paper_doll(art: Control, slots: Dictionary) -> Control:
 	var pool := InkStage.new()
 	pool.name = "CharacterInkPool"
 	pool.figure_width = 260.0
-	pool.feet_anchor = Vector2(0.5, 0.87)
+	# Under the hero's soles: the art box starts 92 px down the 398 px stage and
+	# its feet sit near 0.83 of its 260 px height, so the pool centre is 0.78.
+	pool.feet_anchor = Vector2(0.5, 0.78)
 	pool.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	stage.add_child(pool)
 	stage.add_child(art)
@@ -229,14 +231,16 @@ static func row_body(icon: Texture2D, type_text: String, name_text: String, summ
 	content.alignment = BoxContainer.ALIGNMENT_CENTER
 	content.add_theme_constant_override("separation", 0)
 	row.add_child(content)
-	content.add_child(eyebrow(type_text.to_upper()))
+	if not type_text.is_empty():
+		content.add_child(eyebrow(type_text.to_upper(), Typography.SIZE_CAPTION))
 	var title := label(name_text)
+	title.name = "RowTitle"
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(title)
 	if not summary.is_empty():
 		var copy := label(summary, 14, Palette.TEXT_2)
-		copy.clip_text = true
-		copy.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		copy.name = "RowSummary"
+		copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		content.add_child(copy)
 	passive(row)
 	return row
@@ -255,7 +259,10 @@ static func clear_native_states(control: Control) -> void:
 static func empty_row(panel: PanelContainer, text: String) -> void:
 	clear_native_states(panel)
 	panel.add_theme_stylebox_override("panel", row_style(false))
-	var body: Control = row_body(null, "Empty slot", text, "", "ItemCardArtChip")
+	# One quiet line: the section header already names the slot, and a bright
+	# title would read like an item called "Empty item slot".
+	var body: Control = row_body(null, "", text, "", "ItemCardArtChip")
+	(body.find_child("RowTitle", true, false) as Label).add_theme_color_override("font_color", Palette.TEXT_3)
 	panel.add_child(body)
 	var finish := Surface.new()
 	finish.kind = "empty"
@@ -281,35 +288,30 @@ static func strip_content(card_id: String, count: int = 1, height: float = 30.0)
 	passive(result)
 	return result
 
-static func deck_group(heading: String, source: String, cards: Array, host: Node) -> Control:
-	var group := VBoxContainer.new()
-	group.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	group.add_theme_constant_override("separation", 4)
-	var title := HBoxContainer.new()
-	title.add_theme_constant_override("separation", 8)
-	group.add_child(title)
-	title.add_child(eyebrow(heading, 13, Palette.TEXT_2))
-	if not source.is_empty():
-		title.add_child(label(source, 16, Palette.TEXT))
-	var grid := GridContainer.new()
-	grid.name = "CharacterDeckGrid"
-	grid.columns = 2
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 8)
-	grid.add_theme_constant_override("v_separation", 4)
-	group.add_child(grid)
-	var counts: Dictionary = {}
+# Card strips of the fight preview's width, in as many columns as fit.
+static func strip_flow(flow_name: String) -> HFlowContainer:
+	var flow := HFlowContainer.new()
+	flow.name = flow_name
+	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	flow.add_theme_constant_override("h_separation", 8)
+	flow.add_theme_constant_override("v_separation", 4)
+	return flow
+
+static func deck_list(cards: Array, host: Node) -> Control:
+	# The whole deck once, spells included, grouped and ordered as the fight
+	# preview's kit lists it, in strips of the preview's width.
+	var flow := strip_flow("CharacterDeckGrid")
+	var ids: Array = []
 	for id: Variant in cards:
-		var card_id: String = deck_card_id(str(id))
-		if not card_id.is_empty():
-			counts[card_id] = int(counts.get(card_id, 0)) + 1
-	for id: String in counts:
+		ids.append(deck_card_id(str(id)))
+	for group: Dictionary in host.call("_pre_battle_card_groups", ids):
+		var id: String = str(group["card_id"])
 		var badge: Control = host.call("_build_equipment_card_badge", id)
 		var strip: Control = badge.get_node("CharacterCardStrip") as Control
-		strip.setup(id, str(GameData.card_def(id).get("name", id)), int(counts[id]))
-		badge.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		grid.add_child(badge)
-	return group
+		strip.setup(id, str(GameData.card_def(id).get("name", id)), int(group["count"]))
+		badge.custom_minimum_size.x = Typography.scaled_value(host, Strip.LIST_WIDTH)
+		flow.add_child(badge)
+	return flow
 
 static func deck_card_id(card_id: String) -> String:
 	# Retired save IDs may resolve to the same printed card as their replacement.

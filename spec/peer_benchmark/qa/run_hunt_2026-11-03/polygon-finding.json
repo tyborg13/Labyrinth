@@ -1,0 +1,20 @@
+{
+  "source_replay": "replay-no-embrace-seed-3",
+  "seed": 3,
+  "decision": 1616,
+  "section": 3,
+  "room": "(14, -5)",
+  "encounter": "t2_biome_element",
+  "error": "ERROR: Invalid polygon data, triangulation failed.",
+  "location": "res://scripts/combat_art_treatment.gd:186",
+  "baseline_sha256": "0eda4992babc1dbf0dbcf430ee817cc6935ce71f7317a7299ae78b247058686f",
+  "status": "Fixed; deterministic native regression fails against unmodified baseline and passes after four-line guard; full seed-3 replay confirmation is timing-sensitive and did not repeat the transient error in one fresh attempt",
+  "protected_test_list": "Requested; absent from worktree and shared task metadata",
+  "fix": "Reject quads whose native triangulation returns no indices before canvas submission",
+  "before": "ART TREATMENT SLIVER REGRESSION: FAIL (6 checks, 1 failures)",
+  "after": "ART TREATMENT SLIVER REGRESSION: PASS (6 checks, 0 failures)",
+  "postfix_replays": {
+    "seed_3": "victory, 2931 decisions, zero polygon errors, child status 0",
+    "seed_4": "victory, 3038 decisions, zero polygon errors; known protected contact error recurred and child runner status is 1"
+  }
+}

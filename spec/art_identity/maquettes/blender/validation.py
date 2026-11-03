@@ -3,7 +3,7 @@ import math
 import json
 from mathutils import Vector
 
-from .contract import BUILD_DEFAULTS
+from .contract import BUILD_DEFAULTS, source_piece
 from .ownership import materials_match, weights_match, expected_materials
 
 
@@ -68,7 +68,7 @@ def geometry_report(spec, objects, cloth_reports, details=None):
             continue
         if obj.get('body_shell'):
             continue
-        piece = next(p for p in spec['pieces'] if obj['piece_id'] == p['id'] or obj['piece_id'].startswith(p['id'] + '_'))
+        piece = source_piece(spec, obj['piece_id'])
         scale = [1, 1]
         if piece['type'] == 'lames':
             scale = piece['lame_scale'][int(obj['piece_id'].rsplit('_', 1)[1])]

@@ -1,0 +1,3710 @@
+{
+  "ok": true,
+  "errors": [],
+  "frames": [
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 2,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              257,
+              369
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              307,
+              394
+            ],
+            "pieces": [
+              {
+                "name": "cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "hidden_cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  65,
+                  93,
+                  99,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 11,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              312,
+              391
+            ],
+            "pieces": [
+              {
+                "name": "cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "hidden_cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  65,
+                  93,
+                  99,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              329,
+              383
+            ],
+            "pieces": [
+              {
+                "name": "cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "hidden_cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  65,
+                  93,
+                  99,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 20,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              334,
+              380
+            ],
+            "pieces": [
+              {
+                "name": "cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "hidden_cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  65,
+                  93,
+                  99,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              344,
+              376
+            ],
+            "pieces": [
+              {
+                "name": "cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "hidden_cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  65,
+                  93,
+                  99,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              349,
+              375
+            ],
+            "pieces": [
+              {
+                "name": "cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "hidden_cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  65,
+                  93,
+                  99,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 27,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              351,
+              373
+            ],
+            "pieces": [
+              {
+                "name": "cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "hidden_cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  65,
+                  93,
+                  99,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 29,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              356,
+              369
+            ],
+            "pieces": [
+              {
+                "name": "cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "hidden_cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  65,
+                  93,
+                  99,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              386,
+              354
+            ],
+            "pieces": [
+              {
+                "name": "cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "hidden_cape_near",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  65,
+                  93,
+                  99,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 46,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              150,
+              424
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "native_packed_weights",
+                "candidate": 0,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "native_packed_weights",
+                "candidate": 0,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 35,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 36,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 37,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 38,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 39,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 40,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 41,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 42,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 43,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 44,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 45,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 46,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 47,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              247,
+              326
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 51,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              268,
+              388
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 52,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              268,
+              388
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lunge",
+      "frame": 59,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              261,
+              367
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 6,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              261,
+              367
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 7,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              261,
+              367
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 25,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              262,
+              367
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 28,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              261,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 26,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              262,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 29,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              271,
+              385
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 37,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              271,
+              385
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 38,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              271,
+              385
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 50,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              263,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 51,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              262,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "cast",
+      "frame": 52,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              262,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "pin",
+      "frame": 11,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              262,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "pin",
+      "frame": 12,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              262,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "pin",
+      "frame": 13,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              262,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "pin",
+      "frame": 14,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              262,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "pin",
+      "frame": 15,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              262,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "pin",
+      "frame": 18,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              263,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "pin",
+      "frame": 19,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              263,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "pin",
+      "frame": 20,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              263,
+              366
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  10,
+                  32,
+                  33,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 11,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              262,
+              383
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  0,
+                  15,
+                  17,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  0,
+                  15,
+                  17,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 12,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              261,
+              383
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  0,
+                  15,
+                  17,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  0,
+                  15,
+                  17,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 43,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              261,
+              383
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  0,
+                  15,
+                  17,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  0,
+                  15,
+                  17,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "guard",
+      "frame": 44,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              262,
+              383
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  0,
+                  15,
+                  17,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  0,
+                  15,
+                  17,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 47,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              269,
+              395
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 48,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              269,
+              397
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  1,
+                  22,
+                  27,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  1,
+                  22,
+                  27,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 59,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              276,
+              403
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "native_packed_weights",
+                "candidate": 0,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "native_packed_weights",
+                "candidate": 0,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  3,
+                  21,
+                  26,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 64,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              265,
+              384
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "native_packed_weights",
+                "candidate": 0,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  6,
+                  7,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "native_packed_weights",
+                "candidate": 0,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  6,
+                  7,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 72,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_outline_pixels": [
+          {
+            "xy": [
+              347,
+              413
+            ],
+            "pieces": [
+              {
+                "name": "cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                "cpu_rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 87,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              258,
+              370
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 88,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              258,
+              370
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 89,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              258,
+              370
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 90,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              258,
+              370
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 91,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              258,
+              370
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 92,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              258,
+              370
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 93,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              258,
+              370
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 94,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              258,
+              370
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 95,
+      "metrics": {
+        "uncovered_missing_pixels": 0,
+        "uncovered_foreign_texels": 0,
+        "uncovered_outline_pixels": 0,
+        "uncovered_tiny_components": 0,
+        "uncovered_outside_surface_pixels": 0
+      },
+      "raster_ties": {
+        "uncovered_missing_pixels": [
+          {
+            "xy": [
+              258,
+              370
+            ],
+            "pieces": [
+              {
+                "name": "hidden_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              },
+              {
+                "name": "covered_cape_far",
+                "geometry": "source_weights",
+                "candidate": 1,
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "cpu_rgba": [
+                  32,
+                  82,
+                  93,
+                  255
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "native_pixels": true,
+  "raster_tie_counts": {
+    "uncovered_outline_pixels": 33,
+    "uncovered_missing_pixels": 31
+  },
+  "source_manifest_sha256": "a845c06634f407add7be60c183eb4ed9bd5a457434a190dc18d1a38954572af2",
+  "retained_capture": true,
+  "current_renderer_proof": false,
+  "fixture_manifest_sha256": "a845c06634f407add7be60c183eb4ed9bd5a457434a190dc18d1a38954572af2"
+}

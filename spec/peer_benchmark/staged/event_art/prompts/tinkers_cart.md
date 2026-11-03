@@ -1,0 +1,1 @@
+Subject: a wooden tinker's cart abandoned in a dungeon passage, its open shelves crowded with worn armour, boots, shields and blades of many different makes. A painted wooden sign hangs from it, its surface too weathered to read. No person anywhere. Mood: inviting, slightly too convenient.

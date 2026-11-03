@@ -1,0 +1,7481 @@
+{
+  "version": 1,
+  "files": {
+    "front_idle/pose_0012.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "front_idle/pose_0012.png"
+    },
+    "rear_idle/pose_0012.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "rear_idle/pose_0012.png"
+    },
+    "front_cast/pose_0012.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "front_cast/pose_0012.png"
+    },
+    "front_cast/pose_0029.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "front_cast/pose_0029.png"
+    },
+    "rear_cast/pose_0029.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "rear_cast/pose_0029.png"
+    },
+    "front_cast/pose_0036.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "front_cast/pose_0036.png"
+    },
+    "front_cast/pose_0037.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "front_cast/pose_0037.png"
+    },
+    "pieces/idle/0012/front/head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/head.png"
+    },
+    "pieces/idle/0012/front/hidden_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_head.png"
+    },
+    "pieces/idle/0012/front/torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/torso.png"
+    },
+    "pieces/idle/0012/front/hidden_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_torso.png"
+    },
+    "pieces/idle/0012/front/pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/pelvis.png"
+    },
+    "pieces/idle/0012/front/hidden_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_pelvis.png"
+    },
+    "pieces/idle/0012/front/tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/tabard.png"
+    },
+    "pieces/idle/0012/front/hidden_tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_tabard.png"
+    },
+    "pieces/idle/0012/front/spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/spear.png"
+    },
+    "pieces/idle/0012/front/hidden_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_spear.png"
+    },
+    "pieces/idle/0012/front/cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/cape_near.png"
+    },
+    "pieces/idle/0012/front/hidden_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_cape_near.png"
+    },
+    "pieces/idle/0012/front/arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/arm_near.png"
+    },
+    "pieces/idle/0012/front/hidden_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_arm_near.png"
+    },
+    "pieces/idle/0012/front/hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hand_near.png"
+    },
+    "pieces/idle/0012/front/hidden_hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_hand_near.png"
+    },
+    "pieces/idle/0012/front/leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/leg_near.png"
+    },
+    "pieces/idle/0012/front/hidden_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_leg_near.png"
+    },
+    "pieces/idle/0012/front/foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/foot_near.png"
+    },
+    "pieces/idle/0012/front/hidden_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_foot_near.png"
+    },
+    "pieces/idle/0012/front/cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/cape_far.png"
+    },
+    "pieces/idle/0012/front/hidden_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_cape_far.png"
+    },
+    "pieces/idle/0012/front/arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/arm_far.png"
+    },
+    "pieces/idle/0012/front/hidden_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_arm_far.png"
+    },
+    "pieces/idle/0012/front/hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hand_far.png"
+    },
+    "pieces/idle/0012/front/hidden_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_hand_far.png"
+    },
+    "pieces/idle/0012/front/leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/leg_far.png"
+    },
+    "pieces/idle/0012/front/hidden_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_leg_far.png"
+    },
+    "pieces/idle/0012/front/foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/foot_far.png"
+    },
+    "pieces/idle/0012/front/hidden_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_foot_far.png"
+    },
+    "pieces/idle/0012/rear/head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/head.png"
+    },
+    "pieces/idle/0012/rear/hidden_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_head.png"
+    },
+    "pieces/idle/0012/rear/torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/torso.png"
+    },
+    "pieces/idle/0012/rear/hidden_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_torso.png"
+    },
+    "pieces/idle/0012/rear/pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/pelvis.png"
+    },
+    "pieces/idle/0012/rear/hidden_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_pelvis.png"
+    },
+    "pieces/idle/0012/rear/tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/tabard.png"
+    },
+    "pieces/idle/0012/rear/spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/spear.png"
+    },
+    "pieces/idle/0012/rear/hidden_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_spear.png"
+    },
+    "pieces/idle/0012/rear/cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/cape_near.png"
+    },
+    "pieces/idle/0012/rear/hidden_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_cape_near.png"
+    },
+    "pieces/idle/0012/rear/arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/arm_near.png"
+    },
+    "pieces/idle/0012/rear/hidden_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_arm_near.png"
+    },
+    "pieces/idle/0012/rear/hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hand_near.png"
+    },
+    "pieces/idle/0012/rear/leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/leg_near.png"
+    },
+    "pieces/idle/0012/rear/hidden_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_leg_near.png"
+    },
+    "pieces/idle/0012/rear/foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/foot_near.png"
+    },
+    "pieces/idle/0012/rear/hidden_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_foot_near.png"
+    },
+    "pieces/idle/0012/rear/cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/cape_far.png"
+    },
+    "pieces/idle/0012/rear/hidden_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_cape_far.png"
+    },
+    "pieces/idle/0012/rear/arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/arm_far.png"
+    },
+    "pieces/idle/0012/rear/hidden_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_arm_far.png"
+    },
+    "pieces/idle/0012/rear/hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hand_far.png"
+    },
+    "pieces/idle/0012/rear/hidden_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_hand_far.png"
+    },
+    "pieces/idle/0012/rear/leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/leg_far.png"
+    },
+    "pieces/idle/0012/rear/hidden_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_leg_far.png"
+    },
+    "pieces/idle/0012/rear/foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/foot_far.png"
+    },
+    "pieces/idle/0012/rear/hidden_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_foot_far.png"
+    },
+    "pieces/cast/0012/front/head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/head.png"
+    },
+    "pieces/cast/0012/front/hidden_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_head.png"
+    },
+    "pieces/cast/0012/front/torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/torso.png"
+    },
+    "pieces/cast/0012/front/hidden_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_torso.png"
+    },
+    "pieces/cast/0012/front/pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/pelvis.png"
+    },
+    "pieces/cast/0012/front/hidden_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_pelvis.png"
+    },
+    "pieces/cast/0012/front/tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/tabard.png"
+    },
+    "pieces/cast/0012/front/hidden_tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_tabard.png"
+    },
+    "pieces/cast/0012/front/spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/spear.png"
+    },
+    "pieces/cast/0012/front/hidden_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_spear.png"
+    },
+    "pieces/cast/0012/front/cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/cape_near.png"
+    },
+    "pieces/cast/0012/front/hidden_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_cape_near.png"
+    },
+    "pieces/cast/0012/front/arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/arm_near.png"
+    },
+    "pieces/cast/0012/front/hidden_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_arm_near.png"
+    },
+    "pieces/cast/0012/front/hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hand_near.png"
+    },
+    "pieces/cast/0012/front/hidden_hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_hand_near.png"
+    },
+    "pieces/cast/0012/front/leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/leg_near.png"
+    },
+    "pieces/cast/0012/front/hidden_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_leg_near.png"
+    },
+    "pieces/cast/0012/front/foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/foot_near.png"
+    },
+    "pieces/cast/0012/front/hidden_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_foot_near.png"
+    },
+    "pieces/cast/0012/front/cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/cape_far.png"
+    },
+    "pieces/cast/0012/front/hidden_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_cape_far.png"
+    },
+    "pieces/cast/0012/front/arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/arm_far.png"
+    },
+    "pieces/cast/0012/front/hidden_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_arm_far.png"
+    },
+    "pieces/cast/0012/front/hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hand_far.png"
+    },
+    "pieces/cast/0012/front/hidden_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_hand_far.png"
+    },
+    "pieces/cast/0012/front/leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/leg_far.png"
+    },
+    "pieces/cast/0012/front/hidden_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_leg_far.png"
+    },
+    "pieces/cast/0012/front/foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/foot_far.png"
+    },
+    "pieces/cast/0012/front/hidden_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_foot_far.png"
+    },
+    "pieces/cast/0029/front/head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/head.png"
+    },
+    "pieces/cast/0029/front/hidden_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_head.png"
+    },
+    "pieces/cast/0029/front/torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/torso.png"
+    },
+    "pieces/cast/0029/front/hidden_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_torso.png"
+    },
+    "pieces/cast/0029/front/pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/pelvis.png"
+    },
+    "pieces/cast/0029/front/hidden_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_pelvis.png"
+    },
+    "pieces/cast/0029/front/tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/tabard.png"
+    },
+    "pieces/cast/0029/front/hidden_tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_tabard.png"
+    },
+    "pieces/cast/0029/front/spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/spear.png"
+    },
+    "pieces/cast/0029/front/hidden_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_spear.png"
+    },
+    "pieces/cast/0029/front/cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/cape_near.png"
+    },
+    "pieces/cast/0029/front/hidden_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_cape_near.png"
+    },
+    "pieces/cast/0029/front/arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/arm_near.png"
+    },
+    "pieces/cast/0029/front/hidden_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_arm_near.png"
+    },
+    "pieces/cast/0029/front/hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hand_near.png"
+    },
+    "pieces/cast/0029/front/hidden_hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_hand_near.png"
+    },
+    "pieces/cast/0029/front/leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/leg_near.png"
+    },
+    "pieces/cast/0029/front/hidden_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_leg_near.png"
+    },
+    "pieces/cast/0029/front/foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/foot_near.png"
+    },
+    "pieces/cast/0029/front/hidden_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_foot_near.png"
+    },
+    "pieces/cast/0029/front/cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/cape_far.png"
+    },
+    "pieces/cast/0029/front/hidden_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_cape_far.png"
+    },
+    "pieces/cast/0029/front/arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/arm_far.png"
+    },
+    "pieces/cast/0029/front/hidden_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_arm_far.png"
+    },
+    "pieces/cast/0029/front/hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hand_far.png"
+    },
+    "pieces/cast/0029/front/hidden_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_hand_far.png"
+    },
+    "pieces/cast/0029/front/leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/leg_far.png"
+    },
+    "pieces/cast/0029/front/hidden_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_leg_far.png"
+    },
+    "pieces/cast/0029/front/foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/foot_far.png"
+    },
+    "pieces/cast/0029/front/hidden_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_foot_far.png"
+    },
+    "pieces/cast/0029/rear/head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/head.png"
+    },
+    "pieces/cast/0029/rear/hidden_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_head.png"
+    },
+    "pieces/cast/0029/rear/torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/torso.png"
+    },
+    "pieces/cast/0029/rear/hidden_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_torso.png"
+    },
+    "pieces/cast/0029/rear/pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/pelvis.png"
+    },
+    "pieces/cast/0029/rear/hidden_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_pelvis.png"
+    },
+    "pieces/cast/0029/rear/tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/tabard.png"
+    },
+    "pieces/cast/0029/rear/spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/spear.png"
+    },
+    "pieces/cast/0029/rear/hidden_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_spear.png"
+    },
+    "pieces/cast/0029/rear/cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/cape_near.png"
+    },
+    "pieces/cast/0029/rear/hidden_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_cape_near.png"
+    },
+    "pieces/cast/0029/rear/arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/arm_near.png"
+    },
+    "pieces/cast/0029/rear/hidden_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_arm_near.png"
+    },
+    "pieces/cast/0029/rear/hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hand_near.png"
+    },
+    "pieces/cast/0029/rear/leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/leg_near.png"
+    },
+    "pieces/cast/0029/rear/hidden_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_leg_near.png"
+    },
+    "pieces/cast/0029/rear/foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/foot_near.png"
+    },
+    "pieces/cast/0029/rear/hidden_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_foot_near.png"
+    },
+    "pieces/cast/0029/rear/cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/cape_far.png"
+    },
+    "pieces/cast/0029/rear/hidden_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_cape_far.png"
+    },
+    "pieces/cast/0029/rear/arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/arm_far.png"
+    },
+    "pieces/cast/0029/rear/hidden_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_arm_far.png"
+    },
+    "pieces/cast/0029/rear/hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hand_far.png"
+    },
+    "pieces/cast/0029/rear/hidden_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_hand_far.png"
+    },
+    "pieces/cast/0029/rear/leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/leg_far.png"
+    },
+    "pieces/cast/0029/rear/hidden_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_leg_far.png"
+    },
+    "pieces/cast/0029/rear/foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/foot_far.png"
+    },
+    "pieces/cast/0029/rear/hidden_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_foot_far.png"
+    },
+    "pieces/cast/0036/front/head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/head.png"
+    },
+    "pieces/cast/0036/front/hidden_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_head.png"
+    },
+    "pieces/cast/0036/front/torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/torso.png"
+    },
+    "pieces/cast/0036/front/hidden_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_torso.png"
+    },
+    "pieces/cast/0036/front/pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/pelvis.png"
+    },
+    "pieces/cast/0036/front/hidden_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_pelvis.png"
+    },
+    "pieces/cast/0036/front/tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/tabard.png"
+    },
+    "pieces/cast/0036/front/hidden_tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_tabard.png"
+    },
+    "pieces/cast/0036/front/spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/spear.png"
+    },
+    "pieces/cast/0036/front/hidden_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_spear.png"
+    },
+    "pieces/cast/0036/front/cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/cape_near.png"
+    },
+    "pieces/cast/0036/front/hidden_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_cape_near.png"
+    },
+    "pieces/cast/0036/front/arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/arm_near.png"
+    },
+    "pieces/cast/0036/front/hidden_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_arm_near.png"
+    },
+    "pieces/cast/0036/front/hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hand_near.png"
+    },
+    "pieces/cast/0036/front/hidden_hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_hand_near.png"
+    },
+    "pieces/cast/0036/front/leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/leg_near.png"
+    },
+    "pieces/cast/0036/front/hidden_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_leg_near.png"
+    },
+    "pieces/cast/0036/front/foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/foot_near.png"
+    },
+    "pieces/cast/0036/front/hidden_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_foot_near.png"
+    },
+    "pieces/cast/0036/front/cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/cape_far.png"
+    },
+    "pieces/cast/0036/front/hidden_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_cape_far.png"
+    },
+    "pieces/cast/0036/front/arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/arm_far.png"
+    },
+    "pieces/cast/0036/front/hidden_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_arm_far.png"
+    },
+    "pieces/cast/0036/front/hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hand_far.png"
+    },
+    "pieces/cast/0036/front/hidden_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_hand_far.png"
+    },
+    "pieces/cast/0036/front/leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/leg_far.png"
+    },
+    "pieces/cast/0036/front/hidden_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_leg_far.png"
+    },
+    "pieces/cast/0036/front/foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/foot_far.png"
+    },
+    "pieces/cast/0036/front/hidden_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_foot_far.png"
+    },
+    "pieces/cast/0037/front/head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/head.png"
+    },
+    "pieces/cast/0037/front/hidden_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_head.png"
+    },
+    "pieces/cast/0037/front/torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/torso.png"
+    },
+    "pieces/cast/0037/front/hidden_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_torso.png"
+    },
+    "pieces/cast/0037/front/pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/pelvis.png"
+    },
+    "pieces/cast/0037/front/hidden_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_pelvis.png"
+    },
+    "pieces/cast/0037/front/tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/tabard.png"
+    },
+    "pieces/cast/0037/front/hidden_tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_tabard.png"
+    },
+    "pieces/cast/0037/front/spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/spear.png"
+    },
+    "pieces/cast/0037/front/hidden_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_spear.png"
+    },
+    "pieces/cast/0037/front/cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/cape_near.png"
+    },
+    "pieces/cast/0037/front/hidden_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_cape_near.png"
+    },
+    "pieces/cast/0037/front/arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/arm_near.png"
+    },
+    "pieces/cast/0037/front/hidden_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_arm_near.png"
+    },
+    "pieces/cast/0037/front/hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hand_near.png"
+    },
+    "pieces/cast/0037/front/hidden_hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_hand_near.png"
+    },
+    "pieces/cast/0037/front/leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/leg_near.png"
+    },
+    "pieces/cast/0037/front/hidden_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_leg_near.png"
+    },
+    "pieces/cast/0037/front/foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/foot_near.png"
+    },
+    "pieces/cast/0037/front/hidden_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_foot_near.png"
+    },
+    "pieces/cast/0037/front/cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/cape_far.png"
+    },
+    "pieces/cast/0037/front/hidden_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_cape_far.png"
+    },
+    "pieces/cast/0037/front/arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/arm_far.png"
+    },
+    "pieces/cast/0037/front/hidden_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_arm_far.png"
+    },
+    "pieces/cast/0037/front/hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hand_far.png"
+    },
+    "pieces/cast/0037/front/hidden_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_hand_far.png"
+    },
+    "pieces/cast/0037/front/leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/leg_far.png"
+    },
+    "pieces/cast/0037/front/hidden_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_leg_far.png"
+    },
+    "pieces/cast/0037/front/foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/foot_far.png"
+    },
+    "pieces/cast/0037/front/hidden_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_foot_far.png"
+    },
+    "pieces/idle/0012/front/head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/head_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_head_checks.png"
+    },
+    "pieces/idle/0012/front/torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/torso_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_torso_checks.png"
+    },
+    "pieces/idle/0012/front/pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/pelvis_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_pelvis_checks.png"
+    },
+    "pieces/idle/0012/front/tabard_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/tabard_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_tabard_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_tabard_checks.png"
+    },
+    "pieces/idle/0012/front/spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/spear_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_spear_checks.png"
+    },
+    "pieces/idle/0012/front/cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/cape_near_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_cape_near_checks.png"
+    },
+    "pieces/idle/0012/front/arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/arm_near_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_arm_near_checks.png"
+    },
+    "pieces/idle/0012/front/hand_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hand_near_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_hand_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_hand_near_checks.png"
+    },
+    "pieces/idle/0012/front/leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/leg_near_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_leg_near_checks.png"
+    },
+    "pieces/idle/0012/front/foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/foot_near_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_foot_near_checks.png"
+    },
+    "pieces/idle/0012/front/cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/cape_far_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_cape_far_checks.png"
+    },
+    "pieces/idle/0012/front/arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/arm_far_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_arm_far_checks.png"
+    },
+    "pieces/idle/0012/front/hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hand_far_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_hand_far_checks.png"
+    },
+    "pieces/idle/0012/front/leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/leg_far_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_leg_far_checks.png"
+    },
+    "pieces/idle/0012/front/foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/foot_far_checks.png"
+    },
+    "pieces/idle/0012/front/hidden_foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/front/hidden_foot_far_checks.png"
+    },
+    "pieces/idle/0012/rear/head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/head_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_head_checks.png"
+    },
+    "pieces/idle/0012/rear/torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/torso_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_torso_checks.png"
+    },
+    "pieces/idle/0012/rear/pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/pelvis_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_pelvis_checks.png"
+    },
+    "pieces/idle/0012/rear/tabard_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/tabard_checks.png"
+    },
+    "pieces/idle/0012/rear/spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/spear_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_spear_checks.png"
+    },
+    "pieces/idle/0012/rear/cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/cape_near_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_cape_near_checks.png"
+    },
+    "pieces/idle/0012/rear/arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/arm_near_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_arm_near_checks.png"
+    },
+    "pieces/idle/0012/rear/hand_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hand_near_checks.png"
+    },
+    "pieces/idle/0012/rear/leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/leg_near_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_leg_near_checks.png"
+    },
+    "pieces/idle/0012/rear/foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/foot_near_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_foot_near_checks.png"
+    },
+    "pieces/idle/0012/rear/cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/cape_far_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_cape_far_checks.png"
+    },
+    "pieces/idle/0012/rear/arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/arm_far_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_arm_far_checks.png"
+    },
+    "pieces/idle/0012/rear/hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hand_far_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_hand_far_checks.png"
+    },
+    "pieces/idle/0012/rear/leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/leg_far_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_leg_far_checks.png"
+    },
+    "pieces/idle/0012/rear/foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/foot_far_checks.png"
+    },
+    "pieces/idle/0012/rear/hidden_foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/idle/0012/rear/hidden_foot_far_checks.png"
+    },
+    "pieces/cast/0012/front/head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/head_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_head_checks.png"
+    },
+    "pieces/cast/0012/front/torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/torso_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_torso_checks.png"
+    },
+    "pieces/cast/0012/front/pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/pelvis_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_pelvis_checks.png"
+    },
+    "pieces/cast/0012/front/tabard_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/tabard_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_tabard_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_tabard_checks.png"
+    },
+    "pieces/cast/0012/front/spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/spear_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_spear_checks.png"
+    },
+    "pieces/cast/0012/front/cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/cape_near_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_cape_near_checks.png"
+    },
+    "pieces/cast/0012/front/arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/arm_near_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_arm_near_checks.png"
+    },
+    "pieces/cast/0012/front/hand_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hand_near_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_hand_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_hand_near_checks.png"
+    },
+    "pieces/cast/0012/front/leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/leg_near_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_leg_near_checks.png"
+    },
+    "pieces/cast/0012/front/foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/foot_near_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_foot_near_checks.png"
+    },
+    "pieces/cast/0012/front/cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/cape_far_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_cape_far_checks.png"
+    },
+    "pieces/cast/0012/front/arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/arm_far_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_arm_far_checks.png"
+    },
+    "pieces/cast/0012/front/hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hand_far_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_hand_far_checks.png"
+    },
+    "pieces/cast/0012/front/leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/leg_far_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_leg_far_checks.png"
+    },
+    "pieces/cast/0012/front/foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/foot_far_checks.png"
+    },
+    "pieces/cast/0012/front/hidden_foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0012/front/hidden_foot_far_checks.png"
+    },
+    "pieces/cast/0029/front/head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/head_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_head_checks.png"
+    },
+    "pieces/cast/0029/front/torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/torso_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_torso_checks.png"
+    },
+    "pieces/cast/0029/front/pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/pelvis_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_pelvis_checks.png"
+    },
+    "pieces/cast/0029/front/tabard_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/tabard_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_tabard_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_tabard_checks.png"
+    },
+    "pieces/cast/0029/front/spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/spear_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_spear_checks.png"
+    },
+    "pieces/cast/0029/front/cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/cape_near_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_cape_near_checks.png"
+    },
+    "pieces/cast/0029/front/arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/arm_near_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_arm_near_checks.png"
+    },
+    "pieces/cast/0029/front/hand_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hand_near_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_hand_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_hand_near_checks.png"
+    },
+    "pieces/cast/0029/front/leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/leg_near_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_leg_near_checks.png"
+    },
+    "pieces/cast/0029/front/foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/foot_near_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_foot_near_checks.png"
+    },
+    "pieces/cast/0029/front/cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/cape_far_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_cape_far_checks.png"
+    },
+    "pieces/cast/0029/front/arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/arm_far_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_arm_far_checks.png"
+    },
+    "pieces/cast/0029/front/hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hand_far_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_hand_far_checks.png"
+    },
+    "pieces/cast/0029/front/leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/leg_far_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_leg_far_checks.png"
+    },
+    "pieces/cast/0029/front/foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/foot_far_checks.png"
+    },
+    "pieces/cast/0029/front/hidden_foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/front/hidden_foot_far_checks.png"
+    },
+    "pieces/cast/0029/rear/head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/head_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_head_checks.png"
+    },
+    "pieces/cast/0029/rear/torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/torso_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_torso_checks.png"
+    },
+    "pieces/cast/0029/rear/pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/pelvis_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_pelvis_checks.png"
+    },
+    "pieces/cast/0029/rear/tabard_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/tabard_checks.png"
+    },
+    "pieces/cast/0029/rear/spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/spear_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_spear_checks.png"
+    },
+    "pieces/cast/0029/rear/cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/cape_near_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_cape_near_checks.png"
+    },
+    "pieces/cast/0029/rear/arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/arm_near_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_arm_near_checks.png"
+    },
+    "pieces/cast/0029/rear/hand_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hand_near_checks.png"
+    },
+    "pieces/cast/0029/rear/leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/leg_near_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_leg_near_checks.png"
+    },
+    "pieces/cast/0029/rear/foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/foot_near_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_foot_near_checks.png"
+    },
+    "pieces/cast/0029/rear/cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/cape_far_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_cape_far_checks.png"
+    },
+    "pieces/cast/0029/rear/arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/arm_far_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_arm_far_checks.png"
+    },
+    "pieces/cast/0029/rear/hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hand_far_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_hand_far_checks.png"
+    },
+    "pieces/cast/0029/rear/leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/leg_far_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_leg_far_checks.png"
+    },
+    "pieces/cast/0029/rear/foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/foot_far_checks.png"
+    },
+    "pieces/cast/0029/rear/hidden_foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0029/rear/hidden_foot_far_checks.png"
+    },
+    "pieces/cast/0036/front/head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/head_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_head_checks.png"
+    },
+    "pieces/cast/0036/front/torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/torso_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_torso_checks.png"
+    },
+    "pieces/cast/0036/front/pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/pelvis_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_pelvis_checks.png"
+    },
+    "pieces/cast/0036/front/tabard_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/tabard_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_tabard_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_tabard_checks.png"
+    },
+    "pieces/cast/0036/front/spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/spear_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_spear_checks.png"
+    },
+    "pieces/cast/0036/front/cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/cape_near_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_cape_near_checks.png"
+    },
+    "pieces/cast/0036/front/arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/arm_near_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_arm_near_checks.png"
+    },
+    "pieces/cast/0036/front/hand_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hand_near_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_hand_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_hand_near_checks.png"
+    },
+    "pieces/cast/0036/front/leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/leg_near_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_leg_near_checks.png"
+    },
+    "pieces/cast/0036/front/foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/foot_near_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_foot_near_checks.png"
+    },
+    "pieces/cast/0036/front/cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/cape_far_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_cape_far_checks.png"
+    },
+    "pieces/cast/0036/front/arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/arm_far_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_arm_far_checks.png"
+    },
+    "pieces/cast/0036/front/hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hand_far_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_hand_far_checks.png"
+    },
+    "pieces/cast/0036/front/leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/leg_far_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_leg_far_checks.png"
+    },
+    "pieces/cast/0036/front/foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/foot_far_checks.png"
+    },
+    "pieces/cast/0036/front/hidden_foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0036/front/hidden_foot_far_checks.png"
+    },
+    "pieces/cast/0037/front/head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/head_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_head_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_head_checks.png"
+    },
+    "pieces/cast/0037/front/torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/torso_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_torso_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_torso_checks.png"
+    },
+    "pieces/cast/0037/front/pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/pelvis_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_pelvis_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_pelvis_checks.png"
+    },
+    "pieces/cast/0037/front/tabard_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/tabard_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_tabard_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_tabard_checks.png"
+    },
+    "pieces/cast/0037/front/spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/spear_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_spear_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_spear_checks.png"
+    },
+    "pieces/cast/0037/front/cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/cape_near_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_cape_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_cape_near_checks.png"
+    },
+    "pieces/cast/0037/front/arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/arm_near_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_arm_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_arm_near_checks.png"
+    },
+    "pieces/cast/0037/front/hand_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hand_near_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_hand_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_hand_near_checks.png"
+    },
+    "pieces/cast/0037/front/leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/leg_near_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_leg_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_leg_near_checks.png"
+    },
+    "pieces/cast/0037/front/foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/foot_near_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_foot_near_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_foot_near_checks.png"
+    },
+    "pieces/cast/0037/front/cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/cape_far_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_cape_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_cape_far_checks.png"
+    },
+    "pieces/cast/0037/front/arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/arm_far_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_arm_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_arm_far_checks.png"
+    },
+    "pieces/cast/0037/front/hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hand_far_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_hand_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_hand_far_checks.png"
+    },
+    "pieces/cast/0037/front/leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/leg_far_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_leg_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_leg_far_checks.png"
+    },
+    "pieces/cast/0037/front/foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/foot_far_checks.png"
+    },
+    "pieces/cast/0037/front/hidden_foot_far_checks.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "pieces/cast/0037/front/hidden_foot_far_checks.png"
+    },
+    "holes/idle/0012/front/RestHole00.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "holes/idle/0012/front/RestHole00.png"
+    },
+    "holes/idle/0012/front/RestHole01.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "holes/idle/0012/front/RestHole01.png"
+    },
+    "holes/idle/0012/rear/RestHole00.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "holes/idle/0012/rear/RestHole00.png"
+    },
+    "holes/cast/0012/front/RestHole00.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "holes/cast/0012/front/RestHole00.png"
+    },
+    "holes/cast/0012/front/RestHole01.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "holes/cast/0012/front/RestHole01.png"
+    },
+    "holes/cast/0029/front/RestHole00.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "holes/cast/0029/front/RestHole00.png"
+    },
+    "holes/cast/0029/front/RestHole01.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "holes/cast/0029/front/RestHole01.png"
+    },
+    "holes/cast/0029/rear/RestHole00.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "holes/cast/0029/rear/RestHole00.png"
+    },
+    "holes/cast/0036/front/RestHole00.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "holes/cast/0036/front/RestHole00.png"
+    },
+    "holes/cast/0036/front/RestHole01.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "holes/cast/0036/front/RestHole01.png"
+    },
+    "holes/cast/0037/front/RestHole00.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "holes/cast/0037/front/RestHole00.png"
+    },
+    "holes/cast/0037/front/RestHole01.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "holes/cast/0037/front/RestHole01.png"
+    },
+    "seams/idle/0012/front/JointSeam_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_head.png"
+    },
+    "seams/idle/0012/front/JointSeam_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_torso.png"
+    },
+    "seams/idle/0012/front/JointSeam_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_pelvis.png"
+    },
+    "seams/idle/0012/front/JointSeam_tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_tabard.png"
+    },
+    "seams/idle/0012/front/JointSeam_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_spear.png"
+    },
+    "seams/idle/0012/front/JointSeam_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_cape_near.png"
+    },
+    "seams/idle/0012/front/JointSeam_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_arm_near.png"
+    },
+    "seams/idle/0012/front/JointSeam_hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_hand_near.png"
+    },
+    "seams/idle/0012/front/JointSeam_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_leg_near.png"
+    },
+    "seams/idle/0012/front/JointSeam_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_foot_near.png"
+    },
+    "seams/idle/0012/front/JointSeam_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_cape_far.png"
+    },
+    "seams/idle/0012/front/JointSeam_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_arm_far.png"
+    },
+    "seams/idle/0012/front/JointSeam_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_hand_far.png"
+    },
+    "seams/idle/0012/front/JointSeam_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_leg_far.png"
+    },
+    "seams/idle/0012/front/JointSeam_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/front/JointSeam_foot_far.png"
+    },
+    "seams/idle/0012/rear/JointSeam_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_head.png"
+    },
+    "seams/idle/0012/rear/JointSeam_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_torso.png"
+    },
+    "seams/idle/0012/rear/JointSeam_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_pelvis.png"
+    },
+    "seams/idle/0012/rear/JointSeam_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_spear.png"
+    },
+    "seams/idle/0012/rear/JointSeam_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_cape_near.png"
+    },
+    "seams/idle/0012/rear/JointSeam_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_arm_near.png"
+    },
+    "seams/idle/0012/rear/JointSeam_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_leg_near.png"
+    },
+    "seams/idle/0012/rear/JointSeam_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_foot_near.png"
+    },
+    "seams/idle/0012/rear/JointSeam_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_cape_far.png"
+    },
+    "seams/idle/0012/rear/JointSeam_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_arm_far.png"
+    },
+    "seams/idle/0012/rear/JointSeam_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_hand_far.png"
+    },
+    "seams/idle/0012/rear/JointSeam_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_leg_far.png"
+    },
+    "seams/idle/0012/rear/JointSeam_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/idle/0012/rear/JointSeam_foot_far.png"
+    },
+    "seams/cast/0012/front/JointSeam_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_head.png"
+    },
+    "seams/cast/0012/front/JointSeam_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_torso.png"
+    },
+    "seams/cast/0012/front/JointSeam_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_pelvis.png"
+    },
+    "seams/cast/0012/front/JointSeam_tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_tabard.png"
+    },
+    "seams/cast/0012/front/JointSeam_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_spear.png"
+    },
+    "seams/cast/0012/front/JointSeam_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_cape_near.png"
+    },
+    "seams/cast/0012/front/JointSeam_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_arm_near.png"
+    },
+    "seams/cast/0012/front/JointSeam_hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_hand_near.png"
+    },
+    "seams/cast/0012/front/JointSeam_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_leg_near.png"
+    },
+    "seams/cast/0012/front/JointSeam_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_foot_near.png"
+    },
+    "seams/cast/0012/front/JointSeam_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_cape_far.png"
+    },
+    "seams/cast/0012/front/JointSeam_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_arm_far.png"
+    },
+    "seams/cast/0012/front/JointSeam_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_hand_far.png"
+    },
+    "seams/cast/0012/front/JointSeam_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_leg_far.png"
+    },
+    "seams/cast/0012/front/JointSeam_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0012/front/JointSeam_foot_far.png"
+    },
+    "seams/cast/0029/front/JointSeam_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_head.png"
+    },
+    "seams/cast/0029/front/JointSeam_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_torso.png"
+    },
+    "seams/cast/0029/front/JointSeam_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_pelvis.png"
+    },
+    "seams/cast/0029/front/JointSeam_tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_tabard.png"
+    },
+    "seams/cast/0029/front/JointSeam_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_spear.png"
+    },
+    "seams/cast/0029/front/JointSeam_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_cape_near.png"
+    },
+    "seams/cast/0029/front/JointSeam_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_arm_near.png"
+    },
+    "seams/cast/0029/front/JointSeam_hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_hand_near.png"
+    },
+    "seams/cast/0029/front/JointSeam_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_leg_near.png"
+    },
+    "seams/cast/0029/front/JointSeam_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_foot_near.png"
+    },
+    "seams/cast/0029/front/JointSeam_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_cape_far.png"
+    },
+    "seams/cast/0029/front/JointSeam_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_arm_far.png"
+    },
+    "seams/cast/0029/front/JointSeam_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_hand_far.png"
+    },
+    "seams/cast/0029/front/JointSeam_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_leg_far.png"
+    },
+    "seams/cast/0029/front/JointSeam_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/front/JointSeam_foot_far.png"
+    },
+    "seams/cast/0029/rear/JointSeam_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_head.png"
+    },
+    "seams/cast/0029/rear/JointSeam_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_torso.png"
+    },
+    "seams/cast/0029/rear/JointSeam_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_pelvis.png"
+    },
+    "seams/cast/0029/rear/JointSeam_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_spear.png"
+    },
+    "seams/cast/0029/rear/JointSeam_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_cape_near.png"
+    },
+    "seams/cast/0029/rear/JointSeam_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_arm_near.png"
+    },
+    "seams/cast/0029/rear/JointSeam_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_leg_near.png"
+    },
+    "seams/cast/0029/rear/JointSeam_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_foot_near.png"
+    },
+    "seams/cast/0029/rear/JointSeam_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_cape_far.png"
+    },
+    "seams/cast/0029/rear/JointSeam_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_arm_far.png"
+    },
+    "seams/cast/0029/rear/JointSeam_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_hand_far.png"
+    },
+    "seams/cast/0029/rear/JointSeam_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_leg_far.png"
+    },
+    "seams/cast/0029/rear/JointSeam_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0029/rear/JointSeam_foot_far.png"
+    },
+    "seams/cast/0036/front/JointSeam_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_head.png"
+    },
+    "seams/cast/0036/front/JointSeam_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_torso.png"
+    },
+    "seams/cast/0036/front/JointSeam_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_pelvis.png"
+    },
+    "seams/cast/0036/front/JointSeam_tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_tabard.png"
+    },
+    "seams/cast/0036/front/JointSeam_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_spear.png"
+    },
+    "seams/cast/0036/front/JointSeam_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_cape_near.png"
+    },
+    "seams/cast/0036/front/JointSeam_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_arm_near.png"
+    },
+    "seams/cast/0036/front/JointSeam_hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_hand_near.png"
+    },
+    "seams/cast/0036/front/JointSeam_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_leg_near.png"
+    },
+    "seams/cast/0036/front/JointSeam_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_foot_near.png"
+    },
+    "seams/cast/0036/front/JointSeam_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_cape_far.png"
+    },
+    "seams/cast/0036/front/JointSeam_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_arm_far.png"
+    },
+    "seams/cast/0036/front/JointSeam_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_hand_far.png"
+    },
+    "seams/cast/0036/front/JointSeam_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_leg_far.png"
+    },
+    "seams/cast/0036/front/JointSeam_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0036/front/JointSeam_foot_far.png"
+    },
+    "seams/cast/0037/front/JointSeam_head.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_head.png"
+    },
+    "seams/cast/0037/front/JointSeam_torso.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_torso.png"
+    },
+    "seams/cast/0037/front/JointSeam_pelvis.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_pelvis.png"
+    },
+    "seams/cast/0037/front/JointSeam_tabard.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_tabard.png"
+    },
+    "seams/cast/0037/front/JointSeam_spear.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_spear.png"
+    },
+    "seams/cast/0037/front/JointSeam_cape_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_cape_near.png"
+    },
+    "seams/cast/0037/front/JointSeam_arm_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_arm_near.png"
+    },
+    "seams/cast/0037/front/JointSeam_hand_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_hand_near.png"
+    },
+    "seams/cast/0037/front/JointSeam_leg_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_leg_near.png"
+    },
+    "seams/cast/0037/front/JointSeam_foot_near.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_foot_near.png"
+    },
+    "seams/cast/0037/front/JointSeam_cape_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_cape_far.png"
+    },
+    "seams/cast/0037/front/JointSeam_arm_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_arm_far.png"
+    },
+    "seams/cast/0037/front/JointSeam_hand_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_hand_far.png"
+    },
+    "seams/cast/0037/front/JointSeam_leg_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_leg_far.png"
+    },
+    "seams/cast/0037/front/JointSeam_foot_far.png": {
+      "crop": [
+        0,
+        0,
+        640,
+        640
+      ],
+      "encoding": "png",
+      "size": [
+        640,
+        640
+      ],
+      "stored_file": "seams/cast/0037/front/JointSeam_foot_far.png"
+    },
+    "front_rest.png": {
+      "crop": [
+        0,
+        0,
+        255,
+        255
+      ],
+      "encoding": "png",
+      "size": [
+        255,
+        255
+      ],
+      "stored_file": "front_rest.png"
+    },
+    "rear_rest.png": {
+      "crop": [
+        0,
+        0,
+        255,
+        255
+      ],
+      "encoding": "png",
+      "size": [
+        255,
+        255
+      ],
+      "stored_file": "rear_rest.png"
+    }
+  }
+}

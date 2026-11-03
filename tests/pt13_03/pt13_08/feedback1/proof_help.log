@@ -1,0 +1,8 @@
+usage: pt13_03_proof.py [-h] --phase {after} [--plan-only]
+
+Design-owner real-renderer proof of the current code.
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --phase {after}
+  --plan-only      Headless validation of capture fixtures; creates no PNGs

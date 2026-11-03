@@ -1,0 +1,123 @@
+{
+  "reason": "Final-round request: if the 900 s full Godot budget expires, run each affected program in a separate task-runner process. Add any failed full-suite children unchanged.",
+  "cases": [
+    {
+      "script": "tests/dragon_boss_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/dragon_committed_patterns_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/dragon_exchange_presentation_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/dragon_feedback_mechanics_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/dragon_pressure_mechanics_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/dragon_reward_feedback_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/dragon_spire_routes_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/dragon_trophy_feedback_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/dragon_wallet_ack_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/battlefield_rules_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/boss_health_preview_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/turn_clock_hud_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/turn_clock_wait_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/suites/full_scene_clock_program.gd",
+      "args": []
+    },
+    {
+      "script": "tests/combat_analytics_context_equivalence_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/encounter_analytics_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/surface_analytics_batch_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/grimoire_search_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/grimoire_search_rows_equivalence_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/short_card_tooltips_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/encounter_measurement_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/dragon_element_rules_probe.gd",
+      "args": [
+        "--check-only"
+      ]
+    },
+    {
+      "script": "tests/surface_core_review_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/suites/full_scene_creature_cutouts_program.gd",
+      "args": []
+    },
+    {
+      "script": "tests/threats_at_rest_test.gd",
+      "args": []
+    },
+    {
+      "script": "tests/suites/sfx_sync_0_program.gd",
+      "args": []
+    },
+    {
+      "script": "tests/suites/sfx_sync_1_program.gd",
+      "args": []
+    },
+    {
+      "script": "tests/suites/full_scene_controls_program.gd",
+      "args": []
+    },
+    {
+      "script": "tests/card_display_performance_test.gd",
+      "args": []
+    }
+  ]
+}

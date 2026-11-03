@@ -1,0 +1,56 @@
+MQ17_BRIDGE_SUBMITTED: build; mq03-3c5c061cda024586886d8398cdb79f80
+MQ17_BRIDGE_RESULT: build; exit=0; seconds=5.0
+MQ17_BRIDGE_SUBMITTED: front_preview; mq03-2c5efcd7326d482686927926ac840ef8
+MQ17_BRIDGE_RESULT: front_preview; exit=0; seconds=54.6
+MQ17_BRIDGE_SUBMITTED: front_solo_0; mq03-1345d0a62f51457288f5a8fe94650a55
+MQ17_BRIDGE_RESULT: front_solo_0; exit=0; seconds=52.4
+MQ17_BRIDGE_SUBMITTED: front_solo_2; mq03-04de8a113cf0449cb9378401b9746075
+MQ17_BRIDGE_RESULT: front_solo_2; exit=0; seconds=48.9
+MQ17_BRIDGE_SUBMITTED: front_solo_4; mq03-090dfa9d7ce842e7b4fad741f5d3a629
+MQ17_BRIDGE_RESULT: front_solo_4; exit=0; seconds=49.6
+MQ17_BRIDGE_SUBMITTED: front_solo_6; mq03-e1b43376ae15452e8fcaf2bb0bd24bfb
+MQ17_BRIDGE_RESULT: front_solo_6; exit=0; seconds=44.9
+MQ17_BRIDGE_SUBMITTED: front_solo_8; mq03-266785c5f1854db8b0f8cc20f2106680
+MQ17_BRIDGE_RESULT: front_solo_8; exit=0; seconds=47.1
+MQ17_BRIDGE_SUBMITTED: front_solo_10; mq03-8098ede0293b4c3ca1e12574b64e192e
+MQ17_BRIDGE_RESULT: front_solo_10; exit=0; seconds=50.5
+MQ17_BRIDGE_SUBMITTED: front_solo_12; mq03-bd1aa004e0c84c629312a150b85fcda4
+MQ17_BRIDGE_RESULT: front_solo_12; exit=0; seconds=57.2
+MQ17_BRIDGE_SUBMITTED: front_solo_14; mq03-bbfd8975812346cebf08e24f2d14f741
+MQ17_BRIDGE_RESULT: front_solo_14; exit=0; seconds=36.5
+MQ17_BRIDGE_SUBMITTED: front_solo_16; mq03-0e20873e24bd48d9baa40741d1a0dd2d
+MQ17_BRIDGE_RESULT: front_solo_16; exit=0; seconds=32.3
+MQ17_BRIDGE_SUBMITTED: front_solo_18; mq03-16aa695acb1641f8b238a1425995b57c
+MQ17_BRIDGE_RESULT: front_solo_18; exit=0; seconds=33.7
+MQ17_BRIDGE_SUBMITTED: front_solo_20; mq03-d0517723df864827811f180b47c2d7f3
+MQ17_BRIDGE_RESULT: front_solo_20; exit=0; seconds=35.3
+MQ17_BRIDGE_SUBMITTED: rear_preview; mq03-77297a3e49904230a1c84696f1e48436
+MQ17_BRIDGE_RESULT: rear_preview; exit=0; seconds=26.6
+MQ17_BRIDGE_SUBMITTED: rear_solo_0; mq03-e80cbc0a96de4657b486d36766717c9c
+MQ17_BRIDGE_RESULT: rear_solo_0; exit=0; seconds=32.4
+MQ17_BRIDGE_SUBMITTED: rear_solo_2; mq03-81333e6c71334b1fb1d56d3c3d858b17
+MQ17_BRIDGE_RESULT: rear_solo_2; exit=0; seconds=26.7
+MQ17_BRIDGE_SUBMITTED: rear_solo_4; mq03-39bc8fc00bf34f43b1657bdd60bcc0c9
+MQ17_BRIDGE_RESULT: rear_solo_4; exit=0; seconds=18.1
+MQ17_BRIDGE_SUBMITTED: rear_solo_6; mq03-8710d57dfb104f6796e5abe04e186657
+MQ17_BRIDGE_RESULT: rear_solo_6; exit=0; seconds=26.3
+MQ17_BRIDGE_SUBMITTED: rear_solo_8; mq03-2b31da29a2e847f099bf43048e75c2ac
+MQ17_BRIDGE_RESULT: rear_solo_8; exit=0; seconds=28.1
+MQ17_BRIDGE_SUBMITTED: rear_solo_10; mq03-273aaf42d81d4627a15983d4c6a6ecf0
+MQ17_BRIDGE_RESULT: rear_solo_10; exit=0; seconds=26.3
+MQ17_BRIDGE_SUBMITTED: rear_solo_12; mq03-201984273dec47088ba101aebc4672ba
+MQ17_BRIDGE_RESULT: rear_solo_12; exit=0; seconds=19.6
+MQ17_BRIDGE_SUBMITTED: rear_solo_14; mq03-8d1f1de7e13842a99593339a2503e48f
+MQ17_BRIDGE_RESULT: rear_solo_14; exit=0; seconds=18.3
+MQ17_BRIDGE_SUBMITTED: rear_solo_16; mq03-ee06f8de7bd64ad69ec4d81914940637
+MQ17_BRIDGE_RESULT: rear_solo_16; exit=0; seconds=18.1
+MQ17_BRIDGE_SUBMITTED: rear_solo_18; mq03-a3c7a9a4fc03436cab9033981b779a3e
+MQ17_BRIDGE_RESULT: rear_solo_18; exit=0; seconds=18.0
+MQ17_BRIDGE_SUBMITTED: rear_solo_20; mq03-16f26477f97548d3aee3a7951949e188
+MQ17_BRIDGE_RESULT: rear_solo_20; exit=0; seconds=17.7
+MQ17_CAPTURE_MERGE: PASS; views=2; solos=44
+MQ17_BRIDGE_SUBMITTED: fresh_native_probe; mq03-cd5867787e874d219fd0f2fc3f1edb98
+MQ17_BRIDGE_RESULT: fresh_native_probe; exit=0; seconds=2.1
+MQ17_ACCEPTANCE: PASS; unexplained_parts=[]
+MQ17_ACCEPTANCE: PASS; unexplained_parts=[]
+MQ17_CLEAN_REGENERATION: PASS; clays=2/2; part_maps=2/2; cache_reused=false

@@ -3,6 +3,9 @@ extends RefCounted
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
+const Board = preload("res://scripts/combat_board_view.gd")
+const BoardFixture = preload("res://tests/suites/en01_enemies_suite.gd")
+const Typography = preload("res://scripts/ui_typography.gd")
 
 
 static func run(expect: Callable) -> void:
@@ -10,6 +13,7 @@ static func run(expect: Callable) -> void:
 	_test_health_column_keeps_hit_beside_its_target(expect)
 	_test_clustered_hits_keep_the_receiving_actor(expect)
 	_test_actor_region_intersections_find_a_feasible_lane(expect)
+	_test_own_bar_keeps_hit_on_its_actor(expect)
 	_test_direct_to_timeline_popup_identity(expect)
 	_test_fatigue_popup_identity(expect)
 	_test_damage_motion_curve(expect)
@@ -476,6 +480,35 @@ static func _test_actor_region_intersections_find_a_feasible_lane(expect: Callab
 		for neighbor: Vector2 in neighbors:
 			var normal: Vector2 = target.direction_to(neighbor)
 			expect.call(normal.dot((target + neighbor) * 0.5 - corner - offset) >= FloatingCombatText.SCREEN_POPUP_ACTOR_MARGIN - 0.01, "Intersecting actor regions must preserve the full trajectory's receiver margin")
+
+
+# pol-26: with nobody near, the hero's numbers landed about 130 px beside him,
+# thrown sideways by his own bar. Board fits of 560 and 500 px give the real
+# room's tile (about 147 px) and a smaller one.
+static func _test_own_bar_keeps_hit_on_its_actor(expect: Callable) -> void:
+	for fit_height: float in [560.0, 500.0]:
+		var board := Board.new()
+		board.size = Vector2(1920, 1080)
+		var state: Dictionary = BoardFixture.fixture(["acolyte"])
+		state["player"]["pos"] = Vector2i(3, 3)
+		state["enemies"][0]["pos"] = Vector2i(6, 3)
+		var shown: Array[Dictionary] = FloatingCombatText.animate_entries([FloatingCombatText.damage_entry(Vector2i(3, 3), "-5", Color("f39779"))], 0.0, false)
+		board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"floating_texts": shown, "board_fit_rect": Rect2(240, 60, 1440, fit_height)})
+		var hero: Dictionary = {}
+		for unit: Dictionary in board._visible_units():
+			if str(unit.get("key", "")) == "player":
+				hero = unit
+		var bar: Rect2 = board._unit_health_bar_rect(hero, board._unit_center(hero))
+		board._hud_health_rects_cache = {"player": bar}
+		var popups: Array[Dictionary] = board._floating_text_screen_layout(Typography.ui_font())
+		var body: Rect2 = board._unit_draw_rect(hero)
+		var offset: Vector2 = popups[0]["layout_offset"]
+		var drawn: Vector2 = (popups[0]["rendered_rect"] as Rect2).get_center() + offset
+		var reserved: Rect2 = popups[0]["envelope"]
+		reserved.position += offset
+		expect.call(drawn.x > body.position.x and drawn.x < body.end.x and drawn.y < body.end.y, "A lone actor's hit stays on that actor's body (fit %d)" % int(fit_height))
+		expect.call(not reserved.intersects(bar), "A lone actor's hit rises under its own health bar (fit %d)" % int(fit_height))
+		board.free()
 
 
 static func _test_direct_to_timeline_popup_identity(expect: Callable) -> void:

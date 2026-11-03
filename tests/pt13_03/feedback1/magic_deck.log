@@ -1,0 +1,14 @@
+Running task-local command:
+  task: pt13-03
+  run: pt13-03-1793058643829086000-38425
+  HOME: /private/tmp/labyrinth-godot-home/pt13-03-1793058643829086000-38425
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-03-1793058643829086000-38425/godot.log --headless --path . --script tests/magic_deck_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+MAGIC DECK TEST: PASS
+TEST RESULT: PASS
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)

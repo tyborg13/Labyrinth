@@ -1,0 +1,293 @@
+{
+  "unit": "rr-32",
+  "branch": "codex/rr-32",
+  "base_head": "6080b686b90f9c19f48a9a97eed472b5a6f379aa",
+  "changes": "uncommitted; no push, merge, rebase, stash, branch change, review or queue mutation",
+  "director_sha256": "5a58aac16defe1636d8836f71abb5d1130e813860669c5cdf478df73645a4c9b",
+  "protected_motion_byte_identical": true,
+  "earlier_rig_and_case_tracked_bytes_unchanged": true,
+  "observed_headless_results": {
+    "herald": [
+      {
+        "family": "herald",
+        "command": [
+          "/Library/Developer/CommandLineTools/usr/bin/python3",
+          "/Users/borgerding/workspace/Labyrinth.worktrees/rr-32/experiments/cutouts/gale_herald/rr32_validate.py",
+          "--execute-suite",
+          "herald"
+        ],
+        "exit": 0,
+        "result_lines": [
+          "Ran 15 tests in 101.374s",
+          "OK"
+        ],
+        "transcript": "proof/logs/validate_herald_0.txt"
+      }
+    ],
+    "prior_figures": {
+      "seer": {
+        "exit": 0,
+        "modules": [
+          "test_rr10_bone_evidence.py",
+          "test_rr10_feedback.py",
+          "test_rr10_humanoid.py",
+          "test_rr10_layout_parity.py",
+          "test_rr10_native_exceptions.py",
+          "test_rr10_occluded_foot.py",
+          "test_rr10_rear.py",
+          "test_rr10_reveal_fills.py",
+          "test_rr10_rope.py",
+          "test_rr10_silhouette_gates.py",
+          "test_rr10_tucks.py",
+          "test_rr13_continuations.py",
+          "test_rr14_anatomy.py",
+          "test_rr14_bone_guards.py",
+          "test_rr14_continuation_domains.py",
+          "test_rr14_foundations.py",
+          "test_rr14_seer_identity.py"
+        ],
+        "result_lines": [
+          "Ran 86 tests in 61.084s",
+          "OK"
+        ]
+      },
+      "thrall": {
+        "exit": 0,
+        "modules": [
+          "test_rr11_humanoid.py",
+          "test_rr15_action_direction.py",
+          "test_rr15_native_cleanup.py",
+          "test_rr15_reach.py",
+          "test_rr15_shoulder.py",
+          "test_rr15_view_keys.py",
+          "test_rr16_feedback1.py",
+          "test_rr16_review_fixes.py",
+          "test_rr24_feedback2.py",
+          "test_rr24_policies.py",
+          "test_rr24_thrall.py",
+          "test_rr27_thrall.py"
+        ],
+        "result_lines": [
+          "Ran 88 tests in 86.373s",
+          "OK (skipped=1)"
+        ]
+      },
+      "mirror": {
+        "exit": 0,
+        "modules": [
+          "test_rr18_air_policy.py",
+          "test_rr18_humanoid.py",
+          "test_rr18_materials.py"
+        ],
+        "result_lines": [
+          "Ran 39 tests in 51.615s",
+          "OK"
+        ]
+      },
+      "capacitor": {
+        "exit": 0,
+        "modules": [
+          "test_rr17_cutout.py",
+          "test_rr17_feedback.py",
+          "test_rr17_integration.py",
+          "test_rr17_production.py",
+          "test_rr19_overlap.py"
+        ],
+        "result_lines": [
+          "Ran 38 tests in 117.276s",
+          "OK"
+        ]
+      },
+      "weaver": {
+        "exit": 0,
+        "modules": [
+          "test_rr21_cutout.py",
+          "test_rr21_production.py",
+          "test_rr21_residue.py",
+          "test_rr21_review.py",
+          "test_rr21_walk.py"
+        ],
+        "result_lines": [
+          "Ran 33 tests in 155.762s",
+          "OK"
+        ]
+      },
+      "mimic": {
+        "exit": 0,
+        "tests": 30,
+        "skipped": 0,
+        "invocation": "PYTHONPATH=tests:tools; missing ignored fixture LOG redirected to task temp; assertions unchanged",
+        "initial_result": {
+          "exit": 1,
+          "modules": [
+            "test_rr26_consolidation.py",
+            "test_rr26_fragments.py",
+            "test_rr26_hem_attachments.py",
+            "test_rr29_historical_ranges.py",
+            "test_rr29_mimic.py"
+          ],
+          "result_lines": [
+            "ERROR: test_recovery_preserves_raw_pose_numbers_and_rejects_tampered_rows (tests.test_rr26_consolidation.ConsolidationTests)",
+            "Ran 30 tests in 39.342s",
+            "FAILED (errors=1)"
+          ]
+        },
+        "modules": [
+          "test_rr26_consolidation.py",
+          "test_rr26_fragments.py",
+          "test_rr26_hem_attachments.py",
+          "test_rr29_historical_ranges.py",
+          "test_rr29_mimic.py"
+        ]
+      },
+      "mortar": {
+        "exit": 0,
+        "modules": [
+          "test_rr22_humanoid.py",
+          "test_rr22_source_space.py",
+          "test_rr25_mortar_finish.py",
+          "test_rr30_joint_surfaces.py",
+          "test_rr30_mortar.py",
+          "test_rr30_proof.py",
+          "test_rr30_stretch.py"
+        ],
+        "result_lines": [
+          "Ran 66 tests in 443.241s",
+          "OK"
+        ],
+        "invocation": "PYTHONPATH=tests:tools; assertions unchanged",
+        "initial_result": {
+          "exit": 1,
+          "modules": [
+            "test_rr22_humanoid.py",
+            "test_rr22_source_space.py",
+            "test_rr25_mortar_finish.py",
+            "test_rr30_joint_surfaces.py",
+            "test_rr30_mortar.py",
+            "test_rr30_proof.py",
+            "test_rr30_stretch.py"
+          ],
+          "result_lines": [
+            "ERROR: test_rr30_joint_surfaces (unittest.loader._FailedTest)",
+            "Ran 63 tests in 33.779s",
+            "FAILED (errors=1)"
+          ]
+        }
+      }
+    },
+    "sfx": [
+      {
+        "program": 0,
+        "exit": 0,
+        "result_lines": [
+          "SFX SYNC HARNESS RESULT: PASS (4231 observations, 0 failures)"
+        ]
+      },
+      {
+        "program": 1,
+        "exit": 0,
+        "result_lines": [
+          "SFX SYNC HARNESS RESULT: PASS (3504 observations, 0 failures)"
+        ]
+      },
+      {
+        "program": 2,
+        "exit": 0,
+        "result_lines": [
+          "SFX SYNC HARNESS RESULT: PASS (1682 observations, 0 failures)"
+        ]
+      }
+    ],
+    "identity": {
+      "command": "python3 tests/test_art_identity_gate.py",
+      "result_lines": [
+        "Ran 111 tests in 44.389s",
+        "OK"
+      ]
+    },
+    "icons": {
+      "command": "python3 tests/test_icon_identity_policy.py",
+      "result_lines": [
+        "Ran 7 tests in 0.072s",
+        "OK"
+      ]
+    },
+    "registration_audit": "TEST REGISTRATION AUDIT: PASS (805 scripts; full suite=449, quarantined=29, windowed probe=327)",
+    "runtime": "RR32 RUNTIME: PASS (151 checks; registration and contact clocks)",
+    "native_probe_load": "RR32 NATIVE PROBE LOAD: PASS",
+    "static_facing": "STATIC FACING TEST RESULT: PASS (30 checks, 0 failures)",
+    "parser_checks": {
+      "python": "RR32 PYTHON PARSE: PASS",
+      "proof_contracts": "RR32 PROOF CONTRACT JSON: PASS (4 contracts)",
+      "shell": "sh -n experiments/cutouts/gale_herald/proof.sh: exit 0",
+      "godot_density": "--headless --check-only --script tests/rr32/density_rebake.gd: exit 0",
+      "godot_shadow": "--headless --check-only --script tests/rr32/shadow_refresh.gd: exit 0"
+    },
+    "source_rest": [
+      "RR32 FRONT BUILD: PASS (rest mismatch: 0 px; 7 skinned meshes; protected tracks byte-identical)",
+      "RR32 REAR BUILD: PASS (rest mismatch: 0 px; 7 skinned meshes; protected tracks byte-identical)"
+    ],
+    "case_gates": "RR32 HEADLESS GATES: FAIL (605 errors)",
+    "gate_classification": {
+      "idle_rigidity": 596,
+      "front_inside_minimum_reach": 5,
+      "terminal_banner_4px_budget": 4
+    },
+    "production": {
+      "front": {
+        "contacts_poses": "PASS (0 errors)",
+        "walk_supports": "PASS (0 errors)",
+        "frames": 1309,
+        "native_pixels": false
+      },
+      "rear": {
+        "contacts_poses": "PASS (0 errors)",
+        "walk_supports": "PASS (0 errors)",
+        "frames": 1309,
+        "native_pixels": false
+      }
+    },
+    "density_paint": "PROCESSED 60 file(s)",
+    "density_rest_check": {
+      "exit": 1,
+      "errors": [
+        "rest rebake needed: assets/units/gale_herald_cutout/humanoid_v2/front/rest.png: no rebake record; run --record-rests after native rebake",
+        "rest rebake needed: assets/units/gale_herald_cutout/humanoid_v2/rear/rest.png: no rebake record; run --record-rests after native rebake"
+      ]
+    }
+  },
+  "TODO_DESIGN": {
+    "TODO_DESIGN_idle_hand_far": "Protected idle hand_far.lift_px invokes elbow IK; section 2 requires the whole weapon arm to translate rigidly. No replacement keys supplied.",
+    "TODO_DESIGN_idle_cape_tips": "Protected idle cape_near_tip/cape_far_tip.lift_px deforms the banners; section 2 requires rigid upper-body translation.",
+    "TODO_DESIGN_front_hand_far_reach": "Protected front idle, gust_bolt, still_air, hit and death targets enter the minimum reach envelope of the supplied native shoulder/elbow/grip. Exact distances and phases are in proof/gates.json; keys and arm lengths are unchanged.",
+    "TODO_DESIGN_death_cape_tips": "Protected terminal death banner-tip lift reaches -6 px; brief limits banner follow-through to 4 px. It is unclear whether the terminal floorward sink is intended to be exempt; no exemption is inferred."
+  },
+  "native_proof": {
+    "attempted": false,
+    "reason": "No macOS window-server access, as specified by the brief.",
+    "commands": "experiments/cutouts/gale_herald/README.md: Proof for the design owner",
+    "capture_root": "experiments/cutouts/gale_herald/mq12/proof",
+    "stages": [
+      "density",
+      "rest",
+      "native",
+      "sheets",
+      "idle",
+      "production",
+      "review"
+    ],
+    "rest_and_shadow_records": "pending director native density stage"
+  },
+  "full_suites": "not run per unit brief; director owns merge-time full suites",
+  "inspection_fixture": "not requested by unit; design owner owns fixture and inspection",
+  "chosen_defaults": "experiments/cutouts/gale_herald/README.md: Chosen defaults; all choices are proof/test only",
+  "initial_verification_issues": [
+    "Python py_compile tried an unwritable macOS cache directory. AST parse passed; all Python implementation modules were also exercised by passing focused tests.",
+    "Initial rr32 idle pixel mutation test expected a list; the shared API returns an integer mismatch count. Corrected the new test to assert 0, then all 15 tests passed.",
+    "Initial rr26 regression invocation lacked an ignored LOG folder. Retried with LOG redirected to a task temporary directory; assertions/source unchanged; all 30 tests passed.",
+    "Initial rr30 regression invocation lacked tests on PYTHONPATH. Retried with PYTHONPATH=tests:tools; assertions/source unchanged; all 66 tests passed.",
+    "An intermediate production report was rejected for stale probe bindings during implementation. Fresh final captures pass the binding checks in both views.",
+    "Godot emitted existing macOS certificate and resource-leak diagnostics in headless runs; runner/test exits and PASS results are retained in logs.",
+    "Existing NumPy/art recipe replay emitted matmul RuntimeWarnings; replay pixel hashes and identity tests passed."
+  ]
+}

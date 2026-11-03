@@ -1,0 +1,56 @@
+{
+  "min_images": 45,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*_idle.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 3
+    },
+    {
+      "pattern": "*_move.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    },
+    {
+      "pattern": "*_hit.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    },
+    {
+      "pattern": "*_death.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    },
+    {
+      "pattern": "*_lay_the_choir.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    },
+    {
+      "pattern": "*_peal.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    },
+    {
+      "pattern": "*_broken_rhythm.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    },
+    {
+      "pattern": "*_call_the_spark.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    }
+  ]
+}

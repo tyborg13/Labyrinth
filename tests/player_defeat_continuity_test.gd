@@ -6,6 +6,7 @@ const Harness = preload("res://tests/fixtures/player_defeat_continuity_run_scene
 const GuardianFixtures = preload("res://tests/suites/guardian_suite.gd")
 const GuardianRules = preload("res://scripts/guardian_combat_rules.gd")
 const Ground = preload("res://scripts/board_surface_rules.gd")
+const TRAP_ATTACKER_INDEX: int = 2
 var _case_reports: Array[Dictionary]
 
 func _run() -> void:
@@ -32,7 +33,7 @@ func _run() -> void:
 				state["player"]["pos"] = plan["projected_attack"][0]
 			await _exercise(state, intent + ("_reduced" if reduced else "_normal"), false)
 		await _fixture(Vector2i(4, 6), Vector2i(4, 4), reduced)
-		await _exercise(_trap_state(), "trap_conduction" + ("_reduced" if reduced else "_normal"), true)
+		await _exercise(_trap_state(), "trap_conduction" + ("_reduced" if reduced else "_normal"), true, TRAP_ATTACKER_INDEX)
 	var report: Dictionary = {"ok": _errors.is_empty(), "errors": _errors, "cases": _case_reports}
 	var file := FileAccess.open("user://player_defeat_continuity.json", FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "\t"))
@@ -45,9 +46,9 @@ func _run() -> void:
 	await process_frame
 	quit(0 if _errors.is_empty() else 1)
 
-func _exercise(before: Dictionary, label: String, require_trap: bool) -> void:
+func _exercise(before: Dictionary, label: String, require_trap: bool, actor_index: int = 0) -> void:
 	var engine := CombatEngine.new()
-	var result: Dictionary = engine.resolve_enemy_turn_with_steps(before, 0)
+	var result: Dictionary = engine.resolve_enemy_turn_with_steps(before, actor_index)
 	_assert(int(result["state"]["player"]["hp"]) == 0, label + " resolves a real lethal enemy attack")
 	var steps: Array = result["steps"]
 	var has_trap: bool = false
@@ -97,8 +98,9 @@ func _exercise(before: Dictionary, label: String, require_trap: bool) -> void:
 	print("CONTINUITY CASE ", JSON.stringify(summary))
 
 func _trap_state() -> Dictionary:
-	# Existing production Cantor pattern: Lightning conducts from its declared
-	# Fire-trap center to the player, exercising the deferred trap-impact route.
+	# Peal no longer owns an attack action. Use the production Tender Staff Bolt
+	# for this enemy-action playback contract: it conducts from the Fire-trap
+	# impact tile to the hero, exercising the same deferred trap/defeat handoff.
 	var state: Dictionary = GuardianFixtures.new().guardian_fixture("storm_cantor")
 	for y: int in range(state["grid"].size()):
 		for x: int in range(state["grid"][y].size()):
@@ -111,14 +113,19 @@ func _trap_state() -> Dictionary:
 	state["player"]["hp"] = 1
 	state["player"]["block"] = 0
 	state["defiance_remaining"] = 0
-	state["enemies"][0]["pos"] = Vector2i(2, 4)
+	state["enemies"][0]["pos"] = Vector2i(2, 2)
 	state["enemies"][1]["pos"] = Vector2i(4, 2)
-	state["enemies"][2]["pos"] = Vector2i(6, 2)
+	state["enemies"][TRAP_ATTACKER_INDEX]["pos"] = Vector2i(2, 4)
 	for x: int in range(3, 7):
 		Ground.place(state, Vector2i(x, 4), "electrified")
-	var peal: Dictionary = GameData.enemy_def("storm_cantor")["intents"][1].duplicate(true)
-	peal["actions"].pop_front()
-	state["enemies"][0]["intent"] = GuardianRules.commit(CombatEngine.new(), state, 0, peal)
-	var center: Vector2i = state["enemies"][0]["intent"]["actions"][0]["declared_tiles"][0]
+	var engine := CombatEngine.new()
+	var attacker: Dictionary = state["enemies"][TRAP_ATTACKER_INDEX]
+	var intents: Array = engine._scaled_enemy_intents(GameData.enemy_def("bell_tender")["intents"],int(state["room_depth"]),state,attacker)
+	var bolt: Dictionary = intents[1].duplicate(true)
+	# As in the original fixture, hold movement to isolate attack contact.
+	bolt["actions"].pop_front()
+	attacker["intent"] = GuardianRules.commit(engine, state, TRAP_ATTACKER_INDEX, bolt)
+	var center: Vector2i = engine._enemy_lightning_component_impact(state,attacker,bolt["actions"][0],state["player"]["pos"])
+	_assert(center!=engine.INVALID_TILE,"Staff Bolt has a real conductive impact before the lethal hero tile")
 	state["traps"] = [{"id": "continuity_fire", "pos": center, "element": "fire", "damage": 1, "blast_radius": 0}]
 	return state

@@ -1,0 +1,12 @@
+{
+  "actual_tracked_guard": "remains failed until director stages five new sidecars",
+  "files": {
+    "tests/dragon_element_rules_probe.gd.uid": "uid://dmidfcm4tv3x7",
+    "tests/suites/dragon_element_rules_suite.gd.uid": "uid://cgjt1rpx5dake",
+    "tests/suites/dragon_feedback1_suite.gd.uid": "uid://davbeo1l573vr",
+    "tools/dragon_rule_measurement.gd.uid": "uid://butckwpjp8bmh",
+    "tools/dragon_rule_measurement_engine.gd.uid": "uid://daehvb3j1g8qv"
+  },
+  "prospective_inventory_passes": true,
+  "result": "BOS02 UID FILES: PASS (5 engine-generated sidecars present; proposed committed inventory passes; actual guard requires director staging)"
+}

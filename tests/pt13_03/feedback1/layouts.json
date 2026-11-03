@@ -1,0 +1,95 @@
+[
+	{
+		"context": "scavenger_offer",
+		"height": 378.351959228516,
+		"position": [
+			699.0,
+			149.402313232422
+		],
+		"row": "",
+		"safe_area": true,
+		"todo": "",
+		"width": 751.0
+	},
+	{
+		"context": "scavenger_offer_shelf_overlap",
+		"height": 57.40234375,
+		"objects": [
+			"MagicOffer_grave_mortar/ScavengerPriceTag",
+			"GearOffer_boiled_leather/WareArt"
+		],
+		"position": [
+			759.0,
+			470.0
+		],
+		"safe_area": true,
+		"todo": "TODO_DESIGN_scavenger_offer_shelf_overlap",
+		"width": 112.0
+	},
+	{
+		"context": "scavenger_offer_shelf_overlap",
+		"height": 57.40234375,
+		"objects": [
+			"MagicOffer_icicle_lance/ScavengerPriceTag",
+			"GearOffer_dust_tabi/WareArt"
+		],
+		"position": [
+			1019.0,
+			470.0
+		],
+		"safe_area": true,
+		"todo": "TODO_DESIGN_scavenger_offer_shelf_overlap",
+		"width": 112.0
+	},
+	{
+		"context": "scavenger_offer_shelf_overlap",
+		"height": 57.40234375,
+		"objects": [
+			"MagicOffer_stonefist/ScavengerPriceTag",
+			"GearOffer_ward_kite/WareArt"
+		],
+		"position": [
+			1279.0,
+			470.0
+		],
+		"safe_area": true,
+		"todo": "TODO_DESIGN_scavenger_offer_shelf_overlap",
+		"width": 112.0
+	},
+	{
+		"context": "graftwright",
+		"height": 308.351989746094,
+		"position": [
+			480.5,
+			474.0
+		],
+		"row": "SourceCard",
+		"safe_area": true,
+		"todo": "",
+		"width": 669.0
+	},
+	{
+		"context": "graftwright",
+		"height": 308.351989746094,
+		"position": [
+			1185.5,
+			474.0
+		],
+		"row": "TargetCard",
+		"safe_area": true,
+		"todo": "",
+		"width": 669.0
+	},
+	{
+		"context": "upgrade_preview",
+		"height": 620.0,
+		"position": [
+			400.0,
+			230.0
+		],
+		"row": "",
+		"safe_area": true,
+		"todo": "",
+		"width": 1120.0
+	}
+]

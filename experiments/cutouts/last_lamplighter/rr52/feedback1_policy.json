@@ -1,0 +1,15 @@
+{
+  "authority": "rr-52 feedback 1; rr-48 feedback 2 sections 1-5 and feedback 3 sections 2-5",
+  "negative_space": "inverse receiver UV maps to transparent director underlay",
+  "short_tears": {
+    "max_pixels": 4,
+    "max_consecutive_frames": 3
+  },
+  "minimum_action_excursion_ratio": 0.6,
+  "walk_arm_excursion_ratios": {
+    "near": 1.0,
+    "far": 1.0
+  },
+  "floor": "first second-support accepted",
+  "art_scale": 1.03
+}

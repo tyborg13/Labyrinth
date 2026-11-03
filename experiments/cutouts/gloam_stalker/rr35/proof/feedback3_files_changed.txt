@@ -1,0 +1,13 @@
+experiments/cutouts/gloam_stalker/README.md
+experiments/cutouts/gloam_stalker/rr35/proof/feedback3_bindings.json
+experiments/cutouts/gloam_stalker/rr35/proof/feedback3_files_changed.txt
+experiments/cutouts/gloam_stalker/rr35/proof/feedback3_legacy_reach.json
+experiments/cutouts/gloam_stalker/rr35/proof/feedback3_mutations.json
+experiments/cutouts/gloam_stalker/rr35/proof/feedback3_verification.json
+experiments/cutouts/gloam_stalker/rr35/proof/preservation.json
+experiments/cutouts/gloam_stalker/rr35/proof/samples.json
+experiments/cutouts/gloam_stalker/rr35_baseline.py
+experiments/cutouts/gloam_stalker/rr35_preservation.py
+experiments/cutouts/gloam_stalker/rr35_seams.py
+tests/rr35/run_reference_tests.py
+tests/test_rr35_cutout.py

@@ -1,0 +1,1 @@
+Subject: a frozen underground lake seen from low on the shore, its ice clear as glass. Beneath the ice a line of robed figures walks the lake bed holding lit lanterns, faces turned upward toward the viewer. Pale cold light from below. Mood: eerie, beautiful, watched.

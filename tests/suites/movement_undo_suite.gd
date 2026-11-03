@@ -10,6 +10,7 @@ const Analytics = preload("res://scripts/analytics_store.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const Router = preload("res://scripts/input_router.gd")
 const Guided = preload("res://scripts/guided_combat_scenario.gd")
+const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const UndoButton = preload("res://scripts/movement_undo_button.gd")
 
 # Invisible deterministic proof defaults, shared by the director's probe.
@@ -19,7 +20,6 @@ const SETTLE_FRAMES: int = 8
 const STORAGE_PREFIX: String = "user://movement_undo"
 const FADE_SAMPLE_SECONDS: float = 0.06
 const FADE_OPAQUE_CHECK_SECONDS: float = 0.2
-const CAPTURE_STALL_MSEC: int = 180 # Invisible fixture for synchronous native readback/PNG stalls.
 
 static func run(expect: Callable) -> void:
 	var engine := Combat.new()
@@ -181,16 +181,26 @@ static func settle_hand_layout(tree: SceneTree, host: Node) -> void:
 		await tree.process_frame
 	host.call("_layout_combat_action_dock")
 
+static func install_fade_clock(button: Node) -> void:
+	var properties: Dictionary = {}
+	for property: Dictionary in button.get_property_list():
+		if int(property["usage"]) & PROPERTY_USAGE_SCRIPT_VARIABLE:
+			properties[property["name"]] = button.get(property["name"])
+	button.set_script(TestClock.clocked_script(UndoButton, true))
+	for key: String in properties: button.set(key, properties[key])
+	TestClock.now_usec = TestClock.FIXTURE_START_USEC
+
+static func sample_fade(button: Node, elapsed_seconds: float) -> void:
+	TestClock.now_usec = int(button.get("_hero_fade_started_usec")) + int(round(elapsed_seconds * 1000000.0))
+	button.call("_update_hero_fade")
+
+# Existing native capture entrypoint. The headless assertions above use the
+# injected clock; this renderer-only helper keeps the production clock intact.
 static func wait_for_wall_clock(tree: SceneTree, started_usec: int, elapsed_seconds: float) -> void:
-	# A SceneTreeTimer created late in a slow native frame can consume that
-	# frame's earlier delta and fire immediately. Sample actual elapsed time,
-	# then give the renderer's pre-draw update a chance to submit the live alpha.
 	var deadline_usec: int = started_usec + int(elapsed_seconds * 1000000.0)
 	while Time.get_ticks_usec() < deadline_usec: await tree.process_frame
-	if DisplayServer.get_name() == "headless":
-		await tree.process_frame
-	else:
-		await RenderingServer.frame_pre_draw
+	if DisplayServer.get_name() == "headless": await tree.process_frame
+	else: await RenderingServer.frame_pre_draw
 
 static func set_reduced_motion(host: Node, enabled: bool) -> void:
 	# RunScene gates animations using its own settings; the cutout reads the
@@ -214,6 +224,11 @@ static func drawn_hero_rig(host: Node, expect: Callable) -> CanvasItem:
 	return rig
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
+	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
+		await _run_live_scoped(scope, tree, expect)
+	)
+
+static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	prepare_storage()
 	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
 	tree.root.add_child(scene)
@@ -224,6 +239,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await settle_hand_layout(tree, scene)
 	print("MOVEMENT UNDO INTEGRATION: initial walk")
 	var button: Button = scene.get("_movement_undo_button")
+	install_fade_clock(button)
 	expect.call(button.visible and button.undo_available(), "Production movement commit exposes the mouse button")
 	var meter: Control = scene.get("_movement_meter")
 	var dock_after_walk: Rect2 = meter.get_global_rect()
@@ -239,12 +255,11 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	set_reduced_motion(scene, false)
 	expect.call(not scene.call("_reduced_motion_enabled"), "Normal undo fixture actually disables RunScene's reduced-motion gate")
 	button.pressed.emit()
-	var fade_started_usec: int = Time.get_ticks_usec()
-	await wait_for_wall_clock(tree, fade_started_usec, FADE_SAMPLE_SECONDS)
+	sample_fade(button, FADE_SAMPLE_SECONDS)
 	var fading_rig: CanvasItem = drawn_hero_rig(scene, expect)
-	expect.call(fading_rig.modulate.a > 0.0 and fading_rig.modulate.a < 1.0, "Production undo fades the drawn hero at 0.06 seconds")
+	expect.call(is_equal_approx(fading_rig.modulate.a, 0.5), "Production undo fades the drawn hero at 0.06 seconds")
 	expect.call(scene.get("_combat_state") == before, "Normal undo restores exact combat state before the fade completes")
-	await wait_for_wall_clock(tree, fade_started_usec, FADE_OPAQUE_CHECK_SECONDS)
+	sample_fade(button, FADE_OPAQUE_CHECK_SECONDS)
 	expect.call(drawn_hero_rig(scene, expect).modulate.a == 1.0, "Drawn hero reaches full opacity by 0.2 seconds")
 	set_reduced_motion(scene, true)
 	expect.call(scene.call("_reduced_motion_enabled"), "Reduced-motion fixture enables the actual animation gate")
@@ -261,7 +276,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 		set_reduced_motion(scene, false)
 		scene.get_viewport().push_input(key, true)
 		expect.call(scene.get_viewport().is_input_handled() and scene.get("_animation_lock"), "Undo key is consumed synchronously before its animation completes")
-		await wait_for_wall_clock(tree, Time.get_ticks_usec(), FADE_OPAQUE_CHECK_SECONDS)
+		sample_fade(button, FADE_OPAQUE_CHECK_SECONDS)
 		expect.call(scene.get("_combat_state") == before, "Keyboard Z with %s modifier restores exact state" % modifier)
 	set_reduced_motion(scene, true)
 	await walk(scene)
@@ -274,14 +289,18 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	var trigger := InputEventJoypadMotion.new()
 	trigger.axis = JOY_AXIS_TRIGGER_LEFT
 	trigger.axis_value = 1.0
-	await scene.call("_handle_controller_input", trigger)
+	scene.call("_handle_controller_input", trigger)
+	sample_fade(button, FADE_OPAQUE_CHECK_SECONDS)
+	await tree.process_frame
 	expect.call(scene.get("_combat_state") == before, "Controller left trigger restores exact state")
 	scene.call("_refresh_controller_prompts")
 	await settle(tree)
 	prompts = scene.get("_controller_prompt_bar").prompts_snapshot()
 	expect.call(not prompts.any(func(prompt: Dictionary) -> bool: return prompt.get("label") == "Undo move"), "Unavailable undo removes its prompt")
 	trigger.axis_value = 0.0
-	await scene.call("_handle_controller_input", trigger)
+	scene.call("_handle_controller_input", trigger)
+	sample_fade(button, FADE_OPAQUE_CHECK_SECONDS)
+	await tree.process_frame
 	router.call("set_forced_state_for_test", "pointer", "steam_deck")
 	var undo_events: Array[Dictionary]
 	for event: Dictionary in Analytics.load_all_events():
@@ -353,10 +372,8 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	expect.call(not button.rules.available(scene.get("_combat_state")), "Actual Pass/enemy phase clears history")
 	set_reduced_motion(scene, false)
 	button.call("_fade_hero_back")
-	var stalled_fade_started: int = Time.get_ticks_usec()
 	expect.call(bool(button.hero_fade_snapshot()["coroutine_running"]), "Fade diagnostics report the waiting presentation coroutine")
-	OS.delay_msec(CAPTURE_STALL_MSEC)
-	await wait_for_wall_clock(tree, stalled_fade_started, FADE_OPAQUE_CHECK_SECONDS)
+	sample_fade(button, FADE_OPAQUE_CHECK_SECONDS)
 	var completed_fade: Dictionary = button.hero_fade_snapshot()
 	expect.call(completed_fade["alpha"] == 1.0 and not completed_fade["running"] and not completed_fade["coroutine_running"], "A native-style capture stall completes with exactly opaque drawn rig on the next frame")
 	expect.call(completed_fade["completion_reason"] == "completed", "Deadline completion is explicit after a stalled frame")

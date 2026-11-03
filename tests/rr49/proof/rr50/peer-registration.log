@@ -1,0 +1,6 @@
+test_repository_headless_registration_guard (tests.test_test_registration_audit.RegistrationAuditTests) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 5.912s
+
+OK

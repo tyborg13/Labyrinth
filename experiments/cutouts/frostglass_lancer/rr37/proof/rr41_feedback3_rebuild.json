@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "files": 3844,
+  "changed_files": [],
+  "native_pixels": false,
+  "rest_equivalence_sha256": "21dba06b7bf16309153f7f5297dffce0fa8c41af426cb18e09037bd802b0b8c5",
+  "rest_pose_sha256": "ec5164c26a1f797e8890615a7914214559ee16347c7f6621c4b89f7530496999",
+  "density_evidence": {
+    "front": {
+      "native_pixels": false,
+      "method": "native-equivalent CPU rest assembly",
+      "report": "experiments/cutouts/frostglass_lancer/rr37/proof/rest_equivalence.json",
+      "report_sha256": "21dba06b7bf16309153f7f5297dffce0fa8c41af426cb18e09037bd802b0b8c5"
+    },
+    "rear": {
+      "native_pixels": false,
+      "method": "native-equivalent CPU rest assembly",
+      "report": "experiments/cutouts/frostglass_lancer/rr37/proof/rest_equivalence.json",
+      "report_sha256": "21dba06b7bf16309153f7f5297dffce0fa8c41af426cb18e09037bd802b0b8c5"
+    }
+  }
+}

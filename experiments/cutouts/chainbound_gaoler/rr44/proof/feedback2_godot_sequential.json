@@ -1,0 +1,34 @@
+{
+  "complete": true,
+  "results": [
+    {
+      "name": "suites/sfx_sync_0_program",
+      "returncode": 124,
+      "seconds": 180.236,
+      "log_path": "/private/tmp/rr44-f2-godot-failed-reruns.logs/00-suites-sfx_sync_0_program.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-failed-reruns.logs/00/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "suites/sfx_sync_1_program",
+      "returncode": 124,
+      "seconds": 180.177,
+      "log_path": "/private/tmp/rr44-f2-godot-failed-reruns.logs/01-suites-sfx_sync_1_program.log",
+      "timed_out": true,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-failed-reruns.logs/01/godot.log",
+      "reason": ""
+    },
+    {
+      "name": "main_menu_input_test",
+      "returncode": 1,
+      "seconds": 32.735,
+      "log_path": "/private/tmp/rr44-f2-godot-failed-reruns.logs/02-main_menu_input_test.log",
+      "timed_out": false,
+      "engine_log_path": "/private/tmp/rr44-f2-godot-failed-reruns.logs/02/godot.log",
+      "reason": ""
+    }
+  ],
+  "seconds": 393.237,
+  "failed": true
+}

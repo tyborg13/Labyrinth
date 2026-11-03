@@ -1,0 +1,55 @@
+Running task-local command:
+  task: pt13-08
+  run: pt13-08-1793089520576132000-67017
+  HOME: /private/tmp/labyrinth-godot-home/pt13-08-1793089520576132000-67017
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/pt13-08-1793089520576132000-67017/godot.log --headless --path . --script tests/card_legibility_test.gd -- --coverage-gaps
+  timeout: 150s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+LIVE AUDIT: combat fixture mode=combat
+LIVE AUDIT OPEN: chronicle_card
+CARD LEGIBILITY CONTEXT: {"context":"chronicle_card","definition_counts":{"base":3,"modified":0},"definition_source":"both","definitions":3,"exemption":"","floor_failure_count":0,"icon_px":21.5039992332458,"overflow_count":0,"production_builder_call":"scripts/chronicle_panel.gd: _build_detail -> _tooltip_host.definitions[id] = Rules.card_definition(id, record.deck_card_definitions); scripts/item_preview_builders.gd: card_preview -> widget.configure(..., card_definition(id))","sample_failure_count":0,"samples":3,"shrunk_count":0,"text_px":{"footer":null,"rules":14.3359994888306,"token_number":14.3359994888306}}
+LIVE AUDIT OPEN: chronicle_equipment
+CARD LEGIBILITY CONTEXT: {"context":"chronicle_equipment","definition_counts":{"base":3,"modified":0},"definition_source":"both","definitions":3,"exemption":"","floor_failure_count":0,"icon_px":21.5039992332458,"overflow_count":0,"production_builder_call":"scripts/chronicle_panel.gd: _build_detail -> _tooltip_host.definitions[id] = Rules.card_definition(id, record.deck_card_definitions); scripts/item_preview_builders.gd: card_preview -> widget.configure(..., card_definition(id))","sample_failure_count":0,"samples":3,"shrunk_count":0,"text_px":{"footer":null,"rules":14.3359994888306,"token_number":14.3359994888306}}
+LIVE AUDIT OPEN: graftwright_inspection
+CARD LEGIBILITY CONTEXT: {"context":"graftwright_inspection","definition_counts":{"base":3,"modified":0},"definition_source":"base","definitions":3,"exemption":"","floor_failure_count":3,"icon_px":null,"overflow_count":0,"production_builder_call":"scripts/graftwright_view.gd: _open_inspection -> Tooltip.make_lines(_card_name(id), [ActionIcons.card_rules_text(Data.card_def(id))])","sample_failure_count":3,"samples":3,"shrunk_count":0,"text_px":{"footer":null,"rules":null,"token_number":null}}
+CARD LEGIBILITY EQUIPMENT BOUNDS: splintered_shield (482.0, 417.0) (46 two-card items)
+CARD LEGIBILITY TEST RESULT: FAIL (3 definitions, 3 contexts, 9 samples, 248 checks, 6 failures)
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: graftwright_inspection production face before overrides: ["missing rules body", "missing rules/token measurement"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:198)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:239)
+ERROR: graftwright_inspection production face before overrides: ["missing rules body", "missing rules/token measurement"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:198)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:239)
+ERROR: graftwright_inspection production face before overrides: ["missing rules body", "missing rules/token measurement"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:198)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:239)
+ERROR: graftwright_inspection/iron_wheel/base: ["missing rules/token measurement", "missing rules content nodes", "missing rules body", "missing rules/token measurement"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:198)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:239)
+ERROR: graftwright_inspection/thorn_crown_pact/base: ["missing rules/token measurement", "missing rules content nodes", "missing rules body", "missing rules/token measurement"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:198)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:239)
+ERROR: graftwright_inspection/headlong/base: ["missing rules/token measurement", "missing rules content nodes", "missing rules body", "missing rules/token measurement"]
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_legibility_test.gd:198)
+       [1] _no_self_shrink (res://tests/card_legibility_test.gd:239)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

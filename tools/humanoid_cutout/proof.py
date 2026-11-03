@@ -37,19 +37,24 @@ def encode(paths, output):
     if int(probe.stdout.strip()) != len(paths): raise ValueError('Encoded frame count differs')
 
 
-def compose(case, capture, output, mode):
+def compose(case, capture, output, mode, *, diagnostic=False, retained_binding_validator=None, release_policy_factory=None):
     manifest = read_json(capture / 'frames.json')
     if manifest['inputs'] != __import__('humanoid_cutout.gates',fromlist=['bindings']).bindings(case):
-        raise ValueError('Stale native proof inputs')
+        if retained_binding_validator is None:raise ValueError('Stale native proof inputs')
+        retained_binding_validator(manifest['inputs'],__import__('humanoid_cutout.gates',fromlist=['bindings']).bindings(case),capture)
     if not manifest['native_pixels'] or not manifest['ok']: raise ValueError('Incomplete native capture')
     data = read_json(case / 'compiled_motion.json')
+    errors = []
     if mode == 'idle':
         count = round(data['clips']['idle']['seconds'] * FPS * 5)
         paths = [capture / f'idle_comparison/frame_{i:04d}.png' for i in range(count)]
         encode(paths, output)
     else:
-        errors = native_errors(case,capture)
-        if errors: raise ValueError('Native gates failed: ' + str(errors[:10]))
+        gate_options = {}
+        if retained_binding_validator is not None:gate_options['retained_binding_validator']=retained_binding_validator
+        if release_policy_factory is not None:gate_options['release_policy_factory']=release_policy_factory
+        errors = native_errors(case,capture,**gate_options)
+        if errors and not diagnostic: raise ValueError('Native gates failed: ' + str(errors[:10]))
         if mode == 'review':
             if set(data['view_tracks']) != {'front','rear'}:
                 raise ValueError('TODO_DESIGN_mq6_rear_delivery_and_paint: rr-04 two-view review deferred')
@@ -65,13 +70,14 @@ def compose(case, capture, output, mode):
             for view in data['view_tracks']:
                 for clip in data['clips']:
                     rows = sorted([r for r in manifest['frames'] if r['view']==view and r['clip']==clip],key=lambda r:r['frame'])
-                    bounds = [512,512,0,0]
+                    surface_size = load_frame(capture / rows[0]['file']).size
+                    bounds = [*surface_size,0,0]
                     for row in rows:
                         box = load_frame(capture / row['file']).getbbox()
                         if box:
                             bounds = [min(bounds[0],box[0]),min(bounds[1],box[1]),max(bounds[2],box[2]),max(bounds[3],box[3])]
                     bounds = [max(0,bounds[0]-SHEET_CROP_MARGIN_PX),max(0,bounds[1]-SHEET_CROP_MARGIN_PX),
-                              min(512,bounds[2]+SHEET_CROP_MARGIN_PX),min(512,bounds[3]+SHEET_CROP_MARGIN_PX)]
+                              min(surface_size[0],bounds[2]+SHEET_CROP_MARGIN_PX),min(surface_size[1],bounds[3]+SHEET_CROP_MARGIN_PX)]
                     width,height=(bounds[2]-bounds[0])*3,(bounds[3]-bounds[1])*3
                     sheet = Image.new('RGB',(width*SHEET_COLUMNS,(height+SHEET_LABEL_HEIGHT_PX)*((len(rows)+SHEET_COLUMNS-1)//SHEET_COLUMNS)), '#1E1E24')
                     draw = ImageDraw.Draw(sheet)
@@ -82,10 +88,12 @@ def compose(case, capture, output, mode):
                         draw.text((x,y+height),f'{clip} {row["frame"]:04d} phase={row["phase"]:.4f}',fill='white')
                     sheet.save(output / f'{view}_{clip}_3x.png')
             paths = list(output.glob('*_3x.png'))
-    record = {'ok':True,'mode':mode,'frames':len(paths),'native_manifest_sha256':digest(capture/'frames.json'),
+    record = {'ok':not errors,'mode':mode,'frames':len(paths),'native_manifest_sha256':digest(capture/'frames.json'),
               'output':str(output),'fps':FPS,'inputs':manifest['inputs']}
+    if errors:record.update(diagnostic=True,gate_errors=errors)
     write_json(output / 'manifest.json' if mode=='sheets' else output.with_suffix('.json'),record)
-    print('RR10 %s: PASS (%d frames; %s)' % (mode.upper(),len(paths),output))
+    print('RR10 %s: %s (%d frames; %s)' % (mode.upper(),'FAIL; diagnostic saved' if errors else 'PASS',len(paths),output))
+    return record
 
 
 def main():
@@ -94,8 +102,10 @@ def main():
     parser.add_argument('--case',type=Path,required=True)
     parser.add_argument('--capture',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--diagnostic',action='store_true',help='Save failed native evidence for review; keep a failure status and strict provenance.')
     args=parser.parse_args()
-    compose(args.case,args.capture,args.output,args.mode)
+    result=compose(args.case,args.capture,args.output,args.mode,diagnostic=args.diagnostic)
+    if not result['ok']:raise SystemExit(1)
 
 
 if __name__=='__main__': main()

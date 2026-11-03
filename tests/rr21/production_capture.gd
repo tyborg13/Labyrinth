@@ -32,6 +32,7 @@ var _walk_context: Dictionary = {}
 var _failures: Array[String]
 var _data: Dictionary
 var _rear_fixture: bool = false
+var _expected_facing: String
 var _references: Dictionary = {}
 
 func _initialize() -> void:
@@ -49,6 +50,8 @@ func _run() -> void:
 	CaptureStorage.setup(_output)
 	_logic = args.has("--logic-only")
 	_rear_fixture = args.has("--rear")
+	_expected_facing = args[args.find("--expect-facing") + 1] if args.has("--expect-facing") else ("rear" if _rear_fixture else "front")
+	assert(_expected_facing in ["front", "rear"])
 	_data = Action.data_for(_type)
 	if _data.is_empty() or (DisplayServer.get_name() == "headless" and not _logic):
 		push_error("Production capture requires a registered creature and windowed renderer (or --logic-only)")
@@ -70,10 +73,11 @@ func _run() -> void:
 	await _prepare_production_crop()
 	await _run_clips()
 	_failures.append_array(preload("res://tests/rr17/capture_contract.gd").errors(_frames, _data, _scene.proof_completions, not _logic))
+	_failures.append_array(preload("res://tests/fix10_capture_contract.gd").errors(_frames, _type, _expected_facing))
 	for error: String in _failures: push_error(error)
 	var bindings: Dictionary = preload("res://tests/rr10/bindings.gd").for_case("res://experiments/cutouts/briar_weaver/mq9")
 	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type,
-		"size": [1920, 1080], "ui_scale": 1.0, "inputs": bindings, "frames": _frames, "walk_samples": _walk_samples, "completions": _scene.proof_completions, "errors": _failures}
+		"size": [1920, 1080], "ui_scale": 1.0, "view": "rear" if _rear_fixture else "front", "expected_facing": _expected_facing, "inputs": bindings, "frames": _frames, "walk_samples": _walk_samples, "completions": _scene.proof_completions, "errors": _failures}
 	if not _logic or OS.get_cmdline_user_args().has("--validate-crop"):
 		report.merge(CaptureStorage.metadata())
 	if not _logic: CaptureStorage.finish()
@@ -176,7 +180,10 @@ func _run_clips() -> void:
 		await install(state)
 		var action: Dictionary = {}
 		for item: Dictionary in state["enemies"][0]["intent"]["actions"]:
-			if fields.size() == 1 or str(item["type"]) == fields[1]: action = item
+			if Action.clip_for({"intent_id": fields[0], "action_type": item["type"]}, state["enemies"][0]) == clip: action = item
+		if action.is_empty():
+			_failures.append(clip + ": no live authored action matches the production selector")
+			continue
 		var engine := Combat.new()
 		var context: Dictionary = engine.enemy_intent_plan(state, 0)
 		var after: Dictionary = engine._resolve_enemy_action(state.duplicate(true), 0, action, null, {}, engine._dictionary_values([]), context)
@@ -207,12 +214,15 @@ func _capture() -> void:
 		var node: Bone2D = rig.bones[bone]
 		pose.append([bone, str(node.transform), node.modulate.a])
 	var row: Dictionary = {"stage": _stage, "snapshot": snapshot, "pose_sha256": JSON.stringify(pose).sha256_text(), "seconds": _scene.proof_elapsed_seconds}
+	row["banner"] = _scene.action_banner.text
+	row["banner_visible"] = _scene.action_banner.visible
 	var shown: Dictionary = _scene.board_view.presentation
 	row["effect"] = shown.get("effect", {})
 	row["effect_progress"] = shown.get("effect_progress", -1.0)
 	row["cues"] = _scene.proof_cues.slice(_scene.proof_cue_start)
 	row["player_hp"] = int(_scene.board_view.combat_state["player"]["hp"])
 	row["terrain_count"] = _scene.board_view.combat_state.get("terrain", []).size()
+	row["upheaval_marks"] = _scene.board_view.combat_state["enemies"][0].get("upheaval_pending", {}).get("marks", [])
 	row["ally_hp"] = int(_scene.board_view.combat_state["enemies"][1]["hp"]) if _scene.board_view.combat_state["enemies"].size() > 1 else -1
 	row["root_alpha"] = rig.bones["root"].modulate.a
 	row["bones"] = bones_for(rig)

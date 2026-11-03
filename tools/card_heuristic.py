@@ -9,8 +9,8 @@ Current encounter assumptions that shape the coefficients but are not directly
 scored here: a complete run contains six four-depth sequences with 3/4/5
 standard-enemy density before each boss gate. The first five gates use the five
 non-shadow elemental dragons in seeded random order, including Zekarion, while
-Noctyrax is fixed at depth 24. Boss health, attacks, support, and authored arena
-mechanics use the same completed-sequence scaling as normal rooms. Lateral rooms
+Noctyrax is fixed at depth 24. Boss health, primary attacks and support use completed-sequence scaling;
+the six battlefield rules retain their authored dials. Lateral rooms
 remain deck-building route choices, but a guaranteed outward route appears after
 three visited rooms at the current depth when no outward route is otherwise
 available. The local combat band is wider: depth 1 enemies have 85% HP, depth 2
@@ -70,14 +70,15 @@ Bleed pressure only opens on resolved move or attack actions, not skipped or
 blocked no-op action entries. Later sequences keep the local curve while raising
 enemy HP by 8% per completed sequence. Damaging intents add
 0/1/1/2/2/3 points and support intents add 0/0/1/1/2/2 points across the six
-sequences. Zekarion's 2x2 footprint makes printed reach feel larger; Overload
-snapshots Electrified centers, threatens their orthogonal neighborhoods without
-additional conduction, retains charge and pairs the field with a live shot.
-Storm Claw supplies close pursuit, while other lightning attacks can conduct
-through connected surfaces, making each intent's geometry and rules relevant.
-Dragon cycles hold directional geometry and cap terrain/armor/summons; Vyraketh
-uses shared Fire, Tharokh Worldspines, Vaeloryx directional displacement,
-Iskaldra armor/Ice, and Noctyrax lit refuges. These are encounter assumptions,
+sequences. Zekarion's 2x2 footprint makes printed reach feel larger. Its
+Overload keeps a live shot 3 and fires Lightning Storm 5 / Chain 1 (Chain 2 at
+half Health) across Electrified tiles. Storm Lash retains its live shot and
+Electrified fuel without the former charge pulse. All six dragons use one
+source-owned battlefield rule, replacing their bespoke secondary riders.
+Vyraketh spreads Fire, Tharokh raises guarded Outcrops, Iskaldra hits Ice,
+Vaeloryx turns its Gust clockwise, and Noctyrax Blinks hidden Acolytes. Four
+finite regular lieutenant rosters (one Droplet, two Grubs, two Spitters, one
+Shrike) complement the unchanged Wisp/Acolyte rosters and existing summon intents. These are encounter assumptions,
 not intrinsic card coefficients or guaranteed trophy/prepared-board uptime. Large
 enemies use actor-level targeting: one legal visible footprint tile makes the
 whole footprint clickable, but the action still counts as one target and one
@@ -130,6 +131,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 BALANCE_REVISION = "dragon_pressure_v3"
 DEFAULT_CARDS_PATH = REPO_ROOT / "data" / "cards.json"
 DEFAULT_EQUIPMENT_PATH = REPO_ROOT / "data" / "equipment.json"
+PETRIFY_BLOCK = 5
 
 DEPTHS_PER_SEQUENCE = 4
 SEQUENCES_PER_RUN = 6
@@ -170,17 +172,17 @@ SOURCE_FILTERS = (
 )
 
 BOSS_ENCOUNTER_ROLES = {
-    "zekarion": "capped Wisps, seven-cell charge bands, retained adjacent Overload and simultaneous live shots",
-    "tharokh": "four destructible spires, held body attacks plus persistent pulses, then consuming Faultline and a live shot",
-    "vyraketh": "seven-cell Fire bands, broad breath plus adjacent heat, pursuit during detonation and field renewal",
-    "vaeloryx": "live ranged pull, swept Dive wake retained into Gale, retreating outer Eye ring plus a weaker close bite",
-    "iskaldra": "two-layer Mantle then immediate Shatter, crossed Ice lanes, three-step pursuit plus a surviving-trail burst",
-    "noctyrax": "snuff and darkness, declared player-centered ground sweeps, live pursuit and capped replacement Acolytes",
+    "zekarion": "HP50; two Wisps and capped Call Wisps; Skybreak5, Storm Lash4; Overload shot3 plus Lightning Storm damage5 Chain1, Chain2 at half Health",
+    "tharokh": "HP72; two finite Burrow Grubs; Stonewake damage6, Claw damage14, Bedrock damage10; guarded source-owned length5 health4 Upheaval every second hero turn, each hero turn at half Health; radius1 consuming Faultline8 plus shot4",
+    "vyraketh": "HP52; one finite Cinder Droplet; Cinder Maw8, Breath6; seven-cell Fire renewal; Wildfire spreads all on Breath, every second source turn at half Health; Crownfire detonates only remembered marks",
+    "vaeloryx": "HP50; one finite Gust Shrike; live Skyhook4, swept Dive6, ring Gale6 Push1 and Eye8/bite4; clockwise Gust after each source turn, Push1 then Push2 at half Health; no recorded wake",
+    "iskaldra": "two finite Rime Spitters; Mantle, Shatter and crossed Ice; Frostbite3 on Talon, every second source turn at half Health; Mantle absorbs the hit and Freeze immunity remains",
+    "noctyrax": "HP64, Void Claw10; two Acolytes and capped Last Eclipse replacement; snuff, darkness, braziers and live pursuit; Void Claw Blinks hidden Acolytes3; no half-Health change or player-anchored sweeps",
 }
 
 # Director-authored section regulars. Context only: no intrinsic card coefficient changes.
 SECTION_ENEMY_ROSTER = {
-    "burrow_grub": {"section": "earth", "hp": 12, "initiative": 10, "reward_embers": 10,
+    "burrow_grub": {"keyword": "marked", "section": "earth", "hp": 12, "initiative": 10, "reward_embers": 10,
                     "first_weighted_cadence": 14.6, "repeat_weighted_cadence": 14.75,
                     "reach": "Gnaw Move 2 + melee 3; Burrow marks hero tile, forced Erupt 6",
                     "support": "Erupt displaces center, pushes cardinal neighbors, leaves Rubble, self-Expose 2; no exit leaves center in place and surfaces nearby",
@@ -204,11 +206,12 @@ ENEMY_TACTICAL_ROLES = {
 
 GUARDIAN_ASSUMPTIONS = {
     "map": "one optional named Guardian in each section, replacing a middle-group combat; 66 rooms and 40 fight opportunities remain",
-    "roster": "one 36–44 HP bespoke leader plus one or two 4–6 HP helpers; all have 1x1 footprints",
-    "clock": "Roc and Cantor initiative 20 plus Time 4–7; their helpers initiative 19 plus Time 4; other Guardians retain initiative 9–12 and helpers 8–10; ordinary Wisp remains 7 plus 4",
+    "roster": "one 30–66 HP bespoke leader plus one or two initial 4–6 HP helpers; all have 1x1 footprints",
+    "clock": "Guardians initiative 9–12 plus Time 4–7; Cantor 11, Roc 9; Guardian Tender/Fledgling 12, Wisp 19; other helpers 8–10 plus Time 4–6; ordinary Wisp remains 7 plus 4",
     "telegraphs": "authored directional patterns hold orientation and relative approach; displacement and surviving interrupted approaches reanchor their footprint; ordinary attacks use live targets; skipped slots advance",
-    "cohort_pressure": "helpers advance on each intent and prefer complementary safe flanks; one missing roster helper can be announced per Guardian activation, at most two alive; summons avoid the acting Guardian destination and its attack tiles, prefer valid reservations, and relocate occupied reservations within summon range",
-    "ground_pressure": "Reaver marks up to nine Fire tiles and adds Fire after empty sword strikes; Cantor and Tender extend a shared conductive network; Craghide outcrops threaten radius two",
+    "cohort_pressure": "initial helpers are finite; only authored Call the Spark and Snuff renew Wisps/Shades within their data-authored living-kind caps, paying one Card Play per successful summon; helpers advance on each intent and prefer complementary safe flanks; summons avoid the acting Guardian destination and its attack tiles, prefer valid reservations, and relocate occupied reservations within summon range",
+    "ground_pressure": "each Guardian installs data-authored beat cadence and dials; Reaver adds Fire after empty sword strikes; Cantor/Tender extend a shared network and Peal fires Lightning Storm; Frostbite deals zero damage and Freezes Chilled actors on Ice; Roc is Anchored; Craghide raises owned 2-HP Outcrops counted by Groundsplit; only hidden Wick Shades Shadowstep",
+    "director_tuning": "feedback 3: Rimejaw HP 34/Pounce 6; Cantor HP 66/Choir 6 fresh linked tiles when legal space permits/Broken Rhythm 11/Wisp cap 2/Peal 3 Chain 2/Guardian Tender Staff Bolt 4 (ordinary 3); Lamplighter HP 30/Procession 6/one initial Shade/Shade cap 1/Hook 3/Guardian Shade melee 1; ordinary Shade melee 2; enemy intents have no intrinsic player-card score",
     "scaling": "ordinary local HP factors and completed-section HP/damage/support curves; no generic leader multiplier",
     "rewards": "six exclusive run-long trophies; original non-summoned helpers grant one player-card defeat play; all summoned replacements and original Wisps/Shades grant none; helpers grant zero Embers",
     "geometry": "shared outcrops block movement and attack sight; Craghide cannot disconnect floor routes; player outcrops may block routes and normal obstacle-clearing AI applies",
@@ -229,6 +232,7 @@ def encounter_assumptions() -> dict[str, Any]:
     """Return the run structure that contextualizes card-score coefficients."""
     return {
         "magic_deck_context": {"ownership": "all owned magic enters deck; no slot cap", "starting_deck_cards": 16, "intrinsic_scores_depend_on_deck_size": False, "purge": "changes draw frequency only; analyze by deck composition and purge source/price"},
+        "summon_card_plays": {"plays_per_successful_move": 1, "timing": "next hero activation", "stacking_cap": None, "excluded": ["zero arrivals", "death_spawn", "survive reinforcements", "summon_origin=guardian_replacement"], "restrictions": "Frozen forfeits plays normally", "intrinsic_card_score": False},
         "depths_per_sequence": DEPTHS_PER_SEQUENCE,
         "sequences_per_run": SEQUENCES_PER_RUN,
         "randomized_elemental_bosses": RANDOMIZED_ELEMENTAL_BOSSES,
@@ -239,11 +243,11 @@ def encounter_assumptions() -> dict[str, Any]:
             "winters_hourglass": "first Ice card per activation banks 3 Time, cap 3; non-Ice cards spend only needed reserve to minimum Time 1; persists within combat; free Borrowed Time preserves it; excluded from intrinsic scores",
             "stormroad_coil": "one visible Electrified relay for single-target ranged attacks; normal range and LOS on both legs, visible target, direct contact preferred; at most twice printed range before intrinsic Chain; excluded from intrinsic scores",
             "summon_reaction": "newly summoned helpers cannot activate before the next already-scheduled player activation",
-            "ice_lance": "two-layer Mantle precedes immediate Shatter; Whiteout coats crossed two-wide range-3 lanes; Talon pursues up to three steps and adds a surviving-trail burst",
-            "braziers": "Night Coil snuffs the nearest refuge; arrival relights and removes darkness damage but not fixed sweeps centered on the declared player position (Eclipse radius3, Claw2, Breath1); never automatic cleanup",
-            "pressure": "base HP and normal repeat intervals unchanged; all six open at clock12 and couple body pressure with fixed fields; Fire seven-cell bands and adjacent heat; Air retains Dive wake into Gale and weak close strike in Eye; Lightning seven-cell bands with retained adjacent Overload",
-            "earth_cycle": "Stonewake, Claw plus persistent radius1 pulse4, Bedrock plus radius2 pulse4, Faultline radius2 burst8 plus live shot4; four HP per spine, cap4",
-            "earth_approach": "with no living spines and body distance at least3, reserve a legal diagonal approach flank; stagger two-cell pairs separated from next pair; preserve floor connectivity and two whole-body exits; excluded from intrinsic card scores",
+            "ice_lance": "two-layer Mantle precedes immediate Shatter; Whiteout replaces its previous crossed two-wide range-3 Ice trail; Talon pursues up to three steps, then Frostbite hits Ice for3 and Freezes; at half Health the beat follows every second source turn",
+            "braziers": "Night Coil snuffs the nearest refuge; arrival relights and removes darkness damage; player-anchored sweeps are removed; Void Claw Shadowstep Blinks only hidden Veilbound Acolytes3; no automatic cleanup",
+            "pressure": "director feedback1 tunes base HP, primary damage and boss-only helper counts from matched 50-run ladders; normal repeat intervals unchanged; all six open at clock12; one element rule replaces bespoke riders; one finite Cinder Droplet/Gust Shrike and two finite Burrow Grubs/Rime Spitters use the existing dragon slots; Wisps/Acolytes and existing summon intents remain; only the five elemental dragons switch at half Health",
+            "earth_cycle": "Stonewake lane damage6/range4, Claw crescent damage14, Bedrock lane damage10; Upheaval source-owned Outcrops length5 health4; Faultline radius1 burst8 consumes only the source stone, then live shot4; no paired raise or Claw/Breath pulses",
+            "earth_approach": "line_between marks use the shared floor-connectivity and two whole-body-exit guard; preserve_owned_terrain spares Tharokh stone from lane damage and retains sight through it; player and foreign Outcrops remain ordinary blockers; excluded from intrinsic card scores",
             "worldheart": "at most 2 leftover Block becomes Stoneskin per turn; half-gain adjacent pulse remains capped at 4",
             "gust_step": "Move 1 then range-2 Pull 2 / damage 3, one enemy shortcut; movement-only ground selection remains available",
         },
@@ -260,8 +264,8 @@ def encounter_assumptions() -> dict[str, Any]:
         },
         "section_enemies_e1_en02": {
             "source": "spec/peer_benchmark/staged/enemies/wave_e1.json",
-            "hoarfrost_seer": {"hp": 12, "initiative": 12, "embers": 11, "initial_cycle": 17.0, "repeat_cycle": 12 + (3 * (6 + 4) + 2 * 4 + 4) / (3 * 2 + 2 + 1), "mark_range": 5, "mark_tiles": 3, "damage_per_tile": 5, "pillar_enemy_turn_boundaries": 3, "pillar_shatter_damage": 2, "pillar_attackable": False},
-            "gale_herald": {"hp": 14, "initiative": 13, "embers": 11, "weighted_cycle": 13 + (3 * 6 + 2 * 4 + 5) / 6, "wind_enemy_turn_boundaries": 2, "push": 1, "hazard_scan": 3, "order": "farthest downwind first", "source_death": "immediate cancellation", "construct_classification": "enemy definition construct=true only"},
+            "hoarfrost_seer": {"keyword": "marked", "hp": 12, "initiative": 12, "embers": 11, "initial_cycle": 17.0, "repeat_cycle": 12 + (3 * (6 + 4) + 2 * 4 + 4) / (3 * 2 + 2 + 1), "mark_range": 5, "mark_tiles": 3, "damage_per_tile": 5, "landing_ground": "ice"},
+            "gale_herald": {"hp": 14, "initiative": 13, "embers": 11, "weighted_cycle": 13 + (3 * 6 + 2 * 4 + 5) / 6, "wind_enemy_turn_boundaries": 2, "push": 1, "hazard_scan": 3, "order": "farthest downwind first", "source_death": "immediate cancellation", "protection": "Anchored only; no source, rank or construct exemption"},
             "friendly_fire": "existing rewards; no player-card bonus for enemy kills",
             "end_enemy_turn_order": "wind pushes, then terrain lifetimes",
             "spawns": "director adds encounter groups after merge",
@@ -273,8 +277,8 @@ def encounter_assumptions() -> dict[str, Any]:
                                "refraction": "four cardinal tiles toward hero; 4 ice + persistent Chilled; friendly fire and ordinary death rewards",
                                "crystal_guard": "6 Block to adjacent ally with least Block, self only without adjacent ally", "construct": True},
             "gust_shrike": {"hp": 9, "base_initiative": 9, "reward_embers": 8, "weighted_cycle": 9 + (3 * 5 + 2 * 4 + 4) / 6,
-                            "flying": "ignores surface/trap contact and costs; traverses Bramble/Ice Pillars; never ends on impassable terrain; normal Push",
-                            "dive": "straight clear line <=4; align Move <=2 or choose Talon Rake/Hover; strictly intermediate units Push 1 right (dx,dy)->(-dy,dx), normal collision with no opposite-side fallback; hero never pushed, damage4 only on adjacent landing; occupied landing stops at last free path tile with no hero damage"},
+                            "flying": "ignores surface/trap contact and costs; ordinary terrain blocks its route and landing; normal Push",
+                            "dive": "Move Toward4 then shared swept_path AoE4 Air Push1; held actual route, shared one-tile reach; hero/illusions take damage, shared Push away from source includes hero; allied enemies block movement without side pushes"},
             "spawns": "director adds ice_mirror and air_shrikes after merge",
             "intrinsic_card_coefficients": "unchanged; positional matchup is encounter context",
         },
@@ -282,16 +286,16 @@ def encounter_assumptions() -> dict[str, Any]:
             "source": "spec/peer_benchmark/staged/enemies/wave_e2.json",
             "briar_weaver": {"hp": 14, "initiative": 12, "embers": 11,
                 "weighted_cycle": 12 + (3 * 6 + 2 * 5 + 5) / 6,
-                "thornwall": "three perpendicular front tiles, skips occupied/impassable; three enemy-turn boundaries after wind; blocks movement, not LOS; collision 2 + Bleed 1, remains",
+                "thornwall": "three perpendicular front tiles; marks occupied tiles; next source turn uses Upheaval to raise health-3 Outcrops with displacement",
                 "lash": "3 earth + Bleed 1 at range 3", "root_mend": "most missing HP among other living allies within 3; heal 4 capped at max; otherwise Lash",
-                "counterplay": "walk around before closure; push enemies into Bramble"},
-            "slag_mortar": {"hp": 18, "initiative": 14, "embers": 13,
-                "initial_cycle_if_all_choices_legal": 14 + (3 * 6 + 5 + 2 * 5) / 6,
-                "repeat_cycle_if_all_choices_legal": 14 + (3 * (6 + 4) + 5 + 2 * 5) / 9,
-                "ranged_repeat_cycle": 14 + (3 * (6 + 4) + 5) / 7,
-                "close_cycle": 19, "lob_range": [3, 6], "tiles": "fixed centre plus four board orthogonals, clipped only off-board; ignores LOS",
+                "counterplay": "leave the marks before the rise or destroy Outcrops"},
+            "slag_mortar": {"keyword": "marked", "hp": 18, "initiative": 14, "embers": 13,
+                "override_source": "data/enemies.json (enc-03)",
+                "lob_weight": 4, "ranged_initial_cycle": 20,
+                "ranged_repeat_cycle": 14 + (6 + 4) / 2,
+                "close_cycle": 19, "lob_range": [2, 6], "tiles": "fixed centre plus four board orthogonals, clipped only off-board; ignores LOS",
                 "landing": "5 centre / 3 arms fire, once per unit at highest intersected value; Fire on legal surface tiles",
-                "brace": "Block 6 + Retreat 2", "scatter": "within 2 only, ranged 3 + Push 1",
+                "brace": "adjacent only, Block 6", "scatter": "adjacent only, ranged 3 + Push 1",
                 "counterplay": "leave cross; push enemies into it; dive mortar"},
             "selection": "seeded authored weights after illegal actions removed; landing weight zero, forced until resolved",
             "spawns": "design owner adds earth_weaver/fire_mortar after merge",
@@ -303,21 +307,22 @@ def encounter_assumptions() -> dict[str, Any]:
                                 "charge": "persistent 0..3; three Charge activations then Discharge; becoming Shocked removes one",
                                 "discharge": "nearest hero/enemy within Manhattan 4; every tie: hero, lowest current HP, tile y, tile x; nearest eight-neighbour unstruck target; 6/5/4/3 damage; ordinary friendly-fire rewards",
                                 "movement": "immobile; force and wind anchored"},
-            "hollow_mimic": {"hp": 14, "initiative": 12, "embers": 11, "authored_weighted_cycle": 12 + (3 * 6 + 2 * 4 + 4) / 6,
-                             "mirror": "combat-wide last card that actually dealt attack damage; snapshot first damaging action at selection; base damage/shape/range/element only; special targeting becomes single ranged range 4 with copied damage/name; Move up to 2 then Shade Bolt fallback",
-                             "shade_bolt": "4 shadow, range 4", "recede": "Move away 2 + Block 4"},
+            "hollow_mimic": {"source": "spec/enemies/hollow_mimic.md (mim-01)", "hp": 14, "initiative": 12, "embers": 11, "authored_weighted_cycle": 12 + (3 * 6 + 2 * 4 + 4) / 6,
+                             "echo": "3 shadow, range 4, then Retaliate 3 until own next turn; melee or adjacent hero attack once per attack; Block/Stoneskin absorb; no Chill/Freeze/Expose; distant ranged/area avoid",
+                             "shade_bolt": "4 shadow, range 4", "recede": "Move away 2; no Block"},
             "spawns": "director adds the authored lightning/shadow encounter groups after merge",
             "card_coefficients": "unchanged; positional exposure and kill order are encounter context",
         },
         "en03_enemies": {
             "arc_thrall": {"hp": 10, "base_initiative": 11, "reward_embers": 9, "weighted_cycle": 15.6,
-                          "tether": "spawn_group 2; held partner; clear cardinal distance <=6; align Move <=3; strictly intermediate tiles take 4 lightning + Shock 1, including enemies",
+                          "arc_bolt": "Time 5, weight 3; Move 2 + ranged lightning 3, range 3; existing Electrified rider on the target tile; no pairing constraint",
+                          "damage_progression": "ordinary ranged local-depth scaling followed by unchanged DepthRules modifiers",
                           "arc_jab": "Move 2 + melee 3 + Shock 1"},
             "gloam_stalker": {"hp": 11, "base_initiative": 10, "reward_embers": 10, "weighted_cycle_including_forced_ambush": 14.75,
-                              "fade": "Blink <=4 behind last hero movement this round; Veil denies distant single targets; adjacent/area/secondary chains/surfaces/collisions hit normally",
-                              "ambush": "forced following Fade; re-Blink if needed; melee 7 then end Veil; impossible strike falls back to Slash",
+                              "fade": "Blink <=4 behind last hero movement this round; no status, normal targeting and body during wind-up",
+                              "ambush": "forced following Fade; re-Blink if needed; melee 7; impossible strike falls back to Slash",
                               "slash": "Move 2 + melee 4"},
-            "encounters": "staged until enc-01 biome_groups land; no intrinsic card coefficient change",
+            "encounters": "Encounter tables are unchanged; no intrinsic card coefficient change",
         },
         "warden_bulwark": "grants scaled Block to every other living enemy and never to the acting Warden",
         "player_flow": {
@@ -345,6 +350,18 @@ def encounter_assumptions() -> dict[str, Any]:
                 "command": "living captain grants followers within Manhattan range 2 +1 on every damaging action",
                 "keep_distance": "one tile before normal intent when player within 2; immobile captain skips",
                 "break": "surviving followers flee without death effects or individual drops",
+                "score_policy": "objective-specific encounter context; intrinsic coefficients unchanged",
+            },
+            "ember_hoarder": {
+                "objective": "kill_leader, then kill_all once it slips away",
+                "roster": "Ember Hoarder plus 3 Ember Ticks at every tier, Warband captain back-line placement",
+                "hoarder_hp": "3x the room's scaled Ember Tick Health; no Stoneskin",
+                "hoarder_intents": "Kindle (Ember Tick, weight 1) and Scurry (move_away 2, Time 4, weight 2); no attack",
+                "keep_distance": "Warband captain step: one tile before its intent when the player is within 2",
+                "slips_away_after_player_turns_by_tier": [5, 4, 4],
+                "escape": "silent Sealbinder dissolve: no death burst, Embers or kill credit; fight continues as Defeat All with standard rewards",
+                "catch": "wins at once; brood scatter by the Warband break; the Hoarder's own death burst fires",
+                "catch_reward": "shared special bonus plus hoard_embers: one standard fight's Embers (the starting roster's reward_embers)",
                 "score_policy": "objective-specific encounter context; intrinsic coefficients unchanged",
             },
             "boss_objective": "kill_leader_with_authored_boss_stats",
@@ -1168,7 +1185,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         if action_type == "petrify":
             playability = ranged_playability(int(action.get("range", 1)))
             breakdown.control += weights.petrify_skip_value * playability * action_scale
-            breakdown.control -= int(action.get("block", 0)) * weights.block_per_point * weights.petrify_enemy_block_cost_share * playability * action_scale
+            breakdown.control -= int(action.get("block", PETRIFY_BLOCK)) * weights.block_per_point * weights.petrify_enemy_block_cost_share * playability * action_scale
             has_status = True
             continue
 

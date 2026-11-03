@@ -4,8 +4,8 @@ const Fixture = preload("res://tests/suites/magic_deck_suite.gd")
 const Presentation = preload("res://tests/suites/magic_purge_presentation.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const TEST_IDENTITY_COUNTS: Array = [15, 20]
-const TEST_COLUMNS: int = 7
-const TEST_ROW_PITCH: int = 296
+const TEST_COLUMNS: int = 6
+const TEST_ROW_PITCH: int = 329
 const TEST_VISIBLE_ROWS: int = 2
 const TEST_PAN_DELTA := Vector2(0, 0.25)
 
@@ -110,22 +110,24 @@ static func _activate_and_back(fixture: SceneTree, instance: Node, modal: Contro
 
 static func _navigation_routes(fixture: SceneTree, instance: Node, modal: Control, scroll: ScrollContainer, grid: Control, expect: Callable) -> void:
 	var last_column: int = (grid.get_child_count() - 1) % TEST_COLUMNS
+	var rows: int = ceili(float(grid.get_child_count()) / TEST_COLUMNS)
+	var previous_page_first: int = maxi(0, rows - TEST_VISIBLE_ROWS - 1) * TEST_COLUMNS
 	for controller: bool in [false, true]:
 		(grid.get_child(last_column) as Control).grab_focus()
-		for _step: int in range(2):
+		for _step: int in range(rows - 1):
 			if controller: await fixture.call("_joy", JOY_BUTTON_DPAD_DOWN)
 			else: await fixture.call("_key", KEY_DOWN)
 		assert_focus(scroll, grid, grid.get_child_count() - 1, expect)
-		expect.call(scroll.scroll_vertical == TEST_ROW_PITCH, "Keyboard/controller navigation reveals the intended final-row card")
+		expect.call(scroll.scroll_vertical == (rows - TEST_VISIBLE_ROWS) * TEST_ROW_PITCH, "Keyboard/controller navigation reveals the intended final-row card")
 		await _activate_and_back(fixture, instance, modal, grid.get_child(grid.get_child_count() - 1), controller, expect)
 		_manual_scroll(scroll, "trackpad" if controller else "wheel", -1)
-		assert_focus(scroll, grid, 0, expect)
+		assert_focus(scroll, grid, previous_page_first, expect)
 		if controller: await fixture.call("_joy", JOY_BUTTON_DPAD_RIGHT)
 		else: await fixture.call("_key", KEY_RIGHT)
-		assert_focus(scroll, grid, 1, expect)
-		await _activate_and_back(fixture, instance, modal, grid.get_child(1), controller, expect)
+		assert_focus(scroll, grid, previous_page_first + 1, expect)
+		await _activate_and_back(fixture, instance, modal, grid.get_child(previous_page_first + 1), controller, expect)
 		(grid.get_child(grid.get_child_count() - 1) as Control).grab_focus()
-		for _step: int in range(2):
+		for _step: int in range(rows - 1):
 			if controller: await fixture.call("_joy", JOY_BUTTON_DPAD_UP)
 			else: await fixture.call("_key", KEY_UP)
 		assert_focus(scroll, grid, last_column, expect)

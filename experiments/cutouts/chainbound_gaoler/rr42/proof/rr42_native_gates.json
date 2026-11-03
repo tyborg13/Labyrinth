@@ -1,0 +1,45 @@
+{
+  "ok": true,
+  "errors": [],
+  "views": {
+    "front": {
+      "errors": []
+    },
+    "rear": {
+      "errors": []
+    }
+  },
+  "native_pixels": true,
+  "production_ready": true,
+  "source_authority": {
+    "ok": true,
+    "errors": [],
+    "views": {
+      "front": {
+        "rest_mismatch_pixels": 0,
+        "approved_rest_mismatch_pixels": 8
+      },
+      "rear": {
+        "rest_mismatch_pixels": 0,
+        "approved_rest_mismatch_pixels": 13
+      }
+    },
+    "native_pixels": false,
+    "footprint_pixels": {
+      "near_arm": 2915,
+      "far_arm": 2823,
+      "legs": 2744
+    },
+    "painted_pixels": {
+      "torso": 611,
+      "pelvis": 1235,
+      "tabard": 80,
+      "coat_near": 1575,
+      "coat_far": 392
+    },
+    "justified_clear_pixels": 4589
+  },
+  "sweep_sha256": "5b6c763fdbeb2128941e3956f9b3e464ce558a5810e44876e3352ee6c7859780",
+  "retained_analysis_only_deltas": {},
+  "error_count": 0
+}

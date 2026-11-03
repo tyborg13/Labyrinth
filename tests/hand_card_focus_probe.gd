@@ -97,7 +97,7 @@ func _capture_configuration(
 		)
 		_assert_tooltip_stack(
 			instance,
-			PackedStringArray(["time", "element_lightning", "ranged", "range", "chain", "element_lightning", "shock"]),
+			PackedStringArray(["element_lightning", "ranged", "range", "chain", "element_lightning", "shock"]),
 			"%s pointer focus" % output_dir,
 			focused_rect
 		)
@@ -279,7 +279,7 @@ func _capture_wrapper_focus(
 	_assert_hand_visibility(instance, "%s wrapper-focused hand" % output_dir)
 	_assert_tooltip_stack(
 		instance,
-		PackedStringArray(["time", "element_lightning", "ranged", "range", "chain", "element_lightning", "shock"]),
+		PackedStringArray(["element_lightning", "ranged", "range", "chain", "element_lightning", "shock"]),
 		"%s wrapper focus" % output_dir,
 		instance.call("_control_visual_global_rect", instance.call("_hand_card_control", FOCUSED_INDEX))
 	)

@@ -1,0 +1,391 @@
+{
+  "method": "Approved front, original 255px coordinates: hand-traced semantic label masks intersected with original alpha >=128; scanline spans include both endpoint pixels. Scale all source distances by 4, with no figure resizing. Arm thickness uses perpendicular scanlines through the middle 20-80% of each labelled segment. The boot length projects its labelled foot (excluding the turned cuff) onto the board anterior screen axis (-2,1)/sqrt(5). Clay uses visible exact palette labels on the front part map, with the same anatomical landmarks; no clay grayscale threshold or silhouette fit. Scanline masks and axes are displayed on source_mass_landmarks.png. For the no-see-through region, the native torso envelope is rasterized independently of labels and trimmed by one boundary pixel; 2px antialias blends may inherit an adjacent allowed label, while transparent pixels and exact forbidden labels are never filled. Intentional belt/collar sockets must be covered by opaque body pixels; iron link/ring holes are excluded.",
+  "source_masks": {
+    "head": [
+      [
+        120,
+        47
+      ],
+      [
+        132,
+        41
+      ],
+      [
+        147,
+        44
+      ],
+      [
+        153,
+        50
+      ],
+      [
+        160,
+        77
+      ],
+      [
+        150,
+        88
+      ],
+      [
+        135,
+        91
+      ],
+      [
+        122,
+        85
+      ],
+      [
+        119,
+        65
+      ]
+    ],
+    "hand_far": [
+      [
+        56,
+        61
+      ],
+      [
+        60,
+        56
+      ],
+      [
+        69,
+        54
+      ],
+      [
+        77,
+        58
+      ],
+      [
+        80,
+        64
+      ],
+      [
+        78,
+        73
+      ],
+      [
+        71,
+        79
+      ],
+      [
+        60,
+        77
+      ],
+      [
+        56,
+        70
+      ]
+    ],
+    "hand_near": [
+      [
+        160,
+        159
+      ],
+      [
+        176,
+        159
+      ],
+      [
+        182,
+        166
+      ],
+      [
+        182,
+        174
+      ],
+      [
+        177,
+        179
+      ],
+      [
+        166,
+        180
+      ],
+      [
+        158,
+        175
+      ],
+      [
+        156,
+        167
+      ]
+    ],
+    "upper_near": [
+      [
+        164,
+        86
+      ],
+      [
+        177,
+        89
+      ],
+      [
+        183,
+        102
+      ],
+      [
+        182,
+        114
+      ],
+      [
+        179,
+        124
+      ],
+      [
+        159,
+        120
+      ],
+      [
+        158,
+        105
+      ]
+    ],
+    "fore_near": [
+      [
+        159,
+        134
+      ],
+      [
+        181,
+        135
+      ],
+      [
+        181,
+        151
+      ],
+      [
+        176,
+        160
+      ],
+      [
+        160,
+        158
+      ],
+      [
+        159,
+        146
+      ]
+    ],
+    "upper_far": [
+      [
+        95,
+        75
+      ],
+      [
+        109,
+        65
+      ],
+      [
+        116,
+        84
+      ],
+      [
+        109,
+        94
+      ],
+      [
+        98,
+        91
+      ],
+      [
+        90,
+        84
+      ]
+    ],
+    "fore_far": [
+      [
+        76,
+        64
+      ],
+      [
+        88,
+        68
+      ],
+      [
+        99,
+        77
+      ],
+      [
+        97,
+        90
+      ],
+      [
+        86,
+        89
+      ],
+      [
+        76,
+        80
+      ]
+    ],
+    "shin_near": [
+      [
+        159,
+        198
+      ],
+      [
+        177,
+        198
+      ],
+      [
+        180,
+        208
+      ],
+      [
+        178,
+        211
+      ],
+      [
+        162,
+        211
+      ]
+    ],
+    "foot_near": [
+      [
+        163,
+        222
+      ],
+      [
+        179,
+        221
+      ],
+      [
+        181,
+        226
+      ],
+      [
+        187,
+        231
+      ],
+      [
+        187,
+        239
+      ],
+      [
+        181,
+        245
+      ],
+      [
+        170,
+        247
+      ],
+      [
+        159,
+        245
+      ],
+      [
+        156,
+        240
+      ],
+      [
+        157,
+        232
+      ]
+    ]
+  },
+  "source_scanlines": {
+    "helm_width": [
+      "head",
+      66
+    ],
+    "chain_fist": [
+      "hand_far",
+      136.0
+    ],
+    "near_fist": [
+      "hand_near",
+      169
+    ],
+    "near_shin": [
+      "shin_near",
+      205
+    ]
+  },
+  "source_arm_axes": {
+    "upper_near": [
+      [
+        170,
+        97
+      ],
+      [
+        169,
+        119
+      ]
+    ],
+    "fore_near": [
+      [
+        170,
+        139
+      ],
+      [
+        169,
+        155
+      ]
+    ],
+    "upper_far": [
+      [
+        112.79796178883231,
+        81.29600666685887
+      ],
+      [
+        106.0,
+        109.99999999999996
+      ]
+    ],
+    "fore_far": [
+      [
+        106.0,
+        109.99999999999996
+      ],
+      [
+        93.99999999999999,
+        137.0
+      ]
+    ]
+  },
+  "source_boot_axis": [
+    -2,
+    1
+  ],
+  "tolerances": {
+    "helm_width": 0.15,
+    "chain_fist": 0.15,
+    "near_fist": 0.15,
+    "near_shin": 0.15,
+    "near_boot": 0.15
+  },
+  "minimum_arm_px": 65,
+  "open_front_minimum_px": 40,
+  "mid_thigh_fraction": 0.5,
+  "chest_minimum_shoulder_ratio": 0.8,
+  "collar_extension_target_px": 40,
+  "native_landmarks_m": {
+    "eye_slit": [
+      0,
+      0,
+      1.847
+    ],
+    "shin_above_cuff": [
+      0.045,
+      0.3,
+      0.335
+    ],
+    "mid_chest": [
+      0,
+      0,
+      1.38
+    ]
+  },
+  "native_boot_axis": [
+    -2,
+    1
+  ],
+  "source_mask_files": {
+    "upper_far": "source_upper_far.png",
+    "fore_far": "source_fore_far.png",
+    "hand_far": "source_hand_far.png",
+    "chain": "source_chain.png",
+    "chain_hook": "source_chain_hook.png"
+  }
+}

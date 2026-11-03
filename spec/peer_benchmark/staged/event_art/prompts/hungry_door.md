@@ -1,0 +1,1 @@
+Subject: a heavy iron-bound dungeon door with a small, wet, toothed mouth where the lock should be, the only soft thing in a wall of stone. Warm orange light leaks from under the door and through its seams. Mood: patient, grotesque, darkly funny.

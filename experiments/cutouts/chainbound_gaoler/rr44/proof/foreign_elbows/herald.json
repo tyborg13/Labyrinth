@@ -1,0 +1,349 @@
+{
+  "rig": "herald",
+  "case": "gale_herald/mq12",
+  "runtime_byte_identical": true,
+  "samples": 1198,
+  "native_pixels": false,
+  "report_only": true,
+  "threshold_deg": 2,
+  "failures": [
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 25,
+      "kind": "presented",
+      "phase": 0.280898876404494,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.514551066801924,
+      "points": [
+        [
+          144.5,
+          104.000007629395
+        ],
+        [
+          159.0,
+          145.0
+        ],
+        [
+          169.5,
+          171.0
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 56,
+      "kind": "presented",
+      "phase": 0.629213483146067,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.3854803448680078,
+      "points": [
+        [
+          140.5,
+          107.999992370605
+        ],
+        [
+          161.0,
+          147.0
+        ],
+        [
+          175.5,
+          172.0
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 65,
+      "kind": "presented",
+      "phase": 0.730337078651685,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.087454465166123,
+      "points": [
+        [
+          138.5,
+          107.999992370605
+        ],
+        [
+          162.000015258789,
+          145.0
+        ],
+        [
+          178.500030517578,
+          169.000015258789
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "gust_bolt",
+      "frame": 13,
+      "kind": "presented",
+      "phase": 0.276595744680851,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -4.626546850872474,
+      "points": [
+        [
+          65.25,
+          102.500007629395
+        ],
+        [
+          50.7499923706055,
+          138.5
+        ],
+        [
+          41.2499961853027,
+          157.5
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "gust_bolt",
+      "frame": 23,
+      "kind": "presented",
+      "phase": 0.48936170212766,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -4.02267388449127,
+      "points": [
+        [
+          71.2500076293945,
+          96.5
+        ],
+        [
+          52.7500076293945,
+          130.5
+        ],
+        [
+          41.2500038146973,
+          148.5
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "gust_bolt",
+      "frame": 35,
+      "kind": "presented",
+      "phase": 0.74468085106383,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -3.039399568926921,
+      "points": [
+        [
+          68.25,
+          99.5
+        ],
+        [
+          51.75,
+          133.5
+        ],
+        [
+          41.25,
+          152.5
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 24,
+      "kind": "presented",
+      "phase": 0.269662921348315,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.678532849892745,
+      "points": [
+        [
+          69.25,
+          100.5
+        ],
+        [
+          53.75,
+          135.5
+        ],
+        [
+          44.25,
+          154.500015258789
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 25,
+      "kind": "presented",
+      "phase": 0.280898876404494,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.6785420526688553,
+      "points": [
+        [
+          69.25,
+          100.5
+        ],
+        [
+          53.75,
+          135.5
+        ],
+        [
+          44.2499961853027,
+          154.500015258789
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 26,
+      "kind": "presented",
+      "phase": 0.292134831460674,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.6785466768257935,
+      "points": [
+        [
+          69.25,
+          100.500007629395
+        ],
+        [
+          53.75,
+          135.500015258789
+        ],
+        [
+          44.2499961853027,
+          154.500030517578
+        ]
+      ],
+      "passed": false
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 56,
+      "kind": "presented",
+      "phase": 0.629213483146067,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.133207782156532,
+      "points": [
+        [
+          72.25,
+          102.499992370605
+        ],
+        [
+          51.75,
+          134.499984741211
+        ],
+        [
+          39.25,
+          152.499969482422
+        ]
+      ],
+      "passed": false
+    }
+  ],
+  "witnesses": [
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 25,
+      "kind": "presented",
+      "phase": 0.280898876404494,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.514551066801924,
+      "points": [
+        [
+          144.5,
+          104.000007629395
+        ],
+        [
+          159.0,
+          145.0
+        ],
+        [
+          169.5,
+          171.0
+        ]
+      ],
+      "passed": false,
+      "crop": "herald_front_death_025_cpu_4x.webp",
+      "sha256": "9531c4360e3bd5410ae3e9d4f73bca80667161a54aa00e6501c5e38234559e37"
+    },
+    {
+      "view": "rear",
+      "clip": "gust_bolt",
+      "frame": 13,
+      "kind": "presented",
+      "phase": 0.276595744680851,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -4.626546850872474,
+      "points": [
+        [
+          65.25,
+          102.500007629395
+        ],
+        [
+          50.7499923706055,
+          138.5
+        ],
+        [
+          41.2499961853027,
+          157.5
+        ]
+      ],
+      "passed": false,
+      "crop": "herald_rear_gust_bolt_013_cpu_4x.webp",
+      "sha256": "e19a5f472c52f178f014e5c2cbc16fcc4e7596dd57670feed7f443f429c09cdf"
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 26,
+      "kind": "presented",
+      "phase": 0.292134831460674,
+      "family": "canonical",
+      "side": "near",
+      "signed_flexion_deg": -2.6785466768257935,
+      "points": [
+        [
+          69.25,
+          100.500007629395
+        ],
+        [
+          53.75,
+          135.500015258789
+        ],
+        [
+          44.2499961853027,
+          154.500030517578
+        ]
+      ],
+      "passed": false,
+      "crop": "herald_rear_death_026_cpu_4x.webp",
+      "sha256": "c7d250476a174648b6792e269b7f4a4dccc71fd63f9f33615fb512a8ed552903"
+    }
+  ],
+  "unchanged_files": {
+    "experiments/cutouts/gale_herald/mq12/compiled_motion.json": "d4e658c8dd71188d9fc27823b0852b2df3bbb07f6af2c9317796ca18eb7158a8",
+    "experiments/cutouts/gale_herald/mq12/layouts/front.json": "a40822881bb1a41ecb4cb571a58348d12e16427c745db76b0110ffb4091d40ec",
+    "experiments/cutouts/gale_herald/mq12/layouts/rear.json": "07b1f04191fe02d55cbb9e282e68c2b74354b5d2da8c9881027a265d5c514113"
+  }
+}

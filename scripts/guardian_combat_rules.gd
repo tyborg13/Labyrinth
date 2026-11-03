@@ -98,7 +98,9 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 	result.erase("committed_plan")
 	if not has_authored_actions(result): return result
 	var enemy: Dictionary = state["enemies"][index]
+	result["_planning_shape"] = true
 	var plan: Dictionary = pattern_approach(engine,state,index,result,engine.enemy_intent_plan(state,index,result))
+	result.erase("_planning_shape")
 	var origin: Vector2i = plan.get("destination",enemy["pos"])
 	var target: Vector2i = plan.get("target_tile",state["player"]["pos"])
 	if target==INVALID: target=engine._closest_enemy_target(state,enemy).get("pos",state["player"]["pos"])
@@ -173,16 +175,27 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 			break
 	plan["projected_attack_target"] = all_tiles[0] if not all_tiles.is_empty() else INVALID
 	plan["committed"] = true
+	# Array positions belong to one snapshot; saves and information-safe
+	# previews can contain a different enemy array. Keep only stable ownership.
+	plan["enemy_id"] = int(enemy["id"])
+	plan.erase("enemy_index")
 	result["committed_plan"] = plan
 	return result
 
 static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionary, intent: Dictionary, movement_disabled: bool, attack_disabled: bool) -> Dictionary:
+	var enemy_id: int = int(enemy.get("id",-1))
+	var enemy_index: int = engine._enemy_index_for_id(state,enemy_id)
+	if enemy_index < 0 or int(state["enemies"][enemy_index].get("hp",0)) <= 0: return {}
+	# Resolve the supplied actor, including legacy plans with a saved index.
+	# Never use that saved index to select a body or replay a private preview.
+	enemy = state["enemies"][enemy_index]
 	var plan: Dictionary = (intent["committed_plan"] as Dictionary).duplicate(true)
 	var survives: bool = true
 	if not holds_path(intent):
 		var direct: Dictionary = intent.duplicate(true)
 		direct.erase("committed_plan")
-		plan = engine.enemy_intent_plan(state,int(plan.get("enemy_index",-1)),direct,movement_disabled,attack_disabled)
+		direct["_planning_shape"] = true # Replan the live body without declaring it again.
+		plan = engine.enemy_intent_plan(state,enemy_index,direct,movement_disabled,attack_disabled)
 	else:
 		var declared_path: Array[Vector2i] = tiles(plan.get("path",[]))
 		var path: Array[Vector2i] = tiles([enemy["pos"]])
@@ -195,9 +208,8 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 			for index: int in range(1,declared_path.size()):
 				var tile: Vector2i = declared_path[index]+displacement
 				if not engine._enemy_can_occupy_anchor(state,enemy,tile,blocked): break
-				var cost: int = Surfaces.movement_step_cost(state,enemy,path[-1],tile)
-				if index==1: cost=mini(cost,budget)
-				if spent+cost>budget: break
+				var cost: int = engine._enemy_allowed_step_cost(state,enemy,path[-1],tile,budget,spent,index==1)
+				if cost < 0: break
 				spent+=cost
 				path.append(tile)
 		# Traps and surfaces can stop the approach. The announced orientation
@@ -216,8 +228,10 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 		plan["path"] = path
 		plan["destination"] = path[-1]
 		survives = bool(arrival.get("survives",true))
+	plan["enemy_id"] = enemy_id
+	plan["enemy_index"] = enemy_index
 	var preview_state: Dictionary = state.duplicate(true)
-	var preview_enemy: Dictionary = preview_state["enemies"][int(plan.get("enemy_index",-1))]
+	var preview_enemy: Dictionary = preview_state["enemies"][enemy_index]
 	preview_enemy["pos"] = plan.get("destination",enemy["pos"])
 	preview_state["current_actor"] = engine._enemy_actor_entry(preview_state,preview_enemy,int(state.get("initiative_clock",0)),int(state.get("activation_seq",0)))
 	var projected: Array[Vector2i]
@@ -240,9 +254,9 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 				# an illusion killed by the first half of a compound attack.
 				var secondary_tiles: Array[Vector2i]
 				if str(action.get("type","")) in ["melee","ranged","aoe","push","pull"]:
-					secondary_tiles = engine._enemy_direct_attack_threat_tiles(preview_state,int(plan["enemy_index"]),action,context)
+					secondary_tiles = engine._enemy_direct_attack_threat_tiles(preview_state,enemy_index,action,context)
 				else:
-					var secondary: Dictionary = engine.enemy_intent_plan(preview_state,int(plan["enemy_index"]),{"actions":[action]},true,false)
+					var secondary: Dictionary = engine.enemy_intent_plan(preview_state,enemy_index,{"actions":[action]},true,false)
 					secondary_tiles = tiles(secondary.get("projected_attack",[]))
 				for tile: Vector2i in secondary_tiles:
 					if not projected.has(tile): projected.append(tile)
@@ -260,8 +274,11 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 			# surfaces and displacement can alter the next warning. Reuse the
 			# real resolver; a parallel damage model would drift from combat.
 			var bleed_steps: Array[Dictionary]
-			preview_state = engine._resolve_enemy_action(preview_state,int(plan["enemy_index"]),geometry,preview_rng,{},bleed_steps,context)
-			preview_enemy = preview_state["enemies"][int(plan["enemy_index"])]
+			preview_state = engine._resolve_enemy_action(preview_state,enemy_index,geometry,preview_rng,{},bleed_steps,context)
+			enemy_index = engine._enemy_index_for_id(preview_state,enemy_id)
+			if enemy_index < 0: break
+			plan["enemy_index"] = enemy_index
+			preview_enemy = preview_state["enemies"][enemy_index]
 		for action: Dictionary in intent.get("actions",[]):
 			if str(action.get("type", "")) == "summon_minions":
 				for tile: Vector2i in (engine._summon_tiles_for_enemy(preview_state,preview_enemy,engine._available_summon_count(preview_state,action)) if action.has("summon_cap") else available_summon_tiles(engine,preview_state,preview_enemy,action)):
@@ -272,7 +289,7 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 	return plan
 
 static func handles(action: Dictionary) -> bool:
-	return bool(action.get("_guardian_committed",false)) and authored_action(action)
+	return authored_action(action)
 
 static func available_summon_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
 	var living: int = 0
@@ -417,19 +434,24 @@ static func animation_step(engine: RefCounted, before: Dictionary, after: Dictio
 	var terrain_losses: Array[Dictionary] = engine._terrain_target_losses(before,after)
 	var intent: Dictionary = enemy.get("intent", {})
 	var label: String = str(intent.get("name",type.capitalize()))
-	if interrupted: label="Interrupted"
+	if interrupted: label=""
 	elif type=="summon_minions":
 		var helper_name: String = str(preload("res://scripts/game_data.gd").enemy_def(str(action.get("minion_type",""))).get("name","Helper"))
 		label=("Snuff · " if action.has("brazier_id") else "Summon · ")+helper_name if not spawned.is_empty() else "Snuff · spawn blocked" if action.has("brazier_id") else "Summon blocked"
 	var dragon: bool = preload("res://scripts/dragon_boss_library.gd").is_dragon_boss_id(str(enemy["type"]))
-	return {"kind":kind,"action_type":type,"enemy_type":enemy["type"],"guardian_mechanic":not dragon,"boss_mechanic":dragon,"committed_direction":shape(action) in DIRECTIONAL_SHAPES,"declared_tiles":action.get("declared_tiles", []).duplicate(),"actor_key":engine._enemy_key(enemy),"actor_name":engine._enemy_display_name(enemy),
+	# Area tile order is geometry, not facing. Export actual travel separately
+	# from held orientation; directional dragon presentation keeps its contract.
+	var path: Array[Vector2i] = tiles(action.get("_resolved_path", []))
+	var travel: Vector2i = path[-1] - path[0] if path.size() > 1 else engine._closest_enemy_target(before, enemy).get("pos", enemy["pos"]) - enemy["pos"]
+	return {"kind":kind,"action_type":type,"enemy_type":enemy["type"],"guardian_mechanic":not dragon and not Library.for_guardian(str(enemy["type"])).is_empty(),"boss_mechanic":dragon,"committed_direction":shape(action) in DIRECTIONAL_SHAPES,"declared_tiles":action.get("declared_tiles", []).duplicate(),"actor_key":engine._enemy_key(enemy),"actor_name":engine._enemy_display_name(enemy),
 		"intent_id":str(intent.get("id","")),"label":label,"committed_shape":shape(action),"minimum_range":int(action.get("minimum_range",1)),
-		"interrupted":interrupted,"action_direction":action.get("declared_direction",Vector2i.ZERO),
+		"interrupted":interrupted,"no_action_reason":"no_line_of_sight" if interrupted else "","action_direction":action.get("declared_direction",Vector2i.ZERO),
+		"travel_direction":engine._cardinal_direction(travel),
 		"player_from":before["player"]["pos"],"player_to":after["player"]["pos"],
 		"status_text":engine._player_status_step_text(before["player"],after["player"],action),
 		"from":enemy["pos"],"to":target,"tile":enemy["pos"],"center":target,"tiles":affected,
 		"element":str(action.get("element",preload("res://scripts/game_data.gd").enemy_def(str(enemy["type"])).get("element","none"))),
-		"range":int(status_range(enemy,action).get("range",0)),"amount":engine._target_loss_amount(losses),"target_losses":losses,"terrain_losses":terrain_losses,
+		"range":int(status_range(enemy,action).get("range",1 if shape(action) in GEOMETRIC_SHAPES else 0)),"amount":engine._target_loss_amount(losses),"target_losses":losses,"terrain_losses":terrain_losses,
 		"impact_actor_keys":engine._target_loss_keys(losses),"triggered_traps":engine._triggered_traps_between(before,after),
 		"guardian_board_after":board_snapshot(after),"surface":str(action.get("surface","rubble")),
 		"spawned_enemies":spawned}
@@ -470,39 +492,25 @@ static func living_helpers(state: Dictionary) -> Dictionary:
 			result[id] = int(result.get(id,0))+1
 	return result
 
-static func missing_helpers(state: Dictionary, enemy: Dictionary) -> Array[String]:
-	var definition: Dictionary = Library.for_guardian(str(enemy.get("type","")))
-	var missing: Array[String] = []
-	var living: Dictionary = living_helpers(state)
-	for id: String in definition.get("helpers",[]):
-		if int(living.get(id,0))>0: living[id]=int(living[id])-1
-		else: missing.append(id)
-	return missing
-
-static func choose_intent(state: Dictionary, enemy: Dictionary, intents: Array, cycle: int) -> Dictionary:
-	var choice: Dictionary = intents[posmod(cycle,intents.size())]
-	if str(choice.get("id",""))=="call_the_spark" and missing_helpers(state,enemy).is_empty(): return intents[0]
-	if str(choice.get("id",""))=="peal" and Surfaces.tiles(state,"electrified").is_empty(): return intents[0]
-	if str(choice.get("id",""))=="upheaval" and objects(state,"crag_outcrop",int(enemy["id"])).size()>=2: return intents[1]
-	return choice
-
-static func with_reinforcements(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
-	var missing: Array[String] = missing_helpers(state,enemy)
-	var result: Dictionary = intent.duplicate(true)
-	if missing.is_empty(): return result
-	var id: String = missing[0]
-	var cap: int = (Library.for_guardian(str(enemy["type"])).get("helpers",[]) as Array).count(id)
-	for action: Dictionary in result.get("actions",[]):
-		if str(action.get("type",""))=="summon_minions":
-			if not bool(action.get("snuff_brazier",false)):
-				action["minion_type"]=id
-				action["guardian_cap"]=cap
-				action["guardian_reinforcement"]=true
-			return result
-	# One replacement per revealed Guardian activation. A helper defeated after
-	# this declaration buys a whole activation before a new summon is announced.
-	result["actions"].append({"type":"summon_minions","minion_type":id,"count":1,"range":3,"guardian_cap":cap,"guardian_reinforcement":true})
+# Guardian-only authored action overrides precede the ordinary depth curve.
+# The base definition remains the regular encounter / Grimoire definition.
+static func encounter_intents(state: Dictionary, enemy: Dictionary, intents: Array) -> Array:
+	if str(state.get("room_type",""))!="guardian": return intents
+	var overrides: Dictionary = preload("res://scripts/game_data.gd").enemy_def(str(enemy.get("type",""))).get("guardian_intent_action_overrides",{})
+	if overrides.is_empty(): return intents
+	var result: Array = intents.duplicate(true)
+	for intent: Dictionary in result:
+		var actions: Dictionary = overrides.get(str(intent["id"]),{})
+		for action: Dictionary in intent.get("actions",[]): action.merge(actions.get(str(action["type"]),{}),true)
 	return result
+
+static func choose_intent(state: Dictionary, _enemy: Dictionary, intents: Array, cycle: int) -> Dictionary:
+	var choice: Dictionary = intents[posmod(cycle,intents.size())]
+	if str(choice.get("id",""))=="call_the_spark":
+		for action: Dictionary in choice.get("actions",[]):
+			if str(action.get("type",""))=="summon_minions" and int(living_helpers(state).get(str(action["minion_type"]),0))>=int(action["guardian_cap"]): return intents[0]
+	if str(choice.get("id",""))=="peal" and Surfaces.tiles(state,"electrified").is_empty(): return intents[0]
+	return choice
 
 static func status_range(enemy: Dictionary, action: Dictionary) -> Dictionary:
 	if not action.has("range_status"): return action
@@ -557,7 +565,7 @@ static func pattern_approach(engine: RefCounted, state: Dictionary, index: int, 
 		if not bool(arrival.get("survives",true)) or arrival.get("destination",record["tile"])!=record["tile"]: continue
 		var origin: Vector2i = record["tile"]
 		for direction: Vector2i in Paths.DIRS_4:
-			var geometry: Dictionary = status_range(enemy,pattern)
+			var geometry: Dictionary = status_range(enemy,pattern).duplicate(true)
 			geometry["_resolved_path"] = record["path"]
 			var shape: Array[Vector2i] = shape_tiles(engine,state,origin,direction,geometry)
 			var nearest: int = 99
@@ -617,6 +625,36 @@ static func connector_tiles(engine: RefCounted, state: Dictionary, origin: Vecto
 			if score>best_score:
 				best_score=score
 				best=new_tiles
+	# Lay the Choir spends its full authored budget even when the shortest
+	# connector reaches the hero early. Other connectors retain cap semantics.
+	if bool(action.get("guardian_fill_count",false)):
+		var linked: Dictionary = {}
+		for tile: Vector2i in best: linked[tile]=true
+		if linked.is_empty():
+			for seed: Vector2i in seeds: linked[seed]=true
+		while best.size()<count:
+			var choices: Array[Vector2i]
+			var frontier: Array[Vector2i] = tiles(linked.keys())
+			var cursor: int = 0
+			while cursor<frontier.size():
+				var current: Vector2i = frontier[cursor]
+				cursor+=1
+				for direction: Vector2i in Paths.DIRS_4:
+					var tile: Vector2i = current+direction
+					if linked.has(tile) or choices.has(tile): continue
+					if not Paths.is_passable(state["grid"],tile) or engine._terrain_index_at_tile(state,tile)>=0: continue
+					if Paths.manhattan(origin,tile)>reach or not engine.combat_line_of_sight(state,origin,tile): continue
+					if Surfaces.is_conductive(state,tile):
+						linked[tile]=true
+						frontier.append(tile)
+					else: choices.append(tile)
+			if choices.is_empty(): break
+			choices.sort_custom(func(a: Vector2i,b: Vector2i)->bool:
+				var da: int = Paths.manhattan(a,target)
+				var db: int = Paths.manhattan(b,target)
+				return da<db if da!=db else (a.y<b.y if a.y!=b.y else a.x<b.x))
+			best.append(choices[0])
+			linked[choices[0]]=true
 	return best
 
 static func coordination_score(engine: RefCounted, state: Dictionary, enemy: Dictionary, destination: Vector2i, target: Vector2i) -> int:
@@ -641,3 +679,41 @@ static func coordination_score(engine: RefCounted, state: Dictionary, enemy: Dic
 		var theirs: Vector2i = Vector2i(ally["pos"])-target
 		if mine.x*theirs.x+mine.y*theirs.y<0: score+=8
 	return score
+
+# Continue keeps the declared intent id, Time and surviving geometry. Retired
+# replacement injections and the two replaced actions cannot survive in saves.
+static func migrate_saved_combat(state: Dictionary) -> void:
+	if str(state.get("room_type", "")) != "guardian" or not state.get("battlefield_rule", {}).is_empty(): return
+	var id: String = str(state.get("guardian_id", ""))
+	if Library.for_guardian(id).is_empty(): return
+	var engine: RefCounted = load("res://scripts/combat_engine.gd").new()
+	var data: GDScript = load("res://scripts/game_data.gd")
+	for index: int in range((state.get("enemies", []) as Array).size()):
+		var enemy: Dictionary = state["enemies"][index]
+		if str(enemy.get("type", "")) != id: continue
+		var intent: Dictionary = enemy.get("intent", {})
+		var authored: Dictionary = engine._intent_by_id(data.enemy_def(id).get("intents", []), str(intent.get("id", "")))
+		if not authored.is_empty():
+			intent["name"] = authored["name"]
+			var actions: Array[Dictionary]
+			for action: Dictionary in intent.get("actions", []):
+				var type: String = str(action.get("type", ""))
+				if id == "storm_cantor" and intent.get("id", "") == "peal" and type != "move_toward": continue
+				if id == "craghide" and intent.get("id", "") == "upheaval" and type == "raise_terrain": continue
+				if type == "summon_minions":
+					var summons: Array = (authored.get("actions", []) as Array).filter(func(value: Dictionary) -> bool: return str(value.get("type", "")) == "summon_minions")
+					if summons.is_empty() or action.get("summon_origin", "") == "guardian_replacement": continue
+					# Old selection could replace Call the Spark's Wisp with a Tender.
+					action["minion_type"] = summons[0]["minion_type"]
+					action["guardian_cap"] = summons[0]["guardian_cap"]
+					action.erase("summon_origin")
+					action.erase("guardian_reinforcement")
+				actions.append(action)
+			intent["actions"] = actions
+			# Keep the already shown path/orientation for surviving held actions.
+			# Their projections are rebuilt from the filtered action list at query
+			# time. Move-only Peal/Crag Heave return to ordinary live planning.
+			if not has_authored_actions(intent): intent.erase("committed_plan")
+			enemy["intent"] = intent
+		load("res://scripts/battlefield_rules/dispatcher.gd").install(engine, state, load("res://scripts/battlefield_rules/dispatcher.gd").instance_for(id, int(enemy["id"])))
+		return

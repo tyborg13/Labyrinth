@@ -46,6 +46,7 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 	var engine := CombatEngine.new()
 	var state: Dictionary = fixture(engine)
 	await _install(tree, scene, state)
+	await preload("res://tests/suites/turn_order_lifetime_suite.gd").check_still_portraits(tree, scene, check)
 	_assert_state(scene, check, 10, "", -1, [], "", "idle")
 	var idle_hero: Dictionary = _projected_hero(scene)
 	check.call(int(idle_hero.get("eta", -1)) == 19 and int(idle_hero.get("projected_wait_time", -1)) == 10, "idle: the end-now ghost is +19 including +10 Wait")
@@ -88,6 +89,7 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 	await _install(tree, scene, fixture(engine))
 	scene.call("_on_card_hover_started", 1)
 	check.call(is_equal_approx((scene.get("_turn_order_landing_strip") as Control).modulate.a, 1.0), "Reduced motion makes the strip opaque before advancing any frames")
+	await preload("res://tests/helpers/presentation_test_clock.gd").rendered_frames(tree, RunScene.HAND_HOVER_REST_RENDERED_FRAMES)
 	await _settle(tree)
 	_assert_state(scene, check, 10, "Quick Stab −3", -3, ["enemy:enemy_1"], "enemy:enemy_2", "reduced_motion_fast")
 	check.call(is_equal_approx((scene.get("_turn_order_landing_strip") as Control).modulate.a, 1.0), "reduced_motion_fast: the strip appears at full opacity immediately")
@@ -256,6 +258,7 @@ static func _hover(tree: SceneTree, scene: Node, index: int) -> void:
 	if old_index >= 0:
 		scene.call("_on_card_hover_ended", old_index)
 	scene.call("_on_card_hover_started", index)
+	await preload("res://tests/helpers/presentation_test_clock.gd").rendered_frames(tree, RunScene.HAND_HOVER_REST_RENDERED_FRAMES)
 	await _settle(tree)
 
 static func _settle(tree: SceneTree) -> void:
@@ -386,7 +389,7 @@ static func _assert_strip_art(strip: Control, expect: Callable, phase: String) -
 static func _assert_badge_tooltip(scene: Node, expect: Callable) -> void:
 	var card: Control = scene.call("_hand_card_control", 1)
 	var badge: Control = card.get("_time_badge") as Control
-	expect.call(badge.tooltip_text == "Time\nCards cost Time; the more you spend, the later your next turn. Playing under 2 cards adds Wait.", "The Time badge uses the exact requested copy")
+	expect.call(badge.tooltip_text == "Time\nSpending Time makes your next turn come later.", "The Time badge uses the exact requested copy")
 	var modified: Dictionary = GameData.card_def("quick_stab").duplicate(true)
 	modified["_quicken_discount"] = 1
 	card.call("_refresh_time_badge", modified)

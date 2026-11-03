@@ -1,0 +1,17 @@
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5435907, "figure": "hollow_mimic", "files": 107}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3535279, "figure": "briar_weaver", "files": 77}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3882980, "figure": "slag_mortar", "files": 87}
+MQ09_FIT: PASS; hollow_mimic; front_iou=0.815673910; rear_iou=0.770515331
+MQ09_FIT: PASS; briar_weaver; front_iou=0.706400955; rear_iou=0.680170738
+MQ09_FIT: PASS; slag_mortar; front_iou=0.799598979; rear_iou=0.772701972
+----------------------------------------------------------------------
+Ran 67 tests in 27.981s
+
+OK
+MQ12_CURRENT_PRESERVATION: PASS; figures=8; delivery_files=791
+MQ12_APPROVED_HISTORY_AND_MQ13_SUCCESSOR: PASS; historical_inputs_and_current_seals_exact=True
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5715009, "figure": "gale_herald", "files": 168}
+MQ12_GIT_VISIBLE_CURATION: PASS; gale_herald
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5785315, "figure": "gloam_stalker", "files": 174}
+MQ12_GIT_VISIBLE_CURATION: PASS; gloam_stalker
+DELIVERY_STAGE: PASS; staged
