@@ -1,6 +1,7 @@
 extends RefCounted
 class_name SkillTreeLibrary
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const SKILLS_PATH: String = "res://data/skills.json"
 const KEYSTONE_GROUP: String = "keystone"
 const COMPLETE_BUILD_SIZE: int = 19
@@ -182,7 +183,7 @@ static func is_available(skill_id: String, selected_value: Variant) -> bool:
 	var selected: Array[String] = normalized_ids(selected_value)
 	if selected.size() >= COMPLETE_BUILD_SIZE or not _is_authored_available(skill_id, selected):
 		return false
-	var proposed: Array[String] = selected.duplicate()
+	var proposed: Array[String] = TypedArrays.strings(selected.duplicate())
 	proposed.append(skill_id)
 	return _selection_can_reach_complete_build(proposed)
 
@@ -217,7 +218,7 @@ static func locked_reason(skill_id: String, selected_value: Variant) -> String:
 		return "Requires %d learned skills" % required_owned
 	if selected.size() == COMPLETE_BUILD_SIZE - 1 and not _selection_has_keystone(selected) and not is_keystone(skill_id):
 		return "Your final skill must be a keystone"
-	var proposed: Array[String] = selected.duplicate()
+	var proposed: Array[String] = TypedArrays.strings(selected.duplicate())
 	proposed.append(skill_id)
 	if not _selection_can_reach_complete_build(proposed):
 		return "This choice would leave no path to a keystone"
@@ -237,7 +238,7 @@ static func _is_authored_available(skill_id: String, selected: Array[String]) ->
 		for selected_id: String in selected:
 			if exclusive_group(selected_id) == group_id:
 				return false
-	var proposed: Array[String] = selected.duplicate()
+	var proposed: Array[String] = TypedArrays.strings(selected.duplicate())
 	proposed.append(skill_id)
 	return selection_is_valid(proposed)
 
@@ -262,7 +263,7 @@ static func _selection_can_complete_with_keystone(selected: Array[String], keyst
 	var cache_key: String = "keystone:%s:%s" % [keystone_id, _selection_cache_key(selected)]
 	if _completion_cache.has(cache_key):
 		return bool(_completion_cache[cache_key])
-	var working: Array[String] = selected.duplicate()
+	var working: Array[String] = TypedArrays.strings(selected.duplicate())
 	var prerequisite_lookup: Dictionary = _recursive_prerequisite_lookup(keystone_id)
 	# Each step consumes only the first available priority, or the first filler
 	# when no priority is available. Partition the stable authored order once so
@@ -324,7 +325,7 @@ static func _recursive_prerequisite_lookup(skill_id: String) -> Dictionary:
 	return result
 
 static func _selection_cache_key(selected: Array[String]) -> String:
-	var sorted_ids: Array[String] = selected.duplicate()
+	var sorted_ids: Array[String] = TypedArrays.strings(selected.duplicate())
 	sorted_ids.sort()
 	return "|".join(sorted_ids)
 
@@ -382,7 +383,7 @@ static func repaired_selection(value: Variant, target_count: int, preferred_orde
 				break
 			if result.has(skill_id) or not source.has(skill_id):
 				continue
-			var retired_candidate: Array[String] = result.duplicate()
+			var retired_candidate: Array[String] = TypedArrays.strings(result.duplicate())
 			retired_candidate.append(skill_id)
 			var preserves_retired_skill: bool = is_retired(skill_id) and selection_is_valid(retired_candidate)
 			if is_available(skill_id, result) or preserves_retired_skill:

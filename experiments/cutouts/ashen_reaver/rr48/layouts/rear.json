@@ -385,7 +385,26 @@
       "presentation_anchor": [
         166,
         157
-      ]
+      ],
+      "release_texture": {
+        "file": "pieces/rear/falchion_released.png",
+        "offset": [
+          138,
+          136
+        ],
+        "bbox": [
+          138,
+          136,
+          214,
+          209
+        ],
+        "mask": "checks/rear/falchion_released.png",
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "cf62904db33e3752d886901efc475d9dbbe4010f9b8273df8568269a5cd6e5e0",
+        "held_presentation": "original composite cache; fingers occlude the grip exactly as approved"
+      }
     },
     {
       "name": "hand_far",
@@ -406,7 +425,26 @@
       "presentation_anchor": [
         166,
         157
-      ]
+      ],
+      "release_texture": {
+        "file": "pieces/rear/hand_far_released.png",
+        "offset": [
+          138,
+          136
+        ],
+        "bbox": [
+          138,
+          136,
+          176,
+          166
+        ],
+        "mask": "checks/rear/hand_far_released.png",
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "9101a530777b978018269aafcc42a2d00d92c888a51c1fa0d2f5788d897e732b",
+        "held_presentation": "original composite cache; fingers occlude the grip exactly as approved"
+      }
     },
     {
       "name": "torso",
@@ -712,7 +750,26 @@
         138,
         132
       ],
-      "file": "pieces/rear/hidden_hand_far.png"
+      "file": "pieces/rear/hidden_hand_far.png",
+      "release_texture": {
+        "file": "pieces/rear/hidden_hand_far_released.png",
+        "offset": [
+          138,
+          132
+        ],
+        "bbox": [
+          138,
+          132,
+          176,
+          166
+        ],
+        "mask": "checks/rear/hidden_hand_far_released.png",
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "3016aa517beaed5162204c27172a0568625d8cca6e4631c501070f9c8a942b85",
+        "held_presentation": "original composite cache; fingers occlude the grip exactly as approved"
+      }
     },
     {
       "name": "hidden_torso",

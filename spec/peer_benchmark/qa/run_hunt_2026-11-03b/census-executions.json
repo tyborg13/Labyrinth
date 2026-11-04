@@ -1,0 +1,76 @@
+[
+  {
+    "name": "replay-default-seed-12",
+    "seed": 12,
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/private/tmp/labyrinth_codex/qa-25/run_hunt_task.py",
+      "--runs",
+      "1",
+      "--processes",
+      "1",
+      "--seed",
+      "12",
+      "--script",
+      "/private/tmp/labyrinth_codex/qa-25/run_hunt_census.gd",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-25/replay-default-seed-12"
+    ],
+    "started": 1793733632.328624,
+    "wall_seconds": 1305.007376909256,
+    "returncode": 0
+  },
+  {
+    "name": "replay-no-embrace-seed-2",
+    "seed": 2,
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/private/tmp/labyrinth_codex/qa-25/run_hunt_task.py",
+      "--runs",
+      "1",
+      "--processes",
+      "1",
+      "--seed",
+      "2",
+      "--script",
+      "/private/tmp/labyrinth_codex/qa-25/run_hunt_census.gd",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-25/replay-no-embrace-seed-2",
+      "--no-embrace"
+    ],
+    "started": 1793733632.328758,
+    "wall_seconds": 561.6327800750732,
+    "returncode": 0
+  },
+  {
+    "name": "replay-no-embrace-seed-3",
+    "seed": 3,
+    "output_dir": "/private/tmp/labyrinth_codex/qa-25/replay-no-embrace-seed-3",
+    "returncode": null,
+    "coordinator_exitcode": 1,
+    "infrastructure_interruption": "ENOSPC: output-reader and execution-record writes failed; no native exit status retained",
+    "command_source": "/private/tmp/labyrinth_codex/qa-25/replay-no-embrace-seed-3/seed-000003/command.json"
+  },
+  {
+    "name": "replay-no-embrace-seed-3-storage-retry",
+    "seed": 3,
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/private/tmp/labyrinth_codex/qa-25/run_hunt_task.py",
+      "--runs",
+      "1",
+      "--processes",
+      "1",
+      "--seed",
+      "3",
+      "--script",
+      "/private/tmp/labyrinth_codex/qa-25/run_hunt_census_bounded.gd",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-25/replay-no-embrace-seed-3-storage-retry",
+      "--no-embrace"
+    ],
+    "started": 1793735249.005412,
+    "wall_seconds": 1211.6088540554047,
+    "returncode": 0
+  }
+]

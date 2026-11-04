@@ -165,6 +165,8 @@ func make_button_style(variant: String = VARIANT_STANDARD, state: String = STATE
 
 	if state == STATE_FOCUS:
 		style.bg_color = Color.TRANSPARENT
+		# Focus is an overlay: destructive plates retain their authored body.
+		if variant == VARIANT_DESTRUCTIVE: style.draw_center = false
 		if umbra:
 			style.border_color = Color.TRANSPARENT
 		style.border_width_left = 2

@@ -199,6 +199,9 @@ func _ready() -> void:
 	_reload_progression()
 	_update_layout()
 	_play_menu_music()
+	preload("res://scripts/menu_run_preload.gd").watch_menu(self)
+
+	preload("res://scripts/controller_gui_navigation.gd").install(self)
 
 func _input(event: InputEvent) -> void:
 	if is_instance_valid(_new_descent_panel):

@@ -1,0 +1,8 @@
+{
+  "base_head": "47b98da9b6df892650b105a37a378ad337cd1b2f",
+  "sha256": {
+    "tools/run_hunt.gd": "575e7699d6cf1d557dde46c12b36d606d7ce8f48e794f88ede4b2446437581d0",
+    "tools/run_hunt_policy.gd": "7dd59a63638068bb9fe654a742a40a56dead07b957e8dc9ec3cdb88f98aa08b1",
+    "tools/run_hunt.py": "88d9bc9443053b947784aa43e0507d590c0e079b3ae180a914ef7fd539af01c8"
+  }
+}

@@ -17,9 +17,9 @@ class ParentClock:
 		return 1.0 if reduced_motion else 0.78 + 0.22 * sin(float(now_msec) * 0.005)
 
 static func run_observed_script() -> GDScript:
-	var source: String = preload("res://tests/helpers/presentation_test_clock.gd").source_for(preload("res://scripts/contextual_combat_prompt.gd"))
-	source = source.replace("class_name ContextualCombatPrompt", "")
-	source = source.replace("Time.get_ticks_usec()", 'preload("res://tests/helpers/presentation_test_clock.gd").now_usec')
+	# cap-03 (a6b037548) moved the phase anchor to PresentationClock. Inject
+	# both clock APIs through the shared seam, preserving the production pulse.
+	var source: String = preload("res://tests/helpers/presentation_test_clock.gd").clocked_script(preload("res://scripts/contextual_combat_prompt.gd")).source_code
 	var start: int = source.find("\nfunc _draw()")
 	var end: int = source.find("\nfunc ", start + 1)
 	var pulse_line: String = ""

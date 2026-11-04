@@ -325,7 +325,30 @@
       ],
       "bone": "chain",
       "z_index": 22,
-      "logical_part": "chain"
+      "logical_part": "chain",
+      "release_texture": {
+        "file": "rear/chain_released.png",
+        "mask": "rear/chain_released_checks.png",
+        "offset": [
+          158,
+          160
+        ],
+        "bbox": [
+          158,
+          160,
+          189,
+          236
+        ],
+        "sprite_offset": [
+          0,
+          -3
+        ],
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "78c028aa17bffb5012c6218129709cbba760ace2f1c3adb9a00be6e493e3e94c",
+        "held_presentation": "original byte-identical composite cache"
+      }
     },
     {
       "name": "hidden_chain",

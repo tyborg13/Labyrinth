@@ -149,6 +149,23 @@ def stop_process_tree(process: subprocess.Popen[str]) -> None:
         process.kill()
 
 
+def front_app() -> tuple[str, int]:
+    """The frontmost macOS app's bundle id and pid, read with lsappinfo (no scripting).
+
+    A Godot launched through a symlink (/opt/homebrew/bin/godot) registers with
+    no bundle id, so callers match the probe by pid."""
+    if sys.platform != "darwin":
+        return "", 0
+    try:
+        asn = subprocess.run(["lsappinfo", "front"], capture_output=True, text=True, timeout=2).stdout.strip()
+        info = subprocess.run(["lsappinfo", "info", "-only", "bundleid", "-only", "pid", asn], capture_output=True, text=True, timeout=2).stdout
+    except (OSError, subprocess.SubprocessError):
+        return "", 0
+    bundle = re.search(r'"CFBundleIdentifier"="([^"]+)"', info)
+    pid = re.search(r'"pid"=(\d+)', info)
+    return (bundle.group(1) if bundle else ""), (int(pid.group(1)) if pid else 0)
+
+
 def run_process_with_watchdogs(
     cmd: list[str],
     *,
@@ -157,9 +174,16 @@ def run_process_with_watchdogs(
     timeout: float,
     startup_log: Path | None,
     startup_timeout: float,
+    return_focus: bool = False,
 ) -> subprocess.CompletedProcess[str]:
     started_at = time.monotonic()
     startup_confirmed = startup_log is None or startup_timeout <= 0.0
+    # Owner 2026-11-03: a windowed probe must not keep the Mac's focus. Once its
+    # window comes to the front, hand focus back to the app that had it. The
+    # window keeps drawing behind it unless it is fully covered: macOS stops
+    # drawing hidden windows, and the probe then waits until it shows again.
+    focus_owner = front_app()[0] if return_focus else ""
+    next_focus_check = started_at
     with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as stdout_file:
         with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as stderr_file:
             process = subprocess.Popen(
@@ -192,6 +216,11 @@ def run_process_with_watchdogs(
                             % timeout
                         )
                         break
+                    if focus_owner and elapsed < 30.0 and time.monotonic() >= next_focus_check:
+                        next_focus_check = time.monotonic() + 0.25
+                        if front_app()[1] == process.pid:
+                            subprocess.run(["open", "-b", focus_owner], capture_output=True, timeout=5)
+                            focus_owner = ""
                     time.sleep(0.05)
                 if failure is not None:
                     stop_process_tree(process)
@@ -242,6 +271,7 @@ def run_probe(args: argparse.Namespace, namespace: str, rendering_driver: str) -
         timeout=args.timeout,
         startup_log=log_file,
         startup_timeout=args.startup_timeout,
+        return_focus=not args.headless,
     )
     if result.stdout:
         print(result.stdout, end="" if result.stdout.endswith("\n") else "\n")
@@ -692,6 +722,15 @@ def command_run(args: argparse.Namespace) -> int:
         raise ProbeError("Invalid proof contract expected_sizes: %s" % exc) from exc
     expected_sizes = list(dict.fromkeys([*args.expect_size, *contract_sizes]))
     min_images = max(args.min_images, int(proof_contract.get("min_images", 0)))
+    # Match the full-suite bootstrap before fixture scripts parse global classes.
+    # Import sidecars belong to the bootstrap, not the probe metadata snapshot.
+    from godot_import_cache import ensure_imported
+    # A `--godot` wrapper script adds capture flags such as --write-movie; a
+    # headless import in movie mode crashes Godot, so import with plain Godot.
+    import_godot = "godot" if args.godot.endswith(".sh") else args.godot
+    imported = ensure_imported(project, import_godot, task_id)
+    if imported:
+        return imported
     metadata_before = generated_metadata_snapshot(project)
     attempt_records: list[dict[str, Any]] = []
     last_error = ""

@@ -41,9 +41,9 @@ const DEFINITIONS := {
 	}
 }
 
-const SURVIVAL_TARGET_BY_ENCOUNTER_DEPTH: Array[int] = [42, 46, 50]
+const SURVIVAL_TARGET_BY_ENCOUNTER_DEPTH: Array[int] = Array([42, 46, 50], TYPE_INT, "", null)
 const SURVIVAL_REINFORCEMENT_INTERVAL: int = 16
-const EXIT_EXTRA_ENEMIES_BY_ENCOUNTER_DEPTH: Array[int] = [1, 2, 2]
+const EXIT_EXTRA_ENEMIES_BY_ENCOUNTER_DEPTH: Array[int] = Array([1, 2, 2], TYPE_INT, "", null)
 const EXIT_TERRAIN_BONUS: int = 3
 
 static func build_for_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dictionary:
@@ -100,7 +100,7 @@ static func icon_path(objective_type: String) -> String:
 	return str(definition(objective_type).get("icon_path", ICON_ROOT + "kill_all_enemies.png"))
 
 static func exit_target_tiles(objective: Dictionary) -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	for exit_var: Variant in objective.get("exits", []):
 		if typeof(exit_var) != TYPE_DICTIONARY:
 			continue
@@ -112,7 +112,7 @@ static func exit_target_tiles(objective: Dictionary) -> Array[Vector2i]:
 	return tiles
 
 static func exit_door_tiles(objective: Dictionary) -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	for exit_var: Variant in objective.get("exits", []):
 		if typeof(exit_var) != TYPE_DICTIONARY:
 			continue
@@ -195,7 +195,7 @@ static func _type_for_room(run_seed: int, room: Dictionary) -> String:
 	return REACH_EXIT
 
 static func _eligible_exit_specs(room: Dictionary, travel_dir: Vector2i) -> Array[Dictionary]:
-	var exits: Array[Dictionary] = []
+	var exits: Array[Dictionary]
 	for connection_var: Variant in room.get("connections", []):
 		if typeof(connection_var) != TYPE_DICTIONARY:
 			continue

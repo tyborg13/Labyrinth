@@ -13,6 +13,55 @@ const PROGRESSION_PATH: String = "user://save_resume_boundary_progression.json"
 const UNWRITABLE_PROGRESSION_PATH: String = "user://save_resume_boundary_missing/progression.json"
 const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
 
+# Exercise the real travel/finish/load continuations without building the HUD.
+# Seed values are the director's cancellation repro; only waits are controlled.
+const TRAVEL_SOURCE_SEED: int = 1234
+const TRAVEL_REPLACEMENT_SEED: int = 9999
+const TRAVEL_WAIT_FRAMES: int = 360
+
+class CancelledTravelHost extends "res://scripts/run_scene.gd":
+	class SilentSfx extends RefCounted:
+		func map_select() -> void: pass
+		func baseline(_state: Dictionary) -> void: pass
+	class SilentObjectiveHud extends PanelContainer:
+		func opening_glyph_preparation_jobs(_state: Dictionary) -> Array[Dictionary]:
+			var jobs: Array[Dictionary]
+			return jobs
+	var wait_at: String = "preparation"
+	var persisted_boundaries: Array[String]
+	var analytics_reasons: Array[String]
+	var bootstrap_started: bool = false
+	func _initial_ui_jobs() -> Array[Callable]:
+		var jobs: Array[Callable]
+		jobs.append(func() -> void: bootstrap_started = true)
+		return jobs
+	func _ready() -> void:
+		set_process(false)
+		board_view.hide()
+		_combat_objective_hud = SilentObjectiveHud.new()
+		add_child(_combat_objective_hud)
+	func _exit_tree() -> void: pass
+	func _treasure_presentation_busy() -> bool: return false
+	func _guided_tutorial_hard_gate_active() -> bool: return false
+	func _ensure_sfx_bank() -> void: _sfx_router = SilentSfx.new()
+	func _hold_committed_run_state(state: Dictionary, _boundary: String = "") -> Dictionary: return state
+	func _begin_map_travel_animation(_from: Vector2i, _to: Vector2i) -> bool: return wait_at == "map"
+	func _map_travel_animation_seconds() -> float: return 0.0
+	func _door_tile_for_destination(_coord: Vector2i) -> Vector2i:
+		return Vector2i.ZERO if wait_at == "door" else Vector2i(-1, -1)
+	func _play_door_opening_animation(_tile: Vector2i) -> void: await get_tree().process_frame
+	func _reset_card_resolution() -> void: pass
+	func _refresh_ui(_a: bool = false, _b: bool = false, _c: bool = false) -> void: pass
+	func _sync_progression_from_run() -> void: pass
+	func _sync_combat_state_from_run() -> void: pass
+	func _release_committed_run_state() -> void: pass
+	func _schedule_opening_hand_pool_preparation(_state: Dictionary) -> void: pass
+	func _analytics_log_combat_transition(_previous: Dictionary, reason: String, _combat: Dictionary = {}) -> void:
+		analytics_reasons.append(reason)
+	func _persist_committed_boundary(boundary: String = "") -> bool:
+		persisted_boundaries.append(boundary)
+		return true
+
 var _failures: Array[String] = []
 var _combat_engine: CombatEngine = CombatEngine.new()
 var _run_engine: RunEngine = RunEngine.new()
@@ -41,6 +90,8 @@ func _initialize() -> void:
 		_test_terminal_boundaries(base_run)
 		_test_terminal_failure_recovery(base_run)
 		_test_campfire_failure_preserves_run(base_run)
+	await _test_cancelled_room_travel()
+	await _test_cancelled_loading_preparation()
 	_run_scene.free()
 	ProgressionStore.clear_saved_run()
 	print("SAVE NAMESPACE: %s" % user_namespace)
@@ -810,3 +861,90 @@ func _assert_saved_resume(label: String) -> void:
 func _assert(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
+
+func _test_cancelled_room_travel() -> void:
+	for escape: bool in [false, true]:
+		for wait_at: String in ["preparation", "door", "map"]:
+			for cancelled: bool in [true, false]:
+				await _assert_room_travel_load(escape, wait_at, cancelled)
+	_matrix_rows.append("room/travel_load_cancellation_and_live_controls")
+
+func _assert_room_travel_load(escape: bool, wait_at: String, cancelled: bool) -> void:
+	var host: Node = load("res://scenes/run_scene.tscn").instantiate()
+	host.set_script(CancelledTravelHost)
+	host.wait_at = wait_at
+	root.add_child(host)
+	await process_frame
+	host._run_state = _run_engine.create_new_run(TRAVEL_SOURCE_SEED, ProgressionStore.default_data())
+	var target: Vector2i = _run_engine.available_moves(host._run_state)[0]
+	if escape:
+		host._run_state["mode"] = RunEngine.MODE_ESCAPE
+		host._run_state["pending_escape"] = {"destination": target, "door_tile": host._door_tile_for_destination(target)}
+	var label: String = "%s/%s/%s" % ["escape" if escape else "room", wait_at, "cancelled" if cancelled else "live"]
+	var completion: Dictionary = {"done": false, "committed": false}
+	_drive_room_travel(host, target, escape, completion)
+	_assert(not completion["done"], label + ": travel must reach a real suspension")
+	var expected: Dictionary = {}
+	var window: Node = host.get_node("MaquetteRoomPreparation")
+	var window_generation: int = window.generation
+	if cancelled:
+		host._load_run_state(_run_engine.create_new_run(TRAVEL_REPLACEMENT_SEED, ProgressionStore.default_data()))
+		expected = host._run_state.duplicate(true)
+		host.persisted_boundaries.clear()
+		host.analytics_reasons.clear()
+	for frame: int in range(TRAVEL_WAIT_FRAMES):
+		if completion["done"]: break
+		await process_frame
+	_assert(completion["done"], label + ": continuation must finish or abort promptly")
+	if cancelled:
+		_assert(host._run_state == expected, label + ": cancelled travel must preserve loaded seed 9999 and its complete state")
+		_assert(host.persisted_boundaries.is_empty(), label + ": cancelled travel must not persist its old room")
+		_assert(host.analytics_reasons.is_empty(), label + ": cancelled travel must not emit old-room analytics")
+		_assert(window.generation == window_generation, label + ": stale finish must not restart preparation in the new generation")
+		if escape: _assert(not completion["committed"], label + ": cancelled escape must report false")
+	else:
+		_assert(host._run_state["seed"] == TRAVEL_SOURCE_SEED and host._run_state["current_room"] == target, label + ": live travel must still commit")
+		_assert(host.persisted_boundaries.has("reach_exit_room_move_analytics" if escape else "room_move_analytics"), label + ": live travel must persist its ordinary boundary")
+		_assert(host.analytics_reasons.has("reach_exit_room_move" if escape else "room_move"), label + ": live travel must emit its ordinary analytics")
+		if escape: _assert(completion["committed"], label + ": live escape must report true")
+	host.free()
+	await process_frame
+
+func _drive_room_travel(host: Node, target: Vector2i, escape: bool, completion: Dictionary) -> void:
+	if escape: completion["committed"] = await host._continue_pending_escape_after_reward()
+	else: await host._on_map_view_room_selected(target)
+	completion["done"] = true
+
+func _test_cancelled_loading_preparation() -> void:
+	var pending: Dictionary = _normal_combat_run()
+	pending["mode"] = RunEngine.MODE_PRE_BATTLE
+	pending["combat_state"] = {}
+	_assert(ProgressionStore.save_run_state(pending), "Loading cancellation needs a saved room")
+	var host: Node = load("res://scenes/run_scene.tscn").instantiate()
+	host.set_script(CancelledTravelHost)
+	root.add_child(host)
+	await process_frame
+	host._run_state = _run_engine.create_new_run(TRAVEL_SOURCE_SEED, ProgressionStore.default_data())
+	root.set_meta("labyrinth_resume_saved_run", true)
+	var observation: Dictionary = {"invalidated": false, "expected": {}}
+	await host.get_script().prepare_initial_ui_for(host, _replace_during_preparation.bind(host, observation), _bootstrap_not_started.bind(host))
+	_assert(observation["invalidated"], "Loading regression must cross a preparation await")
+	_assert(not host.bootstrap_started, "Cancelled loading preparation must not enter the old UI/run bootstrap")
+	_assert(host._run_state == observation["expected"], "Cancelled loading preparation must preserve the newly loaded run")
+	_assert(host.persisted_boundaries.is_empty() and host.analytics_reasons.is_empty(), "Cancelled loading preparation must not persist or emit analytics")
+	root.remove_meta("labyrinth_resume_saved_run")
+	host.free()
+	await process_frame
+	_matrix_rows.append("room/loading_preparation_load_cancellation")
+
+func _replace_during_preparation(host: Node, observation: Dictionary) -> void:
+	if not observation["invalidated"]:
+		host._load_run_state(_run_engine.create_new_run(TRAVEL_REPLACEMENT_SEED, ProgressionStore.default_data()))
+		observation["expected"] = host._run_state.duplicate(true)
+		observation["invalidated"] = true
+		host.persisted_boundaries.clear()
+		host.analytics_reasons.clear()
+	await process_frame
+
+func _bootstrap_not_started(host: Node) -> bool:
+	return not host.bootstrap_started

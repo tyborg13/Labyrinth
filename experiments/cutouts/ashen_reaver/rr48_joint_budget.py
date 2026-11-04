@@ -51,7 +51,8 @@ def pose_layers(model,row,motion):
  layers,maps=model.layers(row)
  # A constrained item uses the real captured Sprite2D transform. Its painted
  # grip is snapped once with the fist; its floor pose bypasses anchor snapping.
- layers=[(p,pixels.render(model.image(p['file']),matrix(row['parts'][p['name']]['transform'])),pixels.render(model.image(model.layout['proof_layers'][p['name']]['mask']),matrix(row['parts'][p['name']]['transform']))) if p['name'] not in model.meshes else (p,im,check) for p,im,check in layers]
+ from humanoid_cutout.gait_continuations import texture
+ layers=[(p,pixels.render(texture(model.case,model.layout,p,clip=row['clip'],phase=row['phase']),matrix(row['parts'][p['name']]['transform'])),pixels.render(texture(model.case,model.layout,p,clip=row['clip'],phase=row['phase'],checks=True),matrix(row['parts'][p['name']]['transform']))) if p['name'] not in model.meshes else (p,im,check) for p,im,check in layers]
  return layers,maps
 
 

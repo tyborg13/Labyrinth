@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "tools/run_python_suite.py",
+    "--shards",
+    "4",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-30/python-final"
+  ],
+  "returncode": 0,
+  "wall_seconds": 26.207793951034546
+}

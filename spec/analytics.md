@@ -159,16 +159,123 @@ retains complete JSONL rows and trims an interrupted final line before resuming.
 - `skill_triggered`
 - `equipment_equipped`
 - `equipment_grafted`
+- `equipment_grafted`
 - `magic_attuned` (historical)
 - `magic_purged`
 - `item_equipped`
 - `item_picked_up`
 - `merchant_trade`
+- `chronicle_opened`
+- `empower_toggled`
+- `player_movement_interrupted`
+- `surface_event`
+- `battlefield_rule_fired`
+- `battlefield_rule_switched`
+- `snare_pressure`
+- `section_entered`
+- `route_revealed`
+- `map_scout_used`
+- `route_choice_committed`
+- `mystery_resolved`
+- `map_event_resolved`
+- `omen_gained`
+- `omen_expired`
 - `guided_tutorial_started`
 - `guided_tutorial_step_completed`
 - `guided_tutorial_completed`
 - `guided_tutorial_dismissed`
 - `guided_tutorial_restarted`
+
+`magic_attuned` is retained for historical readers; no current interaction emits
+it. `campfire_linger` and `relic_claimed` are checkpoint names, not analytics
+event types. `equipment_grafted` uses the section-map outbox described below.
+Performance events use their separate telemetry stream.
+
+## Emitter parity audit (qa-28)
+
+The JSONL envelope retains `boss_id`, `objective_name`, `relics`,
+`defiance_capacity`, `defiance_remaining` and `combat_unit_scale` from the
+supplied context. Missing values default to `""`, `""`, `[]`, `0`, `0` and `1`
+respectively. Older records without these additive fields remain readable.
+
+RunScene and the manual headless console share `analytics_snapshots.gd` for
+context and run/combat/reward payload construction. Both combat-start payloads
+include `surface_rules_version` and the initial `surfaces` layout. The console
+retains its legacy `driver: manual_headless`, `unbanked_embers` run-end alias,
+`surfaces_before`/`surfaces_after` card snapshots and `chilled` status-delta keys.
+Its run-end record also supplies the canonical `held_embers`, `depth` and
+performance totals. Card records include the same targeting, recovered Ember,
+Sunder, Radiance and Umbra fields as RunScene, as well as Bleed/Expose deltas.
+Both paths include immediate `chilled` deltas alongside the other statuses.
+`card_time` is printed/effective-card Time; `turn_time_spent_after` minus
+`turn_time_spent_before` is the actual paid Time after runtime discounts/costs.
+
+`enemy_action_analytics.gd` preserves the resolver's action/status order, including
+embedded approach moves, action Bleed payments, reactions and deferred deaths.
+The following are ordinary `enemy_action_resolved` records, never duplicated as
+timed status ticks: Guardian status-shaped mechanics, authored status gains,
+Charge and Kindle. Burrow and Erupt retain `presentation_kind`/`action_type`
+`burrow` and `erupt`; Erupt includes actual actor, enemy, terrain and trap losses
+from that action. Block, Stoneskin, heal and Kindle steps add integer `amount`
+when available; Charge adds its actual clamped charge gain in `amount`.
+Echo's Retaliate gain uses `action_type: retaliate` and its realized `amount`,
+separate from subsequent `retaliate_triggered` reactions.
+Preliminary retreat legs recover missing enemy type/role from the phase's actor
+roster while retaining the leg's committed `intent_id`, including the Hoarder.
+No transient board snapshot or `analytics_fields` adapter data is serialized.
+
+The manual console flushes the complete saved surface stream at committed
+combat start, card, movement, turn and transition boundaries. It uses the same
+`surface_event|<combat_id>|<sequence>` keys, rules-version handling and specialized
+Snare/battlefield adapters as RunScene. Repeated flushes and session reloads do
+not repeat deaths, tile changes or rule beats. A refunded walk that changes
+position emits `player_moved` even when `spent` is zero.
+
+The console stages `player_turn_ended` through `PlayerTurnAnalytics` before
+resolving the next phase, saves the completed command with its progression
+outbox, then appends/acknowledges the receipt before enemy action records. A
+failed append retains the saved receipt; loading the session retries it with
+the original key and context. This uses the existing manual-session fields and
+does not change combat, RNG or run/profile save schemas. UI-only interactions
+(for example Chronicle, tutorial and equipment panels) retain their UI emitters;
+the console does not synthesize those interactions.
+In RunScene, an activation-end-only outbox also wakes the ordinary combat
+analytics queue. Delivery does not wait for an unrelated skill/Defiance trigger,
+the next room or Continue; the existing save/append/acknowledgment stages apply.
+Both callers reserve each activation-end record in the analytics store before
+any later emitter can write. A per-storage-directory FIFO holds owned records
+(including their original IDs, timestamps, sequence and context) behind that
+receipt until its checkpoint succeeds and its durable outbox writer releases
+it. Failed saves and appends cannot let enemy actions, the next activation start,
+or subsequent single/batch records overtake the end. Multiple pending ends retain
+their intervening records; partial-append retry reuses the same event IDs. Store
+instances share the barrier within one directory, while other directories remain
+independent. Buffered reservations are never reported as durable receipts.
+These following in-memory records retain the existing hard-termination loss
+policy; durable activation-end receipts still replay from the saved outbox.
+Final-dragon Continue stages `run_ended` with the reward claim in that same
+terminal checkpoint, using `run_ended|<run-result-id>|victory`. Profile recovery
+retries it even after the run save is cleared. The event retains the existing
+post-settlement wallet value and cumulative stats; reward animation, cancellation
+and scene exit cannot suppress or duplicate victory delivery.
+Debug boss Continue emits its existing `run_ended` victory directly at the debug
+transition, without staging or saving progression. Repeated Continue is a no-op.
+Ember Hearth withdrawal similarly queues `run_ended` with its existing authored
+`outcome: embrace` in the profile save that commits banking and score, before
+clearing the run or presenting feedback. Its key is
+`run_ended|<run-result-id>|embrace`; the payload uses the committed withdrawal
+snapshot (including its retained held-Ember value). Failed appends replay from
+the profile outbox without repeating banking or scoring.
+
+Burst uses the ordinary `surface_event` stream: `actor_death` identifies each
+lethal transition and its immediate `source`, and the resulting Fire uses
+ordinary surface placement records. The initiating card kill has
+`player_card: true`; chained kills use `source_kind: death_burst` and
+`player_card: false`. FIFO death order is retained before combat/run outcomes.
+There is no separate top-level Burst event. Burst animation snapshots stay out
+of JSONL; traced enemy-phase cascades retain the status/loss arrays described
+below. Card-level damage/kills may include the completed chain, while
+`death_bonus_card_plays_gained` counts only qualifying card kills.
 
 ## Run score (meta-01)
 
@@ -1117,7 +1224,8 @@ not counted), `next_attack_bonus_used` (`{action_type, damage, chain, pierce, so
 for the buffs this card's attack spent, else null; a zero-damage push/pull never spends
 them, so `action_type` names the damaging hit) and `rite_started` (the card id when
 the card began a combat-scoped Rite, else null). Existing fields keep their meaning;
-`card_time` and `turn_time_spent_*` already report the discounted Time.
+the `turn_time_spent_*` delta reports the actual discounted Time;
+`card_time` retains the printed/effective-card value.
 
 Retaliate uses the existing append-only `surface_event` stream. `retaliate_triggered`
 records `enemy_id`, `actor_key`, `attack_type`, `damage` (total Retaliate including Rite

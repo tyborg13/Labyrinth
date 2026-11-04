@@ -1,6 +1,7 @@
 extends RefCounted
 class_name ProgressionStore
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
@@ -151,7 +152,7 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	data["level"] = clampi(int(data.get("level", 1)), 1, GameData.max_progression_level())
 	var earned_skill_count: int = skill_points_for_level(int(data.get("level", 1)))
 	var serialized_skill_ids: Array[String] = SkillTreeLibrary.normalized_ids(data.get("skill_ids", []))
-	var source_skill_ids: Array[String] = []
+	var source_skill_ids: Array[String]
 	for skill_id: String in serialized_skill_ids:
 		if not SkillTreeLibrary.is_retired(skill_id):
 			source_skill_ids.append(skill_id)
@@ -284,7 +285,7 @@ static func _migrated_legacy_run_result(result: Dictionary) -> Dictionary:
 
 static func _migrated_legacy_analytics_units(value: Dictionary) -> Dictionary:
 	var migrated: Dictionary = value.duplicate(false)
-	var survivor_fields: Array[String] = [
+	var survivor_fields: Array[String] = TypedArrays.strings([
 		"player_hp",
 		"player_max_hp",
 		"player_start_hp",
@@ -294,8 +295,8 @@ static func _migrated_legacy_analytics_units(value: Dictionary) -> Dictionary:
 		"restored_hp",
 		"lethal_hp_loss",
 		"defiance_restored"
-	]
-	var cumulative_fields: Array[String] = ["damage", "damage_dealt", "damage_received"]
+	])
+	var cumulative_fields: Array[String] = TypedArrays.strings(["damage", "damage_dealt", "damage_received"])
 	for key_var: Variant in value.keys():
 		var key: String = str(key_var)
 		var child: Variant = value.get(key_var)
@@ -424,7 +425,7 @@ static func _normalized_string_array(value: Variant) -> Array:
 	return result
 
 static func _normalized_progression_analytics_outbox(value: Variant) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	if typeof(value) != TYPE_ARRAY:
 		return result
 	var seen_keys: Dictionary = {}
@@ -739,7 +740,7 @@ static func record_run_result(data: Dictionary, result_id: String, stats_value: 
 
 	var stats: Dictionary = _normalized_run_metric_map(stats_value, RUN_RESULT_STAT_IDS)
 	var bests: Dictionary = run_bests(next_data)
-	var new_bests: Array[String] = []
+	var new_bests: Array[String]
 	for stat_id_var: Variant in BEST_ELIGIBLE_STAT_IDS:
 		var stat_id: String = str(stat_id_var)
 		var value: int = int(stats.get(stat_id, 0))
@@ -894,7 +895,7 @@ static func _normalized_last_run_result(value: Variant) -> Dictionary:
 	var result_id: String = str(source.get("result_id", "")).strip_edges()
 	if result_id.is_empty():
 		return {}
-	var new_bests: Array[String] = []
+	var new_bests: Array[String]
 	for stat_id_var: Variant in source.get("new_bests", []):
 		var stat_id: String = str(stat_id_var)
 		if BEST_ELIGIBLE_STAT_IDS.has(stat_id) and not new_bests.has(stat_id):
@@ -926,7 +927,7 @@ static func _score_rows(value: Variant) -> Array[Dictionary]:
 	return result
 
 static func _normalized_run_result_ledger(value: Variant) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	if typeof(value) != TYPE_ARRAY:
 		return result
 	for entry_var: Variant in (value as Array):
@@ -940,7 +941,7 @@ static func _normalized_run_result_ledger(value: Variant) -> Array[Dictionary]:
 	return _bounded_run_result_ledger(result)
 
 static func _bounded_run_result_ledger(value: Array[Dictionary]) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	for entry: Dictionary in value:
 		result.append(entry.duplicate(true))
 	while result.size() > RUN_RESULT_LEDGER_LIMIT:
@@ -1005,7 +1006,7 @@ static func transact_run_wallet(data: Dictionary, run_id: String, sequence: int,
 	return next
 
 static func pending_starting_relic_gifts(data: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	# Prefer an existing live gift over its retired alias, even if it comes later.
 	var live_gift_ids: Array[String]
 	for raw: Variant in data.get(STARTING_RELIC_GIFTS_KEY, []):
@@ -1038,7 +1039,7 @@ static func award_starting_relic_gift(data: Dictionary, award_id: String, relic_
 
 static func acknowledge_starting_relic_gifts(data: Dictionary, gift_ids: Array) -> Dictionary:
 	var next: Dictionary = normalized_data(data)
-	var remaining: Array[Dictionary] = []
+	var remaining: Array[Dictionary]
 	var removed: bool = false
 	for gift: Dictionary in pending_starting_relic_gifts(next):
 		if gift_ids.has(str(gift["id"])):
@@ -1219,7 +1220,7 @@ static func acknowledge_progression_analytics_events(data: Dictionary, idempoten
 			acknowledged[safe_idempotency_key] = true
 	if acknowledged.is_empty():
 		return normalized
-	var remaining: Array[Dictionary] = []
+	var remaining: Array[Dictionary]
 	for entry: Dictionary in _normalized_progression_analytics_outbox(
 		normalized.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
 	):

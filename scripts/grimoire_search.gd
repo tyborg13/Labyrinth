@@ -1,6 +1,7 @@
 extends RefCounted
 class_name GrimoireSearch
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const _TITLE_EXACT_BOOST: int = 1200
 const _TITLE_PREFIX_BOOST: int = 760
 const _TITLE_PHRASE_BOOST: int = 760
@@ -21,12 +22,12 @@ static func build_index(entries: Array, sections: Array) -> Array[Dictionary]:
 	return index
 
 static func search(entries: Array, sections: Array, query: String) -> Array[Dictionary]:
-	if normalize(query).is_empty(): return []
+	if normalize(query).is_empty(): return TypedArrays.dictionaries([])
 	return search_index(build_index(entries, sections), query)
 
 static func search_index(index: Array[Dictionary], query: String) -> Array[Dictionary]:
 	var normalized_query: String = normalize(query)
-	if normalized_query.is_empty(): return []
+	if normalized_query.is_empty(): return TypedArrays.dictionaries([])
 	var query_tokens: PackedStringArray = normalized_query.split(" ", false)
 	var allow_single_character_prefix: bool = query_tokens.size() > 1
 	var results: Array[Dictionary]
@@ -82,7 +83,7 @@ static func _score_document(document: Dictionary, query: String, query_tokens: P
 	var topic_words: PackedStringArray = document["topic_words"]
 	var rules_words: PackedStringArray = document["rules_words"]
 	var score: int = 0
-	var matched_kinds: Array[String] = []
+	var matched_kinds: Array[String]
 	var relied_on_fuzzy: bool = false
 	for query_token: String in query_tokens:
 		var token_match: Dictionary = _best_token_match(query_token, title_words, alias_words, topic_words, rules_words, allow_single_character_prefix)
@@ -118,7 +119,7 @@ static func _score_document(document: Dictionary, query: String, query_tokens: P
 	}
 
 static func _best_token_match(query_token: String, title_words: PackedStringArray, alias_words: PackedStringArray, topic_words: PackedStringArray, rules_words: PackedStringArray, allow_single_character_prefix: bool) -> Dictionary:
-	var candidates: Array[Dictionary] = []
+	var candidates: Array[Dictionary]
 	_append_field_match(candidates, query_token, title_words, "title", 180, 150, 118, allow_single_character_prefix)
 	_append_field_match(candidates, query_token, alias_words, "alias", 145, 122, 96, allow_single_character_prefix)
 	_append_field_match(candidates, query_token, topic_words, "topic", 112, 94, 76, allow_single_character_prefix)
@@ -164,12 +165,12 @@ static func _damerau_levenshtein(left: String, right: String, limit: int) -> int
 		return 0
 	if absi(left.length() - right.length()) > limit:
 		return limit + 1
-	var previous_previous: Array[int] = []
-	var previous: Array[int] = []
+	var previous_previous: Array[int]
+	var previous: Array[int]
 	for column: int in range(right.length() + 1):
 		previous.append(column)
 	for row: int in range(1, left.length() + 1):
-		var current: Array[int] = [row]
+		var current: Array[int] = TypedArrays.integers([row])
 		var row_minimum: int = row
 		for column: int in range(1, right.length() + 1):
 			var substitution_cost: int = 0 if left.unicode_at(row - 1) == right.unicode_at(column - 1) else 1
@@ -199,7 +200,7 @@ static func _section_title_lookup(sections: Array) -> Dictionary:
 	return result
 
 static func _breadcrumb(entry: Dictionary, section_titles: Dictionary) -> String:
-	var parts: Array[String] = []
+	var parts: Array[String]
 	var section_id: String = str(entry.get("section", ""))
 	var section_title: String = str(section_titles.get(section_id, section_id.capitalize()))
 	if not section_title.is_empty():
@@ -245,7 +246,7 @@ static func _phrase_list_contains(normalized_values: String, query: String) -> b
 	return (" %s " % normalized_values).contains(" %s " % query)
 
 static func _string_values(value: Variant) -> Array[String]:
-	var result: Array[String] = []
+	var result: Array[String]
 	if value is Array:
 		for item: Variant in value:
 			var text: String = str(item).strip_edges()

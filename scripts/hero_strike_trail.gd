@@ -2,6 +2,7 @@ extends RefCounted
 ## Source samples depend only on the renderer, its gear and the attack's
 ## facing, so a loadout samples each direction once (a few ms) instead of on
 ## every attack. Board projection is resolved afresh after zoom/layout edits.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Trail = preload("res://scripts/strike_trail_fx.gd")
 var _cache: Dictionary = {}
 var _cache_owner: Array = []
@@ -51,7 +52,7 @@ func _source_samples(renderer: Node, delta: Vector2i, motion: String, window: Ve
 	var direction: Dictionary = renderer.direction_for_delta(delta)
 	var key: String = "%s|%s|%s" % [direction["facing"], direction["mirrored"], motion]
 	if _cache.has(key):
-		return _cache[key]
+		return TypedArrays.dictionaries(_cache[key])
 	var samples: Array[Dictionary] = renderer.strike_samples(delta, window.x, window.y, Trail.SAMPLE_STEP, float(Trail.motion_settings(motion)["reach"]))
 	sample_build_count += 1
 	# A renderer without rigs yields nothing; never pin that for the effect.

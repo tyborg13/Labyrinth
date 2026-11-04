@@ -4,17 +4,17 @@ class_name InputGlyph
 const InputRouterScript = preload("res://scripts/input_router.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
-const FACE_ACTIONS: Array[StringName] = [
+const FACE_ACTIONS: Array[StringName] = Array([
 	InputRouterScript.ACTION_ACCEPT,
 	InputRouterScript.ACTION_CANCEL,
 	InputRouterScript.ACTION_HAND_TOGGLE,
 	InputRouterScript.ACTION_PASS,
-]
-const SHOULDER_ACTIONS: Array[StringName] = [
+], TYPE_STRING_NAME, "", null)
+const SHOULDER_ACTIONS: Array[StringName] = Array([
 	InputRouterScript.ACTION_HAND_PREVIOUS,
 	InputRouterScript.ACTION_HAND_NEXT,
 	InputRouterScript.ACTION_HAND_BUMPERS,
-]
+], TYPE_STRING_NAME, "", null)
 
 var action_name: StringName = InputRouterScript.ACTION_ACCEPT
 var family: String = InputRouterScript.FAMILY_XBOX

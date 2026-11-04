@@ -1,0 +1,946 @@
+[
+  {
+    "severity": "script error",
+    "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+    "context": {
+      "seed": 3,
+      "section": -1,
+      "room_kind": "startup",
+      "decision": 0
+    },
+    "last_20_decisions": [],
+    "log_line": 11,
+    "log_lines": [
+      "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+      "   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)"
+    ],
+    "location": "platform/macos/os_macos.mm:1014",
+    "replay_script": "/private/tmp/labyrinth_codex/qa-25/run_hunt_census_bounded.gd",
+    "count": 1,
+    "seeds": [
+      3
+    ],
+    "occurrences": [
+      {
+        "seed": 3,
+        "context": {
+          "seed": 3,
+          "section": -1,
+          "room_kind": "startup",
+          "decision": 0
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-25/replay-no-embrace-seed-3-storage-retry/seed-000003/godot.log",
+        "log_line": 11
+      }
+    ]
+  },
+  {
+    "context": {
+      "decision": 2368,
+      "mode": "room",
+      "room": "(-20, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(21, -21)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -20)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -19)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(-20, 0)",
+        "depth": 20,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "start",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 3
+    },
+    "error": "tree_nodes grew more than 25% from section 0 to section 5 (1549 -> 2848)",
+    "last_20_decisions": [
+      {
+        "args": [
+          "(3, 4)"
+        ],
+        "context": {
+          "decision": 2349,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2349,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2350,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2350,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "args": [
+          0
+        ],
+        "card_id": "shadow_step",
+        "context": {
+          "decision": 2351,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2351,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": false
+      },
+      {
+        "args": [
+          "(4, 2)"
+        ],
+        "context": {
+          "decision": 2352,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2352,
+        "kind": "blink",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          2
+        ],
+        "card_id": "pale_spark",
+        "context": {
+          "decision": 2353,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2353,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(5, 3)"
+        ],
+        "context": {
+          "decision": 2354,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2354,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          4
+        ],
+        "card_id": "whirlwind_slash",
+        "context": {
+          "decision": 2355,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2355,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2356,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2356,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2357,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2357,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 2358,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2358,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "args": [
+          6
+        ],
+        "card_id": "dull_bolt",
+        "context": {
+          "decision": 2359,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2359,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(5, 3)"
+        ],
+        "context": {
+          "decision": 2360,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2360,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          1
+        ],
+        "card_id": "bloody_lunge",
+        "context": {
+          "decision": 2361,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2361,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(4, 2)"
+        ],
+        "context": {
+          "decision": 2362,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2362,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": false
+      },
+      {
+        "args": [
+          3
+        ],
+        "card_id": "quick_stab",
+        "context": {
+          "decision": 2363,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2363,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(4, 4)"
+        ],
+        "context": {
+          "decision": 2364,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2364,
+        "kind": "melee",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2365,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2365,
+        "kind": "move",
+        "preferred": false,
+        "tile": "(2, 2)"
+      },
+      {
+        "args": [
+          4
+        ],
+        "card_id": "updraft",
+        "context": {
+          "decision": 2366,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2366,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(4, 2)"
+        ],
+        "context": {
+          "decision": 2367,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2367,
+        "kind": "push",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2368,
+          "mode": "reward",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2368,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@288370/RewardSecondaryActions/DragonRewardContinue",
+        "signal": "pressed",
+        "text": "CONTINUE"
+      }
+    ],
+    "location": "res://tools/run_hunt.gd:263",
+    "severity": "leak",
+    "log_line": 2461,
+    "replay_script": "/private/tmp/labyrinth_codex/qa-25/run_hunt_census_bounded.gd",
+    "count": 1,
+    "seeds": [
+      3
+    ],
+    "occurrences": [
+      {
+        "seed": 3,
+        "context": {
+          "decision": 2368,
+          "mode": "room",
+          "room": "(-20, 0)",
+          "room_kind": "start",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(21, -21)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(21, -20)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(21, -19)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(-20, 0)",
+            "depth": 20,
+            "element": "none",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 0,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "start",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-25/replay-no-embrace-seed-3-storage-retry/seed-000003/godot.log",
+        "log_line": 2461
+      }
+    ]
+  }
+]

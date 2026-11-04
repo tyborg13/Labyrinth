@@ -62,7 +62,7 @@ static func _computed_signature(rites: Array) -> String:
 ## per authored effect (rite:<card_id>:<n>), so once/counter flags never collide
 ## between two Rites or two copies of the same Rite.
 static func effects(state: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	var serial: int = 0
 	for rite_var: Variant in active_rites(state):
 		if typeof(rite_var) != TYPE_DICTIONARY:
@@ -92,7 +92,7 @@ static func card_id_for_relic_id(relic_id: String) -> String:
 # Authored Rite vocabulary maps onto existing relic effect types when one
 # already does the job, so every existing reader applies it unchanged.
 static func _normalized_effects(effect: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	match str(effect.get("type", "")):
 		"independent_movement_bonus":
 			result.append({"type": "movement_pool_bonus", "value": int(effect.get("amount", effect.get("value", 1)))})
@@ -125,7 +125,7 @@ static func _normalized_effects(effect: Dictionary) -> Array[Dictionary]:
 	return result
 
 static func effects_of_type(effects: Array, effect_type: String) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	for effect_var: Variant in effects:
 		if typeof(effect_var) == TYPE_DICTIONARY and str((effect_var as Dictionary).get("type", "")) == effect_type:
 			result.append(effect_var as Dictionary)
@@ -214,7 +214,7 @@ static func _surface_pulse(engine: RefCounted, state: Dictionary, effect: Dictio
 	state["damage_context"] = context
 	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
 	state["_surface_damage_batch"] = true
-	var hit_ids: Array[int] = []
+	var hit_ids: Array[int]
 	for actor: Dictionary in engine._surface_actor_records(state, "enemies"):
 		if not engine._surface_unit_intersects(actor["unit"] as Dictionary, tiles):
 			continue
@@ -229,7 +229,7 @@ static func _surface_pulse(engine: RefCounted, state: Dictionary, effect: Dictio
 
 ## HUD entries for active Rites (icon `rite`, tooltip = card name + rules text).
 static func hud_entries(state: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	for rite_var: Variant in active_rites(state):
 		if typeof(rite_var) != TYPE_DICTIONARY:
 			continue

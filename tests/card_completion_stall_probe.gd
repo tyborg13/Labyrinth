@@ -3,6 +3,7 @@ extends "res://tests/runtime_frame_performance_benchmark.gd"
 # Detailed tracing and timing run separately. The timed window includes the whole
 # action plus 500 ms after unlock, so deferred hand fitting cannot hide work.
 const HAND_POINTER_POLICY: String = "completion_pointer_v1"
+const COMPLETION_POINTER_ENABLED: bool = true
 const HAND_POINTER_LOCAL_ANCHOR := Vector2(70.0, 160.0)
 var _native_pointer_instance: Node = null
 var _native_pointer_anchor: Vector2 = Vector2.ZERO
@@ -288,7 +289,9 @@ func _board_pointer_hover(instance: Node, tile: Vector2i) -> void:
 
 
 func _native_hand_pointer_enabled() -> bool:
-	return OS.get_environment("LABYRINTH_RUNTIME_PERF_HAND_POINTER") == "1"
+	# 121237af4's completion oracle requires the physical pointer return on every
+	# run; inheriting the general benchmark's opt-in made the default probe fail.
+	return COMPLETION_POINTER_ENABLED
 
 
 func _native_hand_pointer_snapshot(instance: Node) -> Dictionary:

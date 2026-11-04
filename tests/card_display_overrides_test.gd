@@ -50,6 +50,7 @@ func _run() -> void:
 			host.get("_pile_dialog_card_pool").clear()
 		print("CARD02 UNMODIFIED COVERAGE: %d catalog cards in every ID-built factory; current/available upgrade previews" % catalog.size())
 	else:
+		await _item_row_rules(audit)
 		for id: String in TEST_CARDS:
 			await _card_views(audit, id, state)
 		await _upgraded_preview(audit, state)
@@ -68,6 +69,119 @@ func _run() -> void:
 
 func _all_unmodified() -> bool:
 	return OS.get_cmdline_user_args().has("--all-unmodified")
+
+func _item_row_rules(audit: RefCounted) -> void:
+	const ItemText = preload("res://scripts/item_rules_text.gd")
+	const RowFixture = preload("res://tests/helpers/item_row_text_fixture.gd")
+	var host: Node = audit.host
+	var saved_run: Dictionary = host.get("_run_state")
+	var saved_combat: Dictionary = host.get("_combat_state")
+	var state: Dictionary = RowFixture.state()
+	var original: PackedByteArray = var_to_bytes(state)
+	host.set("_run_state", state)
+	host.set("_combat_state", {})
+	# Audit every binding against authored values, including repeated equal
+	# numerals and the two references to Quicken on Hourglass Sand.
+	var item_count: int = 0
+	for id: String in Data.cards():
+		var definition: Dictionary = Data.card_def(id)
+		if not bool(definition.get("item", false)): continue
+		item_count += 1
+		var authored: String = Icons.card_rules_text(definition)
+		var matches: Array[RegExMatch] = ItemText.numbers().search_all(authored)
+		var bindings: Array = ItemText.NUMBER_TOKENS.get(id, [])
+		_expect(matches.size() == bindings.size(), id + ": every authored numeral has a semantic binding")
+		var rows: Array = Display.for_card(id, {})["summary_rows"]
+		for index: int in range(mini(matches.size(), bindings.size())):
+			if str(bindings[index]).is_empty(): continue
+			_expect(ItemText.token_number(rows, str(bindings[index])) == matches[index].get_string(), id + ": numeral binds to its base face token " + str(bindings[index]))
+		_expect(Display.rules_text(id, definition, rows) == authored, id + ": unmodified prose is byte-identical")
+	# Long Dawn is an existing root skill. Its real combat duration is the
+	# independent oracle; the unchanged Vision 2 catches global replacement.
+	var duration: int = preload("res://scripts/combat_engine.gd").new()._radiance_duration_for_player(state, int(Data.card_def(RowFixture.CARD)["actions"][0]["duration"]))
+	var expected: String = "Gain Truesight and 2 Vision for %d turns." % duration
+	var tile: Control = host.call("_build_item_card_tile", RowFixture.CARD, "inventory", 0, "txt01/item")
+	host.add_child(tile)
+	_expect(str(tile.find_child("RowSummary", true, false).text) == expected, "Pack row uses Long Dawn's resolved duration without changing Vision or prose")
+	for source: String in ["equipped", "inventory"]:
+		var row: Control = host.call("_new_item_card_tile", RowFixture.CARD, source, 0, false, false)
+		_expect(str(row.find_child("RowSummary", true, false).text) == expected, source + ": item row shares resolved rules")
+		row.free()
+	var proxy: Control = host.call("_build_item_card_proxy_panel", RowFixture.CARD, TEST_VIEW_SIZE)
+	_expect(str(proxy.find_child("RowSummary", true, false).text) == expected, "Drag copy shares resolved rules")
+	proxy.free()
+	var surface := Control.new()
+	host.add_child(surface)
+	var faces: Dictionary = {}
+	audit.shop.set("_run_state", state)
+	faces["Scavenger"] = audit.shop.call("_build_native_scaled_card", surface, RowFixture.CARD, TEST_VIEW_SIZE, "Txt01Shop", false)
+	audit.graft.set("state", state)
+	var choice: Control = audit.graft.call("_card", surface, RowFixture.CARD, TEST_GRAFT_POSITION, false, Color.WHITE, func() -> void: pass)
+	faces["Graftwright"] = choice.get("card_face")
+	var rewards := HBoxContainer.new()
+	surface.add_child(rewards)
+	var focusable: Array[Control]
+	host.call("_add_reward_choice_card", rewards, RowFixture.CARD, TEST_VIEW_SIZE, focusable)
+	faces["Rewards"] = focusable[0]
+	var event: Control = preload("res://scripts/event_reward_preview.gd").build({"kind": "item", "ids": [RowFixture.CARD]}, state)
+	surface.add_child(event)
+	faces["Event reward"] = Audit.find_card(event)
+	var tooltip: Control = host.call("_build_card_tooltip_panel", RowFixture.CARD)
+	surface.add_child(tooltip)
+	faces["Tooltip/card face"] = Audit.find_card(tooltip)
+	for frame: int in range(Audit.SETTLE_FRAMES): await process_frame
+	for context: String in faces:
+		var face: Control = faces[context]
+		var rows: Array = face.display_summary_rows()
+		var text: String = Display.rules_text(RowFixture.CARD, face.call("_display_card_def"), rows)
+		_expect(text == "Consume. " + expected, context + ": exact item prose uses resolved values")
+		_expect(ItemText.token_number(rows, "truesight") == str(duration) and ItemText.token_number(rows, "time") == str(duration), context + ": both duration tokens match combat")
+		print("TXT01 %s: %s | face: %s" % [context, text, Icons.plain_text_for_rows(rows).replace("\n", " / ")])
+	await _inspect_rules(audit.graft, choice, "Consume. " + expected)
+	_expect(var_to_bytes(state) == original, "Item text resolution preserves the complete run, RNG, history, analytics and save inputs")
+	surface.free()
+	# Retention must notice value changes even when the item ID is unchanged.
+	var clean: Dictionary = state.duplicate(true)
+	clean["skill_ids"] = []
+	clean["progression"]["skill_ids"] = []
+	host.set("_run_state", clean)
+	var reopened: Control = host.call("_build_item_card_tile", RowFixture.CARD, "inventory", 0, "txt01/item")
+	host.add_child(reopened)
+	_expect(str(reopened.find_child("RowSummary", true, false).text) == "Gain Truesight and 2 Vision for 2 turns.", "Retained Pack row refreshes after removing the skill")
+	host.set("_combat_state", state)
+	var combat_row: Control = host.call("_build_item_card_tile_body", RowFixture.CARD)
+	_expect(str(combat_row.find_child("RowSummary", true, false).text) == expected, "Combat item row uses combat's display state")
+	combat_row.free()
+	# Reopening the complete retained dialog must refresh equipped rows too;
+	# this path can otherwise retain an entire paper-doll column by item ID.
+	host.set("_combat_state", {})
+	host.set("_run_state", state)
+	host.call("_open_character_overlay", "equipment")
+	await process_frame
+	host.call("_close_card_upgrade_overlay")
+	host.set("_run_state", clean)
+	host.call("_open_character_overlay", "equipment")
+	await process_frame
+	var equipped: Control = host.get("_item_equipped_tiles")[0]
+	_expect(str(equipped.find_child("RowSummary", true, false).text) == "Gain Truesight and 2 Vision for 2 turns.", "Reopened equipped column refreshes resolved item text")
+	host.call("_close_card_upgrade_overlay")
+	host.set("_combat_state", state)
+	host.call("_open_character_overlay", "equipment")
+	await process_frame
+	equipped = host.get("_item_equipped_tiles")[0]
+	var pack: Control = host.get("_item_inventory_tiles")[0]
+	_expect(str(equipped.find_child("RowSummary", true, false).text) == expected and str(pack.find_child("RowSummary", true, false).text) == expected, "Whole-dialog retention follows combat display values when stored run state is unchanged")
+	host.call("_close_card_upgrade_overlay")
+	# Exercise a definition modifier and runtime damage, not just skill duration.
+	var modified: Dictionary = {"relics": ["alchemists_retort", "bloodglass_knife"], "player_hp": UPGRADE_HEALTH, "player_max_hp": UPGRADE_MAX_HEALTH}
+	var definition: Dictionary = Data.card_def_for_progression("nail_bomb", modified)
+	var display: Dictionary = Display.for_card("nail_bomb", modified, definition)
+	var text: String = Display.rules_text("nail_bomb", definition, display["summary_rows"])
+	_expect(text == "Consume. Deal %s in a cross at range %s and Sunder %s." % [ItemText.token_number(display["summary_rows"], "ranged"), ItemText.token_number(display["summary_rows"], "range"), ItemText.token_number(display["summary_rows"], "sunder")], "Relic and runtime modifiers change only their numeric fields")
+	_expect(text != Icons.card_rules_text(Data.card_def("nail_bomb")), "Modifier fixture actually changes the numbers")
+	host.set("_run_state", saved_run)
+	host.set("_combat_state", saved_combat)
+	print("TXT01 ITEM ROW REGRESSION: %d items; skill, relic, runtime, retained and combat text checked" % item_count)
 
 func _card_views(audit: RefCounted, id: String, state: Dictionary) -> void:
 	var host: Node = audit.host

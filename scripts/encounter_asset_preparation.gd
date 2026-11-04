@@ -6,30 +6,42 @@ const GameData = preload("res://scripts/game_data.gd")
 const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
 
 # Travel already owns the action's committed destination. Preparation never
-# gates input or changes its authored timing; a cold direct-entry path retains
-# the existing synchronous fallback. CPU workers own source JSON/mesh arrays.
+# changes authored travel timing. The room commit waits for unfinished rig
+# preparation behind that cover. CPU workers own source JSON/mesh arrays.
 static func active(scene: Variant, generation: int) -> bool:
 	return is_instance_valid(scene) and scene.is_inside_tree() and not scene.is_queued_for_deletion() and scene._encounter_preparation_generation == generation
 
 static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 	if not active(scene, generation): return
+	preload("res://scripts/room_asset_preparation.gd").begin_for.call_deferred(scene, state, generation)
 	var combat_state: Dictionary = state.get("combat_state", {})
 	if str(state.get("mode", "")) == "pre_battle":
 		# RunEngine and its shared definitions remain main-thread-owned.
 		var factory: Dictionary = await prepare_combat_factory_for(scene, state, generation)
-		if not active(scene, generation) or factory.is_empty(): return
+		if not active(scene, generation): return
+		if factory.is_empty():
+			preload("res://scripts/maquette_cutout_runtime/retention.gd").for_scene(scene).complete = true
+			return
 		scene._prepared_pre_battle_factory = factory
 		var preview: Dictionary = scene._run_engine.pre_battle_preview_state(state, scene._prepared_pre_battle_factory)
 		combat_state = preview.get("combat_state", {})
+	await preload("res://scripts/maquette_cutout_runtime/preparation.gd").prepare_encounter_for(scene, combat_state, generation)
+	if not active(scene, generation): return
 	var manifest: Dictionary = scene.board_view.unit_rig_preparation_manifest(combat_state)
 	var sources: PackedStringArray = manifest["sources"]
 	var textures: Dictionary = manifest["textures"]
 	textures.merge(state_texture_manifest(scene, state, combat_state))
-	if sources.is_empty():
-		await Assets.prepare_textures_for(scene.get_tree().root, textures, present_frame.bind(scene.get_tree()), active.bind(scene, generation))
-		if active(scene, generation): await prepare_hidden_shop_for(scene, state, present_frame.bind(scene.get_tree()), active.bind(scene, generation))
-		return
-	var result: Variant = await Assets.prepare_cpu_value_for(scene.get_tree().root, _prepare_sources.bind(sources), present_frame.bind(scene.get_tree()), active.bind(scene, generation))
+	# Session-owned maquette inputs are already published to the ordinary loader.
+	# Re-parsing them here would discard a second large JSON tree on the main
+	# thread even though the renderer correctly borrowed the first one.
+	var pending_sources := PackedStringArray()
+	for path: String in sources:
+		var cached: RefCounted = preload("res://scripts/maquette_cutout_runtime/construction.gd").cached(path)
+		if cached == null: pending_sources.append(path)
+		else: textures.merge(RigData.source_texture_manifest(cached.data, path))
+	var result: Variant = []
+	if not pending_sources.is_empty():
+		result = await Assets.prepare_cpu_value_for(scene.get_tree().root, _prepare_sources.bind(pending_sources), present_frame.bind(scene.get_tree()), active.bind(scene, generation))
 	if not active(scene, generation) or not result is Array: return
 	for entry: Dictionary in result:
 		var path: String = entry["path"]
@@ -39,6 +51,9 @@ static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 			textures.merge(RigData.source_texture_manifest(published, path))
 	await Assets.prepare_textures_for(scene.get_tree().root, textures, present_frame.bind(scene.get_tree()), active.bind(scene, generation))
 	if not active(scene, generation): return
+	if pending_sources.is_empty():
+		await prepare_hidden_shop_for(scene, state, present_frame.bind(scene.get_tree()), active.bind(scene, generation))
+		if not active(scene, generation): return
 	if str(state.get("mode", "")) == "pre_battle":
 		scene._schedule_opening_hand_pool_preparation(combat_state)
 		var preview: Dictionary = scene._run_engine.pre_battle_preview_state(state, scene._prepared_pre_battle_factory)

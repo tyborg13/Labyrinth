@@ -1,5 +1,8 @@
 extends SceneTree
 
+const Snapshots = preload("res://scripts/analytics_snapshots.gd")
+const EnemyAnalytics = preload("res://scripts/enemy_action_analytics.gd")
+
 const CommittedBattlefieldRules = preload("res://scripts/battlefield_rules/committed.gd")
 const GraftwrightRules = preload("res://scripts/graftwright_rules.gd")
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
@@ -33,6 +36,8 @@ var _combat_state: Dictionary = {}
 var _progression: Dictionary = {}
 var _pending: Dictionary = {}
 var _analytics_tracker: Dictionary = {}
+var _surface_analytics_revisions: Dictionary = {}
+var _surface_analytics_generation: int = -1
 var _run_number: int = 0
 var _notes_path: String = ""
 var _session_path: String = ""
@@ -512,7 +517,7 @@ func _command_walk(raw: String) -> void:
 	_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
 	_log_item_pickups(before_combat_state, _combat_state)
 	_log_card_draws(before_combat_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "player_movement")
-	_analytics_store.write_event("player_moved" if int(movement.get("spent", 0)) > 0 else "player_movement_interrupted", _analytics_context(before_combat_state), movement.duplicate(true))
+	_log_player_moved(before_combat_state, transition_state)
 	var outcome: String = _combat_engine.combat_outcome(_combat_state)
 	if outcome.is_empty():
 		_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
@@ -528,6 +533,13 @@ func _command_walk(raw: String) -> void:
 		int(movement.get("remaining_after", 0))
 	])
 	_print_state()
+
+func _log_player_moved(before: Dictionary, after: Dictionary) -> void:
+	var movement: Dictionary = after.get("last_player_movement", {})
+	if bool(movement.get("utility", false)): return
+	var moved: bool = int(movement.get("spent", 0)) > 0 or after.get("player", {}).get("pos", INVALID_TARGET_TILE) != before.get("player", {}).get("pos", INVALID_TARGET_TILE)
+	if not moved and not bool(movement.get("resolved", false)): return
+	_analytics_store.write_event("player_moved" if moved else "player_movement_interrupted", _analytics_context(before), movement.duplicate(true))
 
 func _print_combat_state() -> void:
 	if _combat_engine.SnareRules.active(_combat_state):
@@ -1533,10 +1545,10 @@ func _resolve_enemy_round(reason: String) -> void:
 	var before_combat_state: Dictionary = _combat_state.duplicate(true)
 	var before_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var scheduled_state: Dictionary = CommittedBattlefieldRules.finish_player_activation(_combat_engine, _combat_state)
+	_run_state = preload("res://scripts/player_turn_analytics.gd").stage(_combat_engine, _run_state, before_combat_state, scheduled_state, reason, _analytics_context(before_combat_state), _progression)
+	preload("res://scripts/player_turn_analytics.gd").hold_receipts(_analytics_store, _run_state)
 	var phase: Dictionary = CommittedBattlefieldRules.advance_to_player(_combat_engine, scheduled_state)
 	var after_phase_state: Dictionary = (phase.get("state", {}) as Dictionary).duplicate(true)
-	_log_item_pickups(before_combat_state, after_phase_state)
-	_log_enemy_status_ticks(phase, after_phase_state)
 	var hp_before: int = int((before_combat_state.get("player", {}) as Dictionary).get("hp", 0))
 	var before_draw_state: Dictionary = (phase.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
 	var after_enemy_state: Dictionary = before_draw_state if not before_draw_state.is_empty() else after_phase_state
@@ -1546,9 +1558,6 @@ func _resolve_enemy_round(reason: String) -> void:
 	var next_turn_state: Dictionary = {}
 	if outcome.is_empty() and not before_draw_state.is_empty():
 		next_turn_state = _combat_state.duplicate(true)
-		_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
-		_log_card_draws(before_combat_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
-		_log_playable_cards()
 		outcome = _combat_engine.combat_outcome(_combat_state)
 	var transition_state: Dictionary = _combat_state.duplicate(true)
 	if outcome.is_empty():
@@ -1556,6 +1565,15 @@ func _resolve_enemy_round(reason: String) -> void:
 	else:
 		_run_state = _run_engine.finish_combat(_run_state, _combat_state)
 	_sync_combat_state_from_run()
+	# The command's completed gameplay snapshot owns the activation-end outbox.
+	# Save before append, then append the phase in resolver order and its draws.
+	_save_session()
+	_log_enemy_phase_events(phase, after_phase_state)
+	_log_item_pickups(before_combat_state, after_phase_state)
+	if not next_turn_state.is_empty():
+		_analytics_reconcile_combat_tracker(before_combat_state, next_turn_state)
+		_log_card_draws(before_combat_state, next_turn_state, before_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
+		_log_playable_cards()
 	_log_combat_transition(before_run_state, reason, transition_state)
 	_append_note("- Enemy round: %d HP lost, mode now %s.\n" % [maxi(0, hp_before - hp_after_enemy), str(_run_state.get("mode", ""))])
 	_print_enemy_round_resolution(phase, before_combat_state, after_enemy_state, before_draw_state, next_turn_state)
@@ -1849,56 +1867,23 @@ func _attach_new_combat_analytics(previous_run_state: Dictionary, reason: String
 	_run_state["combat_state"] = _combat_state.duplicate(true)
 	_analytics_initialize_combat_tracker(_combat_state)
 	_log_combat_started(reason)
-	_analytics_store.write_events(preload("res://scripts/snare_pressure_analytics.gd").records(_combat_state, _analytics_context(_combat_state)))
-	_analytics_store.write_events(preload("res://scripts/battlefield_rules/analytics.gd").records(_combat_state, _analytics_context(_combat_state)))
+	_flush_surface_analytics(_combat_state)
 	_log_card_draws({}, _combat_state, {}, _analytics_snapshot_combat_tracker(), "opening_hand")
 	_log_playable_cards()
 
 func _analytics_context(combat_state: Dictionary = _combat_state, card_id: String = "", card_instance_id: String = "") -> Dictionary:
-	var player: Dictionary = (combat_state.get("player", {}) as Dictionary) if not combat_state.is_empty() else {}
-	var combat_analytics: Dictionary = (combat_state.get("analytics", {}) as Dictionary).duplicate(true)
-	var run_analytics: Dictionary = (_run_state.get("analytics", {}) as Dictionary).duplicate(true)
-	var context: Dictionary = {
-		"balance_transition": (combat_state.get("balance_transition", {}) as Dictionary).duplicate(true),
-		"run_id": str(run_analytics.get("run_id", "")),
-		"combat_id": str(combat_analytics.get("combat_id", "")),
-		"turn": int(combat_state.get("turn", 0)),
-		"initiative_clock": int(combat_state.get("initiative_clock", 0)),
-		"current_actor_kind": str((combat_state.get("current_actor", {}) as Dictionary).get("kind", "")),
-		"current_actor_key": str((combat_state.get("current_actor", {}) as Dictionary).get("actor_key", "")),
-		"room_depth": int(combat_state.get("room_depth", 0)),
-		"room_element": str(combat_state.get("room_element", "")),
-		"player_hp": int(player.get("hp", _run_state.get("player_hp", -1))),
-		"player_max_hp": int(player.get("max_hp", _run_state.get("player_max_hp", -1))),
-		"deck_size": int((_run_state.get("deck_cards", []) as Array).size()),
-		"card_id": card_id,
-		"card_instance_id": card_instance_id
-	}
-	if not combat_state.is_empty():
-		context["surface_rules_version"] = BoardSurfaceRules.RULES_VERSION
-	var room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
-	context.merge(preload("res://scripts/encounter_analytics_context.gd").fields(_run_state, combat_state, room), true)
-	return context
+	return Snapshots.context(_combat_engine, _run_engine, _progression, _run_state, combat_state, card_id, card_instance_id)
 
 func _log_run_started() -> void:
-	_analytics_store.write_event("run_started", _analytics_context({}), {
-		"seed": int(_run_state.get("seed", 0)),
-		"run_index": int(_run_state.get("run_index", 0)),
-		"player_start_hp": int(_run_state.get("player_hp", 0)),
-		"player_max_hp": int(_run_state.get("player_max_hp", 0)),
-		"starting_deck": (_run_state.get("deck_cards", []) as Array).duplicate(true),
-		"equipped_items": (_run_state.get("equipped_items", []) as Array).duplicate(true),
-		"item_inventory": (_run_state.get("item_inventory", []) as Array).duplicate(true),
-		"driver": "manual_headless"
-	})
+	var payload: Dictionary = Snapshots.run_started(_run_state, _progression)
+	payload["driver"] = "manual_headless"
+	_analytics_store.write_event("run_started", _analytics_context({}), payload)
 
 func _log_run_ended(outcome: String) -> void:
-	_analytics_store.write_event("run_ended", _analytics_context(_combat_state), {
-		"outcome": outcome,
-		"turns_spent": int(_run_state.get("turns_spent", 0)),
-		"unbanked_embers": int(_run_state.get("unbanked_embers", 0)),
-		"mode": str(_run_state.get("mode", ""))
-	})
+	var payload: Dictionary = Snapshots.run_ended(_run_engine, _run_state, outcome)
+	# Retain the console's legacy alias alongside canonical held_embers.
+	payload["unbanked_embers"] = int(_run_state.get("unbanked_embers", 0))
+	_analytics_store.write_event("run_ended", _analytics_context(_combat_state), payload)
 
 func _log_level_up(before_progression: Dictionary, after_progression: Dictionary, cost: int) -> void:
 	_analytics_store.write_event("progression_level_up", _analytics_context(_combat_state), {
@@ -1922,62 +1907,22 @@ func _log_skill_learned(before_progression: Dictionary, after_progression: Dicti
 	})
 
 func _log_combat_started(reason: String) -> void:
-	_analytics_store.write_event("combat_started", _analytics_context(_combat_state), {
-		"reason": reason,
-		"room_name": str(_combat_state.get("room_name", "")),
-		"room_type": str(_combat_state.get("room_type", "")),
-		"room_coord": _combat_state.get("room_coord", Vector2i.ZERO),
-		"surface_rules_version": BoardSurfaceRules.RULES_VERSION,
-		"surfaces": _combat_state.get("surfaces", {}),
-		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true),
-		"equipped_items": (_run_state.get("equipped_items", []) as Array).duplicate(true),
-		"item_inventory": (_run_state.get("item_inventory", []) as Array).duplicate(true),
-		"opening_hand": _analytics_zone_cards(_combat_state, "hand")
-	})
+	_analytics_store.write_event("combat_started", _analytics_context(_combat_state), Snapshots.combat_started(_combat_engine, _run_engine, _run_state, _combat_state, reason))
 
 func _log_combat_transition(previous_run_state: Dictionary, reason: String, transition_combat_state: Dictionary) -> void:
-	_analytics_store.write_events(preload("res://scripts/snare_pressure_analytics.gd").records(transition_combat_state, _analytics_context(transition_combat_state)))
-	_analytics_store.write_events(preload("res://scripts/battlefield_rules/analytics.gd").records(transition_combat_state, _analytics_context(transition_combat_state)))
+	_flush_surface_analytics(transition_combat_state)
 	var previous_mode: String = str(previous_run_state.get("mode", "room"))
 	var next_mode: String = str(_run_state.get("mode", "room"))
 	if previous_mode == "combat" and next_mode != "combat" and not transition_combat_state.is_empty():
-		_analytics_store.write_event("combat_ended", _analytics_context(transition_combat_state), {
-			"reason": reason,
-			"outcome": _combat_engine.combat_outcome(transition_combat_state),
-			"doors_open_at_escape": int(_combat_engine.snare_escape_context(transition_combat_state).get("doors_open_at_escape", 0)),
-			"sealbinders_killed": int(_combat_engine.snare_escape_context(transition_combat_state).get("sealbinders_killed", 0)),
-			"snare_pressure": _combat_engine.SnareRules.Pressure.id(transition_combat_state),
-			"braziers_lit_at_dawn": int(_combat_engine.last_light_context(transition_combat_state).get("braziers_lit_at_dawn", 0)),
-			"brazier_snuffs": int(_combat_engine.last_light_context(transition_combat_state).get("brazier_snuffs", 0)),
-			"turn": int(transition_combat_state.get("turn", 0)),
-			"hoarder_result": str(preload("res://scripts/hoarder_room_rules.gd").analytics(transition_combat_state)["hoarder_result"]),
-			"hoarder_caught_turn": int(preload("res://scripts/hoarder_room_rules.gd").analytics(transition_combat_state)["hoarder_caught_turn"]),
-			"room_embers": int(transition_combat_state.get("room_embers", 0)),
-			"remaining_player_hp": int((transition_combat_state.get("player", {}) as Dictionary).get("hp", 0))
-		})
+		_analytics_store.write_event("combat_ended", _analytics_context(transition_combat_state), Snapshots.combat_ended(_combat_engine, transition_combat_state, reason))
 		if next_mode == "reward":
-			var reward: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
-			_analytics_store.write_event("reward_offered", _analytics_context(transition_combat_state), {
-				"reason": reason,
-				"offered_cards": (reward.get("cards", []) as Array).duplicate(true),
-				"heal_amount": int(reward.get("heal_amount", 0)),
-				"ember_amount": int(reward.get("ember_amount", 0))
-			})
+			_analytics_store.write_event("reward_offered", _analytics_context(transition_combat_state), Snapshots.reward_offered(_run_engine, _run_state, reason))
 		elif next_mode in ["victory", "defeat"]:
 			_log_run_ended(next_mode)
 		_analytics_tracker = {}
 
 func _log_reward_choice(choice_kind: String, card_id: String, reward: Dictionary, hp_before: int, hp_after: int) -> void:
-	_analytics_store.write_event("reward_choice", _analytics_context({}, card_id), {
-		"choice_kind": choice_kind,
-		"selected_card_id": card_id,
-		"destination": "deck" if choice_kind == "card" else "",
-		"offered_cards": (reward.get("cards", []) as Array).duplicate(true),
-		"heal_amount": int(reward.get("heal_amount", 0)),
-		"ember_amount": int(reward.get("ember_amount", 0)),
-		"player_hp_before": hp_before,
-		"player_hp_after": hp_after
-	})
+	_analytics_store.write_event("reward_choice", _analytics_context({}, card_id), Snapshots.reward_choice(choice_kind, reward, card_id, hp_before, hp_after))
 
 func _log_card_played(card_id: String, instance_id: String, before_state: Dictionary, resolved_state: Dictionary, actions: Array, targets: Array[Vector2i]) -> void:
 	var payload: Dictionary = _card_play_payload(card_id, before_state, resolved_state, actions, targets)
@@ -1988,22 +1933,23 @@ func _log_card_played(card_id: String, instance_id: String, before_state: Dictio
 	_analytics_store.write_event("card_played", _analytics_context(before_state, card_id, instance_id), payload)
 
 func _log_enemy_status_ticks(phase: Dictionary, combat_state: Dictionary) -> void:
-	for step_var: Variant in phase.get("steps", []):
-		if typeof(step_var) != TYPE_DICTIONARY:
-			continue
-		var step: Dictionary = step_var
-		var kind: String = str(step.get("kind", ""))
-		if kind not in ["status_damage", "status"]:
-			continue
-		_analytics_store.write_event("enemy_status_tick", _analytics_context(combat_state), {
-			"kind": kind,
-			"actor_key": str(step.get("actor_key", "")),
-			"actor_name": str(step.get("actor_name", "")),
-			"label": str(step.get("label", "")),
-			"amount": int(step.get("amount", 0)),
-			"text": str(step.get("text", "")),
-			"tile": step.get("tile", Vector2i(-1, -1))
-		})
+	_analytics_store.write_events(EnemyAnalytics.status_events(phase, _analytics_context(combat_state)))
+
+func _log_enemy_phase_events(phase: Dictionary, combat_state: Dictionary) -> void:
+	_flush_surface_analytics(combat_state)
+	_analytics_store.write_events(EnemyAnalytics.phase_events(phase, _analytics_context(combat_state)))
+
+func _flush_surface_analytics(combat: Dictionary) -> void:
+	if combat.is_empty(): return
+	if _surface_analytics_generation != AnalyticsStore.write_failure_generation():
+		_surface_analytics_revisions.clear()
+		_surface_analytics_generation = AnalyticsStore.write_failure_generation()
+	var combat_id: String = str(combat.get("analytics", {}).get("combat_id", ""))
+	var logged: int = int(_surface_analytics_revisions.get(combat_id, 0))
+	if combat_id.is_empty() or logged >= int(combat.get("surface_event_sequence", 0)): return
+	var events: Array[Dictionary] = preload("res://scripts/surface_analytics.gd").records(combat, _analytics_context(combat), logged)
+	if not events.is_empty() and _analytics_store.write_events(events):
+		_surface_analytics_revisions[combat_id] = int(combat.get("surface_event_sequence", 0))
 
 func _analytics_initialize_combat_tracker(combat_state: Dictionary) -> void:
 	var tracker: Dictionary = {
@@ -2045,8 +1991,7 @@ func _analytics_hand_instance_id(hand_index: int) -> String:
 
 func _analytics_reconcile_combat_tracker(before_state: Dictionary, after_state: Dictionary) -> void:
 	CommittedBattlefieldRules.accept(_combat_engine, after_state)
-	_analytics_store.write_events(preload("res://scripts/snare_pressure_analytics.gd").records(after_state, _analytics_context(after_state)))
-	_analytics_store.write_events(preload("res://scripts/battlefield_rules/analytics.gd").records(after_state, _analytics_context(after_state)))
+	_flush_surface_analytics(after_state)
 	if _analytics_tracker.is_empty():
 		_analytics_initialize_combat_tracker(after_state)
 		return
@@ -2173,8 +2118,35 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
 	var surface_events: Array[Dictionary] = _combat_engine._surface_events_since(before_state, resolved_state)
 	var collisions: Dictionary = _combat_engine.force_collision_summary(surface_events)
+	var before_umbra: Dictionary = before_state.get("umbra", {})
+	var after_umbra: Dictionary = resolved_state.get("umbra", {})
+	var target_decision_tile: Vector2i = before_pos
+	for index: int in range(targets.size() - 1, -1, -1):
+		if targets[index].x >= 0:
+			target_decision_tile = targets[index]
+			break
 	var payload: Dictionary = {
 		"play_mode": "printed",
+		"rules_version": BoardSurfaceRules.RULES_VERSION,
+		"target_decision_count": 1,
+		"target_decision_tile": target_decision_tile,
+		"embers_recovered": maxi(0, int(resolved_state.get("recovered_embers_total", 0)) - int(before_state.get("recovered_embers_total", 0))),
+		"sunder_actions": _attack_keyword_action_count(actions, "sunder"),
+		"radiance_card": bool(printed_card.get("radiance", false)),
+		"umbra_stage_before": _combat_engine.effective_umbra_stage(before_state),
+		"umbra_stage_after": _combat_engine.effective_umbra_stage(resolved_state),
+		"umbra_radius_before": _combat_engine.effective_umbra_radius(before_state),
+		"umbra_radius_after": _combat_engine.effective_umbra_radius(resolved_state),
+		"umbra_tiles_illuminated": maxi(0, int(after_umbra.get("tiles_illuminated_total", 0)) - int(before_umbra.get("tiles_illuminated_total", 0))),
+		"umbra_enemies_revealed": maxi(0, int(after_umbra.get("enemies_revealed_total", 0)) - int(before_umbra.get("enemies_revealed_total", 0))),
+		"umbra_light_sources_created": maxi(0, (after_umbra.get("light_sources", []) as Array).size() - (before_umbra.get("light_sources", []) as Array).size()),
+		"umbra_effective_light_sources_before": _combat_engine.effective_light_source_count(before_state),
+		"umbra_effective_light_sources_after": _combat_engine.effective_light_source_count(resolved_state),
+		"umbra_tethered_light_sources_before": _combat_engine.tethered_light_source_count(before_state),
+		"umbra_tethered_light_sources_after": _combat_engine.tethered_light_source_count(resolved_state),
+		"umbra_suppression_stages_before": _combat_engine.light_source_umbra_suppression(before_state),
+		"umbra_suppression_stages_after": _combat_engine.light_source_umbra_suppression(resolved_state),
+		"umbra_movement_interruptions": maxi(0, int(after_umbra.get("movement_interrupted_total", 0)) - int(before_umbra.get("movement_interrupted_total", 0))),
 		"forced_collisions": int(collisions.get("count", 0)),
 		"collision_damage_dealt": int(collisions.get("damage", 0)),
 		"flurry": flurry_played,
@@ -2220,6 +2192,14 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 		"selected_targets": targets.duplicate(true),
 		"actions": actions.duplicate(true)
 	}
+	var after_enemies: Dictionary = _enemies_by_id(resolved_state)
+	for status: String in ["bleed", "expose"]:
+		payload["player_status_applied"][status] = maxi(0, int(after_player.get(status, 0)) - int(before_player.get(status, 0)))
+		var gained: int = 0
+		for enemy: Dictionary in before_state.get("enemies", []):
+			var after_enemy: Dictionary = after_enemies.get(int(enemy.get("id", -1)), {})
+			gained += maxi(0, int(after_enemy.get(status, 0)) - int(enemy.get(status, 0)))
+		payload["enemy_status_applied"][status] = gained
 	payload.merge(_combat_engine.card_keyword_play_summary(card_id, before_state, resolved_state, actions))
 	return payload
 
@@ -2551,9 +2531,24 @@ func _drawn_cards_text(drawn: Array[Dictionary]) -> String:
 	return ", ".join(names)
 
 func _save_session() -> void:
+	if not _write_session_snapshot(): return
+	_flush_map_analytics()
+	_flush_progression_analytics()
+
+func _flush_progression_analytics() -> void:
+	var outbox: Array[Dictionary] = ProgressionStore.progression_analytics_outbox(_run_state.get("progression", _progression))
+	if outbox.is_empty() or not _analytics_store.write_events_durable(outbox): return
+	var keys: Array[String]
+	for event: Dictionary in outbox: keys.append(str(event["idempotency_key"]))
+	_run_state["progression"] = ProgressionStore.acknowledge_progression_analytics_events(_run_state.get("progression", _progression), keys)
+	_progression = ProgressionStore.acknowledge_progression_analytics_events(_progression, keys)
+	# A failed acknowledgment save leaves the durable outbox for idempotent replay.
+	_write_session_snapshot()
+
+func _write_session_snapshot() -> bool:
 	var file: FileAccess = FileAccess.open(_session_path, FileAccess.WRITE)
 	if file == null:
-		return
+		return false
 	file.store_var({
 		"run_state": _run_state,
 		"combat_state": _combat_state,
@@ -2562,8 +2557,10 @@ func _save_session() -> void:
 		"analytics_tracker": _analytics_tracker,
 		"run_number": _run_number
 	}, false)
+	file.flush()
+	var succeeded: bool = file.get_error() == OK
 	file.close()
-	_flush_map_analytics()
+	return succeeded
 
 func _flush_map_analytics() -> void:
 	if not SectionMapGraph.enabled(_run_state) and not _run_state.has("map_events"): return
@@ -2598,6 +2595,7 @@ func _load_session() -> bool:
 	_pending = (session.get("pending", {}) as Dictionary).duplicate(true)
 	_analytics_tracker = (session.get("analytics_tracker", {}) as Dictionary).duplicate(true)
 	_run_number = int(session.get("run_number", 0))
+	_flush_progression_analytics()
 	return not _run_state.is_empty()
 
 func _append_note(text: String, bullet: bool = true) -> void:
@@ -3352,3 +3350,17 @@ func _command_snare(parts: PackedStringArray) -> void:
 	_attach_new_combat_analytics({}, "snare_fixture")
 	_pending.clear()
 	_print_state()
+
+func _attack_keyword_action_count(actions: Array, keyword: String) -> int:
+	var count: int = 0
+	for action_var: Variant in actions:
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var
+		if keyword == "pierce" and not bool(action.get(keyword, false)):
+			continue
+		if keyword != "pierce" and int(action.get(keyword, 0)) <= 0:
+			continue
+		if str(action.get("type", "")) in ["melee", "ranged", "aoe", "push", "pull", "detonate"]:
+			count += 1
+	return count

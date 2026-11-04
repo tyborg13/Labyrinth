@@ -9,6 +9,12 @@ const UiPalette = preload("res://scripts/ui_palette.gd")
 const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 
+static func controller_controls(scene: Node) -> Array[Control]:
+	var result: Array[Control]
+	for slot: Control in scene._turn_order_bar.get_children():
+		if slot.is_visible_in_tree() and not slot.tooltip_text.is_empty(): result.append(slot)
+	return result
+
 # Reconcile in place instead of rebuilding all six portrait subtrees whenever
 # the clock, health or selection changes. Animated transitions and shape
 # changes retain the original fresh-control lifecycle (including tween teardown).

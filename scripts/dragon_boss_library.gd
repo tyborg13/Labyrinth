@@ -1,6 +1,7 @@
 extends RefCounted
 class_name DragonBossLibrary
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 
 const DEPTHS_PER_SEQUENCE: int = 4
@@ -15,13 +16,13 @@ const LIGHTNING_BOSS_ID: String = "zekarion"
 const SHADOW_BOSS_ID: String = "noctyrax"
 const SHADOW_ELEMENT_ID: String = "shadow"
 
-const ELEMENTAL_BOSS_IDS: Array[String] = [
+const ELEMENTAL_BOSS_IDS: Array[String] = Array([
 	EARTH_BOSS_ID,
 	FIRE_BOSS_ID,
 	AIR_BOSS_ID,
 	ICE_BOSS_ID,
 	LIGHTNING_BOSS_ID
-]
+], TYPE_STRING, "", null)
 
 const BOSS_ELEMENTS := {
 	EARTH_BOSS_ID: ElementData.EARTH,
@@ -63,7 +64,7 @@ const OPENING_INTENT_IDS := {
 }
 
 static func elemental_boss_order(run_seed: int) -> Array[String]:
-	var result: Array[String] = ELEMENTAL_BOSS_IDS.duplicate()
+	var result: Array[String] = TypedArrays.strings(ELEMENTAL_BOSS_IDS.duplicate())
 	var rng := RandomNumberGenerator.new()
 	rng.seed = _boss_order_seed(run_seed)
 	for index: int in range(result.size() - 1, 0, -1):
@@ -102,7 +103,7 @@ static func _boss_order_seed(run_seed: int) -> int:
 static func configure_layout(layout: Dictionary) -> void:
 	if str(layout.get("boss_id", "")) != SHADOW_BOSS_ID: return
 	var orientation = preload("res://scripts/guardian_library.gd")
-	var refuges: Array[Vector2i] = [orientation.oriented_tile(layout, Vector2i(2,5)), orientation.oriented_tile(layout, Vector2i(6,3))]
+	var refuges: Array[Vector2i] = TypedArrays.vector2i([orientation.oriented_tile(layout, Vector2i(2,5)), orientation.oriented_tile(layout, Vector2i(6,3))])
 	layout["guardian_braziers"] = []
 	for index: int in range(refuges.size()):
 		layout["guardian_braziers"].append({"id":index + 1, "pos":refuges[index], "lit":true})

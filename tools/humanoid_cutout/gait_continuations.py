@@ -26,9 +26,13 @@ def active_recipe(layout, name, *, gait=False, clip=None):
     return recipe if active else None
 
 
-def texture(case, layout, part, *, gait=False, checks=False, clip=None):
-    record = layout['proof_layers'][part['name']] if checks else part
-    path = record['mask'] if checks else record['file']
+def texture(case, layout, part, *, gait=False, checks=False, clip=None, phase=0):
+    variant = part.get('release_texture', {})
+    if phase >= variant.get('release_at', {}).get(clip, float('inf')):
+        path = variant['mask' if checks else 'file']
+    else:
+        record = layout['proof_layers'][part['name']] if checks else part
+        path = record['mask'] if checks else record['file']
     with Image.open(case / path) as image:
         result = np.asarray(image.convert('RGBA')).copy()
     recipe = active_recipe(layout, part['name'], gait=gait, clip=clip)

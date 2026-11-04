@@ -1,0 +1,56 @@
+[
+  {
+    "seed": 2,
+    "returncode": 0,
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "qa-30",
+      "--timeout",
+      "4500",
+      "--stream",
+      "--",
+      "godot",
+      "--verbose",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tools/run_hunt.gd",
+      "--",
+      "--seed",
+      "2",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-30/shutdown-replay-2/seed-000002"
+    ],
+    "evidence": "/private/tmp/labyrinth_codex/qa-30/shutdown-replay-2/seed-000002/evidence.json"
+  },
+  {
+    "seed": 3,
+    "returncode": 0,
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "qa-30",
+      "--timeout",
+      "4500",
+      "--stream",
+      "--",
+      "godot",
+      "--verbose",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tools/run_hunt.gd",
+      "--",
+      "--seed",
+      "3",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-30/shutdown-replay-3/seed-000003"
+    ],
+    "evidence": "/private/tmp/labyrinth_codex/qa-30/shutdown-replay-3/seed-000003/evidence.json"
+  }
+]

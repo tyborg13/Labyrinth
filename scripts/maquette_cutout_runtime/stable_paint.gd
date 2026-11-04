@@ -13,7 +13,7 @@ static func register_mesh(rig: Node2D, data: Dictionary, mesh_name: String) -> v
 	node.set_meta("stable_source", data.duplicate())
 	node.set_meta("stable_polygon", node.polygon)
 	node.set_meta("stable_skeleton", node.skeleton)
-	node.set_meta("stable_skin", preload("stable_skin.gd").new(data, rig.layout["joints"]))
+	node.set_meta("stable_skin", preload("construction.gd").new_skin(rig._layout_path(rig.facing), mesh_name, data, rig.layout["joints"]))
 
 static func restore(rig: Node2D) -> void:
 	if not rig.layout.get("stable_source_raster", false): return

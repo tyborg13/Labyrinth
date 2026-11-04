@@ -1,0 +1,42 @@
+"""Verify the fixed finding seed and unchanged control census, then default tests."""
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+import hashlib,json,os,subprocess,sys,time
+PROJECT=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-30')
+EVIDENCE=Path('/private/tmp/labyrinth_codex/qa-30')
+REPORT=PROJECT/'spec/peer_benchmark/qa/run_hunt_2026-11-03c'
+REPLAY_CASES=({'campaign':'default','seed':5},{'campaign':'no-embrace','seed':3})
+REPLAY_PROCESSES=2
+SOURCE_FILES=('scripts/scavenger_shop_view.gd','tests/scavenger_shop_probe.gd')
+
+def execute(case):
+    seed=case['seed'];name='census-fixed-'+case['campaign']+'-'+str(seed);directory=EVIDENCE/name
+    command=[sys.executable,str(EVIDENCE/'run_hunt_task.py'),'--seed',str(seed),'--runs','1','--processes','1','--script',str(EVIDENCE/'run_hunt_census.gd'),'--output-dir',str(directory)]
+    if case['campaign']=='no-embrace':command.append('--no-embrace')
+    started=time.time();print('QA30 FIXED REPLAY START:',name,flush=True)
+    with (EVIDENCE/(name+'.log')).open('w') as log:
+        result=subprocess.run(command,cwd=PROJECT,env=dict(os.environ,LABYRINTH_CEL_LOOK='off'),stdout=log,stderr=subprocess.STDOUT)
+    run=json.loads((directory/'campaign.json').read_text())['runs'][0]
+    record=dict(case,name=name,argv=command,output_dir=str(directory),started=started,wall_seconds=time.time()-started,returncode=result.returncode,child_returncode=run['returncode'],outcome=(run.get('finish') or {}).get('outcome'))
+    print('QA30 FIXED REPLAY END:',name,'child_exit='+str(run['returncode']),'outcome='+str(record['outcome']),flush=True)
+    return record
+
+def main():
+    hashes={name:hashlib.sha256((PROJECT/name).read_bytes()).hexdigest() for name in SOURCE_FILES}
+    (REPORT/'fixed-source-sha256.json').write_text(json.dumps(hashes,indent=2)+'\n')
+    with ThreadPoolExecutor(max_workers=REPLAY_PROCESSES) as pool:records=list(pool.map(execute,REPLAY_CASES))
+    (EVIDENCE/'fixed-replay-executions.json').write_text(json.dumps(records,indent=2)+'\n')
+    with (EVIDENCE/'census-fixed-result.txt').open('w') as log:
+        census=subprocess.run([sys.executable,str(EVIDENCE/'collect_census.py'),'--executions',str(EVIDENCE/'fixed-replay-executions.json'),'--result-prefix','node-census-fixed'],cwd=PROJECT,stdout=log,stderr=subprocess.STDOUT)
+    print('QA30 FIXED CENSUS EXIT:',census.returncode,flush=True)
+    command=[sys.executable,'tools/run_python_suite.py','--shards','4','--output-dir',str(EVIDENCE/'python-final')];started=time.time()
+    with (EVIDENCE/'python-final.log').open('w') as log:
+        python=subprocess.run(command,cwd=PROJECT,stdout=log,stderr=subprocess.STDOUT)
+    (EVIDENCE/'python-final-execution.json').write_text(json.dumps(dict(argv=command,returncode=python.returncode,wall_seconds=time.time()-started),indent=2)+'\n')
+    print('QA30 FINAL PYTHON EXIT:',python.returncode,flush=True)
+    current={name:hashlib.sha256((PROJECT/name).read_bytes()).hexdigest() for name in SOURCE_FILES}
+    stable=current==hashes
+    print('QA30 FIXED SOURCE STABLE:',stable,flush=True)
+    return int(bool(census.returncode or python.returncode or not stable or any(row['child_returncode']!=0 for row in records)))
+
+if __name__=='__main__':raise SystemExit(main())

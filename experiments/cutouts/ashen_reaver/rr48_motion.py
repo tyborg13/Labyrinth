@@ -10,6 +10,8 @@ def clamp_limits(data):
     if track['source']=='falchion.angle_deg' and clip!='death':limit=35
     if limit is None:continue
     for key in track['keys']:
+     definition=data['clips'][clip]
+     if 'windup_torso_limit_deg' in definition and key['at'] < definition['contact'] and track['source'] in ('torso.lean_deg','falchion.angle_deg'):continue
      target=key['value'];value=max(-limit,min(limit,target))
      if value!=target:
       rows.append({'view':view,'clip':clip,'source':track['source'],'at':key['at'],'target':target,'clamped':value,'budget_note':'Binding humanoid v2 angular budget; no director source rewrite'})

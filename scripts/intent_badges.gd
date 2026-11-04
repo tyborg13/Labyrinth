@@ -422,7 +422,7 @@ static func draw(board: Control, badges: Array) -> void:
 	var font: Font = Typography.ui_font()
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	# A debug-only fixed clock makes peak-pulse renderer proof deterministic.
-	var seconds: float = float(presentation.get("threats_proof_seconds", float(Time.get_ticks_msec()) / 1000.0))
+	var seconds: float = float(presentation.get("threats_proof_seconds", float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0))
 	var measured: Array[Dictionary] = layouts(board, badges)
 	for badge: Dictionary in measured:
 		var rect: Rect2 = badge["order_rect"]

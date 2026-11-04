@@ -1,0 +1,59 @@
+extends SceneTree
+
+const Combat = preload("res://scripts/combat_engine.gd")
+const Paths = preload("res://scripts/path_utils.gd")
+
+const EVIDENCE: String = "/private/tmp/labyrinth_codex/qa-30"
+const DEFAULT_SOURCE: String = EVIDENCE + "/campaign-no-embrace/seed-000002/run.save"
+
+func _initialize() -> void:
+	var sources: PackedStringArray = OS.get_cmdline_user_args()
+	if sources.is_empty(): sources.append(DEFAULT_SOURCE)
+	for source: String in sources:
+		if not _inspect(source):
+			quit(1)
+			return
+	quit()
+
+func _inspect(source: String) -> bool:
+	var file: FileAccess = FileAccess.open(source, FileAccess.READ)
+	if file == null:
+		push_error("qa30: fight-limit save unavailable: " + source)
+		return false
+	var saved: Variant = file.get_var(false)
+	file.close()
+	if not saved is Dictionary:
+		push_error("qa30: fight-limit save is not a dictionary: " + source)
+		return false
+	var combat: Dictionary = saved.get("combat_state", {})
+	var result: Dictionary = {"source": source, "seed": saved.get("seed"), "mode": saved.get("mode"), "room": saved.get("current_room"), "combat": combat, "analysis": _analyze(combat)}
+	var destination: String = EVIDENCE.path_join("fight-limit-%s-seed-%s-state.json" % [source.get_base_dir().get_base_dir().get_file(), saved.get("seed")])
+	var output: FileAccess = FileAccess.open(destination, FileAccess.WRITE)
+	output.store_string(JSON.stringify(result, "\t"))
+	output.close()
+	print("QA30 FIGHT SAVE: seed=%s mode=%s room=%s destination=%s" % [saved.get("seed"), saved.get("mode"), saved.get("current_room"), destination])
+	return true
+
+func _analyze(combat: Dictionary) -> Dictionary:
+	var engine: RefCounted = Combat.new()
+	var occupied: Dictionary = {}
+	var alive: Array[Dictionary]
+	for enemy: Dictionary in combat.get("enemies", []):
+		if int(enemy.get("hp", 0)) <= 0: continue
+		alive.append({"id": enemy["id"], "type": enemy["type"], "hp": enemy["hp"], "pos": enemy["pos"]})
+		for tile: Vector2i in engine._enemy_footprint_tiles(enemy): occupied[tile] = true
+	var exits: Array[Dictionary]
+	for exit: Dictionary in combat.get("objective", {}).get("exits", []):
+		if bool(exit.get("sealed", false)): continue
+		var route: Array[Vector2i] = Paths.find_path(combat["grid"], combat["player"]["pos"], exit["target_tile"], occupied)
+		exits.append({"target": exit["target_tile"], "route": route})
+	var card_options: Array[Dictionary]
+	var hand: Array = combat.get("deck", {}).get("hand", [])
+	for index: int in range(hand.size()):
+		var actions: Array[Dictionary]
+		for action: Dictionary in engine.card_play_actions(str(hand[index]), combat):
+			var targets: Array[Vector2i] = engine.valid_targets_for_player_action(combat, action)
+			actions.append({"type": action.get("type"), "can_resolve": engine.player_action_can_resolve(combat, action), "targets": targets})
+		card_options.append({"id": hand[index], "has_budget": engine.hand_card_has_play_budget(combat, index), "actions": actions})
+	var moves: Array[Vector2i] = engine.player_movement_targets(combat)
+	return {"turn": combat.get("turn"), "current_actor": combat.get("current_actor"), "is_player_turn": engine.is_player_turn(combat), "living_enemies": alive, "open_exits": exits, "movement_remaining": engine.player_movement_remaining(combat), "movement_targets": moves, "cards_remaining": engine.cards_remaining_this_turn(combat), "hand": hand, "card_options": card_options}

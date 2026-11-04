@@ -45,7 +45,7 @@ def floor_errors(root,samples,production=False):
   layout=read_json(root/(view+'.json' if production else f'layouts/{view}.json'));part=next(p for p in layout['parts'] if p['name']=='falchion')
   # Derive the independent silhouette from the actual piece, not the contract's
   # hull or floor angle. Every opaque texel contributes all four cell corners.
-  opaque=np.logical_or.reduce([source_pixels(root,p)[...,3]>0 for p in layout['parts'] if p['logical_part']=='falchion']);y,x=np.nonzero(opaque);bind=np.asarray(layout['joints']['falchion']['position']);points=np.concatenate([np.column_stack((x+dx,y+dy)) for dx,dy in ((0,0),(1,0),(0,1),(1,1))])-bind
+  opaque=np.logical_or.reduce([source_pixels(root,dict(p,**{k:p['release_texture'][k] for k in ('file','offset','bbox')}) if 'release_texture' in p else p)[...,3]>0 for p in layout['parts'] if p['logical_part']=='falchion']);y,x=np.nonzero(opaque);bind=np.asarray(layout['joints']['falchion']['position']);points=np.concatenate([np.column_stack((x+dx,y+dy)) for dx,dy in ((0,0),(1,0),(0,1),(1,1))])-bind
   floor=layout['held_items']['falchion']['floor_line_y'];data=read_json(root/'compiled_motion.json');land=data['view_held_drops'][view]['death']['falchion']['land']
   for row in samples['samples']:
    if row['view']!=view or row['clip']!='death' or row['phase']<land:continue
@@ -83,7 +83,8 @@ def native_floor_errors(root,capture):
   if candidate is None or candidate['logical_part']!='falchion':continue
   view=record['view'];phase=record['frame']/max(1,round(motion['clips']['death']['seconds']*60)-1)
   if phase<motion['view_held_drops'][view]['death']['falchion']['land']:continue
-  part=candidate
+  from rr48_weapon_ownership import released_part
+  part=released_part(candidate,'death',phase)
   image=np.asarray(Image.open(root/part['file']).convert('RGBA'));y,x=np.nonzero(image[...,3]);points=np.concatenate([np.column_stack((x+dx,y+dy)) for dx,dy in ((0,0),(1,0),(0,1),(1,1))])
   transform=matrix(record['transform']);heights=points[:,0]*transform[1,0]+points[:,1]*transform[1,1]+transform[1,2];floor=layouts[view]['held_items']['falchion']['floor_line_y'];checks+=1
   if part['name']=='falchion' and abs(float(heights.max())-floor)>FLOAT_TOLERANCE_PX:errors.append(f'{view}/death/{record["frame"]}: native painted-cell support differs from floor')

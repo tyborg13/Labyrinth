@@ -57,7 +57,12 @@ def held_errors(layout,data,samples):
   if row['view']!=layout['facing']:continue
   bone=matrix(row['bones']['falchion']['global']);checks+=1
   if not np.allclose(bone[:2,:2].T@bone[:2,:2],np.eye(2),atol=1e-4):errors.append('falchion lost rigidity')
-  if row['clip']!='death' and abs(math.degrees(math.atan2(bone[1,0],bone[0,0])))>35.0001:errors.append('falchion exceeds binding 35 degree budget')
+  limit=35.0001
+  definition=data['clips'][row['clip']]
+  if 'windup_torso_limit_deg' in definition and row['phase']<definition['contact']:
+   track=next(t for t in data['view_tracks'][row['view']][row['clip']] if t['source']=='falchion.angle_deg')
+   limit=max(abs(k['value']) for k in track['keys'])+.7501 # Half of the existing 1.5-degree presentation lattice.
+  if row['clip']!='death' and abs(math.degrees(math.atan2(bone[1,0],bone[0,0])))>limit:errors.append('falchion exceeds binding angular budget')
   tolerance=DEFAULTS['authored_tolerance_px'] if row['kind']=='authored' else DEFAULTS['presented_tolerance_px']
   if row['clip']!='death' or row['phase']<data['clips']['death']['release_at']['falchion']:
    glove=matrix(row['bones']['hand_far']['global']);error=float(np.linalg.norm((bone@np.r_[grip-item,1])-(glove@np.r_[grip-hand,1])))

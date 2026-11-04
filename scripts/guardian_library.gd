@@ -45,7 +45,7 @@ static func configure_layout(layout: Dictionary) -> void:
 		var tile: Vector2i = oriented_tile(layout, Vector2i(int(pair[0]), int(pair[1])))
 		grid[tile.y][tile.x] = "pillar"
 	# Rotate the complete authored arena around the chosen entry.
-	var positions: Array[Vector2i] = []
+	var positions: Array[Vector2i]
 	positions.assign([Vector2i(4,3),Vector2i(2,3),Vector2i(6,3)])
 	for index: int in range((layout["enemies"] as Array).size()):
 		var enemy: Dictionary = layout["enemies"][index]
@@ -76,12 +76,12 @@ static func stage_loot(layout: Dictionary) -> void:
 	var occupied: Dictionary = {layout["player_start"]:true}
 	for list: String in ["enemies", "traps", "guardian_braziers"]:
 		for object: Dictionary in layout.get(list, []): occupied[object["pos"]] = true
-	var candidates: Array[Vector2i] = []
+	var candidates: Array[Vector2i]
 	for y: int in range(6,1,-1):
 		for x: int in [2,6,3,5,4,1,7]:
 			var tile: Vector2i = oriented_tile(layout,Vector2i(x,y))
 			if str(layout["grid"][tile.y][tile.x]) == "stone" and not occupied.has(tile): candidates.append(tile)
-	var staged: Array[Dictionary] = []
+	var staged: Array[Dictionary]
 	for loot: Dictionary in layout.get("loot", []):
 		if candidates.is_empty(): break
 		loot["pos"] = candidates.pop_front()
@@ -99,7 +99,7 @@ static func inspection_summary(enemy: Dictionary) -> String:
 	return ""
 
 static func intent_notes(intent: Dictionary) -> String:
-	var notes: Array[String] = []
+	var notes: Array[String]
 	for action: Dictionary in intent.get("actions",[]):
 		match str(action.get("guardian_shape","")):
 			"broken_line": notes.append("The second row stays clear.")

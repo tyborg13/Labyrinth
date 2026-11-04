@@ -3,6 +3,7 @@ extends Control
 ## Read-only presentation of a board actor in a UI stage. The source TextureRect
 ## remains the authority for layout, pool/badge bounds and inspection stills.
 ## Only the live canvas is padded, exactly as on the board; never fit that padding.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const ActorPresentation = preload("res://scripts/actor_presentation.gd")
 const Board = preload("res://scripts/combat_board_view.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -36,7 +37,7 @@ static func legacy_frames(identity: String) -> Array[Texture2D]:
 		_legacy_frames[identity] = board.call("_load_idle_frames_for_art_path", identity, str(GameData.enemy_def(identity).get("art_path", "")))
 		board.free()
 
-	return _legacy_frames[identity]
+	return TypedArrays.textures(_legacy_frames[identity])
 
 func configure(identity: String, source: TextureRect, slot: int, slot_count: int) -> void:
 	actor_type = identity

@@ -1,0 +1,18 @@
+{
+  "name": "campaign-default",
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "/private/tmp/labyrinth_codex/qa-30/run_hunt_task.py",
+    "--minutes",
+    "45",
+    "--processes",
+    "2",
+    "--seed",
+    "2",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-30/campaign-default"
+  ],
+  "started": 1793745715.334516,
+  "wall_seconds": 3314.581666946411,
+  "returncode": 0
+}

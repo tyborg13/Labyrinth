@@ -1,4 +1,5 @@
 extends RefCounted
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 
 # Presentation-only state. Explicit removals distinguish identical hand copies;
 # observation retains surviving slots and never charges newly drawn cards.
@@ -37,7 +38,7 @@ func observe(state: Dictionary) -> void:
 	charged = next_charged
 
 func is_charged(index: int) -> bool:
-	var flags: Array[bool] = staged_previous_charged if not staged_state.is_empty() else charged
+	var flags: Array[bool] = TypedArrays.booleans(staged_previous_charged if not staged_state.is_empty() else charged)
 	return index >= 0 and index < flags.size() and flags[index]
 
 func toggle(index: int) -> void:
@@ -46,7 +47,7 @@ func toggle(index: int) -> void:
 
 func remove(index: int, before_state: Dictionary) -> void:
 	staged_state = before_state
-	staged_previous_charged = charged.duplicate()
+	staged_previous_charged = TypedArrays.booleans(charged.duplicate())
 	if index >= 0 and index < staged_previous_charged.size(): staged_previous_charged[index] = false
 	if index >= 0 and index < cards.size():
 		cards.remove_at(index)

@@ -1,6 +1,7 @@
 extends Control
 class_name LabyrinthMapView
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ControllerNavigation = preload("res://scripts/controller_navigation.gd")
 const ElementData = preload("res://scripts/element_data.gd")
@@ -111,14 +112,14 @@ var _run_state_signature: String = ""
 var _state_cache_valid: bool = false
 var _state_cache_revision: int = 0
 var _rooms_by_coord: Dictionary = {}
-var _drawable_rooms_cache: Array[Dictionary] = []
-var _visible_rooms_cache: Array[Dictionary] = []
-var _visible_connections_cache: Array[Dictionary] = []
+var _drawable_rooms_cache: Array[Dictionary]
+var _visible_rooms_cache: Array[Dictionary]
+var _visible_connections_cache: Array[Dictionary]
 var _compact_focus_coord_set: Dictionary = {}
-var _available_move_coords_cache: Array[Vector2i] = []
+var _available_move_coords_cache: Array[Vector2i]
 var _available_move_coord_set: Dictionary = {}
 var _coord_bounds_cache: Rect2i = Rect2i(0, 0, 1, 1)
-var _legend_entries_cache: Array[Dictionary] = []
+var _legend_entries_cache: Array[Dictionary]
 var _layout_cache_valid: bool = false
 var _layout_cache_size: Vector2 = Vector2(-1.0, -1.0)
 var _layout_cache_interactive: bool = true
@@ -138,9 +139,9 @@ var _max_visible_depth_cache: int = 0
 var _world_positions_cache: Dictionary = {}
 var _coord_positions_cache: Dictionary = {}
 var _background_world_rect_cache: Rect2 = Rect2()
-var _available_hit_rects_cache: Array[Dictionary] = []
-var _visible_hit_rects_cache: Array[Dictionary] = []
-var _visible_node_rects_cache: Array[Dictionary] = []
+var _available_hit_rects_cache: Array[Dictionary]
+var _visible_hit_rects_cache: Array[Dictionary]
+var _visible_node_rects_cache: Array[Dictionary]
 var _camera_focus_world: Vector2 = Vector2.ZERO
 var _camera_zoom: float = 1.0
 var _camera_auto_initialized: bool = false
@@ -157,8 +158,8 @@ var _travel_tween: Tween = null
 var _travel_visual_cache_valid: bool = false
 var _travel_visual_cache_progress: float = -1.0
 var _travel_visual_cache_layout_revision: int = -1
-var _travel_trace_commands_cache: Array[Dictionary] = []
-var _travel_token_commands_cache: Array[Dictionary] = []
+var _travel_trace_commands_cache: Array[Dictionary]
+var _travel_token_commands_cache: Array[Dictionary]
 var _travel_progress: float = 0.0:
 	set(value):
 		_travel_progress = clampf(value, 0.0, 1.0)
@@ -213,11 +214,11 @@ func _map_state_signature(source_state: Dictionary) -> String:
 	if source_state.is_empty():
 		return ""
 	var rooms: Dictionary = source_state.get("rooms", {})
-	var keys: Array[String] = []
+	var keys: Array[String]
 	for key_var: Variant in rooms.keys():
 		keys.append(str(key_var))
 	keys.sort()
-	var parts: Array[String] = []
+	var parts: Array[String]
 	parts.append("mode:%s" % str(source_state.get("mode", "room")))
 	parts.append("cur:%s" % _coord_signature(source_state.get("current_room", Vector2i.ZERO)))
 	for key: String in keys:
@@ -335,7 +336,7 @@ func _rebuild_compact_focus_cache() -> void:
 	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	if _room_ref_at(current).is_empty():
 		return
-	var frontier: Array[Dictionary] = [{"coord": current, "distance": 0}]
+	var frontier: Array[Dictionary] = TypedArrays.dictionaries([{"coord": current, "distance": 0}])
 	_compact_focus_coord_set[current] = true
 	var cursor: int = 0
 	while cursor < frontier.size():
@@ -754,7 +755,7 @@ func _clamp_controller_cursor() -> void:
 
 func _snap_controller_cursor_to_nearest() -> void:
 	_ensure_layout_cache()
-	var candidates: Array[Dictionary] = []
+	var candidates: Array[Dictionary]
 	for entry: Dictionary in _visible_hit_rects_cache:
 		var coord: Vector2i = entry.get("coord", INVALID_COORD)
 		candidates.append({
@@ -1336,7 +1337,7 @@ func _map_detail_frame() -> Texture2D:
 	return _detail_frame_texture
 
 func _legend_entries() -> Array[Dictionary]:
-	var entries: Array[Dictionary] = []
+	var entries: Array[Dictionary]
 	for entry: Dictionary in _legend_entries_ref():
 		entries.append(entry.duplicate(true))
 	return entries
@@ -1501,7 +1502,7 @@ func _hover_card_bounds() -> Rect2:
 
 func _available_move_coords() -> Array[Vector2i]:
 	_ensure_state_caches()
-	var coords: Array[Vector2i] = []
+	var coords: Array[Vector2i]
 	for coord: Vector2i in _available_move_coords_cache:
 		coords.append(coord)
 	return coords
@@ -1714,14 +1715,14 @@ func _coord_bounds() -> Rect2i:
 
 func _visible_rooms() -> Array[Dictionary]:
 	_ensure_state_caches()
-	var results: Array[Dictionary] = []
+	var results: Array[Dictionary]
 	for room: Dictionary in _visible_rooms_cache:
 		results.append(room)
 	return results
 
 func _compact_focus_coords() -> Array[Vector2i]:
 	_ensure_state_caches()
-	var coords: Array[Vector2i] = []
+	var coords: Array[Vector2i]
 	for coord_var: Variant in _compact_focus_coord_set.keys():
 		var coord: Vector2i = coord_var
 		coords.append(coord)

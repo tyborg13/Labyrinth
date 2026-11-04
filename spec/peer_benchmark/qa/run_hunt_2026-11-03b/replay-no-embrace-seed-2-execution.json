@@ -1,0 +1,22 @@
+{
+  "name": "replay-no-embrace-seed-2",
+  "seed": 2,
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "/private/tmp/labyrinth_codex/qa-25/run_hunt_task.py",
+    "--runs",
+    "1",
+    "--processes",
+    "1",
+    "--seed",
+    "2",
+    "--script",
+    "/private/tmp/labyrinth_codex/qa-25/run_hunt_census.gd",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-25/replay-no-embrace-seed-2",
+    "--no-embrace"
+  ],
+  "started": 1793733632.328758,
+  "wall_seconds": 561.6327800750732,
+  "returncode": 0
+}

@@ -3,6 +3,7 @@ extends RefCounted
 ## Relic pool overhaul U6. All selection is by reusable effect type.
 ## Preview, commit and animation use these same resolvers; saved pending echoes
 ## belong to the card, while the turn flag prevents a second card claiming them.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
 const Cards = preload("res://scripts/illusion_card_rules.gd")
@@ -241,7 +242,7 @@ static func echo_impact(engine: RefCounted, state: Dictionary, action: Dictionar
 		var fuel: String = preload("res://scripts/surface_card_rules.gd").detonate_fuel(action)
 		var selected: Array[Vector2i] = engine._surface_action_tiles(state, action, target, action.get("_origin_tile", INVALID))
 		if preload("res://scripts/guardian_relic_rules.gd").amount(state, "connected_detonate") > 0 and fuel == "fire":
-			var seeds: Array[Vector2i] = selected.duplicate()
+			var seeds: Array[Vector2i] = TypedArrays.vector2i(selected.duplicate())
 			for seed: Vector2i in seeds:
 				for tile: Vector2i in preload("res://scripts/guardian_relic_rules.gd").fire_component(state, seed):
 					if not selected.has(tile): selected.append(tile)

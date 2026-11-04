@@ -26,6 +26,7 @@ static func apply(rig: Node2D, clip: String, phase_value: float = 0.0) -> void:
 		# in-limit step (4 degrees therefore presents at 3, never at 4.5).
 		if name == "torso":
 			var limit: float = deg_to_rad(float(rig.layout.get("presentation_angle_limits_deg", {}).get(clip, {}).get(name, 25.0 if clip == "death" else 4.0)))
+			if phase_value < float(data["clips"].get(clip, {}).get("contact", 0.0)) and data["clips"].get(clip, {}).has("windup_torso_limit_deg"): limit = deg_to_rad(float(data["clips"][clip]["windup_torso_limit_deg"]))
 			limit = floorf(limit / Pixels.ROTATION_STEP) * Pixels.ROTATION_STEP
 			angle = clampf(angle, -limit, limit)
 		world[name] = Transform2D(angle, bind + (pose.origin - bind - travel).round() + travel)

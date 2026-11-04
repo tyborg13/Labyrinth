@@ -52,8 +52,8 @@ const BRANCH_COLORS: Dictionary = {
 }
 
 static var _shared_empty_node_style: StyleBoxEmpty = null
-static var _shared_static_links: Array[Dictionary] = []
-static var _shared_bridge_records: Array[Dictionary] = []
+static var _shared_static_links: Array[Dictionary]
+static var _shared_bridge_records: Array[Dictionary]
 
 class SkillLinkLayer:
 	extends Control

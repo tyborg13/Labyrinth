@@ -3,6 +3,7 @@ class_name GuardianCombatRules
 
 # Identity lives in data. These verbs commit oriented plans and use the
 # ordinary combat engine for damage, contact, statuses, terrain and scheduling.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Terrain = preload("res://scripts/combat_terrain_rules.gd")
@@ -17,19 +18,19 @@ static func shape(action: Dictionary) -> String:
 	return str(action.get("committed_shape", action.get("guardian_shape", "")))
 
 static func tiles(values: Array) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	result.assign(values)
 	return result
 
 static func objects(state: Dictionary, kind: String, owner: int) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	for object: Dictionary in state.get("terrain", []):
 		if str(object.get("kind","")) == kind and int(object.get("owner_id",-1)) == owner and int(object.get("hp",0)) > 0:
 			result.append(object)
 	return result
 
 static func quake_tiles(state: Dictionary, owner: int, reach: int = 1) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	for object: Dictionary in objects(state,"crag_outcrop",owner):
 		for tile: Vector2i in Paths.diamond_tiles(object["pos"],reach,state["grid"]):
 			if tile!=object["pos"] and Paths.is_passable(state["grid"],tile) and not result.has(tile): result.append(tile)
@@ -83,7 +84,7 @@ static func preserves_routes(engine: RefCounted, state: Dictionary, blocked: Vec
 	return false
 
 static func candidates(engine: RefCounted, state: Dictionary, origin: Vector2i, toward: Vector2i, reach: int) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	for tile: Vector2i in Paths.diamond_tiles(origin,reach,state["grid"]):
 		if is_empty_floor(engine,state,tile): result.append(tile)
 	result.sort_custom(func(a: Vector2i,b: Vector2i)->bool:
@@ -106,12 +107,12 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 	if target==INVALID: target=engine._closest_enemy_target(state,enemy).get("pos",state["player"]["pos"])
 	var direction: Vector2i = plan.get("declared_direction",engine._cardinal_direction(target-origin))
 	if direction == Vector2i.ZERO: direction = Vector2i.DOWN
-	var all_tiles: Array[Vector2i] = []
+	var all_tiles: Array[Vector2i]
 	var summon_tiles: Array[Vector2i]
 	for action: Dictionary in result.get("actions",[]):
 		var type: String = str(action.get("type",""))
 		if not authored_action(action): continue
-		var affected: Array[Vector2i] = []
+		var affected: Array[Vector2i]
 		var shape_id: String = shape(action)
 		if shape_id in GEOMETRIC_SHAPES:
 			var geometry: Dictionary = action.duplicate(true)
@@ -131,13 +132,13 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 			if type=="summon_minions":
 				# The boss acts first: do not reserve its landing square or a tile
 				# this same intent is about to strike or ignite.
-				choices=choices.filter(func(tile: Vector2i)->bool: return tile!=origin and not all_tiles.has(tile))
+				choices=TypedArrays.vector2i(choices.filter(func(tile: Vector2i)->bool: return tile!=origin and not all_tiles.has(tile)))
 			var count: int = int(action.get("count",1))
 			for offset: int in range(mini(count,choices.size())): affected.append(choices[offset])
 		elif type == "terrain_burst":
 			affected = quake_tiles(state,int(enemy["id"]),int(action.get("range",1)))
 		elif shape_id == "conductor":
-			var conductors: Array[Vector2i] = []
+			var conductors: Array[Vector2i]
 			for tile: Vector2i in Surfaces.tiles(state):
 				if Surfaces.is_conductive(state,tile) and Paths.manhattan(origin,tile)<=int(action.get("range",3)) and engine.combat_line_of_sight(state,origin,tile): conductors.append(tile)
 			conductors.sort_custom(func(a: Vector2i,b: Vector2i)->bool:
@@ -396,7 +397,7 @@ static func live_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary,
 	var shape_id: String = shape(action)
 	var origin: Vector2i = enemy["pos"]
 	if shape_id == "conductor":
-		var valid: Array[Vector2i] = []
+		var valid: Array[Vector2i]
 		for tile: Vector2i in declared:
 			if Surfaces.is_conductive(state,tile) and Paths.manhattan(origin,tile)<=int(action.get("range",3)) and engine.combat_line_of_sight(state,origin,tile): valid.append(tile)
 		return valid
@@ -408,7 +409,7 @@ static func live_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary,
 	if shape_id in GEOMETRIC_SHAPES:
 		return shape_tiles(engine,state,origin,action.get("declared_direction",Vector2i.ZERO),status_range(enemy,action))
 	if str(action.get("type","")) == "summon_minions": return declared
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	var displacement: Vector2i = origin-action.get("declared_origin",origin)
 	for tile: Vector2i in declared:
 		var moved: Vector2i = tile+displacement
@@ -531,7 +532,7 @@ static func shape_tiles(engine: RefCounted, state: Dictionary, origin: Vector2i,
 	if shape(action) == "swept_path": return Patterns.swept_shape(engine,state,origin,action)
 	if action.has("pattern_footprint"):
 		return Patterns.footprint_shape(engine, state, origin, direction, action)
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	var side := Vector2i(-direction.y,direction.x)
 	var shape_id: String = shape(action)
 	var width: int = int(action.get("guardian_width",3 if shape_id=="sweep" else 1))
@@ -598,11 +599,11 @@ static func component_distance(state: Dictionary, origin: Vector2i, target: Vect
 static func connector_tiles(engine: RefCounted, state: Dictionary, origin: Vector2i, target: Vector2i, action: Dictionary) -> Array[Vector2i]:
 	var reach: int = int(action.get("range",3))
 	var count: int = int(action.get("guardian_count",1))
-	var seeds: Array[Vector2i] = []
+	var seeds: Array[Vector2i]
 	for tile: Vector2i in Surfaces.tiles(state,"electrified"):
 		if Paths.manhattan(origin,tile)<=reach and engine.combat_line_of_sight(state,origin,tile): seeds.append(tile)
 	if seeds.is_empty(): seeds.append(origin)
-	var best: Array[Vector2i] = []
+	var best: Array[Vector2i]
 	var best_score: int = -999999
 	var goals: Array[Vector2i] = tiles([target])
 	for direction: Vector2i in Paths.DIRS_4: goals.append(target+direction)
@@ -610,7 +611,7 @@ static func connector_tiles(engine: RefCounted, state: Dictionary, origin: Vecto
 		for goal: Vector2i in goals:
 			var path: Array[Vector2i] = Paths.find_path(state["grid"],seed,goal,engine._occupied_terrain_tiles(state),true)
 			if path.is_empty(): continue
-			var new_tiles: Array[Vector2i] = []
+			var new_tiles: Array[Vector2i]
 			var endpoint: Vector2i = seed
 			for tile: Vector2i in path:
 				if Paths.manhattan(origin,tile)>reach or not engine.combat_line_of_sight(state,origin,tile): break

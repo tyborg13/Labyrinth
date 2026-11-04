@@ -8,6 +8,15 @@ const Search = preload("res://scripts/grimoire_search.gd")
 const Geometry = preload("res://scripts/retained_view_geometry.gd")
 const SLICE_USEC: int = 4000
 
+static func append_navigation_button(scene: Node, button: Button) -> void:
+	# Native geometric focus omits rows clipped below the scroll viewport.
+	# Retained search rows also need fresh links when their ranking changes.
+	button.focus_neighbor_bottom = NodePath("")
+	var previous: Control = scene._grimoire_nav_buttons.back() if not scene._grimoire_nav_buttons.is_empty() else scene._grimoire_search_input
+	button.focus_neighbor_top = button.get_path_to(previous)
+	if previous != scene._grimoire_search_input: previous.focus_neighbor_bottom = previous.get_path_to(button)
+	scene._grimoire_nav_buttons.append(button)
+
 static func prepare_current_for(scene: Node, revision: int, present: Callable, still_active: Callable) -> void:
 	if not _active(scene, revision, still_active) or scene._grimoire_row_preparation_running_revision == revision: return
 	scene._grimoire_row_preparation_running_revision = revision

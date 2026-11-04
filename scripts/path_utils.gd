@@ -1,14 +1,15 @@
 extends RefCounted
 class_name PathUtils
 
-const DIRS_4: Array[Vector2i] = [
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
+const DIRS_4: Array[Vector2i] = Array([
 	Vector2i(0, -1),
 	Vector2i(1, 0),
 	Vector2i(0, 1),
 	Vector2i(-1, 0)
-]
+], TYPE_VECTOR2I, "", null)
 
-const BLOCKING_TILES: Array[String] = ["wall", "pillar", "door"]
+const BLOCKING_TILES: Array[String] = Array(["wall", "pillar", "door"], TYPE_STRING, "", null)
 
 static func is_in_bounds(grid: Array, tile: Vector2i) -> bool:
 	if tile.y < 0 or tile.y >= grid.size():
@@ -31,10 +32,10 @@ static func manhattan(a: Vector2i, b: Vector2i) -> int:
 	return absi(a.x - b.x) + absi(a.y - b.y)
 
 static func reachable_tiles(grid: Array, start: Vector2i, max_distance: int, occupied: Dictionary = {}) -> Array[Vector2i]:
-	var results: Array[Vector2i] = []
+	var results: Array[Vector2i]
 	if max_distance < 0 or not is_passable(grid, start):
 		return results
-	var queue: Array[Vector2i] = []
+	var queue: Array[Vector2i]
 	queue.append(start)
 	var queue_head: int = 0
 	var distance_by_tile: Dictionary = {start: 0}
@@ -59,14 +60,14 @@ static func reachable_tiles(grid: Array, start: Vector2i, max_distance: int, occ
 	return results
 
 static func find_path(grid: Array, start: Vector2i, goal: Vector2i, occupied: Dictionary = {}, allow_goal_occupied: bool = false) -> Array[Vector2i]:
-	var empty: Array[Vector2i] = []
+	var empty: Array[Vector2i]
 	if start == goal:
-		var same_tile_path: Array[Vector2i] = []
+		var same_tile_path: Array[Vector2i]
 		same_tile_path.append(start)
 		return same_tile_path
 	if not is_in_bounds(grid, start) or not is_in_bounds(grid, goal):
 		return empty
-	var frontier: Array[Vector2i] = []
+	var frontier: Array[Vector2i]
 	frontier.append(start)
 	var frontier_head: int = 0
 	var came_from: Dictionary = {start: start}
@@ -88,7 +89,7 @@ static func find_path(grid: Array, start: Vector2i, goal: Vector2i, occupied: Di
 			frontier.append(next_tile)
 	if not came_from.has(goal):
 		return empty
-	var path: Array[Vector2i] = []
+	var path: Array[Vector2i]
 	path.append(goal)
 	var cursor: Vector2i = goal
 	while cursor != start:
@@ -144,7 +145,7 @@ static func weighted_paths(grid: Array, start: Vector2i, budget: int, occupied: 
 				if int(previous["hazard"]) < harm or (int(previous["hazard"]) == harm and int(previous["pickups"]) >= pickup):
 					continue
 			best[key] = {"hazard": harm, "pickups": pickup}
-			var path: Array[Vector2i] = current_path.duplicate()
+			var path: Array[Vector2i] = TypedArrays.vector2i(current_path.duplicate())
 			path.append(next)
 			if not paths.has(next) or harm < int(hazards[next]) or (harm == int(hazards[next]) and (pickup > int(pickups[next]) or (pickup == int(pickups[next]) and spent < int(costs[next])))):
 				paths[next] = path
@@ -161,7 +162,7 @@ static func weighted_paths(grid: Array, start: Vector2i, budget: int, occupied: 
 	return {"paths": paths, "costs": costs, "hazards": hazards}
 
 static func diamond_tiles(center: Vector2i, radius: int, grid: Array = []) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	for dy: int in range(-radius, radius + 1):
 		for dx: int in range(-radius, radius + 1):
 			var candidate: Vector2i = center + Vector2i(dx, dy)
@@ -173,7 +174,7 @@ static func diamond_tiles(center: Vector2i, radius: int, grid: Array = []) -> Ar
 	return result
 
 static func _supercover_line(start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	var x0: int = start.x
 	var y0: int = start.y
 	var x1: int = goal.x

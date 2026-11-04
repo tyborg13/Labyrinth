@@ -47,12 +47,12 @@ const WEAPON_FAMILIES: Dictionary = {
 	"shield": "blunt", "staff": "blunt", "spear": "pierce", "lance": "pierce",
 	"bow": "pierce", "crossbow": "pierce", "repeater": "pierce", "sling": "pierce"
 }
-const HEAVY_TYPES: Array[String] = ["warden", "craghide", "ashen_reaver", "rimejaw", "storm_cantor", "gallows_roc", "last_lamplighter", "tharokh", "vyraketh", "vaeloryx", "iskaldra", "noctyrax", "zekarion"]
+const HEAVY_TYPES: Array[String] = Array(["warden", "craghide", "ashen_reaver", "rimejaw", "storm_cantor", "gallows_roc", "last_lamplighter", "tharokh", "vyraketh", "vaeloryx", "iskaldra", "noctyrax", "zekarion"], TYPE_STRING, "", null)
 const EQUIPMENT_FAMILIES: Dictionary = {"phoenix_brand": "blade", "worldbreaker": "blunt", "dawnlight_censer": "blunt", "galewhip": "blade"}
 # A retort is a hit on the attacker in its own step, not a tick: it takes a contact, never the attacker's own attack family.
 const RETORT_FAMILIES: Dictionary = {"retaliate": "pierce", "illusion_retort": "arcane"}
 # A walk or a turn's start strikes nobody: health lost then is the burning ground's, never a hit.
-const GROUND_BURN_KINDS: Array[String] = ["move", "blink", "turn_start"]
+const GROUND_BURN_KINDS: Array[String] = Array(["move", "blink", "turn_start"], TYPE_STRING, "", null)
 const AREA_GAIN_DB: float = -6.0
 const CHAIN_GAIN_DB: float = -5.0
 const BEAST_VOCAL_CHANCE: float = 0.30
@@ -80,7 +80,7 @@ var _fight_key: String = ""
 var _deck: Dictionary = {}
 var _omen_ids: Dictionary = {}
 var _relic_logs: Array = []
-var _relic_names: Array[String] = []
+var _relic_names: Array[String]
 var _collisions: Dictionary = {}
 var _merged_hits: Dictionary = {}
 var _surface_sequence: int = 0
@@ -250,7 +250,7 @@ func hit(action: Dictionary, actor: Dictionary, weapon: String, target_before: D
 	var hp_loss: int = maxi(0, int(target_before.get("hp", 0)) - int(target_after.get("hp", 0)))
 	var absorbed: int = maxi(0, int(target_before.get("block", 0)) - int(target_after.get("block", 0))) + maxi(0, int(target_before.get("stoneskin", 0)) - int(target_after.get("stoneskin", 0)))
 	var key: String = _unit_key(target_before)
-	var now: int = bank.now_ms() if bank != null else Time.get_ticks_msec()
+	var now: int = bank.now_ms() if bank != null else preload("res://scripts/presentation_clock.gd").ticks_msec(false)
 	var merge_ms: int = int(bank.data.get("rules", {}).get("merge_window_ms", 60)) if bank != null else 60
 	if _merged_hits.has(key) and now - int(_merged_hits[key]) < merge_ms: return
 	_merged_hits[key] = now

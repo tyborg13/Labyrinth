@@ -1,5 +1,6 @@
 extends RefCounted
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Data = preload("res://scripts/game_data.gd")
@@ -30,7 +31,7 @@ static func available(enemy: Dictionary, intent: Dictionary) -> bool:
 		if bool(enemy.get("burrowed", false)) and str(action.get("type", "")) != "erupt": return false
 	return true
 
-static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
+static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, bleed_steps: Array[Dictionary] = TypedArrays.dictionaries([]), action_context: Dictionary = {}) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
 	if str(action.get("type", "")) == "burrow":
 		enemy["burrowed"] = true

@@ -1,5 +1,6 @@
 extends SceneTree
 
+const ProductionCases = preload("res://tests/qa26/production_cases.gd")
 const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
 
 ## Actual resolver steps and production callbacks, using the promoted two-view rig.
@@ -50,6 +51,7 @@ func _run() -> void:
 	_logic = args.has("--logic-only")
 	_opposite = args.has("--opposite")
 	_data = preload("res://scripts/maquette_cutout_runtime/motion.gd").data_for({"motion_data": "res://experiments/cutouts/slag_mortar/rr22/compiled_motion.json"})
+	_data = ProductionCases.data_for(_type, _data)
 	if _data.is_empty() or (DisplayServer.get_name() == "headless" and not _logic):
 		push_error("Production capture requires a registered creature and windowed renderer (or --logic-only)")
 		quit(1)
@@ -78,7 +80,7 @@ func _run() -> void:
 	_failures.append_array(preload("res://tests/rr10/capture_contract.gd").errors(_frames, _data, _scene.proof_completions, not _logic))
 	for error: String in _failures: push_error(error)
 	var bindings: Dictionary = preload("res://tests/rr10/bindings.gd").for_case("res://experiments/cutouts/slag_mortar/rr22")
-	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": false, "production_promoted": true,
+	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": false, "production_promoted": true, "unplayed_clips": ProductionCases.unplayed_for(_type),
 		"size": [1920, 1080], "ui_scale": 1.0, "inputs": bindings, "frames": _frames, "completions": _scene.proof_completions, "errors": _failures}
 	if not _logic or OS.get_cmdline_user_args().has("--validate-crop"):
 		report.merge(CaptureStorage.metadata())
@@ -158,6 +160,13 @@ func _run_clips() -> void:
 			for frame: int in range(count):
 				await _capture()
 				await create_timer(IDLE_SAMPLE_SECONDS).timeout
+			continue
+		if _type == "slag_mortar" and clip == "move":
+			state = ProductionCases.mortar_retreat_state(fixture("brace"))
+			await install(state)
+			var engine := Combat.new()
+			var turn: Dictionary = engine.resolve_enemy_turn_with_steps(state, 0, true, false)
+			await _scene.record_action(clip, func() -> void: await _scene._animate_enemy_phase_steps(state.duplicate(true), turn["steps"]))
 			continue
 		if clip in ["hit", "death"]:
 			state["enemies"][0]["pos"] = (PROOF_OPPOSITE_NEAR_ORIGIN if _opposite else PROOF_NEAR_ORIGIN)

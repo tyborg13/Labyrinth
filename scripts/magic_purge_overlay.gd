@@ -371,6 +371,7 @@ static func install_scavenger(host: Node, shop: Control) -> void:
 	button.position = tabs.position + Vector2(tabs.size.x + SCAVENGER_SERVICE_GAP, 0.0)
 	button.custom_minimum_size = Vector2(width, tabs.size.y)
 	button.size = button.custom_minimum_size
+	button.call("prepare_label")
 	button.focus_neighbor_left = button.get_path_to(sell)
 	button.focus_neighbor_right = button.get_path_to(shop.get("_leave_button"))
 	sell.focus_neighbor_right = sell.get_path_to(button)

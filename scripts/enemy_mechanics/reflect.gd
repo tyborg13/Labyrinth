@@ -1,5 +1,6 @@
 extends RefCounted
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Glossary = preload("res://scripts/glossary.gd")
 
 const Data = preload("res://scripts/game_data.gd")
@@ -71,7 +72,7 @@ static func plan(engine: RefCounted, state: Dictionary, index: int, intent: Dict
 	var actions: Array = intent.get("actions", [])
 	if actions.is_empty() or not refraction(state["enemies"][index], actions[0]): return {}
 	var start: Vector2i = state["enemies"][index]["pos"]
-	var tiles: Array[Vector2i] = engine._vector2i_values([]) if attack_disabled else line(engine, state, index, actions[0])
+	var tiles: Array[Vector2i] = TypedArrays.vector2i(engine._vector2i_values([]) if attack_disabled else line(engine, state, index, actions[0]))
 	return {"path": engine._vector2i_values([start]), "destination": start, "attack_action_index": 0, "movement_action_index": -1, "attack_action": actions[0], "projected_attack": tiles, "projected_attack_target": tiles.back() if not tiles.is_empty() else engine.INVALID_TILE, "attack_available": not tiles.is_empty(), "target_key": "player", "target_tile": state["player"]["pos"]}
 
 static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, bleed_steps: Array[Dictionary], context: Dictionary = {}) -> Dictionary:

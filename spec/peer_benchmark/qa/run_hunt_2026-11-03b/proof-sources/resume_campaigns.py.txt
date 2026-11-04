@@ -1,0 +1,58 @@
+"""Continue the interrupted default campaign without rerunning completed seeds."""
+from pathlib import Path
+from types import SimpleNamespace
+import importlib.util
+import json
+import os
+import shutil
+import sys
+
+PROJECT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-25')
+EVIDENCE = Path('/private/tmp/labyrinth_codex/qa-25')
+CAMPAIGN_MINUTES = 45
+CAMPAIGN_PROCESSES = 2
+CAMPAIGN_SEED = 2
+
+def module(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    value = importlib.util.module_from_spec(spec)
+    sys.modules[name] = value
+    spec.loader.exec_module(value)
+    return value
+
+launcher = module('qa25_launcher', EVIDENCE/'run_hunt_task.py')
+coordinator = module('qa25_coordinator', EVIDENCE/'run_campaigns.py')
+
+def main():
+    (EVIDENCE/'coordinator-pid.json').write_text(json.dumps({'pid':os.getpid(),'phase':'resumed default, then no-embrace, then Python default'})+'\n')
+    original = EVIDENCE/'campaign-default'
+    seeds = sorted(original.glob('seed-*'))
+    started_at = min((seed/'command.json').stat().st_mtime for seed in seeds)
+    last_activity = max((seed/'trace.jsonl').stat().st_mtime for seed in seeds)
+    active_seconds = last_activity - started_at
+    remaining_minutes = CAMPAIGN_MINUTES - active_seconds/60
+    completed = [json.loads((seed/'evidence.json').read_text()) for seed in seeds if (seed/'evidence.json').exists()]
+    interrupted = [dict(seed=int(seed.name.split('-')[1]), log=str(seed/'godot.log'), last_trace_write=(seed/'trace.jsonl').stat().st_mtime, returncode=None, reason='Capacity interruption; recorded runner PID no longer exists; no terminal evidence or observed exit status') for seed in seeds if not (seed/'evidence.json').exists()]
+    recovery = dict(previous_active_seconds_inferred_from_last_trace=active_seconds, previous_started=started_at, previous_last_activity=last_activity, remaining_launch_minutes=remaining_minutes, completed_seeds=[run['seed'] for run in completed], interrupted=interrupted, next_seed=max(int(seed.name.split('-')[1]) for seed in seeds)+1)
+    (EVIDENCE/'capacity-recovery.json').write_text(json.dumps(recovery,indent=2)+'\n')
+    for name in ('campaign.json','report.md','findings.json'):
+        shutil.copyfile(original/name, EVIDENCE/('interrupted-default-'+name))
+    destination = EVIDENCE/'campaign-default-continuation'
+    command = [sys.executable,str(EVIDENCE/'run_hunt_task.py'),'--minutes',str(remaining_minutes),'--processes',str(CAMPAIGN_PROCESSES),'--seed',str(recovery['next_seed']),'--output-dir',str(destination)]
+    if coordinator.run('campaign-default-continuation',command):return 1
+    continuation = json.loads((destination/'campaign.json').read_text())
+    runs = completed + continuation['runs']
+    options = dict(continuation['options'], seed=CAMPAIGN_SEED, minutes=CAMPAIGN_MINUTES, output_dir=str(original))
+    elapsed = active_seconds + continuation['wall_seconds']
+    started = len(seeds) + continuation['runs_started']
+    report, groups = launcher.hunt.render_report(runs,SimpleNamespace(**options),elapsed,started)
+    note = ('\n## Capacity interruption\n\nThe model-capacity interruption stopped two in-flight seeds without terminal or exit-status evidence. Completed seeds were retained and never rerun. The campaign continued with unused seeds after the pause, for the remaining launch budget inferred from the last trace write. Interrupted seeds and the exact segment commands are retained in capacity-recovery.json and campaign-default-continuation-execution.json. Their partial room coverage is reported separately; they are not classified as product crashes.\n')
+    launcher.hunt.save_report(original,report+note,groups)
+    launcher.hunt.write_json(original/'campaign.json',dict(runs_started=started,runs=runs,wall_seconds=elapsed,options=options,capacity_recovery=recovery,segments=[str(EVIDENCE/'interrupted-default-campaign.json'),str(destination/'campaign.json')]))
+    launcher.hunt.write_json(EVIDENCE/'campaign-default-execution.json',dict(name='campaign-default',returncode=0,wall_seconds=elapsed,launch_budget_minutes=CAMPAIGN_MINUTES,capacity_recovery=recovery,continuation_command=command))
+    print(f'QA25 DEFAULT COMBINED: started={started} ended={len(runs)} interrupted={len(interrupted)}',flush=True)
+    command = [sys.executable,str(EVIDENCE/'run_hunt_task.py'),'--minutes',str(CAMPAIGN_MINUTES),'--processes',str(CAMPAIGN_PROCESSES),'--seed',str(CAMPAIGN_SEED),'--no-embrace','--output-dir',str(EVIDENCE/'campaign-no-embrace')]
+    if coordinator.run('campaign-no-embrace',command):return 1
+    return coordinator.run('python-default',[sys.executable,'tools/run_python_suite.py','--shards','4','--output-dir',str(EVIDENCE/'python-default')])
+
+if __name__ == '__main__':sys.exit(main())

@@ -18,7 +18,7 @@ static func boosted(base: int, count: int, percent: int) -> int:
 	return floori(float(base)*(1.0 + float(maxi(0,count)*percent)/100.0)+0.5)
 
 static func fire_component(state: Dictionary, origin: Vector2i) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	if not Surfaces.has_surface(state,origin,"fire"): return result
 	result.append(origin)
 	var cursor: int = 0
@@ -50,7 +50,7 @@ static func ice_navigation(state: Dictionary, unit: Dictionary, budget: int, blo
 	var costs: Dictionary = {start:0}
 	var hazards: Dictionary = {start:0}
 	var pickups: Dictionary = {start:0}
-	var queue: Array[Dictionary] = []
+	var queue: Array[Dictionary]
 	queue.append({"tile":start,"cost":0,"harm":0,"pickup":0,"direction":Vector2i.ZERO,"path":paths[start]})
 	var best: Dictionary = {}
 	var cursor: int = 0
@@ -98,7 +98,7 @@ static func force_group(engine: RefCounted, state: Dictionary, index: int, actio
 	# The group follows the same straight line a lone target would take.
 	var direction: Vector2i = engine._resolved_force_direction(state,"enemy",int(target["id"]),action,source,pushing,distance,source_tiles)
 	if direction==Vector2i.ZERO or distance<=0: return state
-	var group: Array[int] = []
+	var group: Array[int]
 	group.append(index)
 	# Include touching full footprints only when their anchors share the force axis.
 	var changed: bool = true

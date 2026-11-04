@@ -4,8 +4,10 @@ const GameData = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
 
 const OUTPUT_DIR: String = "user://probes/pass_preview"
+const PROBE_VIEWPORT := Vector2i(1920, 1080)
 const PROOF_IMAGE_SIZE: Vector2i = Vector2i(760, 180)
 const PIXEL_GLYPHS: Dictionary = {
 	"0": ["01110", "10001", "10011", "10101", "11001", "10001", "01110"],
@@ -55,8 +57,20 @@ const PIXEL_GLYPHS: Dictionary = {
 	"?": ["01110", "10001", "00001", "00010", "00100", "00000", "00100"]
 }
 
+var _failed: bool = false
+
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	# The qa-27 renderer proof uses the reference viewport, not host fullscreen.
+	SettingsStore.set_storage_path("user://pass_preview_probe_settings.json")
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["display_mode"] = "windowed"
+	settings["ui_scale"] = 1.0
+	SettingsStore.save_settings(settings)
+	root.mode = Window.MODE_WINDOWED
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_size = PROBE_VIEWPORT
+	root.size = PROBE_VIEWPORT
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_probe_output(OUTPUT_DIR)
 	ProgressionStore.set_storage_path("user://labyrinth_pass_preview_probe_progression.json")
@@ -64,7 +78,8 @@ func _initialize() -> void:
 	ProgressionStore.clear_saved_run()
 	await _capture_pass_preview_states()
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
-	quit()
+	print("TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
+	quit(1 if _failed else 0)
 
 func _capture_pass_preview_states() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
@@ -94,8 +109,6 @@ func _capture_pass_preview_states() -> void:
 	await instance.call("_on_card_pressed", 0)
 	await process_frame
 	await process_frame
-	_require_action_context_risk(instance, "selected card")
-	_log_action_context_risk(instance, "selected")
 	await _save_root_screenshot("%s/selected_card.png" % OUTPUT_DIR)
 
 	var move_target: Vector2i = _pass_preview_probe_move_target(instance.get("_pending_target_tiles") as Array, Vector2i(3, 4))
@@ -103,8 +116,6 @@ func _capture_pass_preview_states() -> void:
 		instance.call("_on_board_tile_hovered", move_target)
 		await process_frame
 		await process_frame
-		_require_action_context_risk(instance, "selected move hover")
-		_log_action_context_risk(instance, "selected_move_hover")
 		await _save_root_screenshot("%s/selected_move_hover.png" % OUTPUT_DIR)
 
 	var attack_hover_state: Dictionary = _pass_preview_probe_state(base_state, "danger")
@@ -120,8 +131,6 @@ func _capture_pass_preview_states() -> void:
 		instance.call("_on_board_tile_hovered", attack_target)
 		await process_frame
 		await process_frame
-		_require_action_context_risk(instance, "selected attack hover")
-		_log_action_context_risk(instance, "selected_attack_hover")
 		await _save_root_screenshot("%s/selected_attack_hover.png" % OUTPUT_DIR)
 
 	var after_card_state: Dictionary = _pass_preview_probe_after_guarded_step(instance, danger_state)
@@ -392,20 +401,21 @@ func _require_pass_preview_chip(instance: Node, label: String) -> void:
 	var turn_rail: Control = instance.get("_turn_order_panel") as Control
 	var row: Node = _first_node_named(instance, "PassPreviewDamageRow")
 	if row == null or _pass_preview_probe_damage_text(row).is_empty() or chip == null:
-		push_error("Missing pass preview damage values during %s pass preview probe" % label)
+		_fail("Missing pass preview damage values during %s pass preview probe" % label)
 		return
 	if (not chip.disabled and chip.focus_mode == Control.FOCUS_NONE) or (chip.disabled and chip.focus_mode != Control.FOCUS_NONE) or _first_node_named(chip, "CombinedPassButton") != null:
-		push_error("Pass forecast should remain one focusable, actionable end-turn control during %s." % label)
+		_fail("Pass forecast should remain one focusable, actionable end-turn control during %s." % label)
 	var pass_art: TextureRect = chip.get_node_or_null("PassForecastFrameArtHost") as TextureRect
 	if pass_art == null or pass_art.texture == null or pass_art.z_index < 1:
-		push_error("Pass forecast is missing the pending raster frame-art hook during %s." % label)
+		_fail("Pass forecast is missing the pending raster frame-art hook during %s." % label)
 	var meter_art: TextureRect = meter.get_node_or_null("CardPlayFrameArtHost") as TextureRect if meter != null else null
 	if meter == null or meter_art == null or meter_art.texture == null or meter_art.z_index < 1:
-		push_error("Card-play dock is missing its raster frame-art hook during %s." % label)
-	if card_play_copy == null or not card_play_copy.text.ends_with(" card plays"):
-		push_error("Card-play dock should use the exact compact '%d card plays' copy during %s." % label)
+		_fail("Card-play dock is missing its raster frame-art hook during %s." % label)
+	# ux-04 (66c75a74a) uses glossary case and a singular label for one play.
+	if card_play_copy == null or not (card_play_copy.text.ends_with(" Card Play") or card_play_copy.text.ends_with(" Card Plays")):
+		_fail("Card-play dock should use the compact Card Play(s) copy during %s." % label)
 	if turn_rail != null and turn_rail.visible and turn_rail.get_global_rect().intersects(chip.get_global_rect()):
-		push_error("Combined Pass dock should start below, not overlap, the dense turn rail during %s." % label)
+		_fail("Combined Pass dock should start below, not overlap, the dense turn rail during %s." % label)
 	_assert_pass_interaction_states(chip, label)
 
 func _assert_pass_interaction_states(chip: Button, label: String) -> void:
@@ -413,24 +423,24 @@ func _assert_pass_interaction_states(chip: Button, label: String) -> void:
 	var art: TextureRect = chip.get_node_or_null("PassForecastFrameArtHost") as TextureRect
 	var content: Control = chip.get_node_or_null("PassForecastContent") as Control
 	if focus_edge == null or art == null:
-		push_error("Pass control should expose native art states plus a narrow keyboard-focus edge during %s." % label)
+		_fail("Pass control should expose native art states plus a narrow keyboard-focus edge during %s." % label)
 		return
 	if chip.disabled:
 		if chip.focus_mode != Control.FOCUS_NONE or str(chip.get_meta("pass_interaction_state", "")) != "disabled":
-			push_error("Disabled Pass forecast should not be focusable or activatable during %s." % label)
+			_fail("Disabled Pass forecast should not be focusable or activatable during %s." % label)
 		return
 	chip.mouse_entered.emit()
 	if str(chip.get_meta("pass_interaction_state", "")) != "hover" or art.texture == null or str(art.get_meta("pass_forecast_art_state", "")) != "hover" or focus_edge.visible:
-		push_error("Pass control should expose its authored hover frame without a colored overlay during %s." % label)
+		_fail("Pass control should expose its authored hover frame without a colored overlay during %s." % label)
 	chip.button_down.emit()
 	if str(chip.get_meta("pass_interaction_state", "")) != "pressed" or art.texture == null or str(art.get_meta("pass_forecast_art_state", "")) != "pressed" or (content != null and content.position.y > 2.0):
-		push_error("Pass control should expose its authored pressed frame with no more than subtle travel during %s." % label)
+		_fail("Pass control should expose its authored pressed frame with no more than subtle travel during %s." % label)
 	chip.button_up.emit()
 	chip.mouse_exited.emit()
 	chip.focus_entered.emit()
 	var focus_style: StyleBoxFlat = focus_edge.get_theme_stylebox("panel") as StyleBoxFlat
 	if str(chip.get_meta("pass_interaction_state", "")) != "focus" or art.texture == null or str(art.get_meta("pass_forecast_art_state", "")) != "hover" or not focus_edge.visible or focus_style == null or focus_style.bg_color.a > 0.001 or focus_style.border_width_left > 2 or focus_style.shadow_size != 0:
-		push_error("Pass control should expose authored focus art plus a narrow, wash-free keyboard/controller edge during %s." % label)
+		_fail("Pass control should expose authored focus art plus a narrow, wash-free keyboard/controller edge during %s." % label)
 	chip.focus_exited.emit()
 
 func _log_pass_preview_text(instance: Node, label: String) -> void:
@@ -440,16 +450,8 @@ func _log_pass_preview_text(instance: Node, label: String) -> void:
 	var danger_text: String = danger_label.text if danger_label != null else ""
 	print("%s: %s %s" % [label, damage_text, danger_text])
 
-func _require_action_context_risk(instance: Node, label: String) -> void:
-	var tracker: Control = instance.get("_action_step_tracker") as Control
-	var risk_text: String = str(tracker.get_meta("risk_text", "")) if tracker != null else ""
-	if tracker == null or not tracker.visible or risk_text.is_empty():
-		push_error("Missing action-context risk during %s pass preview probe" % label)
-
-func _log_action_context_risk(instance: Node, label: String) -> void:
-	var tracker: Control = instance.get("_action_step_tracker") as Control
-	var risk_text: String = str(tracker.get_meta("risk_text", "")) if tracker != null else ""
-	print("%s: %s" % [label, risk_text])
+# perf-02 (409a9d1f8) retired action-context risk copy. Selected/hover captures
+# above retain the live Pass forecast and its existing checks.
 
 func _pass_preview_probe_damage_text(row: Node) -> String:
 	if row == null:
@@ -570,3 +572,7 @@ func _clear_probe_output_absolute(absolute_dir: String) -> void:
 		else:
 			DirAccess.remove_absolute(child_path)
 	dir.list_dir_end()
+
+func _fail(message: String) -> void:
+	_failed = true
+	push_error(message)

@@ -3,6 +3,7 @@ class_name EncounterTables
 
 ## Director-authored section compositions. The cached definition is read-only;
 ## selection owns its expanded units and never mutates the authored table.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const TABLE_PATH: String = "res://data/encounters.json"
@@ -134,7 +135,7 @@ static func pick(tier: int, room_element: String, biome: String, history: Array,
 		eligible.append(entry)
 		if not recent.has(entry["id"]): fresh.append(entry)
 	if eligible.is_empty(): return {}
-	var candidates: Array[Dictionary] = fresh if not fresh.is_empty() else eligible
+	var candidates: Array[Dictionary] = TypedArrays.dictionaries(fresh if not fresh.is_empty() else eligible)
 	var selected: Dictionary = _weighted_pick(candidates, rng)
 	return expand_entry(selected, room_element, biome, rng)
 

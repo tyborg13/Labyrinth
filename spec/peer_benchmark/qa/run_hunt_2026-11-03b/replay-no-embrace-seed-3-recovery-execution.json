@@ -1,0 +1,9 @@
+{
+  "name": "replay-no-embrace-seed-3",
+  "seed": 3,
+  "output_dir": "/private/tmp/labyrinth_codex/qa-25/replay-no-embrace-seed-3",
+  "returncode": null,
+  "coordinator_exitcode": 1,
+  "infrastructure_interruption": "ENOSPC: output-reader and execution-record writes failed; no native exit status retained",
+  "command_source": "/private/tmp/labyrinth_codex/qa-25/replay-no-embrace-seed-3/seed-000003/command.json"
+}

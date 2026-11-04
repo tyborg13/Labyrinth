@@ -1,5 +1,6 @@
 extends SceneTree
 
+const ProductionCases = preload("res://tests/qa26/production_cases.gd")
 const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
 
 ## Actual resolver steps -> RunScene animation callbacks -> production bones.
@@ -40,7 +41,7 @@ func _run() -> void:
 	_output = args[args.find("--output") + 1]
 	CaptureStorage.setup(_output)
 	_logic = args.has("--logic-only")
-	_data = Action.data_for(_type)
+	_data = ProductionCases.data_for(_type, Action.data_for(_type))
 	if _data.is_empty() or (DisplayServer.get_name() == "headless" and not _logic):
 		push_error("Production capture requires a registered creature and windowed renderer (or --logic-only)")
 		quit(1)
@@ -66,7 +67,7 @@ func _run() -> void:
 	var integration: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(integration_path))
 	var bindings: Dictionary = preload("res://tests/maquette_cutout/proof_inputs.gd").bindings("res://" + str(integration["case"]))
 	bindings.merge(preload("res://tests/maquette_cutout/proof_inputs.gd").production_bindings(integration_path.get_base_dir()))
-	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type,
+	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "unplayed_clips": ProductionCases.unplayed_for(_type),
 		"size": [1920, 1080], "ui_scale": 1.0, "inputs": bindings, "frames": _frames, "completions": _scene.proof_completions, "errors": _failures}
 	if not _logic or OS.get_cmdline_user_args().has("--validate-crop"):
 		report.merge(CaptureStorage.metadata())
@@ -138,7 +139,7 @@ func _run_clips() -> void:
 					await create_timer(IDLE_SAMPLE_SECONDS).timeout
 				_scene.proof_completions[clip] = renderer.snapshot() if renderer != null else {}
 			continue
-		var selector: String = str(_data["clips"][clip]["intents"][0])
+		var selector: String = ProductionCases.selector_for(_type, clip, str(_data["clips"][clip]["intents"][0]))
 		var fields: PackedStringArray = selector.split(":")
 		state = fixture(fields[0])
 		if clip in ["gnaw", "bite"]: state["enemies"][0]["pos"] = Vector2i(5, 4)

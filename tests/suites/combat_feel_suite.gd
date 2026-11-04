@@ -16,6 +16,11 @@ const HEAVY_OBSERVATION_MS: int = 125
 const CARD_RESOLUTION_TIMEOUT_MS: int = 6000
 const CLEANUP_FRAMES: int = 20
 const NO_ENEMY_FIXTURE_TIME: int = 1000
+const MOVIE_CLOCK_FIXTURE_MAX_FRAMES: int = 120
+const MOVIE_STOP_FIXTURE_MAX_FRAMES: int = 12
+const MOVIE_CLOCK_FIXTURE_HITCH_USEC: int = 2000000
+const MOVIE_CLOCK_FIXTURE_POPUP_TILE: Vector2i = Vector2i(3, 4)
+const MOVIE_CLOCK_FIXTURE_POPUP_TEXT: String = "-3"
 const PROOF_CONTRACT: Dictionary = {
 	"min_images": 8, "expected_sizes": ["1920x1080"],
 	"required_images": [
@@ -68,6 +73,8 @@ static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect
 	_test_settings(expect)
 	FloatingSuite.run(expect)
 	await _test_real_stop(tree, expect)
+	_test_movie_float_clock(tree, expect)
+	await _test_shared_movie_clock(expect)
 	_test_feedback_lifetimes(tree, expect)
 	_test_late_stop_peak(tree, expect)
 	await _test_scope_less_stop(tree, expect)
@@ -76,6 +83,168 @@ static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect
 	await _test_run_scene(tree, expect)
 	await Regressions.run(tree, expect)
 	write_proof_contract()
+
+static func _test_movie_float_clock(tree: SceneTree, expect: Callable) -> void:
+	# Inject movie detection, frame identity/delta and a wall clock advancing
+	# three times slower than the recorded frames. Exercise retained floats,
+	# not a second implementation of their duration calculation.
+	const MOVIE_TEST_DELTA_SECONDS: float = 1.0 / 60.0
+	const MOVIE_TEST_WALL_RATIO: float = 3.0
+	var original_scale: float = Engine.time_scale
+	var original_clock: int = TestClock.now_usec
+	Engine.time_scale = 1.0
+	var script: GDScript = TestClock.clocked_script(Pacing)
+	script.source_code = script.source_code.replace('Engine.get_write_movie_path()', '("movie.avi" if movie_test_enabled else "")').replace("Engine.get_process_frames()", "movie_test_frame").replace("get_process_delta_time()", "movie_test_delta")
+	script.source_code += "\nvar movie_test_enabled: bool = false\nvar movie_test_frame: int = 0\nvar movie_test_delta: float = 1.0 / 60.0\n"
+	expect.call(script.reload() == OK, "Movie clock injected pacing compiles")
+	for movie: bool in [true, false]:
+		var owner := FixtureOwner.new()
+		tree.root.add_child(owner)
+		var pacing: Node = script.new()
+		pacing.movie_test_enabled = movie
+		TestClock.now_usec = TestClock.FIXTURE_START_USEC
+		pacing.install(owner)
+		pacing.set_process(false)
+		var popup: Dictionary = FloatingText.damage_entry(MOVIE_CLOCK_FIXTURE_POPUP_TILE, MOVIE_CLOCK_FIXTURE_POPUP_TEXT, Color.WHITE)
+		pacing.decorate({}, {"floating_texts": FloatingText.animate_entries([popup], 0.0, false)})
+		var frames: int = 0
+		while not (pacing.get("_popups") as Dictionary).is_empty() and frames < MOVIE_CLOCK_FIXTURE_MAX_FRAMES:
+			frames += 1
+			pacing.movie_test_frame = frames
+			TestClock.now_usec = TestClock.FIXTURE_START_USEC + roundi(frames * MOVIE_TEST_DELTA_SECONDS * 1000000.0 / MOVIE_TEST_WALL_RATIO)
+			var first_read: int = pacing.presentation_usec()
+			expect.call(pacing.presentation_usec() == first_read, "Repeated clock reads in a process frame must not advance movie time")
+			pacing.decorate({}, {})
+		var expected_frames: int = 29 if movie else 87
+		expect.call(absi(frames - expected_frames) <= 1, "Floating text lasts 0.48s: movie=%s frames=%d expected=%d +/-1" % [movie, frames, expected_frames])
+		print("MOVIE FLOAT CLOCK: movie=%s frames=%d expected=%d +/-1" % [movie, frames, expected_frames])
+		var before: int = pacing.presentation_usec()
+		if movie:
+			var original_pause: bool = tree.paused
+			tree.paused = true
+			pacing.movie_test_frame += 1
+			expect.call(pacing.presentation_usec() == before, "Movie presentation clock holds while paused")
+			tree.paused = original_pause
+			Engine.time_scale = 0.0
+			pacing.movie_test_delta = 0.0
+			pacing.movie_test_frame += 1
+			expect.call(pacing.presentation_usec() == before, "Movie presentation clock holds during hit-stop")
+			Engine.time_scale = 0.5
+			pacing.movie_test_delta = MOVIE_TEST_DELTA_SECONDS * Engine.time_scale
+			pacing.movie_test_frame += 1
+			expect.call(absi(pacing.presentation_usec() - before - 8333) <= 1, "Movie delta applies Engine.time_scale exactly once without paused catch-up")
+			Engine.time_scale = 1.0
+		else:
+			TestClock.now_usec += MOVIE_CLOCK_FIXTURE_HITCH_USEC
+			expect.call(pacing.presentation_usec() - before == MOVIE_CLOCK_FIXTURE_HITCH_USEC, "Live presentation retains complete wall-time catch-up after a hitch")
+		owner.free()
+	TestClock.now_usec = original_clock
+	Engine.time_scale = original_scale
+
+static func _test_shared_movie_clock(expect: Callable) -> void:
+	_test_movie_fps_source(expect)
+	var script := GDScript.new()
+	var original: Script = preload("res://scripts/presentation_clock.gd")
+	script.source_code = original.source_code.replace('Engine.get_write_movie_path()', '"movie.avi"').replace("Engine.get_process_frames()", "fixture_frame").replace("tree.root.get_process_delta_time()", "fixture_delta").replace("tree.root.add_child.call_deferred(_ticker)", "pass")
+	script.source_code = script.source_code.replace("static var _movie_fps:", "static var fixture_fps_reads: int = 0\nstatic var _movie_fps:").replace("static func _read_movie_fps() -> int:\n", "static func _read_movie_fps() -> int:\n\tfixture_fps_reads += 1\n")
+	script.source_code += "\nstatic var fixture_frame: int = 0\nstatic var fixture_delta: float = 1.0 / 60.0\n"
+	expect.call(script.reload() == OK, "Shared movie clock injected script compiles")
+	var original_scale: float = Engine.time_scale
+	Engine.time_scale = 1.0
+	var start: int = script.ticks_usec()
+	script.fixture_frame += 1
+	expect.call(absi(script.ticks_usec() - start - 16667) <= 1, "Shared visual clocks advance by one recorded frame")
+	var same_frame: int = script.ticks_usec()
+	expect.call(script.ticks_usec() == same_frame, "All visual readers share one tick per process frame")
+	Engine.time_scale = 0.5
+	script.fixture_delta = 1.0 / 120.0
+	script.fixture_frame += 1
+	expect.call(absi(script.ticks_usec() - same_frame - 8333) <= 1, "Shared visual clocks apply time scale once")
+	var held: int = script.ticks_usec()
+	var stop: Node = HitStop.new()
+	stop.request(12, false, true, false, true, script.ticks_usec(false))
+	expect.call(Engine.time_scale == 0.0, "Movie hit-stop freezes scaled presentation")
+	var frames: int = 0
+	while stop.active and frames < MOVIE_STOP_FIXTURE_MAX_FRAMES:
+		frames += 1
+		script.fixture_frame += 1
+		script.fixture_delta = 0.0
+		stop.poll(script.ticks_usec(false))
+	expect.call(frames == 8 and not stop.active, "Unscaled movie hit-stop releases its 130ms duration in eight 60fps frames")
+	expect.call(script.ticks_usec() == held, "Shared scaled visuals remain frozen throughout movie hit-stop")
+	expect.call(script.fixture_fps_reads == 1, "Movie FPS is read once at startup across every tick and scale change")
+	stop.free()
+	script._ticker.free()
+	Engine.time_scale = original_scale
+	print("SHARED MOVIE CLOCK: one tick/frame, half speed, zero-scale hold, unscaled hit-stop=8 frames checked")
+	for fps: int in [60, 30]:
+		await _test_movie_scale_change(expect, fps)
+
+static func _test_movie_fps_source(expect: Callable) -> void:
+	var original: Script = preload("res://scripts/presentation_clock.gd")
+	var cases: Array = [
+		{"engine": ["--write-movie", "movie.avi", "--fixed-fps", "60"], "user": ["--fixed-fps", "30"], "configured": 24, "expected": 60},
+		{"engine": [], "user": ["--fixed-fps", "30"], "configured": 60, "expected": 30},
+		{"engine": [], "user": [], "configured": 30, "expected": 30},
+		{"engine": [], "user": [], "configured": 60, "expected": 60},
+		{"engine": ["--fixed-fps", "30", "--write-movie", "movie.avi"], "user": ["--fixed-fps", "120"], "configured": 60, "expected": 30},
+		{"engine": ["--fixed-fps", "60", "--fixed-fps", "30"], "user": [], "configured": 24, "expected": 30}
+	]
+	for fixture: Dictionary in cases:
+		var script := GDScript.new()
+		script.source_code = original.source_code.replace('Engine.get_write_movie_path()', '"movie.avi"').replace("OS.get_cmdline_args()", "PackedStringArray(%s)" % JSON.stringify(fixture["engine"])).replace("OS.get_cmdline_user_args()", "PackedStringArray(%s)" % JSON.stringify(fixture["user"])).replace('ProjectSettings.get_setting("editor/movie_writer/fps", DEFAULT_MOVIE_FPS)', str(fixture["configured"]))
+		var compiled: int = script.reload()
+		expect.call(compiled == OK, "Movie FPS source injected script compiles")
+		if compiled != OK: continue
+		expect.call(script._movie_fps == int(fixture["expected"]), "Startup movie FPS uses engine args, then user args, then movie-writer configuration: %s" % fixture)
+	print("MOVIE FPS SOURCE: engine/user/config precedence, stripped args, option order, startup cache checked")
+
+static func _test_movie_scale_change(expect: Callable, fps: int) -> void:
+	const FIXTURE_SCALE: float = 0.8
+	const VOICE_DEADLINE_MS: int = 70
+	var expiry_frame: int = ceili(float(VOICE_DEADLINE_MS) * fps / 1000.0)
+	var original_scale: float = Engine.time_scale
+	Engine.time_scale = 1.0
+	var original: Script = preload("res://scripts/presentation_clock.gd")
+	var clock := GDScript.new()
+	# Keep the real process_frame/ticker ordering, while injecting the engine's
+	# already-computed delta and startup FPS for uncapped hosts.
+	clock.source_code = original.source_code.replace('Engine.get_write_movie_path()', '"movie.avi"').replace("tree.root.get_process_delta_time()", "fixture_delta").replace("OS.get_cmdline_args()", 'PackedStringArray(["--write-movie", "movie.avi", "--fixed-fps", "%d"])' % fps)
+	clock.source_code += "\nstatic var fixture_delta: float = 1.0 / %d.0\n" % fps
+	expect.call(clock.reload() == OK, "Scale-change movie clock injected script compiles")
+	var bank_source: Script = preload("res://scripts/sfx_bank.gd")
+	var bank_script := GDScript.new()
+	bank_script.source_code = bank_source.source_code.replace("class_name SfxBank", "").replace('preload("res://scripts/presentation_clock.gd")', 'movie_clock') + "\nvar movie_clock: GDScript\n"
+	expect.call(bank_script.reload() == OK, "SFX bank uses the injected movie clock")
+	var bank: Node = bank_script.new()
+	bank.movie_clock = clock
+	var voice := AudioStreamPlayer.new()
+	voice.stream = load("res://assets/audio/sfx/cues/hit.blade.light/hit.blade.light_01.ogg")
+	bank.add_child(voice)
+	bank.players.append(voice)
+	# Standalone checks can start before the first process_frame signal.
+	await (Engine.get_main_loop() as SceneTree).process_frame
+	var previous: int = clock.ticks_usec(false)
+	voice.set_meta("until", clock.ticks_msec(false) + VOICE_DEADLINE_MS)
+	var first_step: int = 0
+	var alive_before_expiry: bool = false
+	for frame: int in range(1, expiry_frame + 1):
+		await (Engine.get_main_loop() as SceneTree).process_frame
+		# This coroutine resumes before MovieTicker._process. Its delta still
+		# belongs to the scale at frame start when the scale changes below.
+		clock.fixture_delta = 1.0 / fps * Engine.time_scale
+		Engine.time_scale = FIXTURE_SCALE
+		var now: int = clock.ticks_usec(false)
+		if frame == 1: first_step = now - previous
+		expect.call(absi(now - previous - roundi(1000000.0 / fps)) <= 1, "Changing scale before the ticker keeps the unscaled movie frame at 1/%d seconds" % fps)
+		previous = now
+		bank.advance(clock.fixture_delta)
+		if frame == expiry_frame - 1: alive_before_expiry = voice.stream != null
+		expect.call((voice.stream != null) == (frame < expiry_frame), "A 70ms movie voice clears on frame %d at %d FPS" % [expiry_frame, fps])
+	bank.free()
+	clock._ticker.free()
+	Engine.time_scale = original_scale
+	print("MOVIE SCALE CHANGE: fps=%d 1.0->0.8 first_step=%dus voice_alive_before_expiry=%s expiry_frame=%d" % [fps, first_step, alive_before_expiry, expiry_frame])
 
 static func write_proof_contract() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(PROOF_DIR))

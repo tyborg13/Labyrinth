@@ -681,3 +681,28 @@ win-01 exported all three Steam presets from the release candidate 04bceae9b thr
 
 ## 2026-11-03: what reaches the release line without an inbox entry
 The release rule (only inbox-approved units) covers everything a player can see, hear or feel. Changes with nothing to show go to release directly once they pass their checks: tests and probes, director and proof tooling, docs and ledgers. Examples: qa-24, which found both controller "failures" were stale probes, not player bugs, and the review inbox's storage button. Anything that changes the game, however small (perf-14's cache bounds, por-02's portraits), still goes through the inbox. The owner can veto this split.
+
+## 2026-11-03: master is one commit per release (owner); output/ is never tracked
+The first full push (1,090 commits, 5.4 GB) failed: GitHub caps one push at about 2 GB. About 3.8 GB was proof captures under `output/` that units had committed by mistake (fix-10 alone committed 6,101 native PNGs). The release's real content was 318 MB. **Owner chose "One clean release commit":**
+- master gets one commit per release. Its tree is exactly the release commit that passed the full suites, and its parent is the current master. The first is f206d3813 (tree of 47b98da9b minus `output/`, plus the ignore rule), pushed 2026-11-03.
+- The day-by-day history stays on `codex/release` and `codex/peer-benchmark`.
+- Tool: `spec/peer_benchmark/director_tools/release_squash_push.sh <tested commit> <message file>`. It refuses if `output/` is tracked or the upload would exceed about 1.8 GB.
+- `parallel_task.py push` no longer fits this model, because it requires the branch to contain master. Record approval in the message and in this log.
+- `/output/` is in `.gitignore` and untracked on the release line (000c49384); files stay on disk. Old captures remain reachable in local history.
+
+## 2026-11-03 evening: owner verdicts and director calls
+- **Chronicle wording (owner, ui-5):** the Chronicle uses one consistent word per outcome (defeat: SLAIN). The run-end recap keeps its varied, seeded titles for flavour. ui-05's recap-title Chronicle change was reverted (2d2afeb25).
+- **Top bar (director, ui-05):** "LV 1 · EMBERS 0" uses the middle-dot separator the Chronicle and section lines use. The owner approved it.
+- **Keyword pop-up width (director, ui-05):** stays 226 px. One-word last lines stay at 22 to 29 of 140 entries at every width from 226 to 256, so width doesn't fix them.
+- **Loading screen (director, perf-16):** after the title-menu preload, the loading screen still covers the rest of first-run preparation (about 2.3 s). It isn't cut to its minimum.
+- **Hover pointer source (director, hov-01):** hover resolves from the last pointer event the game received (real or pushed) and clears on window exit. Captures never move the OS cursor.
+- **Dropped held items (director, rr-57/rr-58):** a hidden fill comes only from the same rig's or item's own paint (an offset or mirror of a same-orientation link, or a shaft continued along its axis) and lives only in release variants. In-hand frames stay pixel-identical.
+- **Card strip names (director, ui-08 dropped):** the deck strips already shrink a long name down to 13 px before the ellipsis. Enforcing the 14 px floor would ellipsize 29 names that fit today, and the five reported names (Crimson Draug and others) overflow even at 14 px. Strips keep their current behaviour. A real fix needs a second line or a wider strip, which is a design question for later.
+- **Merge scripts:** `spec/peer_benchmark/director_tools/merge_invisible.sh` stops on a merge conflict. A piped grep had hidden qa-28's conflict exit code, and the director resolved that conflict by hand.
+
+## 2026-11-04: invisible performance changes skip the inbox (owner)
+Owner: performance changes "proven to have no changes to the experience that a user could see" need only the director's review, not the owner's sign-off. They go straight to integration and release (`merge_invisible.sh`) and ride the next master push. This amends the 2026-11-03 split above, which had sent perf-14's cache bounds through the inbox.
+- **Proof of invisible:** state hashes unchanged, the same frames drawn where the proof can check (pixel or draw-command equivalence), focused tests and the Python default group green, and the director's own look at a native capture when rendering is touched.
+- **Still to the inbox:** anything a player could perceive (look, timing, feel, the length of a loading screen), or a risky change (saves, rules, platform-specific rendering paths).
+- **Record:** one line per merged perf fix in `spec/peer_benchmark/perf_log.md` so the owner can see what got faster.
+- **Slots:** never idle unless usage is out or the owner says stop (owner, 2026-11-04). Steam Deck smoothness is the standing perf goal; perf-20 (CPU on a slow-core proxy), perf-21 (GPU cost, measure only) and perf-22 (Vulkan pipeline hitches) start it.

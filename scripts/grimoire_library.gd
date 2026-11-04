@@ -151,9 +151,9 @@ static var _cache: Dictionary = {}
 # still return isolated copies; hot internal derivation paths share these refs.
 static var _entries_cache: Array = []
 static var _entry_map_cache: Dictionary = {}
-static var _entry_ids_cache: Array[String] = []
+static var _entry_ids_cache: Array[String]
 static var _section_map_cache: Dictionary = {}
-static var _default_entry_ids_cache: Array[String] = []
+static var _default_entry_ids_cache: Array[String]
 static var _card_entry_ids_cache: Dictionary = {}
 static var _equipment_entry_ids_cache: Dictionary = {}
 static var _enemy_type_entry_ids_cache: Dictionary = {}
@@ -370,7 +370,7 @@ static func _ensure_progression_state_in_place(progression: Dictionary) -> void:
 	progression[UNLOCKED_KEY] = unlocked
 	var unlocked_set: Dictionary = _entry_id_set(unlocked)
 	var unread_set: Dictionary = _entry_id_set(progression.get(UNREAD_KEY, []))
-	var filtered_unread: Array[String] = []
+	var filtered_unread: Array[String]
 	for entry_id: String in _entry_ids_ref():
 		if unread_set.has(entry_id) and unlocked_set.has(entry_id):
 			filtered_unread.append(entry_id)
@@ -400,7 +400,7 @@ static func _ensure_run_state_in_place(next_state: Dictionary) -> void:
 		for entry_id: String in progression.get(UNREAD_KEY, []):
 			if not unread.has(entry_id):
 				unread.append(entry_id)
-	var filtered_unread: Array[String] = []
+	var filtered_unread: Array[String]
 	var unlocked_set: Dictionary = _entry_id_set(unlocked)
 	for entry_id: String in ordered_entry_ids(unread):
 		if unlocked_set.has(entry_id):
@@ -417,8 +417,8 @@ static func unlock_entries(run_state: Dictionary, candidate_ids: Array) -> Dicti
 	var unlocked_set: Dictionary = _entry_id_set(unlocked)
 	var unread_set: Dictionary = _entry_id_set(unread)
 	var progression: Dictionary = {}
-	var progression_unlocked: Array[String] = []
-	var progression_unread: Array[String] = []
+	var progression_unlocked: Array[String]
+	var progression_unread: Array[String]
 	var progression_unlocked_set: Dictionary = {}
 	var progression_unread_set: Dictionary = {}
 	if typeof(next_state.get("progression", {})) == TYPE_DICTIONARY:
@@ -428,7 +428,7 @@ static func unlock_entries(run_state: Dictionary, candidate_ids: Array) -> Dicti
 			progression_unread = _copy_string_values(progression.get(UNREAD_KEY, []))
 			progression_unlocked_set = _entry_id_set(progression_unlocked)
 			progression_unread_set = _entry_id_set(progression_unread)
-	var added: Array[String] = []
+	var added: Array[String]
 	var progression_changed: bool = false
 	for entry_id: String in ordered_entry_ids(candidate_ids):
 		var run_already_unlocked: bool = unlocked_set.has(entry_id)
@@ -484,7 +484,7 @@ static func notice_for_added_entries(entry_ids: Array) -> String:
 static func entries_for_section(section_id: String, unlocked_ids: Array) -> Array[Dictionary]:
 	var unlocked: Array[String] = normalize_entry_ids(unlocked_ids)
 	var unlocked_set: Dictionary = _entry_id_set(unlocked)
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	for entry_var: Variant in _entries_ref():
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
@@ -547,23 +547,23 @@ static func _add_entry_ids_to_set(target: Dictionary, values: Variant) -> void:
 			target[entry_id] = true
 
 static func _ordered_entry_ids_from_set(wanted: Dictionary) -> Array[String]:
-	var result: Array[String] = []
+	var result: Array[String]
 	for entry_id: String in _entry_ids_ref():
 		if wanted.has(entry_id):
 			result.append(entry_id)
 	return result
 
 static func _copy_string_array(source: Array[String]) -> Array[String]:
-	var result: Array[String] = []
+	var result: Array[String]
 	result.append_array(source)
 	return result
 
 static func _empty_string_array() -> Array[String]:
-	var result: Array[String] = []
+	var result: Array[String]
 	return result
 
 static func _copy_string_values(source: Variant) -> Array[String]:
-	var result: Array[String] = []
+	var result: Array[String]
 	if typeof(source) != TYPE_ARRAY:
 		return result
 	for value: Variant in source:

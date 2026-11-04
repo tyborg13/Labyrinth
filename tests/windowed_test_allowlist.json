@@ -81,7 +81,6 @@
   "tests/combat_hand_flanks_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/combat_hud_badges_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/combat_hud_buttons_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
-  "tests/combat_interaction_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/combat_lighting_density_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/combat_lighting_variants_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/combat_motion_timing_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",

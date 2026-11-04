@@ -2,6 +2,7 @@ extends RefCounted
 
 # Best-effort rotation convenience, deliberately separate from progression,
 # run checkpoints, revisions and recovery. Failure only loses this memory.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const DEFAULT_STORAGE_PATH: String = "user://recent_events.json"
 const RECENT_EVENTS_LIMIT: int = 16
 static var _storage_path: String = DEFAULT_STORAGE_PATH
@@ -24,7 +25,7 @@ static func load_recent_events() -> Array[String]:
 	for value: Variant in raw:
 		if typeof(value) != TYPE_STRING or str(value).is_empty(): return empty
 		ids.append(value)
-	return ids.slice(maxi(0, ids.size() - RECENT_EVENTS_LIMIT))
+	return TypedArrays.strings(ids.slice(maxi(0, ids.size() - RECENT_EVENTS_LIMIT)))
 
 static func save_recent_events(ids: Array[String]) -> bool:
 	var path: String = ProjectSettings.globalize_path(_storage_path)

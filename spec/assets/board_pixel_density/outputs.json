@@ -2727,6 +2727,25 @@
     },
     "facing": "front"
   },
+  "assets/units/ashen_reaver_cutout/humanoid_v2/front/falchion_released.png": {
+    "pixel_sha256": "f866e884a4e6c43d6c1b4824c1bc4f9369ac8b06e41f7c8ef9c3e94da33aff2a",
+    "source_pixel_sha256": "f866e884a4e6c43d6c1b4824c1bc4f9369ac8b06e41f7c8ef9c3e94da33aff2a",
+    "id": "ashen_reaver_cutout",
+    "mode": "clean",
+    "grid": 0.87,
+    "source_partition": {
+      "policy": "exact_source_inside_preserved_production_outside",
+      "mask": {
+        "path": "experiments/cutouts/ashen_reaver/rr48/rr57/released_density_domain.png",
+        "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+      },
+      "source_offset": [
+        27,
+        122
+      ]
+    },
+    "facing": "front"
+  },
   "assets/units/ashen_reaver_cutout/humanoid_v2/front/foot_far.png": {
     "pixel_sha256": "35d154e18a43610ca66c5cc3e86b2f1e7585a051cd5a191d6711a4b1bb3666b4",
     "source_pixel_sha256": "35d154e18a43610ca66c5cc3e86b2f1e7585a051cd5a191d6711a4b1bb3666b4",
@@ -2805,6 +2824,25 @@
           116
         ]
       }
+    },
+    "facing": "front"
+  },
+  "assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_far_released.png": {
+    "pixel_sha256": "6dce247aaed18b43544fabab3ee1e6e4b6549da3d2b93fe7341ebb4058f9ea2a",
+    "source_pixel_sha256": "6dce247aaed18b43544fabab3ee1e6e4b6549da3d2b93fe7341ebb4058f9ea2a",
+    "id": "ashen_reaver_cutout",
+    "mode": "clean",
+    "grid": 0.87,
+    "source_partition": {
+      "policy": "exact_source_inside_preserved_production_outside",
+      "mask": {
+        "path": "experiments/cutouts/ashen_reaver/rr48/rr57/released_density_domain.png",
+        "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+      },
+      "source_offset": [
+        83,
+        116
+      ]
     },
     "facing": "front"
   },
@@ -2968,6 +3006,25 @@
       "mask": {
         "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_front_hidden_hand_far_domain.png",
         "sha256": "4e23518aeaf53cf040167a268a1cd8524df1fc2a6bdfdf7e57d4c2f46383a838"
+      },
+      "source_offset": [
+        85,
+        112
+      ]
+    },
+    "facing": "front"
+  },
+  "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_far_released.png": {
+    "pixel_sha256": "bb8333ae3de16b9e63c7dfba29118b11e7a0ff5a7015fb99ea9b1dfc6fc2666f",
+    "source_pixel_sha256": "bb8333ae3de16b9e63c7dfba29118b11e7a0ff5a7015fb99ea9b1dfc6fc2666f",
+    "id": "ashen_reaver_cutout",
+    "mode": "clean",
+    "grid": 0.87,
+    "source_partition": {
+      "policy": "exact_source_inside_preserved_production_outside",
+      "mask": {
+        "path": "experiments/cutouts/ashen_reaver/rr48/rr57/released_density_domain.png",
+        "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
       },
       "source_offset": [
         85,
@@ -3267,7 +3324,7 @@
     "kind": "rest",
     "id": "ashen_reaver_cutout",
     "pixel_sha256": "c7bcbe4e8eb966f4d70b6758ff67340ba3d8cd7c60cc2b64714fedd51aae68ae",
-    "parts_pixel_sha256": "8fde85e6c5be15df46d4bd16e5a13aa9362f8514e6d215fb79791b567800015f"
+    "parts_pixel_sha256": "ac34652011ca75d994d3706416b4b881a56cd66e20207edfbd8538f8ade25c42"
   },
   "assets/units/ashen_reaver_cutout/humanoid_v2/front/torso.png": {
     "pixel_sha256": "c84504ec12c125291c8db59dbfae80641dd155f87394833c60271985ca0766e3",
@@ -3415,6 +3472,25 @@
     },
     "facing": "rear"
   },
+  "assets/units/ashen_reaver_cutout/humanoid_v2/rear/falchion_released.png": {
+    "pixel_sha256": "cc0e26cb73c1c953d27c471fd46c1748cd8fd00fd4a4d01d0989db78b298c7ca",
+    "source_pixel_sha256": "cc0e26cb73c1c953d27c471fd46c1748cd8fd00fd4a4d01d0989db78b298c7ca",
+    "id": "ashen_reaver_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "source_partition": {
+      "policy": "exact_source_inside_preserved_production_outside",
+      "mask": {
+        "path": "experiments/cutouts/ashen_reaver/rr48/rr57/released_density_domain.png",
+        "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+      },
+      "source_offset": [
+        138,
+        136
+      ]
+    },
+    "facing": "rear"
+  },
   "assets/units/ashen_reaver_cutout/humanoid_v2/rear/foot_far.png": {
     "pixel_sha256": "2c5d7b50d6f67a150db65ef486a29ecbd9a0c61defc4ed241d6f00e89f9d19dc",
     "source_pixel_sha256": "2c5d7b50d6f67a150db65ef486a29ecbd9a0c61defc4ed241d6f00e89f9d19dc",
@@ -3493,6 +3569,25 @@
           136
         ]
       }
+    },
+    "facing": "rear"
+  },
+  "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far_released.png": {
+    "pixel_sha256": "366af382db4996612eb6b789b4082ce277d755c45aaff313fa1742a2b8a2deb5",
+    "source_pixel_sha256": "366af382db4996612eb6b789b4082ce277d755c45aaff313fa1742a2b8a2deb5",
+    "id": "ashen_reaver_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "source_partition": {
+      "policy": "exact_source_inside_preserved_production_outside",
+      "mask": {
+        "path": "experiments/cutouts/ashen_reaver/rr48/rr57/released_density_domain.png",
+        "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+      },
+      "source_offset": [
+        138,
+        136
+      ]
     },
     "facing": "rear"
   },
@@ -3656,6 +3751,25 @@
       "mask": {
         "path": "experiments/cutouts/ashen_reaver/rr48/ownership/feedback2_rear_hidden_hand_far_domain.png",
         "sha256": "f5c02cd43e54c27d5ba6c707b23fba8a70fc34edab5e77d2bd04acd02b960e9c"
+      },
+      "source_offset": [
+        138,
+        132
+      ]
+    },
+    "facing": "rear"
+  },
+  "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far_released.png": {
+    "pixel_sha256": "3614b3753be5c5a6eb1b5c9885d950b54b7333c1b5aae138017644ff7313ad4c",
+    "source_pixel_sha256": "3614b3753be5c5a6eb1b5c9885d950b54b7333c1b5aae138017644ff7313ad4c",
+    "id": "ashen_reaver_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "source_partition": {
+      "policy": "exact_source_inside_preserved_production_outside",
+      "mask": {
+        "path": "experiments/cutouts/ashen_reaver/rr48/rr57/released_density_domain.png",
+        "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
       },
       "source_offset": [
         138,
@@ -3955,7 +4069,7 @@
     "kind": "rest",
     "id": "ashen_reaver_cutout",
     "pixel_sha256": "f48878ef91eb4f42042a12feec5cfe0af1c09049b83d6329fab0f3288776fe76",
-    "parts_pixel_sha256": "8fde85e6c5be15df46d4bd16e5a13aa9362f8514e6d215fb79791b567800015f"
+    "parts_pixel_sha256": "ac34652011ca75d994d3706416b4b881a56cd66e20207edfbd8538f8ade25c42"
   },
   "assets/units/ashen_reaver_cutout/humanoid_v2/rear/torso.png": {
     "pixel_sha256": "36c59d59298d1e1035837dfa6fedc71e8177e641a8a0285f1a6da317335834cc",
@@ -5579,6 +5693,25 @@
     },
     "facing": "front"
   },
+  "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/chain_released.png": {
+    "pixel_sha256": "5ab8b045e97cfcd6062a44e4582aa5f49fa353ef38100bfb3d6a6f90a71e0ba4",
+    "source_pixel_sha256": "5ab8b045e97cfcd6062a44e4582aa5f49fa353ef38100bfb3d6a6f90a71e0ba4",
+    "id": "chainbound_gaoler_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "source_partition": {
+      "policy": "exact_source_inside_preserved_production_outside",
+      "mask": {
+        "path": "experiments/cutouts/chainbound_gaoler/rr58/released_density_domain.png",
+        "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+      },
+      "source_offset": [
+        72,
+        145
+      ]
+    },
+    "facing": "front"
+  },
   "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/coat_far.png": {
     "pixel_sha256": "1432be05a695cbceda7a45b7848191143a13a62859694d76edd4bf0b5a6eca20",
     "source_pixel_sha256": "1432be05a695cbceda7a45b7848191143a13a62859694d76edd4bf0b5a6eca20",
@@ -6581,6 +6714,25 @@
           117
         ]
       }
+    },
+    "facing": "rear"
+  },
+  "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/chain_released.png": {
+    "pixel_sha256": "fc1a5b8b0cda91c0256afa928e46129dbcd57547bdb55a2c394e1a26ac7e7d9c",
+    "source_pixel_sha256": "fc1a5b8b0cda91c0256afa928e46129dbcd57547bdb55a2c394e1a26ac7e7d9c",
+    "id": "chainbound_gaoler_cutout",
+    "mode": "clean",
+    "grid": 0.91,
+    "source_partition": {
+      "policy": "exact_source_inside_preserved_production_outside",
+      "mask": {
+        "path": "experiments/cutouts/chainbound_gaoler/rr58/released_density_domain.png",
+        "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+      },
+      "source_offset": [
+        158,
+        160
+      ]
     },
     "facing": "rear"
   },
@@ -15686,10 +15838,10 @@
     "source_pixel_sha256": "50e65ffe4a6aea323f1f8fb65af54ee6d30232a95ea04d560462ec2841cda39b"
   },
   "assets/units/hoarfrost_seer_cutout/front/rest.png": {
-    "id": "hoarfrost_seer_cutout",
     "kind": "rest",
-    "parts_pixel_sha256": "dbd53e2553ab267c30e1fc78999928aa9b60e79008a5ad03aa276d4c3feba2e1",
-    "pixel_sha256": "2d0bc055ddfda60fb8d05b07b38463cb6cb90709c1ec2c3795191529d70e2893"
+    "id": "hoarfrost_seer_cutout",
+    "pixel_sha256": "2d0bc055ddfda60fb8d05b07b38463cb6cb90709c1ec2c3795191529d70e2893",
+    "parts_pixel_sha256": "037cd2cf470676b739da583e804e22b4847cb798cc509229cea28c734c174c61"
   },
   "assets/units/hoarfrost_seer_cutout/hidden/front/collar.png": {
     "facing": "front",
@@ -16036,10 +16188,10 @@
     "source_pixel_sha256": "1bb1ea4a3d785539c78c3ef087f1b7026a3ea81d9ce0a86b0b1faaf54c0445df"
   },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png": {
-    "id": "hoarfrost_seer_cutout",
     "kind": "rest",
-    "parts_pixel_sha256": "dbd53e2553ab267c30e1fc78999928aa9b60e79008a5ad03aa276d4c3feba2e1",
-    "pixel_sha256": "8a4166c0461318bc1dc6234a4d9b302eb85e2c2735ee31906cf7ef23fafa032d"
+    "id": "hoarfrost_seer_cutout",
+    "pixel_sha256": "8a4166c0461318bc1dc6234a4d9b302eb85e2c2735ee31906cf7ef23fafa032d",
+    "parts_pixel_sha256": "037cd2cf470676b739da583e804e22b4847cb798cc509229cea28c734c174c61"
   },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/robe.png": {
     "facing": "front",
@@ -16104,6 +16256,25 @@
     "mode": "clean",
     "pixel_sha256": "15967a951abb29708dfd34fb50b5099126205031a6c785094e7187f57ab4b58c",
     "source_pixel_sha256": "4f3bdbadece6f7d7fbd8fe05504fcb9379353360e92a927a879aa590caa57f85"
+  },
+  "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far_released.png": {
+    "pixel_sha256": "2a330c714575c4d7f89e3019ab9f48da86a1bd2f3d001b9d277b073be6feb6fa",
+    "source_pixel_sha256": "2a330c714575c4d7f89e3019ab9f48da86a1bd2f3d001b9d277b073be6feb6fa",
+    "id": "hoarfrost_seer_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "source_partition": {
+      "policy": "exact_source_inside_preserved_production_outside",
+      "mask": {
+        "path": "experiments/cutouts/hoarfrost_seer/rr58/released_density_domain.png",
+        "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+      },
+      "source_offset": [
+        164,
+        112
+      ]
+    },
+    "facing": "rear"
   },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_near.png": {
     "facing": "rear",
@@ -16186,10 +16357,10 @@
     "source_pixel_sha256": "d487a56eae8e5d16140457d6ba2cb5d721f2baf6d2778daa966e0e053dcd6efb"
   },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png": {
-    "id": "hoarfrost_seer_cutout",
     "kind": "rest",
-    "parts_pixel_sha256": "dbd53e2553ab267c30e1fc78999928aa9b60e79008a5ad03aa276d4c3feba2e1",
-    "pixel_sha256": "801a9f25627204b4b48788035f294789b146a5469f49c89a2a0ffabd1937c0e0"
+    "id": "hoarfrost_seer_cutout",
+    "pixel_sha256": "801a9f25627204b4b48788035f294789b146a5469f49c89a2a0ffabd1937c0e0",
+    "parts_pixel_sha256": "037cd2cf470676b739da583e804e22b4847cb798cc509229cea28c734c174c61"
   },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/robe.png": {
     "facing": "rear",
@@ -16223,6 +16394,25 @@
     "pixel_sha256": "82f39acbd3e52a6cb1400c77c6a85cfd7ebfc0f8a6b18c23e44d6da97f2934f2",
     "source_pixel_sha256": "8a61b783bb4cd452824cc6d8dd8e93e44d0086711aeb9f6a0ead8cedcf7bf687"
   },
+  "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff_released.png": {
+    "pixel_sha256": "f561a5d40b57c7d36d19c3af076ef18d01ef41325ccc6d682fc06efa514a152d",
+    "source_pixel_sha256": "f561a5d40b57c7d36d19c3af076ef18d01ef41325ccc6d682fc06efa514a152d",
+    "id": "hoarfrost_seer_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "source_partition": {
+      "policy": "exact_source_inside_preserved_production_outside",
+      "mask": {
+        "path": "experiments/cutouts/hoarfrost_seer/rr58/released_density_domain.png",
+        "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+      },
+      "source_offset": [
+        154,
+        11
+      ]
+    },
+    "facing": "rear"
+  },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/torso.png": {
     "facing": "rear",
     "grid": 1.0,
@@ -16232,10 +16422,10 @@
     "source_pixel_sha256": "65a95fb113956964f1677fd27ea6e71603adf52051f130175314cc203ecc173d"
   },
   "assets/units/hoarfrost_seer_cutout/rear/rest.png": {
-    "id": "hoarfrost_seer_cutout",
     "kind": "rest",
-    "parts_pixel_sha256": "dbd53e2553ab267c30e1fc78999928aa9b60e79008a5ad03aa276d4c3feba2e1",
-    "pixel_sha256": "454957527e05d3a6179f16c377318892d10c5ec7d571fa9f1d27e343f234627f"
+    "id": "hoarfrost_seer_cutout",
+    "pixel_sha256": "454957527e05d3a6179f16c377318892d10c5ec7d571fa9f1d27e343f234627f",
+    "parts_pixel_sha256": "037cd2cf470676b739da583e804e22b4847cb798cc509229cea28c734c174c61"
   },
   "assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_component_02_torso.png": {
     "facing": "front",

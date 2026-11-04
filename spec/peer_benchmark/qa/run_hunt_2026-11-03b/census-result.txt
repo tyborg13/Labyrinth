@@ -1,0 +1,5 @@
+QA25 CENSUS: replay-default-seed-12 PASS; tree 1548 -> 3022; named_pool_delta=1096; bound=3031; orphans 0 -> 0
+QA25 CENSUS: replay-no-embrace-seed-2 INCOMPLETE
+QA25 CENSUS: replay-no-embrace-seed-3 INCOMPLETE
+QA25 CENSUS: replay-no-embrace-seed-3-storage-retry PASS; tree 1549 -> 2848; named_pool_delta=1158; bound=3094.25; orphans 0 -> 0
+QA25 CENSUS OVERALL: PASS 2/2 required comparisons; 4 attempts retained

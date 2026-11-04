@@ -151,7 +151,7 @@ static func expected_card_id(combat_state: Dictionary, role: String) -> String:
 	return str(scenario.get("%s_card_id" % role, ""))
 
 static func _authored_lane(grid: Array) -> Dictionary:
-	var candidates: Array[Dictionary] = []
+	var candidates: Array[Dictionary]
 	var center := Vector2(_grid_width(grid) * 0.5, grid.size() * 0.5)
 	for y: int in range(grid.size()):
 		for x: int in range(_grid_width(grid)):
@@ -262,7 +262,7 @@ static func _grid_width(grid: Array) -> int:
 	return width
 
 static func _typed_tiles(values: Array) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	for value: Variant in values:
 		if typeof(value) == TYPE_VECTOR2I:
 			result.append(value as Vector2i)

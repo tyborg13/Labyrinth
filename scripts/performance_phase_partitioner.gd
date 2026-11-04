@@ -1,6 +1,7 @@
 class_name PerformancePhasePartitioner
 extends RefCounted
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const AMBIGUOUS_PHASE: String = "telemetry_ambiguous_overlap"
 
 static func partition(
@@ -8,9 +9,9 @@ static func partition(
 	window_start_usec: int = -9223372036854775807,
 	window_end_usec: int = 9223372036854775807
 ) -> Dictionary:
-	var boundaries: Array[int] = []
-	var normalized: Array[Dictionary] = []
-	var excluded_ranges: Array[Dictionary] = []
+	var boundaries: Array[int]
+	var normalized: Array[Dictionary]
+	var excluded_ranges: Array[Dictionary]
 	var next_interval_id: int = 0
 	for interval_var: Variant in intervals:
 		if typeof(interval_var) != TYPE_DICTIONARY:
@@ -54,7 +55,7 @@ static func partition(
 		boundaries.append(int(range_entry["start_usec"]))
 		boundaries.append(int(range_entry["end_usec"]))
 	boundaries.sort()
-	var unique_boundaries: Array[int] = []
+	var unique_boundaries: Array[int]
 	for boundary: int in boundaries:
 		if unique_boundaries.is_empty() or unique_boundaries[-1] != boundary:
 			unique_boundaries.append(boundary)
@@ -107,7 +108,7 @@ static func partition(
 	}
 
 static func _crossed_overlap_ranges(intervals: Array[Dictionary]) -> Array[Dictionary]:
-	var by_start: Array[Dictionary] = intervals.duplicate()
+	var by_start: Array[Dictionary] = TypedArrays.dictionaries(intervals.duplicate())
 	by_start.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
 		var left_start: int = int(left["start_usec"])
 		var right_start: int = int(right["start_usec"])
@@ -134,21 +135,21 @@ static func _crossed_overlap_ranges(intervals: Array[Dictionary]) -> Array[Dicti
 	if not crosses:
 		var empty_ranges: Array[Dictionary]
 		return empty_ranges
-	var by_end: Array[Dictionary] = intervals.duplicate()
+	var by_end: Array[Dictionary] = TypedArrays.dictionaries(intervals.duplicate())
 	by_end.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
 		var left_end: int = int(left["end_usec"])
 		var right_end: int = int(right["end_usec"])
 		return left_end < right_end if left_end != right_end else int(left["id"]) < int(right["id"])
 	)
-	var end_coordinates: Array[int] = []
+	var end_coordinates: Array[int]
 	for interval: Dictionary in by_end:
 		var end_usec: int = int(interval["end_usec"])
 		if end_coordinates.is_empty() or end_coordinates[-1] != end_usec:
 			end_coordinates.append(end_usec)
-	var fenwick: Array[int] = []
+	var fenwick: Array[int]
 	fenwick.resize(end_coordinates.size() + 1)
 	fenwick.fill(0)
-	var ranges: Array[Dictionary] = []
+	var ranges: Array[Dictionary]
 	var expiry_index: int = 0
 	var group_start: int = 0
 	while group_start < by_start.size():
@@ -177,8 +178,8 @@ static func _crossed_overlap_ranges(intervals: Array[Dictionary]) -> Array[Dicti
 
 static func _merged_ranges(ranges: Array[Dictionary]) -> Array[Dictionary]:
 	if ranges.is_empty():
-		return []
-	var ordered: Array[Dictionary] = ranges.duplicate(true)
+		return TypedArrays.dictionaries([])
+	var ordered: Array[Dictionary] = TypedArrays.dictionaries(ranges.duplicate(true))
 	ordered.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
 		var left_start: int = int(left["start_usec"])
 		var right_start: int = int(right["start_usec"])
@@ -186,7 +187,7 @@ static func _merged_ranges(ranges: Array[Dictionary]) -> Array[Dictionary]:
 			return left_start < right_start
 		return int(left["end_usec"]) < int(right["end_usec"])
 	)
-	var merged: Array[Dictionary] = []
+	var merged: Array[Dictionary]
 	for range_entry: Dictionary in ordered:
 		if merged.is_empty() or int(range_entry["start_usec"]) > int(merged[-1]["end_usec"]):
 			merged.append(range_entry.duplicate())

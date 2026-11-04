@@ -1,0 +1,7 @@
+{
+  "required_complete_replays": 2,
+  "passed": 2,
+  "attempts": 4,
+  "failed_complete_replay": false,
+  "status": "PASS"
+}

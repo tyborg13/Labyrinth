@@ -1,6 +1,7 @@
 extends RefCounted
 class_name EventRules
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
@@ -407,7 +408,7 @@ static func _cards(state: Dictionary, effect: Dictionary, rng: RandomNumberGener
 		var weights: Array = []
 		for rarity: String in rarities: weights.append(GameData.rarity_offer_weight(rarity))
 		var rarity: String = rarities[_weighted_index(rng, weights)]
-		var pool: Array[String] = pool_by_rarity[rarity]
+		var pool: Array[String] = TypedArrays.strings(pool_by_rarity[rarity])
 		var card_weights: Array = []
 		for id: String in pool: card_weights.append(GameData.reward_offer_weight(id))
 		var index: int = _weighted_index(rng, card_weights)

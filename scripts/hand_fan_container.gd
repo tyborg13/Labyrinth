@@ -341,7 +341,7 @@ func _get_minimum_size() -> Vector2:
 	return bounds.size
 
 func _layout_children() -> Array[Control]:
-	var controls: Array[Control] = []
+	var controls: Array[Control]
 	for child: Node in get_children():
 		if child is Control:
 			controls.append(child as Control)

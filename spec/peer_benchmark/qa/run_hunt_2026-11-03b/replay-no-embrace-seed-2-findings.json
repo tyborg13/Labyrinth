@@ -1,0 +1,949 @@
+[
+  {
+    "severity": "script error",
+    "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+    "context": {
+      "seed": 2,
+      "section": -1,
+      "room_kind": "startup",
+      "decision": 0
+    },
+    "last_20_decisions": [],
+    "log_line": 11,
+    "log_lines": [
+      "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+      "   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)"
+    ],
+    "location": "platform/macos/os_macos.mm:1014",
+    "replay_script": "/private/tmp/labyrinth_codex/qa-25/run_hunt_census.gd",
+    "count": 1,
+    "seeds": [
+      2
+    ],
+    "occurrences": [
+      {
+        "seed": 2,
+        "context": {
+          "seed": 2,
+          "section": -1,
+          "room_kind": "startup",
+          "decision": 0
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-25/replay-no-embrace-seed-2/seed-000002/godot.log",
+        "log_line": 11
+      }
+    ]
+  },
+  {
+    "context": {
+      "decision": 1321,
+      "mode": "combat",
+      "room": "(11, 0)",
+      "room_kind": "combat",
+      "room_metadata": {
+        "biome": "lightning",
+        "cleared": false,
+        "connections": [
+          {
+            "coord": "(11, 3)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(11, 0)",
+        "depth": 11,
+        "element": "earth",
+        "encounter_id": "t3_full_line",
+        "map_lane": 5,
+        "map_outline": true,
+        "map_step": 9,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 2,
+        "type": "combat",
+        "visited": true
+      },
+      "section": 2,
+      "seed": 2
+    },
+    "error": "Fight exploration budget reached 400 decisions",
+    "last_20_decisions": [
+      {
+        "args": [
+          "(6, 6)"
+        ],
+        "context": {
+          "decision": 1302,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1302,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": false
+      },
+      {
+        "context": {
+          "decision": 1303,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1303,
+        "kind": "move",
+        "preferred": false,
+        "tile": "(7, 5)"
+      },
+      {
+        "args": [
+          4
+        ],
+        "card_id": "waning_pulse",
+        "context": {
+          "decision": 1304,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1304,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 1305,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1305,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          4
+        ],
+        "card_id": "sidestep_slash",
+        "context": {
+          "decision": 1306,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1306,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(6, 5)"
+        ],
+        "context": {
+          "decision": 1307,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1307,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 1308,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1308,
+        "kind": "move",
+        "preferred": false,
+        "tile": "(5, 6)"
+      },
+      {
+        "context": {
+          "decision": 1309,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1309,
+        "kind": "move",
+        "preferred": false,
+        "tile": "(4, 6)"
+      },
+      {
+        "context": {
+          "decision": 1310,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1310,
+        "kind": "move",
+        "preferred": false,
+        "tile": "(4, 7)"
+      },
+      {
+        "args": [
+          3
+        ],
+        "card_id": "dull_bolt",
+        "context": {
+          "decision": 1311,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1311,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(7, 7)"
+        ],
+        "context": {
+          "decision": 1312,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1312,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          5
+        ],
+        "card_id": "dull_bolt",
+        "context": {
+          "decision": 1313,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1313,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(7, 7)"
+        ],
+        "context": {
+          "decision": 1314,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1314,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 1315,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1315,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(5, 7)"
+      },
+      {
+        "args": [
+          5
+        ],
+        "card_id": "pale_spark",
+        "context": {
+          "decision": 1316,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1316,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(5, 4)"
+        ],
+        "context": {
+          "decision": 1317,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1317,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 1318,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1318,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(6, 7)"
+      },
+      {
+        "args": [
+          5
+        ],
+        "card_id": "bloody_lunge",
+        "context": {
+          "decision": 1319,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1319,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(6, 5)"
+        ],
+        "context": {
+          "decision": 1320,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1320,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": false
+      },
+      {
+        "args": [
+          5
+        ],
+        "card_id": "pale_spark",
+        "context": {
+          "decision": 1321,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "decision": 1321,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      }
+    ],
+    "location": "res://tools/run_hunt.gd:259",
+    "severity": "warning",
+    "log_line": 1383,
+    "replay_script": "/private/tmp/labyrinth_codex/qa-25/run_hunt_census.gd",
+    "count": 1,
+    "seeds": [
+      2
+    ],
+    "occurrences": [
+      {
+        "seed": 2,
+        "context": {
+          "decision": 1321,
+          "mode": "combat",
+          "room": "(11, 0)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "lightning",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(11, 3)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(11, 0)",
+            "depth": 11,
+            "element": "earth",
+            "encounter_id": "t3_full_line",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 2,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 2,
+          "seed": 2
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-25/replay-no-embrace-seed-2/seed-000002/godot.log",
+        "log_line": 1383
+      }
+    ]
+  }
+]

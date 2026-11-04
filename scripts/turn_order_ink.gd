@@ -10,7 +10,7 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 
 const BRUSH_DIR: String = "res://assets/art/ui/turn_order_ink/"
-const QUEUE_BRUSHES: Array[String] = ["brush_a.png", "brush_b.png", "brush_c.png", "brush_d.png"]
+const QUEUE_BRUSHES: Array[String] = Array(["brush_a.png", "brush_b.png", "brush_c.png", "brush_d.png"], TYPE_STRING, "", null)
 const HERO_BRUSH: String = "brush_hero.png"
 
 # Muted, darker inks sit with the bronze, oxblood and near-black of the HUD

@@ -1,0 +1,182 @@
+extends "res://tests/fix18/real_fight_capture_probe.gd"
+# pol-39: drive a real fight's hand with the real pointer (hover) and the click path,
+# logging the hand's slots every frame. CLIP_PLAN steps, ';'-separated:
+#   hover:N  pointer onto hand card N      click:N  click card N (pointer stays put)
+#   tile:X:Y pointer onto a board tile, hover and click it (confirming if needed)
+#   wait:S   wait S seconds                 settle   wait for the animation lock to clear
+#   away     pointer off the hand           pass     pass the turn
+#   ctl      controller modality            ctlhand:N controller hand focus N
+#   pad:A|B|X controller button             mark:L   print a marker
+const InputRouterScript = preload("res://scripts/input_router.gd")
+const CLIP_SETTLE_LIMIT_FRAMES: int = 60 * 25
+const CLIP_IDLE_FRAMES: int = 30
+var _logging: bool = false
+
+func _parse_capture_args(args: PackedStringArray) -> Dictionary:
+	var supplied: PackedStringArray = args.duplicate()
+	if not supplied.has("--label"): supplied.append_array(PackedStringArray(["--label", "clip"]))
+	return super._parse_capture_args(supplied)
+
+func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
+	var run: Dictionary = super._build_run_state(scenario, progression)
+	if _failed: return run
+	var battle: Dictionary = run["combat_state"]
+	var tiles: Array[Vector2i]
+	for entry: String in (str(_options.get("enemy_positions", "")) + "," + str(_options.get("player_position", ""))).split(",", false):
+		var pair: PackedStringArray = entry.split(":")
+		var tile := Vector2i(int(pair[0]), int(pair[1]))
+		battle["grid"][tile.y][tile.x] = "stone"
+		tiles.append(tile)
+	run["combat_state"] = _clear_fixture_occupant_tiles(battle, tiles)
+	for e: Dictionary in run["combat_state"].get("enemies", []):
+		e["hp"] = maxi(int(e.get("hp", 0)), 30); e["max_hp"] = maxi(int(e.get("max_hp", 0)), 30)
+	return run
+
+func _pointer(at: Vector2) -> void:
+	# The physical window may be clamped below 1920x1080; warp in window pixels.
+	var window_at: Vector2 = at * Vector2(DisplayServer.window_get_size()) / root.get_visible_rect().size
+	Input.warp_mouse(window_at)
+	var motion := InputEventMouseMotion.new()
+	motion.position = window_at
+	motion.global_position = window_at
+	Input.parse_input_event(motion)
+
+func _sample_frames() -> void:
+	await super._sample_frames()
+	if OS.has_environment("CLIP_REDUCED_MOTION"): (_capture_scene.get("_settings") as Dictionary)["reduced_motion"] = true
+	_pointer(Vector2(1700, 120))
+	await create_timer(0.8).timeout
+	print("REAL FIGHT CLIP START_FRAME=%d" % Engine.get_frames_drawn())
+	_logging = true
+	_log_hand()
+	await create_timer(0.5).timeout
+	for step: String in OS.get_environment("CLIP_PLAN").split(";", false):
+		var parts: PackedStringArray = step.split(":")
+		print("CLIP STEP f=%d %s" % [Engine.get_frames_drawn(), step])
+		match parts[0]:
+			"hover":
+				var r: Rect2 = _capture_scene.call("_hand_card_global_rect", int(parts[1]))
+				_pointer(r.get_center() + Vector2(0, 40))
+				await create_timer(0.5).timeout
+				print("CLIP HOVER mouse=%s hovered=%d" % [str(_capture_scene.get_viewport().get_mouse_position()), int(_capture_scene.get("_hovered_card_index"))])
+			"hovernow":
+				var rn: Rect2 = _capture_scene.call("_hand_card_global_rect", int(parts[1]))
+				_pointer(rn.get_center() + Vector2(0, 40))
+				await process_frame
+			"sweep":
+				# sweep:A:B:S  pointer glides at one height from card A's centre to card B's
+				# (-1 / N = just outside the hand's left / right edge) over S seconds,
+				# one motion event per frame, like a real mouse.
+				await _sweep(int(parts[1]), int(parts[2]), float(parts[3]))
+			"click":
+				print("CLIP CLICK f=%d card=%s" % [Engine.get_frames_drawn(), parts[1]])
+				await _capture_scene.call("_on_card_pressed", int(parts[1]))
+				print("CLIP CLICKED f=%d selected=%d" % [Engine.get_frames_drawn(), int(_capture_scene.get("_selected_card_index"))])
+			"tile":
+				var tile := Vector2i(int(parts[1]), int(parts[2]))
+				_pointer(_capture_scene.call("_controller_board_point", tile))
+				_capture_scene.call("_on_board_tile_hovered", tile)
+				await create_timer(0.3).timeout
+				print("CLIP TILE f=%d %s" % [Engine.get_frames_drawn(), str(tile)])
+				await _capture_scene.call("_on_board_tile_clicked", tile)
+				await create_timer(0.2).timeout
+				if bool(_capture_scene.get("_animation_lock")) == false and int(_capture_scene.get("_selected_card_index")) >= 0:
+					await _capture_scene.call("_on_board_tile_clicked", tile)
+			"wait":
+				await create_timer(float(parts[1])).timeout
+			"frames":
+				for i: int in range(int(parts[1])): await process_frame
+			"settle":
+				await _settle()
+			"drag":
+				var drag_index: int = int(parts[1])
+				var at: Vector2 = (_capture_scene.call("_hand_card_global_rect", drag_index) as Rect2).get_center()
+				print("CLIP DRAG f=%d card=%d at=%s" % [Engine.get_frames_drawn(), drag_index, str(at)])
+				await _capture_scene.call("_on_card_drag_started", drag_index, at)
+				for i: int in range(12):
+					await process_frame
+					await _capture_scene.call("_update_card_drag", at + Vector2(0, -8.0 * float(i)))
+				var cancel_rect: Rect2 = _capture_scene.get("_drag_card_cancel_rect")
+				print("CLIP DRAG CANCEL f=%d target=%s" % [Engine.get_frames_drawn(), str(cancel_rect)])
+				await _capture_scene.call("_animate_drag_cancel_to_source")
+				print("CLIP DRAG DONE f=%d slot=%s" % [Engine.get_frames_drawn(), str(_capture_scene.call("_hand_card_global_rect", drag_index))])
+			"away":
+				_pointer(Vector2(1700, 120))
+			"pass":
+				_capture_scene.call("_on_pass_turn_pressed")
+				await process_frame
+				await _settle()
+			"ctl":
+				var router: Node = root.get_node("InputRouter")
+				router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+				_capture_scene.call("_refresh_controller_interface")
+				await create_timer(0.3).timeout
+			"ctlhand":
+				_capture_scene.call("_controller_set_hand_index", int(parts[1]))
+				await create_timer(0.5).timeout
+			"pad":
+				await _press_pad({"A": JOY_BUTTON_A, "B": JOY_BUTTON_B, "X": JOY_BUTTON_X}[parts[1]])
+			"mark":
+				print("CLIP MARK f=%d %s" % [Engine.get_frames_drawn(), parts[1]])
+	await create_timer(0.6).timeout
+	print("REAL FIGHT CLIP END_FRAME=%d" % Engine.get_frames_drawn())
+	_logging = false
+
+func _sweep_x(index: int, count: int) -> float:
+	var first: Rect2 = _capture_scene.call("_hand_card_global_rect", 0)
+	var last: Rect2 = _capture_scene.call("_hand_card_global_rect", count - 1)
+	if index < 0: return first.position.x - 60.0
+	if index >= count: return last.end.x + 60.0
+	return (_capture_scene.call("_hand_card_global_rect", index) as Rect2).get_center().x
+
+func _sweep(from_index: int, to_index: int, seconds: float) -> void:
+	var count: int = (_capture_scene.get("hand_box") as Control).get_child_count()
+	var mid: Rect2 = _capture_scene.call("_hand_card_global_rect", count / 2)
+	var y: float = mid.get_center().y + 40.0
+	var x0: float = _sweep_x(from_index, count)
+	var x1: float = _sweep_x(to_index, count)
+	var frames: int = maxi(1, int(round(seconds * 60.0)))
+	print("CLIP SWEEP f=%d x0=%.1f x1=%.1f y=%.1f frames=%d" % [Engine.get_frames_drawn(), x0, x1, y, frames])
+	for i: int in range(frames + 1):
+		_pointer(Vector2(lerpf(x0, x1, float(i) / float(frames)), y))
+		await process_frame
+	print("CLIP SWEPT f=%d hovered=%d" % [Engine.get_frames_drawn(), int(_capture_scene.get("_hovered_card_index"))])
+
+func _press_pad(button_index: int) -> void:
+	print("CLIP PAD f=%d %d" % [Engine.get_frames_drawn(), button_index])
+	for pressed: bool in [true, false]:
+		var event := InputEventJoypadButton.new()
+		event.device = 0
+		event.button_index = button_index
+		event.pressed = pressed
+		root.push_input(event)
+		await process_frame
+	await create_timer(0.6).timeout
+
+func _settle() -> void:
+	var frames: int = 0
+	var idle: int = 0
+	while idle < CLIP_IDLE_FRAMES and frames < CLIP_SETTLE_LIMIT_FRAMES:
+		await process_frame
+		frames += 1
+		idle = 0 if bool(_capture_scene.get("_animation_lock")) else idle + 1
+	print("CLIP SETTLED f=%d frames=%d" % [Engine.get_frames_drawn(), frames])
+
+func _log_hand() -> void:
+	var hb: Control = _capture_scene.get("hand_box")
+	while _logging and is_instance_valid(hb) and is_instance_valid(_capture_scene):
+		# pol-40: log what is about to be drawn (after process, tweens and deferred sorts).
+		await RenderingServer.frame_pre_draw
+		if not _logging or not is_instance_valid(hb) or not is_instance_valid(_capture_scene): return
+		var sliding: int = 0
+		for m: String in ["is_sliding", "is_close_sliding"]:
+			if hb.has_method(m) and bool(hb.call(m)): sliding = 1
+		var parts: PackedStringArray = []
+		for c: Node in hb.get_children():
+			var slot: Control = c as Control
+			var center: Vector2 = slot.get_global_transform() * (slot.size * 0.5)
+			parts.append("%.1f/%.1f/%.4f/%.3f/%.2f" % [center.x, center.y, slot.rotation, slot.modulate.a, slot.scale.x])
+		print("HANDLOG f=%d hb=%.1f sel=%d hov=%d emph=%d str=%.2f lock=%d slide=%d cache=%d %s" % [
+			Engine.get_frames_drawn(), hb.global_position.x, int(_capture_scene.get("_selected_card_index")),
+			int(_capture_scene.get("_hovered_card_index")), int(hb.call("emphasized_index")), float(hb.call("emphasis_strength")),
+			1 if bool(_capture_scene.get("_animation_lock")) else 0, sliding, 1 if bool(_capture_scene.get("_locked_hand_cache_active")) else 0, " ".join(parts)])

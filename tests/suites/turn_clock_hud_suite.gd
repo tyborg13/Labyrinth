@@ -78,6 +78,8 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 	router.call("set_modality", "controller")
 	scene.set("_controller_hand_index", 0)
 	scene.call("_controller_cycle_hand", 1)
+	# 29a6ac569 (owner APPROVED kb-2): controller keywords/projection follow the completed lift and rendered rest.
+	await preload("res://tests/helpers/controller_card_focus_wait.gd").settle(tree, scene, check, "controller_focus_fast")
 	await _settle(tree)
 	check.call(int(scene.get("_controller_hand_index")) == 1, "controller_focus_fast: the bumper advances focus to Quick Stab")
 	_assert_state(scene, check, 10, "Quick Stab −3", -3, ["enemy:enemy_1"], "enemy:enemy_2", "controller_focus_fast")

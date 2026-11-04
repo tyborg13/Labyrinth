@@ -1,0 +1,23 @@
+extends SceneTree
+
+const DESTINATION: String = "/private/tmp/labyrinth_codex/qa-25/storage-incident/save-validation.json"
+
+func _initialize() -> void:
+	var records: Array[Dictionary]
+	var valid: bool = true
+	for source: String in OS.get_cmdline_user_args():
+		var file: FileAccess = FileAccess.open(source, FileAccess.READ)
+		var record: Dictionary = {"source": source, "valid": false}
+		if file != null:
+			record["bytes"] = file.get_length()
+			var value: Variant = file.get_var(false)
+			file.close()
+			if value is Dictionary and not value.is_empty():
+				record.merge({"valid": true, "seed": value.get("seed"), "mode": value.get("mode"), "room": value.get("current_room")}, true)
+		valid = valid and bool(record["valid"])
+		records.append(record)
+	var output: FileAccess = FileAccess.open(DESTINATION, FileAccess.WRITE)
+	output.store_string(JSON.stringify(records, "\t"))
+	output.close()
+	print("QA25 STORAGE SAVE VALIDATION: %s (%d preserved snapshots)" % ["PASS" if valid else "FAIL", records.size()])
+	quit(0 if valid else 1)

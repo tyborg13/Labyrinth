@@ -146,7 +146,7 @@ func _fade_hero_back() -> void:
 	if _host.call("_reduced_motion_enabled"):
 		_set_hero_alpha(_hero_fade_renderer, 1.0)
 		return
-	_hero_fade_started_usec = Time.get_ticks_usec()
+	_hero_fade_started_usec = preload("res://scripts/presentation_clock.gd").ticks_usec()
 	_hero_fade_completed_usec = 0
 	_hero_fade_completion_reason = ""
 	_hero_fade_running = true
@@ -187,7 +187,7 @@ func _update_hero_fade() -> void:
 	if not is_instance_valid(_hero_fade_renderer):
 		_finish_hero_fade("renderer_removed")
 		return
-	var elapsed: float = float(Time.get_ticks_usec() - _hero_fade_started_usec) / 1000000.0
+	var elapsed: float = float(preload("res://scripts/presentation_clock.gd").ticks_usec() - _hero_fade_started_usec) / 1000000.0
 	if elapsed >= FADE_BACK_SECONDS:
 		_finish_hero_fade("completed")
 	else:
@@ -200,7 +200,7 @@ func _finish_hero_fade(reason: String) -> void:
 	_set_hero_alpha(_hero_fade_renderer, 1.0)
 	_set_hero_alpha(_drawn_hero_renderer(), 1.0)
 	_hero_fade_running = false
-	_hero_fade_completed_usec = Time.get_ticks_usec()
+	_hero_fade_completed_usec = preload("res://scripts/presentation_clock.gd").ticks_usec()
 	_hero_fade_completion_reason = reason
 	set_process(false)
 	if RenderingServer.frame_pre_draw.is_connected(_update_hero_fade):
@@ -210,7 +210,7 @@ func _finish_hero_fade(reason: String) -> void:
 func hero_fade_snapshot() -> Dictionary:
 	var renderer: Node = _drawn_hero_renderer()
 	var rig: CanvasItem = renderer.get("rigs").get(str(renderer.get("facing"))) if is_instance_valid(renderer) else null
-	return {"alpha": rig.modulate.a if is_instance_valid(rig) else -1.0, "elapsed_seconds": float(Time.get_ticks_usec() - _hero_fade_started_usec) / 1000000.0 if _hero_fade_started_usec > 0 else 0.0, "running": _hero_fade_running, "coroutine_running": _hero_fade_coroutine_running, "completion_reason": _hero_fade_completion_reason, "completed_elapsed_seconds": float(_hero_fade_completed_usec - _hero_fade_started_usec) / 1000000.0 if _hero_fade_completed_usec > 0 else 0.0, "renderer_id": renderer.get_instance_id() if is_instance_valid(renderer) else 0, "rig_id": rig.get_instance_id() if is_instance_valid(rig) else 0}
+	return {"alpha": rig.modulate.a if is_instance_valid(rig) else -1.0, "elapsed_seconds": float(preload("res://scripts/presentation_clock.gd").ticks_usec() - _hero_fade_started_usec) / 1000000.0 if _hero_fade_started_usec > 0 else 0.0, "running": _hero_fade_running, "coroutine_running": _hero_fade_coroutine_running, "completion_reason": _hero_fade_completion_reason, "completed_elapsed_seconds": float(_hero_fade_completed_usec - _hero_fade_started_usec) / 1000000.0 if _hero_fade_completed_usec > 0 else 0.0, "renderer_id": renderer.get_instance_id() if is_instance_valid(renderer) else 0, "rig_id": rig.get_instance_id() if is_instance_valid(rig) else 0}
 
 func _exit_tree() -> void:
 	_leaving_tree = true

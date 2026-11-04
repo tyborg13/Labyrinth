@@ -1,0 +1,8 @@
+"""Replace a coverage-limited census attempt without rerunning campaigns."""
+from run_replays import run
+
+SUPPLEMENTAL_CENSUS_CASE = ('replay-no-embrace-seed-3',3,['--no-embrace'])
+
+if __name__=='__main__':
+    result = run(SUPPLEMENTAL_CENSUS_CASE)
+    raise SystemExit(result['returncode'])

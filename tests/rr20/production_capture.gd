@@ -1,5 +1,6 @@
 extends SceneTree
 
+const ProductionCases = preload("res://tests/qa26/production_cases.gd")
 const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
 
 ## Actual resolver steps and production callbacks, using the promoted two-view rig.
@@ -16,9 +17,6 @@ const SIZE := Vector2i(1920, 1080)
 const SETTLE_FRAMES: int = 8
 const HIT_PROOF_HP: int = 30
 const IDLE_SAMPLE_SECONDS: float = 1.0 / 60.0
-# Recede no longer grants Block (mim-01). Exercise the retained approved clip
-# through the shared Block resolver, without restoring Block to the live intent.
-const PROOF_BLOCK_AMOUNT: int = 3
 const PROOF_ENEMY_TILE := Vector2i(4, 4)
 const PROOF_HERO_TILES := {"front": Vector2i(4, 6), "rear": Vector2i(4, 2)}
 const PROOF_HIT_TILES := {"front": Vector2i(4, 5), "rear": Vector2i(4, 3)}
@@ -52,8 +50,7 @@ func _run() -> void:
 	CaptureStorage.setup(_output)
 	_logic = args.has("--logic-only")
 	_data = preload("res://scripts/maquette_cutout_runtime/motion.gd").data_for({"motion_data": "res://experiments/cutouts/hollow_mimic/rr20/compiled_motion.json"})
-	_data = _data.duplicate(true)
-	_data["clips"].erase("mirror") # Retired gameplay clip; authored bytes stay intact.
+	_data = ProductionCases.data_for(_type, _data)
 	if _data.is_empty() or (DisplayServer.get_name() == "headless" and not _logic):
 		push_error("Production capture requires a registered creature and windowed renderer (or --logic-only)")
 		quit(1)
@@ -76,7 +73,7 @@ func _run() -> void:
 	_failures.append_array(preload("res://tests/rr10/capture_contract.gd").errors(_frames, _data, _scene.proof_completions, not _logic))
 	for error: String in _failures: push_error(error)
 	var bindings: Dictionary = preload("res://tests/rr10/bindings.gd").for_case("res://experiments/cutouts/hollow_mimic/rr20")
-	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": false, "production_promoted": true, "retired_clips": ["mirror"],
+	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": false, "production_promoted": true, "retired_clips": ProductionCases.unplayed_for(_type).keys(), "unplayed_clips": ProductionCases.unplayed_for(_type),
 		"size": [1920, 1080], "ui_scale": 1.0, "walk_samples": _walk_samples, "inputs": bindings, "frames": _frames, "completions": _scene.proof_completions, "errors": _failures}
 	if not _logic or OS.get_cmdline_user_args().has("--validate-crop"):
 		report.merge(CaptureStorage.metadata())
@@ -153,10 +150,6 @@ func _run_clips() -> void:
 		var selector: String = str(_data["clips"][clip]["intents"][0])
 		var fields: PackedStringArray = selector.split(":")
 		state = fixture(fields[0])
-		if clip == "block":
-			var block_actions: Array[Dictionary]
-			block_actions.append({"type": "block", "amount": PROOF_BLOCK_AMOUNT})
-			state["enemies"][0]["intent"]["actions"] = block_actions
 		await install(state)
 		var action: Dictionary = {}
 		for item: Dictionary in state["enemies"][0]["intent"]["actions"]:

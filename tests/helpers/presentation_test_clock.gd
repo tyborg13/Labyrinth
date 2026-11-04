@@ -111,6 +111,9 @@ static func clocked_script(original: Script, existing_instance: bool = false) ->
 	source = "\n".join(lines)
 	if existing_instance: source = source.replace("func _init(", "func _test_original_init(")
 	source = source.replace("HitStop.new()", 'preload("res://tests/helpers/presentation_test_clock.gd").clocked_script(HitStop).new()')
+	for suffix: String in ["()", "(false)"]:
+		source = source.replace('preload("res://scripts/presentation_clock.gd").ticks_usec' + suffix, 'preload("res://tests/helpers/presentation_test_clock.gd").now_usec')
+		source = source.replace('preload("res://scripts/presentation_clock.gd").ticks_msec' + suffix, '(preload("res://tests/helpers/presentation_test_clock.gd").now_usec / 1000)')
 	source = source.replace("Time.get_ticks_usec()", 'preload("res://tests/helpers/presentation_test_clock.gd").now_usec')
 	source = source.replace("Time.get_ticks_msec()", '(preload("res://tests/helpers/presentation_test_clock.gd").now_usec / 1000)')
 	script.source_code = source

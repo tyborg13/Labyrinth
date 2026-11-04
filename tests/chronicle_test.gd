@@ -12,6 +12,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const Rules = preload("res://scripts/chronicle_rules.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const ChroniclePanel = preload("res://scripts/chronicle_panel.gd")
+const RunPreload = preload("res://scripts/menu_run_preload.gd")
 const TILE_LAYOUT_SETTLE_FRAMES: int = 4
 const SCROLL_RECORD_COUNT: int = 15
 var failures: Array[String]
@@ -141,11 +142,22 @@ func _run() -> void:
 	menu.queue_free()
 	canvas.queue_free()
 	await _settle_tiles()
+	_test_preload_teardown()
 	for failure: String in failures:
 		push_error(failure)
 	print("CHRONICLE HOVER PROOF: %d native popups; 5 pointer targets" % _native_hover_popups)
 	print("CHRONICLE TEST RESULT: %s" % ("PASS" if failures.is_empty() else "FAIL (%d failure(s))" % failures.size()))
 	quit(0 if failures.is_empty() else 1)
+
+func _test_preload_teardown() -> void:
+	# Deterministically exercise perf-16's idle load even if all hover timers
+	# happened to finish before the menu's idle watcher requested it.
+	_check(RunPreload.request_for(self, RunPreload.RUN_SCENE_PATH) == OK, "Chronicle teardown owns a pending run-scene preload")
+	var job: Node = root.get_node_or_null(RunPreload.JOB_NAME)
+	_check(job != null, "Run-scene preload has a tree-owned lifetime")
+	if job != null:
+		job.free()
+	_check(ResourceLoader.load_threaded_get_status(RunPreload.RUN_SCENE_PATH) == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE, "Freeing an unclaimed preload collects its threaded request before engine shutdown")
 
 func _check(ok: bool, message: String) -> void:
 	if not ok:

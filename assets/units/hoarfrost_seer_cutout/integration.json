@@ -13,10 +13,15 @@
   "density": {
     "entry": "hoarfrost_seer_cutout",
     "paint": "adopted/processed from untouched source parts",
-    "native_rest_pending": []
+    "native_rest_pending": [
+      "rest rebake needed: assets/units/hoarfrost_seer_cutout/front/rest.png: rig part pixels changed since recorded rebake",
+      "rest rebake needed: assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png: rig part pixels changed since recorded rebake",
+      "rest rebake needed: assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png: rig part pixels changed since recorded rebake",
+      "rest rebake needed: assets/units/hoarfrost_seer_cutout/rear/rest.png: rig part pixels changed since recorded rebake"
+    ]
   },
   "files": {
-    "actions.gd": "5fb5be41dade5aed30c593f6ae8fda84d8cc74f9b8099af802da9eb6f1499267",
+    "actions.gd": "7b2537d73738738d54134a0875de4e10ff5859f01897ac20c675b5e11df28517",
     "front.json": "f5fa38ad3b9389b51c9a0c625b0716fab1841cf8f5f49de74e3ec38b653d32ce",
     "humanoid_v2/compiled_motion.json": "5cb02c8f8b8b3d74f96273f165ff4449898a12d883234a08f7b1e7fc0b891fad",
     "humanoid_v2/director_motion.json": "30cf0240b1f1850daa474548824771a5e5d688bbc5b120eb3b367c49b73c706b",
@@ -99,9 +104,26 @@
     "humanoid_v2/rear/staff.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/torso.png": "eb2912b4ecf4aaff5b38c30d7f773ae15717cbc97558eea8a5ca94c365ac3380",
     "humanoid_v2/rear/torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/rear.json": "58e9fdb203ed0ad76efa3ef42adfd1c20805bb725df8283a042dba5724c8ce97",
+    "humanoid_v2/rear.json": "495c4b465191a3dfc2719af59420dc0599584db9011310b5640479095981c635",
     "rear.json": "4bc5899a9796d11240835a312f77ef956cf64ebd7c09fab6f43429dfcfce6b5f",
     "renderer.gd": "0f607acd367d0acb5af8102c0f0cb9acbe57dad147f2300b74974dbd8fcf5e5a",
-    "rig.gd": "e44395d3bf6080fa72d4de05a183f65ab8d1ccf2b6f643fa198dfba7be04e421"
+    "rig.gd": "664d2a4c150a1a53e2d5d53a8f8cdce90cd4e8078806eb2401d1a3a180bb778d",
+    "humanoid_v2/rear/staff_released.png": "6e401c5876f80b5d355131f0b259b2c29b67de8f0e6bac3f9c849be91bdba998",
+    "humanoid_v2/rear/staff_released.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "humanoid_v2/rear/staff_released_checks.png": "5c41add1550288285c1b547ddc78e5073be04896dc2b4bbdb2be6df48f0ae96e",
+    "humanoid_v2/rear/staff_released_checks.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "humanoid_v2/rear/hand_far_released_checks.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "humanoid_v2/rear/hand_far_released.png": "30f2f30557321b77ded5f3f0ff0879fefe631d1b6a377eaf730869a133c73b7f",
+    "humanoid_v2/rear/hand_far_released_checks.png": "64c99c8e9c1e96255c0ce982fc0a34d6b7517770ce5b45fa195a65bcd896fece",
+    "humanoid_v2/rear/hand_far_released.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "held_contract.gd": "26a8524e989b08448bcc9e8b096ed8db9e92f7aeee9e1a0c9ea17709ff698c59",
+    "held_contract.gd.uid": "716a7bdbb70da1bf572e0f919d1ee87b0371ceb11269f3a40be5589e2b7ee1ae"
+  },
+  "held_item_partition": {
+    "task": "rr-58",
+    "native_proof": "pending director",
+    "ownership": "experiments/cutouts/hoarfrost_seer/rr58/ownership.json",
+    "underlay_requests": "experiments/cutouts/hoarfrost_seer/rr58/underlay_requests/index.json",
+    "design_placeholders": []
   }
 }

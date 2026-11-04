@@ -14,9 +14,10 @@ from humanoid_cutout.held_release import ComponentPolicy
 from humanoid_cutout.source_space import DetachedSource
 from humanoid_cutout.gates import bindings
 from maquette_motion.silhouette import components
+from rr48_front_clearance import frame_clearance
 
 def diagnostic_inputs():
- names=('rr48_feedback3_cpu.py','rr48_feedback3_policy.py','rr48_feedback3_source.py','rr48_feedback3_sweep.py','rr48_feedback2_source.py','rr48_feedback2.py','rr48_joint_budget.py')
+ names=('rr48_feedback3_cpu.py','rr48_feedback3_policy.py','rr48_feedback3_source.py','rr48_feedback3_sweep.py','rr48_feedback2_source.py','rr48_feedback2.py','rr48_joint_budget.py','rr48_front_clearance.py','rr48_front_windup.py')
  return {name:digest(CASE.parent/name) for name in names}
 
 def sweep(case,samples):
@@ -34,7 +35,10 @@ def sweep(case,samples):
     if metric['dark_slab_blocks']:kinds.append('dark_slab')
     if released['errors']:kinds+=released['errors']
     if source['unmatched_components']:kinds.append('unmatched_detached_paint')
+    clearance=frame_clearance(row,layers,motion)
+    if clearance:kinds+=clearance['failures']
     result={k:row[k] for k in ('view','clip','frame','phase')};result.update(metrics=metric,kinds=kinds,holes=space['failures'],air_pockets=space['air_pockets'],unmatched_components=source['unmatched_components'])
+    if clearance:result['front_clearance']=clearance
     results.append(result);air+=space['air_pockets'];tears+=space['failures']
     if kinds:errors.append(result)
     if len(results)%100==0:print('RR48 CALIBRATED SWEEP FRAME',view,row['clip'],row['frame'],len(tears),'paint-mapped pockets',flush=True)

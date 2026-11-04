@@ -37,6 +37,7 @@
         "test_maquette_geometry",
         "test_maquette_hidden_material",
         "test_maquette_joint_seams",
+        "test_qa26_production_probe",
         "test_recolour_lab",
         "test_rr48_reaver"
       ],

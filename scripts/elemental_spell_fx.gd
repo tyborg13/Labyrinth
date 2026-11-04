@@ -6,7 +6,7 @@ extends RefCounted
 const PixelFxLayer = preload("res://scripts/pixel_fx_layer.gd")
 const SpriteBatch = preload("res://scripts/elemental_spell_sprite_batch.gd")
 
-static var _clouds: Array[Texture2D] = []
+static var _clouds: Array[Texture2D]
 static var _light: Texture2D
 static var _ribbon_templates: Dictionary = {}
 # Authored particle seeds are reused by every target and frame. Float64 keeps

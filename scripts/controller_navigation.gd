@@ -6,8 +6,8 @@ const DIRECTION_DOMINANCE: float = 1.25
 const CURSOR_DEADZONE: float = 0.24
 const REPEAT_ENTER_THRESHOLD: float = 0.54
 const REPEAT_RELEASE_THRESHOLD: float = 0.30
-const REPEAT_INITIAL_DELAY_MSEC: int = 360
-const REPEAT_INTERVAL_MSEC: int = 145
+const REPEAT_INITIAL_DELAY_MSEC: int = 400
+const REPEAT_INTERVAL_MSEC: int = 120
 
 static func direction_from_event(event: InputEvent) -> Vector2:
 	if event is InputEventJoypadButton and (event as InputEventJoypadButton).pressed:
@@ -115,7 +115,7 @@ static func repeat_step(stick: Vector2, previous_direction: Vector2, next_repeat
 	if now_msec >= next_repeat_msec:
 		return {
 			"direction": direction,
-			"next_repeat_msec": now_msec + REPEAT_INTERVAL_MSEC,
+			"next_repeat_msec": next_repeat_msec + REPEAT_INTERVAL_MSEC,
 			"step": direction,
 		}
 	return {

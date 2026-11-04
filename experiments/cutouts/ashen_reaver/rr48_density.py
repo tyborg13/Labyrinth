@@ -12,11 +12,11 @@ from humanoid_cutout.integration import record
 ID='ashen_reaver_cutout'
 DENSITY=ROOT/'spec/assets/board_pixel_density'
 
-def proof_case():
- target=CASE/'proof/production_case';target.mkdir(parents=True,exist_ok=True)
+def proof_case(target=None):
+ target=target or CASE/'proof/production_case';target.mkdir(parents=True,exist_ok=True)
  for name in ('anatomy.json','inputs.json','cutout.json','director_motion.json','compiled_motion.json','material_contract.json','feedback2_supply.json','feedback2_ownership.json','feedback2_fragments.json','feedback2_rigid_fragments.json','feedback2_joint_budgets.json','feedback3_policy.json','feedback3_joint_budgets.json','feedback3_joint_caps.json'):
   if (CASE/name).exists():shutil.copyfile(CASE/name,target/name)
- for folder in ('pieces','checks','seams','ownership','source','tucks','holes'):
+ for folder in ('pieces','checks','seams','ownership','source','tucks','holes','rr57'):
   if (CASE/folder).exists():shutil.copytree(CASE/folder,target/folder,dirs_exist_ok=True)
  for view in VIEWS:
   layout=read_json(CASE/f'layouts/{view}.json');prod=read_json(ASSETS/f'humanoid_v2/{view}.json')
@@ -24,8 +24,12 @@ def proof_case():
    source=next(q for q in prod['parts'] if q['name']==p['name'])
    shutil.copyfile(ASSETS/'humanoid_v2'/source['file'],target/p['file'])
    layout['proof_layers'][p['name']]['source_sha256']=digest(target/p['file'])
+   if 'release_texture' in p:
+    for key in ('file','mask'):
+     shutil.copyfile(ASSETS/'humanoid_v2'/source['release_texture'][key],target/p['release_texture'][key])
+    p['release_texture']['source_sha256']=digest(target/p['release_texture']['file'])
   shutil.copyfile(ASSETS/'humanoid_v2'/prod['rest_source'],target/layout['rest_source'])
-  layout['motion_data']='res://'+str(target.relative_to(ROOT)/'compiled_motion.json')
+  layout['motion_data']=str(target/'compiled_motion.json')
   write_json(target/f'layouts/{view}.json',layout)
  # Palette authority follows each exact density-treated piece.
  from humanoid_cutout.native_defects import packed
@@ -35,6 +39,9 @@ def proof_case():
   layout=read_json(target/f'layouts/{view}.json');palettes={}
   for part in layout['parts']:
    image=np.asarray(Image.open(target/part['file']).convert('RGBA'));palettes[part['name']]=list(map(int,np.unique(packed(image)[image[...,3]>0])))
+   if 'release_texture' in part:
+    released=np.asarray(Image.open(target/part['release_texture']['file']).convert('RGBA'))
+    palettes[part['name']]=sorted(set(palettes[part['name']])|set(map(int,np.unique(packed(released)[released[...,3]>0]))))
   contract['views'][view]={'floor_pieces':['foot_near','foot_far','leg_near','leg_far'],'cloth_pieces':['loincloth','loincloth_back'],'interior_palettes':palettes}
  write_json(target/'material_contract.json',contract)
  write_json(target/'proof/build.json',read_json(CASE/'proof/build.json'))
@@ -108,7 +115,9 @@ def register():
  print(f'RR48 DENSITY PAINT: PASS ({len(paths)} source cuts adopted/processed; native rest pending)')
 
 if __name__=='__main__':
- if '--proof-case' in sys.argv:proof_case()
+ if '--proof-case' in sys.argv:
+  from pathlib import Path
+  proof_case(Path(sys.argv[sys.argv.index('--output')+1]) if '--output' in sys.argv else None)
  elif '--seal-native' in sys.argv:
   pending=seal()
   if pending:raise ValueError('Native rest still pending: '+str(pending))

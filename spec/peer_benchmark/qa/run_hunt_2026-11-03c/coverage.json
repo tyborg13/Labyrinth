@@ -1,0 +1,400 @@
+{
+  "default": {
+    "runs_started": 11,
+    "runs_ended": 11,
+    "completed": 11,
+    "outcomes": {
+      "embrace": 8,
+      "victory": 3
+    },
+    "room_entries": 344,
+    "decisions": 14245,
+    "section_runs": {
+      "0": 11,
+      "1": 5,
+      "2": 4,
+      "3": 4,
+      "4": 3,
+      "5": 3
+    },
+    "room_kinds": {
+      "arcanist": 0,
+      "blacksmith": 0,
+      "boss": 22,
+      "campfire": 30,
+      "combat": 111,
+      "dragon": 22,
+      "ember_hoarder": 5,
+      "event": 56,
+      "graftwright": 6,
+      "guardian": 10,
+      "hoarder": 5,
+      "last_light": 4,
+      "scavenger": 31,
+      "snare": 4,
+      "start": 30,
+      "treasure": 34,
+      "umbral_snare": 4,
+      "warband": 1
+    },
+    "never_visited": [
+      "blacksmith",
+      "arcanist"
+    ],
+    "final_dragon_entries": 3,
+    "victories": 3,
+    "orphan_samples": 344,
+    "max_orphans": 0,
+    "action_counts": {
+      "aoe": 20,
+      "begin_combat": 157,
+      "blink": 160,
+      "card": 4195,
+      "confirm_card": 1048,
+      "dialogue": 66,
+      "equipment": 184,
+      "leave_browse": 93,
+      "map_room": 326,
+      "melee": 400,
+      "move": 3599,
+      "pass": 776,
+      "ranged": 1384,
+      "side_map": 30,
+      "side_reduced_motion": 39,
+      "side_resume": 38,
+      "ui": 1562,
+      "side_hover_hand": 22,
+      "side_deck": 18,
+      "side_escape": 36,
+      "side_settings": 30,
+      "illuminate": 24,
+      "illusion": 1,
+      "cancel_card": 17,
+      "surface": 3,
+      "pull": 17
+    },
+    "wall_seconds": 3314.491285375,
+    "options": {
+      "no_embrace": false,
+      "seed": 2,
+      "runs": 0,
+      "minutes": 45.0,
+      "processes": 2,
+      "seed_timeout": 4500.0,
+      "stop_after": 0,
+      "script": "tools/run_hunt.gd",
+      "output_dir": "/private/tmp/labyrinth_codex/qa-30/campaign-default",
+      "report_only": false,
+      "include_evidence": []
+    },
+    "runs": [
+      {
+        "seed": 2,
+        "returncode": 0,
+        "outcome": "embrace",
+        "decisions": 187,
+        "sections": [
+          0
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000002/godot.log"
+      },
+      {
+        "seed": 3,
+        "returncode": 0,
+        "outcome": "embrace",
+        "decisions": 469,
+        "sections": [
+          0
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000003/godot.log"
+      },
+      {
+        "seed": 4,
+        "returncode": 0,
+        "outcome": "embrace",
+        "decisions": 327,
+        "sections": [
+          0
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000004/godot.log"
+      },
+      {
+        "seed": 5,
+        "returncode": 0,
+        "outcome": "victory",
+        "decisions": 2989,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000005/godot.log"
+      },
+      {
+        "seed": 6,
+        "returncode": 0,
+        "outcome": "embrace",
+        "decisions": 306,
+        "sections": [
+          0
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000006/godot.log"
+      },
+      {
+        "seed": 7,
+        "returncode": 0,
+        "outcome": "embrace",
+        "decisions": 476,
+        "sections": [
+          0
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000007/godot.log"
+      },
+      {
+        "seed": 8,
+        "returncode": 0,
+        "outcome": "embrace",
+        "decisions": 1860,
+        "sections": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000008/godot.log"
+      },
+      {
+        "seed": 9,
+        "returncode": 0,
+        "outcome": "victory",
+        "decisions": 3485,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000009/godot.log"
+      },
+      {
+        "seed": 10,
+        "returncode": 0,
+        "outcome": "embrace",
+        "decisions": 814,
+        "sections": [
+          0,
+          1
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000010/godot.log"
+      },
+      {
+        "seed": 11,
+        "returncode": 0,
+        "outcome": "embrace",
+        "decisions": 158,
+        "sections": [
+          0
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000011/godot.log"
+      },
+      {
+        "seed": 12,
+        "returncode": 0,
+        "outcome": "victory",
+        "decisions": 3174,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000012/godot.log"
+      }
+    ]
+  },
+  "no-embrace": {
+    "runs_started": 6,
+    "runs_ended": 6,
+    "completed": 5,
+    "outcomes": {
+      "fight_limit": 1,
+      "victory": 5
+    },
+    "room_entries": 393,
+    "decisions": 17076,
+    "section_runs": {
+      "0": 6,
+      "1": 6,
+      "2": 6,
+      "3": 5,
+      "4": 5,
+      "5": 5
+    },
+    "room_kinds": {
+      "arcanist": 0,
+      "blacksmith": 0,
+      "boss": 32,
+      "campfire": 32,
+      "combat": 135,
+      "dragon": 32,
+      "ember_hoarder": 5,
+      "event": 60,
+      "graftwright": 5,
+      "guardian": 11,
+      "hoarder": 5,
+      "last_light": 3,
+      "scavenger": 30,
+      "snare": 4,
+      "start": 33,
+      "treasure": 38,
+      "umbral_snare": 4,
+      "warband": 5
+    },
+    "never_visited": [
+      "blacksmith",
+      "arcanist"
+    ],
+    "final_dragon_entries": 5,
+    "victories": 5,
+    "orphan_samples": 393,
+    "max_orphans": 0,
+    "action_counts": {
+      "aoe": 65,
+      "begin_combat": 195,
+      "blink": 168,
+      "card": 5081,
+      "confirm_card": 1290,
+      "dialogue": 30,
+      "equipment": 211,
+      "leave_browse": 120,
+      "map_room": 382,
+      "melee": 444,
+      "move": 4463,
+      "outcrop": 2,
+      "pass": 856,
+      "ranged": 1635,
+      "side_escape": 37,
+      "side_hover_hand": 27,
+      "side_map": 43,
+      "side_reduced_motion": 39,
+      "side_resume": 43,
+      "side_settings": 34,
+      "ui": 1831,
+      "push": 43,
+      "side_deck": 21,
+      "surface": 3,
+      "cancel_card": 6,
+      "illusion": 7
+    },
+    "wall_seconds": 4020.5979364160003,
+    "options": {
+      "no_embrace": true,
+      "seed": 2,
+      "runs": 0,
+      "minutes": 45.0,
+      "processes": 2,
+      "seed_timeout": 4500.0,
+      "stop_after": 0,
+      "script": "tools/run_hunt.gd",
+      "output_dir": "/private/tmp/labyrinth_codex/qa-30/campaign-no-embrace",
+      "report_only": false,
+      "include_evidence": []
+    },
+    "runs": [
+      {
+        "seed": 2,
+        "returncode": 0,
+        "outcome": "fight_limit",
+        "decisions": 1321,
+        "sections": [
+          0,
+          1,
+          2
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-no-embrace/seed-000002/godot.log"
+      },
+      {
+        "seed": 3,
+        "returncode": 0,
+        "outcome": "victory",
+        "decisions": 2950,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-no-embrace/seed-000003/godot.log"
+      },
+      {
+        "seed": 4,
+        "returncode": 0,
+        "outcome": "victory",
+        "decisions": 3374,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-no-embrace/seed-000004/godot.log"
+      },
+      {
+        "seed": 5,
+        "returncode": 0,
+        "outcome": "victory",
+        "decisions": 2745,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-no-embrace/seed-000005/godot.log"
+      },
+      {
+        "seed": 6,
+        "returncode": 0,
+        "outcome": "victory",
+        "decisions": 2993,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-no-embrace/seed-000006/godot.log"
+      },
+      {
+        "seed": 7,
+        "returncode": 0,
+        "outcome": "victory",
+        "decisions": 3693,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "log": "/private/tmp/labyrinth_codex/qa-30/campaign-no-embrace/seed-000007/godot.log"
+      }
+    ]
+  }
+}

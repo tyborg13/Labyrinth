@@ -1,0 +1,14 @@
+{
+  "name": "python-default",
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "tools/run_python_suite.py",
+    "--shards",
+    "4",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-25/python-default"
+  ],
+  "started": 1793733598.9594848,
+  "wall_seconds": 32.37029814720154,
+  "returncode": 0
+}

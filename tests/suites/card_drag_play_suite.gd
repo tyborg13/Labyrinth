@@ -566,6 +566,8 @@ static func _test_click_targeting_arrow_and_hover_suppression(tree: SceneTree, e
 		instance.call("_open_menu_overlay")
 		await tree.process_frame
 		_move_pointer(tree, off_board_point)
+		expect.call((instance.get("_card_targeting_pointer_position") as Vector2).is_equal_approx(off_board_point), "Menu input containment keeps tracking the selected card's live pointer endpoint")
+		expect.call(bool(instance.call("_controller_modal_visible")) and int(instance.get("_selected_card_index")) == 0, "Pointer motion behind the menu preserves modal ownership and the selected card")
 		instance.call("_close_menu_overlay")
 		await tree.process_frame
 		expect.call(not arrow.visible and not bool(instance.get_meta("targeting_cursor_suppressed", false)), "Modal recovery over the hand/HUD keeps the cursor visible and arrow hidden")

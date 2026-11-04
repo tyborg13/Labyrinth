@@ -14,6 +14,9 @@ const InputRouter = preload("res://scripts/input_router.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const BossFactory = preload("res://tools/dragon_boss_inspection.gd")
 const SIZE := Vector2i(1920, 1080)
+const HEADER_SETTLING_PROOF_FRAMES: int = 4
+const HEADER_SETTLING_LONG_SUBTITLE: String = "subtitle\nsecond line\nthird line"
+const HEADER_SETTLING_SHORT_SUBTITLE: String = "subtitle"
 
 var _viewport: SubViewport
 var _failed: bool = false
@@ -46,6 +49,7 @@ func _run() -> void:
 	router.call("set_forced_state_for_test", "pointer", "xbox")
 	var engine := Run.new()
 	var room_state: Dictionary = engine.create_new_run(123, profile)
+	await _assert_header_settles_before_draw(instance, room_state)
 	var coord := Vector2i(-999, -999)
 	for candidate: Vector2i in engine.available_moves(room_state):
 		if str(engine.room_metadata(room_state, candidate).get("type", "")) == "combat":
@@ -136,6 +140,33 @@ func _run() -> void:
 	_viewport.queue_free()
 	await process_frame
 	_finish()
+
+func _assert_header_settles_before_draw(instance: Node, room_state: Dictionary) -> void:
+	var fixture: Dictionary = room_state.duplicate(true)
+	var relics: Array[String]
+	relics.append("iron_lung")
+	fixture["relics"] = relics
+	await _load(instance, fixture)
+	var subtitle: Label = instance.get("room_subtitle")
+	var relics_bar: Control = instance.get("relic_bar")
+	subtitle.text = HEADER_SETTLING_LONG_SUBTITLE
+	instance.call("_queue_header_hud_layout")
+	await _settle()
+	subtitle.text = HEADER_SETTLING_SHORT_SUBTITLE
+	instance.call("_queue_header_hud_layout")
+	# The first completed frame must already reflect the container's later sort.
+	# Waiting for a second frame here would conceal the perf-19 settling bug.
+	for frame: int in range(HEADER_SETTLING_PROOF_FRAMES):
+		await process_frame
+		var bottom: float = subtitle.get_global_rect().end.y
+		var umbra: Control = instance.get("umbra_subtitle")
+		if umbra != null and umbra.visible:
+			bottom = umbra.get_global_rect().end.y
+		bottom = preload("res://scripts/new_descent_panel.gd").header_bottom(subtitle, bottom)
+		var title: Control = instance.get("title_box")
+		var expected: float = bottom + float(title.get_theme_constant("separation"))
+		_expect(is_equal_approx(relics_bar.global_position.y, expected), "Header settles before draw on frame %d: relic y=%s, parent placement=%s" % [frame + 1, relics_bar.global_position.y, expected])
+		print("HUD HEADER SETTLING frame=%d actual=%s expected=%s" % [frame + 1, relics_bar.global_position.y, expected])
 
 func _assert_dialogue_input(instance: Node, relic: Control, router: Node) -> void:
 	await _click(relic)

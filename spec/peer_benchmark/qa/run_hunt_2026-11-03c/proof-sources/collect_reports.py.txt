@@ -1,0 +1,42 @@
+"""Retain campaign coverage and unmodified findings without inflating replay counts."""
+from collections import Counter
+from pathlib import Path
+import hashlib,json,shutil
+PROJECT=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-30')
+EVIDENCE=Path('/private/tmp/labyrinth_codex/qa-30')
+REPORT=PROJECT/'spec/peer_benchmark/qa/run_hunt_2026-11-03c'
+REQUIRED_KINDS=('start','combat','guardian','boss','dragon','warband','snare','hoarder','last_light','campfire','treasure','event','scavenger','blacksmith','arcanist','graftwright')
+ALIASES={'boss':'dragon','umbral_snare':'snare','ember_hoarder':'hoarder'}
+
+def main():
+    coverage={};ledger=[]
+    for name in ('default','no-embrace'):
+        directory=EVIDENCE/('campaign-'+name)
+        campaign=json.loads((directory/'campaign.json').read_text());runs=campaign['runs']
+        outcomes=Counter();sections=Counter();kinds=Counter();actions=Counter();final_dragons=0;orphans=[];decisions=0
+        for run in runs:
+            finish=run.get('finish') or {};outcomes[finish.get('outcome','process_failure')]+=1
+            decisions+=finish.get('decisions',0);actions.update(finish.get('action_counts',{}))
+            sections.update({room['section'] for room in run['rooms']})
+            for room in run['rooms']:
+                kind=room['room_kind'];kinds[kind]+=1
+                if kind in ALIASES:kinds[ALIASES[kind]]+=1
+                if room['section']==5 and kind=='boss':final_dragons+=1
+                orphans.append(room['orphans'])
+        coverage[name]=dict(runs_started=campaign['runs_started'],runs_ended=len(runs),completed=sum(outcomes[kind] for kind in ('victory','defeat','embrace')),outcomes=dict(outcomes),room_entries=sum(len(run['rooms']) for run in runs),decisions=decisions,section_runs={str(section):sections[section] for section in range(6)},room_kinds={kind:kinds[kind] for kind in sorted(set(REQUIRED_KINDS)|set(kinds))},never_visited=[kind for kind in REQUIRED_KINDS if not kinds[kind]],final_dragon_entries=final_dragons,victories=outcomes['victory'],orphan_samples=len(orphans),max_orphans=max(orphans,default=None),action_counts=dict(actions),wall_seconds=campaign['wall_seconds'],options=campaign['options'],runs=[dict(seed=run['seed'],returncode=run['returncode'],outcome=(run.get('finish') or {}).get('outcome'),decisions=(run.get('finish') or {}).get('decisions'),sections=sorted({room['section'] for room in run['rooms']}),log=run['log']) for run in sorted(runs,key=lambda row:row['seed'])])
+        for filename,destination in (('report.md',name+'-report.md'),('findings.json',name+'-findings.json'),('provenance.json',name+'-provenance.json')):shutil.copyfile(directory/filename,REPORT/destination)
+        for group in json.loads((directory/'findings.json').read_text()):ledger.append(dict(campaign=name,**group))
+        execution=EVIDENCE/('campaign-'+name+'-execution.json')
+        if execution.exists():shutil.copyfile(execution,REPORT/execution.name)
+    (REPORT/'coverage.json').write_text(json.dumps(coverage,indent=2)+'\n')
+    (REPORT/'finding-ledger.json').write_text(json.dumps(ledger,indent=2)+'\n')
+    for name in ('census-executions.json','shutdown-replays.json','execution-contract.json','fixed-replay-executions.json','python-final-execution.json'):
+        if (EVIDENCE/name).exists():shutil.copyfile(EVIDENCE/name,REPORT/name)
+    for path in EVIDENCE.glob('*.py'):
+        (REPORT/'proof-sources'/(path.name+'.txt')).write_text(path.read_text())
+    for path in EVIDENCE.glob('*.gd'):
+        (REPORT/'proof-sources'/(path.name+'.txt')).write_text(path.read_text())
+    print('QA30 REPORT COLLECTION: campaigns='+str(len(coverage))+'; finding_groups='+str(len(ledger)))
+    for name,data in coverage.items():print('QA30 COVERAGE:',name,'started='+str(data['runs_started']),'ended='+str(data['runs_ended']),'rooms='+str(data['room_entries']),'victories='+str(data['victories']))
+
+if __name__=='__main__':main()

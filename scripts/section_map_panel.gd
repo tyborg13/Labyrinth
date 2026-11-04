@@ -1,6 +1,7 @@
 extends Control
 class_name SectionMapPanel
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
@@ -405,6 +406,12 @@ func _refresh() -> void:
 		tab.disabled = index > Graph.active_section(run_state)
 		tab.tooltip_text = str(Graph.section(run_state, index).get("title", "")) if not tab.disabled else "Unreached section"
 		tab.focus_neighbor_bottom = NodePath("")
+		var left: Control = _tabs.get_child(maxi(0, index - 1))
+		var right: Control = _tabs.get_child(index + 1) if index < Graph.active_section(run_state) else _close
+		tab.focus_neighbor_left = tab.get_path_to(left)
+		tab.focus_neighbor_right = tab.get_path_to(right)
+	_close.focus_neighbor_left = _close.get_path_to(_tabs.get_child(Graph.active_section(run_state)))
+	_close.focus_neighbor_bottom = _close.get_path_to(_scout)
 	_background.texture = Assets.load_texture("res://assets/art/backgrounds/sections/%s.png" % str(info.get("boss_id", "tharokh")))
 	_layout_nodes()
 	_refresh_actions()
@@ -985,7 +992,7 @@ func _refresh_route_radii() -> void:
 	_canvas.queue_redraw()
 
 func _choice_destinations() -> Array[Vector2i]:
-	return Graph.scout_options(run_state) if scout_targeting else available_destinations()
+	return TypedArrays.vector2i(Graph.scout_options(run_state) if scout_targeting else available_destinations())
 
 func _wire_choice_focus() -> void:
 	# Vertical navigation follows the current decision before visiting other

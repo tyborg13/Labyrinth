@@ -554,13 +554,15 @@
       "rig.gd",
       "renderer.gd",
       "held_drop.gd",
-      "held_contract.gd"
+      "held_contract.gd",
+      "weapon_paint.gd"
     ],
     "binding_files": [
       "rig.gd",
       "renderer.gd",
       "held_drop.gd",
-      "held_contract.gd"
+      "held_contract.gd",
+      "weapon_paint.gd"
     ],
     "binding_folders": [
       "tools/humanoid_cutout",

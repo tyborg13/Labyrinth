@@ -10,7 +10,7 @@ static func footprint_shape(engine: RefCounted, state: Dictionary, origin: Vecto
 	var size_data: Array = action.get("pattern_footprint", [1, 1])
 	var size := Vector2i(maxi(1, int(size_data[0])), maxi(1, int(size_data[1])))
 	var side := Vector2i(-direction.y, direction.x)
-	var body: Array[Vector2i] = []
+	var body: Array[Vector2i]
 	var front: int = -9999
 	var back: int = 9999
 	var left: int = 9999
@@ -27,7 +27,7 @@ static func footprint_shape(engine: RefCounted, state: Dictionary, origin: Vecto
 			right = maxi(right, lateral)
 	var shape: String = str(action.get("committed_shape", action.get("guardian_shape", "line")))
 	var reach: int = int(action.get("guardian_length", action.get("range", 1)))
-	var candidates: Array[Vector2i] = []
+	var candidates: Array[Vector2i]
 	for distance: int in range(1, reach + 1):
 		# Authored shoulders let a wide-body breath reach adjacent diagonal cells.
 		# Default zero preserves existing and saved fans.

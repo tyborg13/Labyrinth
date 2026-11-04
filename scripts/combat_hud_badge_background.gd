@@ -6,11 +6,14 @@ const TEXTURE_META: String = "badge_background_texture"
 static var _textures: Dictionary = {}
 
 static func apply(frame: Control) -> void:
+	refresh(frame)
+	frame.resized.connect(_update_texture.bind(frame))
+	frame.draw.connect(_draw_background.bind(frame))
+
+static func refresh(frame: Control) -> void:
 	var style := frame.get_theme_stylebox("panel") as StyleBoxFlat
 	style.bg_color = _velvet_color(style.border_color, 0.0, 0.5)
 	_update_texture(frame)
-	frame.resized.connect(_update_texture.bind(frame))
-	frame.draw.connect(_draw_background.bind(frame))
 
 static func _update_texture(frame: Control) -> void:
 	var style := frame.get_theme_stylebox("panel") as StyleBoxFlat

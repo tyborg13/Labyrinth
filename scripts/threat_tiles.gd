@@ -57,7 +57,7 @@ static func draw_tile(board: Control, tile: Vector2i, polygon: PackedVector2Arra
 	var inner := PackedVector2Array()
 	for point: Vector2 in polygon:
 		inner.append(center + (point - center) * maxf(0.0, 1.0 - inset / edge_distance))
-	var fill: float = hero_fill_alpha(float(Time.get_ticks_msec()) / 1000.0, reduced_motion) if tile == hero_tile else FILL_ALPHA
+	var fill: float = hero_fill_alpha(float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0, reduced_motion) if tile == hero_tile else FILL_ALPHA
 	board.draw_colored_polygon(inner, Color(Palette.DANGER, fill * alpha))
 	inner.append(inner[0])
 	board.draw_polyline(inner, Color(Palette.DANGER, OUTLINE_ALPHA * alpha), OUTLINE_WIDTH, true)

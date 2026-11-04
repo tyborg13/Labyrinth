@@ -259,7 +259,26 @@
       "presentation_anchor": [
         99,
         137
-      ]
+      ],
+      "release_texture": {
+        "file": "front/falchion_released.png",
+        "offset": [
+          27,
+          122
+        ],
+        "bbox": [
+          27,
+          122,
+          124,
+          211
+        ],
+        "mask": "front/falchion_released_checks.png",
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "1e47e85112a01f3224ced1cc4e93b29ef782ff26df0dc5f18149490a8a8cd2fd",
+        "held_presentation": "original composite cache; fingers occlude the grip exactly as approved"
+      }
     },
     {
       "name": "hand_far",
@@ -280,7 +299,26 @@
       "presentation_anchor": [
         99,
         137
-      ]
+      ],
+      "release_texture": {
+        "file": "front/hand_far_released.png",
+        "offset": [
+          83,
+          116
+        ],
+        "bbox": [
+          83,
+          116,
+          125,
+          148
+        ],
+        "mask": "front/hand_far_released_checks.png",
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "619613877bdf00a3119d1f5b495214bdcf90db082b1dd0a16c29fa2d4eced0dd",
+        "held_presentation": "original composite cache; fingers occlude the grip exactly as approved"
+      }
     },
     {
       "name": "pelvis",
@@ -580,7 +618,26 @@
         85,
         112
       ],
-      "file": "front/hidden_hand_far.png"
+      "file": "front/hidden_hand_far.png",
+      "release_texture": {
+        "file": "front/hidden_hand_far_released.png",
+        "offset": [
+          85,
+          112
+        ],
+        "bbox": [
+          85,
+          112,
+          117,
+          150
+        ],
+        "mask": "front/hidden_hand_far_released_checks.png",
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "44ee76482d9839573bf972bef645d51142ea9e3f48874312d883538cabd6bcc8",
+        "held_presentation": "original composite cache; fingers occlude the grip exactly as approved"
+      }
     },
     {
       "name": "hidden_pelvis",

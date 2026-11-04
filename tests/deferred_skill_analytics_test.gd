@@ -88,6 +88,7 @@ func _run() -> void:
 	# host override skips all RunScene boot, save/load, UI and process behavior.
 	await _frames(1)
 	await _test_ordered_stages()
+	await _test_activation_end_only()
 	await _test_locked_warmup()
 	await _test_action_pause_and_restart()
 	await _test_action_after_acknowledgment()
@@ -125,6 +126,27 @@ func _test_ordered_stages() -> void:
 	_expect(_disk_outbox_count() == 0 and not _busy(), "successful ordered protocol drains completely")
 	_expect(_host.calls.size() == 3 and int(_host.calls[0]["frame"]) < int(_host.calls[1]["frame"]) and int(_host.calls[1]["frame"]) < int(_host.calls[2]["frame"]), "all three stages use distinct rendered frames")
 	_record_case("ordered")
+
+func _test_activation_end_only() -> void:
+	_configure("activation_end_only")
+	var engine: RefCounted = _host.get("_combat_engine")
+	var combat: Dictionary = _host.get("_combat_state").duplicate(true)
+	combat["skill_event_revision"] = 0
+	combat["skill_events"] = []
+	var run: Dictionary = _host.get("_run_state").duplicate(true)
+	var scheduled: Dictionary = engine.finish_player_activation(combat)
+	run = _host.call("_stage_player_turn_ended_analytics", run, combat, scheduled, "pass")
+	run = RunEngine.new().set_combat_state(run, scheduled)
+	_host.set("_run_state", run)
+	_host.set("_combat_state", scheduled)
+	_host.call("_request_skill_event_analytics")
+	_expect(_host.calls.is_empty(), "activation-end-only request performs no synchronous I/O")
+	await _frames(4)
+	var events: Array[Dictionary] = AnalyticsStore.load_all_events()
+	_expect(events.size() == 1 and events[0]["event_type"] == "player_turn_ended", "ordinary rendered-frame queue delivers activation end without a skill trigger")
+	_expect(_boundaries() == _strings(["combat_skill_event_outbox", "combat_skill_event_ack"]), "activation-end-only delivery retains save-before-append and final acknowledgment")
+	_expect(_disk_outbox_count() == 0 and not _busy(), "activation-end-only receipt drains and remains acknowledged on disk")
+	_record_case("activation_end_only")
 
 func _test_action_pause_and_restart() -> void:
 	_configure("action_pause")

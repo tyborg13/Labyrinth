@@ -259,7 +259,26 @@
       "presentation_anchor": [
         99,
         137
-      ]
+      ],
+      "release_texture": {
+        "file": "pieces/front/falchion_released.png",
+        "offset": [
+          27,
+          122
+        ],
+        "bbox": [
+          27,
+          122,
+          124,
+          211
+        ],
+        "mask": "checks/front/falchion_released.png",
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "250c8266e643e940e2bf3e8a8d5a3b491161742df639e329de5fc1c6cc89672f",
+        "held_presentation": "original composite cache; fingers occlude the grip exactly as approved"
+      }
     },
     {
       "name": "hand_far",
@@ -280,7 +299,26 @@
       "presentation_anchor": [
         99,
         137
-      ]
+      ],
+      "release_texture": {
+        "file": "pieces/front/hand_far_released.png",
+        "offset": [
+          83,
+          116
+        ],
+        "bbox": [
+          83,
+          116,
+          125,
+          148
+        ],
+        "mask": "checks/front/hand_far_released.png",
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "e172021053a754f238ec140d78b799fe11e0f082641ac0937d7cad4527a5a3c4",
+        "held_presentation": "original composite cache; fingers occlude the grip exactly as approved"
+      }
     },
     {
       "name": "pelvis",
@@ -580,7 +618,26 @@
         85,
         112
       ],
-      "file": "pieces/front/hidden_hand_far.png"
+      "file": "pieces/front/hidden_hand_far.png",
+      "release_texture": {
+        "file": "pieces/front/hidden_hand_far_released.png",
+        "offset": [
+          85,
+          112
+        ],
+        "bbox": [
+          85,
+          112,
+          117,
+          150
+        ],
+        "mask": "checks/front/hidden_hand_far_released.png",
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "44ee76482d9839573bf972bef645d51142ea9e3f48874312d883538cabd6bcc8",
+        "held_presentation": "original composite cache; fingers occlude the grip exactly as approved"
+      }
     },
     {
       "name": "hidden_pelvis",

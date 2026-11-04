@@ -23,7 +23,7 @@ static func entries(cards: Array, deck_order: bool = false) -> Array[Dictionary]
 	)
 	return result
 
-static func populate(host: Node, list: Container, cards: Array, activated: Callable = Callable(), retain: bool = false) -> Dictionary:
+static func populate(host: Node, list: Container, cards: Array, activated: Callable = Callable(), retain: bool = false, caption_floor: bool = false) -> Dictionary:
 	var tiles: Dictionary = {}
 	var current: Array[Control]
 	var index: int = 0
@@ -39,6 +39,7 @@ static func populate(host: Node, list: Container, cards: Array, activated: Calla
 		tile.set_meta("magic_copy_count", int(entry["count"]))
 		tile.set_meta("purge_requested", activated)
 		var strip: Control = tile.get_node("CharacterCardStrip")
+		strip.enforce_caption_floor = caption_floor
 		strip.setup(id, str(Data.card_def(id).get("name", id)), int(entry["count"]))
 		current.append(tile)
 		host.call("_place_character_row", list, tile, index)

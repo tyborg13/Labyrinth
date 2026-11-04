@@ -2,6 +2,7 @@ extends Control
 
 signal closed
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Rules = preload("res://scripts/chronicle_rules.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
@@ -109,7 +110,7 @@ var _chips: HBoxContainer
 var _close: Button
 var _focus_tooltip: Control
 var _focus_anchor: Control
-var _stick_direction: int = 0
+var _stick_repeat := preload("res://scripts/controller_axis_repeat.gd").new()
 var _analytics := Analytics.new()
 var _prompt_bar: PanelContainer
 var _page_sound: AudioStreamPlayer
@@ -119,6 +120,8 @@ var _spell_groups: Array[Dictionary]
 var _detail_tiles: Array[Control]
 
 func _ready() -> void:
+	set_meta("controller_custom_analog_navigation", true)
+	_stick_repeat.stepped.connect(_analog_step)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var scrim := ColorRect.new()
 	scrim.color = Color(0, 0, 0, 0.75)
@@ -578,7 +581,7 @@ func _position_focus_tooltip() -> void:
 static func focus_tooltip_position(anchor: Rect2, extent: Vector2, bounds: Rect2) -> Vector2:
 	var x: float = clampf(anchor.position.x, bounds.position.x, bounds.end.x - extent.x)
 	var y: float = clampf(anchor.position.y, bounds.position.y, bounds.end.y - extent.y)
-	var candidates: Array[Vector2] = [Vector2(x, anchor.end.y), Vector2(x, anchor.position.y - extent.y), Vector2(anchor.end.x, y), Vector2(anchor.position.x - extent.x, y)]
+	var candidates: Array[Vector2] = TypedArrays.vector2([Vector2(x, anchor.end.y), Vector2(x, anchor.position.y - extent.y), Vector2(anchor.end.x, y), Vector2(anchor.position.x - extent.x, y)])
 	for at: Vector2 in candidates:
 		if bounds.encloses(Rect2(at, extent)):
 			return at
@@ -601,30 +604,17 @@ func _input(event: InputEvent) -> void:
 		close()
 		get_viewport().set_input_as_handled()
 		return
-	var focused: Control = get_viewport().gui_get_focus_owner()
-	# Let native keyboard/D-pad focus traverse the detail controls. History
-	# selection and bumper paging stay on the list; analog movement uses the
-	# same explicit neighbor paths as the native actions.
-	if focused != null and _detail.is_ancestor_of(focused):
-		if event is InputEventJoypadMotion and event.axis in [JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y]:
-			var next: int = int(signf(event.axis_value)) if absf(event.axis_value) >= Router.JOYSTICK_ACTIVITY_THRESHOLD else 0
-			if next != 0 and next != _stick_direction:
-				var target: NodePath = focused.focus_next if next > 0 else focused.focus_previous
-				if not target.is_empty():
-					(focused.get_node(target) as Control).grab_focus()
-			_stick_direction = next
-			get_viewport().set_input_as_handled()
+	if event is InputEventJoypadMotion and event.axis in [JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y]:
+		_stick_repeat.sample(event.axis, event.axis_value, Router.JOYSTICK_ACTIVITY_THRESHOLD)
+		get_viewport().set_input_as_handled()
 		return
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	if focused != null and _detail.is_ancestor_of(focused): return
 	var direction: int = 0
 	if event.is_action_pressed("ui_up", true):
 		direction = -1
 	elif event.is_action_pressed("ui_down", true):
 		direction = 1
-	if event is InputEventJoypadMotion and event.axis == JOY_AXIS_LEFT_Y:
-		var next_direction: int = int(signf(event.axis_value)) if absf(event.axis_value) >= Router.JOYSTICK_ACTIVITY_THRESHOLD else 0
-		direction = next_direction if next_direction != _stick_direction else 0
-		_stick_direction = next_direction
-		get_viewport().set_input_as_handled()
 	var page: int = maxi(1, floori(_list.size.y / ROW_HEIGHT))
 	if event is InputEventJoypadButton and event.is_action_pressed(Router.ACTION_HAND_PREVIOUS):
 		direction = -page
@@ -633,6 +623,22 @@ func _input(event: InputEvent) -> void:
 	if direction != 0:
 		select_record(selected_index + direction, true)
 		get_viewport().set_input_as_handled()
+
+func _analog_step(axis: int, direction: int) -> void:
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	if focused != null and _detail.is_ancestor_of(focused):
+		var target: NodePath = focused.focus_next if direction > 0 else focused.focus_previous
+		if not target.is_empty(): (focused.get_node(target) as Control).grab_focus()
+	elif axis == JOY_AXIS_LEFT_Y:
+		select_record(selected_index + direction, true)
+
+func _process(delta: float) -> void:
+	if not (is_visible_in_tree()):
+		_stick_repeat.reset()
+		return
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router == null or bool(router.call("using_controller")):
+		_stick_repeat.advance(delta)
 
 func _column(parent: Node, heading: String) -> VBoxContainer:
 	var column := VBoxContainer.new()

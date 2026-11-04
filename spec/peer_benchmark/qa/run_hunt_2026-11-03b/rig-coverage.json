@@ -1,0 +1,119 @@
+{
+  "default": {
+    "storm_cantor": {
+      "resolved_actions": {
+        "move": 11,
+        "surface": 11,
+        "summon_minions": 12,
+        "melee": 1
+      },
+      "no_action_reasons": {
+        "shocked": 12,
+        "no_line_of_sight": 3
+      },
+      "encounters": 2,
+      "seeds": [
+        10,
+        17
+      ],
+      "sections": [
+        0,
+        1
+      ],
+      "sources": [
+        "/private/tmp/labyrinth_codex/qa-25/campaign-default-continuation/seed-000010/analytics/events-2026-11-03.jsonl",
+        "/private/tmp/labyrinth_codex/qa-25/campaign-default-continuation/seed-000017/analytics/events-2026-11-03.jsonl"
+      ],
+      "representative_event": {
+        "source": "/private/tmp/labyrinth_codex/qa-25/campaign-default-continuation/seed-000010/analytics/events-2026-11-03.jsonl",
+        "event_id": "evt_285709027_377c2cd8",
+        "sequence": 1346,
+        "seed": 10,
+        "section": 1,
+        "action_type": "move",
+        "intent_id": "lay_the_choir",
+        "actor_key": "enemy_1"
+      }
+    },
+    "last_lamplighter": {
+      "resolved_actions": {},
+      "no_action_reasons": {},
+      "encounters": 0,
+      "seeds": [],
+      "sections": [],
+      "sources": [],
+      "representative_event": null
+    }
+  },
+  "no-embrace": {
+    "storm_cantor": {
+      "resolved_actions": {
+        "move": 8,
+        "surface": 11,
+        "summon_minions": 10
+      },
+      "no_action_reasons": {
+        "shocked": 11,
+        "no_line_of_sight": 1
+      },
+      "encounters": 2,
+      "seeds": [
+        3,
+        6
+      ],
+      "sections": [
+        3,
+        4
+      ],
+      "sources": [
+        "/private/tmp/labyrinth_codex/qa-25/campaign-no-embrace/seed-000003/analytics/events-2026-11-03.jsonl",
+        "/private/tmp/labyrinth_codex/qa-25/campaign-no-embrace/seed-000006/analytics/events-2026-11-03.jsonl"
+      ],
+      "representative_event": {
+        "source": "/private/tmp/labyrinth_codex/qa-25/campaign-no-embrace/seed-000003/analytics/events-2026-11-03.jsonl",
+        "event_id": "evt_581343628_c4f5836c",
+        "sequence": 467,
+        "seed": 3,
+        "section": 3,
+        "action_type": "move",
+        "intent_id": "lay_the_choir",
+        "actor_key": "enemy_1"
+      }
+    },
+    "last_lamplighter": {
+      "resolved_actions": {
+        "summon_minions": 9,
+        "ranged": 9,
+        "move": 10,
+        "melee": 7
+      },
+      "no_action_reasons": {
+        "out_of_range": 2
+      },
+      "encounters": 3,
+      "seeds": [
+        2,
+        5,
+        6
+      ],
+      "sections": [
+        5
+      ],
+      "sources": [
+        "/private/tmp/labyrinth_codex/qa-25/campaign-no-embrace/seed-000002/analytics/events-2026-11-03.jsonl",
+        "/private/tmp/labyrinth_codex/qa-25/campaign-no-embrace/seed-000005/analytics/events-2026-11-03.jsonl",
+        "/private/tmp/labyrinth_codex/qa-25/campaign-no-embrace/seed-000006/analytics/events-2026-11-03.jsonl"
+      ],
+      "representative_event": {
+        "source": "/private/tmp/labyrinth_codex/qa-25/campaign-no-embrace/seed-000002/analytics/events-2026-11-03.jsonl",
+        "event_id": "evt_962605334_703aa688",
+        "sequence": 2570,
+        "seed": 2,
+        "section": 5,
+        "action_type": "summon_minions",
+        "intent_id": "snuff",
+        "actor_key": "enemy_1"
+      }
+    }
+  }
+}

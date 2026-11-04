@@ -3,6 +3,7 @@ class_name SectionMapGraph
 
 # Coordinates retain the existing four-depth difficulty bands. Screen placement
 # and connectivity are authored independently; a coordinate is a persistent id.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Elements = preload("res://scripts/element_data.gd")
@@ -10,8 +11,8 @@ const VERSION: int = 1
 const LAYOUT_REVISION: int = 7
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
-const ROOM_COUNTS: Array[int] = [10, 11, 11, 11, 11, 12]
-const FIGHT_COUNTS: Array[int] = [6, 6, 7, 7, 7, 7]
+const ROOM_COUNTS: Array[int] = Array([10, 11, 11, 11, 11, 12], TYPE_INT, "", null)
+const FIGHT_COUNTS: Array[int] = Array([6, 6, 7, 7, 7, 7], TYPE_INT, "", null)
 const INVALID: Vector2i = Vector2i(-999, -999)
 
 static func enabled(state: Dictionary) -> bool:
@@ -73,7 +74,7 @@ static func _initialize_revision_4(state: Dictionary) -> void:
 static func _initialize_walk_revision(state: Dictionary, revision: int, diagnostics: Dictionary = {}) -> void:
 	var seed_value: int = int(state.get("seed", 0))
 	var rooms: Dictionary = {}
-	var sections: Array[Dictionary] = []
+	var sections: Array[Dictionary]
 	for index: int in range(6):
 		var section_started: int = Time.get_ticks_usec() if diagnostics.get("enabled", false) else 0
 		var section_diagnostics: Dictionary = {"enabled": true} if diagnostics.get("enabled", false) else {}
@@ -116,7 +117,7 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 		info["depth_bands"] = bands
 		var slots: Dictionary = {}
 		var ids: Dictionary = {}
-		var guardians: Array[Vector2i] = []
+		var guardians: Array[Vector2i]
 		for cell: Vector2i in layout["order"]:
 			var depth: int = index * 4 + int(bands[cell.x])
 			var slot: int = int(slots.get(depth, 0))
@@ -141,12 +142,12 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 			rooms[key(coord)] = node
 		info["guardians"] = guardians
 		info["guardian"] = guardians[0]
-		var firsts: Array[Vector2i] = []
+		var firsts: Array[Vector2i]
 		for lane: int in layout["rows"][1]: firsts.append(ids[Vector2i(1, lane)])
 		if lane_doors: _link_by_lane(rooms, entry, firsts)
 		else: _link(rooms, entry, firsts)
 		for cell: Vector2i in layout["order"]:
-			var destinations: Array[Vector2i] = []
+			var destinations: Array[Vector2i]
 			for target: Vector2i in layout["children"].get(cell, []): destinations.append(ids[target])
 			if cell.x == count - 1: destinations.append(boss)
 			if lane_doors: _link_by_lane(rooms, ids[cell], destinations)
@@ -182,7 +183,7 @@ static func _weighted_roll(rng: RandomNumberGenerator, weights: Dictionary) -> S
 # Every use of the canned topology is logged.
 const V5_LANE_COUNT: int = 5
 const V5_WALK_COUNT: int = 6
-const V5_MOVE_WEIGHTS: Array[int] = [30, 40, 30]
+const V5_MOVE_WEIGHTS: Array[int] = Array([30, 40, 30], TYPE_INT, "", null)
 const V5_STRUCTURAL_PROPOSALS: int = TOPOLOGY_ATTEMPTS
 # Count work, never elapsed time: retries and accepted graphs are seed-stable.
 # Calibrated by tools/section_map_performance.gd, including the New Game hang.
@@ -444,18 +445,18 @@ static func _diagnostic_v5(diagnostics: Dictionary, reason: String, amount: int 
 static func _walk_layout_v5(rng: RandomNumberGenerator, count: int, diagnostics: Dictionary = {}, structure_check: Callable = Callable()) -> Dictionary:
 	for proposal: int in range(V5_STRUCTURAL_PROPOSALS):
 		_diagnostic_v5(diagnostics, "structural_samples")
-		var openings: Array[int] = []
-		var available: Array[int] = []
+		var openings: Array[int]
+		var available: Array[int]
 		available.assign([0, 1, 2, 3, 4])
 		for offset: int in range(OPENING_CHILD_COUNT): openings.append(available.pop_at(rng.randi_range(0, available.size() - 1)))
 		var walks: Array = []
 		var edges: Dictionary = {}
-		var masks: Array[int] = []
+		var masks: Array[int]
 		masks.resize(count)
 		var rejected: bool = false
 		for walk_index: int in range(V5_WALK_COUNT):
 			var lane: int = openings[walk_index] if walk_index < OPENING_CHILD_COUNT else openings[rng.randi_range(0, OPENING_CHILD_COUNT - 1)]
-			var walk: Array[int] = []
+			var walk: Array[int]
 			walk.append(lane)
 			masks[1] |= 1 << lane
 			for step: int in range(1, count - 1):
@@ -599,7 +600,7 @@ static func _propagate_types_v5(layout: Dictionary, domains: Array, count: int, 
 		var contributions: Dictionary = {}
 		for offset: int in range(domains.size()):
 			var cell: Vector2i = layout["order"][offset]
-			var values: Array[int] = []
+			var values: Array[int]
 			values.assign([1, 0, 1, 0])
 			for type: String in domains[offset]:
 				var fight: int = int(type in ["combat", "guardian"] or (type == "mystery" and layout["nodes"][cell]["mystery_type"] == "combat"))
@@ -614,7 +615,7 @@ static func _propagate_types_v5(layout: Dictionary, domains: Array, count: int, 
 		for offset: int in range(domains.size()):
 			var cell: Vector2i = layout["order"][offset]
 			var candidates: Array = domains[offset]
-			var legal: Array[String] = []
+			var legal: Array[String]
 			for type: String in candidates:
 				if type == "guardian" and (cell.x < 3 or cell.x > count - 3): continue
 				if type == "scavenger" and cell.x < 3: continue
@@ -715,7 +716,7 @@ static func _route_bounds_v5(layout: Dictionary, contributions: Dictionary, reve
 	if reverse: order.reverse()
 	for cell: Vector2i in order:
 		var neighbors: Array = layout["children" if reverse else "parents"].get(cell, [])
-		var values: Array[int] = []
+		var values: Array[int]
 		values.assign([999, 0, 0, 999])
 		for neighbor: Vector2i in neighbors:
 			values[0] = mini(values[0], totals[neighbor][0])
@@ -800,11 +801,11 @@ static func _walk_layout(rng: RandomNumberGenerator, count: int) -> Dictionary:
 		for walk_index: int in range(WALK_COUNT):
 			var lane: int = rng.randi_range(0, 3)
 			if walk_index == 1:
-				var alternatives: Array[int] = []
+				var alternatives: Array[int]
 				for candidate: int in range(4):
 					if candidate != int(walks[0][0]): alternatives.append(candidate)
 				lane = alternatives[rng.randi_range(0, alternatives.size() - 1)]
-			var walk: Array[int] = []
+			var walk: Array[int]
 			walk.assign([lane])
 			for step: int in range(1, count - 1):
 				var moves: Array[int] = _walk_moves(lane, _coords(edges.get(step, [])))
@@ -826,7 +827,7 @@ static func _walk_layout(rng: RandomNumberGenerator, count: int) -> Dictionary:
 	return _layout_from_walks(_fallback_walks(count), count)
 
 static func _walk_moves(lane: int, edges: Array[Vector2i]) -> Array[int]:
-	var moves: Array[int] = []
+	var moves: Array[int]
 	# Roll uniformly among the three deltas, then clamp. At an outer lane,
 	# two different deltas stay in that lane; do not deduplicate those rolls.
 	for delta: int in range(-1, 2):
@@ -837,7 +838,7 @@ static func _walk_moves(lane: int, edges: Array[Vector2i]) -> Array[int]:
 	return moves
 
 static func _door_directions(count: int) -> Array[Vector2i]:
-	return _coords([Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN]) if count == 3 else (_coords([Vector2i.UP, Vector2i.DOWN]) if count == 2 else _coords([Vector2i.RIGHT]))
+	return TypedArrays.vector2i(_coords([Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN]) if count == 3 else (_coords([Vector2i.UP, Vector2i.DOWN]) if count == 2 else _coords([Vector2i.RIGHT])))
 
 static func _physical_doors_legal(layout: Dictionary) -> bool:
 	# A branch's physical door must not occupy its destination's incoming
@@ -870,7 +871,7 @@ static func _layout_from_walks(walks: Array, count: int) -> Dictionary:
 			if not parents.has(target): parents[target] = []
 			if not children[cell].has(target): children[cell].append(target)
 			if not parents[target].has(cell): parents[target].append(cell)
-	var order: Array[Vector2i] = []
+	var order: Array[Vector2i]
 	for step: int in range(1, count):
 		rows[step].sort()
 		for lane: int in rows[step]: order.append(Vector2i(step, lane))
@@ -891,7 +892,7 @@ static func _repair_types(layout: Dictionary, rng: RandomNumberGenerator, count:
 	if position == layout["order"].size(): return _complete_types_legal(layout, count, fights)
 	var cell: Vector2i = layout["order"][position]
 	var node: Dictionary = layout["nodes"][cell]
-	var candidates: Array[String] = []
+	var candidates: Array[String]
 	if bool(node["fixed"]):
 		candidates.append(node["type"])
 	else:
@@ -968,7 +969,7 @@ static func _fallback_walks(count: int) -> Array:
 	# putting consecutive forks across an incoming physical threshold.
 	var walks: Array = []
 	for walk_index: int in range(WALK_COUNT):
-		var walk: Array[int] = []
+		var walk: Array[int]
 		for step: int in range(1, count):
 			var lane: int = 0 if walk_index in [0, 4] else (3 if walk_index == 1 else 1)
 			if walk_index == 3 and step % 2 == 0 and step not in [ceili(count / 2.0), count - 1]: lane = 2
@@ -979,7 +980,7 @@ static func _fallback_walks(count: int) -> Array:
 static func _straight_fallback_walks(count: int) -> Array:
 	var walks: Array = []
 	for lane: int in [0, 1, 3, 0, 3]:
-		var walk: Array[int] = []
+		var walk: Array[int]
 		for step: int in range(count - 1): walk.append(lane)
 		walks.append(walk)
 	return walks
@@ -987,7 +988,7 @@ static func _straight_fallback_walks(count: int) -> Array:
 static func _fallback_layout(count: int, fights: int) -> Dictionary:
 	var layout: Dictionary = _layout_from_walks(_straight_fallback_walks(count), count)
 	_prepare_types(layout, 0, 0, count)
-	var fight_steps: Array[int] = []
+	var fight_steps: Array[int]
 	fight_steps.assign([1, 2, 3])
 	for step: int in range(5, count - 1):
 		if step != ceili(count / 2.0) and fight_steps.size() < fights: fight_steps.append(step)
@@ -1048,7 +1049,7 @@ static func resolve_mystery(state: Dictionary, node: Dictionary) -> void:
 static func _initialize_revision_3(state: Dictionary) -> void:
 	var seed_value: int = int(state.get("seed", 0))
 	var rooms: Dictionary = {}
-	var sections: Array[Dictionary] = []
+	var sections: Array[Dictionary]
 	for index: int in range(6):
 		var rng := RandomNumberGenerator.new()
 		rng.seed = absi(seed_value * 7919 + index * 104729 + 3491)
@@ -1059,7 +1060,7 @@ static func _initialize_revision_3(state: Dictionary) -> void:
 		var info: Dictionary = {"index": index, "boss_id": boss_id, "title": Bosses.room_name_for_boss(boss_id), "entry": entry, "boss": boss, "room_count": count, "fight_count": FIGHT_COUNTS[index], "scouts": 2, "entered": false}
 		sections.append(info)
 		rooms[key(entry)] = _node(entry, index, 0, 1, index * 4, "start", "none")
-		var previous: Array[Vector2i] = []
+		var previous: Array[Vector2i]
 		previous.assign([entry])
 		var slots: Dictionary = {}
 		var step: int = 1
@@ -1082,14 +1083,14 @@ static func _initialize_revision_3(state: Dictionary) -> void:
 				lanes = [0, 1] if rng.randi_range(0, 1) == 0 else [1, 2]
 			var paths: Array = []
 			for branch: int in range(width):
-				var types: Array[String] = []
+				var types: Array[String]
 				for offset: int in range(length):
 					if offset < group_fights:
 						types.append("combat")
 					elif step + offset == count - 1:
 						types.append("campfire")
 					else:
-						var services: Array[String] = []
+						var services: Array[String]
 						services.assign(["treasure", "scavenger", "event"])
 						types.append(services[posmod(index + group + branch + rng.randi_range(0, 2), 3)])
 				# Each branch has the same combat burden but a different service/order.
@@ -1113,7 +1114,7 @@ static func _initialize_revision_3(state: Dictionary) -> void:
 					elif types[offset] in ["treasure", "scavenger", "event"] and fights_before >= 3:
 						if posmod(seed_value * 13 + index * 37 + group * 19 + branch * 7 + offset * 11, 5) == 0:
 							types[offset] = "graftwright"
-				var path: Array[Vector2i] = []
+				var path: Array[Vector2i]
 				for offset: int in range(length):
 					var local_step: int = step + offset
 					var depth: int = index * 4 + mini(3, 1 + int((local_step - 1) * 3 / (count - 1)))
@@ -1147,8 +1148,8 @@ static func _initialize_revision_3(state: Dictionary) -> void:
 					guardian_room["map_landmark"] = true
 					info["guardian"] = guardian_coord
 					break
-			var firsts: Array[Vector2i] = []
-			var lasts: Array[Vector2i] = []
+			var firsts: Array[Vector2i]
+			var lasts: Array[Vector2i]
 			for path_value: Array in paths:
 				firsts.append(path_value[0])
 				lasts.append(path_value[-1])
@@ -1177,14 +1178,14 @@ static func _initialize_revision_3(state: Dictionary) -> void:
 	refresh_knowledge(state)
 
 static func _coords(values: Array) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	for value: Vector2i in values:
 		result.append(value)
 	return result
 
 static func _ring_coord(depth: int, slot: int) -> Vector2i:
 	# Allocate unique ids across the full square perimeter of a depth band.
-	var perimeter: Array[Vector2i] = []
+	var perimeter: Array[Vector2i]
 	for y: int in range(-depth, depth + 1):
 		perimeter.append(Vector2i(depth, y))
 	for x: int in range(depth - 1, -depth - 1, -1):
@@ -1200,7 +1201,7 @@ static func _node(coord: Vector2i, index: int, step: int, lane: int, depth: int,
 
 static func _link(rooms: Dictionary, source: Vector2i, destinations: Array[Vector2i]) -> void:
 	var directions: Array[Vector2i] = _door_directions(destinations.size())
-	var links: Array[Dictionary] = []
+	var links: Array[Dictionary]
 	for index: int in range(destinations.size()):
 		links.append({"coord": destinations[index], "door_dir": directions[index], "kind": "outward"})
 	(rooms[key(source)] as Dictionary)["connections"] = links
@@ -1233,9 +1234,9 @@ static func _connect_groups(rooms: Dictionary, sources: Array[Vector2i], targets
 
 static func descendants(state: Dictionary, start: Vector2i, max_hops: int = 99) -> Dictionary:
 	var result: Dictionary = {}
-	var queue: Array[Vector2i] = []
+	var queue: Array[Vector2i]
 	queue.assign([start])
-	var distances: Array[int] = []
+	var distances: Array[int]
 	distances.assign([0])
 	var source_section: int = int(room(state, start).get("section_index", -1))
 	while not queue.is_empty():
@@ -1261,7 +1262,7 @@ static func refresh_knowledge(state: Dictionary) -> void:
 	if not bool(info.get("entered", false)):
 		info["entered"] = true
 		record_event(state, "section_entered", {"section": index, "boss_id": info.get("boss_id", ""), "scouts": info.get("scouts", 2)})
-	var discoveries: Array[String] = []
+	var discoveries: Array[String]
 	var nearby: Dictionary = descendants(state, current, 3)
 	if full_visibility(state, index):
 		for node: Dictionary in (state.get("rooms", {}) as Dictionary).values():
@@ -1307,7 +1308,7 @@ static func scout_options(state: Dictionary) -> Array[Vector2i]:
 	return result
 
 static func scout_targets(state: Dictionary, target: Vector2i) -> Array[Vector2i]:
-	return _coords([target]) if scout_options(state).has(target) else _coords([])
+	return TypedArrays.vector2i(_coords([target]) if scout_options(state).has(target) else _coords([]))
 
 static func scout(state: Dictionary, target: Vector2i) -> Dictionary:
 	var targets: Array[Vector2i] = scout_targets(state, target)
@@ -1336,8 +1337,8 @@ static func scout(state: Dictionary, target: Vector2i) -> Dictionary:
 static func record_choice(state: Dictionary, destination: Vector2i) -> void:
 	if not enabled(state):
 		return
-	var known: Array[String] = []
-	var known_metadata: Array[Dictionary] = []
+	var known: Array[String]
+	var known_metadata: Array[Dictionary]
 	for node: Dictionary in (state.get("rooms", {}) as Dictionary).values():
 		if int(node.get("section_index", -1)) == active_section(state) and bool(node.get("revealed", false)):
 			known.append(key(node.get("coord", INVALID)))

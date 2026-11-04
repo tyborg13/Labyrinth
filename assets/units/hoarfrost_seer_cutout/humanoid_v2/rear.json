@@ -302,7 +302,30 @@
       ],
       "bone": "hand_far",
       "z_index": 16,
-      "logical_part": "hand_far"
+      "logical_part": "hand_far",
+      "release_texture": {
+        "file": "rear/hand_far_released.png",
+        "mask": "rear/hand_far_released_checks.png",
+        "offset": [
+          164,
+          112
+        ],
+        "bbox": [
+          164,
+          112,
+          184,
+          134
+        ],
+        "sprite_offset": [
+          0,
+          0
+        ],
+        "release_at": {
+          "death": 0.2
+        },
+        "source_sha256": "30f2f30557321b77ded5f3f0ff0879fefe631d1b6a377eaf730869a133c73b7f",
+        "held_presentation": "original byte-identical composite cache"
+      }
     },
     {
       "name": "staff",
@@ -319,7 +342,30 @@
       ],
       "bone": "staff",
       "z_index": 15,
-      "logical_part": "staff"
+      "logical_part": "staff",
+      "release_texture": {
+        "file": "rear/staff_released.png",
+        "mask": "rear/staff_released_checks.png",
+        "offset": [
+          154,
+          11
+        ],
+        "bbox": [
+          154,
+          11,
+          205,
+          234
+        ],
+        "sprite_offset": [
+          0,
+          0
+        ],
+        "release_at": {
+          "death": 0.2
+        },
+        "source_sha256": "6e401c5876f80b5d355131f0b259b2c29b67de8f0e6bac3f9c849be91bdba998",
+        "held_presentation": "original byte-identical composite cache"
+      }
     },
     {
       "name": "hidden_robe",

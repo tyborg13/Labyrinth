@@ -1,0 +1,215 @@
+{
+  "native_pixels": false,
+  "regions": [
+    {
+      "view": "rear",
+      "region": "staff_under_palm",
+      "mask": "rear_staff_under_palm.png",
+      "mask_sha256": "0fcdbd725144abe01505288d9572fa7f7064cb252f1f7cac4c2ac2ee625fff18",
+      "source_size": [
+        255,
+        255
+      ],
+      "source_frame": "unaltered native source registration",
+      "uncovered_pixels": 90,
+      "request_padding_px": 3,
+      "painting_must_continue": "Paint the continuous wooden shaft under the removed palm. The mask is the exact transferred palm ownership; preserve the existing staff axis and width, and authored air. No shaft paint is synthesized.",
+      "status": "filled",
+      "witnesses": [
+        {
+          "clip": "death",
+          "frame": 33
+        }
+      ],
+      "release_at": {
+        "death": 0.2
+      },
+      "fill": {
+        "method": "nearest_same_side_complete_cross_section",
+        "axis": [
+          [
+            177.5,
+            114
+          ],
+          [
+            174.0,
+            131
+          ]
+        ],
+        "midpoint_y": 122.5,
+        "rows": [
+          {
+            "target_y": 115,
+            "source_y": 109,
+            "source_x": [
+              177,
+              182
+            ],
+            "translation_x": -1,
+            "side": "upper"
+          },
+          {
+            "target_y": 116,
+            "source_y": 110,
+            "source_x": [
+              176,
+              182
+            ],
+            "translation_x": 0,
+            "side": "upper"
+          },
+          {
+            "target_y": 117,
+            "source_y": 110,
+            "source_x": [
+              176,
+              182
+            ],
+            "translation_x": 0,
+            "side": "upper"
+          },
+          {
+            "target_y": 118,
+            "source_y": 109,
+            "source_x": [
+              177,
+              182
+            ],
+            "translation_x": -1,
+            "side": "upper"
+          },
+          {
+            "target_y": 119,
+            "source_y": 109,
+            "source_x": [
+              177,
+              182
+            ],
+            "translation_x": -2,
+            "side": "upper"
+          },
+          {
+            "target_y": 120,
+            "source_y": 109,
+            "source_x": [
+              177,
+              182
+            ],
+            "translation_x": -2,
+            "side": "upper"
+          },
+          {
+            "target_y": 121,
+            "source_y": 110,
+            "source_x": [
+              176,
+              182
+            ],
+            "translation_x": -2,
+            "side": "upper"
+          },
+          {
+            "target_y": 122,
+            "source_y": 109,
+            "source_x": [
+              177,
+              182
+            ],
+            "translation_x": -3,
+            "side": "upper"
+          },
+          {
+            "target_y": 123,
+            "source_y": 134,
+            "source_x": [
+              170,
+              175
+            ],
+            "translation_x": 4,
+            "side": "lower"
+          },
+          {
+            "target_y": 124,
+            "source_y": 134,
+            "source_x": [
+              170,
+              175
+            ],
+            "translation_x": 3,
+            "side": "lower"
+          },
+          {
+            "target_y": 125,
+            "source_y": 134,
+            "source_x": [
+              170,
+              175
+            ],
+            "translation_x": 3,
+            "side": "lower"
+          },
+          {
+            "target_y": 126,
+            "source_y": 134,
+            "source_x": [
+              170,
+              175
+            ],
+            "translation_x": 3,
+            "side": "lower"
+          },
+          {
+            "target_y": 127,
+            "source_y": 134,
+            "source_x": [
+              170,
+              175
+            ],
+            "translation_x": 3,
+            "side": "lower"
+          },
+          {
+            "target_y": 128,
+            "source_y": 134,
+            "source_x": [
+              170,
+              175
+            ],
+            "translation_x": 3,
+            "side": "lower"
+          },
+          {
+            "target_y": 129,
+            "source_y": 134,
+            "source_x": [
+              170,
+              175
+            ],
+            "translation_x": 2,
+            "side": "lower"
+          },
+          {
+            "target_y": 130,
+            "source_y": 134,
+            "source_x": [
+              170,
+              175
+            ],
+            "translation_x": 2,
+            "side": "lower"
+          }
+        ],
+        "source_part": "staff",
+        "mirror": false,
+        "mask_complete": true,
+        "view": "rear",
+        "region": "staff_under_palm",
+        "source_file": "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff.png",
+        "source_sha256": "cfe3c526cbfed0a74c803e51ea5319e41e290daf5d6a63c86989386b718ae935",
+        "request_mask_sha256": "0fcdbd725144abe01505288d9572fa7f7064cb252f1f7cac4c2ac2ee625fff18",
+        "copied_pixels": 83,
+        "paint_scope": "production"
+      }
+    }
+  ]
+}

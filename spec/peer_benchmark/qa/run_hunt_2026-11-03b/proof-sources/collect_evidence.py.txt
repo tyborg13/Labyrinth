@@ -1,0 +1,84 @@
+"""Retain campaign summaries without copying profiles, saves or raw large logs."""
+from collections import Counter
+from pathlib import Path
+import hashlib
+import json
+import shutil
+
+PROJECT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-25')
+EVIDENCE = Path('/private/tmp/labyrinth_codex/qa-25')
+REPORT = PROJECT / 'spec/peer_benchmark/qa/run_hunt_2026-11-03b'
+
+def write(name, data):
+    (REPORT/name).write_text(json.dumps(data, indent=2)+'\n')
+
+def rig_coverage(coverage):
+    wanted = ('storm_cantor','last_lamplighter')
+    result = {}
+    for campaign,record in coverage.items():
+        counts = {kind:{'resolved_actions':Counter(),'no_action_reasons':Counter(),'encounters':set(),'seeds':set(),'sections':set(),'sources':set(),'representative_event':None} for kind in wanted}
+        seen = set()
+        for run in record['seeds']:
+            for source in (Path(run['log']).parent/'analytics').glob('*.jsonl'):
+                for line in source.read_text().splitlines():
+                    try: row = json.loads(line)
+                    except ValueError: continue
+                    payload = row.get('payload',{})
+                    kind = payload.get('enemy_type','')
+                    if row.get('event_type')!='enemy_action_resolved' or kind not in wanted: continue
+                    identity = (str(source),row.get('event_id'))
+                    if identity in seen: continue
+                    seen.add(identity)
+                    target = counts[kind]
+                    target['seeds'].add(run['seed']);target['sections'].add(row['section_index']);target['sources'].add(str(source));target['encounters'].add((run['seed'],row['combat_id']))
+                    reason = payload.get('no_action_reason','')
+                    if reason: target['no_action_reasons'][reason] += 1
+                    else:
+                        target['resolved_actions'][payload.get('action_type','')] += 1
+                        if target['representative_event'] is None: target['representative_event'] = {'source':str(source),'event_id':row.get('event_id'),'sequence':row.get('sequence'),'seed':run['seed'],'section':row['section_index'],'action_type':payload.get('action_type'),'intent_id':payload.get('intent_id'),'actor_key':payload.get('actor_key')}
+        result[campaign] = {kind:{'resolved_actions':dict(value['resolved_actions']),'no_action_reasons':dict(value['no_action_reasons']),'encounters':len(value['encounters']),'seeds':sorted(value['seeds']),'sections':sorted(value['sections']),'sources':sorted(value['sources']),'representative_event':value['representative_event']} for kind,value in counts.items()}
+    return result
+
+def main():
+    coverage = {}
+    for name in ('default', 'no-embrace'):
+        directory = EVIDENCE / ('campaign-'+name)
+        campaign = json.loads((directory/'campaign.json').read_text())
+        runs = campaign['runs']
+        rooms = [room for run in runs for room in run['rooms']]
+        outcomes = Counter((run.get('finish') or {}).get('outcome','process_failure') for run in runs)
+        actions = Counter()
+        for run in runs: actions.update((run.get('finish') or {}).get('action_counts',{}))
+        kinds = Counter(room['room_kind'] for room in rooms)
+        coverage[name] = {
+            'runs_started': campaign['runs_started'], 'runs_ended': len(runs),
+            'wall_seconds': campaign['wall_seconds'], 'options': campaign['options'],
+            'outcomes': dict(outcomes), 'room_entries': len(rooms), 'action_counts':dict(sorted(actions.items())),
+            'decisions': sum((run.get('finish') or {}).get('decisions',0) for run in runs),
+            'sections': {str(section):sum(any(room['section']==section for room in run['rooms']) for run in runs) for section in range(6)},
+            'room_kinds': dict(sorted(kinds.items())),
+            'final_dragons': sum(room['section']==5 and room['room_kind']=='boss' for room in rooms),
+            'maximum_orphans': max((room['orphans'] for room in rooms),default=0),
+            'seeds': [{'seed':run['seed'],'returncode':run['returncode'],'outcome':(run.get('finish') or {}).get('outcome'),'decisions':(run.get('finish') or {}).get('decisions'),'sections':sorted({room['section'] for room in run['rooms']}),'log':run['log']} for run in sorted(runs,key=lambda run:run['seed'])]
+        }
+        partial = []
+        for interrupted in campaign.get('capacity_recovery', {}).get('interrupted', []):
+            trace = Path(interrupted['log']).parent/'trace.jsonl'
+            samples = []
+            for line in trace.read_text().splitlines():
+                try: row = json.loads(line)
+                except ValueError: continue
+                if row['event'] == 'room': samples.append(row['data'])
+            partial.append({'seed':interrupted['seed'],'status':'infrastructure interruption; native exit unknown','room_entries':len(samples),'sections':sorted({row['section'] for row in samples}),'room_kinds':dict(Counter(row['room_kind'] for row in samples)),'maximum_orphans':max((row['orphans'] for row in samples),default=0),'trace':str(trace),'trace_sha256':hashlib.sha256(trace.read_bytes()).hexdigest()})
+        coverage[name]['interrupted_runs'] = partial
+        coverage[name]['observed_total_room_entries'] = len(rooms) + sum(row['room_entries'] for row in partial)
+        for original, destination in [('report.md',name+'-report.md'),('findings.json',name+'-findings.json'),('provenance.json',name+'-provenance.json')]:
+            shutil.copyfile(directory/original, REPORT/destination)
+        shutil.copyfile(EVIDENCE/('campaign-'+name+'-execution.json'),REPORT/('campaign-'+name+'-execution.json'))
+    write('coverage.json', coverage)
+    write('rig-coverage.json',rig_coverage(coverage))
+    files = sorted(path for path in REPORT.rglob('*') if path.is_file() and path.name!='evidence-index.json')
+    write('evidence-index.json', {'raw_evidence_root':str(EVIDENCE),'files':{str(path.relative_to(REPORT)):{'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()} for path in files}})
+    print('QA25 EVIDENCE: retained both campaign reports, findings, provenance and coverage')
+
+if __name__ == '__main__':main()

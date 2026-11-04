@@ -1,0 +1,212 @@
+[
+  {
+    "campaign": "no-embrace",
+    "seed": 2,
+    "decision": 1321,
+    "section": 2,
+    "room": "(11, 0)",
+    "outcome": "fight_limit",
+    "disposition": "Bot exploration limit; not a product softlock. Four living enemies remain, and the production legality helpers expose movement, blink and attack targets.",
+    "source": "/private/tmp/labyrinth_codex/qa-30/campaign-no-embrace/seed-000002/run.save",
+    "save_sha256": "c9d04a5cb6e3dbe920ffd1f734df2d7c80e7654d0b7f4b1eebd047046e098cad",
+    "player": {
+      "bleed": 0,
+      "block": 0,
+      "chilled": false,
+      "expose": 0,
+      "freeze": 0,
+      "hp": 8933,
+      "immobilize": false,
+      "max_hp": 9999,
+      "pos": "(6, 5)",
+      "shock": 0,
+      "stoneskin": 0
+    },
+    "analysis": {
+      "card_options": [
+        {
+          "actions": [
+            {
+              "can_resolve": true,
+              "targets": [],
+              "type": "block"
+            }
+          ],
+          "has_budget": true,
+          "id": "brace"
+        },
+        {
+          "actions": [
+            {
+              "can_resolve": true,
+              "targets": [
+                "(6, 6)",
+                "(5, 5)",
+                "(6, 7)",
+                "(5, 6)",
+                "(5, 4)",
+                "(6, 5)"
+              ],
+              "type": "move"
+            },
+            {
+              "can_resolve": true,
+              "targets": [],
+              "type": "block"
+            },
+            {
+              "can_resolve": true,
+              "targets": [],
+              "type": "card_play"
+            }
+          ],
+          "has_budget": true,
+          "id": "guarded_step"
+        },
+        {
+          "actions": [
+            {
+              "can_resolve": true,
+              "targets": [
+                "(6, 2)",
+                "(6, 3)",
+                "(7, 3)",
+                "(4, 4)",
+                "(5, 4)",
+                "(7, 4)",
+                "(3, 5)",
+                "(5, 5)",
+                "(4, 6)",
+                "(5, 6)",
+                "(6, 6)",
+                "(5, 7)",
+                "(6, 7)",
+                "(7, 7)",
+                "(6, 5)"
+              ],
+              "type": "blink"
+            },
+            {
+              "can_resolve": true,
+              "targets": [],
+              "type": "draw"
+            }
+          ],
+          "has_budget": true,
+          "id": "shadow_step"
+        },
+        {
+          "actions": [
+            {
+              "can_resolve": true,
+              "targets": [
+                "(6, 5)"
+              ],
+              "type": "aoe"
+            }
+          ],
+          "has_budget": true,
+          "id": "whirlwind_slash"
+        },
+        {
+          "actions": [
+            {
+              "can_resolve": true,
+              "targets": [
+                "(7, 5)"
+              ],
+              "type": "melee"
+            }
+          ],
+          "has_budget": true,
+          "id": "quick_stab"
+        },
+        {
+          "actions": [
+            {
+              "can_resolve": true,
+              "targets": [
+                "(7, 6)",
+                "(7, 5)"
+              ],
+              "type": "ranged"
+            }
+          ],
+          "has_budget": true,
+          "id": "pale_spark"
+        },
+        {
+          "actions": [
+            {
+              "can_resolve": true,
+              "targets": [
+                "(6, 5)"
+              ],
+              "type": "aoe"
+            }
+          ],
+          "has_budget": true,
+          "id": "waning_pulse"
+        }
+      ],
+      "cards_remaining": 2,
+      "current_actor": {
+        "actor_key": "player",
+        "kind": "player",
+        "name": "Reaver",
+        "seq": 457,
+        "team": "player",
+        "time": 1193,
+        "type": "player"
+      },
+      "hand": [
+        "brace",
+        "guarded_step",
+        "shadow_step",
+        "whirlwind_slash",
+        "quick_stab",
+        "pale_spark",
+        "waning_pulse"
+      ],
+      "is_player_turn": true,
+      "living_enemies": [
+        {
+          "hp": 25,
+          "id": 1,
+          "pos": "(4, 3)",
+          "type": "warden"
+        },
+        {
+          "hp": 14,
+          "id": 2,
+          "pos": "(5, 3)",
+          "type": "harrier"
+        },
+        {
+          "hp": 17,
+          "id": 3,
+          "pos": "(7, 6)",
+          "type": "acolyte"
+        },
+        {
+          "hp": 14,
+          "id": 5,
+          "pos": "(7, 5)",
+          "type": "grave_surgeon"
+        }
+      ],
+      "movement_remaining": 2,
+      "movement_targets": [
+        "(6, 6)",
+        "(5, 5)",
+        "(6, 7)",
+        "(5, 6)",
+        "(5, 4)"
+      ],
+      "open_exits": [],
+      "turn": 73
+    },
+    "diagnostic_log": "/private/tmp/labyrinth_codex/qa-30/fight-save-2.log",
+    "diagnostic_returncode": 0
+  }
+]

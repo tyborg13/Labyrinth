@@ -97,6 +97,7 @@ static func run(expect: Callable) -> void:
 	_test_forced_tutorial_blocks_skill_surfaces(expect)
 	_test_controller_candidate_filtering(expect)
 	_test_modal_suspension_and_resume(expect)
+	_test_pause_focus_memory_lifetime(expect)
 	_test_pause_menu_cannot_bypass_optional_surface_gate(expect)
 	_test_pre_battle_actions_cannot_bypass_visible_completion_gate(expect)
 	_test_skip_replay_and_completion_absence(expect)
@@ -825,6 +826,14 @@ static func _test_controller_candidate_filtering(expect: Callable) -> void:
 	scene.set("grimoire_button", grimoire)
 	scene.set("loadout_button", loadout)
 	scene.set("menu_button", menu)
+	# kb-03 includes piles and turn-order slots in ordinary header navigation.
+	for property: String in ["draw_pile", "discard_pile", "burn_pile"]:
+		var pile := PanelContainer.new()
+		scene.add_child(pile)
+		scene.set(property, pile)
+	var turn_order := Control.new()
+	scene.add_child(turn_order)
+	scene.set("_turn_order_bar", turn_order)
 	scene.set("_guided_tutorial_phase_id", ContextualCombatTutorial.PHASE_CHOOSE_MOVE)
 	scene.set("_player_movement_selected", true)
 	scene.set("_player_movement_target_tiles", _tiles([MOVE_TILE]))
@@ -869,6 +878,57 @@ static func _test_modal_suspension_and_resume(expect: Callable) -> void:
 	expect.call(host.visible and prompt.configure_count == 2, "Closing the modal should resume the same guide phase")
 	expect.call(not ContextualCombatTutorial.has_completed(scene.get("_progression") as Dictionary, ContextualCombatTutorial.MILESTONE_CORE), "Suspending and resuming must not falsely complete a lesson")
 	scene.free()
+
+
+static func _test_pause_focus_memory_lifetime(expect: Callable) -> void:
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	for focus_case: String in ["missing", "freed", "present"]:
+		var scene: Node = _combat_fixture(ReplayRunSceneHarness.new())
+		scene.set("_guided_tutorial_phase_id", ContextualCombatTutorial.PHASE_CORE_COMPLETE)
+		var shell := Control.new()
+		tree.root.add_child(shell)
+		var launch := Button.new()
+		shell.add_child(launch)
+		var menu := ColorRect.new()
+		menu.visible = false
+		shell.add_child(menu)
+		scene.set("_menu_scrim", menu)
+		var dialog := PanelContainer.new()
+		menu.add_child(dialog)
+		scene.set("_menu_dialog", dialog)
+		var action := Button.new()
+		dialog.add_child(action)
+		var settings := PanelContainer.new()
+		settings.visible = false
+		menu.add_child(settings)
+		scene.set("_settings_panel", settings)
+		if focus_case != "missing":
+			var focus: Node = preload("res://scripts/modal_menu_focus.gd").new()
+			focus.configure(scene, menu, dialog, settings)
+			scene.set("_menu_focus", focus)
+			if focus_case == "freed": focus.free()
+		launch.grab_focus()
+		var run_before: Dictionary = (scene.get("_run_state") as Dictionary).duplicate(true)
+		var combat_before: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
+		var progression_before: Dictionary = (scene.get("_progression") as Dictionary).duplicate(true)
+		scene.call("_open_menu_overlay")
+		expect.call(menu.visible and dialog.visible, "Pause opens with %s focus memory" % focus_case)
+		action.grab_focus()
+		scene.call("_open_menu_overlay")
+		scene.call("_close_menu_overlay")
+		expect.call(not menu.visible, "Pause closes with %s focus memory" % focus_case)
+		if focus_case == "present":
+			expect.call(tree.root.gui_get_focus_owner() == launch, "Repeated pause open preserves the original return focus")
+		expect.call(
+			scene.get("_run_state") == run_before
+			and scene.get("_combat_state") == combat_before
+			and scene.get("_progression") == progression_before
+			and scene.get("_guided_tutorial_phase_id") == ContextualCombatTutorial.PHASE_CORE_COMPLETE,
+			"Pause focus lifetime preserves run, combat and progression with %s focus memory" % focus_case
+		)
+		scene.free()
+		shell.free()
+	print("GUIDED PAUSE FOCUS LIFETIME: missing / freed / present / repeated open / state preserved")
 
 
 static func _test_pause_menu_cannot_bypass_optional_surface_gate(expect: Callable) -> void:

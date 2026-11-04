@@ -244,8 +244,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.watch_parent_stdin:
         # OS.execute_with_pipe holds this pipe open. EOF also covers SIGKILL of
         # the owning Godot, when signal handlers and exit hooks cannot run.
+        # os.read, not sys.stdin.buffer: a daemon thread blocked in the buffered
+        # reader holds its lock at exit, and Python aborts ("quit unexpectedly").
         def watch_parent() -> None:
-            if not sys.stdin.buffer.read(1):
+            if not os.read(sys.stdin.fileno(), 1):
                 cancelled.set()
         threading.Thread(target=watch_parent, daemon=True).start()
     return 1 if run_suites(args, cancelled)["failed"] else 0

@@ -1,6 +1,7 @@
 extends RefCounted
 ## Cache authored and resolved source points per motion/facing. Projection follows
 ## camera/floor registration changes; area rakes stay in each target depth layer.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Points = preload("res://scripts/enemy_strike_points.gd")
 const Trail = preload("res://scripts/strike_trail_fx.gd")
 const Dragon = preload("res://scripts/dragon_presentation.gd")
@@ -86,7 +87,7 @@ func prepare(board: Control, effect: Dictionary, progress: float) -> Array[Dicti
 		if kind == "arc": window = Geometry.ARC_WINDOW
 		if Trail.envelope(progress,window,Trail.CONTACT if kind == "arc" else boundary) <= 0.0: return empty
 		resolved = _source_cache.project(entry_value,source_result,body,board.world_position_for_tile(from),board.world_position_for_tile(to),scale)
-		samples = resolved["samples"]
+		samples = TypedArrays.dictionaries(resolved["samples"])
 	if kind == "arc":
 		boundary = Trail.CONTACT
 		window = Geometry.ARC_WINDOW

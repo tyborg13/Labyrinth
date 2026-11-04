@@ -1,0 +1,72 @@
+[
+  {
+    "original": "campaign-default-continuation",
+    "replay": "replay-default-seed-12",
+    "seed": 12,
+    "replay_decisions": 3174,
+    "matching_meaningful_input_prefix": 2797,
+    "first_divergence": {
+      "decision": 2798,
+      "original": {
+        "kind": "ui",
+        "text": "",
+        "room": "(22, -13)",
+        "section": 5,
+        "mode": "room"
+      },
+      "replay": {
+        "kind": "ui",
+        "text": "Magic",
+        "room": "(22, -13)",
+        "section": 5,
+        "mode": "room"
+      }
+    }
+  },
+  {
+    "original": "campaign-no-embrace",
+    "replay": "replay-no-embrace-seed-2",
+    "seed": 2,
+    "replay_decisions": 1321,
+    "matching_meaningful_input_prefix": 135,
+    "first_divergence": {
+      "decision": 136,
+      "original": {
+        "kind": "map_room",
+        "args": [
+          "(-2, -2)"
+        ],
+        "method": "_on_map_view_room_selected",
+        "room": "(-2, 1)",
+        "section": 0,
+        "mode": "room"
+      },
+      "replay": {
+        "kind": "map_room",
+        "args": [
+          "(-1, -2)"
+        ],
+        "method": "_on_large_map_room_selected",
+        "room": "(-2, 1)",
+        "section": 0,
+        "mode": "room"
+      }
+    }
+  },
+  {
+    "original": "campaign-no-embrace",
+    "replay": "replay-no-embrace-seed-3",
+    "seed": 3,
+    "replay_decisions": 1126,
+    "matching_meaningful_input_prefix": 1126,
+    "first_divergence": null
+  },
+  {
+    "original": "campaign-no-embrace",
+    "replay": "replay-no-embrace-seed-3-storage-retry",
+    "seed": 3,
+    "replay_decisions": 2368,
+    "matching_meaningful_input_prefix": 2368,
+    "first_divergence": null
+  }
+]

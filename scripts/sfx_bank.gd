@@ -20,8 +20,8 @@ var cues: Dictionary = {}
 var players: Array = []
 var active_loop_id: String = ""
 var _loops: Array = []
-var _loop_targets: Array[float] = []
-var _loop_starts: Array[float] = []
+var _loop_targets: Array[float]
+var _loop_starts: Array[float]
 var _fade_elapsed: float = CROSSFADE_SECONDS
 var _loop_cursor: int = 0
 var _serial: int = 0
@@ -109,10 +109,10 @@ func set_test_clock(milliseconds: float) -> void:
 	_clock_ms = milliseconds
 
 func now_ms() -> int:
-	return int(_clock_ms) if _clock_ms >= 0 else Time.get_ticks_msec()
+	return int(_clock_ms) if _clock_ms >= 0 else preload("res://scripts/presentation_clock.gd").ticks_msec(false)
 
 func _precise_ms() -> float:
-	return _clock_ms if _clock_ms >= 0 else float(Time.get_ticks_usec()) / 1000.0
+	return _clock_ms if _clock_ms >= 0 else float(preload("res://scripts/presentation_clock.gd").ticks_usec(false)) / 1000.0
 
 func presentation_ms() -> float:
 	return float(presentation_clock.call()) / 1000.0 if presentation_clock.is_valid() else _precise_ms()

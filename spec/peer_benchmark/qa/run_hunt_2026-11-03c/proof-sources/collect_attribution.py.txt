@@ -1,0 +1,48 @@
+"""Attribute the unchanged failed census to concrete node owners."""
+from pathlib import Path
+from collections import defaultdict
+import importlib.util,json,re
+PROJECT=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-30')
+EVIDENCE=Path('/private/tmp/labyrinth_codex/qa-30')
+REPORT=PROJECT/'spec/peer_benchmark/qa/run_hunt_2026-11-03c'
+CASE='census-attribution-default-5'
+CONSOLE_OWNER_DEPTH=5
+GENERATED_CONTROL=re.compile(r'@[A-Za-z_]\w*@\d+')
+
+def enumerate_nodes(node,named,rows):
+    named_count=int(node['path'] in named)
+    for child in node['children']:named_count+=enumerate_nodes(child,named,rows)
+    path=GENERATED_CONTROL.sub('@generated',node['path'])
+    # Stable named owners are unique even when their internal container counters change.
+    if '@' not in node['name']:
+        rows[path].append(dict(path=node['path'],nodes=node['nodes'],named_nodes=named_count,unpooled_nodes=node['nodes']-named_count,visible=node['visible'],script=node['script'],class_name=node['class']))
+    return named_count
+
+def main():
+    profile=EVIDENCE/CASE/'seed-000005';samples={};trees={}
+    for line in (profile/'trace.jsonl').read_text().splitlines():
+        try:row=json.loads(line)
+        except ValueError:continue
+        if row['event'] in ('qa30_census','qa30_attribution'):
+            data=row['data'];section=data['context']['section']
+            if row['event']=='qa30_census':samples.setdefault(section,data)
+            else:trees.setdefault(section,data['tree'])
+    before=defaultdict(list);after=defaultdict(list)
+    enumerate_nodes(trees[0],set(samples[0]['lifetimes']['named_pool_paths']),before)
+    enumerate_nodes(trees[5],set(samples[5]['lifetimes']['named_pool_paths']),after)
+    deltas=[]
+    for path in before.keys()|after.keys():
+        initial=before.get(path,[]);late=after.get(path,[])
+        base=sum(row['unpooled_nodes'] for row in initial);current=sum(row['unpooled_nodes'] for row in late)
+        if base==current:continue
+        deltas.append(dict(path=path,unpooled_delta=current-base,before=initial,after=late))
+    deltas.sort(key=lambda row:(-row['unpooled_delta'],row['path']))
+    spec=importlib.util.spec_from_file_location('qa30_compare',EVIDENCE/'compare_replays.py');compare=importlib.util.module_from_spec(spec);spec.loader.exec_module(compare)
+    inputs=compare.compare(EVIDENCE/'campaign-default/seed-000005/trace.jsonl',profile/'trace.jsonl',CASE)
+    output=dict(case=CASE,command=json.loads((profile/'command.json').read_text()),inputs=inputs,baseline=samples[0]['context'],section_5=samples[5]['context'],baseline_named_nodes=samples[0]['lifetimes']['named_pool_nodes'],section_5_named_nodes=samples[5]['lifetimes']['named_pool_nodes'],deltas=deltas,trace=str(profile/'trace.jsonl'))
+    (REPORT/'node-attribution.json').write_text(json.dumps(output,indent=2)+'\n')
+    print('QA30 ATTRIBUTION INPUTS:',inputs['matching_prefix'],'/',inputs['replay_decisions'])
+    for row in deltas:
+        if row['path'].count('/')<=CONSOLE_OWNER_DEPTH:print('QA30 ATTRIBUTION:',row['unpooled_delta'],row['path'])
+
+if __name__=='__main__':main()

@@ -1,0 +1,72 @@
+[
+  {
+    "label": "census-default-5",
+    "original": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000005/trace.jsonl",
+    "replay": "/private/tmp/labyrinth_codex/qa-30/census-default-5/seed-000005/trace.jsonl",
+    "original_decisions": 2989,
+    "replay_decisions": 2326,
+    "matching_prefix": 2326,
+    "complete_replay_prefix_matches": true,
+    "first_difference": null
+  },
+  {
+    "label": "census-no-embrace-3",
+    "original": "/private/tmp/labyrinth_codex/qa-30/campaign-no-embrace/seed-000003/trace.jsonl",
+    "replay": "/private/tmp/labyrinth_codex/qa-30/census-no-embrace-3/seed-000003/trace.jsonl",
+    "original_decisions": 2950,
+    "replay_decisions": 2368,
+    "matching_prefix": 2368,
+    "complete_replay_prefix_matches": true,
+    "first_difference": null
+  },
+  {
+    "label": "census-fixed-default-5",
+    "original": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000005/trace.jsonl",
+    "replay": "/private/tmp/labyrinth_codex/qa-30/census-fixed-default-5/seed-000005/trace.jsonl",
+    "original_decisions": 2989,
+    "replay_decisions": 2326,
+    "matching_prefix": 2326,
+    "complete_replay_prefix_matches": true,
+    "first_difference": null
+  },
+  {
+    "label": "census-fixed-no-embrace-3",
+    "original": "/private/tmp/labyrinth_codex/qa-30/campaign-no-embrace/seed-000003/trace.jsonl",
+    "replay": "/private/tmp/labyrinth_codex/qa-30/census-fixed-no-embrace-3/seed-000003/trace.jsonl",
+    "original_decisions": 2950,
+    "replay_decisions": 2368,
+    "matching_prefix": 2368,
+    "complete_replay_prefix_matches": true,
+    "first_difference": null
+  },
+  {
+    "label": "census-attribution-default-5",
+    "original": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000005/trace.jsonl",
+    "replay": "/private/tmp/labyrinth_codex/qa-30/census-attribution-default-5/seed-000005/trace.jsonl",
+    "original_decisions": 2989,
+    "replay_decisions": 2326,
+    "matching_prefix": 2326,
+    "complete_replay_prefix_matches": true,
+    "first_difference": null
+  },
+  {
+    "label": "shutdown-2",
+    "original": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000002/trace.jsonl",
+    "replay": "/private/tmp/labyrinth_codex/qa-30/shutdown-replay-2/seed-000002/trace.jsonl",
+    "original_decisions": 187,
+    "replay_decisions": 187,
+    "matching_prefix": 187,
+    "complete_replay_prefix_matches": true,
+    "first_difference": null
+  },
+  {
+    "label": "shutdown-3",
+    "original": "/private/tmp/labyrinth_codex/qa-30/campaign-default/seed-000003/trace.jsonl",
+    "replay": "/private/tmp/labyrinth_codex/qa-30/shutdown-replay-3/seed-000003/trace.jsonl",
+    "original_decisions": 469,
+    "replay_decisions": 469,
+    "matching_prefix": 469,
+    "complete_replay_prefix_matches": true,
+    "first_difference": null
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "view": "front",
+  "clip": "fall",
+  "requested_hand_below_shoulder_px": -12,
+  "effective_hand_below_shoulder_px": -11,
+  "candidate_resolution_px": 1,
+  "reason": "The fully extended 12-px-high side guard exposes detached paint at the peak and 18 native-grid poses; rule 1 takes priority. Full-target findings and hidden-fill masks retained for the director.",
+  "full_target_measurement": "/private/tmp/labyrinth_codex/rr-57/feedback1/full_target/cpu_sweep.json"
+}

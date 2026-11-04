@@ -16,6 +16,16 @@ const HUD_MIN_OPACITY: float = 0.999
 const HUD_WIDE_FIXTURE_SIZE := Vector2i(2560, 1080)
 const HUD_REVIEW_UI_SCALE: float = 1.25
 const HUD_RECT_TOLERANCE: float = 0.01
+const KEYWORD_SAMPLE_FPS: int = 60
+const KEYWORD_TIMEOUT_FRAMES: int = 120
+const KEYWORD_STABILITY_FRAMES: int = 10
+const KEYWORD_PROOF_HOLD_FRAMES: int = 30
+const KEYWORD_POSITION_TOLERANCE: float = 1.0
+const KEYWORD_PROOF_DIR: String = "/private/tmp/labyrinth_codex/kb-02"
+const TODO_DESIGN_POINTER_SETTLE_PARITY: String = "Pointer timing is protected by kb-02; confirm whether its existing two-frame reveal may also wait for the complete lift/spread."
+var _keyword_proof_input: String = ""
+var _keyword_capture_host: Node
+var _keyword_viewport: Viewport
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -24,6 +34,13 @@ func _initialize() -> void:
 	ProgressionStore.set_run_storage_path("user://card_draw_hand_flow_test/current_run.save")
 	SettingsStore.set_storage_path("user://card_draw_hand_flow_test/settings.json")
 	ProgressionStore.clear_saved_run()
+	_keyword_proof_input = OS.get_environment("LABYRINTH_KB02_PROOF_INPUT")
+	if not _keyword_proof_input.is_empty() or OS.get_cmdline_user_args().has("--keyword-focus-only"):
+		await _run_keyword_focus_regression(_keyword_proof_input == "pointer" or OS.get_cmdline_user_args().has("--keyword-pointer"))
+		print("KB02 KEYWORD FOCUS TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
+		quit(1 if _failed else 0)
+		return
+	await _run_keyword_focus_regression()
 	await _run_opening_hand_entry_regression()
 	await _run_transition_regression()
 	await _run_resting_pointer_regression()
@@ -38,6 +55,131 @@ func _initialize() -> void:
 		return
 	print("CARD DRAW HAND FLOW TEST RESULT: PASS")
 	quit()
+
+func _run_keyword_focus_regression(pointer: bool = false) -> void:
+	if pointer:
+		# The pointer clip is a comparison trace, not permission to change its timing.
+		print("TODO_DESIGN_POINTER_SETTLE_PARITY: " + TODO_DESIGN_POINTER_SETTLE_PARITY)
+	var previous_fps: int = Engine.max_fps
+	var previous_window: Dictionary = {"size": root.size, "content_scale_size": root.content_scale_size, "content_scale_mode": root.content_scale_mode, "content_scale_aspect": root.content_scale_aspect, "content_scale_factor": root.content_scale_factor}
+	Engine.max_fps = KEYWORD_SAMPLE_FPS
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["ui_scale"] = 1.0
+	settings["reduced_motion"] = false
+	settings["display_mode"] = SettingsStore.DISPLAY_WINDOWED
+	SettingsStore.save_settings(settings)
+	SettingsStore.apply_settings(settings, root, false)
+	root.size = HUD_FIXTURE_SIZE
+	root.content_scale_size = HUD_FIXTURE_SIZE
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	await process_frame
+	_keyword_capture_host = preload("res://tests/helpers/ui03_capture_viewport.gd").new()
+	root.add_child(_keyword_capture_host)
+	_keyword_capture_host.call("setup", root)
+	_keyword_viewport = _keyword_capture_host.get("viewport") as Viewport
+	var instance: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	_keyword_viewport.add_child(instance)
+	await process_frame
+	await process_frame
+	instance.call("_close_dialogue")
+	instance.set("_progression", preload("res://scripts/contextual_combat_tutorial.gd").dismiss_tutorial(instance.get("_progression") as Dictionary))
+	var router: Node = root.get_node("InputRouter")
+	var previous_modality: String = str(router.call("modality"))
+	var previous_family: String = str(router.call("controller_family"))
+	router.call("set_forced_state_for_test", "pointer" if pointer else "controller", "xbox")
+	await _load_combat_fixture(instance)
+	instance.call("_refresh_controller_interface")
+	for _frame: int in range(KEYWORD_PROOF_HOLD_FRAMES):
+		await _keyword_frame()
+	instance.call("_controller_clear_hand_hover")
+	instance.set("_controller_hand_index", -1)
+	var state_before: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var hand: HandFanContainer = instance.get("hand_box") as HandFanContainer
+	var stack: Control = instance.get("_card_focus_tooltip_stack") as Control
+	for index: int in range(3):
+		if pointer:
+			var motion := InputEventMouseMotion.new()
+			motion.position = _hand_card_center(instance, index)
+			motion.relative = Vector2.ONE
+			_keyword_capture_host.call("route", motion)
+		else:
+			_keyword_button(true)
+		_expect(int(instance.get("_hovered_card_index")) == index, "KB02: real input must focus card %d" % index)
+		if not pointer:
+			_expect(not stack.visible, "KB02: moving focus must hide the previous keyword box in the input frame")
+		var first_visible: int = -1
+		var first_position := Vector2.ZERO
+		var first_strength: float = -1.0
+		for frame: int in range(KEYWORD_TIMEOUT_FRAMES):
+			await _keyword_frame()
+			var visible_this_frame: bool = stack.visible
+			var position_this_frame: Vector2 = stack.global_position
+			var strength_this_frame: float = hand.emphasis_strength()
+			if frame == 0:
+				_expect(not visible_this_frame, "KB02: the previous keyword box must be gone on the focus-change render")
+				_keyword_save("card_%02d_lifting" % index)
+				if not pointer:
+					_keyword_button(false)
+			if not visible_this_frame:
+				continue
+			first_visible = frame
+			first_position = position_this_frame
+			first_strength = strength_this_frame
+			if not pointer:
+				_expect(is_equal_approx(first_strength, 1.0) and not hand.is_sliding(), "KB02: first visible keyword frame must follow the completed lift (card %d, strength %.6f)" % [index, first_strength])
+			_expect(not bool(instance.get("_hand_hover_rest_pending")) and frame >= int(instance.get("HAND_HOVER_REST_RENDERED_FRAMES")) - 1, "KB02: keyword reveal must include the pointer path's rendered rest frames")
+			_keyword_save("card_%02d_first_visible" % index)
+			break
+		_expect(first_visible >= 0, "KB02: focused card %d must eventually show its keyword box" % index)
+		for _frame: int in range(KEYWORD_STABILITY_FRAMES):
+			await _keyword_frame()
+		var drift: float = first_position.distance_to(stack.global_position)
+		_expect(stack.visible, "KB02: the focused keyword box must remain visible 10 frames later")
+		if not pointer:
+			_expect(first_visible >= 0 and drift <= KEYWORD_POSITION_TOLERANCE, "KB02: first visible keyword position must match 10 frames later within 1px (card %d, drift %.3fpx)" % [index, drift])
+		_keyword_save("card_%02d_plus_10" % index)
+		print("KB02 KEYWORD TRACE: input=%s card=%d first_visible=%d strength=%.6f drift=%.3fpx" % ["pointer" if pointer else "controller", index, first_visible, first_strength, drift])
+		if not _keyword_proof_input.is_empty():
+			for _frame: int in range(KEYWORD_PROOF_HOLD_FRAMES):
+				await _keyword_frame()
+	_expect(state_before == instance.get("_combat_state"), "KB02: focus changes must preserve combat state and RNG")
+	instance.queue_free()
+	await process_frame
+	_keyword_capture_host.call("close")
+	_keyword_capture_host.queue_free()
+	_keyword_capture_host = null
+	_keyword_viewport = null
+	router.call("set_forced_state_for_test", previous_modality, previous_family)
+	router.call("clear_forced_state_for_test")
+	for field: String in previous_window:
+		root.set(field, previous_window[field])
+	Engine.max_fps = previous_fps
+
+func _keyword_button(pressed: bool) -> void:
+	var event := InputEventJoypadButton.new()
+	event.device = 0
+	event.button_index = JOY_BUTTON_RIGHT_SHOULDER
+	event.pressed = pressed
+	_keyword_capture_host.call("route", event)
+
+func _keyword_frame() -> void:
+	await process_frame
+	if DisplayServer.get_name() == "headless":
+		# Headless checks model render boundaries; native proof uses actual draws.
+		await create_timer(0.0).timeout
+		RenderingServer.frame_post_draw.emit()
+	else:
+		await RenderingServer.frame_post_draw
+
+func _keyword_save(label: String) -> void:
+	if _keyword_proof_input.is_empty():
+		return
+	var directory: String = "%s/%s" % [KEYWORD_PROOF_DIR, _keyword_proof_input]
+	DirAccess.make_dir_recursive_absolute(directory)
+	var path: String = "%s/%s.png" % [directory, label]
+	_expect(root.get_texture().get_image().save_png(path) == OK, "KB02: native proof frame must save")
+	print(path)
 
 func _run_opening_hand_entry_regression() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")

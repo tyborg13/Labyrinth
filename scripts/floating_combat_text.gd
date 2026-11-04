@@ -1,6 +1,7 @@
 extends RefCounted
 class_name FloatingCombatText
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const KIND_DAMAGE: String = "damage"
 const KIND_EFFECT: String = "effect"
 
@@ -99,7 +100,7 @@ static func is_popup_entry(entry: Dictionary) -> bool:
 
 
 static func animate_entries(base_entries: Array, elapsed_seconds: float, reduced_motion: bool) -> Array[Dictionary]:
-	var animated: Array[Dictionary] = []
+	var animated: Array[Dictionary]
 	var sequence_count_by_anchor: Dictionary = {}
 	for base_var: Variant in base_entries:
 		if typeof(base_var) != TYPE_DICTIONARY:
@@ -201,7 +202,7 @@ static func animate_timeline(groups: Array, elapsed_seconds: float, reduced_moti
 		active_batches.append(animated_batch)
 	# The screen-space allocator places new arrivals around established lanes.
 	# Restacking old batches here would jump them when a later action is queued.
-	var animated: Array[Dictionary] = []
+	var animated: Array[Dictionary]
 	for batch_var: Variant in active_batches:
 		for entry_var: Variant in batch_var as Array:
 			if typeof(entry_var) == TYPE_DICTIONARY:
@@ -350,7 +351,7 @@ static func place_screen_popups(popups: Array[Dictionary], bounds: Rect2, cache:
 	if popups.is_empty():
 		cache.clear()
 		return popups
-	var occupied: Array[Rect2] = []
+	var occupied: Array[Rect2]
 	for obstacle: Variant in obstacles:
 		if typeof(obstacle) == TYPE_RECT2:
 			occupied.append(obstacle as Rect2)
@@ -378,7 +379,7 @@ static func place_screen_popups(popups: Array[Dictionary], bounds: Rect2, cache:
 
 
 static func _nearest_clear_popup_offset(envelope: Rect2, occupied: Array[Rect2], bounds: Rect2, vertical_limit: float = SCREEN_POPUP_SOLO_VERTICAL_SHIFT, association: Dictionary = {}) -> Vector2:
-	var candidates_y: Array[float] = [0.0]
+	var candidates_y: Array[float] = TypedArrays.floats([0.0])
 	var candidates_x: Array[float]
 	candidates_x.append_array([0.0, -SCREEN_POPUP_MAX_SIDE_SHIFT, SCREEN_POPUP_MAX_SIDE_SHIFT])
 	for rect: Rect2 in occupied:

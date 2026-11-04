@@ -14,6 +14,8 @@ const OUTPUT_DIR := "user://scavenger_shop_probe"
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const NAVIGATION_STEP_LIMIT: int = 64
 const SHELF_CENTER_X: Array[float] = [815.0, 1075.0, 1335.0]
+const LIFETIME_PACK_PAGES: int = 2
+const LIFETIME_MOTION_MODES: Array = [false, true]
 
 var _failed: bool = false
 var _probe_viewport: SubViewport
@@ -43,6 +45,11 @@ func _initialize() -> void:
 	ProgressionStore.set_storage_path("user://labyrinth_progression_scavenger_shop_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_scavenger_shop_probe.save")
 	ProgressionStore.clear_saved_run()
+	if OS.get_cmdline_user_args().has("--closed-shop-only"):
+		await _check_closed_shop_lifetime()
+		print("SCAVENGER CLOSED SHOP LIFETIME: %s" % ("FAIL" if _failed else "PASS"))
+		quit(1 if _failed else 0)
+		return
 	await _capture_states()
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	print("SCAVENGER SHOP PROBE: %s" % ("FAIL" if _failed else "PASS"))
@@ -348,6 +355,96 @@ func _capture_states() -> void:
 	await _save("board_after_leave.png")
 	instance.queue_free()
 	await process_frame
+
+func _check_closed_shop_lifetime() -> void:
+	var engine := RunEngine.new()
+	for reduced: bool in LIFETIME_MOTION_MODES:
+		var state: Dictionary = _scavenger_state(engine)
+		var inventory: Array = GameData.equipment_ids().slice(0, LIFETIME_PACK_PAGES * preload("res://scripts/scavenger_shop_view.gd").SELL_PAGE_SIZE)
+		state["equipment_inventory"] = inventory
+		state["collected_equipment"] = inventory.duplicate()
+		var shop: Control = preload("res://scripts/scavenger_shop_view.gd").new()
+		shop.name = "ScavengerShopView"
+		shop.visible = false
+		_probe_viewport.add_child(shop)
+		shop.configure(state, engine, reduced)
+		shop.present()
+		await _settle()
+		shop.call("_set_pack_mode", true)
+		shop.call("_set_pack_filter", "gear")
+		(shop.get("_sell_next") as Button).pressed.emit()
+		var offers: Array[Control] = shop.call("_visible_sell_offer_controls")
+		if offers.is_empty() or int(shop.get("_sell_page")) == 0:
+			_fail("Closed-shop fixture must reach a nonempty second pack page")
+			shop.queue_free()
+			await process_frame
+			continue
+		var selected: Control = offers[0]
+		shop.call("_select_item", str(selected.get_meta("shop_item_id")), true, selected)
+		shop.call("_turn_detail_card", 1)
+		var snapshot: Dictionary = shop.call("semantic_snapshot")
+		var page: int = int(shop.get("_sell_page"))
+		var prefix: String = "reduced" if reduced else "normal"
+		if DisplayServer.get_name() != "headless": await _save(prefix + "_before_close.png")
+		# Same-frame refresh must retain live controls and their focus ownership.
+		shop.dismiss_immediately()
+		shop.configure(state, engine, reduced)
+		shop.present()
+		await process_frame
+		if shop.get("_selected_source") != selected:
+			_fail("A temporary shop refresh must retain the selected live ware")
+		shop.dismiss_immediately()
+		await process_frame
+		await process_frame
+		_assert_closed_shop_empty(shop)
+		shop.present()
+		await _settle()
+		if shop.call("semantic_snapshot") != snapshot or int(shop.get("_sell_page")) != page:
+			_fail("Reopening a released shop must preserve selection, detail, filter, page and entry state")
+		var reopened: Variant = shop.get("_selected_source")
+		if not is_instance_valid(reopened) or not reopened.is_visible_in_tree():
+			_fail("Reopening must bind selection to a fresh live ware")
+		if DisplayServer.get_name() != "headless": await _save(prefix + "_reopened.png")
+		shop.dismiss_immediately()
+		await process_frame
+		await process_frame
+		var owner: Dictionary = {"active": true}
+		var active: Callable = func() -> bool: return bool(owner["active"])
+		var present_frame: Callable = func() -> void:
+			shop.dismiss_immediately()
+			await process_frame
+		await shop.get_script().prepare_hidden_for(shop, state, engine, reduced, present_frame, active)
+		var prepared: Dictionary = (shop.get("_offer_sources") as Dictionary).duplicate()
+		shop.dismiss_immediately()
+		await process_frame
+		await process_frame
+		if prepared.is_empty() or shop.get("_offer_sources") != prepared:
+			_fail("A valid hidden travel owner must retain its prepared stock")
+		owner["active"] = false
+		shop.dismiss_immediately()
+		await process_frame
+		await process_frame
+		_assert_closed_shop_empty(shop)
+		shop.configure(state, engine, reduced)
+		shop.present()
+		await _settle()
+		if shop.call("semantic_snapshot") != snapshot or int(shop.get("_sell_page")) != page:
+			_fail("Canceled preparation must reopen with the same complete shop state")
+		if DisplayServer.get_name() != "headless": await _save(prefix + "_after_cancel_reopen.png")
+		shop.queue_free()
+		await process_frame
+		await process_frame
+
+func _assert_closed_shop_empty(shop: Control) -> void:
+	for kind: String in ["magic", "gear", "item"]:
+		if (shop.call("_shelf_row", kind) as Node).get_child_count() != 0:
+			_fail("A closed shop must release its " + kind + " shelf")
+	if (shop.get("_sell_row") as Node).get_child_count() != 0:
+		_fail("A closed shop must release its pack page")
+	if (shop.get("_detail_card_host") as Node).get_child_count() != 0:
+		_fail("A closed shop must release its rendered detail card")
+	if not (shop.get("_offer_sources") as Dictionary).is_empty() or shop.get("_selected_source") != null:
+		_fail("A closed shop must release references to its old ware controls")
 
 func _scavenger_state(run_engine: RunEngine) -> Dictionary:
 	var progression: Dictionary = ProgressionStore.set_embers(ProgressionStore.default_data(), 720)

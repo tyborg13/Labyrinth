@@ -1,4 +1,4 @@
-extends "res://tests/combat_interaction_probe.gd"
+extends "res://tests/fixtures/combat_hand_flanks_fixture.gd"
 
 const InputRouterScript = preload("res://scripts/input_router.gd")
 
@@ -18,7 +18,7 @@ func _capture_states() -> void:
 	await _save_root_screenshot("%s/idle_hand.png" % OUTPUT_DIR)
 	# The legacy tutorial fixture predates the guided tutorial. Keep this local
 	# layout proof on ordinary combat; controller proof owns the current inputs.
-	await _capture_pass_and_meter_states(instance, false)
+	await _capture_pass_and_meter_states(instance)
 	await _capture_hand_dock_resilience(instance)
 
 	_install_pass_meter_fixture(instance, "safe")

@@ -1,0 +1,3 @@
+QA30 CENSUS: census-fixed-default-5 PASS; tree 1555 -> 2809; named_pool_delta=1113; bound=3056.75; orphans 0 -> 0
+QA30 CENSUS: census-fixed-no-embrace-3 PASS; tree 1556 -> 2855; named_pool_delta=1158; bound=3103; orphans 0 -> 0
+QA30 CENSUS OVERALL: PASS 2/2 required comparisons; 2 attempts retained

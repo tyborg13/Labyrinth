@@ -6,6 +6,7 @@ const Settings = preload("res://scripts/settings_store.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const OutcomeFeedback = preload("res://scripts/combat_outcome_feedback.gd")
 const DeathSequence = preload("res://scripts/maquette_cutout_runtime/death_sequence.gd")
+const PresentationClock = preload("res://scripts/presentation_clock.gd")
 const BANNER_LEAD_SECONDS: float = 0.35
 const ENEMY_TILE_SECONDS: float = 0.20
 const ENEMY_ACTION_SPEED_SCALE: float = 0.80
@@ -34,6 +35,7 @@ var _scale_restored: bool = false
 var _leaving_tree: bool = false
 var _clock_usec: float = 1.0
 var _last_clock_usec: int = 0
+var _movie_clock := PresentationClock.new()
 var _round_started_usec: int = 0
 var _banner_clock: int = 0
 var _actor: String = ""
@@ -94,6 +96,10 @@ static func flash_opacity(elapsed: float, hero: bool = false) -> float:
 	return (0.60 if hero else 0.85) * fade
 
 func _sync_clock() -> void:
+	if not Engine.get_write_movie_path().is_empty():
+		var delta: float = get_process_delta_time() / Engine.time_scale if Engine.time_scale > 0.0 else 0.0
+		_clock_usec += _movie_clock.advance(Engine.get_process_frames(), delta, Engine.time_scale, is_inside_tree() and get_tree().paused)
+		return
 	var now: int = Time.get_ticks_usec()
 	if _last_clock_usec > 0 and (not is_inside_tree() or not get_tree().paused):
 		_clock_usec += float(now - _last_clock_usec) * Engine.time_scale

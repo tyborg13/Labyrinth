@@ -76,7 +76,7 @@ static func icon_texture(icon_id: String) -> Texture2D:
 	return AssetLoader.load_texture(path)
 
 static func all_icon_ids() -> Array[String]:
-	var ids: Array[String] = []
+	var ids: Array[String]
 	for element_id: String in ElementData.all_elements():
 		ids.append(element_id)
 	for icon_id: String in ROOM_TYPE_ICON_PATHS.keys():

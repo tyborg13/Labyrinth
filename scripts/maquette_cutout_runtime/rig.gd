@@ -13,6 +13,8 @@ func _notification(what: int) -> void:
 		preload("stable_paint.gd").follow_root(self)
 
 func load_rig() -> bool:
+	if _loaded_facing != facing:
+		preload("construction.gd").ensure_source(_layout_path(facing))
 	# The inherited same-facing load is a no-op; its live helper map survives.
 	if _loaded_facing != facing: cap_bones.clear()
 	return super.load_rig()

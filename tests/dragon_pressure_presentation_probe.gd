@@ -87,7 +87,8 @@ func _noctyrax() -> void:
 			_expect(snapshot.get("clip","")=="rest",action_key+" reduced rig stays still")
 			witnesses.append({"image":action_key+"_reduced","tiles":Profile.tiles(effect),"reduced_motion":true,"snapshot":snapshot})
 		state = result["state"].duplicate(true)
-	for action_key: String in ["night_coil_aoe_line","last_eclipse_umbra_eclipse","last_eclipse_aoe_refuge","void_claw_aoe_refuge","starless_breath_aoe_fan","starless_breath_aoe_refuge"]:
+	# bos-02 (9a8855088) removed the secondary refuge sweeps for element rules.
+	for action_key: String in ["night_coil_aoe_line","last_eclipse_umbra_eclipse","starless_breath_aoe_fan"]:
 		for stage: String in ["release","impact","dissipate"]:
 			_expect(captured.has(action_key+"_"+stage),"Each primary/secondary area action is rendered: "+action_key+" / "+stage)
 

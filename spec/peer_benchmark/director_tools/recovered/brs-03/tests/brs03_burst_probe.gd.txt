@@ -1,0 +1,147 @@
+extends SceneTree
+
+const Suite = preload("res://tests/suites/brs03_burst_suite.gd")
+const LiveFixture = preload("res://tests/suites/movement_undo_suite.gd")
+const CaptureViewport = preload("res://tests/helpers/ui03_capture_viewport.gd")
+const Burst = preload("res://scripts/enemy_mechanics/death_burst_view.gd")
+const Combat = preload("res://scripts/combat_engine.gd")
+const Data = preload("res://scripts/game_data.gd")
+const SIZE := Vector2i(1920, 1080)
+const OUTPUT_DIR: String = "user://probes/brs03_burst"
+# Invisible proof defaults, not production tuning.
+const SETTLE_FRAMES: int = 6
+const CLIP_FPS: int = 60
+const CLIP_HOLD_FRAMES: int = 60
+const FRAME_USEC: int = 16667
+const STILL_PHASE_SECONDS: float = 0.35
+var _host: Node
+var _scene: Node
+var _viewport: SubViewport
+var _failures: Array[String]
+var _captures: Array[Dictionary]
+var _movie: bool = false
+var _scale: float = 1.0
+var _last_frame_usec: int = 0
+
+func _initialize() -> void:
+	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	if OS.get_cmdline_user_args().has("--check-only"):
+		Suite.run(_expect)
+		_finish()
+		return
+	if DisplayServer.get_name() == "headless":
+		_expect(false, "Native Burst proof needs the window server")
+		_finish()
+		return
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	_movie = args.has("--movie")
+	var scale_index: int = args.find("--time-scale")
+	if scale_index >= 0 and scale_index + 1 < args.size(): _scale = float(args[scale_index + 1])
+	_expect(_scale in [1.0, 0.25], "Proof speed is 1x or .25x")
+	_expect(preload("res://scripts/cel_look.gd").mode == "all", "Cel look is on for all approved assets")
+	LiveFixture.prepare_storage()
+	root.size = SIZE
+	root.content_scale_size = SIZE
+	root.content_scale_factor = 1.0
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.gui_embed_subwindows = true
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
+	_run.call_deferred()
+
+func _run() -> void:
+	_host = CaptureViewport.new()
+	root.add_child(_host)
+	_host.setup(root)
+	_viewport = _host.viewport
+	_scene = load("res://scenes/run_scene.tscn").instantiate()
+	_viewport.add_child(_scene)
+	await LiveFixture.settle(self)
+	LiveFixture.set_reduced_motion(_scene, false)
+	if _movie:
+		RenderingServer.frame_post_draw.connect(_movie_tick)
+		Engine.max_fps = CLIP_FPS
+		Engine.time_scale = _scale
+		await _movie_chain()
+	else:
+		await _stills()
+	var report := FileAccess.open(OUTPUT_DIR.path_join("semantic-proof.json"), FileAccess.WRITE)
+	report.store_string(JSON.stringify({"captures": _captures, "failures": _failures, "size": [1920, 1080], "ui_scale": 1.0, "cel_look": "all", "movie": _movie, "time_scale": _scale}, "\t"))
+	report.close()
+	_host.close()
+	_scene.queue_free()
+	await process_frame
+	_finish()
+
+func _show(state: Dictionary, presentation: Dictionary = {}, hover: Vector2i = Vector2i(-1, -1)) -> void:
+	LiveFixture.install(_scene, state)
+	_scene.call("_render_board_state", state, presentation)
+	var board: Control = _scene.board_view
+	board._hover_tile = hover
+	board._queue_hover_redraws()
+	board._queue_dynamic_redraw()
+	for _frame: int in range(SETTLE_FRAMES): await process_frame
+
+func _stills() -> void:
+	var state: Dictionary = Suite.fixture()
+	await _show(state, {"burst_preview_time_seconds": STILL_PHASE_SECONDS}, Suite.SOURCE_TILE)
+	var board: Control = _scene.board_view
+	_expect(Burst.focused_tiles(board).size() == 8, "Hover preview has eight Burst tiles")
+	await _capture("01_hover", {"input": "pointer hover", "source": "3:4", "chips": Suite.chip_values(Burst.preview(board))})
+	# A real selected Quick Stab, with the production preview builder and rules.
+	await _scene.call("_on_card_pressed", 1)
+	_scene.set("_hovered_board_tile", Suite.SOURCE_TILE)
+	var action: Dictionary = Data.card_def("quick_stab")["actions"][0].duplicate(true)
+	var preview: Dictionary = {"state": state, "action": action, "target_tiles": [Suite.SOURCE_TILE]}
+	var presentation: Dictionary = _scene.call("_preview_presentation", preview)
+	presentation["burst_preview_time_seconds"] = STILL_PHASE_SECONDS
+	_scene.call("_render_board_state", state, presentation)
+	board._hover_tile = Suite.SOURCE_TILE
+	board._queue_dynamic_redraw()
+	for _frame: int in range(SETTLE_FRAMES): await process_frame
+	_expect(bool(board._damage_preview_map().get("enemy_1", {}).get("lethal", false)), "Quick Stab would kill the Tick")
+	_expect(not (presentation.get("burst_damage_forecast", {}) as Dictionary).is_empty(), "Aiming carries the exact resolved Burst journal")
+	await _capture("02_lethal_aim", {"input": "Quick Stab selected and aimed", "damage_preview": board._damage_preview_map(), "chips": Suite.chip_values(Burst.preview(board))})
+	LiveFixture.set_reduced_motion(_scene, true)
+	await _show(state, {"reduced_motion": true, "burst_preview_time_seconds": STILL_PHASE_SECONDS}, Suite.SOURCE_TILE)
+	await _capture("03_reduced_motion", {"breathing_multiplier": 1.0, "source_alpha": 0.5})
+
+func _movie_chain() -> void:
+	var before: Dictionary = Suite.enemy_phase_fixture()
+	await _show(before)
+	for _frame: int in range(CLIP_HOLD_FRAMES): await process_frame
+	await _capture("movie_before", {"seed": 83, "enemy_positions": ["3:4", "4:4", "3:3"], "player_position": "2:4", "debug_chain_hp": Suite.CHAIN_HP, "debug_source_bleed": 6})
+	var engine := Combat.new()
+	var resolved: Dictionary = engine.resolve_enemy_turn_with_steps(before, 0)
+	_expect((resolved["state"].get("death_burst_events", []) as Array).size() == 3, "Movie runs a real enemy-phase chain")
+	var animated: Dictionary = before.duplicate(true)
+	await _scene.call("_animate_enemy_phase_steps", animated, resolved["steps"], resolved["state"])
+	_scene.call("_render_board_state", resolved["state"], {})
+	await _capture("movie_after", {"bursts": 3, "chain_seconds": 0.30, "time_scale": _scale})
+	for _frame: int in range(CLIP_HOLD_FRAMES): await process_frame
+
+func _movie_tick() -> void:
+	# Production presentation_usec uses scaled monotonic time. Match MovieWriter
+	# frames to that clock, including .25x, instead of speeding up on fast GPUs.
+	var now: int = Time.get_ticks_usec()
+	if _last_frame_usec > 0:
+		var remaining: int = FRAME_USEC - (now - _last_frame_usec)
+		if remaining > 0: OS.delay_usec(remaining)
+	_last_frame_usec = Time.get_ticks_usec()
+
+func _capture(name: String, semantics: Dictionary) -> void:
+	await RenderingServer.frame_post_draw
+	var frame: Image = _viewport.get_texture().get_image()
+	var path: String = ProjectSettings.globalize_path(OUTPUT_DIR.path_join(name + ".png"))
+	_expect(frame.get_size() == SIZE, "Exact native 1920x1080 capture")
+	_expect(frame.save_png(path) == OK, "Capture writes " + name)
+	_captures.append({"path": path, "semantics": semantics})
+	print("BRS03 CAPTURE: " + path)
+
+func _expect(condition: bool, message: String) -> void:
+	if not condition: _failures.append(message)
+
+func _finish() -> void:
+	for failure: String in _failures: push_error(failure)
+	print("BRS03 BURST PROBE RESULT: PASS" if _failures.is_empty() else "BRS03 BURST PROBE RESULT: FAIL (%d failures)" % _failures.size())
+	quit(0 if _failures.is_empty() else 1)

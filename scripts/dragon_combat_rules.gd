@@ -1,5 +1,6 @@
 extends RefCounted
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Committed = preload("res://scripts/guardian_combat_rules.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
@@ -95,7 +96,7 @@ static func kindle_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionar
 	if direction == Vector2i.ZERO: direction = Vector2i.LEFT
 	var side := Vector2i(-direction.y, direction.x)
 	var body: Array[Vector2i] = engine._enemy_footprint_tiles(enemy)
-	var front: Array[Vector2i] = []
+	var front: Array[Vector2i]
 	var nearest_corner: Vector2i = edge
 	var far_corner: Vector2i = edge
 	var target_side: int = (target.x * side.x + target.y * side.y)
@@ -115,7 +116,7 @@ static func kindle_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionar
 	# Kindle occupies the two melee approach cells and the nearest corner's
 	# lateral exit. The opposite flank stays open. Crownfire can catch the
 	# dragon, so pushing it away buys space at the cost of its self-damage.
-	var candidates: Array[Vector2i] = front.duplicate()
+	var candidates: Array[Vector2i] = TypedArrays.vector2i(front.duplicate())
 	candidates.append(nearest_corner + outward)
 	candidates.append(far_corner - outward)
 	var result: Array[Vector2i]
@@ -165,7 +166,7 @@ static func storm_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary
 	var direction: Vector2i = engine._cardinal_direction(target-engine._closest_enemy_tile_to(enemy,target))
 	if direction == Vector2i.ZERO: direction = Vector2i.LEFT
 	var side := Vector2i(-direction.y,direction.x)
-	var choices: Array[Vector2i] = [target,target+side*2,target-side*2,target+direction*2,target-direction*2]
+	var choices: Array[Vector2i] = TypedArrays.vector2i([target,target+side*2,target-side*2,target+direction*2,target-direction*2])
 	var result: Array[Vector2i]
 	for tile: Vector2i in choices:
 		if result.size() >= count: break

@@ -1,0 +1,15 @@
+{
+  "task_id": "qa-30",
+  "base_head": "8e104c93882d9f3278ace290d2233b85175b7615",
+  "risk_tier": "standard",
+  "acceptance": [
+    "Two sequential 45-minute campaigns; default then no-embrace; 2 processes; seed 2",
+    "Triage every script error/crash/softlock/freed/null access; owned bugs get root-cause fix, failing-first regression and seed replay",
+    "Two section-0/5 census replays; tree bound 1.25 baseline plus named pools; retain actual checks",
+    "Python default group; no full suites",
+    "Preserve gameplay, RNG, saves, analytics and protected surfaces; no design changes"
+  ],
+  "inspection_expectation": "Headless whole-run diagnostics; owner handles any required windowed proof and publication",
+  "workflow": "Owner already recorded task contract and preflight; worker leaves all changes uncommitted",
+  "launcher_sha256": "e344c2ae8dabfec18a48c74ad106956664f6d1691b5b1698819a7f55cc8732f8"
+}

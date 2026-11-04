@@ -11,7 +11,7 @@
  },
  "approved_by": "director, 2026-10-29 (registration (0,0); silhouette agreement outside the motion footprints 99.1% front / 99.96% rear; used only inside vacated footprints)",
  "files": {
-  "motion_tracks.json": "bd73148007e974725c5136a2fb88fa605447b57f72ec27e4e2ed278f2823adfd",
+  "motion_tracks.json": "be8dc1e9570e2462cc21ba739d91232e0f1ef808109912ba76a3c745cb8d2fce",
   "ref_front_approved_x4.png": "9fd819e68c75564cad6e59538d97aebc05accfa24aa05da7b14d98d0e5f1bebe",
   "ref_rear_approved_x4.png": "3beb508215ebe02b895ec2f75a807a52bf30d568780f187510ed7d5f57e6a47b",
   "prompt_front_body_underlay_r1.md": "45c9920ba97740ecc0476677c548c395478d0c21aea02f6ace3b5268f41485e7",

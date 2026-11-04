@@ -1,0 +1,26 @@
+[
+  {
+    "seed": 2,
+    "returncode": 0,
+    "outcome": "embrace",
+    "decisions": 187,
+    "objectdb_warning_reproduced": false,
+    "exit_diagnostics": [
+      "Orphan StringName: BAYER (static: 0, total: 1)",
+      "StringName: 1 unclaimed string names at exit."
+    ],
+    "log": "/private/tmp/labyrinth_codex/qa-30/shutdown-replay-2/seed-000002/godot.log"
+  },
+  {
+    "seed": 3,
+    "returncode": 0,
+    "outcome": "embrace",
+    "decisions": 469,
+    "objectdb_warning_reproduced": false,
+    "exit_diagnostics": [
+      "Orphan StringName: BAYER (static: 0, total: 2)",
+      "StringName: 1 unclaimed string names at exit."
+    ],
+    "log": "/private/tmp/labyrinth_codex/qa-30/shutdown-replay-3/seed-000003/godot.log"
+  }
+]

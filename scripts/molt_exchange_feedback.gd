@@ -69,10 +69,10 @@ func play(host: Node, overlay: Control, dialog: Control, amount: int, reduced: b
 	label.add_theme_constant_override("outline_size",2)
 	row.add_child(label)
 	sound.call(Sfx.entry(Sfx.HEARTH_STRENGTH_ID))
-	var started: int = Time.get_ticks_msec()
-	while float(Time.get_ticks_msec()-started)/1000.0 < DURATION:
+	var started: int = preload("res://scripts/presentation_clock.gd").ticks_msec()
+	while float(preload("res://scripts/presentation_clock.gd").ticks_msec()-started)/1000.0 < DURATION:
 		if token != generation or not is_instance_valid(glow): return false
-		var p: float = float(Time.get_ticks_msec()-started)/1000.0/DURATION
+		var p: float = float(preload("res://scripts/presentation_clock.gd").ticks_msec()-started)/1000.0/DURATION
 		glow.phase = p
 		glow.modulate.a = minf(1.0,p/.10)*(1.0-smoothstep(.76,1.0,p))
 		glow.queue_redraw()

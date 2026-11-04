@@ -618,7 +618,7 @@ static func tooltip_entries_for_rows(
 	rows: Array,
 	leading_icon_keys: Array = []
 ) -> Array[Dictionary]:
-	var entries: Array[Dictionary] = []
+	var entries: Array[Dictionary]
 	var seen: Dictionary = {}
 	var cleanse_statuses: Array = []
 	for row_var: Variant in rows:

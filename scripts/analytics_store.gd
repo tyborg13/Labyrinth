@@ -13,6 +13,7 @@ static var _writers_by_directory: Dictionary = {}
 static var _open_batch: Dictionary = {}
 static var _pending_batches: Array[Dictionary]
 static var _append_ready_paths: Dictionary = {}
+static var _receipt_orders: Dictionary = {}
 var deferred_writes: bool = false
 
 var _install_id: String = ""
@@ -43,17 +44,18 @@ static func clear_storage() -> void:
 		_remove_dir_contents_recursive(absolute_dir)
 	_ensure_storage_dir()
 	_storage_generation += 1
+	_receipt_orders.erase(ProjectSettings.globalize_path(_storage_dir).simplify_path())
 
 static func load_all_events() -> Array[Dictionary]:
 	flush_pending_events()
 	return _read_all_events()
 
 static func _read_all_events() -> Array[Dictionary]:
-	var events: Array[Dictionary] = []
+	var events: Array[Dictionary]
 	var absolute_dir: String = ProjectSettings.globalize_path(_storage_dir)
 	if not DirAccess.dir_exists_absolute(absolute_dir):
 		return events
-	var filenames: Array[String] = []
+	var filenames: Array[String]
 	var dir: DirAccess = DirAccess.open(absolute_dir)
 	if dir == null:
 		return events
@@ -91,6 +93,8 @@ func _init() -> void:
 func write_event(event_type: String, context: Dictionary = {}, payload: Dictionary = {}, idempotency_key: String = "") -> bool:
 	if event_type.is_empty():
 		return false
+	if _receipt_order().busy():
+		return _write_ordered_events([{"event_type": event_type, "context": context, "payload": payload, "idempotency_key": idempotency_key}], false)
 	_ensure_known_idempotency_keys_current()
 	if not idempotency_key.is_empty() and _known_idempotency_keys.has(idempotency_key):
 		return true if deferred_writes else flush_pending_events()
@@ -111,10 +115,11 @@ func write_event(event_type: String, context: Dictionary = {}, payload: Dictiona
 func write_events(events: Array) -> bool:
 	if events.is_empty():
 		return true
+	if _receipt_order().busy(): return _write_ordered_events(events, false)
 	_ensure_known_idempotency_keys_current()
 	var existing_idempotency_keys: Dictionary = _known_idempotency_keys.duplicate(false)
-	var records: Array[Dictionary] = []
-	var appended_idempotency_keys: Array[String] = []
+	var records: Array[Dictionary]
+	var appended_idempotency_keys: Array[String]
 	for event_var: Variant in events:
 		if typeof(event_var) != TYPE_DICTIONARY:
 			continue
@@ -150,13 +155,76 @@ func write_events(events: Array) -> bool:
 # Replay-safe outboxes acknowledge only completed appends. These barriers are
 # used by their existing deferred protocol and terminal/explicit checkpoints.
 func write_event_durable(event_type: String, context: Dictionary = {}, payload: Dictionary = {}, idempotency_key: String = "") -> bool:
+	if _receipt_order().busy():
+		return write_events_durable([{"event_type": event_type, "context": context, "payload": payload, "idempotency_key": idempotency_key}])
 	return write_event(event_type, context, payload, idempotency_key) and flush_pending_events()
 
 func write_events_durable(events: Array) -> bool:
+	if _receipt_order().busy(): return _write_ordered_events(events, true)
 	return write_events(events) and flush_pending_events()
+
+func _receipt_order() -> RefCounted:
+	var directory: String = ProjectSettings.globalize_path(_storage_dir).simplify_path()
+	if not _receipt_orders.has(directory):
+		_receipt_orders[directory] = preload("res://scripts/analytics_receipt_order.gd").new()
+	return _receipt_orders[directory]
+
+func hold_ordered_receipts(events: Array) -> void:
+	if events.is_empty(): return
+	_ensure_known_idempotency_keys_current()
+	var order: RefCounted = _receipt_order()
+	var changed: bool = false
+	for event: Dictionary in events:
+		var key: String = str(event.get("idempotency_key", ""))
+		if key.is_empty() or _known_idempotency_keys.has(key): continue
+		_sequence += 1
+		order.append(_event_record(str(event["event_type"]), event.get("context", {}), event.get("payload", {}), key), _event_file_path(), false)
+		_known_idempotency_keys[key] = true
+		changed = true
+	if changed:
+		_storage_generation += 1
+		_known_idempotency_generation = _storage_generation
+
+func _write_ordered_events(events: Array, durable: bool) -> bool:
+	_ensure_known_idempotency_keys_current()
+	var order: RefCounted = _receipt_order()
+	var required_ids: Array[String]
+	for value: Variant in events:
+		if not value is Dictionary or str(value.get("event_type", "")).is_empty(): continue
+		var event: Dictionary = value
+		var key: String = str(event.get("idempotency_key", ""))
+		var held: Dictionary = order.find_key(key)
+		if not held.is_empty():
+			if durable: held["ready"] = true
+			required_ids.append(str(held["record"]["event_id"]))
+			continue
+		if not key.is_empty() and _known_idempotency_keys.has(key): continue
+		_sequence += 1
+		var record: Dictionary = _event_record(str(event["event_type"]), event.get("context", {}), event.get("payload", {}), key)
+		order.append(record, _event_file_path(), true)
+		required_ids.append(str(record["event_id"]))
+		if not key.is_empty(): _known_idempotency_keys[key] = true
+	_storage_generation += 1
+	_known_idempotency_generation = _storage_generation
+	# Ordinary emitters have transferred ownership to the FIFO, not delivered a
+	# receipt. Reads/automatic disk drains cannot bypass an unsaved checkpoint.
+	if not durable: return true
+	while order.busy():
+		var batch: Dictionary = order.next_batch()
+		if batch.is_empty(): break
+		var count: int = batch["records"].size()
+		if not bool(batch["submitted"]):
+			if not _append_records_at(str(batch["path"]), batch["records"]): return false
+			order.mark_submitted(count)
+		if not flush_pending_events(): return false
+		order.acknowledge(count)
+	for id: String in required_ids:
+		if order.contains_id(id): return false
+	return flush_pending_events()
 
 func has_idempotency_key(key: String) -> bool:
 	_ensure_known_idempotency_keys_current()
+	if not _receipt_order().find_key(key).is_empty(): return false
 	# Receipt owners may acknowledge only completed appends. Queue reservations
 	# deduplicate emitters, but must never impersonate a durable receipt.
 	for batch: Dictionary in _pending_batches:
@@ -187,6 +255,9 @@ func _reload_known_idempotency_keys() -> void:
 		for record: Dictionary in batch["records"]:
 			var key: String = str(record.get("idempotency_key", ""))
 			if not key.is_empty(): _known_idempotency_keys[key] = true
+	for entry: Dictionary in _receipt_order().entries:
+		var key: String = str(entry["record"].get("idempotency_key", ""))
+		if not key.is_empty(): _known_idempotency_keys[key] = true
 	_known_idempotency_generation = _storage_generation
 
 func _event_record(event_type: String, context: Dictionary, payload: Dictionary, idempotency_key: String) -> Dictionary:
@@ -211,6 +282,12 @@ func _event_record(event_type: String, context: Dictionary, payload: Dictionary,
 		"room_element": str(context.get("room_element", "")),
 		"room_type": str(context.get("room_type", "")),
 		"guardian_id": str(context.get("guardian_id", "")),
+		"boss_id": str(context.get("boss_id", "")),
+		"objective_name": str(context.get("objective_name", "")),
+		"relics": _sanitize_variant(context.get("relics", [])),
+		"defiance_capacity": int(context.get("defiance_capacity", 0)),
+		"defiance_remaining": int(context.get("defiance_remaining", 0)),
+		"combat_unit_scale": int(context.get("combat_unit_scale", 1)),
 		"encounter_id": str(context.get("encounter_id", "")),
 		"biome": str(context.get("biome", "")),
 		"special_type": str(context.get("special_type", "")),
@@ -238,10 +315,15 @@ func session_id() -> String:
 	return _session_id
 
 func _append_records(records: Array) -> bool:
-	if not deferred_writes: return _append_jsonl_records(records)
+	return _append_records_at(_event_file_path(), records)
+
+func _append_records_at(path: String, records: Array) -> bool:
+	if not deferred_writes:
+		if not flush_pending_events(): return false
+		DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+		return _append_jsonl_at(path, records)
 	if records.is_empty(): return true
-	_ensure_storage_dir()
-	var path: String = _event_file_path()
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	if bool(_open_batch.get("pending", false)) and str(_open_batch["path"]) == path:
 		(_open_batch["records"] as Array).append_array(records.duplicate(true))
 	else:

@@ -110,6 +110,9 @@ func _draw() -> void:
 	if _variant == VARIANT_UMBRA:
 		_draw_umbra_raster(state)
 		return
+	var focused: bool = state == STATE_FOCUS
+	# Danger is semantic. Focus adds brackets without warming the crimson plate.
+	if _variant == VARIANT_DESTRUCTIVE and focused: state = STATE_NORMAL
 	var accent: Color = _accent_color(state)
 	var disabled: bool = state == STATE_DISABLED
 	var pressed: bool = _material_is_pressed(state)
@@ -137,7 +140,7 @@ func _draw() -> void:
 		GildedFrame.draw_diamond(self, Vector2(8.0, size.y * 0.5), 3.0, accent, stud_strength)
 		GildedFrame.draw_diamond(self, Vector2(size.x - 8.0, size.y * 0.5), 3.0, accent, stud_strength)
 
-	if state == STATE_FOCUS:
+	if focused:
 		_draw_focus_brackets(Color("ffe3a0"))
 	if _glint_progress < 1.0 and not disabled:
 		_draw_engagement_glint(accent)
@@ -282,7 +285,7 @@ func _accent_color(state: String) -> Color:
 	if state == STATE_DISABLED:
 		return Color("5e5347")
 	if _variant == VARIANT_DESTRUCTIVE:
-		return Color("d56858") if state == STATE_NORMAL else Color("ff9a73")
+		return Color("d56858") if state in [STATE_NORMAL, STATE_FOCUS] else Color("ff9a73")
 	if _variant == VARIANT_SELECTED or state == STATE_SELECTED:
 		return Color("f0c778")
 	if state == STATE_FOCUS:

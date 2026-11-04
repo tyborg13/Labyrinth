@@ -190,7 +190,7 @@ static func is_forced_movement_only(action: Dictionary) -> bool:
 	return false
 
 static func eligible_buffs(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	if action.has("_enemy_id") or bool(action.get("_movement_pool", false)):
 		return result
 	if str(action.get("type", "")) not in ATTACK_ACTION_TYPES or is_forced_movement_only(action):
@@ -300,7 +300,7 @@ static func consume_for_preview(state: Dictionary, action: Dictionary) -> void:
 	state["turn_flags"] = flags
 
 static func damage_modifiers(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	for buff: Dictionary in eligible_buffs(state, action):
 		var damage: int = buff_damage(state, buff)
 		if damage <= 0:
@@ -341,7 +341,7 @@ static func display_action(state: Dictionary, action: Dictionary) -> Dictionary:
 # --------------------------------------------------------------- HUD badges
 
 static func player_badges(state: Dictionary) -> Array[Dictionary]:
-	var badges: Array[Dictionary] = []
+	var badges: Array[Dictionary]
 	var quicken: int = quicken_pending(state)
 	if quicken > 0:
 		badges.append({

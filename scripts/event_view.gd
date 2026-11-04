@@ -1,6 +1,7 @@
 extends Control
 class_name EventView
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Events = preload("res://scripts/event_rules.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
@@ -109,9 +110,11 @@ var _art_started: bool = false
 var _content_bottom: float = 0
 var _sound: Callable
 var _built: bool = false
-var _stick_direction: int = 0
+var _stick_repeat := preload("res://scripts/controller_axis_repeat.gd").new()
 
 func _ready() -> void:
+	set_meta("controller_custom_analog_navigation", true)
+	_stick_repeat.stepped.connect(func(_axis: int, direction: int) -> void: move_focus(direction))
 	_build()
 	hide()
 	resized.connect(_layout_canvas)
@@ -265,7 +268,7 @@ func _rebuild() -> void:
 func cached_preview_lines(choice_id: String) -> Array[Dictionary]:
 	var lines: Array[Dictionary]
 	lines.assign(_preview_cache.get(choice_id, []))
-	return lines.duplicate(true)
+	return TypedArrays.dictionaries(lines.duplicate(true))
 
 func _build_column() -> void:
 	for child: Node in column.get_children():
@@ -432,9 +435,7 @@ func handle_input(event: InputEvent) -> bool:
 	if router != null: router.call("record_input_activity", event)
 	if event is InputEventJoypadMotion:
 		if event.axis == JOY_AXIS_LEFT_Y:
-			var direction: int = int(signf(event.axis_value)) if absf(event.axis_value) >= Router.JOYSTICK_ACTIVITY_THRESHOLD else 0
-			if direction != 0 and direction != _stick_direction: move_focus(direction)
-			_stick_direction = direction
+			_stick_repeat.sample(event.axis, event.axis_value, Router.JOYSTICK_ACTIVITY_THRESHOLD)
 		return true
 	if not event.is_pressed() or event.is_echo(): return not (event is InputEventMouse or event is InputEventScreenTouch or event is InputEventScreenDrag)
 	if page == "result" and result_beats != null:
@@ -449,6 +450,14 @@ func handle_input(event: InputEvent) -> bool:
 	if event.is_action_pressed(Router.ACTION_ACCEPT) or event.is_action_pressed("ui_accept"): _activate_focused(); return true
 	if event.is_action_pressed(Router.ACTION_CANCEL) or event.is_action_pressed("ui_cancel"): activate_continue(); return true
 	return not (event is InputEventMouse or event is InputEventScreenTouch or event is InputEventScreenDrag)
+
+func _process(delta: float) -> void:
+	if not (is_visible_in_tree() and not _closing):
+		_stick_repeat.reset()
+		return
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router == null or bool(router.call("using_controller")):
+		_stick_repeat.advance(delta)
 
 func _activate_focused() -> void:
 	if page == "result": activate_continue()
@@ -581,7 +590,7 @@ func dismiss() -> void:
 
 # Headless fit proof uses the live font shaper and exact live controls.
 func fit_report() -> Array[String]:
-	var report: Array[String] = fit_errors.duplicate()
+	var report: Array[String] = TypedArrays.strings(fit_errors.duplicate())
 	for child: Node in column.get_children():
 		if child is RichTextLabel:
 			var label: RichTextLabel = child as RichTextLabel

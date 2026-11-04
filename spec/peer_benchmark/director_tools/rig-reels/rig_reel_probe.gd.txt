@@ -1,0 +1,323 @@
+extends "res://tests/fix18/real_fight_capture_probe.gd"
+
+## Director evidence (rig reels, 2026-11-02): a real Guardian fixture fight, booted through Continue,
+## then every animation clip of one enemy at its runtime speed, front then rear, with an in-game caption.
+## Real resolver steps and RunScene playback; the only override is the pacing clock, which advances
+## 1/60 s per rendered frame (the game at a steady 60 fps) so the movie writer cannot speed clips up.
+## Plan JSON: env REEL_PLAN. Copied into a worktree for one run, then deleted. Never committed.
+const ReelData = preload("res://scripts/game_data.gd")
+const ReelGuardianRules = preload("res://scripts/guardian_combat_rules.gd")
+const REEL_FPS: float = 60.0
+const REEL_SETTLE_FRAMES: int = 12
+const REEL_SETTLE_LIMIT_FRAMES: int = 60 * 6
+
+class ReelMovieClock extends "res://scripts/combat_pacing.gd":
+	var _reel_last_frame: int = -1
+	func _sync_clock() -> void:
+		var frame: int = Engine.get_process_frames()
+		if _reel_last_frame >= 0 and (not is_inside_tree() or not get_tree().paused):
+			_clock_usec += float(frame - _reel_last_frame) * (1000000.0 / 60.0) * Engine.time_scale
+		_reel_last_frame = frame
+		_last_clock_usec = Time.get_ticks_usec()
+
+var _reel_extra: Dictionary = {}
+var _reel_plan: Dictionary = {}
+var _reel_base: Dictionary = {}
+var _reel_type: String = ""
+var _reel_id: int = -1
+var _reel_name: String = ""
+var _reel_caption: Label
+var _reel_logging: bool = false
+var _reel_segment_name: String = ""
+var _reel_rows: Array = []
+var _reel_segments: Array = []
+
+func _parse_capture_args(args: PackedStringArray) -> Dictionary:
+	var rest := PackedStringArray()
+	var index: int = 0
+	while index < args.size():
+		if args[index] in ["--scenario", "--guardian-id", "--guardian-case"] and index + 1 < args.size():
+			_reel_extra[args[index].trim_prefix("--").replace("-", "_")] = args[index + 1]
+			index += 2
+			continue
+		rest.append(args[index])
+		index += 1
+	if not rest.has("--label"): rest.append_array(PackedStringArray(["--label", "reel"]))
+	var parsed: Dictionary = super._parse_capture_args(rest)
+	parsed.merge(_reel_extra, true)
+	return parsed
+
+func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
+	return super._build_run_state(str(_options.get("scenario", scenario)), progression)
+
+func _sample_frames() -> void:
+	var plan_path: String = OS.get_environment("REEL_PLAN")
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(plan_path)) if not plan_path.is_empty() else null
+	_reel_plan = parsed if parsed is Dictionary else {}
+	_reel_type = str(_reel_plan.get("type", ""))
+	_reel_base = (_capture_scene.get("_combat_state") as Dictionary).duplicate(true)
+	_reel_dump(_reel_base)
+	if bool(_reel_plan.get("dump_only", false)) or _reel_type.is_empty():
+		return
+	for enemy: Dictionary in _reel_base.get("enemies", []):
+		if str(enemy.get("type", "")) == _reel_type:
+			_reel_id = int(enemy.get("id", -1))
+			_reel_name = ReelData.enemy_def(_reel_type).get("name", _reel_type)
+			break
+	if _reel_id < 0:
+		_check(false, "Reel enemy is not in the fixture: " + _reel_type)
+		return
+	_reel_swap_clock()
+	_reel_make_caption()
+	process_frame.connect(_reel_tick)
+	var mouse: Array = _reel_plan.get("mouse", [1910, 1070])
+	Input.warp_mouse(Vector2(float(mouse[0]), float(mouse[1])))
+	print("REEL BEGIN f=%d t=%d" % [Engine.get_frames_drawn(), Time.get_ticks_usec()])
+	var only: PackedStringArray = OS.get_environment("REEL_ONLY").split(",", false)
+	for segment: Dictionary in _reel_plan.get("segments", []):
+		if not only.is_empty() and not only.has(str(segment["name"])): continue
+		await _reel_run_segment(segment)
+	# Hold a second so the last segment's tail is inside the movie before the probe quits.
+	await create_timer(1.0).timeout
+	print("REEL FINISH f=%d" % Engine.get_frames_drawn())
+	var file := FileAccess.open(_capture_output.path_join("reel_frames.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify({"type": _reel_type, "segments": _reel_segments, "rows": _reel_rows}))
+	file.close()
+
+func _reel_dump(state: Dictionary) -> void:
+	var rows: Array = []
+	for row: Array in state.get("grid", []): rows.append("".join(row.map(func(cell: Variant) -> String: return str(cell).substr(0, 1))))
+	var enemies: Array = []
+	for enemy: Dictionary in state.get("enemies", []):
+		enemies.append({"id": enemy.get("id"), "type": enemy.get("type"), "pos": str(enemy.get("pos")), "hp": enemy.get("hp"), "intent": (enemy.get("intent", {}) as Dictionary).get("id", ""), "footprint": str(enemy.get("footprint", Vector2i.ONE))})
+	var terrain: Array = []
+	for item: Variant in state.get("terrain", []):
+		if item is Dictionary: terrain.append({"pos": str((item as Dictionary).get("pos")), "kind": (item as Dictionary).get("kind", (item as Dictionary).get("type", ""))})
+	var payload: Dictionary = {"grid": rows, "player": str(state.get("player", {}).get("pos")), "enemies": enemies, "terrain": terrain,
+		"braziers": str(state.get("guardian_braziers", [])), "traps": str(state.get("traps", [])), "surfaces": str(state.get("surfaces", state.get("board_surfaces", ""))),
+		"turn_queue": str(state.get("turn_queue", [])), "keys": state.keys()}
+	print("REEL DUMP " + JSON.stringify(payload))
+	var screen: Dictionary = {}
+	for y: int in range(state.get("grid", []).size()):
+		for x: int in range((state["grid"][y] as Array).size()):
+			var point: Vector2 = _capture_canvas_transform(_capture_board) * (_capture_board.call("world_position_for_tile", Vector2i(x, y)) as Vector2)
+			screen["%d,%d" % [x, y]] = [snappedf(point.x, 0.1), snappedf(point.y, 0.1)]
+	print("REEL SCREEN " + JSON.stringify(screen))
+
+func _reel_swap_clock() -> void:
+	var scene: Node = _capture_scene
+	var old: Node = scene.get("_combat_pacing")
+	var fresh := ReelMovieClock.new()
+	if is_instance_valid(old):
+		if old.get_parent() != null: old.get_parent().remove_child(old)
+		old.queue_free()
+	scene.set("_combat_pacing", fresh)
+	fresh.install(scene)
+	var bank: Variant = scene.get("_sfx_bank")
+	if bank != null: (bank as Object).set("presentation_clock", fresh.presentation_usec)
+
+func _reel_make_caption() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 120
+	root.add_child(layer)
+	_reel_caption = Label.new()
+	# Top centre of the 1920x1080 canvas is empty in combat (the room title owns the top-left corner).
+	var position: Array = _reel_plan.get("caption_position", [560, 14])
+	_reel_caption.position = Vector2(float(position[0]), float(position[1]))
+	_reel_caption.size = Vector2(800, 56)
+	_reel_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_reel_caption.add_theme_font_size_override("font_size", int(_reel_plan.get("caption_size", 34)))
+	_reel_caption.add_theme_color_override("font_color", Color(1, 1, 1))
+	_reel_caption.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	_reel_caption.add_theme_constant_override("outline_size", 10)
+	layer.add_child(_reel_caption)
+
+static func _reel_v(value: Variant) -> Vector2i:
+	var pair: Array = value
+	return Vector2i(int(pair[0]), int(pair[1]))
+
+func _reel_index(state: Dictionary) -> int:
+	var enemies: Array = state.get("enemies", [])
+	for index: int in range(enemies.size()):
+		if int((enemies[index] as Dictionary).get("id", -1)) == _reel_id: return index
+	return -1
+
+func _reel_intent_def(intent_id: String) -> Dictionary:
+	for intent: Dictionary in ReelData.enemy_def(_reel_type).get("intents", []):
+		if str(intent.get("id", "")) == intent_id: return intent.duplicate(true)
+	return {}
+
+func _reel_state_for(segment: Dictionary) -> Dictionary:
+	var state: Dictionary = _reel_base.duplicate(true)
+	var kept: Array = []
+	var guardian: Dictionary = {}
+	for enemy: Dictionary in state.get("enemies", []):
+		if int(enemy.get("id", -1)) == _reel_id: guardian = enemy
+		elif bool(_reel_plan.get("keep_others", false)): kept.append(enemy)
+	var start: Vector2i = _reel_v(segment["path"][0]) if segment.has("path") else _reel_v(segment["enemy"])
+	guardian["pos"] = start
+	guardian["hp"] = 1 if str(segment["kind"]) == "death" else int(guardian.get("max_hp", guardian.get("hp", 1)))
+	guardian["block"] = 0
+	if segment.has("guardian_cycle"): guardian["guardian_cycle"] = int(segment["guardian_cycle"])
+	var enemies: Array = [guardian]
+	enemies.append_array(kept)
+	state["enemies"] = enemies
+	var removed: Dictionary = {}
+	if not bool(_reel_plan.get("keep_others", false)):
+		for enemy: Dictionary in _reel_base.get("enemies", []):
+			if int(enemy.get("id", -1)) != _reel_id: removed[int(enemy.get("id", -1))] = true
+	var queue: Array = []
+	for entry: Variant in state.get("turn_queue", []):
+		if entry is Dictionary and str((entry as Dictionary).get("kind", "")) == "enemy" and removed.has(int((entry as Dictionary).get("id", (entry as Dictionary).get("enemy_id", -1)))): continue
+		queue.append(entry)
+	state["turn_queue"] = queue
+	if segment.has("braziers_lit"):
+		for brazier: Dictionary in state.get("guardian_braziers", []):
+			brazier["lit"] = (segment["braziers_lit"] as Array).has(float(brazier.get("id", -1))) or (segment["braziers_lit"] as Array).has(int(brazier.get("id", -1)))
+	var player: Dictionary = state["player"]
+	player["pos"] = _reel_v(segment["hero"])
+	player["hp"] = int(player.get("max_hp", player.get("hp", 1)))
+	var intent_id: String = str(segment.get("intent", (guardian.get("intent", {}) as Dictionary).get("id", "")))
+	var definition: Dictionary = _reel_intent_def(intent_id)
+	if str(segment["kind"]) == "move":
+		definition = {"id": "reel_walk", "name": "Advance", "time": 4, "weight": 1, "actions": [{"type": "move_toward", "range": int(segment.get("range", 2))}]}
+	if not definition.is_empty():
+		guardian["intent"] = ReelGuardianRules.commit(_combat_engine, state, 0, definition)
+	return state
+
+func _reel_install(state: Dictionary) -> void:
+	var scene = _capture_scene
+	var run: Dictionary = (scene.get("_run_state") as Dictionary).duplicate(true)
+	run["combat_state"] = state.duplicate(true)
+	scene.set("_run_state", run)
+	scene.set("_combat_state", state.duplicate(true))
+	scene.call("_mark_combat_preview_state_changed")
+	scene.set("_animation_lock", false)
+	scene.set("_drag_card_index", -1)
+	scene.set("_hovered_board_tile", Vector2i(-1, -1))
+	scene.set("_hovered_card_index", -1)
+	scene.call("_reset_card_resolution")
+	scene.call("_set_action_banner", "")
+	await scene.call("_refresh_ui")
+
+func _reel_renderer() -> Node:
+	return _capture_board.call("unit_cutout_renderer", {"type": _reel_type, "id": _reel_id}) as Node
+
+func _reel_settle() -> void:
+	var frames: int = 0
+	var idle: int = 0
+	while idle < REEL_SETTLE_FRAMES and frames < REEL_SETTLE_LIMIT_FRAMES:
+		await process_frame
+		frames += 1
+		idle = 0 if bool(_capture_scene.get("_animation_lock")) or not _actors_are_idle() else idle + 1
+
+func _reel_run_segment(segment: Dictionary) -> void:
+	var state: Dictionary = _reel_state_for(segment)
+	_reel_caption.text = str(segment.get("caption", segment.get("name", "")))
+	# The movie index runs ahead of frames_drawn by a constant; the compose step measures it from caption changes.
+	var caption_frame: int = Engine.get_frames_drawn()
+	var caption_process: int = Engine.get_process_frames()
+	await _reel_install(state)
+	await _reel_settle()
+	var renderer: Node = _reel_renderer()
+	if renderer != null and str(renderer.get("clip")) == "death":
+		# A finished death owns its renderer. Retire it, then install the live actor again.
+		var empty: Dictionary = state.duplicate(true)
+		empty["enemies"] = []
+		await _reel_install(empty)
+		await _reel_settle()
+		await _reel_install(state)
+		await _reel_settle()
+	_reel_segment_name = str(segment["name"])
+	var visible: Array = []
+	for tile: Vector2i in _combat_engine.umbra_visible_tiles(state): visible.append("%d,%d" % [tile.x, tile.y])
+	print("REEL VIS %s enemy_visible=%s visible_tiles=%d %s" % [_reel_segment_name, str(_combat_engine.visible_enemy_ids(state).has(_reel_id)), visible.size(), " ".join(visible) if visible.size() < 49 else ""])
+	_reel_logging = true
+	var pre: int = Engine.get_frames_drawn()
+	var pre_t: int = Time.get_ticks_usec()
+	await create_timer(float(segment.get("pre", _reel_plan.get("pre", 0.4)))).timeout
+	var start: int = Engine.get_frames_drawn()
+	match str(segment["kind"]):
+		"idle":
+			await create_timer(float(segment.get("seconds", 2.52))).timeout
+		"move", "intent":
+			await _reel_enemy_turn(state)
+		"hit", "death":
+			await _reel_strike(state, str(segment.get("card", "quick_stab")))
+	var action_end: int = Engine.get_frames_drawn()
+	await create_timer(float(segment.get("tail", _reel_plan.get("tail", 0.15)))).timeout
+	var end: int = Engine.get_frames_drawn()
+	var end_t: int = Time.get_ticks_usec()
+	_reel_logging = false
+	var record: Dictionary = {"name": segment["name"], "caption": _reel_caption.text, "kind": segment["kind"], "caption_frame": caption_frame, "caption_process": caption_process, "pre": pre, "start": start, "action_end": action_end, "end": end,
+		"wall_fps": float(end - pre) / maxf(0.000001, float(end_t - pre_t) / 1000000.0)}
+	_reel_segments.append(record)
+	print("REEL SEG " + JSON.stringify(record))
+
+func _reel_enemy_turn(state: Dictionary) -> void:
+	var scene = _capture_scene
+	var index: int = _reel_index(state)
+	var result: Dictionary = _combat_engine.resolve_enemy_turn_with_steps(state, index, true, true)
+	var kinds: Array = []
+	for step: Dictionary in result.get("steps", []):
+		var detail: String = "%s/%s" % [str(step.get("kind", "")), str(step.get("action_type", step.get("intent_id", "")))]
+		if str(step.get("kind", "")) not in ["commit", "intent", "intent_refresh"]:
+			detail += " from=%s to=%s" % [str(step.get("from", "")), str(step.get("to", ""))]
+			for field: String in ["tiles", "target_tiles", "affected_tiles", "summon_tiles", "path"]:
+				if step.has(field): detail += " %s=%s" % [field, str(step[field]).substr(0, 80)]
+		kinds.append(detail)
+	print("REEL STEPS %s %s" % [_reel_segment_name, str(kinds)])
+	scene.set("_animation_lock", true)
+	var pacing: Object = scene.get("_combat_pacing")
+	pacing.call("begin_enemies")
+	await scene.call("_animate_enemy_phase_steps", state.duplicate(true), result.get("steps", []), result.get("state", state))
+	await pacing.call("finish_enemies")
+	await _reel_commit(result.get("state", state))
+
+func _reel_strike(state: Dictionary, card_id: String) -> void:
+	var scene = _capture_scene
+	var card: Dictionary = ReelData.card_def(card_id)
+	var targets: Array[Vector2i] = []
+	targets.append((state["enemies"][_reel_index(state)] as Dictionary)["pos"])
+	scene.set("_animation_lock", true)
+	var pacing: Object = scene.get("_combat_pacing")
+	pacing.call("begin_card")
+	await scene.call("_animate_player_card_resolution", state.duplicate(true), card_id, card.get("actions", []), targets)
+	pacing.call("end_scope")
+	scene.set("_animation_lock", false)
+
+func _reel_commit(state: Dictionary) -> void:
+	var scene = _capture_scene
+	scene.set("_animation_lock", false)
+	if _combat_engine.combat_outcome(state) != "": return
+	var run: Dictionary = (scene.get("_run_state") as Dictionary).duplicate(true)
+	run["combat_state"] = state.duplicate(true)
+	scene.set("_run_state", run)
+	scene.set("_combat_state", state.duplicate(true))
+	scene.call("_mark_combat_preview_state_changed")
+	await scene.call("_refresh_ui")
+
+func _reel_tick() -> void:
+	if not _reel_logging: return
+	var row: Dictionary = {"f": Engine.get_frames_drawn(), "t": Time.get_ticks_usec(), "seg": _reel_segment_name, "ts": Engine.time_scale}
+	var renderer: Node = _reel_renderer()
+	if renderer != null and renderer.has_method("snapshot"):
+		var snap: Dictionary = renderer.call("snapshot")
+		row["clip"] = snap.get("clip", "")
+		row["phase"] = snappedf(float(snap.get("phase", 0.0)), 0.0001)
+		row["facing"] = snap.get("facing", "")
+		row["mirrored"] = snap.get("mirrored", false)
+	var key: String = "enemy_%d" % _reel_id
+	var presentation: Dictionary = _capture_board.get("presentation")
+	var world: Variant = (presentation.get("unit_world_positions", {}) as Dictionary).get(key)
+	var tile: Vector2i = Vector2i(-1, -1)
+	for enemy: Dictionary in (_capture_board.get("combat_state") as Dictionary).get("enemies", []):
+		if int(enemy.get("id", -1)) == _reel_id: tile = enemy.get("pos", tile)
+	row["tile"] = [tile.x, tile.y]
+	if world == null and tile.x >= 0: world = _capture_board.call("world_position_for_tile", tile)
+	if world is Vector2:
+		var point: Vector2 = _capture_canvas_transform(_capture_board) * (world as Vector2)
+		row["screen"] = [snappedf(point.x, 0.1), snappedf(point.y, 0.1)]
+	var player: Vector2i = (_capture_board.get("combat_state") as Dictionary).get("player", {}).get("pos", Vector2i(-1, -1))
+	row["hero"] = [player.x, player.y]
+	_reel_rows.append(row)

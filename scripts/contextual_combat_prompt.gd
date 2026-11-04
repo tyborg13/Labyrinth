@@ -208,7 +208,7 @@ func _on_prompt_drawn() -> void:
 	_presentation_seconds += _frame_delta_seconds
 	# Preserve the parent's application-uptime pulse phase. This is an initial
 	# phase anchor only; all subsequent progress uses presented frame deltas.
-	_pulse_epoch_usec = Time.get_ticks_usec() - roundi(_presentation_seconds * 1000000.0)
+	_pulse_epoch_usec = preload("res://scripts/presentation_clock.gd").ticks_usec() - roundi(_presentation_seconds * 1000000.0)
 	_presentation_has_drawn = true
 
 func _pulse_msec() -> int:

@@ -2,6 +2,7 @@ extends RefCounted
 
 # Fixed fields are separate from a dragon's moving body. Store their anchors in
 # the revealed action so a dodge, displacement or reload cannot retarget them.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 
@@ -44,7 +45,7 @@ static func _field_floor(engine: RefCounted, state: Dictionary, tile: Vector2i) 
 static func source_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
 	var kind: String = str(action.get("snapshot_surface", "electrified"))
 	var key: String = str(action.get("snapshot_key", ""))
-	var candidates: Array[Vector2i] = Surfaces.tiles(state, kind) if key.is_empty() else vectors(enemy.get(key, []))
+	var candidates: Array[Vector2i] = TypedArrays.vector2i(Surfaces.tiles(state, kind) if key.is_empty() else vectors(enemy.get(key, [])))
 	return vectors(candidates.filter(func(tile: Vector2i) -> bool: return Surfaces.has_surface(state, tile, kind)))
 
 static func neighborhood(engine: RefCounted, state: Dictionary, centers: Array[Vector2i], radius: int) -> Array[Vector2i]:

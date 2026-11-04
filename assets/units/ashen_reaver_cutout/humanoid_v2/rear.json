@@ -385,7 +385,26 @@
       "presentation_anchor": [
         166,
         157
-      ]
+      ],
+      "release_texture": {
+        "file": "rear/falchion_released.png",
+        "offset": [
+          138,
+          136
+        ],
+        "bbox": [
+          138,
+          136,
+          214,
+          209
+        ],
+        "mask": "rear/falchion_released_checks.png",
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "9b0546b0d497293b61e7859b02c281919bc2cfd05c8b9cd25d01335ce65e62d8",
+        "held_presentation": "original composite cache; fingers occlude the grip exactly as approved"
+      }
     },
     {
       "name": "hand_far",
@@ -406,7 +425,26 @@
       "presentation_anchor": [
         166,
         157
-      ]
+      ],
+      "release_texture": {
+        "file": "rear/hand_far_released.png",
+        "offset": [
+          138,
+          136
+        ],
+        "bbox": [
+          138,
+          136,
+          176,
+          166
+        ],
+        "mask": "rear/hand_far_released_checks.png",
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "b4220f31042126d38080b4da73d8fd426dcf3345c0c9d0a87c1b51556b6a5dac",
+        "held_presentation": "original composite cache; fingers occlude the grip exactly as approved"
+      }
     },
     {
       "name": "torso",
@@ -712,7 +750,26 @@
         138,
         132
       ],
-      "file": "rear/hidden_hand_far.png"
+      "file": "rear/hidden_hand_far.png",
+      "release_texture": {
+        "file": "rear/hidden_hand_far_released.png",
+        "offset": [
+          138,
+          132
+        ],
+        "bbox": [
+          138,
+          132,
+          176,
+          166
+        ],
+        "mask": "rear/hidden_hand_far_released_checks.png",
+        "release_at": {
+          "death": 0.3
+        },
+        "source_sha256": "3016aa517beaed5162204c27172a0568625d8cca6e4631c501070f9c8a942b85",
+        "held_presentation": "original composite cache; fingers occlude the grip exactly as approved"
+      }
     },
     {
       "name": "hidden_torso",

@@ -106,7 +106,7 @@ static func sampled_curve(start: Vector2, finish: Vector2, spacing: float = SEGM
 
 
 static func segment_placements(start: Vector2, finish: Vector2) -> Array[Dictionary]:
-	var placements: Array[Dictionary] = []
+	var placements: Array[Dictionary]
 	var lookup: PackedVector2Array = curve_lookup(start, finish)
 	var total_length: float = curve_arc_length(lookup)
 	var terminal_center_distance: float = (

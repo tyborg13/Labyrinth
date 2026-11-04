@@ -1,0 +1,60 @@
+from pathlib import Path
+from collections import Counter
+import json, time
+root = Path('/private/tmp/labyrinth_codex/qa-25')
+STATUS_MINUTE_DECIMALS = 1
+for campaign in sorted([*root.glob('campaign-*'), *root.glob('replay-*')]):
+    if not campaign.is_dir(): continue
+    recovery = root/(campaign.name+'-recovery-execution.json')
+    if recovery.exists():
+        print(campaign.name,'INFRASTRUCTURE INTERRUPTED:',json.loads(recovery.read_text())['infrastructure_interruption'])
+        continue
+    if campaign.name == 'campaign-default-continuation' and (root/'campaign-default-execution.json').exists(): continue
+    completed = []
+    active = []
+    markers = Counter()
+    rooms = []; resumes = 0; findings = Counter()
+    for seed in sorted(campaign.glob('seed-*')):
+        summary = seed/'summary.json'
+        if summary.exists():
+            data = json.loads(summary.read_text())
+            completed.append(data)
+        else:
+            trace = seed/'trace.jsonl'
+            rows = trace.read_text().splitlines() if trace.exists() else []
+            for line in reversed(rows):
+                try:
+                    event = json.loads(line)
+                    context = event['data'].get('context',event['data'])
+                    if 'section' in context:
+                        active.append((seed.name,context.get('section'),context.get('room_kind'),context.get('decision')))
+                        break
+                except (ValueError,KeyError): pass
+        trace = seed/'trace.jsonl'
+        if trace.exists():
+            for line in trace.read_text().splitlines():
+                try: event = json.loads(line)
+                except ValueError: continue
+                if event['event'] == 'room': rooms.append(event['data'])
+                if event['event'] == 'resume': resumes += 1
+                if event['event'] == 'finding': findings[event['data']['error']] += 1
+        log = seed/'godot.log'
+        if log.exists():
+            for line in log.read_text(errors='replace').splitlines():
+                if line.startswith(('SCRIPT ERROR:', 'ERROR:', 'WARNING:')): markers[line] += 1
+    if campaign.name == 'campaign-default' and (root/'capacity-recovery.json').exists():
+        if (root/'campaign-default-execution.json').exists():
+            metadata = json.loads((campaign/'campaign.json').read_text())
+            print('default COMPLETE:', 'started='+str(metadata['runs_started']), 'ended='+str(len(metadata['runs'])), 'interrupted='+str(len(metadata['capacity_recovery']['interrupted'])))
+        else:
+            recovery = json.loads((root/'capacity-recovery.json').read_text())
+            print('historical-default:', 'completed='+str(len(completed)), 'interrupted_seeds='+str([item['seed'] for item in recovery['interrupted']]), 'room_entries='+str(len(rooms)))
+        continue
+    commands = list(campaign.glob('seed-*/command.json'))
+    execution = root/(campaign.name+'-execution.json')
+    seconds = json.loads(execution.read_text())['wall_seconds'] if execution.exists() else time.time()-min((p.stat().st_mtime for p in commands),default=time.time())
+    elapsed = round(seconds/60,STATUS_MINUTE_DECIMALS)
+    print(campaign.name, 'elapsed_minutes='+str(elapsed), 'completed='+str(len(completed)), 'outcomes='+str(dict(Counter(s['outcome'] for s in completed))), 'active='+str(active))
+    print('  room_entries='+str(len(rooms)), 'sections='+str(sorted({r['section'] for r in rooms})), 'max_orphans='+str(max((r['orphans'] for r in rooms),default=0)), 'resumes='+str(resumes))
+    for finding,count in findings.items(): print(' ',count,'HUNT:',finding)
+    for marker,count in markers.items(): print(' ',count,marker)

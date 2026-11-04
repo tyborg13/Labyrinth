@@ -1,0 +1,67 @@
+from pathlib import Path
+from collections import Counter,defaultdict
+import json,time,shutil
+EVIDENCE=Path('/private/tmp/labyrinth_codex/qa-30')
+MAX_TAIL_BYTES=131072
+STATUS_DECIMALS=1
+for campaign in ('default','no-embrace'):
+    root=EVIDENCE/('campaign-'+campaign)
+    if not root.exists():continue
+    profiles=sorted(root.glob('seed-*'));ended=[p/'evidence.json' for p in profiles if (p/'evidence.json').exists()]
+    runs=[json.loads(path.read_text()) for path in ended]
+    outcomes=Counter((run.get('finish') or {}).get('outcome','process_failure') for run in runs)
+    sections=Counter(section for run in runs for section in {room['section'] for room in run['rooms']})
+    started=(root/'provenance.json').stat().st_mtime if (root/'provenance.json').exists() else time.time()
+    execution=EVIDENCE/('campaign-'+campaign+'-execution.json')
+    elapsed=json.loads(execution.read_text())['wall_seconds'] if execution.exists() else time.time()-started
+    print(campaign+':',len(ended),'ended;',len(profiles),'started;',dict(outcomes),'; minutes',round(elapsed/60,STATUS_DECIMALS))
+    print(' sections:',dict(sorted(sections.items())))
+    if execution.exists():continue
+    markers=defaultdict(list)
+    for profile in profiles:
+        log=profile/'godot.log'
+        if log.exists():
+            for line in log.read_text(errors='replace').splitlines():
+                if ('SCRIPT ERROR:' in line or line.startswith(('ERROR:','WARNING:'))) and 'ret != noErr' not in line:
+                    if profile.name not in markers[line]:markers[line].append(profile.name)
+        if (profile/'evidence.json').exists():continue
+        trace=profile/'trace.jsonl'
+        if not trace.exists():print(' ',profile.name,'startup');continue
+        with trace.open('rb') as f:
+            f.seek(max(0,trace.stat().st_size-MAX_TAIL_BYTES));lines=f.read().decode(errors='replace').splitlines()
+        rows=[]
+        for line in lines:
+            try:rows.append(json.loads(line))
+            except ValueError:pass
+        for finding_row in rows:
+            if finding_row['event']=='finding':
+                data=finding_row['data'];print(' ACTIVE FINDING:',profile.name,data['severity'],data['error'])
+        if rows:
+            row=rows[-1];data=row['data'];ctx=data.get('context',data)
+            print(' ',profile.name,row['event'],'decision',ctx.get('decision',data.get('decisions')),'section',ctx.get('section'),'kind',ctx.get('room_kind'),'trace_age',round(time.time()-trace.stat().st_mtime,STATUS_DECIMALS))
+    for marker,seeds in markers.items():print(' MARKER:',marker,'profiles:',','.join(seeds))
+    findings=Counter(finding['error'] for run in runs for finding in run['findings'] if finding['severity'] not in ('warning',) and 'ret != noErr' not in finding['error'])
+    if findings:print(' FINDINGS:',dict(findings))
+print('DISK FREE GB:',round(shutil.disk_usage(EVIDENCE).free/10**9,STATUS_DECIMALS))
+for pattern in ('census-*','shutdown-replay-*'):
+    for directory in sorted(EVIDENCE.glob(pattern)):
+        if not directory.is_dir():continue
+        for profile in sorted(directory.glob('seed-*')):
+            summary=profile/'summary.json'
+            if summary.exists():
+                data=json.loads(summary.read_text());print(directory.name,'outcome',data.get('outcome'),'decisions',data.get('decisions'));continue
+            trace=profile/'trace.jsonl'
+            if not trace.exists():print(directory.name,'startup');continue
+            with trace.open('rb') as f:
+                f.seek(max(0,trace.stat().st_size-MAX_TAIL_BYTES));lines=f.read().decode(errors='replace').splitlines()
+            rows=[]
+            for line in lines:
+                try:rows.append(json.loads(line))
+                except ValueError:pass
+            if rows:
+                row=rows[-1];data=row['data'];ctx=data.get('context',data)
+                print(directory.name,row['event'],'decision',ctx.get('decision',data.get('decisions')),'section',ctx.get('section'),'trace_age',round(time.time()-trace.stat().st_mtime,STATUS_DECIMALS))
+            log=profile/'godot.log'
+            if log.exists():
+                markers=[line for line in log.read_text(errors='replace').splitlines() if 'SCRIPT ERROR:' in line or line.startswith('ERROR:') and 'ret != noErr' not in line]
+                for marker in sorted(set(markers)):print(' DIAGNOSTIC MARKER:',marker)

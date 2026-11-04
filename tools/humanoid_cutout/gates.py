@@ -471,7 +471,7 @@ def _native_errors(case, capture, failure_output=None, hole_details=None, space_
                 reference=expected_poses.get(key,{}).get('parts',{}).get(row['name'],{}).get('transform')
                 if reference is None or not np.allclose(reference,row['transform'],atol=EPSILON,rtol=0): errors.append(row['file']+': differs from independent pose')
                 from .gait_continuations import texture
-                source=Image.fromarray(texture(case, layout, part, gait='gait' in data['clips'][clip], clip=clip))
+                source=Image.fromarray(texture(case, layout, part, gait='gait' in data['clips'][clip], clip=clip, phase=expected_poses.get(key, {}).get('phase', 0)))
                 # Use the established real-source UV tie candidates, just as
                 # the rigid shimmer gate does. A default tie direction alone
                 # falsely rejects rear Thrall hidden_tube at a 45-degree pose.

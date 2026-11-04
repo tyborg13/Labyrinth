@@ -769,6 +769,46 @@
     "assets/units/storm_cantor_cutout/humanoid_v2/rear/rest.png": {
       "category": "other",
       "reason": "rr-56 derived rest, native rebake pending; recorded separately in rest_paths"
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far_released_checks.png": {
+      "category": "never_drawn",
+      "reason": "rr-58 release ownership proof mask; categorical data, never production paint."
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff_released_checks.png": {
+      "category": "never_drawn",
+      "reason": "rr-58 release ownership proof mask; categorical data, never production paint."
+    },
+    "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/chain_released_checks.png": {
+      "category": "never_drawn",
+      "reason": "rr-58 release ownership proof mask; categorical data, never production paint."
+    },
+    "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/chain_released_checks.png": {
+      "category": "never_drawn",
+      "reason": "rr-58 release ownership proof mask; categorical data, never production paint."
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/falchion_released_checks.png": {
+      "category": "other",
+      "reason": "rr-57 release ownership diagnostic check mask; never production paint"
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_far_released_checks.png": {
+      "category": "other",
+      "reason": "rr-57 release ownership diagnostic check mask; never production paint"
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_far_released_checks.png": {
+      "category": "other",
+      "reason": "rr-57 release ownership diagnostic check mask; never production paint"
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/falchion_released_checks.png": {
+      "category": "other",
+      "reason": "rr-57 release ownership diagnostic check mask; never production paint"
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far_released_checks.png": {
+      "category": "other",
+      "reason": "rr-57 release ownership diagnostic check mask; never production paint"
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far_released_checks.png": {
+      "category": "other",
+      "reason": "rr-57 release ownership diagnostic check mask; never production paint"
     }
   },
   "entries": [
@@ -4880,6 +4920,7 @@
         "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_far.png",
         "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_near.png",
         "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far_released.png",
         "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_near.png",
         "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/head.png",
         "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_foot_far.png",
@@ -4894,6 +4935,7 @@
         "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_far.png",
         "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_near.png",
         "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff_released.png",
         "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/torso.png",
         "assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_component_02_torso.png",
         "assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_component_02_upper_far.png",
@@ -5032,7 +5074,29 @@
       "preserved_rest_paths": [
         "assets/units/hoarfrost_seer_cutout/front/rest.png",
         "assets/units/hoarfrost_seer_cutout/rear/rest.png"
-      ]
+      ],
+      "source_partitions": {
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far_released.png": {
+          "mask": {
+            "path": "experiments/cutouts/hoarfrost_seer/rr58/released_density_domain.png",
+            "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+          },
+          "source_offset": [
+            164,
+            112
+          ]
+        },
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff_released.png": {
+          "mask": {
+            "path": "experiments/cutouts/hoarfrost_seer/rr58/released_density_domain.png",
+            "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+          },
+          "source_offset": [
+            154,
+            11
+          ]
+        }
+      }
     },
     {
       "id": "burrow_grub_cutout",
@@ -7046,6 +7110,7 @@
         "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/arm_far.png",
         "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/arm_near.png",
         "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/chain.png",
+        "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/chain_released.png",
         "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/coat_far.png",
         "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/coat_near.png",
         "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/foot_far.png",
@@ -7083,6 +7148,7 @@
         "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/arm_far.png",
         "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/arm_near.png",
         "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/chain.png",
+        "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/chain_released.png",
         "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/coat_far.png",
         "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/coat_near.png",
         "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/foot_far.png",
@@ -8462,6 +8528,26 @@
               86
             ]
           }
+        },
+        "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/chain_released.png": {
+          "mask": {
+            "path": "experiments/cutouts/chainbound_gaoler/rr58/released_density_domain.png",
+            "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+          },
+          "source_offset": [
+            72,
+            145
+          ]
+        },
+        "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/chain_released.png": {
+          "mask": {
+            "path": "experiments/cutouts/chainbound_gaoler/rr58/released_density_domain.png",
+            "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+          },
+          "source_offset": [
+            158,
+            160
+          ]
         }
       }
     },
@@ -8477,9 +8563,11 @@
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/cap_arm_far.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/cap_arm_near.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/falchion.png",
+        "assets/units/ashen_reaver_cutout/humanoid_v2/front/falchion_released.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/foot_far.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/foot_near.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_far.png",
+        "assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_far_released.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_near.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/head.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_arm_far.png",
@@ -8488,6 +8576,7 @@
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_foot_far.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_foot_near.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_far.png",
+        "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_far_released.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_near.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_head.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_leg_far.png",
@@ -8507,9 +8596,11 @@
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/cap_arm_far.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/cap_arm_near.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/falchion.png",
+        "assets/units/ashen_reaver_cutout/humanoid_v2/rear/falchion_released.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/foot_far.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/foot_near.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far.png",
+        "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far_released.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_near.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/head.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_arm_far.png",
@@ -8518,6 +8609,7 @@
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_foot_far.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_foot_near.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far.png",
+        "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far_released.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_near.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_head.png",
         "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_leg_far.png",
@@ -9387,6 +9479,66 @@
           "source_offset": [
             132,
             110
+          ]
+        },
+        "assets/units/ashen_reaver_cutout/humanoid_v2/front/falchion_released.png": {
+          "mask": {
+            "path": "experiments/cutouts/ashen_reaver/rr48/rr57/released_density_domain.png",
+            "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+          },
+          "source_offset": [
+            27,
+            122
+          ]
+        },
+        "assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_far_released.png": {
+          "mask": {
+            "path": "experiments/cutouts/ashen_reaver/rr48/rr57/released_density_domain.png",
+            "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+          },
+          "source_offset": [
+            83,
+            116
+          ]
+        },
+        "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_far_released.png": {
+          "mask": {
+            "path": "experiments/cutouts/ashen_reaver/rr48/rr57/released_density_domain.png",
+            "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+          },
+          "source_offset": [
+            85,
+            112
+          ]
+        },
+        "assets/units/ashen_reaver_cutout/humanoid_v2/rear/falchion_released.png": {
+          "mask": {
+            "path": "experiments/cutouts/ashen_reaver/rr48/rr57/released_density_domain.png",
+            "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+          },
+          "source_offset": [
+            138,
+            136
+          ]
+        },
+        "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far_released.png": {
+          "mask": {
+            "path": "experiments/cutouts/ashen_reaver/rr48/rr57/released_density_domain.png",
+            "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+          },
+          "source_offset": [
+            138,
+            136
+          ]
+        },
+        "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far_released.png": {
+          "mask": {
+            "path": "experiments/cutouts/ashen_reaver/rr48/rr57/released_density_domain.png",
+            "sha256": "454104b44618be6debefb502e47a4abfd52ba1deca8d1ed8aca198ea4adc466c"
+          },
+          "source_offset": [
+            138,
+            132
           ]
         }
       }

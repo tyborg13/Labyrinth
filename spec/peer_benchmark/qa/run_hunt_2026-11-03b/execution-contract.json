@@ -1,0 +1,159 @@
+{
+  "task_id": "qa-25",
+  "base_head": "47b98da9b6df892650b105a37a378ad337cd1b2f",
+  "risk_tier": "standard",
+  "acceptance": [
+    "Two sequential fresh campaigns: default then no-embrace; 45-minute launch budgets, two processes, seed base 2.",
+    "Read-only section 0/5 census on two replays; compare tree <= 1.25 * baseline plus named bounded pools.",
+    "Triage every script error, crash, softlock, freed-object and null access; fix owned bugs with failing-first regressions and replay seeds.",
+    "Preserve combat, saves, RNG, analytics, all approved assets and player-perceived values.",
+    "Python default group; no full suites; uncommitted implementation and durable report."
+  ],
+  "inspection": "Not applicable: repository change is report/diagnostic artifacts only, with no player-visible change or new playable state. No fixture/native capture requested by brief; director owns later inspection/publication.",
+  "owner_split": "Worktree contract and preflight already supplied by director; no Git writes, peer review, publication or task queue changes.",
+  "sha256": {
+    "run_hunt_task.py": "f0f0ba687eb61c61d26fbbcfbd0ebb23c728156d4586ed432f192ab808297cce",
+    "run_campaigns.py": "244b29e7e1a6d2adc9de6f1c42fd30a6d39b596c21978ed4042387d914befcf4",
+    "run_hunt_census.gd": "050c07a0148df32d4b46958a6d362217887dcf8b0d6a0c55cce7045bdb0ff2a6",
+    "resume_campaigns.py": "8957ecbab3dc4ac6dd87784c3d308ab9f414ae5ebd02ea14f0f9ce4cc8c0c4e4",
+    "collect_evidence.py": "42f0e136971f41f558ca99f026108cfbd17f09c8088011f8eb214ac82a9b59a2",
+    "status.py": "dba9f817d4f85406753aa42f42a7d9268440d1078fbbd4732eb5a187baf33b92",
+    "inspect_fight_save.gd": "b10ecc2b9fa669128ad05a6a525abdede43c19e979b15b50413551b0d9efb34c",
+    "run_replays.py": "97a687e796903415fda7b9da9f3a7015efeb85d3c9b89e33de681923f599eef8",
+    "collect_census.py": "e447019e42cbf75c15f09fa04dc2ab7f647bb0ba8a8b3ee24d4dcb9f35c959bd",
+    "run_supplement.py": "f02f12a0de5d751059f5706e3b7025e074d1077757ba01776f1c84c2814519a6",
+    "run_storage_retry.py": "454f2e91492fb62a675527a865215cbb654027f06d93b046dc9466ddc5bee313",
+    "run_hunt_census_bounded.gd": "18423d73fa1d2d00b700d96ab25104aef93de77824521f748cf543131b587313",
+    "inspect_storage_saves.gd": "10017359a52abcff56a0f015398b4ed203fea43d7e0ded0d2939cb664dd900fc"
+  },
+  "checks": {
+    "cold_import": {
+      "returncode": 0,
+      "result": "[ DONE ] loading_editor_layout",
+      "log": "/private/tmp/labyrinth-godot-home/qa-25-1793725689406121000-50996/godot.log"
+    },
+    "census_parser": {
+      "returncode": 0,
+      "log": "/private/tmp/labyrinth_codex/qa-25/census-parser-final-owners.log",
+      "result": "--check-only completed without script errors"
+    },
+    "helper_compile": {
+      "returncode": 0,
+      "result": "QA25 helper compile: PASS (6 files)"
+    },
+    "fight_save_inspection": {
+      "returncode": 0,
+      "log": "/private/tmp/labyrinth_codex/qa-25/inspect-fight-saves-actions.log",
+      "result": "QA25 FIGHT SAVE: seed=13; seed=18; seed=19; all decoded and queried with production helpers"
+    },
+    "collector_compile": {
+      "returncode": 0,
+      "result": "QA25 helper compile: PASS (3 changed/new collectors)"
+    },
+    "census_bootstrap": {
+      "returncode": 0,
+      "godot_returncode": 0,
+      "result": "RUN HUNT RESULT: started=1 finished=1 finding_groups=1",
+      "log": "/private/tmp/labyrinth_codex/qa-25/census-bootstrap/seed-000012/godot.log",
+      "CENSUS_SMOKE_STOP_AFTER": 1
+    },
+    "python_default": {
+      "returncode": 0,
+      "result_lines": [
+        "Ran 178 tests in 30.465s",
+        "OK",
+        "INPUT GROUP TIME default: 19 modules; 82.294 module-seconds; 30.265s maximum attributed shard work",
+        "Cannot update untracked timing cache /Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/python-suite.json: [Errno 1] Operation not permitted: '/Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/tmpbd37ciel'",
+        "PYTHON SUITE WALL: 30.465s; results: /private/tmp/labyrinth_codex/qa-25/python-default"
+      ],
+      "execution": "/private/tmp/labyrinth_codex/qa-25/python-default-execution.json",
+      "no_full_suite": true
+    },
+    "storage_save_validation": {
+      "returncode": 0,
+      "result": "QA25 STORAGE SAVE VALIDATION: PASS (2 preserved snapshots)",
+      "log": "/private/tmp/labyrinth_codex/qa-25/inspect-storage-saves-final.log"
+    },
+    "bounded_census_parser": {
+      "returncode": 0,
+      "log": "/private/tmp/labyrinth_codex/qa-25/bounded-census-parser.log"
+    },
+    "census": {
+      "returncode": 0,
+      "summary": {
+        "required_complete_replays": 2,
+        "passed": 2,
+        "attempts": 4,
+        "failed_complete_replay": false,
+        "status": "PASS"
+      },
+      "log": "/private/tmp/labyrinth_codex/qa-25/census-evaluation.log"
+    },
+    "tracked_and_staged_diff": {
+      "returncode": 0,
+      "record": "/private/tmp/labyrinth_codex/qa-25/final-git-read.json",
+      "only_untracked": "spec/peer_benchmark/qa/run_hunt_2026-11-03b/"
+    }
+  },
+  "capacity_recovery": {
+    "previous_active_seconds_inferred_from_last_trace": 882.5338621139526,
+    "previous_started": 1793725996.1804397,
+    "previous_last_activity": 1793726878.7143018,
+    "remaining_launch_minutes": 30.29110229810079,
+    "completed_seeds": [
+      2,
+      3,
+      4,
+      6,
+      7
+    ],
+    "interrupted": [
+      {
+        "seed": 5,
+        "log": "/private/tmp/labyrinth_codex/qa-25/campaign-default/seed-000005/godot.log",
+        "last_trace_write": 1793726878.2487059,
+        "returncode": null,
+        "reason": "Capacity interruption; recorded runner PID no longer exists; no terminal evidence or observed exit status"
+      },
+      {
+        "seed": 8,
+        "log": "/private/tmp/labyrinth_codex/qa-25/campaign-default/seed-000008/godot.log",
+        "last_trace_write": 1793726878.7143018,
+        "returncode": null,
+        "reason": "Capacity interruption; recorded runner PID no longer exists; no terminal evidence or observed exit status"
+      }
+    ],
+    "next_seed": 9
+  },
+  "replay_cases": [
+    {
+      "replay": "replay-default-seed-12",
+      "status": "PASS"
+    },
+    {
+      "replay": "replay-no-embrace-seed-2",
+      "status": "INCOMPLETE"
+    },
+    {
+      "replay": "replay-no-embrace-seed-3",
+      "status": "INCOMPLETE"
+    },
+    {
+      "replay": "replay-no-embrace-seed-3-storage-retry",
+      "status": "PASS"
+    }
+  ],
+  "storage_incident": {
+    "evidence": "/private/tmp/labyrinth_codex/qa-25/storage-incident/incident.json",
+    "first_default12_error_decision": 2616,
+    "first_census_decision": 2445,
+    "retry": "replay-no-embrace-seed-3-storage-retry"
+  },
+  "status": "worker implementation/proof complete; uncommitted",
+  "acceptance_results": {
+    "1": "Two 45-minute launch budgets, two processes, seed base2; default capacity interruption disclosed; two complete census comparisons PASS.",
+    "2": "Campaign/replay markers triaged. No owned product defect found; OS ENOSPC and sampling limits retained. No product fix or failing-first/after-fix check applicable.",
+    "3": "Non-bugs individually reported with generated-save legality/routes and infrastructure evidence.",
+    "4": "No tracked or staged changes; game code/data/scenes/assets, RNG, save and analytics implementation unchanged."
+  }
+}

@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+"""Run the unchanged hunt with this worktree's required task namespace."""
+from pathlib import Path
+import importlib.util
+import sys
+
+TASK_ID = "qa-25"
+PROJECT = Path("/Users/borgerding/workspace/Labyrinth.worktrees/qa-25")
+LAUNCHER = Path(__file__).resolve()
+spec = importlib.util.spec_from_file_location("qa25_run_hunt", PROJECT / "tools/run_hunt.py")
+hunt = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(hunt)
+original_command_for = hunt.command_for
+original_replay_command = hunt.replay_command
+
+
+def command_for(seed, directory, args):
+    command = original_command_for(seed, directory, args)
+    command[command.index("--task-id") + 1] = TASK_ID
+    return command
+
+
+def replay_command(group, args):
+    return original_replay_command(group, args).replace(
+        "python3 tools/run_hunt.py", "python3 " + str(LAUNCHER)
+    ).replace("/labyrinth_codex/qa-18/", "/labyrinth_codex/" + TASK_ID + "/")
+
+
+hunt.command_for = command_for
+hunt.replay_command = replay_command
+if __name__ == "__main__":
+    sys.exit(hunt.main())

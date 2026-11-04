@@ -41,7 +41,7 @@ static func draw_body(view: Control, unit: Dictionary) -> bool:
 				Rect2(Vector2.ZERO, Vector2(texture.get_width(), texture.get_height() * visible_height / rect.size.y)))
 		return true
 	if not bool(unit.get("burrowed", false)): return false
-	var pulse: float = 1.0 if bool(view.presentation.get("reduced_motion", false)) else 1.0 + BREATH_SCALE * sin(float(Time.get_ticks_msec()) / 1000.0 * TAU / BREATH_SECONDS)
+	var pulse: float = 1.0 if bool(view.presentation.get("reduced_motion", false)) else 1.0 + BREATH_SCALE * sin(float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0 * TAU / BREATH_SECONDS)
 	var center: Vector2 = view._unit_center(unit)
 	var size: Vector2 = Vector2(view._tile_width() * MOUND_TILE_WIDTH, view._tile_height() * MOUND_TILE_HEIGHT) * pulse
 	var alpha: float = 1.0 - float(unit.get("death_progress", 0.0))
@@ -122,7 +122,7 @@ static func animate(scene: Node, state: Dictionary, step: Dictionary) -> void:
 	var after: Dictionary = step["state_after"]
 	if str(step["kind"]) == "erupt" and not bool(scene._reduced_motion_enabled()):
 		var rising: Dictionary = rise_state(state, step)
-		var dust: Dictionary = {"actor_key": step["actor_key"], "tile": step["to"], "started_msec": Time.get_ticks_msec()}
+		var dust: Dictionary = {"actor_key": step["actor_key"], "tile": step["to"], "started_msec": preload("res://scripts/presentation_clock.gd").ticks_msec()}
 		scene._play_sfx(preload("res://scripts/attack_sfx_library.gd").entry_for_enemy_action({"type": "aoe", "element": "earth"}))
 		var frames: int = scene.ENEMY_DEATH_MIN_FRAMES
 		await scene._play_timed_animation_frames(frames, RISE_SECONDS / float(frames), func(frame: int) -> void:
@@ -136,7 +136,7 @@ static func animate(scene: Node, state: Dictionary, step: Dictionary) -> void:
 		impact["impact_actor_keys"] = step.get("impact_actor_keys", [])
 	scene._render_board_state(state, impact)
 	if str(step["kind"]) == "erupt":
-		var dust: Dictionary = {"actor_key": step["actor_key"], "tile": step["to"], "started_msec": Time.get_ticks_msec() - int(RISE_SECONDS * 1000.0)}
+		var dust: Dictionary = {"actor_key": step["actor_key"], "tile": step["to"], "started_msec": preload("res://scripts/presentation_clock.gd").ticks_msec() - int(RISE_SECONDS * 1000.0)}
 		await scene._animate_surface_change(before, state, {"en01_erupt_dust": dust} if not bool(scene._reduced_motion_enabled()) else {})
 		await scene._animate_turn_order_alongside_defeats(before, state)
 
@@ -166,7 +166,7 @@ static func draw_dust(view: Control, unit: Dictionary) -> void:
 	if DUST_PARTICLE_DIAMETER <= 0.0: return
 	var effect: Dictionary = view.presentation.get("en01_erupt_dust", {})
 	if effect.is_empty() or str(effect.get("actor_key", "")) != str(unit.get("key", "")): return
-	var progress: float = float(effect.get("progress", float(Time.get_ticks_msec() - int(effect.get("started_msec", 0))) / (DUST_SECONDS * 1000.0)))
+	var progress: float = float(effect.get("progress", float(preload("res://scripts/presentation_clock.gd").ticks_msec() - int(effect.get("started_msec", 0))) / (DUST_SECONDS * 1000.0)))
 	if progress < 0.0 or progress >= 1.0: return
 	var center: Vector2 = view._tile_center(effect["tile"])
 	for index: int in range(DUST_PARTICLES):

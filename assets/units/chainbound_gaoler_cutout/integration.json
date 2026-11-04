@@ -13,7 +13,10 @@
   "density": {
     "entry": "chainbound_gaoler_cutout",
     "paint": "adopted/processed from untouched source parts",
-    "native_rest_pending": []
+    "native_rest_pending": [
+      "rest rebake needed: assets/units/chainbound_gaoler_cutout/humanoid_v2/front/rest.png: rig part pixels changed since recorded rebake",
+      "rest rebake needed: assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/rest.png: rig part pixels changed since recorded rebake"
+    ]
   },
   "files": {
     "front.json": "7dac3071aac4fb9a3c932c161507d31bac219fe6bd739c2278f6a2ab9e0e250c",
@@ -96,7 +99,7 @@
     "humanoid_v2/front/tabard.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/torso.png": "230e758bbd88df1aa943bcf2b0149081a3ee8b3340838420ff18286bde20c025",
     "humanoid_v2/front/torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/front.json": "f9e1e7fee4ebac29f3711054130689bd60a5b03bc480c7cafe5e8c178e01af2d",
+    "humanoid_v2/front.json": "74a1593221db8666e53155579aa725051639a57287b62efb464664c560b5cee7",
     "humanoid_v2/rear/arm_far.png": "48543576c1bcd3ef1f7789a2cbb69b409e84f8b446b21cd2c108586914ab4017",
     "humanoid_v2/rear/arm_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/arm_near.png": "ffee5484402493cacf3d143bca5604da9e53bfa01024d13db7d9732c3c1921e5",
@@ -171,10 +174,20 @@
     "humanoid_v2/rear/tabard.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/torso.png": "c4d04487ac9f1a45a7c99dd113532b4ab7c73fb6e4ee170e0a0ecbd4a7108ed2",
     "humanoid_v2/rear/torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/rear.json": "f718bc22e4a2ef1710e1695f65449170d3e121abfc286fbd644484093a76311c",
+    "humanoid_v2/rear.json": "dec7be6f82c38c8a629b173e5d820aaeb5204568a3e00e9229bac7e01b5bb0d9",
     "rear.json": "32c81bffc1a4f15d8af652aa68f74a5d3db4510db1813b2cf8fb6bbd3fb80acc",
     "renderer.gd": "2506622fb7d5869603e6c408675f2e8ee11efd412a5daed1c0207579e9862103",
-    "rig.gd": "3197a7fbec9f44e8a5456f6a897cfbbf76ba4d1bbf36d542995411ebd1502227"
+    "rig.gd": "c6e398b965cc1a94d39bf90de2ff050f245f76432e3045a614f4726a29e4a284",
+    "humanoid_v2/rear/chain_released.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "humanoid_v2/rear/chain_released_checks.png": "f069980d1a6f3471f6237b89edbd803a98e34cebb69e6174081d22e3a76b60fd",
+    "humanoid_v2/rear/chain_released.png": "78c028aa17bffb5012c6218129709cbba760ace2f1c3adb9a00be6e493e3e94c",
+    "humanoid_v2/rear/chain_released_checks.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "humanoid_v2/front/chain_released.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "humanoid_v2/front/chain_released_checks.png": "3763d891da12661f5bb56abdff122f8994f7f0a9eedbb5fe580638c5a8479c67",
+    "humanoid_v2/front/chain_released.png": "6aba6b0d80e2adcf42103655137b3a5a8a36d72db35cf95d10f3acc013eee686",
+    "humanoid_v2/front/chain_released_checks.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "held_contract.gd": "26a8524e989b08448bcc9e8b096ed8db9e92f7aeee9e1a0c9ea17709ff698c59",
+    "held_contract.gd.uid": "83e477dc379d4f612e7e3c22df67f2bd81b5ca9f03baa1932f7dec4d143562b0"
   },
   "effect_anchors": {
     "reel": "chain",
@@ -192,5 +205,12 @@
   "idle_phase_seed": "slot",
   "death_timing": {
     "reduced_motion_sequence": true
+  },
+  "held_item_partition": {
+    "task": "rr-58",
+    "native_proof": "pending director",
+    "ownership": "experiments/cutouts/chainbound_gaoler/rr58/ownership.json",
+    "underlay_requests": "experiments/cutouts/chainbound_gaoler/rr58/underlay_requests/index.json",
+    "design_placeholders": []
   }
 }

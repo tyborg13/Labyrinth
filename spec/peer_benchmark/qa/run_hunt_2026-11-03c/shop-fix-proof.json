@@ -1,0 +1,41 @@
+{
+  "baseline_head": "8e104c93882d9f3278ace290d2233b85175b7615",
+  "files": {
+    "scripts/scavenger_shop_view.gd": {
+      "baseline_sha256": "6bf8bd97880c6e3aadb19adffc80ed2f18beca54fc782a6364110848976c4c75",
+      "fixed_sha256": "084f83e2f5a26411c84b901a332168c92e0919ef911ed6952499885932e4986d"
+    },
+    "tests/scavenger_shop_probe.gd": {
+      "baseline_sha256": "1a05efb7e054160d8c648bf99ac21d2dd3ea7507b9357fcb89aab8686a10c529",
+      "fixed_sha256": "75ddf556cab531a2f558f2ae440efa45d556815eb0470fc96ddfb802acf7d31e"
+    }
+  },
+  "regression": {
+    "before": {
+      "returncode": 1,
+      "result": "SCAVENGER CLOSED SHOP LIFETIME: FAIL",
+      "log": "/private/tmp/labyrinth_codex/qa-30/shop-lifetime-before.log"
+    },
+    "direct_reopen_intermediate": {
+      "returncode": 1,
+      "result": "SCAVENGER CLOSED SHOP LIFETIME: FAIL",
+      "log": "/private/tmp/labyrinth_codex/qa-30/shop-lifetime-direct-before.log"
+    },
+    "after": {
+      "returncode": 0,
+      "result": "SCAVENGER CLOSED SHOP LIFETIME: PASS",
+      "log": "/private/tmp/labyrinth_codex/qa-30/shop-lifetime-final.log"
+    }
+  },
+  "existing_probe": {
+    "returncode": 0,
+    "result": "SCAVENGER SHOP PROBE: PASS",
+    "log": "/private/tmp/labyrinth_codex/qa-30/shop-existing-probe.log",
+    "shutdown_diagnostic": "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+  },
+  "ui_identity": {
+    "returncode": 0,
+    "result": "Ran 25 tests in 2.863s; OK",
+    "log": "/private/tmp/labyrinth_codex/qa-30/ui-identity-lint-final.log"
+  }
+}

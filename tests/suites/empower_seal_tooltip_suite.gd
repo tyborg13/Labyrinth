@@ -1,6 +1,7 @@
 extends RefCounted
 
 const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
+const ControllerFocusWait = preload("res://tests/helpers/controller_card_focus_wait.gd")
 const Cursor = preload("res://scripts/cursor_feedback.gd")
 const CaptureViewport = preload("res://tests/helpers/ui03_capture_viewport.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
@@ -84,7 +85,8 @@ static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, e
 	expect.call(not stack.is_visible_in_tree(), "Returning to the charged seal hides the keyword stack again")
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	scene.call("_controller_set_hand_index", 0)
-	await tree.create_timer(SETTLE_SECONDS).timeout
+	# 29a6ac569 (owner APPROVED kb-2): controller keywords follow the completed lift and rendered rest.
+	await ControllerFocusWait.settle(tree, scene, expect, "controller_after_seal")
 	expect.call(stack.is_visible_in_tree() and rendered_lines(stack).has("EMPOWER") and bool(scene.call("_hand_card_empowered", 0)), "Controller hand focus still shows the active keyword stack after inspecting the seal")
 	router.call("clear_forced_state_for_test")
 	router.call("set_modality", "pointer")
@@ -121,7 +123,7 @@ static func _test_follow_up_stack(tree: SceneTree, expect: Callable, fixtures: S
 	var router: Node = tree.root.get_node("InputRouter")
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	scene.call("_controller_set_hand_index", 0)
-	await tree.create_timer(SETTLE_SECONDS).timeout
+	await ControllerFocusWait.settle(tree, scene, expect, "controller_follow_up")
 	var stack: Control = scene.get("_card_focus_tooltip_stack") as Control
 	expect.call(rendered_lines(stack).has("FOLLOW-UP"), "Arc Flash's focus stack should show its active Follow-up")
 	_expect_single_modified_keyword(stack, "chain", "Follow-up", expect, "Arc Flash (arc_flash)")
@@ -148,8 +150,7 @@ static func _charged_overhead_smash_proof(tree: SceneTree, expect: Callable, fix
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	scene.call("_controller_set_hand_index", 0)
 	await scene.call("_toggle_pending_empower", "controller")
-	scene.call("_show_card_focus_tooltips", 0)
-	await tree.create_timer(SETTLE_SECONDS).timeout
+	await ControllerFocusWait.settle(tree, scene, expect, "controller_overhead_smash_proof")
 	var stack: Control = scene.get("_card_focus_tooltip_stack") as Control
 	expect.call(bool(scene.call("_hand_card_empowered", 0)), "The Overhead Smash proof should charge the actual production card")
 	_expect_single_modified_keyword(stack, "stagger", "Empower", expect, "Overhead Smash (overhead_smash)")

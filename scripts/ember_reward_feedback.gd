@@ -19,10 +19,10 @@ static func play(host: Node, fx_layer: Control, stats_label: Label, amount: int,
 	var pulse: Tween = _start_counter_pulse(host, stats_label, reduced_motion)
 	var roll_seconds: float = ROLL_SECONDS * (0.55 if reduced_motion else 1.0)
 	var step_seconds: float = roll_seconds / float(values.size())
-	var roll_started_usec: int = Time.get_ticks_usec()
+	var roll_started_usec: int = preload("res://scripts/presentation_clock.gd").ticks_usec()
 	var next_value_index: int = 0
 	while next_value_index < values.size():
-		var elapsed_seconds: float = float(Time.get_ticks_usec() - roll_started_usec) / 1000000.0
+		var elapsed_seconds: float = float(preload("res://scripts/presentation_clock.gd").ticks_usec() - roll_started_usec) / 1000000.0
 		var due_value_index: int = mini(
 			values.size() - 1,
 			floori(elapsed_seconds / maxf(0.001, step_seconds))

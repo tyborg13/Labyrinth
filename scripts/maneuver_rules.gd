@@ -11,6 +11,7 @@ class_name ManeuverRules
 ## (`surface_actor_arrival`) and damage functions, so hover previews (which run
 ## the real resolver on a copy) and commits agree.
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
@@ -122,7 +123,7 @@ static func skate_step_cost(state: Dictionary, unit: Dictionary, to: Vector2i) -
 	return 0 if Surfaces.has_surface(state, to, "ice") else -1
 
 static func player_badges(state: Dictionary) -> Array[Dictionary]:
-	var badges: Array[Dictionary] = []
+	var badges: Array[Dictionary]
 	var current: Dictionary = flags(state)
 	for flag_var: Variant in FLAG_ORDER:
 		var flag: String = str(flag_var)
@@ -190,7 +191,7 @@ static func force_area_center(state: Dictionary, action: Dictionary, target: Vec
 ## An enemy standing on the center has no line away from or toward it, so the
 ## area never moves, collides or Exposes it.
 static func force_area_affected(engine: RefCounted, state: Dictionary, action: Dictionary, center: Vector2i, visible_only: bool = false) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	if center == INVALID:
 		return result
 	var radius: int = maxi(0, int(action.get("radius", 1)))
@@ -250,7 +251,7 @@ static func force_area_can_resolve(engine: RefCounted, state: Dictionary, action
 	return force_area_has_effect(engine, state, action, force_area_center(state, action, INVALID))
 
 static func force_area_targets(engine: RefCounted, state: Dictionary, action: Dictionary) -> Array[Vector2i]:
-	var targets: Array[Vector2i] = []
+	var targets: Array[Vector2i]
 	var player_pos: Vector2i = action.get("_origin_tile", (state.get("player", {}) as Dictionary).get("pos", INVALID))
 	if not force_area_targets_tile(action):
 		if force_area_has_effect(engine, state, action, player_pos):
@@ -273,7 +274,7 @@ static func force_area_targets(engine: RefCounted, state: Dictionary, action: Di
 
 ## Floor tiles within the area's radius of its center (hover focus).
 static func force_area_tiles(state: Dictionary, action: Dictionary, target: Vector2i) -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	var center: Vector2i = force_area_center(state, action, target)
 	if center == INVALID:
 		return tiles
@@ -353,7 +354,7 @@ static func order_from_center_hits(engine: RefCounted, hits: Array, center: Vect
 ## id. Only the pattern's direct enemy hits are reordered, among their own
 ## slots; Chain hops and every other hit keep their place.
 static func order_force_hits(engine: RefCounted, hits: Array, source: Vector2i, pushing: bool) -> Array:
-	var slots: Array[int] = []
+	var slots: Array[int]
 	var keyed: Array = []
 	for index: int in range(hits.size()):
 		var hit: Dictionary = hits[index] as Dictionary
@@ -402,7 +403,7 @@ static func paint_force_trail(engine: RefCounted, state: Dictionary, enemy_id: i
 # ------------------------------------------------------------------ swap
 
 static func swap_targets(engine: RefCounted, state: Dictionary, action: Dictionary) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", INVALID)
 	var reach: int = maxi(0, int(action.get("range", 1)))
 	var allowed: Array = action.get("targets", ["enemy", "illusion"]) as Array
@@ -568,7 +569,7 @@ static func petrify_immune(enemy: Dictionary) -> bool:
 	return DragonBosses.is_dragon_boss_id(str(enemy.get("type", "")))
 
 static func petrify_targets(engine: RefCounted, state: Dictionary, action: Dictionary) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", INVALID)
 	var reach: int = maxi(0, int(action.get("range", 1)))
 	var lookup: Dictionary = engine.umbra_visible_tile_lookup(state)
@@ -667,20 +668,20 @@ static func after_player_move(engine: RefCounted, state: Dictionary, action: Dic
 static func straight_line_navigation(engine: RefCounted, state: Dictionary, unit: Dictionary, budget: int, occupied: Dictionary, minimum_progress: bool, stop_after_reaching: Callable = Callable()) -> Dictionary:
 	var endpoints: Dictionary = state.get("_movement_allowed_endpoints", {}) as Dictionary
 	var start: Vector2i = unit.get("pos", INVALID)
-	var start_path: Array[Vector2i] = []
+	var start_path: Array[Vector2i]
 	start_path.append(start)
 	var paths: Dictionary = {start: start_path}
 	var costs: Dictionary = {start: 0}
 	var grid: Array = state.get("grid", []) as Array
 	for direction_var: Variant in DIRECTIONS:
 		var direction: Vector2i = direction_var
-		var path: Array[Vector2i] = start_path.duplicate()
+		var path: Array[Vector2i] = TypedArrays.vector2i(start_path.duplicate())
 		var tile: Vector2i = start
 		for _step: int in range(64):
 			var next: Vector2i = tile + direction
 			if not Paths.is_passable(grid, next) or (occupied.has(next) and not endpoints.has(next)):
 				break
-			var trial: Array[Vector2i] = path.duplicate()
+			var trial: Array[Vector2i] = TypedArrays.vector2i(path.duplicate())
 			trial.append(next)
 			if engine.movement_cost_for_path(state, trial, budget, minimum_progress, unit) > budget:
 				break
@@ -758,7 +759,7 @@ static func presentation_text(before_state: Dictionary, after_state: Dictionary,
 	return ""
 
 static func _events_since(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	var sequence: int = int(before_state.get("surface_event_sequence", 0))
 	for event_var: Variant in after_state.get("surface_events", []):
 		if typeof(event_var) == TYPE_DICTIONARY and int((event_var as Dictionary).get("sequence", 0)) > sequence:

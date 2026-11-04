@@ -27,7 +27,7 @@ static func duration_ms(damage: int, killed: bool = false, hero: bool = false, r
 func request(damage: int, killed: bool = false, hero: bool = false, reduced: bool = false, allowed: bool = true, now_usec: int = -1) -> bool:
 	if not allowed or (is_inside_tree() and get_tree().paused):
 		return false
-	var now: int = Time.get_ticks_usec() if now_usec < 0 else now_usec
+	var now: int = preload("res://scripts/presentation_clock.gd").ticks_usec(false) if now_usec < 0 else now_usec
 	var requested: int = int(round(duration_ms(damage, killed, hero, reduced) * 1000.0))
 	var merged: bool = now - first_hit_usec <= MERGE_WINDOW_USEC
 	if not merged:
@@ -47,7 +47,7 @@ func request(damage: int, killed: bool = false, hero: bool = false, reduced: boo
 	return true
 
 func poll(now_usec: int = -1) -> void:
-	var now: int = Time.get_ticks_usec() if now_usec < 0 else now_usec
+	var now: int = preload("res://scripts/presentation_clock.gd").ticks_usec(false) if now_usec < 0 else now_usec
 	if active and (now >= first_hit_usec + duration_usec or (is_inside_tree() and get_tree().paused)):
 		_restore()
 

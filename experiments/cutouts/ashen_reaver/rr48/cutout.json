@@ -23,12 +23,12 @@
       "release_at": {}
     },
     "move": {
-      "seconds": 0.85,
+      "seconds": 0.3333333333333333,
       "intents": [],
       "note": "a heavy armoured advance on the protagonist's model, from the fighter's crouch: both legs step, six steps per tile, near foot leading, a 5 px lift; a 4 degree forward lean; both arms swing from the shoulder like pendulums, opposite their same-side legs, the forearm trailing; the sword arm swings less and the falchion trails the fist (held_follow); the loincloths trail 2 px",
       "gait": {
         "model": "protagonist_walk",
-        "steps_per_tile": 6,
+        "steps_per_tile": 4,
         "lead": "near",
         "stance_fraction": 0.6,
         "lift_px": 5,
@@ -72,7 +72,8 @@
         "item": "falchion",
         "grip": "hand_far",
         "deg_per_px": 0.5,
-        "lag_s": 0.06
+        "lag_s": 0.06,
+        "reference_frame": "body"
       },
       "release_at": {}
     },
@@ -84,6 +85,7 @@
       ],
       "note": "after the step in (the move clip), he drags the falchion's burning edge along the ground ahead: the blade lifts and draws back a little, then the sword arm drives forward and down so the point scrapes the floor in front of him (contact: the fire line starts here) and keeps dragging forward through 0.7, the body leaning in and the hips dropping into the crouch; then he rises back to the guard. The free fist pulls back for balance; its elbow only flexes (elbow_policy).",
       "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1).",
+      "windup_torso_limit_deg": 5,
       "release_at": {}
     },
     "sweep": {
@@ -94,6 +96,7 @@
       ],
       "note": "after the step in, a wide hooked sweep: the falchion is drawn back and up across his shoulder with a lean back (wind-up), then swung through the whole front arc at waist height (contact: the hit, the fire and the push land here), following through low on the far side with the body turned into it; held a beat, then back to the guard. The free fist swings opposite for balance.",
       "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1).",
+      "windup_torso_limit_deg": 7,
       "release_at": {}
     },
     "fall": {
@@ -104,6 +107,7 @@
       ],
       "note": "after the step in, the executioner's chop: he raises the falchion to shoulder height with the point up and back over his shoulder, leaning back (0.3), then brings it down hard in front of him so the blade strikes the floor ahead (contact: the fire line runs out from here), the body folded over it and the hips low; he stays bent over the planted blade through 0.85, open to a counter-attack (the move leaves him exposed), then heaves himself back up to the guard. The free fist pulls back to the hip through the chop.",
       "budget_note": "Director targets: if a value exceeds the measured joint budget for that limb (no tear, no exposed unpainted texel), clamp it to the budget and report the clamp (rr-38 feedback 1).",
+      "windup_torso_limit_deg": 8,
       "release_at": {}
     },
     "hit": {

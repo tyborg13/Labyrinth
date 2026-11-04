@@ -1,5 +1,6 @@
 extends RefCounted
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Glossary = preload("res://scripts/glossary.gd")
 
 const Rules = preload("res://scripts/enemy_mechanics/death_burst.gd")
@@ -51,7 +52,7 @@ static func draw_preview(view: Control, tile: Vector2i, draw_tiles: Variant = nu
 
 # Each FIFO event starts after its source dissolve begins. Chain starts are
 # spaced by the director's 0.18 s, independently of dissolve duration/frame rate.
-static func timing(before: Dictionary, after: Dictionary, frames: int, seconds: float, scene: Node = null, units: Array[Dictionary] = []) -> Dictionary:
+static func timing(before: Dictionary, after: Dictionary, frames: int, seconds: float, scene: Node = null, units: Array[Dictionary] = TypedArrays.dictionaries([])) -> Dictionary:
 	var count: int = (after.get("death_burst_events", []) as Array).size() - (before.get("death_burst_events", []) as Array).size()
 	var death_seconds: float = float(frames - 1) * seconds
 	var frame_seconds: float = seconds

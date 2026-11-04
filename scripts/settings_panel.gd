@@ -29,12 +29,16 @@ var _syncing: bool = false
 var _status_label: Label
 var _confirmation_panel: PanelContainer
 var _back_button: Button
+var _confirmation_cancel: Button
+var _confirmation_return_focus: Control
+var _confirmation_focus_modes: Dictionary = {}
 
 func _ready() -> void:
 	_update_responsive_minimum_size()
 	get_viewport().size_changed.connect(_update_responsive_minimum_size)
 	_build_surface()
 	refresh_from_disk()
+	preload("res://scripts/controller_gui_navigation.gd").install(self)
 
 func open() -> void:
 	refresh_from_disk()
@@ -79,6 +83,7 @@ func _build_surface() -> void:
 	root.add_child(_divider(GOLD, 0.72))
 
 	var scroll := ScrollContainer.new()
+	scroll.follow_focus = true
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -212,6 +217,7 @@ func _build_footer() -> Control:
 	warning.add_theme_color_override("font_color", Color("ffd0bb"))
 	confirm_row.add_child(warning)
 	var cancel := Button.new()
+	_confirmation_cancel = cancel
 	cancel.text = "Cancel"
 	_style_button(cancel, 120.0, Color("efe4c1"), UiSkin.VARIANT_COMPACT)
 	cancel.pressed.connect(_cancel_restore_confirmation)
@@ -221,6 +227,12 @@ func _build_footer() -> Control:
 	_style_button(confirm, 138.0, Color("ffcabd"), UiSkin.VARIANT_DESTRUCTIVE)
 	confirm.pressed.connect(_confirm_restore_defaults)
 	confirm_row.add_child(confirm)
+	for button: Button in [cancel, confirm]:
+		var other: Button = confirm if button == cancel else cancel
+		button.focus_neighbor_left = button.get_path_to(other)
+		button.focus_neighbor_right = button.get_path_to(other)
+		button.focus_neighbor_top = button.get_path_to(button)
+		button.focus_neighbor_bottom = button.get_path_to(button)
 	footer.add_child(_confirmation_panel)
 
 	var actions := HBoxContainer.new()
@@ -289,6 +301,8 @@ func _add_volume_row(rows: VBoxContainer, title: String, detail: String, key: St
 	control.custom_minimum_size = Vector2(CONTROL_WIDTH, 38.0)
 	control.add_theme_constant_override("separation", 10)
 	var slider := HSlider.new()
+	slider.focus_neighbor_left = NodePath(".")
+	slider.focus_neighbor_right = NodePath(".")
 	slider.min_value = 0.0
 	slider.max_value = 1.0
 	slider.step = 0.05
@@ -351,6 +365,7 @@ func _option_control() -> OptionButton:
 	option.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	option.add_theme_constant_override("arrow_margin", 12)
 	option.set_meta("settings_text_centered", true)
+	preload("res://scripts/controller_option_navigation.gd").install(option)
 	return option
 
 func _style_button(
@@ -435,11 +450,55 @@ func _commit_change(status: String) -> void:
 
 func _show_restore_confirmation() -> void:
 	_confirmation_panel.visible = true
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null and bool(router.call("using_controller")): _focus_restore_confirmation()
 	_set_status("Confirmation required", true)
+
+func _focus_restore_confirmation() -> void:
+	_confirmation_return_focus = get_viewport().gui_get_focus_owner()
+	for node: Node in find_children("*", "Control", true, false):
+		var control := node as Control
+		if _confirmation_panel.is_ancestor_of(control) or control.focus_mode == Control.FOCUS_NONE: continue
+		_confirmation_focus_modes[control] = control.focus_mode
+		control.focus_mode = Control.FOCUS_NONE
+	_confirmation_cancel.grab_focus()
 
 func _dismiss_restore_confirmation() -> void:
 	if _confirmation_panel != null:
 		_confirmation_panel.visible = false
+	var router: Node = get_node_or_null("/root/InputRouter")
+	_release_confirmation_focus(router != null and bool(router.call("using_controller")))
+
+func _release_confirmation_focus(restore: bool) -> void:
+	for control: Control in _confirmation_focus_modes:
+		if is_instance_valid(control): control.focus_mode = _confirmation_focus_modes[control]
+	_confirmation_focus_modes.clear()
+	if restore and is_instance_valid(_confirmation_return_focus) and _confirmation_return_focus.is_visible_in_tree():
+		_confirmation_return_focus.grab_focus()
+	_confirmation_return_focus = null
+
+func _input(event: InputEvent) -> void:
+	if not is_visible_in_tree(): return
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null: router.call("record_input_activity", event)
+	if _confirmation_panel != null and _confirmation_panel.visible:
+		if event is InputEventKey or event is InputEventMouseButton:
+			_release_confirmation_focus(false)
+		elif router != null and bool(router.call("using_controller")) and (event is InputEventJoypadButton or event is InputEventJoypadMotion) and _confirmation_focus_modes.is_empty():
+			_focus_restore_confirmation()
+	# D-pad volume changes use the authored slider step; analog repeats share
+	# the native focus adapter used by the other screens.
+	var slider: HSlider = get_viewport().gui_get_focus_owner() as HSlider
+	if slider != null and is_ancestor_of(slider) and not _confirmation_panel.visible and event is InputEventJoypadButton:
+		var direction: int = int(event.is_action_pressed("ui_right")) - int(event.is_action_pressed("ui_left"))
+		if direction != 0:
+			slider.value += direction * slider.step
+			get_viewport().set_input_as_handled()
+			return
+	if _confirmation_panel == null or not _confirmation_panel.visible: return
+	if event is InputEventJoypadButton and event.is_action_pressed("ui_cancel"):
+		_cancel_restore_confirmation()
+		get_viewport().set_input_as_handled()
 
 func _cancel_restore_confirmation() -> void:
 	_dismiss_restore_confirmation()

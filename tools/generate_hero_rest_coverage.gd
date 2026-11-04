@@ -48,7 +48,9 @@ static func build() -> Resource:
 	for path: String in sorted:
 		var digest: String = FileAccess.get_sha256(path)
 		assert(not digest.is_empty(), "Unreadable hero source: " + path)
-		data.source_sha256[path] = digest
+		# The shipped resource must not name res://tools/ paths: the Steam
+		# export check rejects any PCK that does, so dev tools go unprefixed.
+		data.source_sha256[path.trim_prefix("res://") if path.begins_with("res://tools/") else path] = digest
 	return data
 
 static func _record_textures(node: Node, paths: Dictionary) -> void:

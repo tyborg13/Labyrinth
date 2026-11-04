@@ -35,6 +35,17 @@ const PORTRAITS := [
 	{"key": "arc_thrall", "source": "res://assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png", "out": "res://assets/art/portraits/arc_thrall.png", "focus": Vector2i(96, 78)},
 	{"key": "cinder_ooze", "source": "res://assets/units/cinder_ooze_cutout/front/rest.png", "out": "res://assets/art/portraits/cinder_ooze.png", "focus": Vector2i(112, 140)},
 	{"key": "cinder_droplet", "source": "res://assets/units/cinder_droplet_cutout/front/rest.png", "out": "res://assets/art/portraits/cinder_droplet.png", "focus": Vector2i(100, 148)},
+	{"key": "hoarfrost_seer", "source": "res://assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png", "out": "res://assets/art/portraits/hoarfrost_seer.png", "focus": Vector2i(134, 87)},
+	{"key": "gloam_stalker", "source": "res://assets/units/gloam_stalker_cutout/humanoid_v2/front/rest.png", "out": "res://assets/art/portraits/gloam_stalker.png", "focus": Vector2i(109, 82)},
+	{"key": "gale_herald", "source": "res://assets/units/gale_herald_cutout/humanoid_v2/front/rest.png", "out": "res://assets/art/portraits/gale_herald.png", "focus": Vector2i(122, 57)},
+	{"key": "slag_mortar", "source": "res://assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png", "out": "res://assets/art/portraits/slag_mortar.png", "focus": Vector2i(126, 111)},
+	{"key": "briar_weaver", "source": "res://assets/units/briar_weaver_cutout/humanoid_v2/front/rest.png", "out": "res://assets/art/portraits/briar_weaver.png", "focus": Vector2i(112, 106)},
+	{"key": "storm_capacitor", "source": "res://assets/units/storm_capacitor_cutout/front/rest.png", "out": "res://assets/art/portraits/storm_capacitor.png", "focus": Vector2i(128, 108)},
+	{"key": "glacial_mirror", "source": "res://assets/units/glacial_mirror_cutout/humanoid_v2/front/rest.png", "out": "res://assets/art/portraits/glacial_mirror.png", "focus": Vector2i(125, 50)},
+	{"key": "hollow_mimic", "source": "res://assets/units/hollow_mimic_cutout/front/rest.png", "out": "res://assets/art/portraits/hollow_mimic.png", "focus": Vector2i(132, 62)},
+	{"key": "burrow_grub", "source": "res://assets/units/burrow_grub_cutout/front/rest.png", "out": "res://assets/art/portraits/burrow_grub.png", "focus": Vector2i(39, 210)},
+	{"key": "ember_tick", "source": "res://assets/units/ember_tick_cutout/front/rest.png", "out": "res://assets/art/portraits/ember_tick.png", "focus": Vector2i(126, 142)},
+	{"key": "gust_shrike", "source": "res://assets/units/gust_shrike_cutout/front/rest.png", "out": "res://assets/art/portraits/gust_shrike.png", "focus": Vector2i(63, 171)},
 ]
 
 func _initialize() -> void:

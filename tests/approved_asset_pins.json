@@ -1195,17 +1195,17 @@
     "assets/art/portraits/arc_thrall.png": "1b4cbbf19ca6fb6e77274db14ccd801805b7ffb3",
     "assets/art/portraits/bile_bloomer.png": "efb5a2317d12703c683f80f694c42208c6946e37",
     "assets/art/portraits/bone_harrier.png": "a16c369c61397280ff1ef9f5a584d8b125271e2e",
-    "assets/art/portraits/briar_weaver.png": "12ff3bc9d9bb5de75dea12078975cdfc5dcdc76f",
-    "assets/art/portraits/burrow_grub.png": "0010af34a1258e0fb7d4bdbaac7070f50a7d0d9b",
+    "assets/art/portraits/briar_weaver.png": "f1450ce2758930a071fa1434f95802f5bb9bb72c",
+    "assets/art/portraits/burrow_grub.png": "47e1d030caea00514ca414dd585a009ac28731b2",
     "assets/art/portraits/chainbound_gaoler.png": "94bd3dc2c371ce7bb280b1f6596c3ab638847d70",
     "assets/art/portraits/cinder_droplet.png": "5e7311f870a8646e3d81cdc548701b232d49f4f7",
     "assets/art/portraits/cinder_ooze.png": "22c4651c7879d266e79eaee1eb21da2fd40989ee",
     "assets/art/portraits/dust_acolyte.png": "cca3769c7d7f34e6a1bf7adb74afe6c939d850a9",
-    "assets/art/portraits/ember_tick.png": "37ac5fddf3cfb52d307bc00fe361660b341c014e",
+    "assets/art/portraits/ember_tick.png": "873564e80013cceac4845207c4324281f1ce7614",
     "assets/art/portraits/frostglass_lancer.png": "c355f366a7dfe2912720317247f2ae5c96b810d1",
-    "assets/art/portraits/gale_herald.png": "ed937c2b070c094a375a46b0bcd8e4d48b6dba12",
-    "assets/art/portraits/glacial_mirror.png": "a87c5da134cd63040f3bd97af4b9e93521812489",
-    "assets/art/portraits/gloam_stalker.png": "85493cd503e7099cd416305644054f7e123fa045",
+    "assets/art/portraits/gale_herald.png": "0a66fcc8cab8944742574ac8c14d6b548373953d",
+    "assets/art/portraits/glacial_mirror.png": "3e0a3c332eab39610eb418046abf575d42bb8b9c",
+    "assets/art/portraits/gloam_stalker.png": "7ddae193249e7ff1fb88f8045d51ad6c72686bd0",
     "assets/art/portraits/grave_surgeon.png": "b70bacef311e81e7c94951b06d5ec4d8978ea6f3",
     "assets/art/portraits/guardians/ash_hound_portrait.png": "dd804067b53ad5e0b8237d2f87607fbe0a7e478b",
     "assets/art/portraits/guardians/ashen_reaver_portrait.png": "c0a81354d34e1926b61cb6141aa02c7ae49b232e",
@@ -1220,16 +1220,16 @@
     "assets/art/portraits/guardians/stoneback_mite_portrait.png": "e0cd914d1930eafe8f1ddaf393cd5e1cb0ab6422",
     "assets/art/portraits/guardians/storm_cantor_portrait.png": "97386dcd628e2779764d92adf32db9d597e8eaec",
     "assets/art/portraits/guardians/wick_shade_portrait.png": "122c2f7d2f92a028bea3234265ca186046a472d0",
-    "assets/art/portraits/gust_shrike.png": "060b24c38f19c1a0cf1e9dce95a13e306e18c93c",
-    "assets/art/portraits/hoarfrost_seer.png": "48d28619de13a7a9d3010982c07ac09912e7c9fe",
-    "assets/art/portraits/hollow_mimic.png": "b30f363bba1960547b096d204865a9f2a0f8ecf1",
+    "assets/art/portraits/gust_shrike.png": "2bbe5fdf9adfce5d8f4a05c6f2157ac8dd594446",
+    "assets/art/portraits/hoarfrost_seer.png": "1188b288c8ee1968c227db66609251cff3ea94d7",
+    "assets/art/portraits/hollow_mimic.png": "fc182cd38845bdd65ec08f9b67605292dac7aa09",
     "assets/art/portraits/iskaldra.png": "85f0c3546490f54b9066dfc8185bf216cbf45c98",
     "assets/art/portraits/lightning_wisp.png": "ab9e068789871b24184d6380a18b76c4840c40d3",
     "assets/art/portraits/noctyrax.png": "8e6660479609a6419aa9ac16bf0d4854ded95e57",
     "assets/art/portraits/player_reaver.png": "a4d2eeffe9f00d2e2b10aefad1a133bd2592ddf8",
-    "assets/art/portraits/slag_mortar.png": "9f8668a25ccca57e15a57a464034af6fcce955e2",
+    "assets/art/portraits/slag_mortar.png": "36cc01a5d6b7c35d34077a9df29d63b5cf228592",
     "assets/art/portraits/stone_warden.png": "a9883c7c0b96858f928a2cc6e7c56755b6d05713",
-    "assets/art/portraits/storm_capacitor.png": "d1ddb123c226023743cc1b0ea24dbd8697f092e4",
+    "assets/art/portraits/storm_capacitor.png": "370621621e2ce811532b085d23f5af632a5c1b50",
     "assets/art/portraits/tharokh.png": "335de329cef8c18fd3cf893b5d638af3dd0c24ca",
     "assets/art/portraits/tunnel_crawler.png": "b04d8eaa788f4bf2d06693d5d582f876e06e4294",
     "assets/art/portraits/vaeloryx.png": "ec67b20b64c3c11fdf1ce7a70e044c7e6bf663d1",
@@ -1914,9 +1914,9 @@
     "assets/units/arc_thrall_cutout/segmented/rear/upper_near.png": "7709abc5f068d5414228377f4d569f67dff70121",
     "assets/units/ash_hound.png": "8719e1b93937bf9ce7d6cbf51a7c7caa381d8dc8",
     "assets/units/ashen_reaver.png": "1d22abd981e3c64a615e235b0c0e0fb92079825b",
-    "assets/units/ashen_reaver_cutout/humanoid_v2/compiled_motion.json": "f4bbbc7f1a5d09a027be84c3d5b8115c6db87ec3",
-    "assets/units/ashen_reaver_cutout/humanoid_v2/director_motion.json": "f19231f3523c9daef2ff6ccec005ce83feb2b0df",
-    "assets/units/ashen_reaver_cutout/humanoid_v2/front.json": "b2658b1b7bbdd96ef92f30ed3dcbd7c2865b02ad",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/compiled_motion.json": "ec3d11fd48fa06de2e945c57ac9962535e5b0e8f",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/director_motion.json": "c6466d9189425bc3491f31224d8fb78ea93b95d5",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front.json": "5ed5ac72ef2123ef528d21901ec7f049703a4591",
     "assets/units/ashen_reaver_cutout/humanoid_v2/front/arm_far.png": "a38a8726c3dfced989c48553cee3778f015f4f69",
     "assets/units/ashen_reaver_cutout/humanoid_v2/front/arm_near.png": "c7120563087771f00037cb4f589de6039bef0525",
     "assets/units/ashen_reaver_cutout/humanoid_v2/front/cap_arm_far.png": "13a315d23d3604c049be7f962d927cce698eab55",
@@ -1948,7 +1948,7 @@
     "assets/units/ashen_reaver_cutout/humanoid_v2/front/pelvis.png": "c5975010db301ee6a8bc1d540ff396d21521d089",
     "assets/units/ashen_reaver_cutout/humanoid_v2/front/rest.png": "78b5fb2318122e8f9604acf5a150f2b8c4945f0b",
     "assets/units/ashen_reaver_cutout/humanoid_v2/front/torso.png": "39fd8e04d03585e778333080c7bffe41609f8ac5",
-    "assets/units/ashen_reaver_cutout/humanoid_v2/rear.json": "6107c058009a192f8d285c94e23f023d2ffeab85",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear.json": "62c2762928f872f58b51ca02ffd7eaa408ec5385",
     "assets/units/ashen_reaver_cutout/humanoid_v2/rear/arm_far.png": "7e28d4cd7cde6efcfb7c3c55ead991a76548b24a",
     "assets/units/ashen_reaver_cutout/humanoid_v2/rear/arm_near.png": "bb570856383ae7cd64b4b53c90f226452914768b",
     "assets/units/ashen_reaver_cutout/humanoid_v2/rear/cap_arm_far.png": "12e7c24d696f01e12e93172c94a45ab37bc2a877",
@@ -1980,7 +1980,7 @@
     "assets/units/ashen_reaver_cutout/humanoid_v2/rear/pelvis.png": "2f3769dd5bd25ca8b2f07257c1d70fc8c7aa05a1",
     "assets/units/ashen_reaver_cutout/humanoid_v2/rear/rest.png": "922dc970e4a64ae0ebb4536875fae4aae21ca317",
     "assets/units/ashen_reaver_cutout/humanoid_v2/rear/torso.png": "bc4ca7e9237d23fbf781457347e7214b0b30bece",
-    "assets/units/ashen_reaver_cutout/integration.json": "7ba9243062d2707e363fc8578bdb472b543c883d",
+    "assets/units/ashen_reaver_cutout/integration.json": "70cbebc6949733dadaea76a0630c0b0d5a5453d6",
     "assets/units/bell_tender.png": "f2c7097b6fb8350459f7f09072f1289f5e0dd131",
     "assets/units/bile_bloomer_cutout/front.json": "7823ea5e6ce9f416e9bdb598472bf04e34a7c5fc",
     "assets/units/bile_bloomer_cutout/front/core.png": "59a2f0a80fc9f308fb90893e1d0e374477875b0a",
@@ -2193,7 +2193,7 @@
     "assets/units/chainbound_gaoler_cutout/front/wrist_strap.png": "37d9362b2323efdf342efa45e05c9f535cd76135",
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/compiled_motion.json": "650d1d625a5051de8aa294d1789533ac7669d860",
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/director_motion.json": "8a31716859b1c00a22852525c9ef8adada6dfe3a",
-    "assets/units/chainbound_gaoler_cutout/humanoid_v2/front.json": "64c006975239240c31a22fe7c76c022e3749ec9b",
+    "assets/units/chainbound_gaoler_cutout/humanoid_v2/front.json": "240ce12c59ba62c2d27f5bb1ec9151d08a23fa12",
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/arm_far.png": "5e43a2d7cd95da8f094c88a66051aea67bf2a4bd",
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/arm_near.png": "1bf670e1cb32efaad6f7613c0663f9bcfbdca0d7",
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/chain.png": "5839896034a03e26a8cf8ca5a3071611dbc89e1c",
@@ -2232,7 +2232,7 @@
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/rest.png": "6dedec2049025763a15ad43090e9dabeb2792878",
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/tabard.png": "653cfae588ece1e57bbae97c1610f77a2e92746c",
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/torso.png": "c5618040eb71ee145838fd13b0da8cb8d098fb10",
-    "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear.json": "4639a7d7fa72bcbd18ba9704edd0ddaa2a51d345",
+    "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear.json": "5a86b7bec00427c30a7f650815849fda72904751",
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/arm_far.png": "8d49e54ae73e953e68a105dbebd6ffa4a3d26672",
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/arm_near.png": "36fbbc0372ed3d8d271d54e48da43ca648f0cedd",
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/chain.png": "604b83e5653ca4dd077744c33eab5c746424fa96",
@@ -2270,7 +2270,7 @@
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/rest.png": "96f75a445ae18961ec4c86a75c1b3d5d1d495e5e",
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/tabard.png": "d6225e70b91a9cdf86f1a18ab9285709eb0c6508",
     "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/torso.png": "fe4e2c7402d15baa790b9ad4e511cc3775a1751b",
-    "assets/units/chainbound_gaoler_cutout/integration.json": "f734a97c5992f732a916411dd46d7c753a31b670",
+    "assets/units/chainbound_gaoler_cutout/integration.json": "a08ac78166116699722915a364acad17b7972a9e",
     "assets/units/chainbound_gaoler_cutout/rear.json": "b773432d5510783587be3e15c37031af8f528f3d",
     "assets/units/chainbound_gaoler_cutout/rear/arm_fist.png": "c9b5c170127313603a1b415ae6062979d036c117",
     "assets/units/chainbound_gaoler_cutout/rear/arm_hook.png": "435a411ba01be9fbfb0e4aca3a2437254d173491",
@@ -3374,7 +3374,7 @@
     "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/sleeve_near.png": "73b5d228e442e96d70406fb447bddb08ec21f7e3",
     "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/staff.png": "e0dfadf68b731cc46d2997223bf68e3141c4b5db",
     "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/torso.png": "8a7596a497db1ff5104018e5a7882c2f889c4029",
-    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear.json": "db7c10da29ef5480d2031107a7519de4a5e38774",
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear.json": "a963cabd7cb43a54ff28693ba9264c02e230ceec",
     "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_far.png": "075e6f706b68dd7fc05073246e35f6a9e798564a",
     "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_near.png": "319e8b3b652e9431cc44f8b061a6a64d423e699c",
     "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far.png": "857b6c07681ce68a8c39c249b05f12601e6565d8",
@@ -3394,7 +3394,7 @@
     "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_near.png": "7eed59cdb4db33d1b169aba81039c62e56e8a079",
     "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff.png": "9070099f9ae12d8a50bc5e3667e5b799925d32d6",
     "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/torso.png": "35889a640d73e5d5c84d1e92c3f194b1b5c70156",
-    "assets/units/hoarfrost_seer_cutout/integration.json": "5ede3e73da0d764140c986c022639d236336ba61",
+    "assets/units/hoarfrost_seer_cutout/integration.json": "6d288a1f3d1ec2fe7f6d2b17bae8e2b5cb2b599b",
     "assets/units/hoarfrost_seer_cutout/rear.json": "a86465e4931195554085376695956cc0067cc42f",
     "assets/units/hoarfrost_seer_cutout/rear/rest.png": "138d3dcd7341b05a8efb92d93ae645d0fe790728",
     "assets/units/hoarfrost_seer_cutout/seams.json": "7caa986e9b07389efa4359f8c4b7181d1b9a8c87",
@@ -4706,7 +4706,27 @@
     "assets/units/storm_cantor_cutout/humanoid_v2/rear/cloak_ribbon_far.png": "cf76054603a86bb6f6c8f06b90a2da32639c7632",
     "assets/units/storm_cantor_cutout/humanoid_v2/rear/cloak_ribbon_near.png": "fa5980f6f84836da2fd6116a0f7b90dca2c1aee4",
     "assets/units/storm_cantor_cutout/humanoid_v2/rear/hidden_cloak_ribbon_far.png": "c7693c44b323c52d2cb30a36fd2bca68b118655f",
-    "assets/units/storm_cantor_cutout/humanoid_v2/rear/hidden_cloak_ribbon_near.png": "0621eaf1426a49a9035feed7bfa12816c0b41352"
+    "assets/units/storm_cantor_cutout/humanoid_v2/rear/hidden_cloak_ribbon_near.png": "0621eaf1426a49a9035feed7bfa12816c0b41352",
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far_released.png": "4dd6e7dac8a1fafb61ecd3d27264c2ade88d34db",
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far_released_checks.png": "50d7b92a4ed4c6bad6043d2ebbe8b1572d4fb7de",
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff_released.png": "f2ee6240044c2ea582d699352653f2a27c0c4579",
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff_released_checks.png": "54314cf293904c6544944c570c6e4acaf257ce32",
+    "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/chain_released_checks.png": "07b476a96ee5f930e2620de6eca9d526a0643fa9",
+    "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/chain_released.png": "071f158c64d99899ada6522ff714daca3177ed76",
+    "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/chain_released_checks.png": "df796abfef16a69ea15f3590ceaebb7f063c2c1e",
+    "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/chain_released.png": "3f1858f2965a9fb4d5f432e9e1c69644e1f435c9",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/falchion_released.png": "b033350332337db811b8a2fdef8273428ab561b4",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/falchion_released_checks.png": "bef4ad50dcc0aae1cf43f76f188156796975b7c6",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_far_released.png": "43a17b329f04873d63c1c75efb94aeb9dde7a320",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_far_released_checks.png": "d50a0a70967f707ad4129cc9bea906fc18632ad4",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_far_released.png": "13de953e2b397fa1ff54c1c64bf64ba3f5bc9484",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_far_released_checks.png": "9cb7554bf4985526ca23449a80f3e4538949410a",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/falchion_released.png": "7faf69952706774d2598f27a976869a1f759e7e6",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/falchion_released_checks.png": "8d1868428ea8d307e4da2072eb6831e08a8d4305",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far_released.png": "03a19cef730e639c0af4087d21b6efb4174827f5",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far_released_checks.png": "e65176f3be98b08c46af3a59594d1dc1362c1f39",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far_released.png": "835f97943169f4bde8a595fd16bda13da552b311",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far_released_checks.png": "835f97943169f4bde8a595fd16bda13da552b311"
   },
   "ground_contact": {
     "burrow_grub": {
@@ -14471,10 +14491,10 @@
     },
     "assets/art/portraits/burrow_grub.png": {
       "alpha_bounds": [
-        0,
+        35,
         0,
         128,
-        128
+        100
       ],
       "size": [
         128,
@@ -14532,7 +14552,7 @@
     "assets/art/portraits/ember_tick.png": {
       "alpha_bounds": [
         0,
-        0,
+        21,
         128,
         128
       ],
@@ -14556,7 +14576,7 @@
     "assets/art/portraits/gale_herald.png": {
       "alpha_bounds": [
         0,
-        10,
+        30,
         128,
         128
       ],
@@ -14568,7 +14588,7 @@
     "assets/art/portraits/glacial_mirror.png": {
       "alpha_bounds": [
         0,
-        5,
+        30,
         128,
         128
       ],
@@ -14580,7 +14600,7 @@
     "assets/art/portraits/gloam_stalker.png": {
       "alpha_bounds": [
         0,
-        0,
+        30,
         128,
         128
       ],
@@ -14759,7 +14779,7 @@
     },
     "assets/art/portraits/gust_shrike.png": {
       "alpha_bounds": [
-        3,
+        33,
         0,
         128,
         128
@@ -14771,8 +14791,8 @@
     },
     "assets/art/portraits/hoarfrost_seer.png": {
       "alpha_bounds": [
-        12,
-        14,
+        0,
+        30,
         128,
         128
       ],
@@ -14783,9 +14803,9 @@
     },
     "assets/art/portraits/hollow_mimic.png": {
       "alpha_bounds": [
-        8,
-        4,
-        128,
+        19,
+        30,
+        105,
         128
       ],
       "size": [
@@ -14843,8 +14863,8 @@
     },
     "assets/art/portraits/slag_mortar.png": {
       "alpha_bounds": [
-        15,
-        6,
+        0,
+        0,
         128,
         128
       ],
@@ -51743,6 +51763,236 @@
         68,
         41
       ]
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far_released.png": {
+      "size": [
+        20,
+        22
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        20,
+        22
+      ]
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far_released_checks.png": {
+      "size": [
+        20,
+        22
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        20,
+        22
+      ]
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff_released.png": {
+      "size": [
+        51,
+        223
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        51,
+        223
+      ]
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff_released_checks.png": {
+      "size": [
+        51,
+        223
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        51,
+        223
+      ]
+    },
+    "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/chain_released_checks.png": {
+      "size": [
+        31,
+        76
+      ],
+      "alpha_bounds": [
+        3,
+        0,
+        31,
+        73
+      ]
+    },
+    "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/chain_released.png": {
+      "size": [
+        31,
+        76
+      ],
+      "alpha_bounds": [
+        3,
+        0,
+        31,
+        73
+      ]
+    },
+    "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/chain_released_checks.png": {
+      "size": [
+        26,
+        73
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        26,
+        73
+      ]
+    },
+    "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/chain_released.png": {
+      "size": [
+        26,
+        73
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        26,
+        73
+      ]
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/falchion_released.png": {
+      "size": [
+        97,
+        89
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        97,
+        89
+      ]
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/falchion_released_checks.png": {
+      "size": [
+        97,
+        89
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        97,
+        89
+      ]
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_far_released.png": {
+      "size": [
+        42,
+        32
+      ],
+      "alpha_bounds": [
+        2,
+        0,
+        35,
+        23
+      ]
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/hand_far_released_checks.png": {
+      "size": [
+        42,
+        32
+      ],
+      "alpha_bounds": [
+        2,
+        0,
+        35,
+        23
+      ]
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_far_released.png": {
+      "size": [
+        32,
+        38
+      ],
+      "alpha_bounds": [
+        9,
+        2,
+        30,
+        10
+      ]
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/front/hidden_hand_far_released_checks.png": {
+      "size": [
+        32,
+        38
+      ],
+      "alpha_bounds": [
+        9,
+        2,
+        30,
+        10
+      ]
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/falchion_released.png": {
+      "size": [
+        76,
+        73
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        76,
+        73
+      ]
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/falchion_released_checks.png": {
+      "size": [
+        76,
+        73
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        76,
+        73
+      ]
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far_released.png": {
+      "size": [
+        38,
+        30
+      ],
+      "alpha_bounds": [
+        3,
+        4,
+        22,
+        24
+      ]
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far_released_checks.png": {
+      "size": [
+        38,
+        30
+      ],
+      "alpha_bounds": [
+        3,
+        4,
+        22,
+        24
+      ]
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far_released.png": {
+      "size": [
+        38,
+        34
+      ],
+      "alpha_bounds": []
+    },
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far_released_checks.png": {
+      "size": [
+        38,
+        34
+      ],
+      "alpha_bounds": []
     }
   },
   "mirror_sole": {

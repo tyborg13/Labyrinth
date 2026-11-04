@@ -353,6 +353,7 @@
 					"actor_key": "enemy_1",
 					"actor_name": "Storm Capacitor",
 					"ai_role": "artillery",
+					"amount": 1,
 					"boss_mechanic": false,
 					"committed_direction": false,
 					"committed_shape": "",
@@ -393,6 +394,9 @@
 				"actor_key": "enemy_1",
 				"actor_name": "Storm Capacitor",
 				"ai_role": "artillery",
+				"analytics_fields": {
+					"amount": 1
+				},
 				"chain_hits": [],
 				"element": "lightning",
 				"en06_after": {

@@ -1,0 +1,48 @@
+{
+  "name": "campaign-default",
+  "returncode": 0,
+  "wall_seconds": 2837.0223854889528,
+  "launch_budget_minutes": 45,
+  "capacity_recovery": {
+    "previous_active_seconds_inferred_from_last_trace": 882.5338621139526,
+    "previous_started": 1793725996.1804397,
+    "previous_last_activity": 1793726878.7143018,
+    "remaining_launch_minutes": 30.29110229810079,
+    "completed_seeds": [
+      2,
+      3,
+      4,
+      6,
+      7
+    ],
+    "interrupted": [
+      {
+        "seed": 5,
+        "log": "/private/tmp/labyrinth_codex/qa-25/campaign-default/seed-000005/godot.log",
+        "last_trace_write": 1793726878.2487059,
+        "returncode": null,
+        "reason": "Capacity interruption; recorded runner PID no longer exists; no terminal evidence or observed exit status"
+      },
+      {
+        "seed": 8,
+        "log": "/private/tmp/labyrinth_codex/qa-25/campaign-default/seed-000008/godot.log",
+        "last_trace_write": 1793726878.7143018,
+        "returncode": null,
+        "reason": "Capacity interruption; recorded runner PID no longer exists; no terminal evidence or observed exit status"
+      }
+    ],
+    "next_seed": 9
+  },
+  "continuation_command": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "/private/tmp/labyrinth_codex/qa-25/run_hunt_task.py",
+    "--minutes",
+    "30.29110229810079",
+    "--processes",
+    "2",
+    "--seed",
+    "9",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-25/campaign-default-continuation"
+  ]
+}

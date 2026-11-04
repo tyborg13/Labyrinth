@@ -6,6 +6,46 @@ sound, content completeness (room types, events, map branching), card/enemy desi
 Experimental: owner may cherry-pick or revert. Bold changes allowed; prior Codex-era approvals are
 not binding. Claude directs (all taste), Codex implements (orchestrate-codex skill).
 
+## 2026-11-04 morning: four slots running; Steam Deck performance is the standing goal
+- **Owner:** slots never sit idle unless usage runs out or the owner says stop; performance and polish always have more. Invisible perf fixes skip the inbox on the director's review (decisions 2026-11-04) and are logged in `perf_log.md`.
+- **Owner on the Deck:** "very stuttery, lots of frame drops". Asked the owner for the Deck's `telemetry` folder (frame cohorts the game already records) or SSH access to the Deck.
+- **Running (Codex, base codex/release 99d14329b):** perf-20 (CPU frame cost on a slow-core proxy at 1280x800), perf-21 (GPU cost per frame; measure only; MSAA, uncompressed cel textures without mipmaps, full-screen passes), perf-22 (Vulkan pipeline-compile hitches; warmup under the loading screen), qa-35 (seven small visible bugs from the polish list).
+- **Refill queue, in order** (from the 2026-11-04 ledger sweep):
+  1. Invisible fixes from perf-21's data; Deck-native verification of perf-20/22.
+  2. Retire the seven-card hover probe and the Deck focused-hand flank check (the owner's pol-46 ruling: a lifted or hovered card may cover Pass).
+  3. Text: the Settings copy that reads like developer notes; RANGED vs AREA ATTACK keyword contradiction on area cards; the Escaped screen's six-dragon row ("Zeka...").
+  4. Specials: a board marker for the Snuff target and a reward-screen line for specials (deferred 2026-10-30).
+  5. `bot_policy.gd` moves under `tools/` (ships but can't load).
+  6. Owner-asked, never done: air rooms' decorative gusts back, following the wind; the melee strike trail polish pass; summon/reinforcement arrival sound (a decision).
+  7. Bigger: guardian opening (guard-02, needs designed challenge motion); roster waves 2-5 (owner-approved plan, background); store screenshots and trailer recaptured with the cel look; the skill tree's tangled lines.
+- **Release:** b41bc6db8 is the tested candidate; today's master push goes out with it (plus docs).
+
+## 2026-11-03 night: release candidate nearly green; next push tomorrow
+- **On release since this morning's push** (owner APPROVED): kb-01, por-03, ui-04, perf-15, perf-16, rr-58, kb-03, ui-05 (separator and purge price; the Chronicle change reverted per the owner), txt-01, perf-17, perf-18, perf-19, kb-02, rr-57 (reaver-rig-4 and -5).
+- **Invisible changes on release:** tool-05/06, cap-03, qa-26..29, qa-31, qa-32, qa-33, win-02 (typed arrays), qa-28 (analytics), steam-01 (export hotfix; also on local master as 017fd95ce, not pushed).
+- **Release candidate b41bc6db8: full Godot PASS and Python product pass PASS** (after qa-34's test fixes and qa-30's Scavenger shop leak fix). Push tomorrow with `release_squash_push.sh b41bc6db8 <msg>`, or the latest commit if only docs followed. Then reset local master to the pushed commit (it carries the 017fd95ce Steam hotfix, also on release).
+- **Lesson:** batch merges need the full suite before a push. Separately green units collided (kb-02 with kb-03; txt-01's test).
+- **Inbox open:** hov-1, ui-7, fx-3 (the badge landing ring removed), brs-3 (true-speed clips), fb-kindle-words, playtest-22.
+- **Running:** nothing. qa-30's hunt (17 runs, 8 final-dragon wins) found one leak, fixed. The polish and perf queue is dry; awaiting the owner's direction.
+- **Branches kept for open entries:** codex/hov-01, codex/ui-07, codex/fx-01, codex/brs-03.
+
+## 2026-11-03 evening: master pushed; cleanup; four slots running
+- **Master:** f206d3813, one squashed commit (tree of the tested 47b98da9b), because GitHub refuses pushes over ~2 GB. `/output/` is untracked from now on. Push with `spec/peer_benchmark/director_tools/release_squash_push.sh`. The owner is building Steam from it ("Nov 3rd checkpoint").
+- **On release, not yet pushed:** kb-01, por-03, ui-04, perf-15 (all owner APPROVED), plus tool-05 (454c515aa: windowed probes hand focus back; the suite-runner abort fixed). Integration = release.
+- **Running (Codex):** cap-03 r1 (time_scale fix), perf-17 (first rig appearance), qa-25 r2 (run hunt), rr-58 (Gaoler/Seer whole-item drop).
+- **Queued:** kb-03 feedback_2, after its director captures (focus on freed HUD controls; analog repeat 0.40 s then 0.12 s, reset below 0.30).
+- **Director runs:**
+  - rr-57 r2 native stages (whole falchion), then the `reaver-rig-5` reel (cel, game speed);
+  - perf-16 native timing (6 launches);
+  - kb-03 captures.
+- **After cap-03 lands:** re-record fx-01 (as fx-2), brs-03 and kb-02 clips.
+- **Cleanup (owner):**
+  - removing each worktree and proof folder after every merge or post;
+  - git gc (prune unreachable objects older than 7 days) has started;
+  - **branches:** the owner approved; 361 deleted (279 merged, 82 unmerged and older than two weeks; list with SHAs in `branch_cleanup_2026-11-03.txt`). 24 refs remain.
+  - **compaction DONE (night of 2026-11-03):** `git reflog expire --expire-unreachable=now --all && git gc --prune=1.hour.ago` took 55 s; `.git/objects` went from 103 GB to 12 GB; disk free 309 GB. The deleted branches are no longer restorable. Earlier note: The first gc showed 22.8 GB reachable and an 88 GB cruft pack of unreferenced objects (dropped `stash -u` snapshots of captures and videos, rewritten commits). Their pack mtimes were under 7 days, so nothing was pruned. The deleted branches stay restorable until this runs.
+- **Steam hotfix:** the owner's build failed the dev-resource check (`bot_policy.gd` extends `tools/encounter_bot.gd`; the hero coverage provenance named `res://tools/` paths). The fix 0bbe5405a is on release; it is cherry-picked as 017fd95ce on **local master only**, not pushed. At the next squash push, reset local master to the pushed commit.
+
 ## 2026-11-03 morning: verdicts in; release waits on the Reaver
 - **Owner verdicts:** walk-1 APPROVED; lamplighter-rig-3 APPROVED (walk-02 landed 3ac2128b6); cantor-rig-3 APPROVED (walk-03 landed 87da01f1c); reaver-rig-2 NEEDS CHANGES, blocking (the owner first clicked approve by mistake): his slashes must start high and come down. His walk was already fixed by walk-01 (owner saw it in walk-1).
 - **Release:** `codex/release` = integration at the Cantor merge plus docs. Full suites PASS at 3ac2128b6; they rerun after rr-57 merges. The push waits only on rr-57 and its `reaver-rig-3` verdict, unless the owner says to push without it.

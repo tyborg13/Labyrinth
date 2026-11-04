@@ -3,6 +3,7 @@ extends RefCounted
 ## Rolled once at creation. No repair/load path rolls offers for older saves or
 ## a run in which the awakening happens later. Transactions validate every
 ## secondary choice before applying any cost or consuming the one run choice.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Elements = preload("res://scripts/element_data.gd")
@@ -84,7 +85,7 @@ static func relic_pool(rarity: String, state: Dictionary) -> Array[String]:
 	return result
 
 static func _draw(pool: Array[String], count: int, rng: RandomNumberGenerator) -> Array[String]:
-	var remaining: Array[String] = pool.duplicate()
+	var remaining: Array[String] = TypedArrays.strings(pool.duplicate())
 	var result: Array[String]
 	while result.size() < count and not remaining.is_empty():
 		var index: int = rng.randi_range(0, remaining.size() - 1)

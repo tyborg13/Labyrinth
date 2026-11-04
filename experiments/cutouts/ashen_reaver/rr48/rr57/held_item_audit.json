@@ -1,0 +1,223 @@
+{
+  "native_pixels": false,
+  "defaults": {
+    "canvas_size_px": 1024,
+    "source_offset_px": 384,
+    "strip_gutter_px": 24,
+    "magnification": 3
+  },
+  "records": [
+    {
+      "rig": "ashen_reaver_cutout",
+      "view": "front",
+      "item": "falchion",
+      "release": 0.3,
+      "frames": [
+        28,
+        29,
+        41,
+        95
+      ],
+      "capture": "/private/tmp/labyrinth_codex/rr-57/feedback2/audit/ashen_reaver_cutout_front_drop_3x_cpu.png",
+      "native_pixels": false,
+      "whole_item": true,
+      "finding": "Complete blade, crossguard, grip and pommel after repartition. Rear empty-fist continuation needs the registered 15-px underlay request."
+    },
+    {
+      "rig": "ashen_reaver_cutout",
+      "view": "rear",
+      "item": "falchion",
+      "release": 0.3,
+      "frames": [
+        28,
+        29,
+        41,
+        95
+      ],
+      "capture": "/private/tmp/labyrinth_codex/rr-57/feedback2/audit/ashen_reaver_cutout_rear_drop_3x_cpu.png",
+      "native_pixels": false,
+      "whole_item": true,
+      "finding": "Complete blade, crossguard, grip and pommel after repartition. Rear empty-fist continuation needs the registered 15-px underlay request."
+    },
+    {
+      "rig": "chainbound_gaoler_cutout",
+      "view": "front",
+      "item": "chain",
+      "release": 0.3,
+      "frames": [
+        28,
+        29,
+        41,
+        95
+      ],
+      "capture": "/private/tmp/labyrinth_codex/rr-57/feedback2/audit/chainbound_gaoler_cutout_front_drop_3x_cpu.png",
+      "native_pixels": false,
+      "whole_item": "all painted links/hook drop; top link under the closed fist has an unpainted open arc",
+      "finding": "Open top link visible after separation, death frame 41 (both views); no matching arc in gauntlet paint to transfer. Requires under-grip chain continuation, not a trivial partition move."
+    },
+    {
+      "rig": "chainbound_gaoler_cutout",
+      "view": "rear",
+      "item": "chain",
+      "release": 0.3,
+      "frames": [
+        28,
+        29,
+        41,
+        95
+      ],
+      "capture": "/private/tmp/labyrinth_codex/rr-57/feedback2/audit/chainbound_gaoler_cutout_rear_drop_3x_cpu.png",
+      "native_pixels": false,
+      "whole_item": "all painted links/hook drop; top link under the closed fist has an unpainted open arc",
+      "finding": "Open top link visible after separation, death frame 41 (both views); no matching arc in gauntlet paint to transfer. Requires under-grip chain continuation, not a trivial partition move."
+    },
+    {
+      "rig": "frostglass_lancer_cutout",
+      "view": "front",
+      "item": "spear",
+      "release": 0.3,
+      "frames": [
+        28,
+        29,
+        41,
+        95
+      ],
+      "capture": "/private/tmp/labyrinth_codex/rr-57/feedback2/audit/frostglass_lancer_cutout_front_drop_3x_cpu.png",
+      "native_pixels": false,
+      "whole_item": true,
+      "finding": "Spearhead, full shaft and butt leave together in both views."
+    },
+    {
+      "rig": "frostglass_lancer_cutout",
+      "view": "rear",
+      "item": "spear",
+      "release": 0.3,
+      "frames": [
+        28,
+        29,
+        41,
+        95
+      ],
+      "capture": "/private/tmp/labyrinth_codex/rr-57/feedback2/audit/frostglass_lancer_cutout_rear_drop_3x_cpu.png",
+      "native_pixels": false,
+      "whole_item": true,
+      "finding": "Spearhead, full shaft and butt leave together in both views."
+    },
+    {
+      "rig": "hoarfrost_seer_cutout",
+      "view": "front",
+      "item": "staff",
+      "release": 0.2,
+      "frames": [
+        20,
+        21,
+        33,
+        101
+      ],
+      "capture": "/private/tmp/labyrinth_codex/rr-57/feedback2/audit/hoarfrost_seer_cutout_front_drop_3x_cpu.png",
+      "native_pixels": false,
+      "whole_item": "front crown/shaft complete; rear grip partition needs paint",
+      "finding": "Rear hand_far retains a detached brown shaft fragment while the released staff carries a pale palm-like band, death frame 33. A pure move cannot both restore the shaft under the palm and leave a complete fist."
+    },
+    {
+      "rig": "hoarfrost_seer_cutout",
+      "view": "rear",
+      "item": "staff",
+      "release": 0.2,
+      "frames": [
+        20,
+        21,
+        33,
+        101
+      ],
+      "capture": "/private/tmp/labyrinth_codex/rr-57/feedback2/audit/hoarfrost_seer_cutout_rear_drop_3x_cpu.png",
+      "native_pixels": false,
+      "whole_item": "front crown/shaft complete; rear grip partition needs paint",
+      "finding": "Rear hand_far retains a detached brown shaft fragment while the released staff carries a pale palm-like band, death frame 33. A pure move cannot both restore the shaft under the palm and leave a complete fist.",
+      "hand_components": [
+        {
+          "pixels": 157,
+          "source_bbox": [
+            164,
+            112,
+            176,
+            134
+          ]
+        },
+        {
+          "pixels": 43,
+          "source_bbox": [
+            177,
+            117,
+            184,
+            131
+          ]
+        }
+      ]
+    },
+    {
+      "rig": "last_lamplighter_cutout",
+      "view": "front",
+      "item": "lantern",
+      "release": 0.35,
+      "frames": [
+        33,
+        34,
+        46,
+        95
+      ],
+      "capture": "/private/tmp/labyrinth_codex/rr-57/feedback2/audit/last_lamplighter_cutout_front_drop_3x_cpu.png",
+      "native_pixels": false,
+      "whole_item": true,
+      "finding": "Handle ring, cap, body and base drop together in both views."
+    },
+    {
+      "rig": "last_lamplighter_cutout",
+      "view": "rear",
+      "item": "lantern",
+      "release": 0.35,
+      "frames": [
+        33,
+        34,
+        46,
+        95
+      ],
+      "capture": "/private/tmp/labyrinth_codex/rr-57/feedback2/audit/last_lamplighter_cutout_rear_drop_3x_cpu.png",
+      "native_pixels": false,
+      "whole_item": true,
+      "finding": "Handle ring, cap, body and base drop together in both views."
+    },
+    {
+      "rig": "storm_cantor_cutout",
+      "view": "front",
+      "item": "staff",
+      "release": 0.3,
+      "frames": [
+        32,
+        33,
+        45,
+        107
+      ],
+      "capture": "/private/tmp/labyrinth_codex/rr-57/feedback2/audit/storm_cantor_cutout_front_drop_3x_cpu.png",
+      "native_pixels": false,
+      "whole_item": true,
+      "finding": "Crown, full shaft and hanging cloth drop together in both views."
+    },
+    {
+      "rig": "storm_cantor_cutout",
+      "view": "rear",
+      "item": "staff",
+      "release": 0.3,
+      "frames": [
+        32,
+        33,
+        45,
+        107
+      ],
+      "capture": "/private/tmp/labyrinth_codex/rr-57/feedback2/audit/storm_cantor_cutout_rear_drop_3x_cpu.png",
+      "native_pixels": false,
+      "whole_item": true,
+      "finding": "Crown, full shaft and hanging cloth drop together in both views."
+    }
+  ]
+}

@@ -211,7 +211,7 @@ static func enemy_badges(enemy: Dictionary) -> Array[Dictionary]:
 	return badges
 
 static func events_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	var sequence: int = int(before_state.get("surface_event_sequence", 0))
 	for event_var: Variant in after_state.get("surface_events", []):
 		if typeof(event_var) != TYPE_DICTIONARY:
@@ -238,7 +238,7 @@ static func decorate_attack_step(before_state: Dictionary, after_state: Dictiona
 ## One "status_damage" presentation step per Retaliate so the attacker's loss
 ## animates (floating text on the attacker) after its strike lands.
 static func presentation_steps(engine: RefCounted, before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
-	var steps: Array[Dictionary] = []
+	var steps: Array[Dictionary]
 	for event: Dictionary in events_between(before_state, after_state):
 		var enemy_id: int = int(event.get("enemy_id", -1))
 		var after_enemy: Dictionary = engine._surface_actor(after_state, "enemy", enemy_id)
@@ -246,7 +246,7 @@ static func presentation_steps(engine: RefCounted, before_state: Dictionary, aft
 		var hp_loss: int = int(event.get("hp_loss", 0))
 		var block_loss: int = int(event.get("block_loss", 0))
 		var stoneskin_loss: int = int(event.get("stoneskin_loss", 0))
-		var losses: Array[Dictionary] = []
+		var losses: Array[Dictionary]
 		if hp_loss > 0 or block_loss > 0 or stoneskin_loss > 0:
 			losses.append({"key": str(event.get("actor_key", "")), "kind": "enemy", "id": enemy_id, "tile": after_enemy.get("pos", before_values.get("pos", Vector2i.ZERO)), "hp_loss": hp_loss, "block_loss": block_loss, "stoneskin_loss": stoneskin_loss, "amount": hp_loss + block_loss + stoneskin_loss})
 		if losses.is_empty():
@@ -286,7 +286,7 @@ static func presentation_steps(engine: RefCounted, before_state: Dictionary, aft
 
 ## Player HUD badge: icon `retaliate`, amount, tooltip listing riders.
 static func player_badges(state: Dictionary, effects: Array) -> Array[Dictionary]:
-	var badges: Array[Dictionary] = []
+	var badges: Array[Dictionary]
 	var total: Dictionary = totals(state, effects)
 	if not bool(total.get("active", false)):
 		return badges

@@ -5,7 +5,7 @@ const MAX_HAND_SIZE: int = 7
 const GameData = preload("res://scripts/game_data.gd")
 
 static func normalized_loot(entries: Array) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	for entry_var: Variant in entries:
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
@@ -81,7 +81,7 @@ static func pickups_between(before: Dictionary, after: Dictionary) -> Array[Dict
 	for loot_var: Variant in before.get("loot", []):
 		if typeof(loot_var) == TYPE_DICTIONARY and bool(loot_var.get("claimed", false)):
 			claimed_before[str(loot_var.get("id", loot_var.get("pos", "")))] = true
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	for loot_var: Variant in after.get("loot", []):
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue

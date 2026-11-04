@@ -28,6 +28,7 @@ var _fresh_subclass_state: Dictionary = {}
 var _canvas_geometry_cache: Dictionary = {}
 
 func _ready() -> void:
+	var construction_started: int = Time.get_ticks_usec()
 	_capture_prepared_subclass_state()
 	viewport = SubViewport.new()
 	viewport.name = "MaquetteCanvas"
@@ -45,6 +46,7 @@ func _ready() -> void:
 		if not rig.load_rig(): push_error("Maquette cutout could not load: " + str(rig.load_errors))
 		rigs[view] = rig
 	_apply_pose()
+	preload("construction.gd").record_build(construction_started)
 
 ## Optional transparent capacity; the logical painted canvas remains 255px.
 func canvas_geometry() -> Dictionary:

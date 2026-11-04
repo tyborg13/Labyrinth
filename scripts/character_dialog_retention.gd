@@ -56,6 +56,9 @@ static func refresh_equipment_loadout(scene: Node, panel: Control, previous: Dic
 	var before: Dictionary = previous["state"]
 	var after: Dictionary = current["state"]
 	if before.get("equipped_items", []) != after.get("equipped_items", []): return false
+	# Matching IDs alone cannot retain item rows whose displayed numbers changed.
+	for id: String in after.get("equipped_items", []):
+		if previous.get("item_rules", {}).get(id) != current.get("item_rules", {}).get(id): return false
 	if scene._run_engine.can_change_equipment(before) != scene._run_engine.can_change_equipment(after): return false
 	if scene._run_engine.can_change_items(before) != scene._run_engine.can_change_items(after): return false
 	if scene._run_engine.loadout_unread_ids(before, "equipment") != scene._run_engine.loadout_unread_ids(after, "equipment"): return false

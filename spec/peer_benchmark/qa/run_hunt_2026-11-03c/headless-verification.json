@@ -1,0 +1,88 @@
+{
+  "cold_import": {
+    "returncode": 0,
+    "engine_log": "/private/tmp/labyrinth-godot-home/qa-30-1793745440739612000-67898/godot.log",
+    "script_errors": 0,
+    "errors": [
+      "ERROR: Condition \"ret != noErr\" is true. Returning: \"\""
+    ],
+    "warnings": [
+      "WARNING: UID duplicate detected between res://assets/placeholders/units/player_reaver_idle.png and res://assets/placeholders/units/player_reaver_anime_idle.png."
+    ],
+    "completion": "[ DONE ] loading_editor_layout"
+  },
+  "census_parser": {
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-30/census-parser.log"
+  },
+  "fight_save_inspection": {
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-30/fight-save-2.log"
+  },
+  "attribution_parser": {
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-30/attribution-parser.log"
+  },
+  "censuses_before_fix": {
+    "name": "censuses",
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/private/tmp/labyrinth_codex/qa-30/run_censuses.py"
+    ],
+    "started": 1793753050.6133912,
+    "wall_seconds": 1074.3211479187012,
+    "returncode": 1
+  },
+  "python_default_before_fix": {
+    "name": "python-default",
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/run_python_suite.py",
+      "--shards",
+      "4",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-30/python-default"
+    ],
+    "started": 1793754124.9349408,
+    "wall_seconds": 26.88526725769043,
+    "returncode": 0
+  },
+  "fixed_censuses": {
+    "returncode": 0,
+    "result_file": "census-fixed-result.txt",
+    "summary": "node-census-fixed-summary.json",
+    "child_returncodes": [
+      0,
+      0
+    ],
+    "script_error_markers": [
+      0,
+      0
+    ]
+  },
+  "python_final": {
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/run_python_suite.py",
+      "--shards",
+      "4",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-30/python-final"
+    ],
+    "returncode": 0,
+    "wall_seconds": 26.207793951034546
+  },
+  "shop_fix": "shop-fix-proof.json",
+  "source_stable": true,
+  "helper_compile": {
+    "result": "PASS",
+    "python_sources": 10
+  },
+  "git_diff_check": {
+    "returncode": 0
+  },
+  "staged_diff": {
+    "returncode": 0,
+    "empty": true
+  }
+}

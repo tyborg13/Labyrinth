@@ -1,0 +1,393 @@
+{
+  "native_pixels": false,
+  "scope": "Full requested front fall: failed 12-px-above-shoulder side guard. Current clean peak is 11 px above shoulder.",
+  "compiled_sha256": "994434d9cde3da55008da5b0ac2ce7a99ff7deb24a1199d1be0a84ac7830ce39",
+  "regions": [
+    {
+      "view": "front",
+      "region": "fall_hip_far",
+      "mask": "front_fall_hip_far.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "source_frame": "torso recipient, same registration as rr48 vacated-footprint requests",
+      "uncovered_pixels": 3,
+      "sampled_frames": 7,
+      "painting_must_continue": "Director to identify the covered surface/air; diagnostic bounds include adjacent paint. Do not fill authored negative space.",
+      "status": "TODO_DESIGN_hidden_fill_front_fall_hip_far",
+      "witnesses": [
+        {
+          "frame": 14,
+          "phase": 0.181818181818182,
+          "posed_bbox": [
+            329,
+            295,
+            331,
+            296
+          ],
+          "kind": "paint_mapped_hole",
+          "pixel_count": 2,
+          "request_padding_px": 0
+        },
+        {
+          "frame": 15,
+          "phase": 0.194805194805195,
+          "posed_bbox": [
+            329,
+            295,
+            331,
+            296
+          ],
+          "kind": "paint_mapped_hole",
+          "pixel_count": 2,
+          "request_padding_px": 0
+        },
+        {
+          "frame": 16,
+          "phase": 0.207792207792208,
+          "posed_bbox": [
+            329,
+            295,
+            331,
+            296
+          ],
+          "kind": "paint_mapped_hole",
+          "pixel_count": 2,
+          "request_padding_px": 0
+        },
+        {
+          "frame": 25,
+          "phase": 0.324675324675325,
+          "posed_bbox": [
+            329,
+            295,
+            331,
+            296
+          ],
+          "kind": "paint_mapped_hole",
+          "pixel_count": 2,
+          "request_padding_px": 0
+        },
+        {
+          "frame": 27,
+          "phase": 0.350649350649351,
+          "posed_bbox": [
+            329,
+            296,
+            331,
+            297
+          ],
+          "kind": "paint_mapped_hole",
+          "pixel_count": 2,
+          "request_padding_px": 0
+        },
+        {
+          "frame": 30,
+          "phase": 0.38961038961039,
+          "posed_bbox": [
+            327,
+            301,
+            328,
+            302
+          ],
+          "kind": "paint_mapped_hole",
+          "pixel_count": 1,
+          "request_padding_px": 0
+        },
+        {
+          "frame": 33,
+          "phase": 0.428571428571429,
+          "posed_bbox": [
+            325,
+            305,
+            326,
+            306
+          ],
+          "kind": "paint_mapped_hole",
+          "pixel_count": 1,
+          "request_padding_px": 0
+        }
+      ],
+      "mask_sha256": "26d004cb1b7ffc4089d21842243d70dbd3cd6e820942495760140777ef040b0c"
+    },
+    {
+      "view": "front",
+      "region": "fall_shoulder_far",
+      "mask": "front_fall_shoulder_far.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "source_frame": "torso recipient, same registration as rr48 vacated-footprint requests",
+      "uncovered_pixels": 220,
+      "sampled_frames": 20,
+      "painting_must_continue": "Director to identify the covered surface/air; diagnostic bounds include adjacent paint. Do not fill authored negative space.",
+      "status": "TODO_DESIGN_hidden_fill_front_fall_shoulder_far",
+      "witnesses": [
+        {
+          "frame": 14,
+          "phase": 0.181818181818182,
+          "posed_bbox": [
+            309,
+            279,
+            310,
+            280
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 14,
+          "phase": 0.181818181818182,
+          "posed_bbox": [
+            310,
+            281,
+            311,
+            282
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 15,
+          "phase": 0.194805194805195,
+          "posed_bbox": [
+            309,
+            281,
+            310,
+            282
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 16,
+          "phase": 0.207792207792208,
+          "posed_bbox": [
+            307,
+            279,
+            308,
+            280
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 25,
+          "phase": 0.324675324675325,
+          "posed_bbox": [
+            303,
+            275,
+            304,
+            276
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 27,
+          "phase": 0.350649350649351,
+          "posed_bbox": [
+            304,
+            280,
+            305,
+            281
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 10,
+          "phase": 0.12987012987013,
+          "posed_bbox": [
+            314,
+            282,
+            317,
+            285
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 4,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 17,
+          "phase": 0.220779220779221,
+          "posed_bbox": [
+            306,
+            278,
+            307,
+            279
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 18,
+          "phase": 0.233766233766234,
+          "posed_bbox": [
+            305,
+            277,
+            306,
+            278
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 19,
+          "phase": 0.246753246753247,
+          "posed_bbox": [
+            304,
+            276,
+            305,
+            277
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 20,
+          "phase": 0.25974025974026,
+          "posed_bbox": [
+            303,
+            275,
+            304,
+            276
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 21,
+          "phase": 0.272727272727273,
+          "posed_bbox": [
+            303,
+            275,
+            304,
+            276
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 22,
+          "phase": 0.285714285714286,
+          "posed_bbox": [
+            302,
+            274,
+            303,
+            275
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 23,
+          "phase": 0.298701298701299,
+          "posed_bbox": [
+            303,
+            273,
+            304,
+            274
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 24,
+          "phase": 0.311688311688312,
+          "posed_bbox": [
+            303,
+            275,
+            304,
+            276
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 26,
+          "phase": 0.337662337662338,
+          "posed_bbox": [
+            303,
+            277,
+            304,
+            278
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 28,
+          "phase": 0.363636363636364,
+          "posed_bbox": [
+            305,
+            282,
+            306,
+            283
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 29,
+          "phase": 0.376623376623377,
+          "posed_bbox": [
+            306,
+            285,
+            308,
+            286
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 2,
+          "request_padding_px": 3
+        },
+        {
+          "frame": 31,
+          "phase": 0.402597402597403,
+          "posed_bbox": [
+            307,
+            288,
+            308,
+            289
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        },
+        {
+          "frame": -1,
+          "phase": 0.3,
+          "posed_bbox": [
+            303,
+            273,
+            304,
+            274
+          ],
+          "kind": "unmatched_detached_paint",
+          "pixel_count": 1,
+          "request_padding_px": 3
+        }
+      ],
+      "mask_sha256": "e919578e1684473e7ba9bfeb09f9754b5c3bd7ad5cd99d05a4a6ee6ee185a46a"
+    }
+  ],
+  "retained_geometry_inputs_verified": true
+}

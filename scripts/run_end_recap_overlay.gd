@@ -291,7 +291,7 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 			recovery_status = "Recovery marker %s · Depth %d · %d Embers" % [marker_verb, marker_depth, marker_amount]
 
 	var run_result: Dictionary = run_state.get("run_result", {}) as Dictionary
-	var new_bests: Array[String] = []
+	var new_bests: Array[String]
 	for stat_id_var: Variant in run_result.get("new_bests", []):
 		var stat_id: String = str(stat_id_var)
 		if ProgressionStore.BEST_ELIGIBLE_STAT_IDS.has(stat_id) and not new_bests.has(stat_id):
@@ -439,7 +439,7 @@ func _build_children() -> void:
 	_total_value = _label("ScoreValue", "0", DISPLAY_FONT, 52, Palette.GOLD_BRIGHT, Rect2(250, 0, 190, 66))
 	_total_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_total.add_child(_total_value)
-	_best = _label("NewBestTag", "NEW BEST", _spaced_font(3), 13, Color("1b0f06"), Rect2(454, 28, 106, 24))
+	_best = _label("NewBestTag", "NEW BEST", _spaced_font(3), 14, Color("1b0f06"), Rect2(454, 28, 106, 24))
 	_best.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_best.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var tag_style := StyleBoxFlat.new()
@@ -539,7 +539,7 @@ func _add_score_row(data: Dictionary, parent: VBoxContainer, width: float) -> vo
 	row.custom_minimum_size = Vector2(width, ROW_MIN_HEIGHT)
 	parent.add_child(row)
 	if feat:
-		row.add_child(_label("FeatDiamond", "◆", UI_FONT, 12, Palette.GOLD, Rect2(0, 9, 14, 20)))
+		row.add_child(_label("FeatDiamond", "◆", UI_FONT, 14, Palette.GOLD, Rect2(0, 9, 14, 20)))
 	row.add_child(_label("ScoreLabel", label_text, UI_FONT, 20, Palette.GOLD_BRIGHT if feat else Palette.TEXT_2, Rect2(label_x, 4, label_width, 30)))
 	var value := TabularValue.new()
 	value.name = "ScorePoints"
@@ -736,6 +736,13 @@ func _process(delta: float) -> void:
 		set_process(false)
 
 func _input(event: InputEvent) -> void:
+	if visible and (_chronicle == null or not _chronicle.visible) and event is InputEventJoypadButton and event.is_action_pressed(InputRouter.ACTION_CANCEL):
+		var router: Node = get_node_or_null("/root/InputRouter")
+		if router != null: router.call("record_input_activity", event)
+		skip_presentation()
+		main_menu_pressed.emit()
+		get_viewport().set_input_as_handled()
+		return
 	if not visible or _elapsed >= presentation_duration():
 		return
 	if event.is_pressed() or event is InputEventMouseMotion or event is InputEventScreenDrag or (event is InputEventJoypadMotion and absf(event.axis_value) >= InputRouter.JOYSTICK_ACTIVITY_THRESHOLD):

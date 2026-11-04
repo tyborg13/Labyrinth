@@ -2,6 +2,7 @@ extends RefCounted
 
 ## Owned by the board, shared with its retained layers. Cached entries are private;
 ## board query APIs copy them, while paint/collision submission only reads them.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Plates = preload("res://scripts/board_status_plates.gd")
 const Groups = preload("res://scripts/board_hud_group_placement.gd")
 const MAX_ACTORS: int = 128
@@ -52,7 +53,7 @@ func prepare_groups(view: Control, units: Array[Dictionary]) -> void:
 		return
 	_choice_memos.clear()
 	_motion_context.clear()
-	_previous_order_rects = fixed_order_rects.duplicate()
+	_previous_order_rects = TypedArrays.rects(fixed_order_rects.duplicate())
 	_intent_obstacles.clear()
 	_group_order.clear()
 	group_obstacles.clear()
@@ -120,7 +121,7 @@ func refresh_moving(view: Control, units: Array[Dictionary], moving: Dictionary,
 		if not fixed_order_rects.has(rect): touched.append(rect)
 	for rect: Rect2 in fixed_order_rects:
 		if not _previous_order_rects.has(rect): touched.append(rect)
-	_previous_order_rects = fixed_order_rects.duplicate()
+	_previous_order_rects = TypedArrays.rects(fixed_order_rects.duplicate())
 	_intent_obstacles.clear()
 	if contextual_intents:
 		var by_actor: Dictionary = view._units_by_key(units)
@@ -269,13 +270,13 @@ func resolve(view: Control, unit: Dictionary, frame: Rect2, anchor_input: bool =
 		pieces.append_array(Plates.rects(defenses))
 		pieces.append_array(pips)
 		if crest.has_area(): pieces.append(crest)
-		var compact_pieces: Array[Rect2] = pieces.duplicate()
+		var compact_pieces: Array[Rect2] = TypedArrays.rects(pieces.duplicate())
 		pieces.append_array(Plates.rects(statuses))
 		compact_pieces.append_array(Plates.rects(compact))
 		raw = {"anchor": frame, "defenses": defenses, "statuses": statuses, "compact": compact, "pips": pips, "pieces": pieces, "compact_pieces": compact_pieces, "bounds": Groups.pieces_bounds(pieces).merge(Groups.pieces_bounds(compact_pieces))}
 	var movement: Vector2 = frame.position - (raw["anchor"] as Rect2).position
 	var pieces: Array[Rect2] = Groups.translate_rects(raw["pieces"], movement)
-	var obstacles: Array[Rect2] = fixed_order_rects.duplicate()
+	var obstacles: Array[Rect2] = TypedArrays.rects(fixed_order_rects.duplicate())
 	obstacles.append_array(group_obstacles.get(key, []))
 	var started: int = Time.get_ticks_usec()
 	# Compact pills can pack into a wider row than the normal word pills.

@@ -3,6 +3,7 @@ extends RefCounted
 # One delayed mark/strike primitive. Old action names and held fields are stable
 # save/analytics aliases. Geometry and sight are authored in data/enemies.json.
 # The two landing hit policies deliberately preserve their original reactions.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 
@@ -78,7 +79,7 @@ static func plan(engine: RefCounted, state: Dictionary, index: int, intent: Dict
 		return {"enemy_index": index, "enemy_key": engine._enemy_key(enemy), "path": engine._vector2i_values([enemy["pos"]]), "route": engine._vector2i_values([enemy["pos"]]), "destination": enemy["pos"], "projected_attack": affected, "attack_available": not affected.is_empty(), "attack_action": action, "attack_action_index": 0, "movement_action_index": -1, "target_tile": enemy.get("lob_center", state["player"]["pos"]) if is_lob(action) else state["player"]["pos"], "target_key": "player"}
 	return {}
 
-static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, bleed_steps: Array[Dictionary] = []) -> Dictionary:
+static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, bleed_steps: Array[Dictionary] = TypedArrays.dictionaries([])) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
 	if str(action["type"]).ends_with("_mark"):
 		if is_lob(action) and not available(engine, state, enemy, {"actions": [action]}): return state

@@ -1,0 +1,23 @@
+{
+  "permission_failures": [
+    {
+      "phase": "capacity recovery process inventory",
+      "action": "ps -axo pid,ppid,state,etime,time,%cpu,command",
+      "error": "zsh:1: operation not permitted: ps",
+      "fallback": "Checked the runner PIDs recorded in each interrupted Godot log; both returned ProcessLookupError."
+    },
+    {
+      "phase": "waiting replay coordinator",
+      "action": "os.kill(live_coordinator_pid, 0)",
+      "error": "PermissionError: [Errno 1] Operation not permitted",
+      "fallback": "Wait for python-default-execution.json; required replays start from its recorded completion."
+    },
+    {
+      "phase": "optional Python timing cache after tests passed",
+      "action": "update /Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/python-suite.json",
+      "error": "Cannot update untracked timing cache /Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/python-suite.json: [Errno 1] Operation not permitted: '/Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/tmpbd37ciel'",
+      "fallback": "Tests completed with OK and suite exit 0; cache update is optional and was left unavailable."
+    }
+  ],
+  "native_renderer": "Not attempted: sandbox has no macOS window-server access; this report-only unit requests headless hunt/census proof."
+}

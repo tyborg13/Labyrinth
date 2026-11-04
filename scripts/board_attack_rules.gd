@@ -1,5 +1,6 @@
 extends RefCounted
 ## Shared attack resolution: player, enemy and team-neutral board attacks.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const BurrowRules = preload("res://scripts/enemy_mechanics/burrow.gd")
 const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
@@ -14,7 +15,7 @@ const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
 const SurfaceCardRules = preload("res://scripts/surface_card_rules.gd")
 const SurfaceRelicRules = preload("res://scripts/surface_relic_rules.gd")
 
-static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i, actor_kind: String = "player", actor_id: int = -1, trace: Dictionary = {}, supplied_impact: Array[Vector2i] = []) -> Dictionary:
+static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i, actor_kind: String = "player", actor_id: int = -1, trace: Dictionary = {}, supplied_impact: Array[Vector2i] = TypedArrays.vector2i([])) -> Dictionary:
 	action = action.duplicate(true)
 	var player_bonuses: bool = actor_kind == "player"
 	if actor_kind == "player" and GuardianRelicRules.amount(state,"force_enemy_line") > 0:
@@ -32,7 +33,7 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 	var resolved: Dictionary = action.duplicate(true)
 	if str(action.get("type", "")) in ["push", "pull"]:
 		resolved[str(action["type"])] = int(action.get("amount", 0))
-	var impact: Array[Vector2i] = supplied_impact.duplicate()
+	var impact: Array[Vector2i] = TypedArrays.vector2i(supplied_impact.duplicate())
 	if impact.is_empty():
 		if str(action.get("type", "")) == "aoe":
 			impact = engine._best_aoe_tiles_for_target(state, action, engine._board_aoe_center(action, target, origin), actor_kind != "player")

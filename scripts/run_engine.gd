@@ -1,6 +1,7 @@
 extends RefCounted
 class_name RunEngine
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const EventRules = preload("res://scripts/event_rules.gd")
 const RecentEvents = preload("res://scripts/recent_event_store.gd")
@@ -244,7 +245,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"frostbolt"
 	]:
 		deck_cards.append(card_id)
-	var relics: Array[String] = []
+	var relics: Array[String]
 	for relic_id: String in ["iron_lung", "ember_lens", "pilgrim_boots"]:
 		relics.append(relic_id)
 	var debug_equipped: Dictionary = GameData.starting_equipped_equipment()
@@ -795,7 +796,7 @@ static func _normalized_skill_state(value: Variant) -> Dictionary:
 	return result
 
 func run_skill_ids(run_state: Dictionary) -> Array[String]:
-	var result: Array[String] = []
+	var result: Array[String]
 	for skill_id: String in SkillTreeLibrary.normalized_ids((run_state.get("progression", {}) as Dictionary).get("skill_ids", [])):
 		if not SkillTreeLibrary.is_retired(skill_id):
 			result.append(skill_id)
@@ -870,7 +871,7 @@ func available_moves(run_state: Dictionary) -> Array[Vector2i]:
 		and bool(current_room.get("cleared", false))
 		and not _is_final_boss_depth(current_depth)
 	)
-	var neighbors: Array[Vector2i] = []
+	var neighbors: Array[Vector2i]
 	var seen: Dictionary = {}
 	for connection_var: Variant in current_room.get("connections", []):
 		if typeof(connection_var) != TYPE_DICTIONARY:
@@ -1136,7 +1137,19 @@ func _pre_battle_definitions() -> Array:
 func prepared_pre_battle_matches_input(prepared: Dictionary, run_state: Dictionary) -> bool:
 	# Definition dictionaries are mutable in tests/developer reloads. Retain one
 	# owned catalog snapshot with the factory, and compare the current contents.
-	return prepared.has("combat_state") and not prepared.has("combat_creation") and prepared.get("input") == run_state and prepared.get("definitions") == _pre_battle_definitions()
+	return prepared.has("combat_state") and not prepared.has("combat_creation") and _pre_battle_factory_input(prepared.get("input", {})) == _pre_battle_factory_input(run_state) and prepared.get("definitions") == _pre_battle_definitions()
+
+func _pre_battle_factory_input(state: Dictionary) -> Dictionary:
+	# CombatEngine.normalized_run_stats explicitly discards run_seconds. Sampling
+	# that scene-owned clock during travel must not discard an otherwise exact
+	# prepared encounter. All gameplay statistics and other inputs still compare.
+	var input: Dictionary = state.duplicate(false)
+	var stats: Variant = input.get("run_stats")
+	if stats is Dictionary:
+		var score_stats: Dictionary = stats.duplicate(false)
+		score_stats.erase("run_seconds")
+		input["run_stats"] = score_stats
+	return input
 
 func pre_battle_preview_state(run_state: Dictionary, prepared: Dictionary = {}) -> Dictionary:
 	var owned: Dictionary = prepared if prepared_pre_battle_matches_input(prepared, run_state) else prepare_pre_battle_combat(run_state)
@@ -2037,7 +2050,7 @@ func _repair_combat_skill_state(combat_state: Dictionary) -> Dictionary:
 	if not turn_flags.has("cards_finished") and int(next_state.get("cards_played_this_turn", 0)) > 0:
 		turn_flags["cards_finished"] = int(next_state.get("cards_played_this_turn", 0))
 		next_state["turn_flags"] = turn_flags
-	var combat_skills: Array[String] = []
+	var combat_skills: Array[String]
 	for skill_id: String in SkillTreeLibrary.normalized_ids(next_state.get("skill_ids", [])):
 		if not SkillTreeLibrary.is_retired(skill_id):
 			combat_skills.append(skill_id)
@@ -2184,13 +2197,13 @@ func reconcile_progression_revision(run_state: Dictionary, profile_progression: 
 	return apply_run_wallet_receipt(next_state, profile)
 
 func room_neighbors_with_metadata(run_state: Dictionary) -> Array[Dictionary]:
-	var results: Array[Dictionary] = []
+	var results: Array[Dictionary]
 	for coord: Vector2i in available_moves(run_state):
 		results.append(room_metadata(run_state, coord))
 	return results
 
 func exit_options(run_state: Dictionary) -> Array[Dictionary]:
-	var results: Array[Dictionary] = []
+	var results: Array[Dictionary]
 	var current_room: Dictionary = room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO))
 	var available_lookup: Dictionary = {}
 	for coord: Vector2i in available_moves(run_state):
@@ -2737,15 +2750,15 @@ func _merchant_kind_for_room_type(room_type: String) -> String:
 func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 991, excluded_cards: Array = [], deferred_card: String = "") -> Array[String]:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _coord_hash(int(run_state.get("seed", 0)), coord, salt)
-	var choices: Array[String] = []
+	var choices: Array[String]
 	var excluded: Array[String] = _string_array_typed(excluded_cards)
 	var room: Dictionary = room_metadata(run_state, coord)
 	var room_element: String = str(room.get("element", ElementData.NONE))
 	if ElementData.is_elemental(room_element):
-		var blocked_elemental: Array[String] = excluded.duplicate()
+		var blocked_elemental: Array[String] = TypedArrays.strings(excluded.duplicate())
 		blocked_elemental.append_array(choices)
 		choices.append_array(_draw_reward_cards_for_element(rng, room_element, 2, blocked_elemental, run_state))
-	var blocked_general: Array[String] = excluded.duplicate()
+	var blocked_general: Array[String] = TypedArrays.strings(excluded.duplicate())
 	blocked_general.append_array(choices)
 	choices.append_array(_draw_reward_cards_for_element(rng, "", 1, blocked_general, run_state))
 	var special_reward: bool = str(room.get("type", "")) == "special" and bool(room.get("special_goal_met", false))
@@ -2754,7 +2767,7 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 
 	# slot in elemental rooms, or another general slot in neutral rooms.
 	var special_filter: String = room_element if ElementData.is_elemental(room_element) else ""
 	if choices.size() < count:
-		var blocked: Array[String] = choices.duplicate()
+		var blocked: Array[String] = TypedArrays.strings(choices.duplicate())
 		if special_reward: blocked.append_array(excluded)
 		var filter: String = special_filter if special_reward else ""
 		choices.append_array(_draw_reward_cards_for_element(rng, filter, count - choices.size(), blocked, run_state))
@@ -2802,7 +2815,7 @@ func _offer_with_deferred_id(choices_value: Array, deferred_id: String) -> Array
 
 func _draw_reward_cards_for_element(rng: RandomNumberGenerator, element_filter: String, count: int, existing_choices: Array[String], depth_state: Dictionary = {}) -> Array[String]:
 	var pool_by_rarity: Dictionary = GameData.reward_card_pool_by_rarity(element_filter, true)
-	var choices: Array[String] = []
+	var choices: Array[String]
 	var attempts: int = 0
 	while choices.size() < count and attempts < 72:
 		attempts += 1
@@ -2812,7 +2825,7 @@ func _draw_reward_cards_for_element(rng: RandomNumberGenerator, element_filter: 
 		var pool: Array = (pool_by_rarity.get(rarity, []) as Array).duplicate()
 		if pool.is_empty():
 			continue
-		var weighted_pool: Array[String] = []
+		var weighted_pool: Array[String]
 		for card_id_var: Variant in pool:
 			var card_id: String = str(card_id_var)
 			if existing_choices.has(card_id) or choices.has(card_id):
@@ -2963,7 +2976,7 @@ func _inject_reserved_merchant_offer(run_state: Dictionary, coord: Vector2i, mer
 	var stock: Array = _merchant_valid_stock_ids(next_state, merchant_kind, room, _merchant_room_stock(room))
 	stock.erase(item_id)
 	var reserved_category: String = merchant_item_kind(item_id)
-	var category_indices: Array[int] = []
+	var category_indices: Array[int]
 	for index: int in range(stock.size()):
 		if merchant_item_kind(str(stock[index])) == reserved_category:
 			category_indices.append(index)
@@ -3202,7 +3215,7 @@ func _merchant_offer_weight(category: String, item_id: String) -> int:
 
 func _generate_relic_choices(run_state: Dictionary, coord: Vector2i) -> Array[String]:
 	var owned: Array[String] = GameData.normalized_relic_ids(run_state.get("relics", []))
-	var available: Array[String] = []
+	var available: Array[String]
 	for relic_id: String in GameData.relic_ids():
 		if bool(GameData.relic_def(relic_id).get("exclusive_guardian", false)) or not str(GameData.relic_def(relic_id).get("exclusive_boss", "")).is_empty(): continue
 		if not owned.has(relic_id):
@@ -3210,7 +3223,7 @@ func _generate_relic_choices(run_state: Dictionary, coord: Vector2i) -> Array[St
 	available.sort()
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _coord_hash(int(run_state.get("seed", 0)), coord, 543)
-	var choices: Array[String] = []
+	var choices: Array[String]
 	while choices.size() < 3 and not available.is_empty():
 		var total_weight: int = 0
 		for relic_id: String in available:
@@ -3385,7 +3398,7 @@ func _choice_non_combat_room_type(seed: int, coord: Vector2i, avoid_key: String)
 	return str(choices[_coord_hash(seed, coord, 1327) % choices.size()])
 
 func _npcs_for_room_type(room_type: String) -> Array[Dictionary]:
-	var npcs: Array[Dictionary] = []
+	var npcs: Array[Dictionary]
 	if room_type in [MERCHANT_SCAVENGER, LEGACY_MERCHANT_BLACKSMITH, LEGACY_MERCHANT_ARCANIST]:
 		npcs.append({"id": MERCHANT_SCAVENGER, "pos": Vector2i(3, 4)})
 	return npcs
@@ -3396,20 +3409,20 @@ func _room_key(coord: Vector2i) -> String:
 func _room_npcs_for_coord(seed: int, coord: Vector2i) -> Array[Dictionary]:
 	var room_type: String = _room_type_for_coord(seed, coord)
 	if coord == Vector2i.ZERO:
-		return [
+		return TypedArrays.dictionaries([
 			{
 				"id": "emaciated_man",
 				"pos": Vector2i(4, 3)
 			}
-		]
+		])
 	if room_type in [MERCHANT_SCAVENGER, LEGACY_MERCHANT_BLACKSMITH, LEGACY_MERCHANT_ARCANIST]:
-		return [
+		return TypedArrays.dictionaries([
 			{
 				"id": MERCHANT_SCAVENGER,
 				"pos": Vector2i(3, 4)
 			}
-		]
-	return []
+		])
+	return TypedArrays.dictionaries([])
 
 func _room_has_npcs(room: Dictionary) -> bool:
 	return (room.get("npcs", []) as Array).size() > 0
@@ -3443,25 +3456,25 @@ func _merge_room_metadata(seed: int, coord: Vector2i, stored_room: Dictionary) -
 # Each non-center depth is a square ring with literal cardinal adjacency.
 func _room_connections(coord: Vector2i) -> Array[Dictionary]:
 	if coord == Vector2i.ZERO:
-		return [
+		return TypedArrays.dictionaries([
 			{"door_dir": Vector2i(0, -1), "coord": Vector2i(0, -1), "kind": "outward"},
 			{"door_dir": Vector2i(1, 0), "coord": Vector2i(1, 0), "kind": "outward"},
 			{"door_dir": Vector2i(0, 1), "coord": Vector2i(0, 1), "kind": "outward"},
 			{"door_dir": Vector2i(-1, 0), "coord": Vector2i(-1, 0), "kind": "outward"}
-		]
+		])
 	var depth: int = _room_depth(coord)
 	if depth <= 0 or depth > MAX_DEPTH:
-		return []
+		return TypedArrays.dictionaries([])
 	var ring: Array[Vector2i] = _ring_coords(depth)
 	var index: int = _ring_index_for_coord(ring, coord)
 	if index < 0:
-		return []
+		return TypedArrays.dictionaries([])
 	var previous_coord: Vector2i = ring[(index - 1 + ring.size()) % ring.size()]
 	var next_coord: Vector2i = ring[(index + 1) % ring.size()]
-	var connections: Array[Dictionary] = [
+	var connections: Array[Dictionary] = TypedArrays.dictionaries([
 		{"door_dir": previous_coord - coord, "coord": previous_coord, "kind": "lateral"},
 		{"door_dir": next_coord - coord, "coord": next_coord, "kind": "lateral"}
-	]
+	])
 	var inward_coord: Vector2i = _inward_source_for_room(coord)
 	if inward_coord.x < 900:
 		connections.append({"door_dir": inward_coord - coord, "coord": inward_coord, "kind": "inward"})
@@ -3597,7 +3610,7 @@ func _sync_current_layout_doors(run_state: Dictionary, coord: Vector2i) -> void:
 	run_state["current_room_layout"] = layout
 
 func _ring_coords(depth: int) -> Array[Vector2i]:
-	var coords: Array[Vector2i] = []
+	var coords: Array[Vector2i]
 	if depth <= 0:
 		return coords
 	for y: int in range(-depth, depth + 1):
@@ -3783,7 +3796,7 @@ func _layout_occupied_tiles(layout: Dictionary) -> Dictionary:
 func _enemy_footprint_tiles(enemy: Dictionary) -> Array[Vector2i]:
 	var origin: Vector2i = enemy.get("pos", Vector2i(-1, -1))
 	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	for y: int in range(maxi(1, footprint.y)):
 		for x: int in range(maxi(1, footprint.x)):
 			tiles.append(origin + Vector2i(x, y))

@@ -1,6 +1,7 @@
 extends Node
 class_name PerformanceTelemetrySampler
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const SCHEMA_VERSION: int = 2
 const DEFAULT_STORAGE_DIR: String = "user://telemetry"
 const DEFAULT_FLUSH_INTERVAL_SECONDS: float = 60.0
@@ -10,14 +11,14 @@ const META_FILE_NAME: String = "meta.json"
 const ENDPOINT_ENV: String = "LABYRINTH_TELEMETRY_ENDPOINT"
 const TOKEN_ENV: String = "LABYRINTH_TELEMETRY_TOKEN"
 const STEAM_STATS_SCHEMA_VERSION: int = 1
-const STEAM_COHORT_THRESHOLDS_MS: Array[float] = [20.0, 33.33, 50.0]
-const STEAM_PLATFORM_PREFIXES: Array[String] = [
+const STEAM_COHORT_THRESHOLDS_MS: Array[float] = Array([20.0, 33.33, 50.0], TYPE_FLOAT, "", null)
+const STEAM_PLATFORM_PREFIXES: Array[String] = Array([
 	"perf_v1_windows_desktop",
 	"perf_v1_macos_desktop",
 	"perf_v1_linux_desktop",
 	"perf_v1_linux_steamdeck",
-]
-const STEAM_GLOBAL_METRICS: Array[String] = [
+], TYPE_STRING, "", null)
+const STEAM_GLOBAL_METRICS: Array[String] = Array([
 	"windows",
 	"frame_samples",
 	"frames_over_16_67_ms",
@@ -33,8 +34,8 @@ const STEAM_GLOBAL_METRICS: Array[String] = [
 	"static_memory_mb_window_sum",
 	"orphan_node_windows",
 	"sessions",
-]
-const STEAM_FRAME_COHORTS: Array[String] = [
+], TYPE_STRING, "", null)
+const STEAM_FRAME_COHORTS: Array[String] = Array([
 	"frontend",
 	"map",
 	"character_equipment",
@@ -66,9 +67,9 @@ const STEAM_FRAME_COHORTS: Array[String] = [
 	"relics_0_4",
 	"relics_5_9",
 	"relics_10_plus",
-]
-const STEAM_FRAME_COHORT_METRICS: Array[String] = ["samples", "over_20_ms", "over_33_33_ms", "over_50_ms"]
-const STEAM_SECTION_GROUPS: Array[String] = [
+], TYPE_STRING, "", null)
+const STEAM_FRAME_COHORT_METRICS: Array[String] = Array(["samples", "over_20_ms", "over_33_33_ms", "over_50_ms"], TYPE_STRING, "", null)
+const STEAM_SECTION_GROUPS: Array[String] = Array([
 	"engine_player_action",
 	"engine_movement",
 	"engine_traps",
@@ -84,11 +85,11 @@ const STEAM_SECTION_GROUPS: Array[String] = [
 	"ability_detail",
 	"shortcuts",
 	"scene_other",
-]
-const STEAM_SECTION_METRICS: Array[String] = ["calls", "tenths_ms"]
+], TYPE_STRING, "", null)
+const STEAM_SECTION_METRICS: Array[String] = Array(["calls", "tenths_ms"], TYPE_STRING, "", null)
 
 var _storage_dir: String = DEFAULT_STORAGE_DIR
-var _frame_samples_ms: Array[float] = []
+var _frame_samples_ms: Array[float]
 var _frames_over_16_67_ms: int = 0
 var _frames_over_20_ms: int = 0
 var _frames_over_33_33_ms: int = 0
@@ -115,7 +116,7 @@ var _viewport_render_gpu_ms_max: float = 0.0
 var _measured_viewport_rid: RID
 var _gameplay_context: Dictionary = {}
 var _gameplay_context_signature: int = 0
-var _active_frame_cohorts: Array[String] = ["frontend"]
+var _active_frame_cohorts: Array[String] = TypedArrays.strings(["frontend"])
 var _cohort_frame_windows: Dictionary = {}
 var _session_id: String = ""
 var _install_id: String = ""
@@ -238,7 +239,7 @@ func sampling_enabled_for_test(local_enabled: bool, steam_enabled: bool, upload_
 	return _sampling_should_run(local_enabled, steam_enabled, upload_url)
 
 func steam_metric_names_for_test() -> Array[String]:
-	var names: Array[String] = []
+	var names: Array[String]
 	for prefix: String in STEAM_PLATFORM_PREFIXES:
 		for metric: String in STEAM_GLOBAL_METRICS:
 			names.append("%s_%s" % [prefix, metric])
@@ -370,7 +371,7 @@ func _build_summary(reason: String) -> Dictionary:
 func _stats(values: Array[float]) -> Dictionary:
 	if values.is_empty():
 		return {"sample_count": 0, "mean": 0.0, "median": 0.0, "p95": 0.0, "p99": 0.0, "max": 0.0}
-	var sorted: Array[float] = values.duplicate()
+	var sorted: Array[float] = TypedArrays.floats(values.duplicate())
 	sorted.sort()
 	var total: float = 0.0
 	for value: float in sorted:
@@ -610,7 +611,7 @@ func _sample_active_cohorts(frame_ms: float) -> void:
 		if _cohort_frame_windows.has(cohort):
 			bucket = _cohort_frame_windows[cohort] as Dictionary
 		else:
-			var samples: Array[float] = []
+			var samples: Array[float]
 			bucket = {
 				"samples": samples,
 				"frames_over_20_ms": 0,
@@ -618,7 +619,7 @@ func _sample_active_cohorts(frame_ms: float) -> void:
 				"frames_over_50_ms": 0,
 			}
 			_cohort_frame_windows[cohort] = bucket
-		var samples: Array[float] = bucket.get("samples", []) as Array[float]
+		var samples: Array[float] = TypedArrays.floats(bucket.get("samples", []))
 		samples.append(frame_ms)
 		bucket["frames_over_20_ms"] = int(bucket.get("frames_over_20_ms", 0)) + (1 if frame_ms > STEAM_COHORT_THRESHOLDS_MS[0] else 0)
 		bucket["frames_over_33_33_ms"] = int(bucket.get("frames_over_33_33_ms", 0)) + (1 if frame_ms > STEAM_COHORT_THRESHOLDS_MS[1] else 0)
@@ -628,7 +629,7 @@ func _cohort_summaries() -> Dictionary:
 	var result: Dictionary = {}
 	for cohort_var: Variant in _cohort_frame_windows.keys():
 		var bucket: Dictionary = _cohort_frame_windows[cohort_var] as Dictionary
-		var samples: Array[float] = bucket.get("samples", []) as Array[float]
+		var samples: Array[float] = TypedArrays.floats(bucket.get("samples", []))
 		result[str(cohort_var)] = {
 			"frame_interval_ms": _stats(samples),
 			"frames_over_20_ms": int(bucket.get("frames_over_20_ms", 0)),
@@ -638,7 +639,7 @@ func _cohort_summaries() -> Dictionary:
 	return result
 
 func _frame_cohorts_for_context(context: Dictionary) -> Array[String]:
-	var result: Array[String] = []
+	var result: Array[String]
 	if bool(context.get("map_open", false)):
 		result.append("map")
 	elif bool(context.get("character_open", false)):

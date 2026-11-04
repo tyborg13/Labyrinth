@@ -39,6 +39,7 @@ static func playback(expect: Callable, state: Dictionary, scene: Control, mode: 
 	expect.call(JSON.stringify(actual) == str(base[mode]["playback"]), "Ordinary %s production playback byte-matches int-10 baseline plus brs-01 Burst playback" % mode)
 
 # int-10 baseline for current Capacitor and Stalker payloads.
+# qa-28 (b5adc691c) adds Capacitor's private Charge analytics_fields adapter and analytics amount.
 static func nontraced_payloads(expect: Callable, combat: RefCounted, scene: Control) -> void:
 	var Fixtures = preload("res://tests/suites/en06_enemies_suite.gd")
 	var actual: Dictionary = {}

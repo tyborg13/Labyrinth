@@ -1,0 +1,172 @@
+{
+  "native_pixels": false,
+  "scope": "Empty sword fist after the existing death release; exact same-view near-fist donor paint only",
+  "regions": [
+    {
+      "view": "rear",
+      "region": "empty_fist",
+      "mask": "rear_empty_fist.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "source_frame": "hand_far recipient, original source registration",
+      "uncovered_pixels": 15,
+      "painting_must_continue": "Closed gauntlet behind the removed grip. Preserve authored air.",
+      "status": "TODO_DESIGN_rear_empty_fist_underlay",
+      "witnesses": [
+        {
+          "clip": "death",
+          "frame": 29,
+          "phase": 0.30526315789473685
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "region": "empty_fist_seam",
+      "mask": "front_empty_fist_seam.png",
+      "source_size": [
+        255,
+        255
+      ],
+      "source_frame": "hand_far recipient; inverse of the actual captured gauntlet sprite",
+      "uncovered_pixels": 46,
+      "request_padding_px": 3,
+      "painting_must_continue": "Continue the closed gauntlet at the wrist to cover/join the exposed far-arm raster fragment. Conservative request bounds; preserve authored air. Native confirmation pending.",
+      "status": "TODO_DESIGN_front_empty_fist_seam",
+      "witnesses": [
+        {
+          "clip": "death",
+          "frame": 39,
+          "phase": 0.410526315789474,
+          "posed_bbox": [
+            305,
+            318,
+            306,
+            319
+          ],
+          "pixel_count": 1,
+          "kind": "newly_exposed_far_arm_fragment"
+        },
+        {
+          "clip": "death",
+          "frame": 40,
+          "phase": 0.421052631578947,
+          "posed_bbox": [
+            305,
+            319,
+            306,
+            320
+          ],
+          "pixel_count": 1,
+          "kind": "newly_exposed_far_arm_fragment"
+        },
+        {
+          "clip": "death",
+          "frame": 41,
+          "phase": 0.431578947368421,
+          "posed_bbox": [
+            305,
+            319,
+            306,
+            320
+          ],
+          "pixel_count": 1,
+          "kind": "newly_exposed_far_arm_fragment"
+        },
+        {
+          "clip": "death",
+          "frame": 42,
+          "phase": 0.442105263157895,
+          "posed_bbox": [
+            305,
+            320,
+            306,
+            321
+          ],
+          "pixel_count": 1,
+          "kind": "newly_exposed_far_arm_fragment"
+        },
+        {
+          "clip": "death",
+          "frame": 43,
+          "phase": 0.452631578947368,
+          "posed_bbox": [
+            304,
+            321,
+            305,
+            322
+          ],
+          "pixel_count": 1,
+          "kind": "newly_exposed_far_arm_fragment"
+        },
+        {
+          "clip": "death",
+          "frame": 44,
+          "phase": 0.463157894736842,
+          "posed_bbox": [
+            305,
+            321,
+            306,
+            322
+          ],
+          "pixel_count": 1,
+          "kind": "newly_exposed_far_arm_fragment"
+        },
+        {
+          "clip": "death",
+          "frame": 46,
+          "phase": 0.484210526315789,
+          "posed_bbox": [
+            306,
+            323,
+            307,
+            324
+          ],
+          "pixel_count": 1,
+          "kind": "newly_exposed_far_arm_fragment"
+        },
+        {
+          "clip": "death",
+          "frame": 47,
+          "phase": 0.494736842105263,
+          "posed_bbox": [
+            306,
+            324,
+            307,
+            325
+          ],
+          "pixel_count": 1,
+          "kind": "newly_exposed_far_arm_fragment"
+        },
+        {
+          "clip": "death",
+          "frame": 48,
+          "phase": 0.505263157894737,
+          "posed_bbox": [
+            306,
+            324,
+            307,
+            325
+          ],
+          "pixel_count": 1,
+          "kind": "newly_exposed_far_arm_fragment"
+        },
+        {
+          "clip": "death",
+          "frame": 49,
+          "phase": 0.515789473684211,
+          "posed_bbox": [
+            306,
+            325,
+            307,
+            326
+          ],
+          "pixel_count": 1,
+          "kind": "newly_exposed_far_arm_fragment"
+        }
+      ]
+    }
+  ]
+}

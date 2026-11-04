@@ -142,7 +142,7 @@ func _exercise_source(scene_path: String) -> void:
 func _assert_header() -> void:
 	var stats := _header_instance.get("stats_label") as Label
 	var profile: Dictionary = (_header_instance.get("_run_state") as Dictionary).get("progression", {})
-	_expect(stats.text == "LV %d  EMBERS %d" % [int(profile.get("level", 1)), int(_header_instance.call("_displayed_ember_count"))], "StatsLabel retains master's exact live level and ember text")
+	_expect(stats.text == "LV %d · EMBERS %d" % [int(profile.get("level", 1)), int(_header_instance.call("_displayed_ember_count"))], "StatsLabel retains master's exact live level and ember text")
 	_expect(stats.get_child_count() == 0 and stats.get_theme_font("font") == Typography.ui_font() and stats.get_theme_font_size("font_size") == Typography.SIZE_SECTION - 1, "StatsLabel uses master's original single-line typography")
 	_expect(stats.get_theme_color("font_color") == Palette.GOLD_BRIGHT and stats.get_theme_color("font_outline_color") == Palette.TEXT_OUTLINE and stats.get_theme_constant("outline_size") == 3, "StatsLabel restores master's gold and outline styling")
 	var previous: Control = stats

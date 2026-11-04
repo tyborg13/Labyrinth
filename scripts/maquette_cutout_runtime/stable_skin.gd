@@ -50,7 +50,20 @@ func idle(original: PackedVector2Array, offset: Vector2) -> PackedVector2Array:
 		_remember(offset)
 	return result
 
-func _init(data: Dictionary, joints: Dictionary) -> void:
+func _init(data: Dictionary, joints: Dictionary, prepared: RefCounted = null) -> void:
+	if prepared != null:
+		# These operands are read-only after compilation. Pose buffers, counters
+		# and both LRU maps above remain private to the newly constructed actor.
+		offsets = prepared.offsets
+		bones = prepared.bones
+		weights = prepared.weights
+		dx = prepared.dx
+		dy = prepared.dy
+		names.assign(prepared.names)
+		singles.assign(prepared.singles)
+		blended = prepared.blended
+		pairs.assign(prepared.pairs)
+		return
 	for name: String in data["weights"]: names.append(name)
 	for _name: String in names: singles.append({"indices": PackedInt32Array(), "dx": PackedFloat64Array(), "dy": PackedFloat64Array()})
 	for point: Array in data["vertices"]:

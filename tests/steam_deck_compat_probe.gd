@@ -141,6 +141,12 @@ func _capture_run_surfaces() -> void:
 			expected_expansion,
 		]
 	)
+	# 696631c09 introduced an authored room-to-combat centering tween. Frame-only
+	# settling can sample it in flight, before the lock/unlock comparison begins.
+	var centering: Tween = instance.get("_board_centering_tween") as Tween
+	if centering != null and centering.is_running():
+		await centering.finished
+		await _settle()
 	var focused_board_position: Vector2 = controller_board.position
 	var focused_board_size: Vector2 = controller_board.size
 	await _assert_controller_layout_survives_animation_lock(instance, "Focused controller hand")
@@ -960,7 +966,8 @@ func _assert_combat_resource_stack(instance: Node, label: String) -> void:
 	var pass_rect: Rect2 = pass_chip.get_global_rect()
 	_require(absf(movement_rect.get_center().x - play_rect.get_center().x) <= 1.0, "%s resources should share one column" % label)
 	_require(movement_rect.position.y >= play_rect.end.y + 3.0, "%s movement should stack immediately beneath card plays" % label)
-	var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds")
+	# pol-37 / hud-01 reserve the dealt envelope across controller focus changes.
+	var hand_bounds: Rect2 = instance.call("_combat_dock_hand_bounds")
 	_require(play_rect.end.x < hand_bounds.position.x and pass_rect.position.x > hand_bounds.end.x, "%s resources and Pass should flank opposite sides of the hand" % label)
 	_require(absf(pass_rect.get_center().y - play_rect.merge(movement_rect).get_center().y) <= 1.0, "%s Pass should align vertically with the resource stack" % label)
 	var play_icon: TextureRect = instance.get("_play_meter_icon") as TextureRect

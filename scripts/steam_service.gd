@@ -146,11 +146,11 @@ func accumulate_int_stats(deltas: Dictionary) -> Dictionary:
 			"request_in_flight": _stats_request_in_flight,
 		}
 		return _last_stats_status.duplicate(true)
-	var stat_names: Array[String] = []
+	var stat_names: Array[String]
 	for name_var: Variant in deltas.keys():
 		stat_names.append(str(name_var))
 	stat_names.sort()
-	var accepted: Array[String] = []
+	var accepted: Array[String]
 	var failed: Dictionary = {}
 	for stat_name: String in stat_names:
 		var delta: int = int(deltas.get(stat_name, 0))
@@ -377,7 +377,7 @@ func _reapply_pending_stat_targets() -> Dictionary:
 	var failed: Dictionary = {}
 	if _steam == null or not _steam.has_method("getStatInt") or not _steam.has_method("setStatInt"):
 		return {"*": "integer_stats_api_unavailable"} if not _pending_stat_targets.is_empty() else {}
-	var stat_names: Array[String] = []
+	var stat_names: Array[String]
 	for stat_name_var: Variant in _pending_stat_targets.keys():
 		stat_names.append(str(stat_name_var))
 	stat_names.sort()
@@ -398,7 +398,7 @@ func _reapply_pending_stat_targets() -> Dictionary:
 	return failed
 
 func _queue_int_stat_deltas(deltas: Dictionary) -> Dictionary:
-	var queued: Array[String] = []
+	var queued: Array[String]
 	var failed: Dictionary = {}
 	for name_var: Variant in deltas.keys():
 		var stat_name: String = str(name_var)

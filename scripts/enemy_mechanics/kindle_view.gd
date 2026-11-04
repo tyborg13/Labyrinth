@@ -46,7 +46,7 @@ class Glow extends Node2D:
 		for index: int in range(33):
 			var angle: float = float(index) / 32.0 * TAU
 			points.append(bounds.get_center() + bounds.size * 0.5 * Vector2(cos(angle), sin(angle)))
-		var pulse: float = 1.0 if reduced_motion else 1.0 + PULSE_ALPHA * sin(float(Time.get_ticks_msec()) / 1000.0 * TAU / PULSE_SECONDS)
+		var pulse: float = 1.0 if reduced_motion else 1.0 + PULSE_ALPHA * sin(float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0 * TAU / PULSE_SECONDS)
 		draw_colored_polygon(points, Color(ORANGE, alpha * pulse))
 
 static func draw_under(view: Control, unit: Dictionary) -> void:

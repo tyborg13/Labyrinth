@@ -11,6 +11,7 @@ const CALLER_RUN_ID: String = "encounter_caller_fixture"
 const CALLER_MILESTONE_ID: String = "encounter_caller_boss_claim"
 const BOUNDARY_EVENTS: PackedStringArray = ["combat_started", "combat_ended", "reward_offered", "reward_choice"]
 var failures: int = 0
+var caller_records: Dictionary = {}
 
 func check(condition: bool, message: String) -> void:
 	if not condition:
@@ -64,6 +65,18 @@ func check_caller_boundaries(run: Dictionary, combat: Dictionary, expected: Dict
 		if with_claim:
 			var staged: Dictionary = host._stage_dragon_reward_claim(after, reward)
 			check(store.write_events(Progression.progression_analytics_outbox(staged["progression"])), "UI boss staged reward_claimed appends")
+		var records: Array = Store.load_all_events()
+		caller_records[caller + "_" + str(expected["room_type"])] = records
+		if caller == "UI":
+			for event: Dictionary in records:
+				if event["event_type"] == "combat_started":
+					check(event["payload"].has("surfaces"), "UI combat start includes initial surface layout")
+		else:
+			for event: Dictionary in records:
+				for reference: Dictionary in caller_records["UI_" + str(expected["room_type"])]:
+					if event["event_type"] != reference["event_type"]: continue
+					for field: String in reference["payload"]:
+						check(event["payload"].get(field) == reference["payload"][field], "headless %s matches %s.%s" % [expected["room_type"], event["event_type"], field])
 		check_boundary_events("%s %s" % [caller, expected["room_type"]], expected, with_claim)
 		host.free()
 
@@ -144,6 +157,17 @@ func _initialize() -> void:
 	check(reward.get("encounter_id") == "retained_reward_encounter" and reward.get("biome") == "ice" and reward.get("section_index") == room["section_index"], "caller uses persisted room metadata")
 	check(run == before, "context construction leaves run and saves unchanged")
 	scene.free()
+	var required_context: Dictionary = {"relics": ["ember_lens"], "defiance_capacity": 3, "defiance_remaining": 2, "combat_unit_scale": 1, "boss_id": "vyraketh", "objective_name": "Defeat"}
+	var record: Dictionary = store._event_record("combat_started", required_context, {}, "")
+	caller_records["context"] = record
+	for field: String in required_context:
+		check(record.get(field) == required_context[field], "JSONL writer preserves documented context: " + field)
 	test_caller_metadata()
+	preload("res://tests/suites/analytics_contract_suite.gd").run(check, caller_records)
+	var evidence: String = OS.get_environment("QA28_EVIDENCE_PATH")
+	if not evidence.is_empty():
+		var file: FileAccess = FileAccess.open(evidence, FileAccess.WRITE)
+		file.store_string(JSON.stringify(caller_records, "\t"))
+		file.close()
 	print("ENCOUNTER ANALYTICS: %s (%d failures)" % ["PASS" if failures == 0 else "FAIL", failures])
 	quit(0 if failures == 0 else 1)

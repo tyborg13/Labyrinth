@@ -38,7 +38,7 @@ class PresentationClock:
 	var no_draw_frames: int = 0
 	var first_draw_usec: int = -1
 	func drawn(_layout: Dictionary = {}) -> void:
-		if not has_drawn: first_draw_usec = Time.get_ticks_usec()
+		if not has_drawn: first_draw_usec = preload("res://scripts/presentation_clock.gd").ticks_usec()
 		has_drawn = true
 	func advance(unscaled_delta: float) -> void:
 		if has_drawn:
@@ -268,7 +268,7 @@ static func play(scene: Control, state: Dictionary, entry: Dictionary) -> void:
 	var draw_owner: Control = board.get("_hud_render_layer") if is_instance_valid(board) else null
 	if draw_owner == null: draw_owner = board
 	if is_instance_valid(draw_owner): draw_owner.connect("draw", clock.drawn)
-	var previous_frame: int = Time.get_ticks_usec()
+	var previous_frame: int = preload("res://scripts/presentation_clock.gd").ticks_usec()
 	var duration: float = DURATION_SECONDS if not str(entry.get("no_action_reason", "")).is_empty() else REDIRECT_DURATION_SECONDS
 	while clock.elapsed < duration and _playback_active(scene, state):
 		if is_instance_valid(board) and board.is_inside_tree():
@@ -276,7 +276,7 @@ static func play(scene: Control, state: Dictionary, entry: Dictionary) -> void:
 		if not _playback_active(scene, state): break
 		await tree.process_frame
 		if not _playback_active(scene, state): break
-		var now: int = Time.get_ticks_usec()
+		var now: int = preload("res://scripts/presentation_clock.gd").ticks_usec()
 		var delta: float = float(now - previous_frame) / 1000000.0
 		# Normal frames keep their existing cadence. A long first draw must not
 		# charge time spent compiling before the callout was painted.

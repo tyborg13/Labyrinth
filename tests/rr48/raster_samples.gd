@@ -28,6 +28,7 @@ func _run() -> void:
 		rig.layout["screen_pixel_scale"] = geometry["screen_pixel_scale"]
 		rig.layout["step_distance_px"] = geometry["step_distance_px"]
 		for clip: String in data["clips"]:
+			if args.has("--clips") and not clip in args[args.find("--clips") + 1].split(","): continue
 			var count: int = roundi(float(data["clips"][clip]["seconds"]) * 60.0)
 			for frame: int in range(count):
 				var phase: float = float(frame) / float(count if data["clips"][clip].get("loop", false) else count - 1)

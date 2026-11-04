@@ -1,6 +1,7 @@
 extends RefCounted
 ## Enemy-only projection rules. Rig points retain their registration; light
 ## sizes have a floor, and tiny/non-forward authored paths get readable FX.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Trail = preload("res://scripts/strike_trail_fx.gd")
 const SHORT_PATH: float = 24.0
 const AXIS_LIMIT: float = 50.0
@@ -38,7 +39,7 @@ static func path_span(samples: Array[Dictionary]) -> float:
 
 static func resolve(samples: Array[Dictionary], kind: String, attacker: Vector2,
 		target: Vector2, scale: float, contact: float, window: Vector2, span: float = -1.0, tile_width: float = 0.0) -> Dictionary:
-	var result: Array[Dictionary] = samples.duplicate(true)
+	var result: Array[Dictionary] = TypedArrays.dictionaries(samples.duplicate(true))
 	if samples.is_empty(): return {"samples":result, "kind":kind, "fallback":false}
 	var point: Dictionary = Trail.sample_at(samples, contact)
 	var anchor: Vector2 = point["tip"]

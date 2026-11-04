@@ -1,0 +1,176 @@
+{
+  "native_pixels": false,
+  "regions": [
+    {
+      "view": "front",
+      "region": "chain_top_arc",
+      "mask": "front_chain_top_arc.png",
+      "mask_sha256": "d545beab2e08a49c33ec86d0963c422770686e2d26253410db3a6b8384ef1b54",
+      "source_size": [
+        255,
+        255
+      ],
+      "source_frame": "unaltered native source registration",
+      "uncovered_pixels": 91,
+      "request_padding_px": 3,
+      "painting_must_continue": "Complete the open top chain link beneath the closed fist. Conservative request bounds; preserve authored air. No matching arc exists in hand paint.",
+      "status": "filled",
+      "witnesses": [
+        {
+          "clip": "death",
+          "frame": 41
+        }
+      ],
+      "release_at": {
+        "death": 0.3
+      },
+      "fill": {
+        "method": "nearest_same_orientation_link_top_arc",
+        "source_region": [
+          81,
+          166,
+          98,
+          169
+        ],
+        "translation": [
+          -1,
+          -21
+        ],
+        "donor_ends": [
+          [
+            82,
+            168
+          ],
+          [
+            96,
+            168
+          ]
+        ],
+        "cut_ends": [
+          [
+            80,
+            148
+          ],
+          [
+            95,
+            148
+          ]
+        ],
+        "endpoint_distance_px": [
+          1,
+          1
+        ],
+        "mask_complete": true,
+        "source_part": "chain",
+        "mirror": false,
+        "clipped_candidate_texels": 0,
+        "required_pixels": 37,
+        "outside_request_pixels": 0,
+        "view": "front",
+        "region": "chain_top_arc",
+        "source_file": "assets/units/chainbound_gaoler_cutout/humanoid_v2/front/chain.png",
+        "source_sha256": "3392683ceb36fd82eb8bbd5d3dddfe763db76c74a4b6cb3e8227e574a48262e1",
+        "request_mask_sha256": "d545beab2e08a49c33ec86d0963c422770686e2d26253410db3a6b8384ef1b54",
+        "copied_pixels": 37,
+        "paint_scope": "production"
+      }
+    },
+    {
+      "view": "rear",
+      "region": "chain_top_arc",
+      "mask": "rear_chain_top_arc.png",
+      "mask_sha256": "ba6e59f03b05d77a2e1f61ebd3ec6e47f81528f352e6a581617abe58110c094d",
+      "source_size": [
+        255,
+        255
+      ],
+      "source_frame": "unaltered native source registration",
+      "uncovered_pixels": 138,
+      "request_padding_px": 3,
+      "painting_must_continue": "Complete the open top chain link beneath the closed fist. Conservative request bounds; preserve authored air. No matching arc exists in hand paint.",
+      "status": "filled",
+      "witnesses": [
+        {
+          "clip": "death",
+          "frame": 41
+        }
+      ],
+      "release_at": {
+        "death": 0.3
+      },
+      "fill": {
+        "method": "nearest_same_orientation_link_top_arc",
+        "source_region": [
+          161,
+          177,
+          178,
+          181
+        ],
+        "translation": [
+          0,
+          -17
+        ],
+        "donor_ends": [
+          [
+            162,
+            180
+          ],
+          [
+            176,
+            180
+          ]
+        ],
+        "cut_ends": [
+          [
+            161,
+            164
+          ],
+          [
+            177,
+            163
+          ]
+        ],
+        "endpoint_distance_px": [
+          1,
+          1
+        ],
+        "mask_complete": true,
+        "source_part": "chain",
+        "mirror": false,
+        "clipped_candidate_texels": 0,
+        "required_pixels": 44,
+        "outside_request_pixels": 0,
+        "view": "rear",
+        "region": "chain_top_arc",
+        "source_file": "assets/units/chainbound_gaoler_cutout/humanoid_v2/rear/chain.png",
+        "source_sha256": "3301bacd0caeb4ea6c8dc7b8afb7ef65e9ba0c90866ab3c9cead36c6c1710e11",
+        "request_mask_sha256": "ba6e59f03b05d77a2e1f61ebd3ec6e47f81528f352e6a581617abe58110c094d",
+        "copied_pixels": 44,
+        "paint_scope": "production"
+      },
+      "bounds": [
+        158,
+        160,
+        181,
+        166
+      ],
+      "mask_correction": {
+        "director_decision": "rr-58 feedback 2",
+        "previous_bounds": [
+          174,
+          160,
+          181,
+          166
+        ],
+        "previous_sha256": "e3aa5cf6812431de9eb7cbbb4bccb40227315396b8d7a5e3950da249d79005a0",
+        "approved_bounds": [
+          158,
+          160,
+          181,
+          166
+        ],
+        "approved_proposal_sha256": "ba6e59f03b05d77a2e1f61ebd3ec6e47f81528f352e6a581617abe58110c094d"
+      }
+    }
+  ]
+}

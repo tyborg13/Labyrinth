@@ -1,0 +1,110 @@
+{
+  "min_images": 6,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*normal.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*controller_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*post_purchase.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*post_sale.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*reduced_motion.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*board_after_leave.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}

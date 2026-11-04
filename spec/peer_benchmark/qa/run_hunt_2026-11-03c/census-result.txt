@@ -1,0 +1,7 @@
+QA30 CENSUS START: census-default-5
+QA30 CENSUS START: census-no-embrace-3
+QA30 CENSUS END: census-no-embrace-3 exit=0 outcome=census_complete
+QA30 CENSUS END: census-default-5 exit=0 outcome=census_complete
+QA30 CENSUS: census-default-5 FAIL; tree 1555 -> 3096; named_pool_delta=1113; bound=3056.75; orphans 0 -> 0
+QA30 CENSUS: census-no-embrace-3 PASS; tree 1556 -> 2855; named_pool_delta=1158; bound=3103; orphans 0 -> 0
+QA30 CENSUS OVERALL: FAIL 1/2 required comparisons; 2 attempts retained

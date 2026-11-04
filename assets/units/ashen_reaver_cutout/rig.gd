@@ -12,4 +12,4 @@ func apply_authored_pose(clip_name: String, phase_value: float) -> void:
 
 func apply_pose(clip_name: String, phase_value: float) -> void:
 	super.apply_pose(clip_name, phase_value)
-	preload("held_contract.gd").presented(self, clip_name)
+	preload("held_contract.gd").presented(self, clip_name, phase_value)

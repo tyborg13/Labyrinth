@@ -25,7 +25,7 @@ const STINGER_BOSS_DEFEATED_ID: String = "run.stinger_boss_defeated"
 # Modes that sit inside the torch-lit halls get the quiet stone-hall bed. The
 # campfire owns its own fire loop; terminal and menu-like modes stay dry so the
 # music carries them.
-const DUNGEON_AMBIENCE_MODES: Array[String] = ["room", "combat", "pre_battle", "reward", "treasure", "event"]
+const DUNGEON_AMBIENCE_MODES: Array[String] = Array(["room", "combat", "pre_battle", "reward", "treasure", "event"], TYPE_STRING, "", null)
 
 const SFX: Dictionary = {
 	HEARTH_ARRIVAL_ID: {

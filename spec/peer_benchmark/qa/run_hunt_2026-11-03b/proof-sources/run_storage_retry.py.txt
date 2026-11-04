@@ -1,0 +1,9 @@
+"""Retry only the storage-interrupted census, ending at its required sample."""
+import run_replays
+
+STORAGE_RETRY_CENSUS_CASE = ('replay-no-embrace-seed-3-storage-retry',3,['--no-embrace'])
+run_replays.CENSUS = run_replays.EVIDENCE/'run_hunt_census_bounded.gd'
+
+if __name__=='__main__':
+    record = run_replays.run(STORAGE_RETRY_CENSUS_CASE)
+    raise SystemExit(record['returncode'])

@@ -11,6 +11,7 @@ var _socket: Button = Socket.new()
 var _value := Label.new()
 var _caption := Label.new()
 var _value_color: Color = Palette.GOLD_BRIGHT
+var caption_size: int = 13
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -43,7 +44,7 @@ func _get_minimum_size() -> Vector2:
 func _layout() -> void:
 	Surface.label_style(_value, 22, _value_color)
 	_value.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	Typography.apply_eyebrow(_caption, 13, Palette.TEXT_2)
+	Typography.apply_eyebrow(_caption, caption_size, Palette.TEXT_2)
 	_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_caption.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	var scale_value: float = Typography.ui_scale(self)

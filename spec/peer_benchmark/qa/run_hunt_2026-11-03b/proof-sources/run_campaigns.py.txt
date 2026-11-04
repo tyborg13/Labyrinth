@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""Sequential qa-25 campaigns, followed by the required Python default group."""
+from pathlib import Path
+import json
+import os
+import subprocess
+import sys
+import time
+
+PROJECT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-25')
+EVIDENCE = Path('/private/tmp/labyrinth_codex/qa-25')
+LAUNCHER = EVIDENCE / 'run_hunt_task.py'
+CAMPAIGN_MINUTES = 45
+CAMPAIGN_PROCESSES = 2
+CAMPAIGN_SEED = 2
+
+def run(name, command):
+    started = time.time()
+    print('QA25 START:', name, flush=True)
+    with (EVIDENCE / (name + '.log')).open('w') as log:
+        result = subprocess.run(command, cwd=PROJECT,
+            env=dict(os.environ, LABYRINTH_CEL_LOOK='off'),
+            stdout=log, stderr=subprocess.STDOUT)
+    record = dict(name=name, argv=command, started=started,
+        wall_seconds=time.time()-started, returncode=result.returncode)
+    (EVIDENCE / (name + '-execution.json')).write_text(json.dumps(record, indent=2)+'\n')
+    print('QA25 END:', name, 'exit='+str(result.returncode), flush=True)
+    return result.returncode
+
+def main():
+    for name, options in [('default', []), ('no-embrace', ['--no-embrace'])]:
+        command = [sys.executable, str(LAUNCHER), '--minutes', str(CAMPAIGN_MINUTES),
+            '--processes', str(CAMPAIGN_PROCESSES), '--seed', str(CAMPAIGN_SEED),
+            '--output-dir', str(EVIDENCE / ('campaign-' + name)), *options]
+        if run('campaign-' + name, command):
+            return 1
+    return run('python-default', [sys.executable, 'tools/run_python_suite.py',
+        '--shards', '4', '--output-dir', str(EVIDENCE / 'python-default')])
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -370,7 +370,7 @@ static func strip_indices(samples: int, rows: int) -> PackedInt32Array:
 
 # Reduced motion holds the gusts still.
 static func field_clock(presentation: Dictionary) -> float:
-	return 0.0 if bool(presentation.get("reduced_motion", false)) else float(presentation.get("en02_wind_time_seconds", Time.get_ticks_msec() / 1000.0))
+	return 0.0 if bool(presentation.get("reduced_motion", false)) else float(presentation.get("en02_wind_time_seconds", preload("res://scripts/presentation_clock.gd").ticks_msec() / 1000.0))
 
 # Preview units for the board's own echo pipeline, so each ghost depth-sorts
 # with the actors. Paths the presentation already previews are skipped, and one

@@ -1,0 +1,19 @@
+{
+  "name": "campaign-no-embrace",
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "/private/tmp/labyrinth_codex/qa-30/run_hunt_task.py",
+    "--minutes",
+    "45",
+    "--processes",
+    "2",
+    "--seed",
+    "2",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-30/campaign-no-embrace",
+    "--no-embrace"
+  ],
+  "started": 1793749029.916899,
+  "wall_seconds": 4020.6959290504456,
+  "returncode": 0
+}

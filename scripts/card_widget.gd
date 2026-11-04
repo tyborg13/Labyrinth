@@ -131,7 +131,7 @@ class AoePatternView:
 	const TILE_HEIGHT: float = 10.0
 	const TILE_PADDING: float = 5.0
 
-	var pattern_offsets: Array[Vector2i] = []
+	var pattern_offsets: Array[Vector2i]
 	var show_origin: bool = false
 	var tile_scale: float = 1.0
 
@@ -174,7 +174,7 @@ class AoePatternView:
 			lookup[offset] = true
 		if show_origin:
 			lookup[Vector2i.ZERO] = true
-		var offsets: Array[Vector2i] = []
+		var offsets: Array[Vector2i]
 		for offset_var: Variant in lookup.keys():
 			if typeof(offset_var) == TYPE_VECTOR2I:
 				offsets.append(offset_var)
@@ -228,7 +228,7 @@ class AoePatternView:
 		return TILE_PADDING * tile_scale
 
 	static func _parse_offsets(raw_pattern: Variant) -> Array[Vector2i]:
-		var parsed: Array[Vector2i] = []
+		var parsed: Array[Vector2i]
 		if typeof(raw_pattern) != TYPE_ARRAY:
 			parsed.append(Vector2i.ZERO)
 			return parsed

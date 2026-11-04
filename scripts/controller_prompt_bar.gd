@@ -52,7 +52,7 @@ func set_prompts(prompts: Array) -> void:
 	queue_sort()
 
 func prompts_snapshot() -> Array[Dictionary]:
-	var snapshot: Array[Dictionary] = []
+	var snapshot: Array[Dictionary]
 	if _prompt_row == null:
 		return snapshot
 	for child: Node in _prompt_row.get_children():

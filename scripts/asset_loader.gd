@@ -1,6 +1,7 @@
 extends RefCounted
 class_name AssetLoader
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const CelLook = preload("res://scripts/cel_look.gd")
 
 const TEXTURE_EXTENSIONS: PackedStringArray = ["svg", "png", "webp", "jpg"]
@@ -437,7 +438,7 @@ static func strip_near_black_outline(texture: Texture2D, options: Dictionary = {
 		_outline_clean_texture_cache[cache_key] = texture
 		return texture
 	var depth_map: Dictionary = {}
-	var frontier: Array[Vector2i] = []
+	var frontier: Array[Vector2i]
 	for y: int in range(source_image.get_height()):
 		for x: int in range(source_image.get_width()):
 			var pixel: Color = source_image.get_pixel(x, y)
@@ -572,7 +573,7 @@ static func build_castle_control_texture(texture: Texture2D, control_color: Colo
 	return tinted_texture
 
 static func build_sprite_sheet_frames(texture: Texture2D, frame_size: Vector2i, frame_indices: Array = []) -> Array[Texture2D]:
-	var frames: Array[Texture2D] = []
+	var frames: Array[Texture2D]
 	if texture == null or frame_size.x <= 0 or frame_size.y <= 0:
 		return frames
 	var columns: int = int(texture.get_width() / frame_size.x)
@@ -633,12 +634,12 @@ static func build_alpha_polygons(
 	simplify_epsilon: float = DEFAULT_ALPHA_POLYGON_SIMPLIFY_EPSILON,
 	minimum_area: float = DEFAULT_ALPHA_POLYGON_MIN_AREA
 ) -> Array[PackedVector2Array]:
-	var polygons: Array[PackedVector2Array] = []
+	var polygons: Array[PackedVector2Array]
 	if texture == null:
 		return polygons
 	var cache_key: String = _alpha_polygon_cache_key(texture, alpha_threshold, simplify_epsilon, minimum_area)
 	if _alpha_polygon_cache.has(cache_key):
-		return _alpha_polygon_cache.get(cache_key, [])
+		return TypedArrays.polygons(_alpha_polygon_cache.get(cache_key, []))
 	var image: Image = texture_source_image(texture)
 	if image == null or image.is_empty():
 		_alpha_polygon_cache[cache_key] = polygons
@@ -653,7 +654,7 @@ static func build_alpha_polygons_from_image(
 	simplify_epsilon: float = DEFAULT_ALPHA_POLYGON_SIMPLIFY_EPSILON,
 	minimum_area: float = DEFAULT_ALPHA_POLYGON_MIN_AREA
 ) -> Array[PackedVector2Array]:
-	var polygons: Array[PackedVector2Array] = []
+	var polygons: Array[PackedVector2Array]
 	if image == null or image.is_empty():
 		return polygons
 	var bitmap := BitMap.new()

@@ -1,6 +1,7 @@
 extends RefCounted
 class_name GameData
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const DragonTrophyRules = preload("res://scripts/dragon_trophy_rules.gd")
 const DefenseRelicRules = preload("res://scripts/defense_relic_rules.gd")
 const ItemRelicRules = preload("res://scripts/item_relic_rules.gd")
@@ -46,12 +47,12 @@ const LEGACY_PROGRESSION_STAT_IDS = [
 	"air_magick",
 	"earth_magick"
 ]
-const FIXED_RELIC_STAT_BONUS_KEYS: Array[String] = [
+const FIXED_RELIC_STAT_BONUS_KEYS: Array[String] = Array([
 	"max_hp",
 	"start_combat_block",
 	"start_combat_stoneskin",
 	"first_attack_bonus"
-]
+], TYPE_STRING, "", null)
 const RELIC_RARITY_ACCENTS := {
 	"common": "#8f9499",
 	"rare": "#4b84d8",
@@ -64,17 +65,17 @@ const RELIC_RARITY_OFFER_WEIGHTS := {
 	"epic": 6,
 	"legendary": 5
 }
-const CARD_RARITY_TIERS: Array[String] = ["common", "rare", "epic", "legendary"]
-const EQUIPMENT_SLOTS: Array[String] = ["weapon", "offhand", "armor", "boots", "trinket"]
+const CARD_RARITY_TIERS: Array[String] = Array(["common", "rare", "epic", "legendary"], TYPE_STRING, "", null)
+const EQUIPMENT_SLOTS: Array[String] = Array(["weapon", "offhand", "armor", "boots", "trinket"], TYPE_STRING, "", null)
 const ITEM_LOADOUT_LIMIT: int = 2
-const STARTING_MAGIC_CARDS: Array[String] = [
+const STARTING_MAGIC_CARDS: Array[String] = Array([
 	"pale_spark",
 	"pale_spark",
 	"dull_bolt",
 	"dull_bolt",
 	"waning_pulse",
 	"waning_pulse"
-]
+], TYPE_STRING, "", null)
 const STARTING_EQUIPMENT_BY_SLOT := {
 	"weapon": "training_sword",
 	"offhand": "splintered_shield",
@@ -325,7 +326,7 @@ static func item_offer_weight(card_id: String) -> int:
 	return rarity_offer_weight(card_rarity(card_id))
 
 static func equipment_slots() -> Array[String]:
-	return EQUIPMENT_SLOTS.duplicate()
+	return TypedArrays.strings(EQUIPMENT_SLOTS.duplicate())
 
 static func equipment_ids() -> Array:
 	return equipment().keys()
@@ -461,7 +462,7 @@ static func relic_effects(relic_id: String) -> Array[Dictionary]:
 	# returned effect below is still a separately owned mutable dictionary.
 	relic_id = resolve_relic_id(relic_id)
 	var relic: Dictionary = relics().get(relic_id, {}) as Dictionary
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	var raw_effects: Array = relic.get("effects", [])
 	for effect_var: Variant in raw_effects:
 		if typeof(effect_var) != TYPE_DICTIONARY:
@@ -479,7 +480,7 @@ static func relic_effects(relic_id: String) -> Array[Dictionary]:
 	return result
 
 static func relic_effects_for_ids(relic_ids_list: Array) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	for relic_id_var: Variant in relic_ids_list:
 		result.append_array(relic_effects(str(relic_id_var)))
 	return result
@@ -858,7 +859,7 @@ static func _relic_card_action_mod_uses_fixed_point(effect: Dictionary) -> bool:
 	return false
 
 static func shuffle_cards(card_ids: Array, rng: RandomNumberGenerator) -> Array[String]:
-	var result: Array[String] = []
+	var result: Array[String]
 	for card_id_var: Variant in card_ids:
 		result.append(str(card_id_var))
 	if rng == null:

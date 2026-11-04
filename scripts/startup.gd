@@ -59,8 +59,8 @@ func _play_intro() -> void:
 	await _present_frame()
 	_set_phase(&"hold")
 	# Keep a full second at full opacity, independent of loading and fades.
-	var hold_until_ms := Time.get_ticks_msec() + int(HOLD_SECONDS * 1000.0)
-	while Time.get_ticks_msec() < hold_until_ms:
+	var hold_until_ms := preload("res://scripts/presentation_clock.gd").ticks_msec() + int(HOLD_SECONDS * 1000.0)
+	while preload("res://scripts/presentation_clock.gd").ticks_msec() < hold_until_ms:
 		await get_tree().process_frame
 	while ResourceLoader.load_threaded_get_status(MENU_SCENE_PATH) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
 		await get_tree().process_frame

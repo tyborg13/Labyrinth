@@ -5,7 +5,7 @@ const Typography = preload("res://scripts/ui_typography.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const Socket = preload("res://scripts/ui_socket.gd")
-const Strip = preload("res://scripts/ui_card_strip.gd")
+const Strip = preload("res://scripts/character_card_strip.gd")
 const StatChip = preload("res://scripts/ui_stat_chip.gd")
 const SectionHeader = preload("res://scripts/ui_section_header.gd")
 const InkStage = preload("res://scripts/ui_ink_pool_stage.gd")
@@ -25,7 +25,7 @@ static func label(text: String, size: int = 18, color: Color = Palette.TEXT) -> 
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return result
 
-static func eyebrow(text: String, size: int = 13, color: Color = Palette.TEXT_3) -> Label:
+static func eyebrow(text: String, size: int = 14, color: Color = Palette.TEXT_3) -> Label:
 	var result := label(text, size, color)
 	Typography.apply_eyebrow(result, size, color)
 	return result
@@ -88,6 +88,7 @@ static func title_block() -> VBoxContainer:
 
 static func stat(row: HBoxContainer, chip_name: String, icon: Texture2D, caption: String, color: Color) -> Label:
 	var chip := StatChip.new()
+	chip.caption_size = Typography.SIZE_CAPTION
 	chip.name = "%sChip" % chip_name
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	chip.setup(icon, "0", caption, color)
@@ -188,7 +189,7 @@ static func paper_doll(art: Control, slots: Dictionary) -> Control:
 	stage.add_child(pool)
 	stage.add_child(art)
 	for slot: String in slots:
-		var caption := eyebrow(slot.to_upper(), 13, Palette.TEXT_3)
+		var caption := eyebrow(slot.to_upper(), 14, Palette.TEXT_3)
 		caption.name = "%sSlotCaption" % slot.capitalize()
 		caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		stage.add_child(slots[slot])
@@ -308,6 +309,7 @@ static func deck_list(cards: Array, host: Node) -> Control:
 		var id: String = str(group["card_id"])
 		var badge: Control = host.call("_build_equipment_card_badge", id)
 		var strip: Control = badge.get_node("CharacterCardStrip") as Control
+		strip.enforce_caption_floor = true
 		strip.setup(id, str(GameData.card_def(id).get("name", id)), int(group["count"]))
 		badge.custom_minimum_size.x = Typography.scaled_value(host, Strip.LIST_WIDTH)
 		flow.add_child(badge)

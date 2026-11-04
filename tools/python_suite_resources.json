@@ -80,6 +80,7 @@
     "test_approved_content_manifest": [],
     "test_rr48_reaver": [
       "reaver"
-    ]
+    ],
+    "test_qa26_production_probe": []
   }
 }

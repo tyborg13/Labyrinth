@@ -6,7 +6,7 @@ const HeroFacing = preload("res://scripts/hero_facing_state.gd")
 var persist_hero_facing: bool = true
 var _direct_hit_context: Dictionary = {}
 
-func _resolve_enemy_action(state: Dictionary, index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup: Dictionary = {}, bleed: Array[Dictionary] = [], context: Dictionary = {}) -> Dictionary:
+func _resolve_enemy_action(state: Dictionary, index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup: Dictionary = {}, bleed: Array[Dictionary] = TypedArrays.dictionaries([]), context: Dictionary = {}) -> Dictionary:
 	if not persist_hero_facing: return super._resolve_enemy_action(state, index, action, rng, followup, bleed, context)
 	var previous: Dictionary = _direct_hit_context
 	_direct_hit_context = context

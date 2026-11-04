@@ -1,0 +1,53 @@
+"""Compare diagnostic replay inputs; normalize only generated Control counters."""
+from pathlib import Path
+import json,re
+PROJECT=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-30')
+EVIDENCE=Path('/private/tmp/labyrinth_codex/qa-30')
+REPORT=PROJECT/'spec/peer_benchmark/qa/run_hunt_2026-11-03c'
+INPUT_FIELDS=('kind','method','args','text','card_id','tile','path','signal','handler')
+GENERATED_CONTROL=re.compile(r'@[A-Za-z_]\w*@\d+')
+
+def inputs(path):
+    result=[]
+    for line in path.read_text().splitlines():
+        try:row=json.loads(line)
+        except ValueError:continue
+        if row['event']!='decision':continue
+        data={key:row['data'][key] for key in INPUT_FIELDS if key in row['data']}
+        if 'path' in data:data['path']=GENERATED_CONTROL.sub('@generated',data['path'])
+        result.append(data)
+    return result
+
+def compare(original,replay,label):
+    before,after=inputs(original),inputs(replay)
+    common=0
+    for first,second in zip(before,after):
+        if first!=second:break
+        common+=1
+    return dict(label=label,original=str(original),replay=str(replay),original_decisions=len(before),replay_decisions=len(after),matching_prefix=common,complete_replay_prefix_matches=common==len(after),first_difference=None if common==min(len(before),len(after)) else dict(decision=common+1,original=before[common],replay=after[common]))
+
+def main():
+    records=[]
+    for case in json.loads((EVIDENCE/'census-executions.json').read_text()):
+        name=case['name'];seed=case['seed'];campaign='no-embrace' if 'no-embrace' in name else 'default'
+        original=EVIDENCE/('campaign-'+campaign)/f'seed-{seed:06d}'/'trace.jsonl'
+        replay=Path(case['output_dir'])/f'seed-{seed:06d}'/'trace.jsonl'
+        records.append(compare(original,replay,name))
+    fixed=EVIDENCE/'fixed-replay-executions.json'
+    if fixed.exists():
+        for case in json.loads(fixed.read_text()):
+            seed=case['seed'];original=EVIDENCE/('campaign-'+case['campaign'])/f'seed-{seed:06d}'/'trace.jsonl'
+            replay=Path(case['output_dir'])/f'seed-{seed:06d}'/'trace.jsonl'
+            records.append(compare(original,replay,case['name']))
+    attribution=EVIDENCE/'census-attribution-default-5/seed-000005/trace.jsonl'
+    if attribution.exists():records.append(compare(EVIDENCE/'campaign-default/seed-000005/trace.jsonl',attribution,'census-attribution-default-5'))
+    extra=EVIDENCE/'shutdown-replays.json'
+    if extra.exists():
+        for case in json.loads(extra.read_text()):
+            seed=case['seed'];original=EVIDENCE/'campaign-default'/f'seed-{seed:06d}'/'trace.jsonl'
+            replay=Path(case['evidence']).parent/'trace.jsonl'
+            records.append(compare(original,replay,'shutdown-'+str(seed)))
+    (REPORT/'replay-input-comparison.json').write_text(json.dumps(records,indent=2)+'\n')
+    for record in records:print('QA30 INPUT COMPARISON:',record['label'],'matching_prefix='+str(record['matching_prefix']),'replay_decisions='+str(record['replay_decisions']))
+
+if __name__=='__main__':main()

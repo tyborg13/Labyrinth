@@ -1,0 +1,21 @@
+{
+  "name": "replay-default-seed-12",
+  "seed": 12,
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "/private/tmp/labyrinth_codex/qa-25/run_hunt_task.py",
+    "--runs",
+    "1",
+    "--processes",
+    "1",
+    "--seed",
+    "12",
+    "--script",
+    "/private/tmp/labyrinth_codex/qa-25/run_hunt_census.gd",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-25/replay-default-seed-12"
+  ],
+  "started": 1793733632.328624,
+  "wall_seconds": 1305.007376909256,
+  "returncode": 0
+}

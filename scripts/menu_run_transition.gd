@@ -8,6 +8,7 @@ signal failed
 const Assets = preload("res://scripts/asset_loader.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const RunPreload = preload("res://scripts/menu_run_preload.gd")
 const MESSAGE := "Entering the Labyrinth"
 const DOT_SECONDS := 0.38
 const REVEAL_SECONDS := 0.22
@@ -116,7 +117,7 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 		await _present_frame_for(tree)
 		if not _loading_is_active(transition): return
 	var performance_started: int = Time.get_ticks_usec()
-	var error := ResourceLoader.load_threaded_request(transition._path, "PackedScene")
+	var error := RunPreload.request_for(tree, transition._path)
 	performance_started = transition._record_performance_phase("resource_request", performance_started)
 	if error != OK:
 		transition._fail()
@@ -128,7 +129,7 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 		transition._fail()
 		return
 	performance_started = transition._record_performance_phase("threaded_load_wait", performance_started)
-	var packed := ResourceLoader.load_threaded_get(transition._path) as PackedScene
+	var packed := RunPreload.get_for(tree, transition._path)
 	performance_started = transition._record_performance_phase("threaded_load_get", performance_started)
 	if packed == null or not packed.can_instantiate():
 		transition._fail()
@@ -212,9 +213,9 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 
 static func _threaded_load_status(transition: CanvasLayer) -> ResourceLoader.ThreadLoadStatus:
 	if not transition.get_tree().root.has_meta("labyrinth_trace_load_status"):
-		return ResourceLoader.load_threaded_get_status(transition._path)
+		return RunPreload.status_for(transition.get_tree(), transition._path)
 	var started: int = Time.get_ticks_usec()
-	var status := ResourceLoader.load_threaded_get_status(transition._path)
+	var status := RunPreload.status_for(transition.get_tree(), transition._path)
 	var elapsed: int = Time.get_ticks_usec() - started
 	var queries: Array = transition._performance_timings.get("resource_status_queries", [])
 	queries.append({"frame": Engine.get_process_frames(), "started_usec": started, "elapsed_usec": elapsed, "status": status})

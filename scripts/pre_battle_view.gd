@@ -50,11 +50,10 @@ static func build_jobs(host: Node, panel: PanelContainer, room: Dictionary, comb
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", roundi(Typography.scaled_value(panel, 16.0)))
 	content.add_child(body)
-	jobs.append(func() -> void:
-		var started: int = Time.get_ticks_usec()
-		body.add_child(build_foes(host, combat, state))
-		host.call("_record_runtime_performance_phase", "pre_battle_enemy_section", started)
-	)
+	var foe_jobs: Array[Callable]
+	body.add_child(_begin_foes(host, combat, state, foe_jobs))
+	for job: Callable in foe_jobs:
+		jobs.append(_run_foe_job.bind(host, job))
 	jobs.append(func() -> void:
 		var started: int = Time.get_ticks_usec()
 		var divider := Controls.Rule.new()
@@ -69,6 +68,11 @@ static func build_jobs(host: Node, panel: PanelContainer, room: Dictionary, comb
 	# present while a staged build is waiting between its component jobs.
 	jobs.append(func() -> void: content.move_child(body, content.get_child_count() - 1))
 	return jobs
+
+static func _run_foe_job(host: Node, job: Callable) -> void:
+	var started: int = Time.get_ticks_usec()
+	job.call()
+	host.call("_record_runtime_performance_phase", "pre_battle_enemy_section", started)
 
 # Retain only the currently displayed components. These keys name every input
 # read by their constructors; the scene owns an exact snapshot, never a hash.
@@ -216,6 +220,15 @@ static func icon(path: String, diameter: float, node_name: String = "") -> Textu
 	return result
 
 static func build_foes(host: Node, combat: Dictionary, state: Dictionary = {}) -> Control:
+	var jobs: Array[Callable]
+	var foes: Control = _begin_foes(host, combat, state, jobs)
+	for job: Callable in jobs: job.call()
+	return foes
+
+# Travel executes one complete foe constructor at a time under the hidden
+# scrim. The synchronous fallback uses these same ordered jobs; readiness is
+# published only after the footer, focus links and every foe are complete.
+static func _begin_foes(host: Node, combat: Dictionary, state: Dictionary, jobs: Array[Callable]) -> Control:
 	var foes := VBoxContainer.new()
 	foes.name = "PreBattleEnemySection"
 	foes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -255,10 +268,17 @@ static func build_foes(host: Node, combat: Dictionary, state: Dictionary = {}) -
 	for slot: int in range(enemies.size()):
 		var enemy: Dictionary = enemies[slot]
 		var leader: bool = bool(enemy.get("is_leader", false)) or (objective.has("leader_id") and enemy.get("id", -1) == objective["leader_id"])
-		var card := build_foe(host, enemy, Vector2.ZERO, leader, slot, enemies.size())
-		flow.add_child(card)
-		var caption := card.get_node("PreBattleFoeCaption") as Control
-		caption.minimum_size_changed.connect(flow.queue_sort)
+		jobs.append(_append_foe.bind(host, flow, enemy, leader, slot, enemies.size()))
+	jobs.append(_finish_foes.bind(host, state, foes, header, flow, separation))
+	return foes
+
+static func _append_foe(host: Node, flow: Container, enemy: Dictionary, leader: bool, slot: int, count: int) -> void:
+	var card := build_foe(host, enemy, Vector2.ZERO, leader, slot, count)
+	flow.add_child(card)
+	var caption := card.get_node("PreBattleFoeCaption") as Control
+	caption.minimum_size_changed.connect(flow.queue_sort)
+
+static func _finish_foes(host: Node, state: Dictionary, foes: Control, header: Control, flow: Container, separation: int) -> void:
 	var hint := Controls.PointerHint.new()
 	hint.text = "Hover or select a foe to read its moves"
 	Typography.apply_eyebrow(hint, 13, Palette.TEXT_3)
@@ -287,7 +307,6 @@ static func build_foes(host: Node, combat: Dictionary, state: Dictionary = {}) -
 			action_button.focus_neighbor_right = action_button.get_path_to(actions.get_child(index + 1))
 	header.item_rect_changed.connect(flow.queue_sort)
 	actions.item_rect_changed.connect(flow.queue_sort)
-	return foes
 
 static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader: bool = false, slot: int = 0, slot_count: int = 1) -> Control:
 	var card := Controls.Foe.new()

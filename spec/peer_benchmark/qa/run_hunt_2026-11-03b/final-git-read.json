@@ -1,0 +1,53 @@
+[
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--exit-code"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--cached",
+      "--exit-code"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "status",
+      "--short"
+    ],
+    "returncode": 0,
+    "stdout": "?? spec/peer_benchmark/qa/run_hunt_2026-11-03b/\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "stdout": "47b98da9b6df892650b105a37a378ad337cd1b2f\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "branch",
+      "--show-current"
+    ],
+    "returncode": 0,
+    "stdout": "codex/qa-25\n",
+    "stderr": ""
+  }
+]

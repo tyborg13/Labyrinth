@@ -1,5 +1,6 @@
 extends RefCounted
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Tooltip = preload("res://scripts/board_tile_tooltip.gd")
 var revision: int = 0
 var entry_build_count: int = 0
@@ -24,7 +25,7 @@ func invalidate() -> void:
 func entries_for_tile(view: Control, tile: Vector2i) -> Array[Dictionary]:
 	var empty: Array[Dictionary]
 	if tile.x < 0 or not view._board_tile_is_visible_to_player(tile): return empty
-	if _entries.has(tile): return _entries[tile]
+	if _entries.has(tile): return TypedArrays.dictionaries(_entries[tile])
 	if not _marks_ready:
 		_marks = Tooltip.mark_entries(view)
 		_marks_ready = true

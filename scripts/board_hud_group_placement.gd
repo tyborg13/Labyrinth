@@ -2,6 +2,7 @@ extends RefCounted
 
 ## Director rule: finite candidates, no cascading displacement. Hard boundaries
 ## and screen UI are never traded for a lower HUD/HUD overlap score.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const MAX_HORIZONTAL: float = 24.0
 const HORIZONTAL_STEP: float = 4.0
 const ROW_GAP: float = 4.0
@@ -44,7 +45,7 @@ static func pieces_bounds(pieces: Array[Rect2]) -> Rect2:
 	return bounds
 
 static func choose(pieces: Array[Rect2], obstacles: Array[Rect2], bounds: Rect2, reserved: Array[Rect2], bar_height: float, prefiltered: bool = false, clear_only: bool = false) -> Dictionary:
-	var near: Array[Rect2] = obstacles if prefiltered else near_obstacles(pieces, obstacles, bar_height)
+	var near: Array[Rect2] = TypedArrays.rects(obstacles if prefiltered else near_obstacles(pieces, obstacles, bar_height))
 	# The anchored spot is always allowed. Most actors need no search at all.
 	if overlap_area(pieces, Vector2.ZERO, near, 1.0) == 0.0:
 		return {"offset": Vector2.ZERO, "overlap_area": 0.0, "legal": true}

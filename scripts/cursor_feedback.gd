@@ -25,7 +25,7 @@ const NATIVE_CURSOR_REFRESH_SECONDS: float = 0.24
 const TRANSPARENT_CURSOR_SIZE: int = 16
 
 var _glyph
-var _audio_players: Array[AudioStreamPlayer] = []
+var _audio_players: Array[AudioStreamPlayer]
 var _pitch_rng := RandomNumberGenerator.new()
 var _audio_cursor: int = 0
 var _focus_player: AudioStreamPlayer
@@ -110,11 +110,11 @@ func end_loading() -> void:
 	_manual_loading_depth = maxi(0, _manual_loading_depth - 1)
 
 func show_loading_for(seconds: float) -> void:
-	var deadline: int = Time.get_ticks_msec() + int(round(maxf(0.0, seconds) * 1000.0))
+	var deadline: int = preload("res://scripts/presentation_clock.gd").ticks_msec() + int(round(maxf(0.0, seconds) * 1000.0))
 	_loading_until_msec = maxi(_loading_until_msec, deadline)
 
 func is_loading() -> bool:
-	return _manual_loading_depth > 0 or Time.get_ticks_msec() < _loading_until_msec
+	return _manual_loading_depth > 0 or preload("res://scripts/presentation_clock.gd").ticks_msec() < _loading_until_msec
 
 func change_scene_to_file(path: String) -> void:
 	_transition_generation += 1

@@ -53,6 +53,7 @@ func _ready() -> void:
 	resized.connect(_layout)
 	_layout()
 	_refresh()
+	focus_begin()
 
 func configure(profile: Dictionary, chosen: int = -1) -> void:
 	_profile = Store.normalized_data(profile)
@@ -122,6 +123,10 @@ func _build() -> void:
 	_begin.pressed.connect(begin)
 	_back.focus_neighbor_right = _back.get_path_to(_begin)
 	_begin.focus_neighbor_left = _begin.get_path_to(_back)
+	_back.focus_neighbor_top = _back.get_path_to(_left)
+	_begin.focus_neighbor_top = _begin.get_path_to(_right)
+	_left.focus_neighbor_bottom = _left.get_path_to(_back)
+	_right.focus_neighbor_bottom = _right.get_path_to(_begin)
 
 func _label(id: String, text: String, font: Font, font_size: int, color: Color, rect: Rect2, parent: Control = null) -> Label:
 	var label := Label.new()
@@ -254,6 +259,9 @@ func change_depth(delta: int) -> void:
 	selected_depth = next
 	_feedback()
 	_refresh()
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null and bool(router.call("using_controller")) and get_viewport().gui_get_focus_owner() == null:
+		focus_begin()
 	depth_changed.emit(selected_depth)
 
 func focus_begin() -> void:
@@ -279,17 +287,22 @@ func handle_input(event: InputEvent) -> bool:
 		match key.keycode:
 			KEY_LEFT: change_depth(-1)
 			KEY_RIGHT: change_depth(1)
-			KEY_ENTER, KEY_KP_ENTER: begin()
+			KEY_ENTER, KEY_KP_ENTER:
+				# Enter is the panel-wide Begin shortcut, except during text entry.
+				var focused: Control = get_viewport().gui_get_focus_owner()
+				if focused is LineEdit or focused is TextEdit: return false
+				begin()
 			KEY_ESCAPE: cancel()
 			_: return false
 		return true
 	if event is InputEventJoypadButton:
+		var router: Node = get_node_or_null("/root/InputRouter")
+		if router != null: router.call("record_input_activity", event)
 		var button := event as InputEventJoypadButton
 		if not button.pressed: return false
 		match button.button_index:
-			JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_DPAD_LEFT: change_depth(-1)
-			JOY_BUTTON_RIGHT_SHOULDER, JOY_BUTTON_DPAD_RIGHT: change_depth(1)
-			JOY_BUTTON_A: begin()
+			JOY_BUTTON_LEFT_SHOULDER: change_depth(-1)
+			JOY_BUTTON_RIGHT_SHOULDER: change_depth(1)
 			JOY_BUTTON_B: cancel()
 			_: return false
 		return true

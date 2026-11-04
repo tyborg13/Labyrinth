@@ -1,6 +1,7 @@
 extends RefCounted
 class_name CombatEngine
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const BrambleRules = preload("res://scripts/enemy_mechanics/bramble.gd")
 const MarkedRules = preload("res://scripts/enemy_mechanics/marked_strike.gd")
@@ -89,7 +90,7 @@ const UMBRA_STAGE_DEEP: String = "deep"
 const UMBRA_STAGE_HEART: String = "heart"
 const UMBRA_STAGE_ECLIPSE: String = "eclipse"
 const UMBRA_UNLIMITED_RADIUS: int = 99
-const UMBRA_STAGE_ORDER: Array[String] = [
+const UMBRA_STAGE_ORDER: Array[String] = Array([
 	UMBRA_STAGE_CLEAR,
 	UMBRA_STAGE_FRINGE,
 	UMBRA_STAGE_ADVANCING,
@@ -97,7 +98,7 @@ const UMBRA_STAGE_ORDER: Array[String] = [
 	UMBRA_STAGE_DEEP,
 	UMBRA_STAGE_HEART,
 	UMBRA_STAGE_ECLIPSE
-]
+], TYPE_STRING, "", null)
 const UMBRA_RADIUS_BY_STAGE := {
 	UMBRA_STAGE_CLEAR: UMBRA_UNLIMITED_RADIUS,
 	UMBRA_STAGE_FRINGE: 6,
@@ -109,8 +110,8 @@ const UMBRA_RADIUS_BY_STAGE := {
 }
 const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.08
 const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 0
-const ENEMY_DAMAGE_BONUS_BY_SEQUENCE: Array[int] = [0, 1, 1, 2, 2, 3]
-const ENEMY_SUPPORT_BONUS_BY_SEQUENCE: Array[int] = [0, 0, 1, 1, 2, 2]
+const ENEMY_DAMAGE_BONUS_BY_SEQUENCE: Array[int] = Array([0, 1, 1, 2, 2, 3], TYPE_INT, "", null)
+const ENEMY_SUPPORT_BONUS_BY_SEQUENCE: Array[int] = Array([0, 0, 1, 1, 2, 2], TYPE_INT, "", null)
 const ENEMY_HP_SCALE_DEPTH_ONE: float = 0.85
 const ENEMY_HP_SCALE_DEPTH_THREE: float = 1.12
 const ENEMY_DAMAGE_DELTA_DEPTH_ONE: int = 0
@@ -122,16 +123,16 @@ const GuardianRelicRules = preload("res://scripts/guardian_relic_rules.gd")
 const GuardianCombatRules = preload("res://scripts/guardian_combat_rules.gd")
 
 const ATTACK_ACTION_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull", "detonate"]
-const BOSS_DAMAGE_ACTION_TYPES: Array[String] = ["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
+const BOSS_DAMAGE_ACTION_TYPES: Array[String] = Array(["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"], TYPE_STRING, "", null)
 const DragonPressureFields = preload("res://scripts/dragon_pressure_fields.gd")
-const BOSS_PATTERN_ACTION_TYPES: Array[String] = ["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
-const ENEMY_SUPPORT_ACTION_TYPES: Array[String] = ["heal_ally", "guard_ally"]
-const CARDINAL_DIRECTIONS: Array[Vector2i] = [
+const BOSS_PATTERN_ACTION_TYPES: Array[String] = Array(["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"], TYPE_STRING, "", null)
+const ENEMY_SUPPORT_ACTION_TYPES: Array[String] = Array(["heal_ally", "guard_ally"], TYPE_STRING, "", null)
+const CARDINAL_DIRECTIONS: Array[Vector2i] = Array([
 	Vector2i(0, -1),
 	Vector2i(1, 0),
 	Vector2i(0, 1),
 	Vector2i(-1, 0)
-]
+], TYPE_VECTOR2I, "", null)
 const SURFACE_BONUS_FIELDS := ["amount", "damage", "shock", "bleed", "expose", "sunder", "chain", "push", "pull"]
 const CardStayRules = preload("res://scripts/card_stay_rules.gd")
 
@@ -174,7 +175,7 @@ var _surface_death_trace: Dictionary = {}
 var _relic_effect_cache_ids: Array = []
 var _relic_effect_cache_rites: String = ""
 var _relic_effect_cache_valid: bool = false
-var _relic_effect_cache: Array[Dictionary] = []
+var _relic_effect_cache: Array[Dictionary]
 var _runtime_performance_instrumentation_enabled: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
 var _runtime_performance_counts: Dictionary = {}
@@ -338,7 +339,7 @@ func effective_umbra_radius(state: Dictionary) -> int:
 	return radius
 
 func umbra_visible_tiles(state: Dictionary) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	var grid: Array = state.get("grid", [])
 	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	var personal_radius: int = effective_umbra_radius(state)
@@ -513,7 +514,7 @@ func _light_source_umbra_suppression(state: Dictionary) -> int:
 	return suppression
 
 func visible_enemy_ids(state: Dictionary, visible_lookup: Dictionary = {}) -> Array[int]:
-	var result: Array[int] = []
+	var result: Array[int]
 	if visible_lookup.is_empty():
 		visible_lookup = umbra_visible_tile_lookup(state)
 	for enemy: Dictionary in _live_enemies(state):
@@ -525,7 +526,7 @@ func umbra_shadow_tiles(state: Dictionary) -> Array[Vector2i]:
 	var visible_lookup: Dictionary = {}
 	for tile: Vector2i in umbra_visible_tiles(state):
 		visible_lookup[tile] = true
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	var grid: Array = state.get("grid", [])
 	for y: int in range(grid.size()):
 		for x: int in range((grid[y] as Array).size()):
@@ -1153,7 +1154,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 	if IllusionCardRules.uses_illusion_origins(self, state, action):
 		return IllusionCardRules.ranged_origin_targets(self, state, action, accepted_limit, accept_target)
 	if not player_action_can_resolve(state, action) or (action.has("_origin_tile") and not is_tile_visible_to_player(state, action["_origin_tile"])):
-		return []
+		return TypedArrays.vector2i([])
 	var player: Dictionary = state.get("player", {})
 	var player_pos: Vector2i = action.get("_origin_tile", player.get("pos", Vector2i.ZERO))
 	var action_type: String = str(action.get("type", ""))
@@ -1162,7 +1163,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 	# Use ordinary melee targeting, including trap/terrain and large-body clicks.
 	var targeting_type: String = str(action.get("_native_action_type", action_type)) if SurfaceRelicRules.mode_enabled(action, "cross") else action_type
 	var occupied: Dictionary = {}
-	var targets: Array[Vector2i] = []
+	var targets: Array[Vector2i]
 	var visible_lookup: Dictionary = {}
 	if action_type in ["blink", "illusion", "melee", "ranged", "aoe", "push", "pull", "detonate", "outcrop", "meteor_marks", "convert_surface", "discharge", "illusion_swap", "destroy_illusion", "burst_terrain"]:
 		visible_lookup = umbra_visible_tile_lookup(state)
@@ -1828,7 +1829,7 @@ func _apply_player_move_along_path(
 	# A Glassway trade enters only its landing tile, so an unseen body on the
 	# tiles between cannot stop it.
 	var trades: bool = not movement_path.is_empty() and IllusionRelicRules.can_trade(self, next_state, movement_path[movement_path.size() - 1])
-	var resolved_path: Array[Vector2i] = movement_path if trades else _player_path_until_hidden_collision(next_state, movement_path, hidden_collision_tiles, use_hidden_collision_lookup)
+	var resolved_path: Array[Vector2i] = TypedArrays.vector2i(movement_path if trades else _player_path_until_hidden_collision(next_state, movement_path, hidden_collision_tiles, use_hidden_collision_lookup))
 	performance_phase_started = _record_runtime_performance_phase("move_path_hidden_collision", performance_phase_started)
 	var movement_result: Dictionary = {}
 	var minimum_progress: bool = not bool(resolved_action.get("_movement_pool", false)) or player_movement_remaining(next_state) == player_movement_capacity(next_state)
@@ -1853,7 +1854,7 @@ func _apply_player_move_along_path(
 	if not bool(resolved_action.get("_movement_pool", false)):
 		next_state = _maybe_refund_loot_play(next_state, loot_before)
 	performance_phase_started = _record_runtime_performance_phase("move_path_loot_refund", performance_phase_started)
-	var painting_path: Array[Vector2i] = resolved_path if bool(resolved_action.get("surface_path", false)) else _vector2i_values([resolved_endpoint])
+	var painting_path: Array[Vector2i] = TypedArrays.vector2i(resolved_path if bool(resolved_action.get("surface_path", false)) else _vector2i_values([resolved_endpoint]))
 	next_state = _place_action_surface(next_state, resolved_action, resolved_endpoint, painting_path)
 	next_state = ManeuverRules.after_player_move(self, next_state, resolved_action, resolved_path, travelled)
 	_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
@@ -1869,7 +1870,7 @@ func _movement_path_through_endpoint(path: Array[Vector2i], endpoint: Vector2i) 
 			return traversed
 	if path.is_empty():
 		return _vector2i_values([endpoint])
-	return _vector2i_values([path[0], endpoint]) if path[0] != endpoint else _vector2i_values([path[0]])
+	return TypedArrays.vector2i(_vector2i_values([path[0], endpoint]) if path[0] != endpoint else _vector2i_values([path[0]]))
 
 func _trigger_player_movement_radiance(state: Dictionary, action: Dictionary, path: Array[Vector2i], blinked: bool) -> Dictionary:
 	var next_state: Dictionary = state
@@ -2154,7 +2155,7 @@ func card_time_cost_from_def(card: Dictionary) -> int:
 func current_turn_order(state: Dictionary, limit: int = TURN_ORDER_PREVIEW_LIMIT, projection_context: Dictionary = {}) -> Array[Dictionary]:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	if projection_context.is_empty():
 		var visible_lookup: Dictionary = umbra_visible_tile_lookup(state)
 		performance_phase_started = _record_runtime_performance_phase("current_turn_order_visibility", performance_phase_started)
@@ -2301,7 +2302,7 @@ func prepare_player_activation_end(state: Dictionary) -> Dictionary:
 
 func advance_to_next_player_turn_with_steps(state: Dictionary, accepted: Callable = Callable()) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
-	var steps: Array[Dictionary] = []
+	var steps: Array[Dictionary]
 	var player_turn_before_state: Dictionary = {}
 	var safety: int = 0
 	while combat_outcome(next_state) == "" and safety < 100:
@@ -2355,7 +2356,7 @@ func enemy_acts_before_next_player_turn(scheduled_state: Dictionary) -> bool:
 func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: bool = true, accepted: Callable = Callable()) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
-	var steps: Array[Dictionary] = []
+	var steps: Array[Dictionary]
 	var player_turn_before_state: Dictionary = {}
 	var before_pop_state: Dictionary = next_state.duplicate(true)
 	var popped: Dictionary = _pop_next_actor(next_state)
@@ -2475,13 +2476,19 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 		return cursor
 	cursor["safety"] = safety + 1
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var before_pop_state: Dictionary = next_state.duplicate(true)
+	# Dequeue only replaces queue/clock/actor fields on this cursor-owned state.
+	# Survival spawns also change nested actors/logs, so only that path needs a
+	# deep rollback snapshot when the preview stops at an unrevealed arrival.
+	var may_spawn_reinforcements: bool = str(next_state.get("objective", {}).get("type", "")) == CombatObjectiveRules.SURVIVE
+	var before_pop_state: Dictionary = next_state.duplicate(may_spawn_reinforcements)
 	_record_runtime_performance_phase("enemy_preview_before_pop_duplicate", performance_phase_started)
 	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var popped: Dictionary = _pop_next_actor(next_state)
 	_record_runtime_performance_phase("enemy_preview_pop_actor", performance_phase_started)
 	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	next_state = (popped.get("state", next_state) as Dictionary).duplicate(true)
+	# _pop_next_actor mutates the state the cursor already owns. The enemy-turn
+	# resolver takes its own copy before applying any subsequent actor changes.
+	next_state = popped.get("state", next_state) as Dictionary
 	_record_runtime_performance_phase("enemy_preview_pop_result_duplicate", performance_phase_started)
 	if not (popped.get("reinforcement_steps", []) as Array).is_empty():
 		cursor["unrevealed_before_player"] = true
@@ -2577,7 +2584,7 @@ func _resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include
 	_record_runtime_performance_phase("enemy_turn_initial_duplicate", performance_total_started)
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.state = int(next_state.get("rng_state", 0))
-	var steps: Array[Dictionary] = []
+	var steps: Array[Dictionary]
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
@@ -2678,7 +2685,7 @@ func _resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include
 				followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
 			var action_context: Dictionary = activation_plan.duplicate(true)
 			action_context["action_index"] = action_index
-			var bleed_steps: Array[Dictionary] = []
+			var bleed_steps: Array[Dictionary]
 			var enemy_id: int = int(enemy.get("id", -1))
 			_record_runtime_performance_phase("enemy_turn_action_prepare", performance_phase_started)
 			performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -2928,7 +2935,7 @@ func _resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.state = int(next_state.get("rng_state", 0))
-	var steps: Array[Dictionary] = []
+	var steps: Array[Dictionary]
 	for enemy_index: int in range((next_state.get("enemies", []) as Array).size()):
 		if combat_outcome(next_state) != "":
 			break
@@ -2977,7 +2984,7 @@ func _resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 					followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
 				var action_context: Dictionary = activation_plan.duplicate(true)
 				action_context["action_index"] = action_index
-				var bleed_steps: Array[Dictionary] = []
+				var bleed_steps: Array[Dictionary]
 				var enemy_id: int = int(enemy.get("id", -1))
 				var enemy_hidden_before: bool = _enemy_is_hidden_by_id(before_state, enemy_id)
 				next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps, action_context)
@@ -3112,7 +3119,7 @@ func player_movement_action(state: Dictionary) -> Dictionary:
 func player_movement_targets(state: Dictionary) -> Array[Vector2i]:
 	var action: Dictionary = player_movement_action(state)
 	if action.is_empty():
-		return []
+		return TypedArrays.vector2i([])
 	return valid_targets_for_player_action(state, action)
 
 func player_has_movement_target(state: Dictionary) -> bool:
@@ -3240,7 +3247,7 @@ func aoe_tiles_for_player_action(state: Dictionary, action: Dictionary, target_t
 # `orientation`) raises every legal pattern tile around it. Each tile must be
 # empty floor and must preserve every floor route after the earlier tiles rise.
 func outcrop_tiles_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
-	var candidates: Array[Vector2i] = []
+	var candidates: Array[Vector2i]
 	var around_target: bool = action.has("pattern") and TerrainCardRules.is_around_target(action)
 	if around_target:
 		candidates = TerrainCardRules.around_target_tiles(state, action, target_tile)
@@ -3257,7 +3264,7 @@ func outcrop_tiles_for_player_action(state: Dictionary, action: Dictionary, targ
 		# A Worldspine cage may seal its own center tile (and whoever stands
 		# there); every other floor tile must stay connected.
 		probe_terrain.append({"id": "_outcrop_center_probe", "kind": "crag_outcrop", "pos": target_tile, "hp": 1, "max_hp": 1})
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	for tile: Vector2i in candidates:
 		if not CombatTerrainRules.is_empty_floor(self, probe, tile):
 			continue
@@ -3376,7 +3383,7 @@ func _final_damage_for_resolved_player_action(state: Dictionary, resolved_action
 	)
 
 func damage_modifiers_for_player_action(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
-	var modifiers: Array[Dictionary] = []
+	var modifiers: Array[Dictionary]
 	var action_type: String = str(action.get("type", ""))
 	if action_type not in ATTACK_ACTION_TYPES:
 		return modifiers
@@ -3765,9 +3772,9 @@ func _enemy_action_step_base(before_state: Dictionary, after_state: Dictionary, 
 			}
 		"guard_ally":
 			if str(action.get("target_mode", "")) == "all_other_enemies":
-				var guard_targets: Array[Dictionary] = []
-				var guarded_actor_keys: Array[String] = []
-				var guarded_tiles: Array[Vector2i] = []
+				var guard_targets: Array[Dictionary]
+				var guarded_actor_keys: Array[String]
+				var guarded_tiles: Array[Vector2i]
 				for target_index: int in range(mini(before_enemies.size(), after_enemies.size())):
 					if target_index == enemy_index:
 						continue
@@ -3833,7 +3840,7 @@ func _enemy_action_step_base(before_state: Dictionary, after_state: Dictionary, 
 				"cinder_marks": "Kindle Ground",
 				"frost_armor": "Crystal Mantle"
 			}
-			var focus_tiles: Array[Vector2i] = []
+			var focus_tiles: Array[Vector2i]
 			if action_type == "cinder_marks":
 				for trap: Dictionary in _cinder_fire_entries(after_state, int(after_enemy.get("id", -1))):
 					if _trap_index_at_tile(before_state, trap.get("pos", INVALID_TILE)) < 0:
@@ -3920,7 +3927,7 @@ func _enemy_action_step_base(before_state: Dictionary, after_state: Dictionary, 
 			var center_tile: Vector2i = target_tile
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
 				center_tile = before_enemy.get("pos", Vector2i.ZERO)
-			var aoe_tiles: Array[Vector2i] = []
+			var aoe_tiles: Array[Vector2i]
 			if action_type == "aoe":
 				var resolved_step_action: Dictionary = _enemy_action_oriented_to_target(action, before_enemy, target_tile)
 				aoe_tiles = _enemy_aoe_tiles_for_target(before_state, before_enemy, resolved_step_action, center_tile, true)
@@ -4082,7 +4089,7 @@ func _enemy_target_losses(before_state: Dictionary, after_state: Dictionary) -> 
 	return losses
 
 func _terrain_target_losses(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
-	var losses: Array[Dictionary] = []
+	var losses: Array[Dictionary]
 	var after_by_id: Dictionary = {}
 	for after_terrain_var: Variant in after_state.get("terrain", []):
 		if typeof(after_terrain_var) != TYPE_DICTIONARY:
@@ -4123,7 +4130,7 @@ func _triggered_traps_between(before_state: Dictionary, after_state: Dictionary)
 			continue
 		var after_trap: Dictionary = after_trap_var
 		after_ids[str(after_trap.get("id", ""))] = true
-	var triggered: Array[Dictionary] = []
+	var triggered: Array[Dictionary]
 	for before_trap_var: Variant in before_state.get("traps", []):
 		if typeof(before_trap_var) != TYPE_DICTIONARY:
 			continue
@@ -4142,7 +4149,7 @@ func _target_loss_amount(target_losses: Array[Dictionary]) -> int:
 	return total
 
 func _target_loss_keys(target_losses: Array[Dictionary]) -> Array[String]:
-	var keys: Array[String] = []
+	var keys: Array[String]
 	for loss: Dictionary in target_losses:
 		var key: String = str(loss.get("key", ""))
 		if not key.is_empty() and not keys.has(key):
@@ -4156,7 +4163,7 @@ func _enemy_display_name(enemy: Dictionary) -> String:
 	return EnemyIdentity.display_name(enemy)
 
 func _actor_targets(state: Dictionary) -> Array[Dictionary]:
-	var targets: Array[Dictionary] = []
+	var targets: Array[Dictionary]
 	var player: Dictionary = _normalized_player(state.get("player", {}))
 	if int(player.get("hp", 0)) > 0:
 		targets.append({
@@ -4478,7 +4485,7 @@ func _actor_targets_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array
 	var tile_lookup: Dictionary = {}
 	for tile: Vector2i in tiles:
 		tile_lookup[tile] = true
-	var targets: Array[Dictionary] = []
+	var targets: Array[Dictionary]
 	for target: Dictionary in _actor_targets(state):
 		if tile_lookup.has(target.get("pos", Vector2i.ZERO)):
 			targets.append(target)
@@ -4532,7 +4539,7 @@ func _apply_action_keywords_to_target(state: Dictionary, target: Dictionary, act
 		return _surface_freeze_actor(state, "illusion", int(target.get("id", -1)), action)
 	return state
 
-func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup_action: Dictionary = {}, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
+func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup_action: Dictionary = {}, bleed_steps: Array[Dictionary] = TypedArrays.dictionaries([]), action_context: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
@@ -5801,7 +5808,7 @@ func _pop_next_actor(state: Dictionary) -> Dictionary:
 	return {"state": next_state, "entry": {}, "reinforcement_steps": []}
 
 func _spawn_due_survival_reinforcements(state: Dictionary) -> Array[Dictionary]:
-	var steps: Array[Dictionary] = []
+	var steps: Array[Dictionary]
 	var objective: Dictionary = (state.get("objective", {}) as Dictionary).duplicate(true)
 	if str(objective.get("type", "")) != CombatObjectiveRules.SURVIVE:
 		return steps
@@ -5852,7 +5859,7 @@ func _survival_reinforcement_spawn_tile(state: Dictionary, rng: RandomNumberGene
 		if typeof(loot_var) == TYPE_DICTIONARY and not bool((loot_var as Dictionary).get("claimed", false)):
 			blocked[(loot_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
 	var player_tile: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-	var candidates: Array[Dictionary] = []
+	var candidates: Array[Dictionary]
 	for tile: Vector2i in _all_passable_tiles(state):
 		if blocked.has(tile):
 			continue
@@ -5891,8 +5898,8 @@ func _schedule_enemy_after_turn(state: Dictionary, enemy: Dictionary, turn_time_
 
 func _append_turn_order_step(steps: Array[Dictionary], before_state: Dictionary, after_state: Dictionary, label: String) -> void:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var before_order: Array[Dictionary] = []
-	var after_order: Array[Dictionary] = []
+	var before_order: Array[Dictionary]
+	var after_order: Array[Dictionary]
 	if _turn_order_projection_context_can_be_shared(before_state, after_state):
 		# Activation and reschedule boundaries normally change only the initiative
 		# queue, clock, and current actor. Their visibility and actor facts are
@@ -5950,7 +5957,7 @@ func _append_commit_step(steps: Array[Dictionary], before_state: Dictionary, aft
 	_record_runtime_performance_phase("commit_step_total", performance_total_started)
 
 func _turn_order_signature(order: Array[Dictionary]) -> String:
-	var parts: Array[String] = []
+	var parts: Array[String]
 	for entry: Dictionary in order:
 		parts.append("%s:%s:%d:%d:%s" % [
 			str(entry.get("kind", "")),
@@ -6035,8 +6042,13 @@ func _estimated_card_time_cost(card: Dictionary) -> int:
 	return clampi(total, MIN_CARD_TIME_COST, MAX_CARD_TIME_COST)
 
 func _enemy_status_immunities(enemy: Dictionary) -> Array[String]:
-	var immunities: Array[String] = []
-	var raw_immunities: Variant = GameData.enemy_def(str(enemy.get("type", ""))).get("status_immunities", [])
+	var immunities: Array[String]
+	# Immunity IDs are unscaled catalog data. Fetching a complete enemy_def here
+	# copied every intent/action on each normalization during forecast planning.
+	# Build a private typed result below, retaining live catalog-edit semantics.
+	var raw_definition: Variant = GameData.enemies().get(str(enemy.get("type", "")), {})
+	var definition: Dictionary = raw_definition if raw_definition is Dictionary else {}
+	var raw_immunities: Variant = definition.get("status_immunities", [])
 	if typeof(raw_immunities) != TYPE_ARRAY:
 		return immunities
 	for immunity_var: Variant in raw_immunities:
@@ -6388,7 +6400,7 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if int(enemy.get("hp", 0)) <= 0:
 		return next_state
-	var triggered_statuses: Array[String] = []
+	var triggered_statuses: Array[String]
 	if int(action.get("bleed", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "bleed"):
 		enemy["bleed"] = int(enemy.get("bleed", 0)) + int(action.get("bleed", 0))
 		triggered_statuses.append("bleed")
@@ -6470,7 +6482,7 @@ func _enemy_direct_attack_threat_tiles(state: Dictionary, enemy_index: int, acti
 		terrain_index = _blocking_terrain_index_for_enemy_action(state, enemy_index, action)
 	return _enemy_projected_attack_tiles(state, enemy, action, selection.get("target", {}), terrain_index, int(selection.get("trap_index", -1)))
 
-func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionary, verb: String, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
+func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionary, verb: String, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = TypedArrays.dictionaries([]), action_context: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
@@ -6518,10 +6530,10 @@ func _damage_enemy_aoe_occupants(state: Dictionary, enemy_index: int, action: Di
 		next_state = _apply_action_keywords_to_target(next_state, affected_target, action, _closest_enemy_tile_to(enemy, affected_target.get("pos", Vector2i.ZERO)))
 	return _damage_terrain_indices(next_state, _terrain_indices_in_tiles(next_state, affected_tiles), damage)
 
-func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
+func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = TypedArrays.dictionaries([]), action_context: Dictionary = {}) -> Dictionary:
 	return _enemy_attack_target(state, enemy_index, action, "pushes" if pushing else "pulls", rng, bleed_steps, action_context)
 
-func _enemy_attack_blocking_terrain(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary] = [], terrain_index_override: int = -2) -> Dictionary:
+func _enemy_attack_blocking_terrain(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary] = TypedArrays.dictionaries([]), terrain_index_override: int = -2) -> Dictionary:
 	var next_state: Dictionary = state
 	if int(action.get("damage", 0)) <= 0:
 		return next_state
@@ -6571,7 +6583,7 @@ func _blocking_terrain_index_for_enemy_action(state: Dictionary, enemy_index: in
 		return -1
 	return -1
 
-func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary] = []) -> Dictionary:
+func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary] = TypedArrays.dictionaries([])) -> Dictionary:
 	var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index])
 	var strike_tiles: Array[Vector2i] = _lightning_strike_tiles(state, enemy, action)
 	state = _trigger_enemy_bleed_for_resolved_action(state, enemy_index, action, bleed_steps)
@@ -6645,7 +6657,7 @@ func _all_actor_passable_tiles(state: Dictionary) -> Array[Vector2i]:
 
 func _all_passable_tiles(state: Dictionary) -> Array[Vector2i]:
 	# Geometric patterns still use the raw floor, including sealed thresholds.
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	var grid: Array = state.get("grid", [])
 	for y: int in range(grid.size()):
 		for x: int in range((grid[y] as Array).size()):
@@ -6693,7 +6705,7 @@ func _enemy_terrain_burst(state: Dictionary, enemy_index: int, action: Dictionar
 	return next_state
 
 func _cinder_fire_entries(state: Dictionary, owner_enemy_id: int = -1) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	var candidates: Array[Vector2i] = BoardSurfaceRules.tiles(state, "fire")
 	if owner_enemy_id >= 0:
 		candidates = _vector2i_values(_surface_actor(state, "enemy", owner_enemy_id).get("cinder_tiles", []))
@@ -6703,7 +6715,7 @@ func _cinder_fire_entries(state: Dictionary, owner_enemy_id: int = -1) -> Array[
 	return result
 
 func _cinder_mark_candidate_tiles(state: Dictionary, enemy: Dictionary, count: int) -> Array[Vector2i]:
-	var candidates: Array[Vector2i] = []
+	var candidates: Array[Vector2i]
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	var occupied: Dictionary = _occupied_actor_tiles(state)
 	for tile: Vector2i in _all_passable_tiles(state):
@@ -6720,7 +6732,7 @@ func _cinder_mark_candidate_tiles(state: Dictionary, enemy: Dictionary, count: i
 			return a.y < b.y if a.y != b.y else a.x < b.x
 		return a_score < b_score
 	)
-	var results: Array[Vector2i] = []
+	var results: Array[Vector2i]
 	for tile: Vector2i in candidates:
 		results.append(tile)
 		if results.size() >= count:
@@ -6729,7 +6741,7 @@ func _cinder_mark_candidate_tiles(state: Dictionary, enemy: Dictionary, count: i
 
 func _enemy_create_cinder_marks(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
 	var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index]
-	var candidates: Array[Vector2i] = _vector2i_values(action["declared_tiles"]) if action.has("declared_tiles") else _cinder_mark_candidate_tiles(state, enemy, maxi(1, int(action.get("count", 5))))
+	var candidates: Array[Vector2i] = TypedArrays.vector2i(_vector2i_values(action["declared_tiles"]) if action.has("declared_tiles") else _cinder_mark_candidate_tiles(state, enemy, maxi(1, int(action.get("count", 5)))))
 	if int(action.get("damage", 0)) > 0 and not candidates.is_empty():
 		state = _trigger_enemy_bleed_for_resolved_action(state, enemy_index, action, bleed_steps)
 		if _enemy_cannot_continue_after_bleed(state, enemy_index): return state
@@ -6859,7 +6871,7 @@ func _enemy_umbra_eclipse(state: Dictionary, enemy_index: int, action: Dictionar
 			if int(brazier["id"]) == int(action.get("brazier_id",-1)):
 				brazier["lit"] = false
 				BoardSurfaceRules.record_event(next_state,{"kind":"dragon_light_snuffed","brazier_id":brazier["id"],"tile":brazier["pos"],"source":_surface_source(next_state,action)})
-	var exposed_targets: Array[Dictionary] = []
+	var exposed_targets: Array[Dictionary]
 	for target: Dictionary in _actor_targets(next_state):
 		if not _actor_has_radiance_protection(next_state, target):
 			exposed_targets.append(target)
@@ -6880,14 +6892,14 @@ func _boss_action_threat_tiles(state: Dictionary, enemy: Dictionary, action: Dic
 		"terrain_burst":
 			return _terrain_burst_tiles(state, int(action.get("radius", 1)), int(enemy["id"]))
 		"cinder_marks":
-			return _vector2i_values(action["declared_tiles"]) if action.has("declared_tiles") else _cinder_mark_candidate_tiles(state, enemy, maxi(1, int(action.get("count", 5))))
+			return TypedArrays.vector2i(_vector2i_values(action["declared_tiles"]) if action.has("declared_tiles") else _cinder_mark_candidate_tiles(state, enemy, maxi(1, int(action.get("count", 5)))))
 		"detonate_cinders":
 			return _cinder_detonation_tiles(state, int(enemy.get("id", -1)))
 		"gale_force":
 			return _all_passable_tiles(state)
 		"umbra_eclipse":
 			return _umbra_eclipse_threat_tiles(DragonCombatRules.eclipse_preview(state,action))
-	return []
+	return TypedArrays.vector2i([])
 
 # Forced movement (spec/forced_movement.md). Push and Pull travel in one
 # straight cardinal line for their full distance: they never turn, slide
@@ -7311,7 +7323,7 @@ func _player_path_until_hidden_collision(
 	hidden_collision_tiles: Dictionary = {},
 	use_hidden_collision_lookup: bool = false
 ) -> Array[Vector2i]:
-	var resolved: Array[Vector2i] = []
+	var resolved: Array[Vector2i]
 	if path.is_empty():
 		return resolved
 	resolved.append(path[0])
@@ -7397,7 +7409,7 @@ func _preferred_player_navigation(
 			var next_tile: Vector2i = current_tile + direction
 			if not PathUtils.is_passable(grid, next_tile) or occupied.has(next_tile) or current_path.has(next_tile):
 				continue
-			var next_path: Array[Vector2i] = current_path.duplicate()
+			var next_path: Array[Vector2i] = TypedArrays.vector2i(current_path.duplicate())
 			next_path.append(next_tile)
 			var next_traps: int = int(current.get("traps", 0)) + (1 if trap_tiles.has(next_tile) else 0)
 			var next_pickups: int = int(current.get("pickups", 0))
@@ -7550,7 +7562,7 @@ func _trap_tiles_lookup(state: Dictionary) -> Dictionary:
 	return lookup
 
 func _live_traps(state: Dictionary) -> Array[Dictionary]:
-	var traps: Array[Dictionary] = []
+	var traps: Array[Dictionary]
 	for trap_var: Variant in state.get("traps", []):
 		if typeof(trap_var) != TYPE_DICTIONARY:
 			continue
@@ -7561,7 +7573,7 @@ func _trap_tiles_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array[Ve
 	var tile_lookup: Dictionary = {}
 	for tile: Vector2i in tiles:
 		tile_lookup[tile] = true
-	var trap_tiles: Array[Vector2i] = []
+	var trap_tiles: Array[Vector2i]
 	for trap_var: Variant in state.get("traps", []):
 		if typeof(trap_var) != TYPE_DICTIONARY:
 			continue
@@ -7573,10 +7585,10 @@ func _trap_tiles_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array[Ve
 
 func _trap_blast_tiles(state: Dictionary, trap: Dictionary) -> Array[Vector2i]:
 	var center: Vector2i = trap.get("pos", INVALID_TILE)
-	return _vector2i_values([center]) if PathUtils.is_passable(state.get("grid", []), center) else _vector2i_values([])
+	return TypedArrays.vector2i(_vector2i_values([center]) if PathUtils.is_passable(state.get("grid", []), center) else _vector2i_values([]))
 
 func trap_wake_tiles(state: Dictionary, trap: Dictionary) -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	var center: Vector2i = trap.get("pos", INVALID_TILE)
 	for direction: Vector2i in PathUtils.DIRS_4:
 		if BoardSurfaceRules.can_place(state, center + direction):
@@ -7743,7 +7755,7 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 	if immobilized:
 		enemy["immobilize"] = false
 	if held or shocked or immobilized: _resolver_journal("instant", state, {"kind": "skip", "id": enemy["id"]})
-	var steps: Array[Dictionary] = []
+	var steps: Array[Dictionary]
 	if BoardSurfaceRules.unit_on(before, (before.get("enemies", []) as Array)[enemy_index], "fire"):
 		var fire_step: Dictionary = _enemy_status_damage_step({"kind": "status_damage", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": "Fire", "text": "Fire", "amount": RiteRules.surface_tile_damage(_relic_effects(state), "fire", "enemy", GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE), {}, GameData.FIXED_POINT_SCALE)}, before, state)
 		if charge_trace.is_empty(): steps.append(fire_step)
@@ -7803,7 +7815,7 @@ func _next_enemy_followup_attack_action(actions: Array, start_index: int) -> Dic
 func _threat_movement_tiles(state: Dictionary, enemy: Dictionary, start_tile: Vector2i, action: Dictionary, occupied: Dictionary, blocked_target: Vector2i) -> Array[Vector2i]:
 	var move_range: int = int(action.get("range", 0))
 	if move_range <= 0:
-		return []
+		return TypedArrays.vector2i([])
 	var preview_enemy: Dictionary = enemy.duplicate(true)
 	preview_enemy["pos"] = start_tile
 	if preview_enemy.get("footprint", Vector2i.ONE) != Vector2i.ONE:
@@ -8146,14 +8158,14 @@ func _enemy_blocking_tiles_without_terrain(state: Dictionary, exclude_enemy_id: 
 	return occupied
 
 func _live_enemies(state: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	for enemy: Dictionary in state.get("enemies", []):
 		if int(enemy.get("hp", 0)) > 0:
 			result.append(enemy)
 	return result
 
 func _live_illusions(state: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	for illusion_var: Variant in state.get("illusions", []):
 		if typeof(illusion_var) != TYPE_DICTIONARY:
 			continue
@@ -8163,7 +8175,7 @@ func _live_illusions(state: Dictionary) -> Array[Dictionary]:
 	return result
 
 func _live_terrain(state: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	for terrain_var: Variant in state.get("terrain", []):
 		if typeof(terrain_var) != TYPE_DICTIONARY:
 			continue
@@ -8201,7 +8213,7 @@ func _enemy_indices_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array
 	var tile_lookup: Dictionary = {}
 	for tile: Vector2i in tiles:
 		tile_lookup[tile] = true
-	var indices: Array[int] = []
+	var indices: Array[int]
 	var enemies: Array = state.get("enemies", [])
 	for index: int in range(enemies.size()):
 		if typeof(enemies[index]) != TYPE_DICTIONARY:
@@ -8219,7 +8231,7 @@ func _terrain_indices_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Arr
 	var tile_lookup: Dictionary = {}
 	for tile: Vector2i in tiles:
 		tile_lookup[tile] = true
-	var indices: Array[int] = []
+	var indices: Array[int]
 	var terrain_entries: Array = state.get("terrain", [])
 	for index: int in range(terrain_entries.size()):
 		if typeof(terrain_entries[index]) != TYPE_DICTIONARY:
@@ -8234,7 +8246,7 @@ func _terrain_indices_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Arr
 func _enemy_footprint_tiles(enemy: Dictionary, origin_override: Vector2i = Vector2i(-999, -999)) -> Array[Vector2i]:
 	var origin: Vector2i = origin_override if origin_override.x > -900 else enemy.get("pos", Vector2i(-1, -1))
 	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	for y: int in range(maxi(1, footprint.y)):
 		for x: int in range(maxi(1, footprint.x)):
 			tiles.append(origin + Vector2i(x, y))
@@ -8292,7 +8304,7 @@ func _lightning_strike_threat_tiles(state: Dictionary, enemy: Dictionary, action
 
 func _lightning_strike_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
 	if action.has("declared_tiles"): return _vector2i_values(action["declared_tiles"])
-	var candidates: Array[Vector2i] = []
+	var candidates: Array[Vector2i]
 	var grid: Array = state.get("grid", [])
 	var occupied: Dictionary = _occupied_enemy_tiles(state)
 	for y: int in range(grid.size()):
@@ -8312,7 +8324,7 @@ func _lightning_strike_tiles(state: Dictionary, enemy: Dictionary, action: Dicti
 			return a.y < b.y
 		return a_score < b_score
 	)
-	var results: Array[Vector2i] = []
+	var results: Array[Vector2i]
 	var strike_count: int = mini(int(action.get("count", 4)), candidates.size())
 	for index: int in range(strike_count):
 		results.append(candidates[index])
@@ -8449,8 +8461,8 @@ func _available_summon_count(state: Dictionary, action: Dictionary) -> int:
 	return mini(count,maxi(0,int(action["summon_cap"])-living))
 
 func _summon_tiles_for_enemy(state: Dictionary, enemy: Dictionary, count: int) -> Array[Vector2i]:
-	if count <= 0: return []
-	var candidates: Array[Vector2i] = []
+	if count <= 0: return TypedArrays.vector2i([])
+	var candidates: Array[Vector2i]
 	var occupied: Dictionary = _enemy_blocking_tiles(state)
 	for tile: Vector2i in PathUtils.diamond_tiles(enemy.get("pos", Vector2i.ZERO), 4, state.get("grid", [])):
 		if occupied.has(tile):
@@ -8469,7 +8481,7 @@ func _summon_tiles_for_enemy(state: Dictionary, enemy: Dictionary, count: int) -
 			return a.y < b.y
 		return a_distance < b_distance
 	)
-	var results: Array[Vector2i] = []
+	var results: Array[Vector2i]
 	for tile: Vector2i in candidates:
 		results.append(tile)
 		if results.size() >= count:
@@ -8510,17 +8522,17 @@ func _best_aoe_tiles_for_target(state: Dictionary, action: Dictionary, target_ti
 	var orientation: Vector2i = _action_orientation_direction(action)
 	if orientation != Vector2i.ZERO:
 		var oriented_offsets: Array[Vector2i] = _aoe_pattern_offsets_for_direction(action, orientation)
-		return _tiles_for_centered_aoe_offsets(grid, target_tile, oriented_offsets) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, oriented_offsets)
+		return TypedArrays.vector2i(_tiles_for_centered_aoe_offsets(grid, target_tile, oriented_offsets) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, oriented_offsets))
 	var variants: Array = _aoe_pattern_variants(action)
 	if variants.size() == 1:
 		var sole_offsets: Array = variants[0] as Array
-		return _tiles_for_centered_aoe_offsets(grid, target_tile, sole_offsets) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, sole_offsets)
-	var best_tiles: Array[Vector2i] = []
+		return TypedArrays.vector2i(_tiles_for_centered_aoe_offsets(grid, target_tile, sole_offsets) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, sole_offsets))
+	var best_tiles: Array[Vector2i]
 	var best_score: int = -1
 	var best_size: int = 9999
 	for offsets_var: Variant in variants:
 		var offsets: Array = offsets_var
-		var tiles: Array[Vector2i] = _tiles_for_centered_aoe_offsets(grid, target_tile, offsets) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, offsets)
+		var tiles: Array[Vector2i] = TypedArrays.vector2i(_tiles_for_centered_aoe_offsets(grid, target_tile, offsets) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, offsets))
 		var score: int = 0
 		if score_player:
 			score = _actor_targets_in_tiles(state, tiles).size()
@@ -8560,7 +8572,7 @@ func _aoe_pattern_specs_for_legality(action: Dictionary, centered_target: bool) 
 		variants.append(_aoe_pattern_offsets_for_direction(action, orientation))
 	else:
 		variants = _aoe_pattern_variants(action)
-	var specs: Array[Dictionary] = []
+	var specs: Array[Dictionary]
 	for offsets_var: Variant in variants:
 		if typeof(offsets_var) != TYPE_ARRAY:
 			continue
@@ -8588,11 +8600,11 @@ func _aoe_tiles_for_anchor(grid: Array, action: Dictionary, target_tile: Vector2
 	var orientation: Vector2i = _action_orientation_direction(action)
 	if orientation != Vector2i.ZERO:
 		var oriented_offsets: Array[Vector2i] = _aoe_pattern_offsets_for_direction(action, orientation)
-		return _tiles_for_centered_aoe_offsets(grid, target_tile, oriented_offsets) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, oriented_offsets)
+		return TypedArrays.vector2i(_tiles_for_centered_aoe_offsets(grid, target_tile, oriented_offsets) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, oriented_offsets))
 	var variants: Array = _aoe_pattern_variants(action)
 	if variants.is_empty():
-		return []
-	return _tiles_for_centered_aoe_offsets(grid, target_tile, variants[0]) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, variants[0])
+		return TypedArrays.vector2i([])
+	return TypedArrays.vector2i(_tiles_for_centered_aoe_offsets(grid, target_tile, variants[0]) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, variants[0]))
 
 # A ranged area centers its pattern on the selected tile. A facing-aimed area
 # (`"aim": "facing"`) is authored facing +x with offset (0, 0) on the selected
@@ -8658,7 +8670,7 @@ func _aoe_pattern_variants(action: Dictionary) -> Array:
 	var seen: Dictionary = {}
 	var rotation_count: int = 4 if bool(action.get("rotate", true)) else 1
 	for rotation: int in range(rotation_count):
-		var rotated: Array[Vector2i] = []
+		var rotated: Array[Vector2i]
 		for offset: Vector2i in offsets:
 			rotated.append(_rotated_offset(offset, rotation))
 		var key_parts: PackedStringArray = []
@@ -8678,7 +8690,7 @@ func _aoe_pattern_variants(action: Dictionary) -> Array:
 
 func _aoe_pattern_offsets_for_direction(action: Dictionary, direction: Vector2i) -> Array[Vector2i]:
 	var rotation: int = _rotation_for_direction(direction)
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	for offset: Vector2i in _aoe_pattern_offsets(action):
 		result.append(_rotated_offset(offset, rotation))
 	return result
@@ -8696,7 +8708,7 @@ func _rotation_for_direction(direction: Vector2i) -> int:
 
 func _aoe_pattern_offsets(action: Dictionary) -> Array[Vector2i]:
 	var raw_pattern: Array = action.get("pattern", DEFAULT_AOE_PATTERN)
-	var offsets: Array[Vector2i] = []
+	var offsets: Array[Vector2i]
 	for offset_var: Variant in raw_pattern:
 		match typeof(offset_var):
 			TYPE_VECTOR2I:
@@ -8713,7 +8725,7 @@ func _aoe_pattern_offsets(action: Dictionary) -> Array[Vector2i]:
 	return offsets
 
 func _vector2i_values(values: Array) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	for value: Variant in values:
 		if typeof(value) == TYPE_VECTOR2I:
 			result.append(value)
@@ -8866,7 +8878,7 @@ func _objective_adjusted_intent_weight(state: Dictionary, intent: Dictionary) ->
 func enemy_tactical_intent_options(state: Dictionary, enemy_index: int) -> Array[Dictionary]:
 	var enemies: Array = state.get("enemies", []) as Array
 	if enemy_index < 0 or enemy_index >= enemies.size() or typeof(enemies[enemy_index]) != TYPE_DICTIONARY:
-		return []
+		return TypedArrays.dictionaries([])
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
 	var intents: Array = _scaled_enemy_intents(
@@ -8890,15 +8902,15 @@ func _enemy_tactical_intent_options(
 	definition: Dictionary,
 	intents: Array
 ) -> Array[Dictionary]:
-	if str(enemy.get("type", "")) in ["arc_thrall", "gloam_stalker"]: return [] # Authored weights; availability is filtered before rolling.
+	if str(enemy.get("type", "")) in ["arc_thrall", "gloam_stalker"]: return TypedArrays.dictionaries([]) # Authored weights; availability is filtered before rolling.
 	for intent: Dictionary in intents:
 		for action: Dictionary in intent.get("actions", []):
-			if BurrowRules.handles(action) or str(action.get("type", "")) == "kindle": return []
+			if BurrowRules.handles(action) or str(action.get("type", "")) == "kindle": return TypedArrays.dictionaries([])
 	var profile: Dictionary = definition.get("ai_profile", {}) as Dictionary
 	var role: String = str(profile.get("role", ""))
 	if role.is_empty():
-		return []
-	var evaluated: Array[Dictionary] = []
+		return TypedArrays.dictionaries([])
+	var evaluated: Array[Dictionary]
 	var best_score: int = -1000000
 	var signature_available: bool = false
 	for intent_var: Variant in intents:
@@ -8927,8 +8939,8 @@ func _enemy_tactical_intent_options(
 		if bool(option.get("eligible", false)):
 			best_score = maxi(best_score, int(option.get("score", -1000000)))
 	if best_score <= -1000000:
-		return []
-	var competitive: Array[Dictionary] = []
+		return TypedArrays.dictionaries([])
+	var competitive: Array[Dictionary]
 	for option: Dictionary in evaluated:
 		var score: int = int(option.get("score", -1000000))
 		if not bool(option.get("eligible", false)) or score < best_score - ENEMY_TACTICAL_SCORE_WINDOW:
@@ -9345,7 +9357,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	projected["pos"] = plan.get("landing", plan.get("destination", enemy["pos"]))
 	if plan.has("attack_action"): plan["attack_action"] = WarbandRules.action(planning, projected, plan["attack_action"])
 	if retreat.size() > 1:
-		var combined: Array[Vector2i] = retreat.duplicate()
+		var combined: Array[Vector2i] = TypedArrays.vector2i(retreat.duplicate())
 		combined.append_array(_vector2i_values(plan.get("path", [])).slice(1))
 		plan["path"] = combined
 		plan["warband_retreat"] = retreat
@@ -9474,7 +9486,7 @@ func _enemy_standard_intent_plan(state: Dictionary, enemy_index: int, enemy: Dic
 	performance_phase_started = _record_runtime_performance_phase("enemy_plan_protector_screen", performance_phase_started)
 	var target: Dictionary = {}
 	var actual_path: Array[Vector2i] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
-	var future_route: Array[Vector2i] = actual_path.duplicate()
+	var future_route: Array[Vector2i] = TypedArrays.vector2i(actual_path.duplicate())
 	var route_cost: int = 0
 	var attack_available: bool = false
 	if not support_approach.is_empty():
@@ -9484,7 +9496,7 @@ func _enemy_standard_intent_plan(state: Dictionary, enemy_index: int, enemy: Dic
 	elif not direct_candidate.is_empty():
 		target = (direct_candidate.get("target", {}) as Dictionary).duplicate(true)
 		actual_path = _vector2i_values(direct_candidate.get("path", []))
-		future_route = actual_path.duplicate()
+		future_route = TypedArrays.vector2i(actual_path.duplicate())
 		route_cost = int(direct_candidate.get("cost", 0))
 		attack_available = not pure_retreat
 	elif not protector_screening_candidate.is_empty():
@@ -9493,7 +9505,7 @@ func _enemy_standard_intent_plan(state: Dictionary, enemy_index: int, enemy: Dic
 		# endpoint as the current-activation path instead of letting a later
 		# attack route pull the Warden back off the lane it meant to block.
 		actual_path = _vector2i_values(protector_screening_candidate.get("path", []))
-		future_route = actual_path.duplicate()
+		future_route = TypedArrays.vector2i(actual_path.duplicate())
 		route_cost = int(protector_screening_candidate.get("cost", 0))
 	else:
 		# The future route also selects among the player and illusions and evaluates
@@ -10046,7 +10058,7 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 		if bool(anchor_details.get("dynamically_open", false)) and _enemy_action_reaches_target(state, candidate_enemy, attack_action, target):
 			return current
 		var current_target_distance: int = int(target_distances[current_tile])
-		var route: Array[Vector2i] = current["route"]
+		var route: Array[Vector2i] = TypedArrays.vector2i(current["route"])
 		for direction: Vector2i in PathUtils.DIRS_4:
 			var next_tile: Vector2i = current_tile + direction
 			if closed.has(next_tile):
@@ -10059,7 +10071,7 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 				continue
 			if route.has(next_tile):
 				continue
-			var next_route: Array[Vector2i] = route.duplicate()
+			var next_route: Array[Vector2i] = TypedArrays.vector2i(route.duplicate())
 			next_route.append(next_tile)
 			if not target_distances.has(next_tile):
 				target_distances[next_tile] = _enemy_distance_from_anchor(enemy, next_tile, target_tile)
@@ -10353,7 +10365,7 @@ func _enemy_projected_attack_tiles(state: Dictionary, enemy: Dictionary, action:
 	if terrain_index >= 0:
 		var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
 		return _vector2i_values([terrain.get("pos", INVALID_TILE)])
-	return []
+	return TypedArrays.vector2i([])
 
 func _compare_actor_targets(first: Dictionary, second: Dictionary) -> int:
 	if _actor_target_precedes(first, second):
@@ -10649,7 +10661,7 @@ func _conditional_attack_bonus_for_action_from_effects(
 	return total
 
 func _conditional_attack_modifiers_for_action(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
-	var modifiers: Array[Dictionary] = []
+	var modifiers: Array[Dictionary]
 	if str(action.get("type", "")) not in ATTACK_ACTION_TYPES:
 		return modifiers
 	var player: Dictionary = _normalized_player(state.get("player", {}))
@@ -11523,7 +11535,7 @@ func _set_turn_flag(state: Dictionary, key: String, value: Variant) -> void:
 	state["turn_flags"] = flags
 
 func _sorted_tiles_from_lookup(lookup: Dictionary) -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	for tile_var: Variant in lookup.keys():
 		if typeof(tile_var) == TYPE_VECTOR2I:
 			tiles.append(tile_var)
@@ -11596,11 +11608,11 @@ func _surface_action_tiles(state: Dictionary, action: Dictionary, target: Vector
 	pattern_action = SurfaceCardRules.facing_pattern_action(self, state, action, pattern_action, center)
 	return _best_aoe_tiles_for_target(state, pattern_action, center, false)
 
-func _place_action_surface(state: Dictionary, action: Dictionary, target: Vector2i, supplied_tiles: Array[Vector2i] = []) -> Dictionary:
+func _place_action_surface(state: Dictionary, action: Dictionary, target: Vector2i, supplied_tiles: Array[Vector2i] = TypedArrays.vector2i([])) -> Dictionary:
 	var surface: String = str(action.get("surface", ""))
 	if surface.is_empty():
 		return state
-	var footprint: Array[Vector2i] = supplied_tiles.duplicate()
+	var footprint: Array[Vector2i] = TypedArrays.vector2i(supplied_tiles.duplicate())
 	if footprint.is_empty() or action.has("surface_pattern"):
 		footprint = _surface_action_tiles(state, action, target)
 	var source: Dictionary = _surface_source(state, action)
@@ -12011,7 +12023,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 			consumed[tile] = used_conductors[tile]
 	return {"hits": hits, "used_conductors": used_conductors, "consumed": consumed}
 
-func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector2i, actor_kind: String = "player", actor_id: int = -1, trace: Dictionary = {}, supplied_impact: Array[Vector2i] = []) -> Dictionary:
+func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector2i, actor_kind: String = "player", actor_id: int = -1, trace: Dictionary = {}, supplied_impact: Array[Vector2i] = TypedArrays.vector2i([])) -> Dictionary:
 	return BoardAttackRules.resolve(self, state, action, target, actor_kind, actor_id, trace, supplied_impact)
 
 func _board_aoe_center(action: Dictionary, target: Vector2i, origin: Vector2i) -> Vector2i:
@@ -12036,8 +12048,8 @@ func _trigger_direct_attack_surface(state: Dictionary, action: Dictionary, targe
 		BoardSurfaceRules.place(state, target, str(effect.get("surface", "fire")), {"kind":"relic", "actor_kind":"player", "relic_id":effect.get("relic_id", "")})
 	return state
 
-func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vector2i, trace: Dictionary = {}, selected_override: Array[Vector2i] = []) -> Dictionary:
-	var selected: Array[Vector2i] = selected_override.duplicate()
+func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vector2i, trace: Dictionary = {}, selected_override: Array[Vector2i] = TypedArrays.vector2i([])) -> Dictionary:
+	var selected: Array[Vector2i] = TypedArrays.vector2i(selected_override.duplicate())
 	if selected.is_empty():
 		selected = _surface_action_tiles(state, action, target)
 	var fuel: String = SurfaceCardRules.detonate_fuel(action)
@@ -12333,6 +12345,7 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 		var actor: Dictionary = after_state["enemies"][enemy_index]
 		step = {"kind": "no_action", "action_type": str(action.get("type", "")), "actor_key": _enemy_key(actor), "actor_name": _enemy_display_name(actor), "tile": actor.get("pos", INVALID_TILE), "no_action_reason": str(action_context["no_action_reason"])}
 	SummonCardPlays.decorate_step(before_state, after_state, action, step, action_context)
+	preload("res://scripts/enemy_action_analytics.gd").decorate_step(self, before_state, after_state, enemy_index, action, step)
 	step = EnemyCastPresentation.decorate(step, before_state["enemies"][enemy_index])
 	step = RetaliateRules.decorate_attack_step(before_state, after_state, step)
 	if not CapacitorRules.grounded_targets(before_state, after_state).is_empty(): step["grounded_targets"] = CapacitorRules.grounded_targets(before_state, after_state)

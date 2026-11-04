@@ -29,6 +29,11 @@ const FIXTURE_BOSS_DEPTH: int = 8
 const PROFILE_PATH: String = "user://meta03-depth-suite-profile.json"
 const SAVE_PATH: String = "user://meta03-depth-suite-run.save"
 
+class PickerInputFixture extends "res://scripts/new_descent_panel.gd":
+	# Match MainMenu's early shortcut routing, then let native GUI focus handle A.
+	func _input(event: InputEvent) -> void:
+		if handle_input(event): get_viewport().set_input_as_handled()
+
 static func run(expect: Callable) -> void:
 	var protected_data: String = FileAccess.get_file_as_string(Rules.DATA_PATH)
 	_test_gates(expect)
@@ -432,7 +437,7 @@ static func _test_selection_save_failure(expect: Callable) -> void:
 
 static func _test_picker(expect: Callable) -> void:
 	var tree: SceneTree = Engine.get_main_loop() as SceneTree
-	var picker := Picker.new()
+	var picker := PickerInputFixture.new()
 	picker.configure(_profile(12), 3)
 	tree.root.add_child(picker)
 	await tree.process_frame
@@ -453,11 +458,7 @@ static func _test_picker(expect: Callable) -> void:
 	expect.call(picker.handle_input(pad) and picker.selected_depth == 3, "Controller LB decreases the selected depth")
 	var activated: Array[int]
 	picker.begin_requested.connect(func(value: int) -> void: activated.append(value))
-	key.keycode = KEY_ENTER
-	picker.handle_input(key)
-	pad.button_index = JOY_BUTTON_A
-	picker.handle_input(pad)
-	expect.call(activated.size() == 2 and activated[0] == 3 and activated[1] == 3, "Enter and controller A begin the chosen depth")
+	await _test_picker_activation(picker, activated, expect)
 	var cancelled: Array[bool]
 	picker.back_requested.connect(func() -> void: cancelled.append(true))
 	key.keycode = KEY_ESCAPE
@@ -492,6 +493,66 @@ static func _test_picker(expect: Callable) -> void:
 	picker.queue_free()
 	await tree.process_frame
 	_test_analytics(expect)
+
+static func _picker_input(picker: Control, event: InputEvent) -> void:
+	var viewport: Viewport = picker.get_viewport()
+	event.set("pressed", true)
+	viewport.push_input(event, true)
+	await picker.get_tree().process_frame
+	var release: InputEvent = event.duplicate()
+	release.set("pressed", false)
+	viewport.push_input(release, true)
+	await picker.get_tree().process_frame
+
+static func _test_picker_activation(picker: Control, activated: Array[int], expect: Callable) -> void:
+	var viewport: Viewport = picker.get_viewport()
+	var initial_depth: int = picker.selected_depth
+	var begin_button: Button = picker.find_child("DepthBegin", true, false)
+	expect.call(viewport.gui_get_focus_owner() == begin_button, "New Descent initially focuses Begin Descent")
+	var key := InputEventKey.new()
+	key.keycode = KEY_ENTER
+	await _picker_input(picker, key)
+	var pad := InputEventJoypadButton.new()
+	pad.button_index = JOY_BUTTON_A
+	# kb-03 routes A through native focused-control activation, not handle_input().
+	await _picker_input(picker, pad)
+	expect.call(activated.size() == 2 and activated[0] == initial_depth and activated[1] == initial_depth, "Enter and controller A begin the chosen depth")
+	var cancelled: Array[bool]
+	picker.back_requested.connect(func() -> void: cancelled.append(true))
+	pad.button_index = JOY_BUTTON_DPAD_LEFT
+	await _picker_input(picker, pad)
+	expect.call(viewport.gui_get_focus_owner() == picker.find_child("DepthBack", true, false), "D-pad moves initial Begin focus to Back")
+	pad.button_index = JOY_BUTTON_A
+	await _picker_input(picker, pad)
+	expect.call(cancelled.size() == 1 and activated.size() == 2, "A activates focused Back without beginning a descent")
+	pad.button_index = JOY_BUTTON_DPAD_UP
+	await _picker_input(picker, pad)
+	expect.call(viewport.gui_get_focus_owner() == picker.find_child("DepthPrevious", true, false), "D-pad reaches the previous-depth arrow from Back")
+	pad.button_index = JOY_BUTTON_A
+	await _picker_input(picker, pad)
+	expect.call(picker.selected_depth == initial_depth - 1 and activated.size() == 2, "A activates the focused depth arrow exactly once")
+	for id: String in ["DepthPrevious", "DepthNext", "DepthBack", "DepthBegin"]:
+		(picker.find_child(id, true, false) as Control).grab_focus()
+		for keycode: Key in [KEY_ENTER, KEY_KP_ENTER]:
+			var before: int = activated.size()
+			key.keycode = keycode
+			await _picker_input(picker, key)
+			expect.call(activated.size() == before + 1 and activated.back() == picker.selected_depth and cancelled.size() == 1, "Enter begins the chosen depth from %s" % id)
+	for field: Control in [LineEdit.new(), TextEdit.new()]:
+		picker.add_child(field)
+		field.grab_focus()
+		var before: int = activated.size()
+		for keycode: Key in [KEY_ENTER, KEY_KP_ENTER]:
+			key.keycode = keycode
+			key.pressed = true
+			expect.call(not picker.handle_input(key), "Enter remains available to the focused text field")
+			await _picker_input(picker, key)
+			expect.call(activated.size() == before, "Enter in a text field does not begin a descent")
+		picker.remove_child(field)
+		field.free()
+	picker.focus_begin()
+	picker.configure(_profile(12), initial_depth)
+	print("Depth picker input: initial Begin; routed A/Enter; D-pad Back/arrow; Enter/keypad from all four controls; LineEdit/TextEdit PASS")
 
 static func _test_analytics(expect: Callable) -> void:
 	var script = load("res://scripts/run_scene.gd")

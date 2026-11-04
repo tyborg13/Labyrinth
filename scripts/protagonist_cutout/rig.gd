@@ -18,7 +18,7 @@ var load_errors: PackedStringArray = []
 var skeleton: Skeleton2D
 var _loaded_facing: String = ""
 var _gear_base_parts: Dictionary = {}
-var _gear_attachments: Array[Sprite2D] = []
+var _gear_attachments: Array[Sprite2D]
 var _gear_mounts: Array[Dictionary]
 var _gear_clip: String = "idle"
 var _gear_phase: float = 0.0

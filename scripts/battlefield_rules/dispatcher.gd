@@ -1,5 +1,6 @@
 extends RefCounted
 ## One data-driven rule per fight. All caller-owned snapshots remain immutable.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Gust = preload("res://scripts/battlefield_rules/gust.gd")
 const Wildfire = preload("res://scripts/battlefield_rules/wildfire.gd")
 const Frostbite = preload("res://scripts/battlefield_rules/frostbite.gd")
@@ -111,7 +112,7 @@ static func adopt_wind(engine: RefCounted, state: Dictionary) -> void:
 	if not Gust.persistent(engine, state, value): instance["beats_remaining"] = int(value["rounds_left"])
 	install(engine, state, instance)
 
-static func dispatch(engine: RefCounted, state: Dictionary, anchor: String, actor_id: int = -1, intent_id: String = "", steps: Array[Dictionary] = [], player_turn: int = -1, accepted: Callable = Callable()) -> Dictionary:
+static func dispatch(engine: RefCounted, state: Dictionary, anchor: String, actor_id: int = -1, intent_id: String = "", steps: Array[Dictionary] = TypedArrays.dictionaries([]), player_turn: int = -1, accepted: Callable = Callable()) -> Dictionary:
 	clear_dead_source(state)
 	if engine.combat_outcome(state) != "": return state
 	var instance: Dictionary = active(state)
@@ -135,7 +136,7 @@ static func after_player_turn(engine: RefCounted, state: Dictionary, player_turn
 	var steps: Array[Dictionary]
 	return dispatch(engine, state, "after_player_turn", -1, "", steps, player_turn, accepted)
 
-static func fire(engine: RefCounted, state: Dictionary, steps: Array[Dictionary] = [], accepted: Callable = Callable()) -> Dictionary:
+static func fire(engine: RefCounted, state: Dictionary, steps: Array[Dictionary] = TypedArrays.dictionaries([]), accepted: Callable = Callable()) -> Dictionary:
 	if engine.combat_outcome(state) != "": return state
 	prepare(engine, state)
 	var instance: Dictionary = active(state)

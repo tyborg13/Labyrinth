@@ -104,7 +104,7 @@ static func entry_for_trap(trap: Dictionary) -> Dictionary:
 	return entry(str(ELEMENTAL_RANGED_SFX_IDS.get(element_id, "")))
 
 static func entries_for_traps(traps: Array) -> Array[Dictionary]:
-	var results: Array[Dictionary] = []
+	var results: Array[Dictionary]
 	var included_elements: Dictionary = {}
 	for trap_var: Variant in traps:
 		if typeof(trap_var) != TYPE_DICTIONARY:

@@ -116,6 +116,8 @@ var _receipt_detail: Label
 var _receipt_amount: Label
 var _receipt_tween: Tween
 var _intro_open: bool = true
+var _hidden_inventory_owner: Callable
+var _inventory_released: bool = false
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -136,6 +138,7 @@ func configure(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bo
 	_complete_configuration(performance_checkpoint, started)
 
 func _configure_context(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bool) -> void:
+	_hidden_inventory_owner = Callable()
 	_run_state = run_state.duplicate(true)
 	_run_engine = run_engine
 	if reduced_motion and not _reduced_motion:
@@ -166,6 +169,7 @@ func _complete_configuration(performance_checkpoint: Callable = Callable(), star
 	_sync_currency()
 	_sync_detail()
 	_sync_mode()
+	_inventory_released = false
 	started = _performance_checkpoint(performance_checkpoint, "detail_mode", started)
 	for button: Node in _canvas.find_children("*", "Button", true, false):
 		if button is ShopAction or button is Ware: button.set("reduced_motion", _reduced_motion)
@@ -180,6 +184,7 @@ func _complete_configuration(performance_checkpoint: Callable = Callable(), star
 static func prepare_hidden_for(shop: Control, state: Dictionary, engine: RefCounted, reduced: bool, present_frame: Callable, still_active: Callable, observer: Callable = Callable()) -> void:
 	if not _hidden_preparation_active(shop, still_active): return
 	shop._configure_context(state, engine, reduced)
+	shop._hidden_inventory_owner = still_active
 	var jobs: Array[Callable] = shop._inventory_shelf_jobs()
 	var slice_started: int = Time.get_ticks_usec()
 	for job: Callable in jobs:
@@ -211,6 +216,9 @@ static func _hidden_preparation_active(shop: Variant, still_active: Callable) ->
 	return is_instance_valid(shop) and shop.is_inside_tree() and not shop.is_queued_for_deletion() and not shop.visible and bool(still_active.call())
 
 func present() -> void:
+	if _inventory_released and _run_engine != null:
+		configure(_run_state, _run_engine, _reduced_motion)
+	_hidden_inventory_owner = Callable()
 	visible = true
 	if not _entry_played_for_room:
 		call_deferred("_play_entry")
@@ -224,6 +232,29 @@ func dismiss_immediately() -> void:
 func _clear_purchase_effects_if_closed() -> void:
 	if not visible:
 		_clear_children(_purchase_effects)
+		_release_closed_inventory()
+
+func _release_closed_inventory() -> void:
+	# Travel owns a hidden destination until arrival or cancellation. Ordinary
+	# dismiss/configure/present refreshes stay live and never reach this cleanup.
+	if visible or _magic_group == null: return
+	if _hidden_inventory_owner.is_valid() and bool(_hidden_inventory_owner.call()): return
+	_hidden_inventory_owner = Callable()
+	for key: String in _offer_sources.keys(): _forget_offer(key)
+	for tween: Tween in _slot_tweens.values():
+		if tween != null and tween.is_valid(): tween.kill()
+	_slot_tweens.clear()
+	_offer_sources.clear()
+	_selection_effects.clear()
+	for kind: String in [MAGIC, GEAR, ITEM]: _clear_shelf(kind)
+	_clear_children(_sell_row)
+	_sell_page_signature = ""
+	_clear_children(_detail_card_host)
+	_rendered_detail_card_id = ""
+	_selected_source = null
+	_inventory_released = true
+	# Keep the logical selection/page/filter, room entry flag and receipt. The
+	# next configure rebuilds the same view without changing its input or paint.
 
 func purchase_origin(item_id: String, source: Control) -> Rect2:
 	if not is_instance_valid(source) or not source.is_inside_tree():
@@ -1411,6 +1442,14 @@ func _configure_focus_neighbors() -> void:
 	_set_focus_neighbor(_mode_sell, SIDE_LEFT, _mode_buy)
 	_set_focus_neighbor(_mode_sell, SIDE_RIGHT, _leave_button)
 	_set_focus_neighbor(_mode_sell, SIDE_TOP, last)
+	# Inspecting a ware rebuilds these links after the Purge service installs
+	# itself. Keep the service in the live graph on every detail refresh.
+	var purge: Control = find_child("ScavengerPurge", true, false) as Control
+	if purge != null and purge.is_visible_in_tree() and not purge.disabled:
+		_set_focus_neighbor(_mode_sell, SIDE_RIGHT, purge)
+		_set_focus_neighbor(_leave_button, SIDE_LEFT, purge)
+		_set_focus_neighbor(purge, SIDE_LEFT, _mode_sell)
+		_set_focus_neighbor(purge, SIDE_RIGHT, _leave_button)
 
 func _configure_offer_row(
 	row: Array[Control],

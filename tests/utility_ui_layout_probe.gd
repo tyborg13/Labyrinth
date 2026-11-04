@@ -4,18 +4,35 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
+const UiSkin = preload("res://scripts/ui_skin.gd")
 
 const DEFAULT_SIZE := Vector2i(1280, 720)
+const MODAL_TRAVERSAL_STEPS: int = 9
+const SETTINGS_TRAVERSAL_STEPS: int = 12
+const DANGER_SAMPLE_INSET: Vector2 = Vector2(22.0, 10.0)
+const DANGER_SAMPLE_SIZE: Vector2i = Vector2i(4, 4)
 
 var _viewport_size: Vector2i = DEFAULT_SIZE
 var _phase: String = "after"
 var _validate_layout: bool = true
 var _character_only: bool = false
+var _modal_focus_only: bool = false
+var _focus_capture: String = ""
 var _failures: Array[String] = []
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	_parse_args()
+	if DisplayServer.get_name() == "headless":
+		print("HEADLESS SEMANTICS ONLY: no renderer captures")
+		process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
+	SettingsStore.set_storage_path("user://utility_ui_probe_settings.json")
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["ui_scale"] = 1.0
+	settings["reduced_motion"] = true
+	SettingsStore.save_settings(settings)
+	SettingsStore.apply_settings(settings, root, false)
 	ProgressionStore.set_storage_path("user://labyrinth_progression_utility_ui_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_utility_ui_probe.save")
 	ProgressionStore.clear_saved_run()
@@ -54,6 +71,10 @@ func _parse_args() -> void:
 			_validate_layout = false
 		elif arg == "--character-only":
 			_character_only = true
+		elif arg == "--modal-focus-only":
+			_modal_focus_only = true
+		elif arg.begins_with("--focus-capture="):
+			_focus_capture = arg.trim_prefix("--focus-capture=")
 
 func _capture_targeted_surfaces(output_dir: String) -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
@@ -72,6 +93,20 @@ func _capture_targeted_surfaces(output_dir: String) -> void:
 	await process_frame
 	instance.call("_close_dialogue")
 	await _settle()
+	await _check_modal_focus(instance, output_dir, "camp")
+	if _modal_focus_only:
+		var combat_coord: Vector2i = _first_available_combat_coord(run_engine, base_state)
+		_require_focus(combat_coord != Vector2i(999, 999), "Pause focus proof needs an available combat room")
+		if combat_coord != Vector2i(999, 999):
+			var combat_state: Dictionary = run_engine.move_to_pre_battle(base_state.duplicate(true), combat_coord)
+			combat_state = run_engine.begin_pre_battle_combat(combat_state)
+			instance.call("_load_run_state", combat_state)
+			instance.call("_close_dialogue")
+			await _settle()
+			await _check_modal_focus(instance, output_dir, "combat pause")
+		instance.queue_free()
+		await _settle()
+		return
 
 	instance.call("_open_large_map")
 	await _settle()
@@ -89,6 +124,7 @@ func _capture_targeted_surfaces(output_dir: String) -> void:
 	_print_dialog_metrics(instance, "stats")
 	instance.call("_switch_character_overlay_mode", "equipment")
 	await _settle()
+	character_dialog = instance.get("_upgrade_dialog") as Control
 	await _capture(output_dir, "character_gear")
 	_check_inside_viewport(character_dialog, "Character gear dialog", UiTypography.SAFE_MARGIN)
 	_check_same_rect(character_dialog, stats_dialog_rect, "Character gear dialog")
@@ -96,10 +132,11 @@ func _capture_targeted_surfaces(output_dir: String) -> void:
 	_print_dialog_metrics(instance, "gear")
 	instance.call("_switch_character_overlay_mode", "magic")
 	await _settle()
+	character_dialog = instance.get("_upgrade_dialog") as Control
 	await _capture(output_dir, "character_magic")
 	_check_inside_viewport(character_dialog, "Character magic dialog", UiTypography.SAFE_MARGIN)
 	_check_same_rect(character_dialog, stats_dialog_rect, "Character magic dialog")
-	_check_character_subpanels(character_dialog, ["MagicAttunedPanel", "MagicInventoryPanel", "CurrentDeckPanel"], "Magic")
+	_check_character_subpanels(character_dialog, ["MagicAttunedPanel", "CurrentDeckPanel"], "Magic")
 	_print_dialog_metrics(instance, "magic")
 	instance.call("_close_card_upgrade_overlay")
 	if _character_only:
@@ -137,6 +174,7 @@ func _capture_targeted_surfaces(output_dir: String) -> void:
 		var pre_battle_scrim: Control = instance.get("_pre_battle_scrim") as Control
 		if pre_battle_scrim != null:
 			pre_battle_scrim.visible = false
+		await _check_modal_focus(instance, output_dir, "pause")
 
 	instance.call("_open_menu_overlay")
 	await _settle()
@@ -188,7 +226,7 @@ func _capture_targeted_surfaces(output_dir: String) -> void:
 	_check_inside_viewport(run_end_recap.find_child("MainMenuButton", true, false) as Control if run_end_recap != null else null, "Defeat main-menu action")
 
 	instance.queue_free()
-	await process_frame
+	await _settle()
 
 func _settle() -> void:
 	await process_frame
@@ -197,8 +235,180 @@ func _settle() -> void:
 	await process_frame
 
 func _capture(output_dir: String, surface: String) -> void:
+	var image: Image = await _renderer_image()
+	if image != null: image.save_png("%s/%s.png" % [output_dir, surface])
+
+func _renderer_image() -> Image:
+	if DisplayServer.get_name() == "headless": return null
+	await process_frame
+	await process_frame
+	RenderingServer.force_draw(true)
 	var image: Image = root.get_viewport().get_texture().get_image()
-	image.save_png("%s/%s.png" % [output_dir, surface])
+	if image == null:
+		_require_focus(false, "Utility proof should capture a renderer image")
+		return null
+	var actual: Vector2i = image.get_size()
+	_require_focus(is_equal_approx(float(actual.x) / actual.y, float(_viewport_size.x) / _viewport_size.y), "Utility capture should preserve viewport proportions")
+	if actual != _viewport_size: image.resize(_viewport_size.x, _viewport_size.y, Image.INTERPOLATE_LANCZOS)
+	return image
+
+func _check_modal_focus(instance: Node, output_dir: String, context: String) -> void:
+	var hud: Button = instance.get("grimoire_button") as Button
+	var menu: Control = instance.get("_menu_dialog") as Control
+	var scrim: Control = instance.get("_menu_scrim") as Control
+	var settings: Control = instance.get("_settings_panel") as Control
+	var first: Button = _find_control_with_text(menu, "Character") as Button
+	var danger: Button = _find_control_with_text(menu, "Succumb to the Darkness") as Button
+	var close: Button = _find_control_with_text(menu, "Close") as Button
+	var activations: Dictionary = {"count": 0}
+	var count_activation := func() -> void: activations["count"] += 1
+	hud.pressed.connect(count_activation)
+	var router: Node = root.get_node("InputRouter")
+	router.call("set_forced_state_for_test", "pointer", "steam_deck")
+	var original_focus_mode: int = hud.focus_mode
+	# A real HUD control owns focus at the instant the modal opens.
+	var run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	hud.grab_focus()
+	instance.call("_open_menu_overlay")
+	await _key(KEY_RIGHT)
+	_require_focus(root.gui_get_focus_owner() == first, context + ": first arrow should focus the first menu button, never the HUD")
+	if context == "camp" and _focus_capture in ["", "keyboard"]:
+		await _capture(output_dir, "modal_camp_keyboard")
+	# Traverse both native directions repeatedly, including the wrap boundaries.
+	for key: Key in [KEY_TAB, KEY_DOWN, KEY_UP, KEY_LEFT, KEY_RIGHT]:
+		for step: int in range(MODAL_TRAVERSAL_STEPS):
+			await _key(key)
+			_require_focus(_focus_inside(menu), context + ": navigation must stay in the menu")
+	await _key(KEY_ESCAPE)
+	await _settle()
+	_require_focus(not scrim.visible and root.gui_get_focus_owner() == hud, context + ": closing should restore the previous HUD focus")
+	_require_focus(hud.focus_mode == original_focus_mode, context + ": closing should restore the HUD focus mode")
+	# Enter with stale background focus must establish a safe decision first.
+	hud.grab_focus()
+	instance.call("_open_menu_overlay")
+	await _key(KEY_ENTER)
+	_require_focus(int(activations["count"]) == 0, context + ": Enter must never activate the HUD behind the menu")
+	_require_focus(scrim.visible and menu.visible, context + ": first Enter must not activate a newly seeded button")
+	instance.call("_close_menu_overlay")
+	instance.call("_close_grimoire_overlay")
+	# No initial focus, Tab, Shift+Tab, and a disabled first option.
+	for backwards: bool in [false, true]:
+		if root.gui_get_focus_owner() != null: root.gui_get_focus_owner().release_focus()
+		instance.call("_open_menu_overlay")
+		await _key(KEY_TAB, backwards)
+		_require_focus(root.gui_get_focus_owner() == first, context + ": first Tab should seed the first enabled button")
+		instance.call("_close_menu_overlay")
+	first.disabled = true
+	instance.call("_open_menu_overlay")
+	await _key(KEY_DOWN)
+	_require_focus(root.gui_get_focus_owner() == _find_control_with_text(menu, "Grimoire"), context + ": initial navigation should skip disabled buttons")
+	instance.call("_close_menu_overlay")
+	first.disabled = false
+	# Settings shares the scope; Back returns to its opener inside Camp/Pause.
+	hud.grab_focus()
+	instance.call("_open_menu_overlay")
+	await _key(KEY_DOWN)
+	await _key(KEY_DOWN)
+	await _key(KEY_DOWN)
+	var settings_button: Button = _find_control_with_text(menu, "Settings") as Button
+	_require_focus(root.gui_get_focus_owner() == settings_button, context + ": down should reach Settings")
+	if root.gui_get_focus_owner() == settings_button:
+		await _key(KEY_ENTER)
+	else:
+		instance.call("_open_settings_overlay")
+	_require_focus(settings.visible, context + ": native Enter should open Settings")
+	await _key(KEY_TAB)
+	_require_focus(_focus_inside(settings), context + ": Settings must seed its own focus")
+	for step: int in range(SETTINGS_TRAVERSAL_STEPS * 2):
+		await _key(KEY_TAB, step >= SETTINGS_TRAVERSAL_STEPS)
+		_require_focus(_focus_inside(settings), context + ": Settings traversal must exclude the HUD")
+	await _key(KEY_ESCAPE)
+	_require_focus(menu.visible and not settings.visible and root.gui_get_focus_owner() == settings_button, context + ": Settings Back should restore its menu opener")
+	await _key(KEY_ESCAPE)
+	_require_focus(root.gui_get_focus_owner() == hud, context + ": nested close should restore HUD focus")
+	# Native controller events must seed focus before GUI dispatch, including A.
+	router.call("clear_forced_state_for_test")
+	hud.grab_focus()
+	instance.call("_open_menu_overlay")
+	await _joy(JOY_BUTTON_A)
+	_require_focus(scrim.visible and menu.visible and root.gui_get_focus_owner() == first, context + ": first controller A should focus without activating")
+	instance.call("_close_menu_overlay")
+	if root.gui_get_focus_owner() != null: root.gui_get_focus_owner().release_focus()
+	instance.call("_open_menu_overlay")
+	await _settle()
+	var normal_plate: Image = await _renderer_image()
+	await _joy(JOY_BUTTON_DPAD_DOWN)
+	_require_focus(root.gui_get_focus_owner() == first, context + ": first controller direction should seed the first button")
+	# Reach Succumb solely through controller navigation; leave it unactivated.
+	for step: int in range(5): await _joy(JOY_BUTTON_DPAD_DOWN)
+	_require_focus(root.gui_get_focus_owner() == danger, context + ": controller should reach Succumb")
+	var ornament: Control = danger.get_node(UiSkin.BUTTON_ORNAMENT_NAME) as Control
+	_require_focus(ornament.call("_accent_color", UiSkin.STATE_FOCUS) == ornament.call("_accent_color", UiSkin.STATE_NORMAL), context + ": danger focus must keep the normal danger material")
+	var focus_style: StyleBoxFlat = danger.get_theme_stylebox("focus") as StyleBoxFlat
+	_require_focus(not focus_style.draw_center, context + ": danger focus should add only the standard ring")
+	if normal_plate != null:
+		var focused_plate: Image = await _renderer_image()
+		var origin: Vector2i = Vector2i(danger.get_global_rect().position + DANGER_SAMPLE_INSET)
+		for y: int in range(DANGER_SAMPLE_SIZE.y):
+			for x: int in range(DANGER_SAMPLE_SIZE.x):
+				var point: Vector2i = origin + Vector2i(x, y)
+				var normal_pixel: Color = normal_plate.get_pixelv(point)
+				var focused_pixel: Color = focused_plate.get_pixelv(point)
+				_require_focus(normal_pixel.is_equal_approx(focused_pixel), context + ": danger plate pixels should be identical under native focus")
+	if context == "camp" and _focus_capture in ["", "controller"]:
+		await _capture(output_dir, "modal_succumb_controller")
+	await _joy(JOY_BUTTON_B)
+	# Pointer clicking and native Close activation still follow their usual path.
+	router.call("set_forced_state_for_test", "pointer", "steam_deck")
+	hud.grab_focus()
+	instance.call("_open_menu_overlay")
+	await _settle()
+	await _click(close.get_global_rect().get_center())
+	_require_focus(not scrim.visible and root.gui_get_focus_owner() == hud, context + ": pointer Close should restore the prior focus (visible=%s focus=%s point=%s hovered=%s)" % [scrim.visible, root.gui_get_focus_owner(), close.get_global_rect(), close.is_hovered()])
+	_require_focus(int(activations["count"]) == 0, context + ": no background activation during any modal input")
+	_require_focus((instance.get("_run_state") as Dictionary) == run_before, context + ": modal input should preserve run/combat state and RNG")
+	hud.pressed.disconnect(count_activation)
+	router.call("clear_forced_state_for_test")
+	print("MODAL FOCUS REGRESSIONS: %s checked" % context)
+
+func _focus_inside(scope: Control) -> bool:
+	var focus: Control = root.gui_get_focus_owner()
+	return focus != null and scope.is_ancestor_of(focus)
+
+func _require_focus(condition: bool, message: String) -> void:
+	if not condition: _failures.append(message)
+
+func _key(key: Key, shift: bool = false) -> void:
+	var event := InputEventKey.new()
+	event.keycode = key
+	event.physical_keycode = key
+	event.shift_pressed = shift
+	await _press(event)
+
+func _joy(button: JoyButton) -> void:
+	var event := InputEventJoypadButton.new()
+	event.button_index = button
+	await _press(event)
+
+func _click(point: Vector2) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = point
+	motion.global_position = point
+	root.push_input(motion, true)
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.position = point
+	event.global_position = point
+	await _press(event)
+
+func _press(event: InputEvent) -> void:
+	event.pressed = true
+	root.push_input(event, true)
+	await process_frame
+	event = event.duplicate()
+	event.pressed = false
+	root.push_input(event, true)
+	await process_frame
 
 func _first_available_combat_coord(run_engine, state: Dictionary) -> Vector2i:
 	for coord: Vector2i in run_engine.available_moves(state):

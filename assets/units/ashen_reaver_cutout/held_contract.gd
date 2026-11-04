@@ -7,6 +7,7 @@ const Motion = preload("res://scripts/maquette_cutout_runtime/motion.gd")
 const Pixels = preload("res://scripts/maquette_cutout_runtime/pixel_presentation.gd")
 const Grip = preload("res://scripts/maquette_cutout_runtime/humanoid_grip.gd")
 const Drop = preload("held_drop.gd")
+const Paint = preload("weapon_paint.gd")
 
 static func world_transforms(data: Dictionary, clip: String, phase: float, layout: Dictionary, facing: String, released: bool = true, follow_held: bool = true) -> Dictionary:
 	var world: Dictionary = Humanoid.world_transforms(data, clip, phase, layout, facing, released, follow_held)
@@ -28,6 +29,7 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 	return world
 
 static func authored(rig: Node2D, clip: String, phase: float) -> void:
+	Paint.apply(rig, clip, phase, true)
 	rig.layout.erase("_locked_grips")
 	rig.layout.erase("_painted_floor_pose")
 	var data: Dictionary = Motion.data_for(rig.layout)
@@ -42,7 +44,8 @@ static func authored(rig: Node2D, clip: String, phase: float) -> void:
 		var drop: Dictionary = data["view_held_drops"][rig.facing][clip]["falchion"]
 		rig.layout["_painted_floor_pose"] = {"landed": phase >= float(drop["land"]), "transform": world["falchion"]}
 
-static func presented(rig: Node2D, clip: String) -> void:
+static func presented(rig: Node2D, clip: String, phase: float) -> void:
+	Paint.apply(rig, clip, phase)
 	var source: Transform2D = rig.global_transform.affine_inverse()
 	var world: Dictionary = {}
 	for name: String in rig.bones: world[name] = source * (rig.bones[name] as Bone2D).global_transform
@@ -55,9 +58,10 @@ static func presented(rig: Node2D, clip: String) -> void:
 	var travel: Vector2 = Pixels.movement_offset(rig.layout, clip)
 	for part: Dictionary in rig.layout["parts"]:
 		if part["bone"] != "falchion": continue
+		var active: Dictionary = Paint.part_at(part, clip, phase)
 		var reference: Vector2 = Motion.point(part.get("presentation_anchor", part["offset"]))
 		var anchor: Transform2D = pose * Transform2D(0.0, reference - Motion.point(rig.layout["joints"]["falchion"]["position"]))
 		if locked: anchor = Grip.sprite_anchor(world, rig.layout, "falchion")
 		elif not landed: anchor = Pixels.snapped_transform(anchor, NAN, travel)
-		var final: Transform2D = anchor * Transform2D(0.0, Motion.point(part["offset"]) - reference)
+		var final: Transform2D = anchor * Transform2D(0.0, Motion.point(active["offset"]) - reference)
 		(rig.bones["falchion"].get_node(NodePath(part["name"])) as Sprite2D).transform = pose.affine_inverse() * final

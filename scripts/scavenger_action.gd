@@ -79,6 +79,10 @@ func prepare_label() -> void:
 		_label.size = Vector2(size.x - inset * 2 - reserve, size.y - 14)
 		Materials.shade(_label, font_size, _label.size.y)
 		_label.text = text
+	# Price uses the same strap inset and lift as its caption, including hidden
+	# preparation and the first frame after installing or refreshing the service.
+	if is_instance_valid(trailing):
+		trailing.position = Vector2(size.x - _label.position.x - trailing.size.x, (size.y - trailing.size.y) * 0.5 - _lift)
 
 func _draw() -> void:
 	var rect := Rect2(Vector2(0, -_lift), size)

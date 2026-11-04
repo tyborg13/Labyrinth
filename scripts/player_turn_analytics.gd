@@ -6,6 +6,12 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 
+static func hold_receipts(store: RefCounted, run_state: Dictionary) -> void:
+	var receipts: Array[Dictionary]
+	for event: Dictionary in ProgressionStore.progression_analytics_outbox(run_state.get("progression", {})):
+		if str(event.get("event_type", "")) == "player_turn_ended": receipts.append(event)
+	store.hold_ordered_receipts(receipts)
+
 static func payload(engine: RefCounted, before: Dictionary, scheduled: Dictionary, end_reason: String) -> Dictionary:
 	var effects: Array[Dictionary] = GameData.relic_effects_for_state(before)
 	var plays_made: int = maxi(0, int(before.get("cards_played_this_turn", 0)) - int(before.get("plays_forfeited_this_turn", 0)))

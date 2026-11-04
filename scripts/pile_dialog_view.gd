@@ -26,6 +26,23 @@ const COPY_BADGE_DISC_ALPHA: float = 0.92
 # Above CardWidget's hover lift and its child ornaments.
 const COPY_BADGE_Z_INDEX: int = 40
 
+static func controller_controls(host: Node) -> Array[Control]:
+	var result: Array[Control]
+	for control: Control in [host.draw_pile, host.discard_pile, host.burn_pile]:
+		if control.is_visible_in_tree(): result.append(control)
+	if host._pass_preview_overlay != null:
+		for control: Control in host._pass_preview_overlay.get_children():
+			if control is BaseButton and control.is_visible_in_tree(): result.append(control)
+	return result
+
+static func activate_controller_control(control: Control) -> void:
+	# Piles are native Controls rather than Buttons. Use their existing accept
+	# handler so controller activation keeps the same gating and feedback.
+	var event := InputEventJoypadButton.new()
+	event.button_index = JOY_BUTTON_A
+	event.pressed = true
+	control.gui_input.emit(event)
+
 class CopyCountFace extends Control:
 	var _ring := TextureRect.new()
 	var _geometry: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(Socket.GEOMETRY_PATH)) as Dictionary

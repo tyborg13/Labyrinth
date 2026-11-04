@@ -2,6 +2,7 @@ extends "res://tools/encounter_bot.gd".Policy
 ## Keep the historical policy-v2 file byte-frozen. This companion retains its
 ## decisions and scores while accepting only the selected action transitions.
 ## Selected targets live in decision metadata, never in combat/save dictionaries.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Frozen = preload("res://tools/encounter_bot.gd")
 const Committed = preload("res://scripts/battlefield_rules/committed.gd")
 
@@ -35,7 +36,7 @@ func planned_branches(state: Dictionary, actions: Array, index: int, effect: boo
 	for candidate: Dictionary in candidates.slice(0, Frozen.MAX_ACTION_TARGETS):
 		result.append_array(planned_branches(candidate["state"], actions, index + 1, true, candidate["targets"]))
 		if result.size() >= Frozen.MAX_CARD_BRANCHES: break
-	return result.slice(0, Frozen.MAX_CARD_BRANCHES)
+	return TypedArrays.dictionaries(result.slice(0, Frozen.MAX_CARD_BRANCHES))
 
 func choose(state: Dictionary) -> Dictionary:
 	last_preview_count = 0

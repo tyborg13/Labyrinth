@@ -1,6 +1,7 @@
 extends RefCounted
 class_name RoomGenerator
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const SnareRooms = preload("res://scripts/snare_room_rules.gd")
 const WarbandRooms = preload("res://scripts/warband_room_rules.gd")
@@ -31,8 +32,8 @@ const TERRAIN_HP: int = 3
 const TERRAIN_TARGET_COUNT_MIN: int = 5
 const TERRAIN_TARGET_COUNT_MAX: int = 7
 # Boss-depth traps stay below first-boss wisp HP while still beating weak ranged pokes.
-const TRAP_DAMAGE_BY_ENCOUNTER_DEPTH: Array[int] = [6, 7, 8, 5]
-const TRAP_DAMAGE_BONUS_BY_SEQUENCE: Array[int] = [0, 1, 1, 2, 2, 3]
+const TRAP_DAMAGE_BY_ENCOUNTER_DEPTH: Array[int] = Array([6, 7, 8, 5], TYPE_INT, "", null)
+const TRAP_DAMAGE_BONUS_BY_SEQUENCE: Array[int] = Array([0, 1, 1, 2, 2, 3], TYPE_INT, "", null)
 
 const TILE_STONE: String = "stone"
 const TILE_EMBER: String = "ember"
@@ -79,7 +80,7 @@ const TEMPLATE_LIBRARY: Array = [
 	]
 ]
 
-const ROOM_NAME_PREFIXES: Array[String] = [
+const ROOM_NAME_PREFIXES: Array[String] = Array([
 	"Quiet",
 	"Bleak",
 	"Shuttered",
@@ -88,9 +89,9 @@ const ROOM_NAME_PREFIXES: Array[String] = [
 	"Hollow",
 	"Sooted",
 	"Sealed"
-]
+], TYPE_STRING, "", null)
 
-const ROOM_NAME_SUFFIXES: Array[String] = [
+const ROOM_NAME_SUFFIXES: Array[String] = Array([
 	"Vault",
 	"Gallery",
 	"Antechamber",
@@ -99,7 +100,7 @@ const ROOM_NAME_SUFFIXES: Array[String] = [
 	"Sanctum",
 	"Hall",
 	"Grotto"
-]
+], TYPE_STRING, "", null)
 
 func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dictionary:
 	var depth: int = int(room.get("depth", 1))
@@ -154,10 +155,10 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		objective["reinforcement_pool"] = _unique_enemy_types(enemy_types)
 	objective["initial_enemy_count"] = enemy_types.size()
 	var objective_exit_tiles: Array[Vector2i] = CombatObjectiveRules.exit_target_tiles(objective)
-	var braziers: Array[Vector2i] = _last_light_braziers(grid, room, player_start, rng) if last_light else _empty_tiles()
+	var braziers: Array[Vector2i] = TypedArrays.vector2i(_last_light_braziers(grid, room, player_start, rng) if last_light else _empty_tiles())
 	if last_light: moss = _generate_moss_overlays(grid, run_seed, coord, room_type)
 	var placement_grid: Array = _grid_without_tiles(grid, braziers) if last_light else grid
-	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(placement_grid, player_start, enemy_types.size(), rng, objective_exit_tiles, table_encounter)
+	var enemy_positions: Array[Vector2i] = TypedArrays.vector2i(_pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(placement_grid, player_start, enemy_types.size(), rng, objective_exit_tiles, table_encounter))
 	if warband or hoarder:
 		for attempt: int in range(WarbandRooms.MAX_PLACEMENT_ATTEMPTS):
 			enemy_positions = WarbandRooms.positions(grid, player_start, enemy_types.size(), ENEMY_SPAWN_SAFE_RADIUS, rng, enemy_types[0] == "storm_capacitor")
@@ -189,11 +190,11 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 				for x: int in range(1, ROOM_WIDTH - 1): grid[y][x] = TILE_STONE
 			formation = _snare_formation(grid, player_start, objective)
 		assert(not formation.is_empty(), "No legal Snare formation")
-		enemy_positions = formation["positions"]
+		enemy_positions = TypedArrays.vector2i(formation["positions"])
 		objective["exits"] = formation["exits"]
 		moss = _generate_moss_overlays(grid, run_seed, coord, room_type)
 	if table_encounter: assert(enemy_positions.size() == enemy_types.size(), "Section encounter placement lost units")
-	var enemies: Array[Dictionary] = []
+	var enemies: Array[Dictionary]
 	for index: int in range(enemy_types.size()):
 		var enemy_type: String = str(enemy_types[index])
 		var enemy_max_hp: int = _scaled_enemy_max_hp(enemy_type, depth)
@@ -376,7 +377,7 @@ func _base_grid(rng: RandomNumberGenerator) -> Array:
 	rng.randf()
 	var grid: Array = []
 	for y: int in range(ROOM_HEIGHT):
-		var row: Array[String] = []
+		var row: Array[String]
 		for x: int in range(ROOM_WIDTH):
 			var tile_id: String = TILE_STONE
 			if x == 0 or y == 0 or x == ROOM_WIDTH - 1 or y == ROOM_HEIGHT - 1:
@@ -447,12 +448,12 @@ func _pillar_has_cardinal_neighbor(grid: Array, tile: Vector2i) -> bool:
 	return false
 
 func _corner_pillar_tiles() -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = [
+	var tiles: Array[Vector2i] = TypedArrays.vector2i([
 		Vector2i(2, 2),
 		Vector2i(ROOM_WIDTH - 3, 2),
 		Vector2i(2, ROOM_HEIGHT - 3),
 		Vector2i(ROOM_WIDTH - 3, ROOM_HEIGHT - 3)
-	]
+	])
 	return tiles
 
 func _apply_boss_layout(grid: Array) -> void:
@@ -468,7 +469,7 @@ func _apply_boss_layout(grid: Array) -> void:
 		grid[pillar_tile.y][pillar_tile.x] = TILE_PILLAR
 
 func _campfire_inner_tiles() -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	for y: int in range(3, 6):
 		for x: int in range(3, 6):
 			tiles.append(Vector2i(x, y))
@@ -488,7 +489,7 @@ func _select_floor_moss_tiles(grid: Array, run_seed: int, coord: Vector2i, room_
 	if room_type == "campfire":
 		for campfire_tile: Vector2i in _campfire_inner_tiles():
 			protected_tiles[campfire_tile] = true
-	var candidates: Array[Vector2i] = []
+	var candidates: Array[Vector2i]
 	for y: int in range(1, ROOM_HEIGHT - 1):
 		for x: int in range(1, ROOM_WIDTH - 1):
 			var tile := Vector2i(x, y)
@@ -498,7 +499,7 @@ func _select_floor_moss_tiles(grid: Array, run_seed: int, coord: Vector2i, room_
 				continue
 			candidates.append(tile)
 	if candidates.is_empty():
-		return []
+		return TypedArrays.vector2i([])
 	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
 		return _floor_accent_score(run_seed, coord, a) < _floor_accent_score(run_seed, coord, b)
 	)
@@ -523,7 +524,7 @@ func _select_floor_moss_tiles(grid: Array, run_seed: int, coord: Vector2i, room_
 	return _vector2i_keys(chosen)
 
 func _select_wall_moss_tiles(grid: Array, run_seed: int, coord: Vector2i) -> Array[Vector2i]:
-	var candidates: Array[Vector2i] = []
+	var candidates: Array[Vector2i]
 	for y: int in range(ROOM_HEIGHT):
 		for x: int in range(ROOM_WIDTH):
 			var tile := Vector2i(x, y)
@@ -535,7 +536,7 @@ func _select_wall_moss_tiles(grid: Array, run_seed: int, coord: Vector2i) -> Arr
 				continue
 			candidates.append(tile)
 	if candidates.is_empty():
-		return []
+		return TypedArrays.vector2i([])
 	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
 		return _floor_accent_score(run_seed, coord, a, 101) < _floor_accent_score(run_seed, coord, b, 101)
 	)
@@ -550,7 +551,7 @@ func _select_wall_moss_tiles(grid: Array, run_seed: int, coord: Vector2i) -> Arr
 	return _vector2i_keys(chosen)
 
 func _select_pillar_moss_tiles(grid: Array, run_seed: int, coord: Vector2i) -> Array[Vector2i]:
-	var candidates: Array[Vector2i] = []
+	var candidates: Array[Vector2i]
 	for y: int in range(1, ROOM_HEIGHT - 1):
 		for x: int in range(1, ROOM_WIDTH - 1):
 			var tile := Vector2i(x, y)
@@ -558,7 +559,7 @@ func _select_pillar_moss_tiles(grid: Array, run_seed: int, coord: Vector2i) -> A
 				continue
 			candidates.append(tile)
 	if candidates.is_empty():
-		return []
+		return TypedArrays.vector2i([])
 	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
 		return _floor_accent_score(run_seed, coord, a, 211) < _floor_accent_score(run_seed, coord, b, 211)
 	)
@@ -588,7 +589,7 @@ func _selected_moss_neighbor_count(chosen: Dictionary, tile: Vector2i) -> int:
 	return neighbors
 
 func _vector2i_keys(source: Dictionary) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+	var result: Array[Vector2i]
 	for tile_var: Variant in source.keys():
 		if typeof(tile_var) == TYPE_VECTOR2I:
 			result.append(tile_var)
@@ -620,7 +621,7 @@ func _transform_cell(cell: Vector2i, rotation_steps: int, mirrored: bool) -> Vec
 	return centered + Vector2i(4, 4)
 
 func _reachable_floor_count(grid: Array, start: Vector2i) -> int:
-	var queue: Array[Vector2i] = []
+	var queue: Array[Vector2i]
 	queue.append(start)
 	var visited: Dictionary = {start: true}
 	while not queue.is_empty():
@@ -686,7 +687,7 @@ func _objective_adjusted_enemy_types(enemy_types: Array, objective: Dictionary, 
 	if not adjusted.has("chainbound_gaoler"):
 		adjusted.append("chainbound_gaoler")
 		extra_count -= 1
-	var blocker_pool: Array[String] = ["warden", "harrier", "crawler", "acolyte"]
+	var blocker_pool: Array[String] = TypedArrays.strings(["warden", "harrier", "crawler", "acolyte"])
 	while extra_count > 0:
 		var pool_index: int = posmod(rng.randi() + encounter_depth + extra_count, blocker_pool.size())
 		adjusted.append(blocker_pool[pool_index])
@@ -694,7 +695,7 @@ func _objective_adjusted_enemy_types(enemy_types: Array, objective: Dictionary, 
 	return adjusted
 
 func _unique_enemy_types(enemy_types: Array) -> Array[String]:
-	var unique: Array[String] = []
+	var unique: Array[String]
 	for enemy_type_var: Variant in enemy_types:
 		var enemy_type: String = str(enemy_type_var)
 		if not enemy_type.is_empty() and not unique.has(enemy_type):
@@ -792,8 +793,8 @@ func _add_element_locked_enemy_type_pools(pool: Array, depth: int, room_element:
 					pool.append(["chainbound_gaoler", "acolyte", "harrier", "crawler", "crawler"])
 
 func _pick_boss_enemy_positions(enemy_types: Array) -> Array[Vector2i]:
-	var positions: Array[Vector2i] = []
-	var minion_slots: Array[Vector2i] = []
+	var positions: Array[Vector2i]
+	var minion_slots: Array[Vector2i]
 	minion_slots.append(Vector2i(2, 3))
 	minion_slots.append(Vector2i(6, 5))
 	var minion_index: int = 0
@@ -825,7 +826,7 @@ func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng:
 		for tile: Vector2i in floor_tiles:
 			if reachable.has(tile) and str(grid[tile.y][tile.x]) != TILE_DOOR: safe_floor.append(tile)
 		floor_tiles = safe_floor
-	var candidates: Array[Vector2i] = []
+	var candidates: Array[Vector2i]
 	for tile: Vector2i in floor_tiles:
 		if tile == player_start:
 			continue
@@ -837,9 +838,9 @@ func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng:
 		var tmp: Vector2i = candidates[index]
 		candidates[index] = candidates[swap_index]
 		candidates[swap_index] = tmp
-	var chosen: Array[Vector2i] = []
+	var chosen: Array[Vector2i]
 	while chosen.size() < count and not candidates.is_empty():
-		var scored: Array[Dictionary] = []
+		var scored: Array[Dictionary]
 		for index: int in range(candidates.size()):
 			var tile: Vector2i = candidates[index]
 			scored.append({
@@ -949,7 +950,7 @@ func _shares_wall_band(a: Vector2i, b: Vector2i) -> bool:
 	)
 
 func _build_room_npcs(grid: Array, player_start: Vector2i, npc_specs: Array, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
-	var results: Array[Dictionary] = []
+	var results: Array[Dictionary]
 	var occupied_tiles: Dictionary = occupied.duplicate(true)
 	for index: int in range(npc_specs.size()):
 		if typeof(npc_specs[index]) != TYPE_DICTIONARY:
@@ -992,16 +993,16 @@ func _fallback_npc_position(grid: Array, player_start: Vector2i, occupied: Dicti
 	return best_tile
 
 func _generate_loot(grid: Array, room: Dictionary, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
-	var loot: Array[Dictionary] = []
+	var loot: Array[Dictionary]
 	var room_type: String = str(room.get("type", "combat"))
 	if room_type not in ["combat", "boss"]:
 		return loot
-	var candidates: Array[Vector2i] = []
+	var candidates: Array[Vector2i]
 	for tile: Vector2i in _floor_tiles(grid):
 		if not occupied.has(tile):
 			candidates.append(tile)
 	var occupied_pickups: Dictionary = occupied.duplicate(true)
-	var pickup_tiles: Array[Vector2i] = []
+	var pickup_tiles: Array[Vector2i]
 	var equipment_id: String = str(room.get("equipment_drop", ""))
 	if room_type == "combat" and not equipment_id.is_empty():
 		var equipment_tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng, pickup_tiles)
@@ -1036,7 +1037,7 @@ func _roll_item_pickup(item_ids: Array, rng: RandomNumberGenerator) -> String:
 			return str(card_var)
 	return str(item_ids.back())
 
-func _pick_pickup_tile(candidates: Array[Vector2i], occupied: Dictionary, rng: RandomNumberGenerator, pickup_tiles: Array[Vector2i] = []) -> Vector2i:
+func _pick_pickup_tile(candidates: Array[Vector2i], occupied: Dictionary, rng: RandomNumberGenerator, pickup_tiles: Array[Vector2i] = TypedArrays.vector2i([])) -> Vector2i:
 	var best_tile: Vector2i = Vector2i(-1, -1)
 	var best_score: float = -INF
 	for tile: Vector2i in candidates:
@@ -1054,7 +1055,7 @@ func _pick_pickup_tile(candidates: Array[Vector2i], occupied: Dictionary, rng: R
 	return best_tile
 
 func _generate_terrain(grid: Array, room_type: String, player_start: Vector2i, rng: RandomNumberGenerator, occupied: Dictionary, objective: Dictionary) -> Array[Dictionary]:
-	var terrain: Array[Dictionary] = []
+	var terrain: Array[Dictionary]
 	if room_type not in ["combat", "boss"]:
 		return terrain
 	var target_count: int = rng.randi_range(TERRAIN_TARGET_COUNT_MIN, TERRAIN_TARGET_COUNT_MAX)
@@ -1104,7 +1105,7 @@ func _terrain_candidates(grid: Array, player_start: Vector2i, occupied: Dictiona
 		protected_tiles[tile] = true
 	for exit_tile: Vector2i in objective_exit_tiles:
 		protected_tiles[exit_tile] = true
-	var candidates: Array[Vector2i] = []
+	var candidates: Array[Vector2i]
 	for tile: Vector2i in _floor_tiles(grid):
 		if occupied.has(tile) or protected_tiles.has(tile):
 			continue
@@ -1198,7 +1199,7 @@ func _terrain_layout_stays_connected(grid: Array, start: Vector2i, blocked: Dict
 	return reachable == open_tiles
 
 func _reachable_floor_count_with_blocked(grid: Array, start: Vector2i, blocked: Dictionary) -> int:
-	var queue: Array[Vector2i] = []
+	var queue: Array[Vector2i]
 	queue.append(start)
 	var visited: Dictionary = {start: true}
 	while not queue.is_empty():
@@ -1216,12 +1217,12 @@ func _reachable_floor_count_with_blocked(grid: Array, start: Vector2i, blocked: 
 	return visited.size()
 
 func _generate_traps(grid: Array, room_type: String, room_element: String, encounter_depth: int, sequence_index: int, player_start: Vector2i, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
-	var traps: Array[Dictionary] = []
+	var traps: Array[Dictionary]
 	if room_type not in ["combat", "boss"]:
 		return traps
 	if not ElementData.is_elemental(room_element):
 		return traps
-	var candidates: Array[Vector2i] = []
+	var candidates: Array[Vector2i]
 	for tile: Vector2i in _floor_tiles(grid):
 		if occupied.has(tile):
 			continue
@@ -1231,7 +1232,7 @@ func _generate_traps(grid: Array, room_type: String, room_element: String, encou
 	if candidates.is_empty():
 		return traps
 	var trap_count: int = rng.randi_range(2, 3)
-	var chosen: Array[Vector2i] = []
+	var chosen: Array[Vector2i]
 	while chosen.size() < trap_count and not candidates.is_empty():
 		var best_index: int = 0
 		var best_score: float = -INF
@@ -1280,7 +1281,7 @@ func _trap_damage_scale(encounter_depth: int, sequence_index: int) -> int:
 	return TRAP_DAMAGE_BY_ENCOUNTER_DEPTH[depth_index] + TRAP_DAMAGE_BONUS_BY_SEQUENCE[bounded_sequence]
 
 func _floor_tiles(grid: Array) -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	for y: int in range(grid.size()):
 		var row: Array = grid[y]
 		for x: int in range(row.size()):
@@ -1292,7 +1293,7 @@ func _floor_tiles(grid: Array) -> Array[Vector2i]:
 func _enemy_footprint_tiles(enemy: Dictionary) -> Array[Vector2i]:
 	var origin: Vector2i = enemy.get("pos", Vector2i(-1, -1))
 	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	for y: int in range(maxi(1, footprint.y)):
 		for x: int in range(maxi(1, footprint.x)):
 			tiles.append(origin + Vector2i(x, y))

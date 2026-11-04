@@ -1,5 +1,6 @@
 extends RefCounted
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 
@@ -18,7 +19,7 @@ static func navigation(engine: RefCounted, state: Dictionary, unit: Dictionary, 
 			var to: Vector2i = from + direction
 			if paths.has(to) or not Paths.is_passable(state.get("grid", []), to): continue
 			if occupied.has(to): continue
-			var next: Array[Vector2i] = path.duplicate(); next.append(to)
+			var next: Array[Vector2i] = TypedArrays.vector2i(path.duplicate()); next.append(to)
 			paths[to] = next; queue.append(to)
 	var costs: Dictionary = {}; var hazards: Dictionary = {}
 	for tile: Vector2i in paths.keys():

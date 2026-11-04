@@ -9,6 +9,7 @@ const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
 const State = preload("res://scripts/card_display_state.gd")
 const Bindings = preload("res://scripts/card_display_bindings.gd")
+const ItemText = preload("res://scripts/item_rules_text.gd")
 static var _engine := preload("res://scripts/combat_engine.gd").new()
 
 static func apply_projection(widget: Control, card: Dictionary, display: Dictionary) -> void:
@@ -34,9 +35,23 @@ static func definition_signature(cards: Array, state: Dictionary) -> Dictionary:
 		if not definitions.has(id): definitions[id] = GameData.cards().get(id, {})
 	return {"state": State.inputs(state).duplicate(true), "definitions": definitions.duplicate(true)}
 
-## Text-only inspection preserves the authored prose when the displayed card
-## is unchanged. Modified cards use the same effective rows as their face.
+## Item rows and their retention keys use the same projection as card faces.
+static func item_rules_snapshot(card_ids: Array, state: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for id: String in card_ids:
+		if not id.is_empty() and not result.has(id): result[id] = resolved_rules_text(id, state)
+	return result
+
+static func resolved_rules_text(card_id: String, state: Dictionary) -> String:
+	if card_id.is_empty(): return ""
+	var card: Dictionary = GameData.card_def_for_progression(card_id, State.normalise(state))
+	return rules_text(card_id, card, for_card(card_id, state, card)["summary_rows"])
+
+## Items retain authored prose and replace only bound numerals. Other modified
+## cards keep their existing text-only inspection representation.
 static func rules_text(card_id: String, definition: Dictionary, rows: Array) -> String:
+	if bool(definition.get("item", false)):
+		return ItemText.resolve(card_id, ActionIcons.card_rules_text(definition), rows)
 	var base: Dictionary = for_card(card_id, {})
 	if rows == base["summary_rows"]:
 		return ActionIcons.card_rules_text(definition)
@@ -61,6 +76,14 @@ static func for_card(card_id: String, state: Dictionary, definition: Dictionary 
 		var row: Array = []
 		# Pending next-attack Pierce/Chain shows on the attack that will use it.
 		action = TempoRules.display_action(preview_state, action)
+		# Reuse combat's duration rule; presentation never changes the definition
+		# or spends a skill. Long Dawn also affects items such as Seer's Candle.
+		if action_type in ["illuminate", "vision", "truesight"] or action.has("illuminate_duration"):
+			action = action.duplicate(false)
+			if action_type in ["illuminate", "vision", "truesight"]:
+				action["duration"] = _engine._radiance_duration_for_player(state, int(action.get("duration", action.get("amount", 1) if action_type == "truesight" else 1)))
+			if action.has("illuminate_duration"):
+				action["illuminate_duration"] = _engine._radiance_duration_for_player(state, int(action["illuminate_duration"]))
 		match action_type:
 			"melee", "ranged", "aoe", "detonate", "convert_surface", "discharge", "all_enemies", "meteor_marks":
 				var attack_final_damage: int = _engine.final_damage_for_player_action(preview_state, action)

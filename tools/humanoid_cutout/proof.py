@@ -37,7 +37,7 @@ def encode(paths, output):
     if int(probe.stdout.strip()) != len(paths): raise ValueError('Encoded frame count differs')
 
 
-def compose(case, capture, output, mode, *, diagnostic=False, retained_binding_validator=None, release_policy_factory=None):
+def compose(case, capture, output, mode, *, diagnostic=False, retained_binding_validator=None, release_policy_factory=None, native_gate=None):
     manifest = read_json(capture / 'frames.json')
     if manifest['inputs'] != __import__('humanoid_cutout.gates',fromlist=['bindings']).bindings(case):
         if retained_binding_validator is None:raise ValueError('Stale native proof inputs')
@@ -53,7 +53,7 @@ def compose(case, capture, output, mode, *, diagnostic=False, retained_binding_v
         gate_options = {}
         if retained_binding_validator is not None:gate_options['retained_binding_validator']=retained_binding_validator
         if release_policy_factory is not None:gate_options['release_policy_factory']=release_policy_factory
-        errors = native_errors(case,capture,**gate_options)
+        errors = native_gate(case,capture) if native_gate is not None else native_errors(case,capture,**gate_options)
         if errors and not diagnostic: raise ValueError('Native gates failed: ' + str(errors[:10]))
         if mode == 'review':
             if set(data['view_tracks']) != {'front','rear'}:
